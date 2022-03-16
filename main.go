@@ -22,7 +22,7 @@ func NewGame() *Game {
 	//Ebiten
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)
 
-	ebiten.SetWindowTitle(("M45-LiveMap: " + "v" + consts.Version + "-" + consts.Build))
+	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build))
 	ebiten.SetWindowResizable(true)
 	ebiten.SetMaxTPS(60)
 
@@ -48,7 +48,12 @@ func NewGame() *Game {
 	glob.CameraY = float64(glob.ScreenHeight / 2)
 	glob.BootImage.Fill(glob.BootColor)
 
-	text.Draw(glob.BootImage, "Starting up...", glob.BootFont, 32, glob.ScreenHeight/2, glob.ColorWhite)
+	str := "Starting up..."
+	tRect := text.BoundString(glob.BootFont, str)
+	if tRect.Empty() {
+		//
+	}
+	text.Draw(glob.BootImage, str, glob.BootFont, glob.ScreenWidth/2, glob.ScreenHeight/2, glob.ColorWhite)
 
 	// Initialize the game.
 	return &Game{}

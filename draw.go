@@ -17,7 +17,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if !glob.DrewMap {
 		glob.BootImage.Fill(glob.BootColor)
-		text.Draw(glob.BootImage, "Loading...", glob.BootFont, 32, glob.ScreenHeight/2, glob.ColorWhite)
+		text.Draw(glob.BootImage, "Loading...", glob.BootFont, glob.ScreenWidth/2, glob.ScreenHeight/2, glob.ColorWhite)
 		screen.DrawImage(glob.BootImage, nil)
 		glob.DrewStartup = true
 		return
