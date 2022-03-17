@@ -10,18 +10,22 @@ import (
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	if glob.DrewStartup {
-		//Load map
+		//Load map here eventually
+		glob.DrewMap = true
 	} else {
 		glob.DrewStartup = true
 	}
 
 	if !glob.DrewMap {
 		glob.BootImage.Fill(glob.BootColor)
-		text.Draw(glob.BootImage, "Loading...", glob.BootFont, glob.ScreenWidth/2, glob.ScreenHeight/2, glob.ColorWhite)
+		str := "Loading..."
+		tRect := text.BoundString(glob.BootFont, str)
+		text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
 		screen.DrawImage(glob.BootImage, nil)
 		glob.DrewStartup = true
 		return
 	}
+
 	screen.Fill(glob.BGColor)
 
 }

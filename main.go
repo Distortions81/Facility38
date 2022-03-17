@@ -50,10 +50,7 @@ func NewGame() *Game {
 
 	str := "Starting up..."
 	tRect := text.BoundString(glob.BootFont, str)
-	if tRect.Empty() {
-		//
-	}
-	text.Draw(glob.BootImage, str, glob.BootFont, glob.ScreenWidth/2, glob.ScreenHeight/2, glob.ColorWhite)
+	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
 
 	// Initialize the game.
 	return &Game{}
