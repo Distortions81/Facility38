@@ -8,9 +8,23 @@ import (
 	"golang.org/x/image/font"
 )
 
+type MapChunks struct {
+	MObj map[Position]*MObj
+}
+
+type MObj struct {
+	Name string
+	Type int
+}
+
+type Position struct {
+	X, Y int
+}
+
 var (
-	KeyA string
-	KeyB string
+	WorldMap map[Position]MapChunks
+	KeyA     string
+	KeyB     string
 
 	//Draw settings
 	DrawScale float64 = 3 //Map item draw size
