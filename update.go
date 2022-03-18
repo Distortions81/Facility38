@@ -121,13 +121,6 @@ func (g *Game) Update() error {
 		}
 	}
 
-	//Mouse clicks
-	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		glob.MousePressed = false
-	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		glob.MousePressed = true
-	}
-
 	/* Mouse position */
 	intx, inty := ebiten.CursorPosition()
 	mx := float64(intx)
@@ -153,5 +146,34 @@ func (g *Game) Update() error {
 	} else {
 		glob.SetupMouse = false
 	}
+
+	//Mouse clicks
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		glob.MousePressed = false
+	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		glob.MousePressed = true
+
+		MakeObj(mx, my)
+
+	}
+
 	return nil
+}
+
+func MakeObj(mx, my float64) *glob.MObj {
+}
+
+func MakeChunk(mx, my int) *glob.MChunk {
+
+	pos := Position[X: int(mx/glob.ChunkSize), Y:int(my/glob.ChunkSize)]
+
+	//Get chunk, if exists
+	chunk := glob.WorldMap[pos]
+
+	if chunk != nil {
+		return chunk
+	} else {
+		glob.WorldMap[pos] = MapChunk
+		return chunk
+	}
 }

@@ -8,7 +8,7 @@ import (
 	"golang.org/x/image/font"
 )
 
-type MapChunks struct {
+type MapChunk struct {
 	MObj map[Position]*MObj
 }
 
@@ -22,7 +22,7 @@ type Position struct {
 }
 
 var (
-	WorldMap map[Position]MapChunks
+	WorldMap map[Position]MapChunk
 	KeyA     string
 	KeyB     string
 
