@@ -40,6 +40,14 @@ func NewGame() *Game {
 	if err != nil {
 		log.Fatal(err)
 	}
+	glob.TipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    14,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	//Boot Image
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)

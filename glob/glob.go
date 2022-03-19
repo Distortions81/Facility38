@@ -43,6 +43,7 @@ var (
 	BootImage *ebiten.Image //Boot image
 
 	BootFont font.Face
+	TipFont  font.Face
 
 	CameraX float64 = 0
 	CameraY float64 = 0

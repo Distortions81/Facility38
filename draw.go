@@ -1,7 +1,10 @@
 package main
 
 import (
+	"GameTest/consts"
 	"GameTest/glob"
+	"fmt"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -65,4 +68,27 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}
 		}
 	}
+
+	//Get mouse position on world
+	dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
+	dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+	//Get position on game world
+	gwx := (dtx / glob.DrawScale)
+	gwy := (dty / glob.DrawScale)
+
+	//Tooltips
+	toolTip := fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+
+	tRect := text.BoundString(glob.TipFont, toolTip)
+	mx := glob.MousePosX + 20
+	my := glob.MousePosY + 20
+	ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), color.RGBA{32, 32, 32, 170})
+	text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
+
+	if glob.StatusStr != "" {
+		ebitenutil.DebugPrint(screen, glob.StatusStr)
+	} else {
+		ebitenutil.DebugPrint(screen, fmt.Sprintf("v%v-%v, %vfps", consts.Version, consts.Build, int(ebiten.CurrentFPS())))
+	}
+
 }
