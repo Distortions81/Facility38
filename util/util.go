@@ -33,5 +33,5 @@ func PosToChunkPos(pos glob.Position) glob.Position {
 
 func FloatXYToPosition(x float64, y float64) glob.Position {
 
-	return glob.Position{X: int(math.Round(x)), Y: int(math.Round(y))}
+	return glob.Position{X: int(x), Y: int(y)}
 }
