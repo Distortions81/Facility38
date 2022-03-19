@@ -128,6 +128,39 @@ func (g *Game) Update() error {
 	glob.MousePosX = mx
 	glob.MousePosY = my
 
+	//Mouse clicks
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		glob.MousePressed = false
+	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		if !glob.MousePressed {
+			glob.MousePressed = true
+
+			//Get mouse position on world
+			dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
+			dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+			//Get position on game world
+			gwx := (dtx / glob.DrawScale)
+			gwy := (dty / glob.DrawScale)
+
+			pos := util.FloatXYToPosition(gwx, gwy)
+
+			chunk := util.GetChunk(pos)
+
+			if chunk.MObj == nil {
+				chunk.MObj = make(map[glob.Position]glob.MObj)
+				glob.WorldMap[util.PosToChunkPos(pos)] = chunk
+			}
+			obj := chunk.MObj[pos]
+			if obj.Type == glob.ObjTypeNone {
+				obj.Type = glob.ObjTypeGeneric
+				chunk.MObj[pos] = obj
+			} else {
+				obj.Type = glob.ObjTypeNone
+				chunk.MObj[pos] = obj
+			}
+		}
+	}
+
 	/* Mouse pan */
 	if glob.MousePressed {
 		if !glob.SetupMouse {
@@ -145,30 +178,6 @@ func (g *Game) Update() error {
 		//log.Println(cameraX, cameraY)
 	} else {
 		glob.SetupMouse = false
-	}
-
-	//Mouse clicks
-	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		glob.MousePressed = false
-	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		glob.MousePressed = true
-
-		pos := util.FloatXYToPosition(mx, my)
-
-		chunk := util.GetChunk(pos)
-
-		if chunk.MObj == nil {
-			chunk.MObj = make(map[glob.Position]glob.MObj)
-			glob.WorldMap[util.PosToChunkPos(pos)] = chunk
-		}
-		obj := chunk.MObj[pos]
-		if obj.Type == glob.ObjTypeNone {
-			obj.Type = glob.ObjTypeGeneric
-			chunk.MObj[pos] = obj
-		} else {
-			obj.Type = glob.ObjTypeNone
-			chunk.MObj[pos] = obj
-		}
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package main
 
 import (
 	"GameTest/glob"
+	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -28,10 +29,36 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	screen.Fill(glob.BGColor)
+
+	var x, y, xs, ys float64
+
+	//Get the camera position
+	mainx := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
+	mainy := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
+
 	for _, chunk := range glob.WorldMap {
 		for mkey, mobj := range chunk.MObj {
+
+			//Item size, scaled
+			xs = 1 * glob.DrawScale
+			ys = 1 * glob.DrawScale
+
+			//Item x/y, scaled
+			x = (float64(mkey.X) * glob.DrawScale)
+			y = (float64(mkey.Y) * glob.DrawScale)
+
+			newx := mainx + (x)
+			newy := mainy + (y)
+
+			scrX := newx * glob.ZoomScale
+			scrY := newy * glob.ZoomScale
+
+			xss := xs * glob.ZoomScale
+			yss := ys * glob.ZoomScale
+
 			if mobj.Type == 1 {
-				ebitenutil.DrawRect(screen, float64(mkey.X), float64(mkey.Y), 1, 1, glob.ColorWhite)
+				ebitenutil.DrawRect(screen, scrX, scrY, xss, yss, glob.ColorWhite)
+				fmt.Println(screen, scrX, scrY, xss, yss, glob.ColorWhite)
 			}
 		}
 	}
