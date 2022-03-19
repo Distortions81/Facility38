@@ -153,13 +153,13 @@ func (g *Game) Update() error {
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		glob.MousePressed = true
 
-		pos := FloatXYToPosition(mx, my)
+		pos := util.FloatXYToPosition(mx, my)
 
-		chunk := glob.WorldMap[pos]
+		chunk := util.GetChunk(pos)
 
 		if chunk.MObj == nil {
 			chunk.MObj = make(map[glob.Position]glob.MObj)
-			glob.WorldMap[pos] = chunk
+			glob.WorldMap[util.PosToChunkPos(pos)] = chunk
 		}
 		obj := chunk.MObj[pos]
 		obj.Type = 1
@@ -167,21 +167,4 @@ func (g *Game) Update() error {
 	}
 
 	return nil
-}
-
-func GetObj(pos glob.Position, chunk *glob.MapChunk) *glob.MObj {
-	obj := chunk.MObj[pos]
-
-	return &obj
-}
-
-//Automatically converts position to chunk format
-func GetChunk(pos glob.Position) *glob.MapChunk {
-	chunk := glob.WorldMap[glob.Position{X: int(pos.X / glob.ChunkSize), Y: int(pos.Y / glob.ChunkSize)}]
-	return &chunk
-}
-
-func FloatXYToPosition(x float64, y float64) glob.Position {
-
-	return glob.Position{X: int(math.Round(x)), Y: int(math.Round(y))}
 }
