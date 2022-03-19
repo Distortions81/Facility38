@@ -2,7 +2,6 @@ package main
 
 import (
 	"GameTest/glob"
-	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -29,7 +28,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	screen.Fill(glob.BGColor)
-
 	var x, y, xs, ys float64
 
 	//Get the camera position
@@ -57,8 +55,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			yss := ys * glob.ZoomScale
 
 			if mobj.Type == 1 {
+				if xss < 1 {
+					xss = 1
+				}
+				if yss < 1 {
+					yss = 1
+				}
 				ebitenutil.DrawRect(screen, scrX, scrY, xss, yss, glob.ColorWhite)
-				fmt.Println(screen, scrX, scrY, xss, yss, glob.ColorWhite)
 			}
 		}
 	}

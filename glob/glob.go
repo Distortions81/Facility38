@@ -3,6 +3,7 @@ package glob
 import (
 	"GameTest/consts"
 	"image/color"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
@@ -63,9 +64,10 @@ var (
 	SetupMouse = false
 	InitCamera = false
 
-	MousePressed bool = false
-	TouchPressed bool = false
-	PinchPressed bool = false
+	MousePressed      bool = false
+	MousePressStarted time.Time
+	TouchPressed      bool = false
+	PinchPressed      bool = false
 
 	DrewStartup bool = false
 	DrewMap     bool = false
