@@ -130,4 +130,9 @@ var (
 	ColorDarkLime    = color.NRGBA{0, 128, 0, 255}
 	ColorDarkFuchsia = color.NRGBA{128, 0, 128, 255}
 	ColorDarkAqua    = color.NRGBA{0, 128, 128, 255}
+
+	ObjTypeNone    = 0
+	ObjTypeGeneric = 1
+	ObjTypeMiner   = 2
+	ObjTypeFire    = 3
 )

@@ -162,8 +162,13 @@ func (g *Game) Update() error {
 			glob.WorldMap[util.PosToChunkPos(pos)] = chunk
 		}
 		obj := chunk.MObj[pos]
-		obj.Type = 1
-		chunk.MObj[pos] = obj
+		if obj.Type == glob.ObjTypeNone {
+			obj.Type = glob.ObjTypeGeneric
+			chunk.MObj[pos] = obj
+		} else {
+			obj.Type = glob.ObjTypeNone
+			chunk.MObj[pos] = obj
+		}
 	}
 
 	return nil

@@ -7,4 +7,5 @@ const (
 	Version = "001"        //increment
 	Build   = "03.16.2022" //mmddyyyy
 	Wasm    = "js"         //Detect wasm/js
+
 )
