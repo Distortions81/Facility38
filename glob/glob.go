@@ -9,7 +9,7 @@ import (
 )
 
 type MapChunk struct {
-	MObj map[Position]*MObj
+	MObj map[Position]MObj
 }
 
 type MObj struct {
@@ -28,7 +28,7 @@ var (
 
 	//Draw settings
 	DrawScale float64 = 3 //Map item draw size
-	ChunkSize float64 = 32
+	ChunkSize int     = 32
 
 	//eBiten settings
 	ScreenWidth  int = 1920 //Screen width default

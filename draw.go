@@ -4,6 +4,7 @@ import (
 	"GameTest/glob"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
@@ -27,5 +28,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	screen.Fill(glob.BGColor)
-
+	for _, chunk := range glob.WorldMap {
+		for mkey, mobj := range chunk.MObj {
+			if mobj.Type == 1 {
+				ebitenutil.DrawRect(screen, float64(mkey.X), float64(mkey.Y), 1, 1, glob.ColorWhite)
+			}
+		}
+	}
 }
