@@ -31,7 +31,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	screen.Fill(glob.BGColor)
-	var x, y, xs, ys float64
+	var x, y, xs, ys, xisize, yisize float64
 
 	//Get the camera position
 	mainx := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
@@ -40,30 +40,37 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for _, chunk := range glob.WorldMap {
 		for mkey, mobj := range chunk.MObj {
 
-			//Item size, scaled
-			xs = 1 * glob.DrawScale
-			ys = 1 * glob.DrawScale
-
-			//Item x/y, scaled
-			x = (float64(mkey.X) * glob.DrawScale)
-			y = (float64(mkey.Y) * glob.DrawScale)
-
-			newx := mainx + (x)
-			newy := mainy + (y)
-
-			scrX := newx * glob.ZoomScale
-			scrY := newy * glob.ZoomScale
-
-			xss := xs * glob.ZoomScale
-			yss := ys * glob.ZoomScale
-
 			if mobj.Type == 1 {
+
+				//Item size, scaled
+				if glob.DrawScale >= 1.0 {
+					xisize = mobj.Size - glob.ItemSpacing
+					yisize = mobj.Size - glob.ItemSpacing
+				}
+
+				xs = xisize * glob.DrawScale
+				ys = yisize * glob.DrawScale
+
+				//Item x/y, scaled
+				x = (float64(mkey.X) * glob.DrawScale)
+				y = (float64(mkey.Y) * glob.DrawScale)
+
+				newx := mainx + (x)
+				newy := mainy + (y)
+
+				scrX := newx * glob.ZoomScale
+				scrY := newy * glob.ZoomScale
+
+				xss := xs * glob.ZoomScale
+				yss := ys * glob.ZoomScale
+
 				if xss < 1 {
 					xss = 1
 				}
 				if yss < 1 {
 					yss = 1
 				}
+
 				ebitenutil.DrawRect(screen, scrX, scrY, xss, yss, glob.ColorWhite)
 			}
 		}

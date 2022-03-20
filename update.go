@@ -152,6 +152,7 @@ func (g *Game) Update() error {
 			obj := chunk.MObj[pos]
 			if obj.Type == glob.ObjTypeNone {
 				obj.Type = glob.ObjTypeGeneric
+				obj.Size = 1
 				chunk.MObj[pos] = obj
 			} else {
 				obj.Type = glob.ObjTypeNone
@@ -160,8 +161,14 @@ func (g *Game) Update() error {
 		}
 	}
 
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
+		glob.MouseRightPressed = false
+	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
+		glob.MouseRightPressed = true
+	}
+
 	/* Mouse pan */
-	if glob.MousePressed {
+	if glob.MouseRightPressed {
 		if !glob.SetupMouse {
 			glob.LastMouseX = mx
 			glob.LastMouseY = my

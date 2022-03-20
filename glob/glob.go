@@ -3,7 +3,6 @@ package glob
 import (
 	"GameTest/consts"
 	"image/color"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
@@ -16,6 +15,7 @@ type MapChunk struct {
 type MObj struct {
 	Name string
 	Type int
+	Size float64
 }
 
 type Position struct {
@@ -30,6 +30,8 @@ var (
 	//Draw settings
 	DrawScale float64 = 3 //Map item draw size
 	ChunkSize int     = 32
+
+	ItemSpacing float64 = 0.2 //Spacing between items
 
 	//eBiten settings
 	ScreenWidth  int = 1920 //Screen width default
@@ -66,7 +68,7 @@ var (
 	InitCamera = false
 
 	MousePressed      bool = false
-	MousePressStarted time.Time
+	MouseRightPressed bool = false
 	TouchPressed      bool = false
 	PinchPressed      bool = false
 
