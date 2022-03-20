@@ -40,6 +40,16 @@ func NewGame() *Game {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	glob.ItemFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    100,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	glob.TipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    14,
 		DPI:     dpi,

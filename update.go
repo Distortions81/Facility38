@@ -151,7 +151,7 @@ func (g *Game) Update() error {
 			}
 			obj := chunk.MObj[pos]
 			if obj.Type == glob.ObjTypeNone {
-				obj.Type = glob.ObjTypeGeneric
+				obj.Type = glob.ObjTypeMiner
 				obj.Size = 1
 				chunk.MObj[pos] = obj
 			} else {

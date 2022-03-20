@@ -22,10 +22,17 @@ type Position struct {
 	X, Y int
 }
 
+type ObjType struct {
+	ItemColor   *color.NRGBA
+	SymbolColor *color.NRGBA
+	Symbol      string
+}
+
 var (
-	WorldMap map[Position]MapChunk
-	KeyA     string
-	KeyB     string
+	WorldMap  map[Position]MapChunk
+	KeyA      string
+	KeyB      string
+	FontScale float64 = 35
 
 	//Draw settings
 	DrawScale float64 = 3 //Map item draw size
@@ -46,6 +53,7 @@ var (
 
 	BootFont font.Face
 	TipFont  font.Face
+	ItemFont font.Face
 
 	CameraX float64 = 0
 	CameraY float64 = 0
@@ -135,9 +143,17 @@ var (
 	ColorDarkLime    = color.NRGBA{0, 128, 0, 255}
 	ColorDarkFuchsia = color.NRGBA{128, 0, 128, 255}
 	ColorDarkAqua    = color.NRGBA{0, 128, 128, 255}
+	ColorToolTipBG   = color.RGBA{32, 32, 32, 170}
 
 	ObjTypeNone    = 0
 	ObjTypeGeneric = 1
 	ObjTypeMiner   = 2
 	ObjTypeFire    = 3
+
+	ObjTypes = map[int]ObjType{
+		ObjTypeNone:    {ItemColor: &ColorTransparent, Symbol: "?", SymbolColor: &ColorBlack},
+		ObjTypeGeneric: {ItemColor: &ColorWhite, Symbol: "G", SymbolColor: &ColorBlack},
+		ObjTypeMiner:   {ItemColor: &ColorGreen, Symbol: "M", SymbolColor: &ColorBlack},
+		ObjTypeFire:    {ItemColor: &ColorRed, Symbol: "F", SymbolColor: &ColorBlack},
+	}
 )
