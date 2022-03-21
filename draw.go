@@ -16,6 +16,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if glob.DrewStartup {
 		//Load map here eventually
 		glob.DrewMap = true
+		glob.StatusStr = ""
 	} else {
 		glob.DrewStartup = true
 	}
@@ -94,7 +95,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if glob.StatusStr != "" {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
-		ebitenutil.DebugPrint(screen, fmt.Sprintf("v%v-%v, %vfps", consts.Version, consts.Build, int(ebiten.CurrentFPS())))
+		ebitenutil.DebugPrint(screen, fmt.Sprintf("v%v-%v, %vfps, z: %v", consts.Version, consts.Build, int(ebiten.CurrentFPS()), glob.ZoomScale))
 	}
 
 	/* Draw toolbar */
@@ -105,11 +106,16 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 	if mobj.Type != glob.ObjTypeNone {
 		typeData := glob.ObjTypes[mobj.Type]
 
+		/* Rect */
 		ebitenutil.DrawRect(screen, x, y, xs, ys, typeData.ItemColor)
-		tRect := text.BoundString(glob.ItemFont, typeData.Symbol)
-		opt := &ebiten.DrawImageOptions{}
-		opt.GeoM.Scale(glob.ZoomScale/glob.FontScale, glob.ZoomScale/glob.FontScale)
-		opt.GeoM.Translate(x, y+(((float64(tRect.Dy())*1.1)/glob.FontScale)*glob.ZoomScale))
-		text.DrawWithOptions(screen, typeData.Symbol, glob.ItemFont, opt)
+
+		/* Symbols */
+		if glob.ZoomScale > 3 {
+			tRect := text.BoundString(glob.ItemFont, typeData.Symbol)
+			opt := &ebiten.DrawImageOptions{}
+			opt.GeoM.Scale(glob.ZoomScale/glob.FontScale, glob.ZoomScale/glob.FontScale)
+			opt.GeoM.Translate(x, y+(((float64(tRect.Dy())*1.1)/glob.FontScale)*glob.ZoomScale))
+			text.DrawWithOptions(screen, typeData.Symbol, glob.ItemFont, opt)
+		}
 	}
 }
