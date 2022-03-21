@@ -41,8 +41,8 @@ var (
 	ItemSpacing float64 = 0.2 //Spacing between items
 
 	//eBiten settings
-	ScreenWidth  int = 1920 //Screen width default
-	ScreenHeight int = 1080 //Screen height default
+	ScreenWidth  int = 1280 //Screen width default
+	ScreenHeight int = 720  //Screen height default
 
 	//eBiten variables
 	ZoomMouse float64 = 1.0   //Zoom mouse
