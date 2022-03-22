@@ -43,28 +43,33 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for _, chunk := range glob.WorldMap {
 		for mkey, mobj := range chunk.MObj {
 
-			//Item size, scaled
+			/* Item size, scaled */
 			if glob.DrawScale >= 1.0 {
 				xisize = mobj.Size - glob.ItemSpacing
 				yisize = mobj.Size - glob.ItemSpacing
 			}
 
+			/* Draw scale */
 			xs = xisize * glob.DrawScale
 			ys = yisize * glob.DrawScale
 
-			//Item x/y, scaled
+			/* Item x/y, scaled */
 			x = (float64(mkey.X) * glob.DrawScale)
 			y = (float64(mkey.Y) * glob.DrawScale)
 
+			/* camera + object */
 			newx := mainx + (x)
 			newy := mainy + (y)
 
+			/* camera zoom */
 			scrX := newx * glob.ZoomScale
 			scrY := newy * glob.ZoomScale
 
+			/* item magnification */
 			xss := xs * glob.ZoomScale
 			yss := ys * glob.ZoomScale
 
+			/* Helps far zoom */
 			if xss < 1 {
 				xss = 1
 			}
@@ -79,7 +84,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	//Get mouse position on world
 	dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 	dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
-	//Get position on game world
+	//Adjust for draw scale
 	gwx := (dtx / glob.DrawScale)
 	gwy := (dty / glob.DrawScale)
 
@@ -103,10 +108,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, mobj glob.MObj) {
+
+	/* Skip if not visible */
 	if mobj.Type != glob.ObjTypeNone {
 		typeData := glob.ObjTypes[mobj.Type]
 
-		/* Rect */
+		/* Draw rect */
 		ebitenutil.DrawRect(screen, x, y, xs, ys, typeData.ItemColor)
 
 		/* Symbols */
