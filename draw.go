@@ -60,9 +60,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 		for mkey, mobj := range chunk.MObj {
 			//Is this obj in the screen?
-			if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
+			/*if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
 				continue
-			}
+			}*/
 
 			/* Item size, scaled */
 			if glob.DrawScale >= 1.0 {
