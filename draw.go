@@ -35,14 +35,34 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw start */
 	screen.Fill(glob.BGColor)
 	var x, y, xs, ys, xisize, yisize float64
+	var sx, sy, ex, ey int
 
 	/* Get the camera position */
 	mainx := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
 	mainy := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
 
+	/* Calculate screen on world */
+	startx := (1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / glob.DrawScale
+	starty := (1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale
+	endx := (float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / glob.DrawScale
+	endy := (float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale
+
+	sx = int(startx)
+	sy = int(starty)
+	ex = int(endx)
+	ey = int(endy)
+
 	/* Draw world */
-	for _, chunk := range glob.WorldMap {
+	for ckey, chunk := range glob.WorldMap {
+		//Is this chunk in the screen?
+		if ckey.X < sx/glob.ChunkSize || ckey.X > ex/glob.ChunkSize || ckey.Y < sy/glob.ChunkSize || ckey.Y > ey/glob.ChunkSize {
+			continue
+		}
 		for mkey, mobj := range chunk.MObj {
+			//Is this obj in the screen?
+			if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
+				continue
+			}
 
 			/* Item size, scaled */
 			if glob.DrawScale >= 1.0 {
