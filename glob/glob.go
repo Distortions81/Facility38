@@ -26,6 +26,7 @@ type ObjType struct {
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
+	Name        string
 }
 
 var (
@@ -160,10 +161,10 @@ var (
 	ObjTypeMax = 4
 
 	ObjTypes = map[int]ObjType{
-		ObjTypeNone:      {ItemColor: &ColorTransparent, Symbol: " ", SymbolColor: &ColorBlack},
-		ObjTypeMiner:     {ItemColor: &ColorGreen, Symbol: "M", SymbolColor: &ColorBlack},
-		ObjTypeSmelter:   {ItemColor: &ColorRed, Symbol: "S", SymbolColor: &ColorBlack},
-		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack},
-		ObjTypeTower:     {ItemColor: &ColorOrange, Symbol: "T", SymbolColor: &ColorBlack},
+		ObjTypeNone:      {ItemColor: &ColorTransparent, Symbol: " ", SymbolColor: &ColorBlack, Name: "None"},
+		ObjTypeMiner:     {ItemColor: &ColorGreen, Symbol: "M", SymbolColor: &ColorBlack, Name: "Miner"},
+		ObjTypeSmelter:   {ItemColor: &ColorRed, Symbol: "S", SymbolColor: &ColorBlack, Name: "Smelter"},
+		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, Name: "Assembler"},
+		ObjTypeTower:     {ItemColor: &ColorOrange, Symbol: "T", SymbolColor: &ColorBlack, Name: "Tower"},
 	}
 )

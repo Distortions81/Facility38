@@ -88,19 +88,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	gwx := (dtx / glob.DrawScale)
 	gwy := (dty / glob.DrawScale)
 
-	/* Draw tool tip */
-	toolTip := fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
-	tRect := text.BoundString(glob.TipFont, toolTip)
-	mx := glob.MousePosX + 20
-	my := glob.MousePosY + 20
-	ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
-	text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
-
 	/* Draw debug info */
 	if glob.StatusStr != "" {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
-		ebitenutil.DebugPrint(screen, fmt.Sprintf("v%v-%v, %vfps, z: %v", consts.Version, consts.Build, int(ebiten.CurrentFPS()), glob.ZoomScale))
+		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("v%v-%v, %vfps, z: %v", consts.Version, consts.Build, int(ebiten.CurrentFPS()), glob.ZoomScale), 0, glob.ScreenHeight-20)
 	}
 
 	/* Draw toolbar */
@@ -114,6 +106,24 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			ebitenutil.DrawRect(screen, float64(i)*glob.TBSize, glob.TBSize-glob.TBThick, glob.TBSize, glob.TBThick, glob.ColorWhite)
 			ebitenutil.DrawRect(screen, (float64(i)*glob.TBSize)+glob.TBSize-glob.TBThick, 0, glob.TBThick, glob.TBSize, glob.ColorWhite)
 		}
+	}
+
+	/* Toolbar tool tip */
+	if glob.MousePosX <= float64(glob.ObjTypeMax)*glob.TBSize && glob.MousePosY <= glob.TBSize {
+		toolTip := fmt.Sprintf("%v", glob.ObjTypes[int(glob.MousePosX/glob.TBSize)+1].Name)
+		tRect := text.BoundString(glob.TipFont, toolTip)
+		mx := glob.MousePosX + 20
+		my := glob.MousePosY + 20
+		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
+		text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
+	} else {
+		/* Draw tool tip */
+		toolTip := fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+		tRect := text.BoundString(glob.TipFont, toolTip)
+		mx := glob.MousePosX + 20
+		my := glob.MousePosY + 20
+		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
+		text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
 	}
 }
 
