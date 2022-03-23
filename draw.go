@@ -104,7 +104,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw toolbar */
-	DrawObject(screen, 0, 0, 64, 64, glob.MObj{Type: glob.ObjTypeMiner}, true)
+	for i := 0; i < glob.ObjTypeMax; i++ {
+		DrawObject(screen, glob.TBSize*float64(i), 0, glob.TBSize, glob.TBSize, glob.MObj{Type: i + 1}, true)
+	}
 }
 
 func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, mobj glob.MObj, isUI bool) {

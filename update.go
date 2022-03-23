@@ -134,6 +134,15 @@ func (g *Game) Update() error {
 		if !glob.MousePressed {
 			glob.MousePressed = true
 
+			//UI area
+			//Toolbar
+			if glob.MousePosX <= float64(glob.ObjTypeMax*int(glob.TBSize)) {
+				if glob.MousePosY <= glob.TBSize {
+					itemType := int(glob.MousePosX/glob.TBSize + 1)
+					glob.SelectedItemType = itemType
+				}
+			}
+
 			//Get mouse position on world
 			dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 			dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
@@ -151,7 +160,7 @@ func (g *Game) Update() error {
 			}
 			obj := chunk.MObj[pos]
 			if obj.Type == glob.ObjTypeNone {
-				obj.Type = glob.ObjTypeMiner
+				obj.Type = glob.SelectedItemType
 				obj.Size = 1
 				chunk.MObj[pos] = obj
 			} else {

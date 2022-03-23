@@ -33,6 +33,7 @@ var (
 	KeyA      string
 	KeyB      string
 	FontScale float64 = 35
+	TBSize    float64 = 32
 
 	//Draw settings
 	DrawScale float64 = 3 //Map item draw size
@@ -79,6 +80,8 @@ var (
 	MouseRightPressed bool = false
 	TouchPressed      bool = false
 	PinchPressed      bool = false
+
+	SelectedItemType int = 1
 
 	DrewStartup bool = false
 	DrewMap     bool = false
@@ -145,15 +148,19 @@ var (
 	ColorDarkAqua    = color.NRGBA{0, 128, 128, 255}
 	ColorToolTipBG   = color.RGBA{32, 32, 32, 170}
 
-	ObjTypeNone    = 0
-	ObjTypeGeneric = 1
-	ObjTypeMiner   = 2
-	ObjTypeFire    = 3
+	ObjTypeNone      = 0
+	ObjTypeMiner     = 1
+	ObjTypeSmelter   = 2
+	ObjTypeAssembler = 3
+	ObjTypeTower     = 4
+
+	ObjTypeMax = 4
 
 	ObjTypes = map[int]ObjType{
-		ObjTypeNone:    {ItemColor: &ColorTransparent, Symbol: "?", SymbolColor: &ColorBlack},
-		ObjTypeGeneric: {ItemColor: &ColorWhite, Symbol: "G", SymbolColor: &ColorBlack},
-		ObjTypeMiner:   {ItemColor: &ColorGreen, Symbol: "M", SymbolColor: &ColorBlack},
-		ObjTypeFire:    {ItemColor: &ColorRed, Symbol: "F", SymbolColor: &ColorBlack},
+		ObjTypeNone:      {ItemColor: &ColorTransparent, Symbol: " ", SymbolColor: &ColorBlack},
+		ObjTypeMiner:     {ItemColor: &ColorGreen, Symbol: "M", SymbolColor: &ColorBlack},
+		ObjTypeSmelter:   {ItemColor: &ColorRed, Symbol: "S", SymbolColor: &ColorBlack},
+		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack},
+		ObjTypeTower:     {ItemColor: &ColorOrange, Symbol: "T", SymbolColor: &ColorBlack},
 	}
 )
