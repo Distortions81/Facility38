@@ -13,7 +13,6 @@ type MapChunk struct {
 }
 
 type MObj struct {
-	Name string
 	Type int
 	Size float64
 }

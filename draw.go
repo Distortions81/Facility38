@@ -3,6 +3,7 @@ package main
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/util"
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -118,7 +119,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
 	} else {
 		/* Draw tool tip */
-		toolTip := fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+		pos := util.FloatXYToPosition(gwx, gwy)
+		chunk := util.GetChunk(pos)
+		obj := chunk.MObj[pos]
+
+		toolTip := ""
+		if obj.Type != 0 {
+			toolTip = fmt.Sprintf("%v (%5.0f, %5.0f)", glob.ObjTypes[obj.Type].Name, gwx, gwy)
+		} else {
+			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+		}
 		tRect := text.BoundString(glob.TipFont, toolTip)
 		mx := glob.MousePosX + 20
 		my := glob.MousePosY + 20
