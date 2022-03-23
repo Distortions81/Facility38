@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -112,13 +113,13 @@ func (g *Game) Update() error {
 	glob.ZoomScale = ((glob.ZoomMouse * glob.ZoomMouse * glob.ZoomMouse) / 4000)
 
 	//If scroll wheel, lock to sharp ratios when zoomed in, otherwise dont
-	/*if !glob.PinchPressed {
+	if !glob.PinchPressed {
 		if glob.ZoomScale >= 1 {
 			glob.ZoomScale = math.Round(glob.ZoomScale)
 		} else {
 			glob.ZoomScale = math.Round(glob.ZoomScale*10) / 10
 		}
-	}*/
+	}
 
 	/* Mouse position */
 	intx, inty := ebiten.CursorPosition()

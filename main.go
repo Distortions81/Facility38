@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"log"
+	"runtime"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
@@ -25,6 +26,8 @@ func NewGame() *Game {
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build))
 	ebiten.SetWindowResizable(true)
 	ebiten.SetMaxTPS(60)
+
+	glob.DetOS = runtime.GOOS
 
 	//Font setup
 	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
