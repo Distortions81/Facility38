@@ -77,7 +77,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				yss = 1
 			}
 
-			DrawObject(screen, scrX, scrY, xss, yss, mobj)
+			DrawObject(screen, scrX, scrY, xss, yss, mobj, false)
 		}
 	}
 
@@ -104,10 +104,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw toolbar */
-
+	DrawObject(screen, 0, 0, 64, 64, glob.MObj{Type: glob.ObjTypeMiner}, true)
 }
 
-func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, mobj glob.MObj) {
+func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, mobj glob.MObj, isUI bool) {
+
+	var zoom float64 = glob.ZoomScale
+
+	if isUI {
+		zoom = ((xs + ys) / 2.0) / 2.6
+	}
 
 	/* Skip if not visible */
 	if mobj.Type != glob.ObjTypeNone {
@@ -117,11 +123,11 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 		ebitenutil.DrawRect(screen, x, y, xs, ys, typeData.ItemColor)
 
 		/* Symbols */
-		if glob.ZoomScale > 3 {
+		if zoom > 3 {
 			tRect := text.BoundString(glob.ItemFont, typeData.Symbol)
 			opt := &ebiten.DrawImageOptions{}
-			opt.GeoM.Scale(glob.ZoomScale/glob.FontScale, glob.ZoomScale/glob.FontScale)
-			opt.GeoM.Translate(x, y+(((float64(tRect.Dy())*1.1)/glob.FontScale)*glob.ZoomScale))
+			opt.GeoM.Scale(zoom/glob.FontScale, zoom/glob.FontScale)
+			opt.GeoM.Translate(x, y+(((float64(tRect.Dy())*1.1)/glob.FontScale)*zoom))
 			text.DrawWithOptions(screen, typeData.Symbol, glob.ItemFont, opt)
 		}
 	}
