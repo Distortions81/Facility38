@@ -54,12 +54,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw world */
 	for ckey, chunk := range glob.WorldMap {
-		//Is this chunk in the screen?
+		//Is this chunk on the screen?
 		if ckey.X < sx/glob.ChunkSize || ckey.X > ex/glob.ChunkSize || ckey.Y < sy/glob.ChunkSize || ckey.Y > ey/glob.ChunkSize {
 			continue
 		}
 		for mkey, mobj := range chunk.MObj {
-			//Is this obj in the screen?
+			//Is this obj on the screen?
 			/*if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
 				continue
 			}*/
