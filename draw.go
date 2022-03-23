@@ -42,15 +42,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	mainy := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
 
 	/* Calculate screen on world */
-	startx := (1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / glob.DrawScale
-	starty := (1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale
-	endx := (float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / glob.DrawScale
-	endy := (float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale
-
-	sx = int(startx)
-	sy = int(starty)
-	ex = int(endx)
-	ey = int(endy)
+	sx = int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / glob.DrawScale)
+	sy = int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale)
+	ex = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / glob.DrawScale)
+	ey = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale)
 
 	/* Draw world */
 	for ckey, chunk := range glob.WorldMap {
