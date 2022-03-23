@@ -106,6 +106,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw toolbar */
 	for i := 0; i < glob.ObjTypeMax; i++ {
 		DrawObject(screen, glob.TBSize*float64(i), 0, glob.TBSize, glob.TBSize, glob.MObj{Type: i + 1}, true)
+		//Draw item selected
+		if i == glob.SelectedItemType-1 {
+			ebitenutil.DrawRect(screen, float64(i)*glob.TBSize, 0, glob.TBThick, glob.TBSize, glob.ColorWhite)
+			ebitenutil.DrawRect(screen, float64(i)*glob.TBSize, 0, glob.TBSize, glob.TBThick, glob.ColorWhite)
+
+			ebitenutil.DrawRect(screen, float64(i)*glob.TBSize, glob.TBSize-glob.TBThick, glob.TBSize, glob.TBThick, glob.ColorWhite)
+			ebitenutil.DrawRect(screen, (float64(i)*glob.TBSize)+glob.TBSize-glob.TBThick, 0, glob.TBThick, glob.TBSize, glob.ColorWhite)
+		}
 	}
 }
 

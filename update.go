@@ -134,38 +134,43 @@ func (g *Game) Update() error {
 		if !glob.MousePressed {
 			glob.MousePressed = true
 
+			captured := false
+
 			//UI area
 			//Toolbar
 			if glob.MousePosX <= float64(glob.ObjTypeMax*int(glob.TBSize)) {
 				if glob.MousePosY <= glob.TBSize {
 					itemType := int(glob.MousePosX/glob.TBSize + 1)
 					glob.SelectedItemType = itemType
+					captured = true
 				}
 			}
 
-			//Get mouse position on world
-			dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-			dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
-			//Get position on game world
-			gwx := (dtx / glob.DrawScale)
-			gwy := (dty / glob.DrawScale)
+			if !captured {
+				//Get mouse position on world
+				dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
+				dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+				//Get position on game world
+				gwx := (dtx / glob.DrawScale)
+				gwy := (dty / glob.DrawScale)
 
-			pos := util.FloatXYToPosition(gwx, gwy)
+				pos := util.FloatXYToPosition(gwx, gwy)
 
-			chunk := util.GetChunk(pos)
+				chunk := util.GetChunk(pos)
 
-			if chunk.MObj == nil {
-				chunk.MObj = make(map[glob.Position]glob.MObj)
-				glob.WorldMap[util.PosToChunkPos(pos)] = chunk
-			}
-			obj := chunk.MObj[pos]
-			if obj.Type == glob.ObjTypeNone {
-				obj.Type = glob.SelectedItemType
-				obj.Size = 1
-				chunk.MObj[pos] = obj
-			} else {
-				obj.Type = glob.ObjTypeNone
-				chunk.MObj[pos] = obj
+				if chunk.MObj == nil {
+					chunk.MObj = make(map[glob.Position]glob.MObj)
+					glob.WorldMap[util.PosToChunkPos(pos)] = chunk
+				}
+				obj := chunk.MObj[pos]
+				if obj.Type == glob.ObjTypeNone {
+					obj.Type = glob.SelectedItemType
+					obj.Size = 1
+					chunk.MObj[pos] = obj
+				} else {
+					obj.Type = glob.ObjTypeNone
+					chunk.MObj[pos] = obj
+				}
 			}
 		}
 	}

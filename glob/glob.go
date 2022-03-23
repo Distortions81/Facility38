@@ -33,7 +33,10 @@ var (
 	KeyA      string
 	KeyB      string
 	FontScale float64 = 35
-	TBSize    float64 = 32
+
+	//Toolbar settings
+	TBSize  float64 = 48
+	TBThick float64 = 2
 
 	//Draw settings
 	DrawScale float64 = 3 //Map item draw size
@@ -111,7 +114,7 @@ var (
 	ColorLime        = color.NRGBA{0, 255, 0, 255}
 	ColorFuchsia     = color.NRGBA{255, 0, 255, 255}
 	ColorAqua        = color.NRGBA{0, 255, 255, 255}
-	ColorTransparent = color.NRGBA{0, 0, 0, 255}
+	ColorTransparent = color.NRGBA{0, 0, 0, 0}
 
 	ColorLightRed     = color.NRGBA{255, 192, 192, 255}
 	ColorLightGreen   = color.NRGBA{192, 255, 192, 255}
