@@ -48,7 +48,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ey = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale)
 
 	/* Draw world */
-	for ckey, chunk := range glob.WorldMap {
+	for ckey, chunk := range glob.WD.WorldMap {
 		//Is this chunk on the screen?
 		if ckey.X < sx/glob.ChunkSize || ckey.X > ex/glob.ChunkSize || ckey.Y < sy/glob.ChunkSize || ckey.Y > ey/glob.ChunkSize {
 			continue

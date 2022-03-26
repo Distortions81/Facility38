@@ -91,7 +91,7 @@ func NewGame() *Game {
 	tRect := text.BoundString(glob.BootFont, str)
 	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
 
-	glob.WorldMap = make(map[glob.Position]glob.MapChunk)
+	glob.WD.WorldMap = make(map[glob.Position]glob.MapChunk)
 
 	// Initialize the game.
 	return &Game{}

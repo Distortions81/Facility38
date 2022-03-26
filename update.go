@@ -143,6 +143,8 @@ func (g *Game) Update() error {
 					itemType := int((glob.MousePosX-glob.ToolBarOffsetX)/glob.TBSize) + 1
 					if glob.ObjTypes[itemType].GameObj {
 						glob.SelectedItemType = itemType
+					} else if glob.ObjTypes[itemType].Action != nil {
+						glob.ObjTypes[itemType].Action()
 					}
 					captured = true
 				}
@@ -162,7 +164,7 @@ func (g *Game) Update() error {
 
 				if chunk.MObj == nil {
 					chunk.MObj = make(map[glob.Position]glob.MObj)
-					glob.WorldMap[util.PosToChunkPos(pos)] = chunk
+					glob.WD.WorldMap[util.PosToChunkPos(pos)] = chunk
 				}
 				obj := chunk.MObj[pos]
 				if obj.Type == glob.ObjTypeNone {

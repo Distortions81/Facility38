@@ -10,4 +10,5 @@ const (
 	DataDir  = "data/"
 	GfxDir   = "gfx/"
 	IconsDir = "icons/"
+	SaveGame = "save.json"
 )

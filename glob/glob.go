@@ -2,11 +2,21 @@ package glob
 
 import (
 	"GameTest/consts"
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"image/color"
+	"io/ioutil"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )
+
+type WorldData struct {
+	Version  string
+	WorldMap map[Position]MapChunk
+}
 
 type MapChunk struct {
 	MObj map[Position]MObj
@@ -31,10 +41,12 @@ type ObjType struct {
 
 	ImagePath string
 	Image     *ebiten.Image
+
+	Action func()
 }
 
 var (
-	WorldMap  map[Position]MapChunk
+	WD        WorldData
 	KeyA      string
 	KeyB      string
 	FontScale float64 = 35
@@ -169,10 +181,46 @@ var (
 
 	ObjTypes = map[int]ObjType{
 		ObjTypeNone:      {ItemColor: &ColorTransparent},
-		ObjTypeSave:      {ItemColor: &ColorGray, Name: "Save", ImagePath: "save.png"},
+		ObjTypeSave:      {ItemColor: &ColorGray, Name: "Save", ImagePath: "save.png", Action: SaveGame},
 		ObjTypeMiner:     {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, Name: "Miner", GameObj: true},
 		ObjTypeSmelter:   {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, Name: "Smelter", GameObj: true},
 		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, Name: "Assembler", GameObj: true},
 		ObjTypeTower:     {ItemColor: &ColorRed, Symbol: "T", SymbolColor: &ColorWhite, Name: "Tower", GameObj: true},
 	}
 )
+
+func SaveGame() {
+	tempPath := consts.SaveGame + ".tmp"
+	finalPath := consts.SaveGame
+
+	outbuf := new(bytes.Buffer)
+	enc := json.NewEncoder(outbuf)
+	enc.SetIndent("", "\t")
+
+	if err := enc.Encode(WD); err != nil {
+		fmt.Println("WriteSave: enc.Encode failure")
+		return
+	}
+
+	_, err := os.Create(tempPath)
+
+	if err != nil {
+		fmt.Println("WriteGCfg: os.Create failure")
+		return
+	}
+
+	err = ioutil.WriteFile(tempPath, outbuf.Bytes(), 0644)
+
+	if err != nil {
+		fmt.Println("WriteGCfg: WriteFile failure")
+	}
+
+	err = os.Rename(tempPath, finalPath)
+
+	if err != nil {
+		fmt.Println("Couldn't rename Gcfg file.")
+		return
+	}
+
+	return
+}
