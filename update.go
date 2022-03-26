@@ -102,8 +102,8 @@ func (g *Game) Update() error {
 	/* Zoom limits */
 	if glob.ZoomMouse > 100 {
 		glob.ZoomMouse = 100
-	} else if glob.ZoomMouse < 0.1 {
-		glob.ZoomMouse = 0.1
+	} else if glob.ZoomMouse < 0.2 {
+		glob.ZoomMouse = 0.2
 	}
 	if !glob.ZoomSetup {
 		glob.ZoomMouse = 35
