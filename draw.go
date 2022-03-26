@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"fmt"
-	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -94,7 +93,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				yss = 1
 			}
 
-			DrawObject(screen, scrX, scrY, xss, yss, mobj, false)
+			DrawObject(screen, scrX, scrY, xss, yss, mobj.Type, false)
 		}
 	}
 
@@ -113,15 +112,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw toolbar */
-	for i := 0; i < glob.ObjTypeMax; i++ {
-		DrawObject(screen, glob.ToolBarOffsetX+glob.TBSize*float64(i), glob.ToolBarOffsetY, glob.TBSize, glob.TBSize, glob.MObj{Type: i + 1}, true)
+	for i := 1; i < glob.ObjTypeMax; i++ {
+		DrawObject(screen, glob.ToolBarOffsetX+glob.TBSize*float64(i-1), glob.ToolBarOffsetY, glob.TBSize, glob.TBSize, i, true)
 		//Draw item selected
-		if i == glob.SelectedItemType-1 {
-			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i)*glob.TBSize, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorWhite)
-			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i)*glob.TBSize, glob.ToolBarOffsetY, glob.TBSize, glob.TBThick, glob.ColorWhite)
+		if i == glob.SelectedItemType && glob.ObjTypes[i].GameObj {
+			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i-1)*glob.TBSize, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i-1)*glob.TBSize, glob.ToolBarOffsetY, glob.TBSize, glob.TBThick, glob.ColorTBSelected)
 
-			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i)*glob.TBSize, glob.ToolBarOffsetY+glob.TBSize-glob.TBThick, glob.TBSize, glob.TBThick, glob.ColorWhite)
-			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+(float64(i)*glob.TBSize)+glob.TBSize-glob.TBThick, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorWhite)
+			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i-1)*glob.TBSize, glob.ToolBarOffsetY+glob.TBSize-glob.TBThick, glob.TBSize, glob.TBThick, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+(float64(i-1)*glob.TBSize)+glob.TBSize-glob.TBThick, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorTBSelected)
 		}
 	}
 
@@ -153,7 +152,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 }
 
-func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, mobj glob.MObj, isUI bool) {
+func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, i int, isUI bool) {
 
 	var zoom float64 = glob.ZoomScale
 
@@ -162,26 +161,36 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 	}
 
 	/* Skip if not visible */
-	if mobj.Type != glob.ObjTypeNone {
-		typeData := glob.ObjTypes[mobj.Type]
+	if i > glob.ObjTypeNone && i < glob.ObjTypeMax {
+		typeData := glob.ObjTypes[i]
 
 		/* Draw rect */
 		ebitenutil.DrawRect(screen, x, y, xs, ys, typeData.ItemColor)
 
 		/* Symbols */
-		if zoom > 3 {
+		if zoom > 3 && typeData.Symbol != "" {
 			tRect := text.BoundString(glob.ItemFont, typeData.Symbol)
 			opt := &ebiten.DrawImageOptions{}
 			opt.GeoM.Scale(zoom/glob.FontScale, zoom/glob.FontScale)
 			opt.GeoM.Translate(x, y+(((float64(tRect.Dy())*1.1)/glob.FontScale)*zoom))
+
+			c := typeData.SymbolColor
+			// Reset RGB (not Alpha) 0 forcibly
+			opt.ColorM.Scale(0, 0, 0, 1)
+			// Set color
+			r := float64(c.R) / 0xff
+			g := float64(c.G) / 0xff
+			b := float64(c.B) / 0xff
+			opt.ColorM.Translate(r, g, b, 0)
+
 			text.DrawWithOptions(screen, typeData.Symbol, glob.ItemFont, opt)
+
+		}
+
+		if typeData.Image != nil {
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+			op.GeoM.Reset()
+			screen.DrawImage(typeData.Image, op)
 		}
 	}
-}
-
-func DrawIcon(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, color color.NRGBA) {
-
-	/* Draw rect */
-	ebitenutil.DrawRect(screen, x, y, xs, ys, color)
-
 }

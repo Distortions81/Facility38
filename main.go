@@ -20,16 +20,18 @@ type Game struct {
 
 func NewGame() *Game {
 
+	glob.ObjTypeMax = len(glob.ObjTypes)
+
 	//Load icons
-	for i, icon := range glob.IconTypes {
+	for i, icon := range glob.ObjTypes {
 		if icon.ImagePath != "" {
 			img, err := data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
 			if err != nil {
 				fmt.Println(err)
 			} else {
-				tmp := glob.IconTypes[i]
+				tmp := glob.ObjTypes[i]
 				tmp.Image = img
-				glob.IconTypes[i] = tmp
+				glob.ObjTypes[i] = tmp
 			}
 		}
 	}

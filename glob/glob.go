@@ -22,16 +22,14 @@ type Position struct {
 }
 
 type ObjType struct {
+	GameObj bool
+	Name    string
+
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
-	Name        string
-}
 
-type IconType struct {
-	Name      string
 	ImagePath string
-	BGColor   *color.NRGBA
 	Image     *ebiten.Image
 }
 
@@ -44,8 +42,8 @@ var (
 	//Toolbar settings
 	TBSize         float64 = 48
 	TBThick        float64 = 2
-	ToolBarOffsetX float64 = TBSize
-	ToolBarOffsetY float64 = 2
+	ToolBarOffsetX float64 = 0
+	ToolBarOffsetY float64 = 0
 
 	//Draw settings
 	DrawScale float64 = 3 //Map item draw size
@@ -92,8 +90,6 @@ var (
 	MouseRightPressed bool = false
 	TouchPressed      bool = false
 	PinchPressed      bool = false
-
-	SelectedItemType int = 1
 
 	DrewStartup bool = false
 	DrewMap     bool = false
@@ -158,31 +154,25 @@ var (
 	ColorDarkLime    = color.NRGBA{0, 128, 0, 255}
 	ColorDarkFuchsia = color.NRGBA{128, 0, 128, 255}
 	ColorDarkAqua    = color.NRGBA{0, 128, 128, 255}
-	ColorToolTipBG   = color.RGBA{32, 32, 32, 170}
+	ColorToolTipBG   = color.NRGBA{32, 32, 32, 170}
+	ColorTBSelected  = color.NRGBA{0, 255, 255, 255}
 
 	ObjTypeNone      = 0
-	ObjTypeMiner     = 1
-	ObjTypeSmelter   = 2
-	ObjTypeAssembler = 3
-	ObjTypeTower     = 4
+	ObjTypeSave      = 1
+	ObjTypeMiner     = 2
+	ObjTypeSmelter   = 3
+	ObjTypeAssembler = 4
+	ObjTypeTower     = 5
 
-	ObjTypeMax = 4
+	ObjTypeMax       = 0 //Automatically set
+	SelectedItemType = 2
 
 	ObjTypes = map[int]ObjType{
-		ObjTypeNone:      {ItemColor: &ColorTransparent, Symbol: " ", SymbolColor: &ColorBlack, Name: "None"},
-		ObjTypeMiner:     {ItemColor: &ColorGreen, Symbol: "M", SymbolColor: &ColorBlack, Name: "Miner"},
-		ObjTypeSmelter:   {ItemColor: &ColorRed, Symbol: "S", SymbolColor: &ColorBlack, Name: "Smelter"},
-		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, Name: "Assembler"},
-		ObjTypeTower:     {ItemColor: &ColorOrange, Symbol: "T", SymbolColor: &ColorBlack, Name: "Tower"},
-	}
-
-	IconTypeNone = 0
-	IconTypeSave = 1
-
-	IconTypeMax = 1
-
-	IconTypes = map[int]IconType{
-		IconTypeNone: {Name: "None"},
-		IconTypeSave: {Name: "Save", BGColor: &ColorBlue, ImagePath: "save.png"},
+		ObjTypeNone:      {ItemColor: &ColorTransparent},
+		ObjTypeSave:      {ItemColor: &ColorGray, Name: "Save", ImagePath: "save.png"},
+		ObjTypeMiner:     {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, Name: "Miner", GameObj: true},
+		ObjTypeSmelter:   {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, Name: "Smelter", GameObj: true},
+		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, Name: "Assembler", GameObj: true},
+		ObjTypeTower:     {ItemColor: &ColorRed, Symbol: "T", SymbolColor: &ColorWhite, Name: "Tower", GameObj: true},
 	}
 )
