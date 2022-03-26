@@ -28,6 +28,12 @@ type ObjType struct {
 	Name        string
 }
 
+type IconType struct {
+	Name      string
+	ImagePath string
+	BGColor   *color.NRGBA
+}
+
 var (
 	WorldMap  map[Position]MapChunk
 	KeyA      string
@@ -165,5 +171,15 @@ var (
 		ObjTypeSmelter:   {ItemColor: &ColorRed, Symbol: "S", SymbolColor: &ColorBlack, Name: "Smelter"},
 		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, Name: "Assembler"},
 		ObjTypeTower:     {ItemColor: &ColorOrange, Symbol: "T", SymbolColor: &ColorBlack, Name: "Tower"},
+	}
+
+	IconTypeNone = 0
+	IconTypeSave = 1
+
+	IconTypeMax = 1
+
+	IconTypes = map[int]IconType{
+		IconTypeNone: {Name: "None"},
+		IconTypeSave: {Name: "Save"},
 	}
 )

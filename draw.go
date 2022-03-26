@@ -177,3 +177,9 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 		}
 	}
 }
+
+func DrawIcon(screen *ebiten.Image, x float64, y float64, xs float64, ys float64) {
+
+	/* Draw rect */
+	ebitenutil.DrawRect(screen, x, y, xs, ys, glob.ColorWhite)
+}
