@@ -138,9 +138,9 @@ func (g *Game) Update() error {
 
 			//UI area
 			//Toolbar
-			if glob.MousePosX <= float64(glob.ObjTypeMax*int(glob.TBSize)) {
-				if glob.MousePosY <= glob.TBSize {
-					itemType := int(glob.MousePosX/glob.TBSize + 1)
+			if glob.MousePosX <= float64(glob.ObjTypeMax*int(glob.TBSize))+glob.ToolBarOffsetX {
+				if glob.MousePosY <= glob.TBSize+glob.ToolBarOffsetY {
+					itemType := int((glob.MousePosX-glob.ToolBarOffsetX)/glob.TBSize + 1)
 					glob.SelectedItemType = itemType
 					captured = true
 				}

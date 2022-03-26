@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"fmt"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -113,14 +114,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw toolbar */
 	for i := 0; i < glob.ObjTypeMax; i++ {
-		DrawObject(screen, glob.TBSize*float64(i), 0, glob.TBSize, glob.TBSize, glob.MObj{Type: i + 1}, true)
+		DrawObject(screen, glob.ToolBarOffsetX+glob.TBSize*float64(i), glob.ToolBarOffsetY, glob.TBSize, glob.TBSize, glob.MObj{Type: i + 1}, true)
 		//Draw item selected
 		if i == glob.SelectedItemType-1 {
-			ebitenutil.DrawRect(screen, float64(i)*glob.TBSize, 0, glob.TBThick, glob.TBSize, glob.ColorWhite)
-			ebitenutil.DrawRect(screen, float64(i)*glob.TBSize, 0, glob.TBSize, glob.TBThick, glob.ColorWhite)
+			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i)*glob.TBSize, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorWhite)
+			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i)*glob.TBSize, glob.ToolBarOffsetY, glob.TBSize, glob.TBThick, glob.ColorWhite)
 
-			ebitenutil.DrawRect(screen, float64(i)*glob.TBSize, glob.TBSize-glob.TBThick, glob.TBSize, glob.TBThick, glob.ColorWhite)
-			ebitenutil.DrawRect(screen, (float64(i)*glob.TBSize)+glob.TBSize-glob.TBThick, 0, glob.TBThick, glob.TBSize, glob.ColorWhite)
+			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i)*glob.TBSize, glob.ToolBarOffsetY+glob.TBSize-glob.TBThick, glob.TBSize, glob.TBThick, glob.ColorWhite)
+			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+(float64(i)*glob.TBSize)+glob.TBSize-glob.TBThick, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorWhite)
 		}
 	}
 
@@ -178,8 +179,9 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 	}
 }
 
-func DrawIcon(screen *ebiten.Image, x float64, y float64, xs float64, ys float64) {
+func DrawIcon(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, color color.NRGBA) {
 
 	/* Draw rect */
-	ebitenutil.DrawRect(screen, x, y, xs, ys, glob.ColorWhite)
+	ebitenutil.DrawRect(screen, x, y, xs, ys, color)
+
 }

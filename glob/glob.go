@@ -32,6 +32,7 @@ type IconType struct {
 	Name      string
 	ImagePath string
 	BGColor   *color.NRGBA
+	Image     *ebiten.Image
 }
 
 var (
@@ -41,8 +42,10 @@ var (
 	FontScale float64 = 35
 
 	//Toolbar settings
-	TBSize  float64 = 48
-	TBThick float64 = 2
+	TBSize         float64 = 48
+	TBThick        float64 = 2
+	ToolBarOffsetX float64 = TBSize
+	ToolBarOffsetY float64 = 2
 
 	//Draw settings
 	DrawScale float64 = 3 //Map item draw size
@@ -180,6 +183,6 @@ var (
 
 	IconTypes = map[int]IconType{
 		IconTypeNone: {Name: "None"},
-		IconTypeSave: {Name: "Save"},
+		IconTypeSave: {Name: "Save", BGColor: &ColorBlue, ImagePath: "save.png"},
 	}
 )

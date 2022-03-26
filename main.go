@@ -2,7 +2,9 @@ package main
 
 import (
 	"GameTest/consts"
+	"GameTest/data"
 	"GameTest/glob"
+	"fmt"
 	"log"
 	"runtime"
 
@@ -17,6 +19,20 @@ type Game struct {
 }
 
 func NewGame() *Game {
+
+	//Load icons
+	for i, icon := range glob.IconTypes {
+		if icon.ImagePath != "" {
+			img, err := data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				tmp := glob.IconTypes[i]
+				tmp.Image = img
+				glob.IconTypes[i] = tmp
+			}
+		}
+	}
 
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 
