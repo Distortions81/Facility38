@@ -2,7 +2,6 @@ package glob
 
 import (
 	"GameTest/consts"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"image/color"
@@ -13,9 +12,9 @@ import (
 	"golang.org/x/image/font"
 )
 
-type WorldData struct {
-	Version  string
-	WorldMap map[Position]MapChunk
+type SaveObj struct {
+	Pos  Position
+	Type int
 }
 
 type MapChunk struct {
@@ -24,7 +23,6 @@ type MapChunk struct {
 
 type MObj struct {
 	Type int
-	Size float64
 }
 
 type Position struct {
@@ -38,6 +36,7 @@ type ObjType struct {
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
+	Size        Position
 
 	ImagePath string
 	Image     *ebiten.Image
@@ -46,7 +45,7 @@ type ObjType struct {
 }
 
 var (
-	WD        WorldData
+	WorldMap  map[Position]MapChunk
 	KeyA      string
 	KeyB      string
 	FontScale float64 = 35
@@ -182,10 +181,10 @@ var (
 	ObjTypes = map[int]ObjType{
 		ObjTypeNone:      {ItemColor: &ColorTransparent},
 		ObjTypeSave:      {ItemColor: &ColorGray, Name: "Save", ImagePath: "save.png", Action: SaveGame},
-		ObjTypeMiner:     {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, Name: "Miner", GameObj: true},
-		ObjTypeSmelter:   {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, Name: "Smelter", GameObj: true},
-		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, Name: "Assembler", GameObj: true},
-		ObjTypeTower:     {ItemColor: &ColorRed, Symbol: "T", SymbolColor: &ColorWhite, Name: "Tower", GameObj: true},
+		ObjTypeMiner:     {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, Name: "Miner", Size: Position{X: 1, Y: 1}, GameObj: true},
+		ObjTypeSmelter:   {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, Name: "Smelter", Size: Position{X: 1, Y: 1}, GameObj: true},
+		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, Name: "Assembler", Size: Position{X: 1, Y: 1}, GameObj: true},
+		ObjTypeTower:     {ItemColor: &ColorRed, Symbol: "T", SymbolColor: &ColorWhite, Name: "Tower", Size: Position{X: 1, Y: 1}, GameObj: true},
 	}
 )
 
@@ -193,23 +192,29 @@ func SaveGame() {
 	tempPath := consts.SaveGame + ".tmp"
 	finalPath := consts.SaveGame
 
-	outbuf := new(bytes.Buffer)
-	enc := json.NewEncoder(outbuf)
-	enc.SetIndent("", "\t")
+	var item []SaveObj
+	for _, objs := range WorldMap {
+		for okeys, obj := range objs.MObj {
 
-	if err := enc.Encode(WD); err != nil {
+			item = append(item, SaveObj{Pos: okeys, Type: obj.Type})
+		}
+	}
+	b, err := json.MarshalIndent(item, "", "\t")
+
+	if err != nil {
 		fmt.Println("WriteSave: enc.Encode failure")
+		fmt.Println(err)
 		return
 	}
 
-	_, err := os.Create(tempPath)
+	_, err = os.Create(tempPath)
 
 	if err != nil {
 		fmt.Println("WriteGCfg: os.Create failure")
 		return
 	}
 
-	err = ioutil.WriteFile(tempPath, outbuf.Bytes(), 0644)
+	err = ioutil.WriteFile(tempPath, b, 0644)
 
 	if err != nil {
 		fmt.Println("WriteGCfg: WriteFile failure")

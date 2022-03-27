@@ -164,12 +164,11 @@ func (g *Game) Update() error {
 
 				if chunk.MObj == nil {
 					chunk.MObj = make(map[glob.Position]glob.MObj)
-					glob.WD.WorldMap[util.PosToChunkPos(pos)] = chunk
+					glob.WorldMap[util.PosToChunkPos(pos)] = chunk
 				}
 				obj := chunk.MObj[pos]
 				if obj.Type == glob.ObjTypeNone {
 					obj.Type = glob.SelectedItemType
-					obj.Size = 1
 					chunk.MObj[pos] = obj
 				} else {
 					obj.Type = glob.ObjTypeNone
