@@ -48,7 +48,7 @@ var (
 	WorldMap  map[Position]MapChunk
 	KeyA      string
 	KeyB      string
-	FontScale float64 = 35
+	FontScale float64 = 50
 
 	//Toolbar settings
 	TBSize         float64 = 48

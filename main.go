@@ -52,7 +52,7 @@ func NewGame() *Game {
 	if err != nil {
 		log.Fatal(err)
 	}
-	const dpi = 72
+	const dpi = 95
 	glob.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    24,
 		DPI:     dpi,
@@ -72,7 +72,7 @@ func NewGame() *Game {
 	}
 
 	glob.TipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    14,
+		Size:    8,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
