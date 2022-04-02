@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GameTest/GameWorld"
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
@@ -203,5 +204,6 @@ func (g *Game) Update() error {
 		glob.SetupMouse = false
 	}
 
+	GameWorld.Update()
 	return nil
 }

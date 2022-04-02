@@ -23,6 +23,13 @@ type MapChunk struct {
 
 type MObj struct {
 	Type int
+
+	//Object's Inventories
+	ObjInput     []MObj
+	ObjInventory []MObj
+	ObjOutput    []MObj
+
+	Recipe *AssmRecipe
 }
 
 type Position struct {
@@ -30,9 +37,11 @@ type Position struct {
 }
 
 type ObjType struct {
-	GameObj bool
-	Name    string
+	GameObj  bool
+	HasAsync bool
+	Name     string
 
+	Recipe      AssmRecipe
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
@@ -42,6 +51,15 @@ type ObjType struct {
 	Image     *ebiten.Image
 
 	Action func()
+}
+
+type AssmRecipe struct {
+	Name        string
+	ReqQuantity []int
+	ReqTypes    []int
+
+	ResultQuantity int
+	ResultObj      int
 }
 
 var (
@@ -174,6 +192,11 @@ var (
 	ObjTypeSmelter   = 3
 	ObjTypeAssembler = 4
 	ObjTypeTower     = 5
+
+	ObjTypeDefault = 100
+	ObjTypeWood    = 101
+	ObjTypeCoal    = 102
+	ObjTypeIron    = 103
 
 	ObjTypeMax       = 0 //Automatically set
 	SelectedItemType = 2
