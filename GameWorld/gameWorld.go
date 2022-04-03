@@ -21,23 +21,17 @@ func Update() {
 		//fmt.Println("World Update:", WorldTicks)
 
 		for _, chunk := range glob.WorldMap {
-			chunk.Lock.Lock()
 			for okey, obj := range chunk.MObj {
 				//Ignore empty objects
 				if obj.Type != glob.ObjTypeNone {
-					//Async object login
-					if glob.ObjTypes[obj.Type].HasAsync {
-						go UpdateObjectAsync(okey, &obj)
-					}
-
-					//In-Order object logics
+					obj.Lock.Lock()
 					fmt.Println("Would update object:", okey)
+					obj.Lock.Unlock()
 
 				} else {
 					fmt.Println("Empty object encountered.")
 				}
 			}
-			chunk.Lock.Unlock()
 		}
 	}
 }

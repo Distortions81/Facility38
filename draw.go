@@ -49,7 +49,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw world */
 	for ckey, chunk := range glob.WorldMap {
-		chunk.Lock.RLock()
 		//Is this chunk on the screen?
 		if ckey.X < sx/glob.ChunkSize || ckey.X > ex/glob.ChunkSize || ckey.Y < sy/glob.ChunkSize || ckey.Y > ey/glob.ChunkSize {
 			continue
@@ -96,7 +95,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			DrawObject(screen, scrX, scrY, xss, yss, mobj.Type, false)
 		}
-		chunk.Lock.RUnlock()
 	}
 
 	//Get mouse position on world

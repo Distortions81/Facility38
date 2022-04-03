@@ -19,7 +19,6 @@ type SaveObj struct {
 }
 
 type MapChunk struct {
-	Lock *sync.RWMutex
 	MObj map[Position]MObj
 }
 
@@ -32,6 +31,7 @@ type MObj struct {
 	ObjOutput    []MObj
 
 	Recipe *AssmRecipe
+	Lock   *sync.RWMutex
 }
 
 type Position struct {
@@ -39,9 +39,8 @@ type Position struct {
 }
 
 type ObjType struct {
-	GameObj  bool
-	HasAsync bool
-	Name     string
+	GameObj bool
+	Name    string
 
 	Recipe      AssmRecipe
 	ItemColor   *color.NRGBA

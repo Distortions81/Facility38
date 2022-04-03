@@ -5,6 +5,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"fmt"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -166,16 +167,24 @@ func (g *Game) Update() error {
 
 				if chunk.MObj == nil {
 					chunk.MObj = make(map[glob.Position]glob.MObj)
-					chunk.Lock = &sync.RWMutex{} //Make mutex
 					glob.WorldMap[util.PosToChunkPos(pos)] = chunk
 				}
 				obj := chunk.MObj[pos]
+				obj.Lock = &sync.RWMutex{}
 				if obj.Type == glob.ObjTypeNone {
 					obj.Type = glob.SelectedItemType
 					chunk.MObj[pos] = obj
 				} else {
-					obj.Type = glob.ObjTypeNone
-					chunk.MObj[pos] = obj
+					//Delete object
+					fmt.Println("Object deleted:", pos)
+					delete(chunk.MObj, pos)
+
+					//Delete chunk if empty
+					if len(chunk.MObj) <= 0 {
+						cpos := util.PosToChunkPos(pos)
+						fmt.Println("Chunk deleted:", cpos)
+						delete(glob.WorldMap, cpos)
+					}
 				}
 			}
 		}
