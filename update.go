@@ -183,6 +183,7 @@ func (g *Game) Update() error {
 					obj.Type = glob.SelectedItemType
 				} else {
 					//Delete object
+					obj.Lock.Lock()
 					fmt.Println("Object deleted:", pos)
 					delete(chunk.MObj, pos)
 
@@ -190,6 +191,7 @@ func (g *Game) Update() error {
 					if len(chunk.MObj) <= 0 {
 						cpos := util.PosToChunkPos(pos)
 						fmt.Println("Chunk deleted:", cpos)
+						glob.WorldMap[cpos].Lock.Lock()
 						delete(glob.WorldMap, cpos)
 					}
 				}

@@ -20,6 +20,8 @@ type SaveObj struct {
 
 type MapChunk struct {
 	MObj map[Position]*MObj
+
+	Lock sync.RWMutex
 }
 
 type MObj struct {
