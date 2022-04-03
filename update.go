@@ -6,7 +6,6 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"fmt"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -167,15 +166,18 @@ func (g *Game) Update() error {
 
 				//Make chunk if needed
 				if chunk == nil {
+					cpos := util.PosToChunkPos(pos)
+					fmt.Println("Made chunk:", cpos)
+
 					chunk = &glob.MapChunk{}
-					glob.WorldMap[util.PosToChunkPos(pos)] = chunk
+					glob.WorldMap[cpos] = chunk
 					chunk.MObj = make(map[glob.Position]*glob.MObj)
 				}
 				obj := chunk.MObj[pos]
 				if obj == nil {
+					fmt.Println("Made obj:", pos)
 					obj = &glob.MObj{}
 					chunk.MObj[pos] = obj
-					obj.Lock = &sync.RWMutex{}
 				}
 				if obj.Type == glob.ObjTypeNone {
 					obj.Type = glob.SelectedItemType
