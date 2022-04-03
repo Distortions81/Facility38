@@ -25,13 +25,7 @@ type MapChunk struct {
 type MObj struct {
 	Type int
 
-	//Object's Inventories
-	ObjInput     []*MObj
-	ObjInventory []*MObj
-	ObjOutput    []*MObj
-
-	Recipe *AssmRecipe
-	Lock   sync.RWMutex
+	Lock sync.RWMutex
 }
 
 type Position struct {
@@ -42,7 +36,6 @@ type ObjType struct {
 	GameObj bool
 	Name    string
 
-	Recipe      AssmRecipe
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
@@ -52,15 +45,6 @@ type ObjType struct {
 	Image     *ebiten.Image
 
 	Action func()
-}
-
-type AssmRecipe struct {
-	Name        string
-	ReqQuantity []int
-	ReqTypes    []int
-
-	ResultQuantity int
-	ResultObj      int
 }
 
 var (
