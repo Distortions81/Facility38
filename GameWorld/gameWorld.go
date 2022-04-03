@@ -21,6 +21,7 @@ func Update() {
 		//fmt.Println("World Update:", WorldTicks)
 
 		for _, chunk := range glob.WorldMap {
+			chunk.Lock.Lock()
 			for okey, obj := range chunk.MObj {
 				//Ignore empty objects
 				if obj.Type != glob.ObjTypeNone {
@@ -36,6 +37,7 @@ func Update() {
 					fmt.Println("Empty object encountered.")
 				}
 			}
+			chunk.Lock.Unlock()
 		}
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"io/ioutil"
 	"os"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
@@ -18,6 +19,7 @@ type SaveObj struct {
 }
 
 type MapChunk struct {
+	Lock *sync.RWMutex
 	MObj map[Position]MObj
 }
 
@@ -249,6 +251,4 @@ func SaveGame() {
 		fmt.Println("Couldn't rename Gcfg file.")
 		return
 	}
-
-	return
 }

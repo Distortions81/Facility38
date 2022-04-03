@@ -5,6 +5,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -165,6 +166,7 @@ func (g *Game) Update() error {
 
 				if chunk.MObj == nil {
 					chunk.MObj = make(map[glob.Position]glob.MObj)
+					chunk.Lock = &sync.RWMutex{} //Make mutex
 					glob.WorldMap[util.PosToChunkPos(pos)] = chunk
 				}
 				obj := chunk.MObj[pos]
