@@ -1,5 +1,0 @@
-package GameWorld
-
-func Update() {
-
-}
