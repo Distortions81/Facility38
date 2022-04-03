@@ -26,12 +26,12 @@ type MObj struct {
 	Type int
 
 	//Object's Inventories
-	ObjInput     []MObj
-	ObjInventory []MObj
-	ObjOutput    []MObj
+	ObjInput     []*MObj
+	ObjInventory []*MObj
+	ObjOutput    []*MObj
 
 	Recipe *AssmRecipe
-	Lock   *sync.RWMutex
+	Lock   sync.RWMutex
 }
 
 type Position struct {
