@@ -165,15 +165,20 @@ func (g *Game) Update() error {
 
 				chunk := util.GetChunk(pos)
 
-				if chunk.MObj == nil {
-					chunk.MObj = make(map[glob.Position]glob.MObj)
+				//Make chunk if needed
+				if chunk == nil {
+					chunk = &glob.MapChunk{}
 					glob.WorldMap[util.PosToChunkPos(pos)] = chunk
+					chunk.MObj = make(map[glob.Position]*glob.MObj)
 				}
 				obj := chunk.MObj[pos]
-				obj.Lock = &sync.RWMutex{}
+				if obj == nil {
+					obj = &glob.MObj{}
+					chunk.MObj[pos] = obj
+					obj.Lock = &sync.RWMutex{}
+				}
 				if obj.Type == glob.ObjTypeNone {
 					obj.Type = glob.SelectedItemType
-					chunk.MObj[pos] = obj
 				} else {
 					//Delete object
 					fmt.Println("Object deleted:", pos)
@@ -186,6 +191,7 @@ func (g *Game) Update() error {
 						delete(glob.WorldMap, cpos)
 					}
 				}
+
 			}
 		}
 	}

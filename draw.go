@@ -136,19 +136,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		/* Draw tool tip */
 		pos := util.FloatXYToPosition(gwx, gwy)
 		chunk := util.GetChunk(pos)
-		obj := chunk.MObj[pos]
-
-		toolTip := ""
-		if obj.Type != 0 {
-			toolTip = fmt.Sprintf("%v (%5.0f, %5.0f)", glob.ObjTypes[obj.Type].Name, gwx, gwy)
-		} else {
-			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+		if chunk != nil {
+			obj := chunk.MObj[pos]
+			if obj != nil {
+				toolTip := ""
+				if obj.Type != 0 {
+					toolTip = fmt.Sprintf("%v (%5.0f, %5.0f)", glob.ObjTypes[obj.Type].Name, gwx, gwy)
+				} else {
+					toolTip = fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+				}
+				tRect := text.BoundString(glob.TipFont, toolTip)
+				mx := glob.MousePosX + 20
+				my := glob.MousePosY + 20
+				ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
+				text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
+			}
 		}
-		tRect := text.BoundString(glob.TipFont, toolTip)
-		mx := glob.MousePosX + 20
-		my := glob.MousePosY + 20
-		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
-		text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
 	}
 }
 

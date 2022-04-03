@@ -19,7 +19,7 @@ type SaveObj struct {
 }
 
 type MapChunk struct {
-	MObj map[Position]MObj
+	MObj map[Position]*MObj
 }
 
 type MObj struct {
@@ -64,7 +64,7 @@ type AssmRecipe struct {
 }
 
 var (
-	WorldMap  map[Position]MapChunk
+	WorldMap  map[Position]*MapChunk
 	KeyA      string
 	KeyB      string
 	FontScale float64 = 50

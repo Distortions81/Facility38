@@ -18,11 +18,11 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 func GetObj(pos glob.Position, chunk *glob.MapChunk) *glob.MObj {
 	obj := chunk.MObj[pos]
 
-	return &obj
+	return obj
 }
 
 //Automatically converts position to chunk format
-func GetChunk(pos glob.Position) glob.MapChunk {
+func GetChunk(pos glob.Position) *glob.MapChunk {
 	chunk := glob.WorldMap[glob.Position{X: int(pos.X / glob.ChunkSize), Y: int(pos.Y / glob.ChunkSize)}]
 	return chunk
 }
