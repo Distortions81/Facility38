@@ -116,7 +116,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for i := 1; i < glob.ObjTypeMax; i++ {
 		DrawObject(screen, glob.ToolBarOffsetX+glob.TBSize*float64(i-1), glob.ToolBarOffsetY, glob.TBSize, glob.TBSize, i, true)
 		//Draw item selected
-		if i == glob.SelectedItemType && glob.ObjTypes[i].GameObj {
+		if i == glob.SelectedItemType && glob.ObjTypes[i].SubType == glob.ObjSubGame {
 			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i-1)*glob.TBSize, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorTBSelected)
 			ebitenutil.DrawRect(screen, glob.ToolBarOffsetX+float64(i-1)*glob.TBSize, glob.ToolBarOffsetY, glob.TBSize, glob.TBThick, glob.ColorTBSelected)
 

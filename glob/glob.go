@@ -30,7 +30,7 @@ type Position struct {
 }
 
 type ObjType struct {
-	GameObj bool
+	SubType int
 	Name    string
 
 	ItemColor   *color.NRGBA
