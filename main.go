@@ -20,18 +20,45 @@ type Game struct {
 
 func NewGame() *Game {
 
-	glob.ObjTypeMax = len(glob.ObjTypes)
+	glob.GameTypeMax = len(glob.GameObjTypes)
+	glob.UITypeMax = len(glob.UIObjsTypes)
+	glob.MatTypeMax = len(glob.MatTypes)
 
-	//Load icons
-	for i, icon := range glob.ObjTypes {
+	//Load UI Sprites
+	for key, icon := range glob.UIObjsTypes {
 		if icon.ImagePath != "" {
 			img, err := data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
 			if err != nil {
 				fmt.Println(err)
 			} else {
-				tmp := glob.ObjTypes[i]
-				tmp.Image = img
-				glob.ObjTypes[i] = tmp
+				icon.Image = img
+				glob.UIObjsTypes[key] = icon
+			}
+		}
+	}
+
+	//Load Game Sprites
+	for key, icon := range glob.GameObjTypes {
+		if icon.ImagePath != "" {
+			img, err := data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				icon.Image = img
+				glob.GameObjTypes[key] = icon
+			}
+		}
+	}
+
+	//Load Materials Sprites
+	for key, icon := range glob.MatTypes {
+		if icon.ImagePath != "" {
+			img, err := data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				icon.Image = img
+				glob.MatTypes[key] = icon
 			}
 		}
 	}

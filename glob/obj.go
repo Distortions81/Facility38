@@ -1,22 +1,21 @@
 package glob
 
 var (
+	ObjTypeNone = 0
 
 	//Subtypes
-	ObjSubUI   = 0
-	ObjSubGame = 1
-	ObjSubMat  = 2
-
-	ObjTypeNone = 0
+	ObjSubUI   = 1
+	ObjSubGame = 2
+	ObjSubMat  = 3
 
 	//UI Only
 	ObjTypeSave = 1
 
 	//Buildings
-	ObjTypeMiner     = 2
-	ObjTypeSmelter   = 3
-	ObjTypeAssembler = 4
-	ObjTypeTower     = 5
+	ObjTypeMiner     = 1
+	ObjTypeSmelter   = 2
+	ObjTypeAssembler = 3
+	ObjTypeTower     = 4
 
 	//Materials
 	ObjTypeDefault = 1
@@ -24,15 +23,19 @@ var (
 	ObjTypeCoal    = 3
 	ObjTypeIron    = 4
 
-	ObjTypeMax       = 0 //Automatically set
+	//Automatically set
+	GameTypeMax = 0
+	UITypeMax   = 0
+	MatTypeMax  = 0
+
 	SelectedItemType = 2
 
-	ObjTypes = map[int]ObjType{
-		ObjTypeNone: {ItemColor: &ColorTransparent},
-
+	UIObjsTypes = map[int]ObjType{
 		//Ui Only
 		ObjTypeSave: {ItemColor: &ColorGray, Name: "Save", ImagePath: "save.png", Action: SaveGame, SubType: ObjSubUI},
+	}
 
+	GameObjTypes = map[int]ObjType{
 		//Game Objects
 		ObjTypeMiner:     {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, Name: "Miner", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
 		ObjTypeSmelter:   {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, Name: "Smelter", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
@@ -40,11 +43,22 @@ var (
 		ObjTypeTower:     {ItemColor: &ColorRed, Symbol: "T", SymbolColor: &ColorWhite, Name: "Tower", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
 	}
 
-	Mats = map[int]ObjType{
+	MatTypes = map[int]ObjType{
 		//Materials
 		ObjTypeDefault: {ItemColor: &ColorWhite, Symbol: "?", SymbolColor: &ColorBlack, Name: "Default", Size: Position{X: 1, Y: 1}, SubType: ObjSubMat},
 		ObjTypeWood:    {ItemColor: &ColorBrown, Symbol: "w", SymbolColor: &ColorYellow, Name: "Wood", Size: Position{X: 1, Y: 1}, SubType: ObjSubMat},
 		ObjTypeCoal:    {ItemColor: &ColorBlack, Symbol: "c", SymbolColor: &ColorWhite, Name: "Coal", Size: Position{X: 1, Y: 1}, SubType: ObjSubMat},
 		ObjTypeIron:    {ItemColor: &ColorRust, Symbol: "s", SymbolColor: &ColorBlack, Name: "Iron", Size: Position{X: 1, Y: 1}, SubType: ObjSubMat},
+	}
+
+	Toolbar = []int{
+		ObjTypeSave,
+		ObjTypeMiner,
+	}
+
+	SubTypes = map[int]map[int]ObjType{
+		ObjSubGame: GameObjTypes,
+		ObjSubUI:   UIObjsTypes,
+		ObjSubMat:  MatTypes,
 	}
 )

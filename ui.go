@@ -139,13 +139,29 @@ func (g *Game) Update() error {
 
 			//UI area
 			//Toolbar
-			if glob.MousePosX <= float64(glob.ObjTypeMax*int(glob.TBSize))+glob.ToolBarOffsetX {
+			//UI Objs
+			uipix := float64((glob.UITypeMax + glob.GameTypeMax) * int(glob.TBSize))
+
+			//Ui Objs
+			if glob.MousePosX <= float64((glob.UITypeMax+glob.GameTypeMax)*int(glob.TBSize))+glob.ToolBarOffsetX+uipix {
 				if glob.MousePosY <= glob.TBSize+glob.ToolBarOffsetY {
-					itemType := int((glob.MousePosX-glob.ToolBarOffsetX)/glob.TBSize) + 1
-					if glob.ObjTypes[itemType].SubType == glob.ObjSubGame {
+					itemType := int((glob.MousePosX - glob.ToolBarOffsetX) / glob.TBSize)
+					if glob.GameObjTypes[itemType].SubType == glob.ObjSubGame {
 						glob.SelectedItemType = itemType
-					} else if glob.ObjTypes[itemType].Action != nil {
-						glob.ObjTypes[itemType].Action()
+					} else if glob.GameObjTypes[itemType].Action != nil {
+						glob.GameObjTypes[itemType].Action()
+					}
+					captured = true
+				}
+			}
+			//Game Objs
+			if glob.MousePosX <= float64((glob.UITypeMax+glob.GameTypeMax)*int(glob.TBSize))+glob.ToolBarOffsetX+uipix {
+				if glob.MousePosY <= glob.TBSize+glob.ToolBarOffsetY {
+					itemType := int((glob.MousePosX - glob.ToolBarOffsetX) / glob.TBSize)
+					if glob.GameObjTypes[itemType].SubType == glob.ObjSubGame {
+						glob.SelectedItemType = itemType
+					} else if glob.GameObjTypes[itemType].Action != nil {
+						glob.GameObjTypes[itemType].Action()
 					}
 					captured = true
 				}
