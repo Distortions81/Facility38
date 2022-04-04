@@ -48,19 +48,20 @@ var (
 	WorldMap  map[Position]*MapChunk
 	KeyA      string
 	KeyB      string
-	FontScale float64 = 50
+	FontScale float64 = 100
 
 	//Toolbar settings
-	TBSize         float64 = 48
+	TBSize         float64 = 64
+	SpriteScale    float64 = 64
 	TBThick        float64 = 2
 	ToolBarOffsetX float64 = 0
 	ToolBarOffsetY float64 = 0
 
 	//Draw settings
-	DrawScale float64 = 3 //Map item draw size
+	DrawScale float64 = 1 //Map item draw size
 	ChunkSize int     = 32
 
-	ItemSpacing float64 = 0.2 //Spacing between items
+	ItemSpacing float64 = 0.0 //Spacing between items
 
 	//eBiten settings
 	ScreenWidth  int = 1280 //Screen width default

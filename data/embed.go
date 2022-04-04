@@ -11,6 +11,8 @@ import (
 )
 
 //go:embed gfx/icons/save.png
+//go:embed gfx/icons/miner.png
+//go:embed gfx/icons/furnace.png
 
 var f embed.FS
 

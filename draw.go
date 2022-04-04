@@ -60,17 +60,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				continue
 			}*/
 
-			/* Item size, scaled */
+			//Item spacing
 			if glob.DrawScale >= 1.0 {
 				xisize = float64(glob.GameObjTypes[mobj.Type].Size.X) - glob.ItemSpacing
 				yisize = float64(glob.GameObjTypes[mobj.Type].Size.Y) - glob.ItemSpacing
 			}
 
-			/* Draw scale */
+			//Item size, scaled
 			xs = xisize * glob.DrawScale
 			ys = yisize * glob.DrawScale
 
-			/* Item x/y, scaled */
+			//Item size, scaled
 			x = (float64(mkey.X) * glob.DrawScale)
 			y = (float64(mkey.Y) * glob.DrawScale)
 
@@ -94,7 +94,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				yss = 1
 			}
 
-			DrawObject(screen, scrX, scrY, xss, yss, mobj.Type, glob.ObjSubGame, false)
+			DrawObject(screen, scrX, scrY, xs, ys, mobj.Type, glob.ObjSubGame, false)
 		}
 	}
 
@@ -165,7 +165,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 	var zoom float64 = glob.ZoomScale
 
 	if isUI {
-		zoom = ((xs + ys) / 2.0) / 2.6
+		zoom = 1
 	}
 
 	/* Skip if not visible */
@@ -174,14 +174,19 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 		typeData := temp[objType]
 
 		/* Draw rect */
-		ebitenutil.DrawRect(screen, x, y, xs, ys, typeData.ItemColor)
-
 		/* Symbols */
-		if zoom > 3 && typeData.Symbol != "" {
+		if typeData.Image == nil {
+			return
+
+			ebitenutil.DrawRect(screen, x, y, xs*zoom, ys*zoom, typeData.ItemColor)
+
 			tRect := text.BoundString(glob.ItemFont, typeData.Symbol)
 			opt := &ebiten.DrawImageOptions{}
-			opt.GeoM.Scale(zoom/glob.FontScale, zoom/glob.FontScale)
-			opt.GeoM.Translate(x, y+(((float64(tRect.Dy())*1.1)/glob.FontScale)*zoom))
+
+			if !isUI {
+				opt.GeoM.Scale(zoom/glob.FontScale, zoom/glob.FontScale)
+				opt.GeoM.Translate(x, y+(((float64(tRect.Dy()))/glob.FontScale)*zoom))
+			}
 
 			c := typeData.SymbolColor
 			// Reset RGB (not Alpha) 0 forcibly
@@ -194,11 +199,13 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 
 			text.DrawWithOptions(screen, typeData.Symbol, glob.ItemFont, opt)
 
-		}
-
-		if typeData.Image != nil {
+		} else {
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
+			if !isUI {
+				op.GeoM.Scale(zoom/glob.SpriteScale, zoom/glob.SpriteScale)
+			}
+			op.GeoM.Translate(x, y)
 			screen.DrawImage(typeData.Image, op)
 		}
 	}

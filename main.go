@@ -24,41 +24,30 @@ func NewGame() *Game {
 	glob.UITypeMax = len(glob.UIObjsTypes)
 	glob.MatTypeMax = len(glob.MatTypes)
 
-	//Load UI Sprites
-	for key, icon := range glob.UIObjsTypes {
-		if icon.ImagePath != "" {
-			img, err := data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				icon.Image = img
-				glob.UIObjsTypes[key] = icon
-			}
-		}
-	}
+	var img *ebiten.Image
+	var bg *ebiten.Image
+	var err error
+	opt := &ebiten.DrawImageOptions{}
 
-	//Load Game Sprites
-	for key, icon := range glob.GameObjTypes {
-		if icon.ImagePath != "" {
-			img, err := data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
-			if err != nil {
-				fmt.Println(err)
+	//Load Sprites
+	for _, otype := range glob.SubTypes {
+		for key, icon := range otype {
+			if icon.ImagePath != "" {
+				img, err = data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
+				bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
+				bg.Fill(otype[key].ItemColor)
+				bg.DrawImage(img, opt)
 			} else {
-				icon.Image = img
-				glob.GameObjTypes[key] = icon
+				bg = ebiten.NewImage(int(glob.SpriteScale), int(glob.SpriteScale))
+				bg.Fill(otype[key].ItemColor)
+				text.DrawWithOptions(bg, icon.Symbol, glob.ItemFont, opt)
 			}
-		}
-	}
 
-	//Load Materials Sprites
-	for key, icon := range glob.MatTypes {
-		if icon.ImagePath != "" {
-			img, err := data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
 			if err != nil {
 				fmt.Println(err)
 			} else {
-				icon.Image = img
-				glob.MatTypes[key] = icon
+				icon.Image = bg
+				otype[key] = icon
 			}
 		}
 	}
@@ -79,7 +68,7 @@ func NewGame() *Game {
 	if err != nil {
 		log.Fatal(err)
 	}
-	const dpi = 95
+	const dpi = 96
 	glob.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    24,
 		DPI:     dpi,

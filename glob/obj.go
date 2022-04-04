@@ -37,8 +37,8 @@ var (
 
 	GameObjTypes = map[int]ObjType{
 		//Game Objects
-		ObjTypeMiner:     {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, Name: "Miner", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
-		ObjTypeSmelter:   {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, Name: "Smelter", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		ObjTypeMiner:     {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, ImagePath: "miner.png", Name: "Miner", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		ObjTypeSmelter:   {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, ImagePath: "furnace.png", Name: "Smelter", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
 		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, Name: "Assembler", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
 		ObjTypeTower:     {ItemColor: &ColorRed, Symbol: "T", SymbolColor: &ColorWhite, Name: "Tower", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
 	}
