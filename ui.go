@@ -107,7 +107,7 @@ func (g *Game) Update() error {
 		glob.ZoomMouse = 0.2
 	}
 	if !glob.ZoomSetup {
-		glob.ZoomMouse = 35
+		glob.ZoomMouse = 64
 		glob.ZoomSetup = true
 	}
 	glob.ZoomScale = ((glob.ZoomMouse * glob.ZoomMouse * glob.ZoomMouse) / 4000)
@@ -188,24 +188,43 @@ func (g *Game) Update() error {
 					glob.WorldMap[cpos] = chunk
 					chunk.MObj = make(map[glob.Position]*glob.MObj)
 				}
+				//Mak obj if needed
 				obj := chunk.MObj[pos]
+				bypass := false
 				if obj == nil {
-					fmt.Println("Made obj:", pos)
-					obj = &glob.MObj{}
-					chunk.MObj[pos] = obj
-				}
-				if obj.Type == glob.ObjTypeNone {
-					obj.Type = glob.SelectedItemType
-				} else {
-					//Delete object
-					fmt.Println("Object deleted:", pos)
-					delete(chunk.MObj, pos)
+					size := glob.GameObjTypes[glob.SelectedItemType].Size
+					if size.X > 1 || size.Y > 1 {
+						for tx := 0; tx < size.X; tx++ {
+							for ty := 0; ty < size.Y; ty++ {
+								if chunk.MObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
+									fmt.Println("ERROR: Occupied.")
+									bypass = true
+								}
+							}
+						}
+					}
+					if !bypass {
+						fmt.Println("Made obj:", pos)
+						obj = &glob.MObj{}
+						chunk.MObj[pos] = obj
 
-					//Delete chunk if empty
-					if len(chunk.MObj) <= 0 {
-						cpos := util.PosToChunkPos(pos)
-						fmt.Println("Chunk deleted:", cpos)
-						delete(glob.WorldMap, cpos)
+					}
+				}
+				if !bypass {
+					//Change obj type
+					if obj.Type == glob.ObjTypeNone {
+						obj.Type = glob.SelectedItemType
+					} else {
+						//Delete object
+						fmt.Println("Object deleted:", pos)
+						delete(chunk.MObj, pos)
+
+						//Delete chunk if empty
+						if len(chunk.MObj) <= 0 {
+							cpos := util.PosToChunkPos(pos)
+							fmt.Println("Chunk deleted:", cpos)
+							delete(glob.WorldMap, cpos)
+						}
 					}
 				}
 
