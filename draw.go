@@ -176,7 +176,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 		/* Draw rect */
 		/* Symbols */
 		if typeData.Image == nil {
-			fmt.Println("Nil image!")
+			fmt.Println("DrawObject: nil ebten.*image eencountered.")
 			return
 		} else {
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
