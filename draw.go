@@ -182,7 +182,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
 			if !isUI {
-				op.GeoM.Scale(zoom/glob.SpriteScale, zoom/glob.SpriteScale)
+				op.GeoM.Scale(((xs)*zoom)/glob.SpriteScale, ((ys)*zoom)/glob.SpriteScale)
 			}
 			op.GeoM.Translate(x, y)
 			if !isUI && zoom < 64 {
