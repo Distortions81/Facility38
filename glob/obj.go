@@ -12,10 +12,10 @@ var (
 	ObjTypeSave = 1
 
 	//Buildings
-	ObjTypeMiner   = 1
-	ObjTypeSmelter = 2
-	//ObjTypeAssembler  = 3
-	ObjTypeIronCaster = 3
+	ObjTypeBasicMiner      = 1
+	ObjTypeBasicSmelter    = 2
+	ObjTypeBasicIronCaster = 3
+	ObjTypeBasicLoader     = 4
 
 	//Materials
 	ObjTypeDefault = 1
@@ -32,15 +32,15 @@ var (
 
 	UIObjsTypes = map[int]ObjType{
 		//Ui Only
-		ObjTypeSave: {ItemColor: &ColorGray, Name: "Save", ImagePath: "save.png", Action: SaveGame, SubType: ObjSubUI},
+		ObjTypeSave: {ItemColor: &ColorGray, Name: "Save", ImagePath: "ui/save.png", Action: SaveGame, SubType: ObjSubUI},
 	}
 
 	GameObjTypes = map[int]ObjType{
 		//Game Objects
-		ObjTypeMiner:   {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, ImagePath: "miner.png", Name: "Miner", Size: Position{X: 2, Y: 2}, SubType: ObjSubGame},
-		ObjTypeSmelter: {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, ImagePath: "furnace.png", Name: "Smelter", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
-		//ObjTypeAssembler:  {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, ImagePath: "assm.png", Name: "Assembler", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
-		ObjTypeIronCaster: {ItemColor: &ColorRed, Symbol: "C", SymbolColor: &ColorWhite, ImagePath: "iron-caster.png", Name: "IronCaster", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		ObjTypeBasicMiner:      {ImagePath: "basic-miner.png", Name: "Basic miner", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		ObjTypeBasicSmelter:    {ImagePath: "basic-smelter.png", Name: "Basic smelter", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		ObjTypeBasicIronCaster: {ImagePath: "iron-rod-caster.png", Name: "Iron rod caster", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		ObjTypeBasicLoader:     {ImagePath: "basic-loader.png", Name: "Basic loader", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
 	}
 
 	MatTypes = map[int]ObjType{
@@ -49,11 +49,6 @@ var (
 		ObjTypeWood:    {ItemColor: &ColorBrown, Symbol: "w", SymbolColor: &ColorYellow, Name: "Wood", Size: Position{X: 1, Y: 1}, SubType: ObjSubMat},
 		ObjTypeCoal:    {ItemColor: &ColorBlack, Symbol: "c", SymbolColor: &ColorWhite, Name: "Coal", Size: Position{X: 1, Y: 1}, SubType: ObjSubMat},
 		ObjTypeIron:    {ItemColor: &ColorRust, Symbol: "s", SymbolColor: &ColorBlack, Name: "Iron", Size: Position{X: 1, Y: 1}, SubType: ObjSubMat},
-	}
-
-	Toolbar = []int{
-		ObjTypeSave,
-		ObjTypeMiner,
 	}
 
 	SubTypes = map[int]map[int]ObjType{

@@ -10,11 +10,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-//go:embed gfx/icons/save.png
-//go:embed gfx/icons/miner.png
-//go:embed gfx/icons/furnace.png
-//go:embed gfx/icons/assm.png
-//go:embed gfx/icons/iron-caster.png
+//go:embed gfx/icons/ui/save.png
+//go:embed gfx/icons/basic-miner.png
+//go:embed gfx/icons/basic-smelter.png
+//go:embed gfx/icons/iron-rod-caster.png
+//go:embed gfx/icons/basic-loader.png
 
 var f embed.FS
 
