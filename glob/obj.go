@@ -12,10 +12,10 @@ var (
 	ObjTypeSave = 1
 
 	//Buildings
-	ObjTypeMiner     = 1
-	ObjTypeSmelter   = 2
-	ObjTypeAssembler = 3
-	ObjTypeTower     = 4
+	ObjTypeMiner   = 1
+	ObjTypeSmelter = 2
+	//ObjTypeAssembler  = 3
+	ObjTypeIronCaster = 3
 
 	//Materials
 	ObjTypeDefault = 1
@@ -37,10 +37,10 @@ var (
 
 	GameObjTypes = map[int]ObjType{
 		//Game Objects
-		ObjTypeMiner:     {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, ImagePath: "miner.png", Name: "Miner", Size: Position{X: 2, Y: 2}, SubType: ObjSubGame},
-		ObjTypeSmelter:   {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, ImagePath: "furnace.png", Name: "Smelter", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
-		ObjTypeAssembler: {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, ImagePath: "assm.png", Name: "Assembler", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
-		ObjTypeTower:     {ItemColor: &ColorRed, Symbol: "T", SymbolColor: &ColorWhite, Name: "Tower", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		ObjTypeMiner:   {ItemColor: &ColorWhite, Symbol: "M", SymbolColor: &ColorGray, ImagePath: "miner.png", Name: "Miner", Size: Position{X: 2, Y: 2}, SubType: ObjSubGame},
+		ObjTypeSmelter: {ItemColor: &ColorOrange, Symbol: "S", SymbolColor: &ColorWhite, ImagePath: "furnace.png", Name: "Smelter", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		//ObjTypeAssembler:  {ItemColor: &ColorGray, Symbol: "A", SymbolColor: &ColorBlack, ImagePath: "assm.png", Name: "Assembler", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
+		ObjTypeIronCaster: {ItemColor: &ColorRed, Symbol: "C", SymbolColor: &ColorWhite, ImagePath: "iron-caster.png", Name: "IronCaster", Size: Position{X: 1, Y: 1}, SubType: ObjSubGame},
 	}
 
 	MatTypes = map[int]ObjType{

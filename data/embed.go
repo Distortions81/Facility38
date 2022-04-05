@@ -14,6 +14,7 @@ import (
 //go:embed gfx/icons/miner.png
 //go:embed gfx/icons/furnace.png
 //go:embed gfx/icons/assm.png
+//go:embed gfx/icons/iron-caster.png
 
 var f embed.FS
 
