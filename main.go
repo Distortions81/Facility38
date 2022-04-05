@@ -78,7 +78,7 @@ func NewGame() *Game {
 			if icon.ImagePath != "" {
 				img, err = data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
 				bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
-				bg.Fill(otype[key].ItemColor)
+				//bg.Fill(otype[key].ItemColor)
 				bg.DrawImage(img, nil)
 			} else {
 				bg = ebiten.NewImage(int(glob.SpriteScale), int(glob.SpriteScale))
