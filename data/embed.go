@@ -11,10 +11,12 @@ import (
 )
 
 //go:embed gfx/icons/ui/save.png
-//go:embed gfx/icons/basic-miner.png
-//go:embed gfx/icons/basic-smelter.png
-//go:embed gfx/icons/iron-rod-caster.png
-//go:embed gfx/icons/basic-loader.png
+//go:embed gfx/icons/world-obj/basic-miner.png
+//go:embed gfx/icons/world-obj/basic-smelter.png
+//go:embed gfx/icons/world-obj/iron-rod-caster.png
+//go:embed gfx/icons/world-obj/basic-loader.png
+//go:embed gfx/icons/belt-obj/iron-ore.png
+//go:embed gfx/icons/world-obj/basic-box.png
 
 var f embed.FS
 
