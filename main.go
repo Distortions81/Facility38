@@ -27,30 +27,6 @@ func NewGame() *Game {
 	var img *ebiten.Image
 	var bg *ebiten.Image
 	var err error
-	opt := &ebiten.DrawImageOptions{}
-
-	//Load Sprites
-	for _, otype := range glob.SubTypes {
-		for key, icon := range otype {
-			if icon.ImagePath != "" {
-				img, err = data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
-				bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
-				bg.Fill(otype[key].ItemColor)
-				bg.DrawImage(img, opt)
-			} else {
-				bg = ebiten.NewImage(int(glob.SpriteScale), int(glob.SpriteScale))
-				bg.Fill(otype[key].ItemColor)
-				text.DrawWithOptions(bg, icon.Symbol, glob.ItemFont, opt)
-			}
-
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				icon.Image = bg
-				otype[key] = icon
-			}
-		}
-	}
 
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 
@@ -79,7 +55,7 @@ func NewGame() *Game {
 	}
 
 	glob.ItemFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    100,
+		Size:    56,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
@@ -94,6 +70,29 @@ func NewGame() *Game {
 	})
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	//Load Sprites
+	for _, otype := range glob.SubTypes {
+		for key, icon := range otype {
+			if icon.ImagePath != "" {
+				img, err = data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
+				bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
+				bg.Fill(otype[key].ItemColor)
+				bg.DrawImage(img, nil)
+			} else {
+				bg = ebiten.NewImage(int(glob.SpriteScale), int(glob.SpriteScale))
+				bg.Fill(icon.ItemColor)
+				text.Draw(bg, icon.Symbol, glob.ItemFont, glob.SymbOffX, 64-glob.SymbOffY, icon.SymbolColor)
+			}
+
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				icon.Image = bg
+				otype[key] = icon
+			}
+		}
 	}
 
 	//Boot Image

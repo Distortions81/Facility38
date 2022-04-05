@@ -176,29 +176,8 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 		/* Draw rect */
 		/* Symbols */
 		if typeData.Image == nil {
+			fmt.Println("Nil image!")
 			return
-
-			ebitenutil.DrawRect(screen, x, y, xs*zoom, ys*zoom, typeData.ItemColor)
-
-			tRect := text.BoundString(glob.ItemFont, typeData.Symbol)
-			opt := &ebiten.DrawImageOptions{}
-
-			if !isUI {
-				opt.GeoM.Scale(zoom/glob.FontScale, zoom/glob.FontScale)
-				opt.GeoM.Translate(x, y+(((float64(tRect.Dy()))/glob.FontScale)*zoom))
-			}
-
-			c := typeData.SymbolColor
-			// Reset RGB (not Alpha) 0 forcibly
-			opt.ColorM.Scale(0, 0, 0, 1)
-			// Set color
-			r := float64(c.R) / 0xff
-			g := float64(c.G) / 0xff
-			b := float64(c.B) / 0xff
-			opt.ColorM.Translate(r, g, b, 0)
-
-			text.DrawWithOptions(screen, typeData.Symbol, glob.ItemFont, opt)
-
 		} else {
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
@@ -206,6 +185,9 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 				op.GeoM.Scale(zoom/glob.SpriteScale, zoom/glob.SpriteScale)
 			}
 			op.GeoM.Translate(x, y)
+			if !isUI && zoom < 64 {
+				op.Filter = ebiten.FilterLinear
+			}
 			screen.DrawImage(typeData.Image, op)
 		}
 	}

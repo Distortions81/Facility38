@@ -49,6 +49,8 @@ var (
 	KeyA      string
 	KeyB      string
 	FontScale float64 = 100
+	SymbOffX  int     = 7
+	SymbOffY  int     = 4
 
 	//Toolbar settings
 	TBSize         float64 = 64
