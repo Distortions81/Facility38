@@ -11,6 +11,7 @@ import (
 )
 
 //go:embed gfx/icons/ui/save.png
+//go:embed gfx/icons/ui/load.png
 //go:embed gfx/icons/world-obj/basic-miner.png
 //go:embed gfx/icons/world-obj/basic-smelter.png
 //go:embed gfx/icons/world-obj/iron-rod-caster.png

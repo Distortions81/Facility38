@@ -2,7 +2,6 @@ package main
 
 import (
 	"GameTest/consts"
-	"fmt"
 	"time"
 )
 
@@ -15,7 +14,7 @@ func GLogic() {
 		if time.Since(lastUpdate) > consts.GameLogicRate {
 			ticks++
 
-			fmt.Println("Tick:", ticks)
+			//fmt.Println("Tick:", ticks)
 		}
 
 		//Reduce busy waiting

@@ -32,6 +32,7 @@ const (
 
 	//UI Only
 	ObjTypeSave = 1
+	ObjTypeLoad = 2
 
 	//Buildings
 	ObjTypeBasicMiner      = 1

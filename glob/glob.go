@@ -145,3 +145,25 @@ func SaveGame() {
 		return
 	}
 }
+
+func LoadGame() {
+	file, err := os.Open(consts.SaveGame)
+	if err != nil {
+		fmt.Println("LoadGame: os.Open failure")
+		return
+	}
+	defer file.Close()
+
+	var item []SaveObj
+	dec := json.NewDecoder(file)
+	err = dec.Decode(&item)
+	if err != nil {
+		fmt.Println("LoadGame: dec.Decode failure")
+		return
+	}
+
+	for _, obj := range item {
+		WorldMap[obj.Pos] = &MapChunk{MObj: make(map[Position]*MObj)}
+		WorldMap[obj.Pos].MObj[obj.Pos] = &MObj{Type: obj.Type}
+	}
+}

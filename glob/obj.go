@@ -14,6 +14,7 @@ var (
 	UIObjsTypes = map[int]ObjType{
 		//Ui Only
 		consts.ObjTypeSave: {ItemColor: &ColorGray, Name: "Save", ImagePath: "ui/save.png", Action: SaveGame, SubType: consts.ObjSubUI},
+		consts.ObjTypeLoad: {ItemColor: &ColorGray, Name: "Load", ImagePath: "ui/load.png", Action: LoadGame, SubType: consts.ObjSubUI},
 	}
 
 	GameObjTypes = map[int]ObjType{
