@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"fmt"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -132,102 +133,129 @@ func (g *Game) Update() error {
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		glob.MousePressed = false
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		if !glob.MousePressed {
-			glob.MousePressed = true
+		glob.MousePressed = true
+		glob.LastObjX = consts.XYEmpty
+		glob.LastObjY = consts.XYEmpty
+		glob.LastActionType = consts.DragActionTypeNone
+	}
 
-			captured := false
+	if glob.MousePressed {
+		captured := false
 
-			//UI area
-			//Toolbar
-			//UI Objs
-			uipix := float64((glob.UITypeMax + glob.GameTypeMax) * int(glob.TBSize))
+		//UI area
+		//Toolbar
+		//UI Objs
+		uipix := float64((glob.UITypeMax + glob.GameTypeMax) * int(consts.TBSize))
 
-			//Ui Objs
-			if glob.MousePosX <= float64((glob.UITypeMax+glob.GameTypeMax)*int(glob.TBSize))+glob.ToolBarOffsetX+uipix {
-				if glob.MousePosY <= glob.TBSize+glob.ToolBarOffsetY {
-					itemType := int((glob.MousePosX - glob.ToolBarOffsetX) / glob.TBSize)
-					if glob.GameObjTypes[itemType].SubType == glob.ObjSubGame {
-						glob.SelectedItemType = itemType
-					} else if glob.GameObjTypes[itemType].Action != nil {
-						glob.GameObjTypes[itemType].Action()
-					}
-					captured = true
+		//Ui Objs
+		if glob.MousePosX <= float64((glob.UITypeMax+glob.GameTypeMax)*int(consts.TBSize))+consts.ToolBarOffsetX+uipix {
+			if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
+				itemType := int((glob.MousePosX - consts.ToolBarOffsetX) / consts.TBSize)
+				if glob.GameObjTypes[itemType].SubType == consts.ObjSubGame {
+					glob.SelectedItemType = itemType
+				} else if glob.GameObjTypes[itemType].Action != nil {
+					glob.GameObjTypes[itemType].Action()
 				}
+				captured = true
 			}
-			//Game Objs
-			if glob.MousePosX <= float64((glob.UITypeMax+glob.GameTypeMax)*int(glob.TBSize))+glob.ToolBarOffsetX+uipix {
-				if glob.MousePosY <= glob.TBSize+glob.ToolBarOffsetY {
-					itemType := int((glob.MousePosX - glob.ToolBarOffsetX) / glob.TBSize)
-					if glob.GameObjTypes[itemType].SubType == glob.ObjSubGame {
-						glob.SelectedItemType = itemType
-					} else if glob.GameObjTypes[itemType].Action != nil {
-						glob.GameObjTypes[itemType].Action()
-					}
-					captured = true
+		}
+		//Game Objs
+		if glob.MousePosX <= float64((glob.UITypeMax+glob.GameTypeMax)*int(consts.TBSize))+consts.ToolBarOffsetX+uipix {
+			if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
+				itemType := int((glob.MousePosX - consts.ToolBarOffsetX) / consts.TBSize)
+				if glob.GameObjTypes[itemType].SubType == consts.ObjSubGame {
+					glob.SelectedItemType = itemType
+				} else if glob.GameObjTypes[itemType].Action != nil {
+					glob.GameObjTypes[itemType].Action()
 				}
+				captured = true
 			}
+		}
 
-			if !captured {
-				//Get mouse position on world
-				dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-				dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
-				//Get position on game world
-				gwx := (dtx / glob.DrawScale)
-				gwy := (dty / glob.DrawScale)
+		if !captured {
+			//Get mouse position on world
+			dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
+			dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+			//Get position on game world
+			gwx := (dtx / consts.DrawScale)
+			gwy := (dty / consts.DrawScale)
 
-				pos := util.FloatXYToPosition(gwx, gwy)
+			pos := util.FloatXYToPosition(gwx, gwy)
 
-				chunk := util.GetChunk(pos)
+			if pos.X != glob.LastObjX || pos.Y != glob.LastObjY {
+				if time.Since(glob.LastActionTime) > glob.BuildActionDelay {
 
-				//Make chunk if needed
-				if chunk == nil {
-					cpos := util.PosToChunkPos(pos)
-					fmt.Println("Made chunk:", cpos)
+					chunk := util.GetChunk(pos)
 
-					chunk = &glob.MapChunk{}
-					glob.WorldMap[cpos] = chunk
-					chunk.MObj = make(map[glob.Position]*glob.MObj)
-				}
-				//Mak obj if needed
-				obj := chunk.MObj[pos]
-				bypass := false
-				if obj == nil {
-					size := glob.GameObjTypes[glob.SelectedItemType].Size
-					if size.X > 1 || size.Y > 1 {
-						for tx := 0; tx < size.X; tx++ {
-							for ty := 0; ty < size.Y; ty++ {
-								if chunk.MObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
-									fmt.Println("ERROR: Occupied.")
-									bypass = true
+					//Make chunk if needed
+					if chunk == nil {
+						cpos := util.PosToChunkPos(pos)
+						fmt.Println("Made chunk:", cpos)
+
+						chunk = &glob.MapChunk{}
+						glob.WorldMap[cpos] = chunk
+						chunk.MObj = make(map[glob.Position]*glob.MObj)
+					}
+					//Make obj if needed
+					obj := chunk.MObj[pos]
+					bypass := false
+					if obj == nil {
+						//Prevent flopping between delete and create when dragging
+						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
+							size := glob.GameObjTypes[glob.SelectedItemType].Size
+							if size.X > 1 || size.Y > 1 {
+								for tx := 0; tx < size.X; tx++ {
+									for ty := 0; ty < size.Y; ty++ {
+										if chunk.MObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
+											fmt.Println("ERROR: Occupied.")
+											bypass = true
+										}
+									}
+								}
+							}
+							if !bypass {
+								fmt.Println("Made obj:", pos)
+								obj = &glob.MObj{}
+								chunk.MObj[pos] = obj
+							}
+						}
+					}
+					if !bypass && obj != nil {
+						//Change obj type
+						if obj.Type == consts.ObjTypeNone {
+
+							obj.Type = glob.SelectedItemType
+
+							//Action completed, save position
+							glob.LastObjX = pos.X
+							glob.LastObjY = pos.Y
+							glob.LastActionType = consts.DragActionTypeBuild
+							glob.LastActionTime = time.Now()
+
+						} else {
+							if time.Since(glob.LastActionTime) > glob.RemoveActionDelay {
+								if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
+									//Delete object
+									fmt.Println("Object deleted:", pos)
+									delete(chunk.MObj, pos)
+
+									//Action completed, save position
+									glob.LastObjX = pos.X
+									glob.LastObjY = pos.Y
+									glob.LastActionType = consts.DragActionTypeDelete
+									glob.LastActionTime = time.Now()
+
+									//Delete chunk if empty
+									if len(chunk.MObj) <= 0 {
+										cpos := util.PosToChunkPos(pos)
+										fmt.Println("Chunk deleted:", cpos)
+										delete(glob.WorldMap, cpos)
+									}
 								}
 							}
 						}
 					}
-					if !bypass {
-						fmt.Println("Made obj:", pos)
-						obj = &glob.MObj{}
-						chunk.MObj[pos] = obj
-
-					}
 				}
-				if !bypass {
-					//Change obj type
-					if obj.Type == glob.ObjTypeNone {
-						obj.Type = glob.SelectedItemType
-					} else {
-						//Delete object
-						fmt.Println("Object deleted:", pos)
-						delete(chunk.MObj, pos)
-
-						//Delete chunk if empty
-						if len(chunk.MObj) <= 0 {
-							cpos := util.PosToChunkPos(pos)
-							fmt.Println("Chunk deleted:", cpos)
-							delete(glob.WorldMap, cpos)
-						}
-					}
-				}
-
 			}
 		}
 	}
