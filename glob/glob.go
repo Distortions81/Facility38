@@ -31,8 +31,7 @@ type Position struct {
 }
 
 type ObjType struct {
-	SubType int
-	Name    string
+	Name string
 
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
@@ -160,10 +159,5 @@ func LoadGame() {
 	if err != nil {
 		fmt.Println("LoadGame: dec.Decode failure")
 		return
-	}
-
-	for _, obj := range item {
-		WorldMap[obj.Pos] = &MapChunk{MObj: make(map[Position]*MObj)}
-		WorldMap[obj.Pos].MObj[obj.Pos] = &MObj{Type: obj.Type}
 	}
 }

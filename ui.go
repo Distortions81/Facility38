@@ -128,6 +128,7 @@ func (g *Game) Update() error {
 	my := float64(inty)
 	glob.MousePosX = mx
 	glob.MousePosY = my
+	var captured bool = false
 
 	//Mouse clicks
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
@@ -136,41 +137,48 @@ func (g *Game) Update() error {
 		glob.MousePressed = true
 		glob.LastObjPos = glob.XYEmpty
 		glob.LastActionType = consts.DragActionTypeNone
-	}
 
-	if glob.MousePressed {
-		captured := false
-
-		//UI area
 		//Toolbar
 		//UI Objs
 		uipix := float64((glob.UITypeMax + glob.GameTypeMax) * int(consts.TBSize))
+		startCount := 0.0
 
 		//Ui Objs
-		if glob.MousePosX <= float64((glob.UITypeMax+glob.GameTypeMax)*int(consts.TBSize))+consts.ToolBarOffsetX+uipix {
+		if glob.MousePosX <= uipix+consts.ToolBarOffsetX {
 			if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
-				itemType := int((glob.MousePosX - consts.ToolBarOffsetX) / consts.TBSize)
-				if glob.GameObjTypes[itemType].SubType == consts.ObjSubGame {
-					glob.SelectedItemType = itemType
-				} else if glob.GameObjTypes[itemType].Action != nil {
-					glob.GameObjTypes[itemType].Action()
+				item := int((glob.MousePosX-consts.ToolBarOffsetX-startCount)/consts.TBSize) + 1
+				if glob.UIObjsTypes[item].Action != nil {
+					glob.UIObjsTypes[item].Action()
+
+					fmt.Println("UI Action:", glob.UIObjsTypes[item].Name)
+					captured = true
+					glob.MousePressed = false
 				}
-				captured = true
-			}
-		}
-		//Game Objs
-		if glob.MousePosX <= float64((glob.UITypeMax+glob.GameTypeMax)*int(consts.TBSize))+consts.ToolBarOffsetX+uipix {
-			if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
-				itemType := int((glob.MousePosX - consts.ToolBarOffsetX) / consts.TBSize)
-				if glob.GameObjTypes[itemType].SubType == consts.ObjSubGame {
-					glob.SelectedItemType = itemType
-				} else if glob.GameObjTypes[itemType].Action != nil {
-					glob.GameObjTypes[itemType].Action()
-				}
-				captured = true
 			}
 		}
 
+		startCount = float64((glob.UITypeMax) * consts.TBSize)
+
+		//Game Objs
+		if !captured {
+			if glob.MousePosX <= uipix+consts.ToolBarOffsetX+startCount {
+				if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
+					captured = true
+					glob.MousePressed = false
+
+					item := int((glob.MousePosX-consts.ToolBarOffsetX-startCount)/consts.TBSize) + 1
+					if glob.GameObjTypes[item].Name != "" {
+						glob.SelectedItemType = item
+						fmt.Println("Item selected:", glob.GameObjTypes[item].Name)
+					}
+				}
+			}
+		}
+	}
+
+	if glob.MousePressed {
+
+		//UI area
 		if !captured {
 			//Get mouse position on world
 			dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
