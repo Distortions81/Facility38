@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
@@ -45,25 +46,7 @@ type ObjType struct {
 }
 
 var (
-	WorldMap  map[Position]*MapChunk
-	KeyA      string
-	KeyB      string
-	FontScale float64 = 100
-	SymbOffX  int     = 7
-	SymbOffY  int     = 4
-
-	//Toolbar settings
-	TBSize         float64 = 64
-	SpriteScale    float64 = 64
-	TBThick        float64 = 2
-	ToolBarOffsetX float64 = 0
-	ToolBarOffsetY float64 = 0
-
-	//Draw settings
-	DrawScale float64 = 1 //Map item draw size
-	ChunkSize int     = 32
-
-	ItemSpacing float64 = 0.0 //Spacing between items
+	WorldMap map[Position]*MapChunk
 
 	//eBiten settings
 	ScreenWidth  int = 1280 //Screen width default
@@ -88,6 +71,15 @@ var (
 	MousePosY  float64 = 0
 	LastMouseX float64 = 0
 	LastMouseY float64 = 0
+
+	//Last object we performed an action on
+	//Used for click-drag
+	LastObjX          int = 0
+	LastObjY          int = 0
+	LastActionTime    time.Time
+	BuildActionDelay  time.Duration = time.Millisecond * 125
+	RemoveActionDelay time.Duration = time.Millisecond * 500
+	LastActionType    int           = 0
 
 	//Touch vars
 	LastTouchX int     = 0

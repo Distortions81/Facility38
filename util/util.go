@@ -1,6 +1,7 @@
 package util
 
 import (
+	"GameTest/consts"
 	"GameTest/glob"
 	"math"
 )
@@ -23,12 +24,12 @@ func GetObj(pos glob.Position, chunk *glob.MapChunk) *glob.MObj {
 
 //Automatically converts position to chunk format
 func GetChunk(pos glob.Position) *glob.MapChunk {
-	chunk := glob.WorldMap[glob.Position{X: int(pos.X / glob.ChunkSize), Y: int(pos.Y / glob.ChunkSize)}]
+	chunk := glob.WorldMap[glob.Position{X: int(pos.X / consts.ChunkSize), Y: int(pos.Y / consts.ChunkSize)}]
 	return chunk
 }
 
 func PosToChunkPos(pos glob.Position) glob.Position {
-	return glob.Position{X: int(pos.X / glob.ChunkSize), Y: int(pos.Y / glob.ChunkSize)}
+	return glob.Position{X: int(pos.X / consts.ChunkSize), Y: int(pos.Y / consts.ChunkSize)}
 }
 
 func FloatXYToPosition(x float64, y float64) glob.Position {

@@ -81,9 +81,9 @@ func NewGame() *Game {
 				//bg.Fill(otype[key].ItemColor)
 				bg.DrawImage(img, nil)
 			} else {
-				bg = ebiten.NewImage(int(glob.SpriteScale), int(glob.SpriteScale))
+				bg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
 				bg.Fill(icon.ItemColor)
-				text.Draw(bg, icon.Symbol, glob.ItemFont, glob.SymbOffX, 64-glob.SymbOffY, icon.SymbolColor)
+				text.Draw(bg, icon.Symbol, glob.ItemFont, consts.SymbOffX, 64-consts.SymbOffY, icon.SymbolColor)
 			}
 
 			if err != nil {

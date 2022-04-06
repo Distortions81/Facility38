@@ -42,16 +42,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	mainy := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
 
 	/* Calculate screen on world */
-	sx = int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / glob.DrawScale)
-	sy = int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale)
-	ex = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / glob.DrawScale)
-	ey = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / glob.DrawScale)
+	sx = int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / consts.DrawScale)
+	sy = int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / consts.DrawScale)
+	ex = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / consts.DrawScale)
+	ey = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / consts.DrawScale)
 
 	/* Draw world */
 	for ckey, chunk := range glob.WorldMap {
 
 		//Is this chunk on the screen?
-		if ckey.X < sx/glob.ChunkSize || ckey.X > ex/glob.ChunkSize || ckey.Y < sy/glob.ChunkSize || ckey.Y > ey/glob.ChunkSize {
+		if ckey.X < sx/consts.ChunkSize || ckey.X > ex/consts.ChunkSize || ckey.Y < sy/consts.ChunkSize || ckey.Y > ey/consts.ChunkSize {
 			continue
 		}
 		for mkey, mobj := range chunk.MObj {
@@ -61,18 +61,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}*/
 
 			//Item spacing
-			if glob.DrawScale >= 1.0 {
-				xisize = float64(glob.GameObjTypes[mobj.Type].Size.X) - glob.ItemSpacing
-				yisize = float64(glob.GameObjTypes[mobj.Type].Size.Y) - glob.ItemSpacing
+			if consts.DrawScale >= 1.0 {
+				xisize = float64(glob.GameObjTypes[mobj.Type].Size.X) - consts.ItemSpacing
+				yisize = float64(glob.GameObjTypes[mobj.Type].Size.Y) - consts.ItemSpacing
 			}
 
 			//Item size, scaled
-			xs = xisize * glob.DrawScale
-			ys = yisize * glob.DrawScale
+			xs = xisize * consts.DrawScale
+			ys = yisize * consts.DrawScale
 
 			//Item size, scaled
-			x = (float64(mkey.X) * glob.DrawScale)
-			y = (float64(mkey.Y) * glob.DrawScale)
+			x = (float64(mkey.X) * consts.DrawScale)
+			y = (float64(mkey.Y) * consts.DrawScale)
 
 			/* camera + object */
 			newx := mainx + (x)
@@ -94,7 +94,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				yss = 1
 			}
 
-			DrawObject(screen, scrX, scrY, xs, ys, mobj.Type, glob.ObjSubGame, false)
+			DrawObject(screen, scrX, scrY, xs, ys, mobj.Type, consts.ObjSubGame, false)
 		}
 	}
 
@@ -102,8 +102,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 	dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
 	//Adjust for draw scale
-	gwx := (dtx / glob.DrawScale)
-	gwy := (dty / glob.DrawScale)
+	gwx := (dtx / consts.DrawScale)
+	gwy := (dty / consts.DrawScale)
 
 	/* Draw debug info */
 	if glob.StatusStr != "" {
@@ -114,24 +114,24 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw toolbar */
 	for i := 1; i <= glob.UITypeMax; i++ {
-		DrawObject(screen, glob.ToolBarOffsetX+glob.TBSize*float64(i-1), glob.ToolBarOffsetY, glob.TBSize, glob.TBSize, i, glob.ObjSubUI, true)
+		DrawObject(screen, consts.ToolBarOffsetX+consts.TBSize*float64(i-1), consts.ToolBarOffsetY, consts.TBSize, consts.TBSize, i, consts.ObjSubUI, true)
 	}
-	spos := (glob.TBSize * float64(glob.UITypeMax))
+	spos := (consts.TBSize * float64(glob.UITypeMax))
 	for i := 1; i <= glob.GameTypeMax; i++ {
-		DrawObject(screen, spos+glob.ToolBarOffsetX+glob.TBSize*float64(i-1), glob.ToolBarOffsetY, glob.TBSize, glob.TBSize, i, glob.ObjSubGame, true)
+		DrawObject(screen, spos+consts.ToolBarOffsetX+consts.TBSize*float64(i-1), consts.ToolBarOffsetY, consts.TBSize, consts.TBSize, i, consts.ObjSubGame, true)
 		//Draw item selected
-		if i == glob.SelectedItemType && glob.GameObjTypes[i].SubType == glob.ObjSubGame {
-			ebitenutil.DrawRect(screen, spos+glob.ToolBarOffsetX+float64(i-1)*glob.TBSize, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorTBSelected)
-			ebitenutil.DrawRect(screen, spos+glob.ToolBarOffsetX+float64(i-1)*glob.TBSize, glob.ToolBarOffsetY, glob.TBSize, glob.TBThick, glob.ColorTBSelected)
+		if i == glob.SelectedItemType && glob.GameObjTypes[i].SubType == consts.ObjSubGame {
+			ebitenutil.DrawRect(screen, spos+consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, spos+consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
 
-			ebitenutil.DrawRect(screen, spos+glob.ToolBarOffsetX+float64(i-1)*glob.TBSize, glob.ToolBarOffsetY+glob.TBSize-glob.TBThick, glob.TBSize, glob.TBThick, glob.ColorTBSelected)
-			ebitenutil.DrawRect(screen, spos+glob.ToolBarOffsetX+(float64(i-1)*glob.TBSize)+glob.TBSize-glob.TBThick, glob.ToolBarOffsetY, glob.TBThick, glob.TBSize, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, spos+consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY+consts.TBSize-consts.TBThick, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, spos+consts.ToolBarOffsetX+(float64(i-1)*consts.TBSize)+consts.TBSize-consts.TBThick, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
 		}
 	}
 
 	/* Toolbar tool tip */
-	if glob.MousePosX <= float64(glob.GameTypeMax)*glob.TBSize && glob.MousePosY <= glob.TBSize {
-		toolTip := fmt.Sprintf("%v", glob.GameObjTypes[int(glob.MousePosX/glob.TBSize)+1].Name)
+	if glob.MousePosX <= float64(glob.GameTypeMax)*consts.TBSize && glob.MousePosY <= consts.TBSize {
+		toolTip := fmt.Sprintf("%v", glob.GameObjTypes[int(glob.MousePosX/consts.TBSize)+1].Name)
 		tRect := text.BoundString(glob.TipFont, toolTip)
 		mx := glob.MousePosX + 20
 		my := glob.MousePosY + 20
@@ -169,7 +169,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 	}
 
 	/* Skip if not visible */
-	if objType > glob.ObjTypeNone {
+	if objType > consts.ObjTypeNone {
 		temp := glob.SubTypes[subType]
 		typeData := temp[objType]
 
@@ -182,7 +182,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
 			if !isUI {
-				op.GeoM.Scale(((xs)*zoom)/glob.SpriteScale, ((ys)*zoom)/glob.SpriteScale)
+				op.GeoM.Scale(((xs)*zoom)/consts.SpriteScale, ((ys)*zoom)/consts.SpriteScale)
 			}
 			op.GeoM.Translate(x, y)
 			if !isUI && zoom < 64 {
