@@ -108,6 +108,9 @@ func NewGame() *Game {
 
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
 
+	//Game logic runs on its own thread
+	go GLogic()
+
 	// Initialize the game.
 	return &Game{}
 }
