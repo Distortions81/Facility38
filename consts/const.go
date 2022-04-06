@@ -1,5 +1,7 @@
 package consts
 
+import "time"
+
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
@@ -13,11 +15,13 @@ const (
 	SaveGame      = "save.json"
 	WorldUpdateMS = 250 //ms
 
+	UPS            = 4
+	GameLogicRate  = time.Millisecond * (1000 / UPS)
+	GameLogicSleep = GameLogicRate / 10
+
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
 	DragActionTypeDelete = 2
-
-	XYEmpty = -2147483648
 
 	ObjTypeNone = 0
 

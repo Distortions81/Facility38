@@ -134,8 +134,7 @@ func (g *Game) Update() error {
 		glob.MousePressed = false
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		glob.MousePressed = true
-		glob.LastObjX = consts.XYEmpty
-		glob.LastObjY = consts.XYEmpty
+		glob.LastObjPos = glob.XYEmpty
 		glob.LastActionType = consts.DragActionTypeNone
 	}
 
@@ -182,7 +181,7 @@ func (g *Game) Update() error {
 
 			pos := util.FloatXYToPosition(gwx, gwy)
 
-			if pos.X != glob.LastObjX || pos.Y != glob.LastObjY {
+			if pos != glob.LastObjPos {
 				if time.Since(glob.LastActionTime) > glob.BuildActionDelay {
 
 					chunk := util.GetChunk(pos)
@@ -226,9 +225,8 @@ func (g *Game) Update() error {
 
 							obj.Type = glob.SelectedItemType
 
-							//Action completed, save position
-							glob.LastObjX = pos.X
-							glob.LastObjY = pos.Y
+							//Action completed, save position and time
+							glob.LastObjPos = pos
 							glob.LastActionType = consts.DragActionTypeBuild
 							glob.LastActionTime = time.Now()
 
@@ -239,9 +237,8 @@ func (g *Game) Update() error {
 									fmt.Println("Object deleted:", pos)
 									delete(chunk.MObj, pos)
 
-									//Action completed, save position
-									glob.LastObjX = pos.X
-									glob.LastObjY = pos.Y
+									//Action completed, save position and time
+									glob.LastObjPos = pos
 									glob.LastActionType = consts.DragActionTypeDelete
 									glob.LastActionTime = time.Now()
 

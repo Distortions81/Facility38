@@ -48,6 +48,8 @@ type ObjType struct {
 var (
 	WorldMap map[Position]*MapChunk
 
+	XYEmpty = Position{X: -2147483648, Y: -2147483648}
+
 	//eBiten settings
 	ScreenWidth  int = 1280 //Screen width default
 	ScreenHeight int = 720  //Screen height default
@@ -74,8 +76,7 @@ var (
 
 	//Last object we performed an action on
 	//Used for click-drag
-	LastObjX          int = 0
-	LastObjY          int = 0
+	LastObjPos        Position
 	LastActionTime    time.Time
 	BuildActionDelay  time.Duration = time.Millisecond * 125
 	RemoveActionDelay time.Duration = time.Millisecond * 500
