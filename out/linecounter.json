@@ -1,0 +1,244 @@
+{
+    "extension": "linecounter",
+    "version": "0.2.7",
+    "workspace": "/home/carl/Documents/github/GameTest",
+    "linecount": [
+        {
+            "version": "0.2.7",
+            "counttime": "2022-04-06 23:59:56",
+            "filesum": 29,
+            "codesum": 1534,
+            "commentsum": 185,
+            "blanksum": 298,
+            "statistics": {
+                ".go": {
+                    "code": 777,
+                    "comment": 113,
+                    "blank": 226
+                },
+                ".mod": {
+                    "code": 17,
+                    "comment": 8,
+                    "blank": 3
+                },
+                ".json": {
+                    "code": 58,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".sh": {
+                    "code": 4,
+                    "comment": 0,
+                    "blank": 1
+                },
+                "": {
+                    "code": 4,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".sum": {
+                    "code": 124,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".js": {
+                    "code": 525,
+                    "comment": 64,
+                    "blank": 64
+                },
+                ".html": {
+                    "code": 25,
+                    "comment": 0,
+                    "blank": 4
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 0,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "bwash.sh"
+                },
+                {
+                    "blank": 13,
+                    "code": 45,
+                    "comment": 16,
+                    "filename": "consts/const.go"
+                },
+                {
+                    "blank": 11,
+                    "code": 23,
+                    "comment": 8,
+                    "filename": "data/embed.go"
+                },
+                {
+                    "filename": "data/gfx/icons/belt-obj/iron-ore.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/icons/ui/load.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/icons/ui/save.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/icons/world-obj/basic-box.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/icons/world-obj/basic-loader.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/icons/world-obj/basic-miner.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/icons/world-obj/basic-smelter.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/icons/world-obj/iron-rod-caster.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 40,
+                    "code": 143,
+                    "comment": 22,
+                    "filename": "draw.go"
+                },
+                {
+                    "filename": "GameTest",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "GameTest.exe",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 5,
+                    "code": 61,
+                    "comment": 0,
+                    "filename": "glob/colors.go"
+                },
+                {
+                    "blank": 50,
+                    "code": 128,
+                    "comment": 15,
+                    "filename": "glob/glob.go"
+                },
+                {
+                    "blank": 8,
+                    "code": 32,
+                    "comment": 4,
+                    "filename": "glob/obj.go"
+                },
+                {
+                    "blank": 8,
+                    "code": 13,
+                    "comment": 2,
+                    "filename": "glogic.go"
+                },
+                {
+                    "blank": 3,
+                    "code": 17,
+                    "comment": 8,
+                    "filename": "go.mod"
+                },
+                {
+                    "blank": 0,
+                    "code": 124,
+                    "comment": 0,
+                    "filename": "go.sum"
+                },
+                {
+                    "blank": 4,
+                    "code": 25,
+                    "comment": 0,
+                    "filename": "html/index.html"
+                },
+                {
+                    "filename": "html/main.wasm.gz",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "html/pako.min.js"
+                },
+                {
+                    "blank": 64,
+                    "code": 524,
+                    "comment": 63,
+                    "filename": "html/wasm_exec.js"
+                },
+                {
+                    "blank": 35,
+                    "code": 107,
+                    "comment": 11,
+                    "filename": "main.go"
+                },
+                {
+                    "blank": 0,
+                    "code": 58,
+                    "comment": 0,
+                    "filename": "save.json"
+                },
+                {
+                    "blank": 44,
+                    "code": 200,
+                    "comment": 34,
+                    "filename": "ui.go"
+                },
+                {
+                    "blank": 12,
+                    "code": 25,
+                    "comment": 1,
+                    "filename": "util/util.go"
+                }
+            ]
+        }
+    ]
+}
