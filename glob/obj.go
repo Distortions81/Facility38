@@ -10,7 +10,7 @@ var (
 	MatTypeMax  = 0
 	ToolbarMax  = 0
 
-	SelectedItemType = 2
+	SelectedItemType = 1
 	ToolbarItems     = map[int]ToolbarItem{}
 
 	UIObjsTypes = map[int]ObjType{
