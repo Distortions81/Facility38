@@ -158,7 +158,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 		temp := glob.SubTypes[consts.ObjSubGame]
 		typeData := temp[objType]
 
-		/* Symbols */
+		/* Draw sprite */
 		if typeData.Image == nil {
 			fmt.Println("DrawObject: nil ebiten.*image encountered:", typeData.Name)
 			return
@@ -172,6 +172,8 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			}
 			screen.DrawImage(typeData.Image, op)
 		}
+	} else {
+		fmt.Println("DrawObject: empty object encountered.")
 	}
 }
 
@@ -191,12 +193,13 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 		screen.DrawImage(item.Image, op)
 	}
 
-	/*
-		if i == glob.SelectedItemType {
-			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
-			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
+	if temp.Type == consts.ObjSubGame {
+		if temp.Key == glob.SelectedItemType {
+			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.TBSize, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.TBSize, consts.ToolBarOffsetY, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
 
-			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY+consts.TBSize-consts.TBThick, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
-			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+(float64(i-1)*consts.TBSize)+consts.TBSize-consts.TBThick, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
-		}*/
+			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.TBSize, consts.ToolBarOffsetY+consts.TBSize-consts.TBThick, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+(float64(pos)*consts.TBSize)+consts.TBSize-consts.TBThick, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
+		}
+	}
 }
