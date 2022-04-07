@@ -45,6 +45,7 @@ type ObjType struct {
 }
 
 type ToolbarItem struct {
+	Type int
 	Link map[int]ObjType
 	Key  int
 }
@@ -165,6 +166,9 @@ func LoadGame() {
 		fmt.Println("LoadGame: dec.Decode failure")
 		return
 	}
+
+	//Cleap map
+	WorldMap = make(map[Position]*MapChunk)
 
 	for _, i := range item {
 		var cpos = Position{X: i.Pos.X / consts.ChunkSize, Y: i.Pos.Y / consts.ChunkSize}
