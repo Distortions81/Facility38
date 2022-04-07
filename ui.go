@@ -139,39 +139,24 @@ func (g *Game) Update() error {
 		glob.LastActionType = consts.DragActionTypeNone
 
 		//Toolbar
-		//UI Objs
-		uipix := float64((glob.UITypeMax + glob.GameTypeMax) * int(consts.TBSize))
-		startCount := 0.0
-
-		//Ui Objs
+		uipix := float64(glob.ToolbarMax * int(consts.TBSize))
 		if glob.MousePosX <= uipix+consts.ToolBarOffsetX {
 			if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
-				item := int((glob.MousePosX-consts.ToolBarOffsetX-startCount)/consts.TBSize) + 1
-				if glob.UIObjsTypes[item].Action != nil {
-					glob.UIObjsTypes[item].Action()
+				ipos := int((glob.MousePosX - consts.ToolBarOffsetX) / consts.TBSize)
+				temp := glob.ToolbarItems[ipos].Link
+				item := temp[glob.ToolbarItems[ipos].Key]
 
-					fmt.Println("UI Action:", glob.UIObjsTypes[item].Name)
-					captured = true
-					glob.MousePressed = false
+				//Actions
+				if item.Action != nil {
+					item.Action()
+
+					fmt.Println("UI Action:", item.Name)
+				} else {
+					glob.SelectedItemType = glob.ToolbarItems[ipos].Key
+					fmt.Println("Selected:", item.Name)
 				}
-			}
-		}
-
-		startCount = float64((glob.UITypeMax) * consts.TBSize)
-
-		//Game Objs
-		if !captured {
-			if glob.MousePosX <= uipix+consts.ToolBarOffsetX+startCount {
-				if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
-					captured = true
-					glob.MousePressed = false
-
-					item := int((glob.MousePosX-consts.ToolBarOffsetX-startCount)/consts.TBSize) + 1
-					if glob.GameObjTypes[item].Name != "" {
-						glob.SelectedItemType = item
-						fmt.Println("Item selected:", glob.GameObjTypes[item].Name)
-					}
-				}
+				captured = true
+				glob.MousePressed = false
 			}
 		}
 	}
