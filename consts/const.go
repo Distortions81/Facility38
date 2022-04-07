@@ -5,15 +5,13 @@ import "time"
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
-	DEBUG         = false
-	Version       = "003"        //increment
-	Build         = "03.28.2022" //mmddyyyy
-	Wasm          = "js"         //Detect wasm/js
-	DataDir       = "data/"
-	GfxDir        = "gfx/"
-	IconsDir      = "icons/"
-	SaveGame      = "save.json"
-	WorldUpdateMS = 250 //ms
+	Version  = "004"        //increment
+	Build    = "04.07.2022" //mmddyyyy
+	Wasm     = "js"         //Detect wasm/js
+	DataDir  = "data/"
+	GfxDir   = "gfx/"
+	IconsDir = "icons/"
+	SaveGame = "save.json"
 
 	LogicUPS       = 4
 	GameLogicRate  = time.Millisecond * (1000 / LogicUPS)
@@ -47,8 +45,6 @@ const (
 	ObjTypeCoal    = 3
 	ObjTypeIronOre = 4
 
-	//Settings
-	FontScale = 100
 	//Item Symbol
 	SymbOffX = 7
 	SymbOffY = 4
