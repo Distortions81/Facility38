@@ -165,4 +165,19 @@ func LoadGame() {
 		fmt.Println("LoadGame: dec.Decode failure")
 		return
 	}
+
+	for _, i := range item {
+		var cpos = Position{X: i.Pos.X / consts.ChunkSize, Y: i.Pos.Y / consts.ChunkSize}
+
+		//Make chunk if needed
+		if WorldMap[cpos] == nil {
+			var chunk = &MapChunk{}
+			chunk.MObj = make(map[Position]*MObj)
+			WorldMap[cpos] = chunk
+		}
+
+		var obj = &MObj{}
+		obj.Type = i.Type
+		WorldMap[cpos].MObj[i.Pos] = obj
+	}
 }
