@@ -95,6 +95,25 @@ func NewGame() *Game {
 		}
 	}
 
+	//Make default toolbar
+	t := len(glob.SubTypes)
+	var z int = 0
+	for x := 0; x <= t; x++ {
+		if x == consts.ObjSubUI || x == consts.ObjSubGame {
+			link := glob.SubTypes[x]
+			llen := len(link)
+			for y := 1; y <= llen; y++ {
+				temp := glob.ToolbarItem{}
+				temp.Link = link
+				temp.Key = y
+				glob.ToolbarItems[z] = temp
+				//fmt.Println(link[y].Name)
+				z++
+			}
+		}
+	}
+	glob.ToolbarMax = z
+
 	//Boot Image
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
 

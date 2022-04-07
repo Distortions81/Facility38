@@ -8,8 +8,10 @@ var (
 	GameTypeMax = 0
 	UITypeMax   = 0
 	MatTypeMax  = 0
+	ToolbarMax  = 0
 
 	SelectedItemType = 2
+	ToolbarItems     = map[int]ToolbarItem{}
 
 	UIObjsTypes = map[int]ObjType{
 		//Ui Only

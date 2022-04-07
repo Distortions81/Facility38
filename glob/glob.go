@@ -44,6 +44,11 @@ type ObjType struct {
 	Action func()
 }
 
+type ToolbarItem struct {
+	Link map[int]ObjType
+	Key  int
+}
+
 var (
 	WorldMap map[Position]*MapChunk
 

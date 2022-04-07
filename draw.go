@@ -55,10 +55,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			continue
 		}
 		for mkey, mobj := range chunk.MObj {
-			//Is this obj on the screen?
-			/*if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
-				continue
-			}*/
 
 			//Item spacing
 			if consts.DrawScale >= 1.0 {
@@ -94,7 +90,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				yss = 1
 			}
 
-			DrawObject(screen, scrX, scrY, xs, ys, mobj.Type, consts.ObjSubGame, false)
+			DrawObject(screen, scrX, scrY, xs, ys, mobj.Type)
+
 		}
 	}
 
@@ -113,25 +110,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw toolbar */
-	for i := 1; i <= glob.UITypeMax; i++ {
-		DrawObject(screen, consts.ToolBarOffsetX+consts.TBSize*float64(i-1), consts.ToolBarOffsetY, consts.TBSize, consts.TBSize, i, consts.ObjSubUI, true)
-	}
-	spos := (consts.TBSize * float64(glob.UITypeMax))
-	for i := 1; i <= glob.GameTypeMax; i++ {
-		DrawObject(screen, spos+consts.ToolBarOffsetX+consts.TBSize*float64(i-1), consts.ToolBarOffsetY, consts.TBSize, consts.TBSize, i, consts.ObjSubGame, true)
-		//Draw item selected
-		if i == glob.SelectedItemType {
-			ebitenutil.DrawRect(screen, spos+consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
-			ebitenutil.DrawRect(screen, spos+consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
-
-			ebitenutil.DrawRect(screen, spos+consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY+consts.TBSize-consts.TBThick, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
-			ebitenutil.DrawRect(screen, spos+consts.ToolBarOffsetX+(float64(i-1)*consts.TBSize)+consts.TBSize-consts.TBThick, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
-		}
+	for i := 0; i < glob.ToolbarMax; i++ {
+		DrawToolItem(screen, i)
 	}
 
 	/* Toolbar tool tip */
-	if glob.MousePosX <= float64(glob.GameTypeMax)*consts.TBSize && glob.MousePosY <= consts.TBSize {
-		toolTip := fmt.Sprintf("%v", glob.GameObjTypes[int(glob.MousePosX/consts.TBSize)+1].Name)
+	uipix := float64(glob.ToolbarMax * int(consts.TBSize))
+	if glob.MousePosX <= uipix+consts.ToolBarOffsetX && glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
+		temp := glob.ToolbarItems[int(glob.MousePosX/consts.TBSize)]
+		item := temp.Link[temp.Key]
+
+		toolTip := fmt.Sprintf("%v", item.Name)
 		tRect := text.BoundString(glob.TipFont, toolTip)
 		mx := glob.MousePosX + 20
 		my := glob.MousePosY + 20
@@ -160,35 +149,54 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 }
 
-func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, objType int, subType int, isUI bool) {
+func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, objType int) {
 
 	var zoom float64 = glob.ZoomScale
 
-	if isUI {
-		zoom = 1
-	}
-
 	/* Skip if not visible */
 	if objType > consts.ObjTypeNone {
-		temp := glob.SubTypes[subType]
+		temp := glob.SubTypes[consts.ObjSubGame]
 		typeData := temp[objType]
 
-		/* Draw rect */
 		/* Symbols */
 		if typeData.Image == nil {
-			fmt.Println("DrawObject: nil ebten.*image eencountered.")
+			fmt.Println("DrawObject: nil ebiten.*image encountered:", typeData.Name)
 			return
 		} else {
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
-			if !isUI {
-				op.GeoM.Scale(((xs)*zoom)/consts.SpriteScale, ((ys)*zoom)/consts.SpriteScale)
-			}
+			op.GeoM.Scale(((xs)*zoom)/consts.SpriteScale, ((ys)*zoom)/consts.SpriteScale)
 			op.GeoM.Translate(x, y)
-			if !isUI && zoom < 64 {
+			if zoom < 64 {
 				op.Filter = ebiten.FilterLinear
 			}
 			screen.DrawImage(typeData.Image, op)
 		}
 	}
+}
+
+func DrawToolItem(screen *ebiten.Image, pos int) {
+	temp := glob.ToolbarItems[pos]
+	item := temp.Link[temp.Key]
+
+	x := float64(consts.TBSize * pos)
+
+	if item.Image == nil {
+		fmt.Println("DrawToolItem: nil ebiten.*image encountered:", item.Name)
+		return
+	} else {
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+		op.GeoM.Reset()
+		op.GeoM.Translate(x, 0)
+		screen.DrawImage(item.Image, op)
+	}
+
+	/*
+		if i == glob.SelectedItemType {
+			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
+
+			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(i-1)*consts.TBSize, consts.ToolBarOffsetY+consts.TBSize-consts.TBThick, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
+			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+(float64(i-1)*consts.TBSize)+consts.TBSize-consts.TBThick, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
+		}*/
 }
