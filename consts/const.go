@@ -15,8 +15,8 @@ const (
 	SaveGame      = "save.json"
 	WorldUpdateMS = 250 //ms
 
-	UPS            = 4
-	GameLogicRate  = time.Millisecond * (1000 / UPS)
+	LogicUPS       = 4
+	GameLogicRate  = time.Millisecond * (1000 / LogicUPS)
 	GameLogicSleep = GameLogicRate / 10
 
 	DragActionTypeNone   = 0
