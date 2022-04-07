@@ -106,6 +106,7 @@ func NewGame() *Game {
 				temp := glob.ToolbarItem{}
 				temp.Link = link
 				temp.Key = y
+				temp.Type = x
 				glob.ToolbarItems[z] = temp
 				//fmt.Println(link[y].Name)
 				z++
