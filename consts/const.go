@@ -50,8 +50,8 @@ const (
 	SymbOffY = 4
 
 	//Toolbar settings
-	TBSize         = 64
-	SpriteScale    = 64
+	TBSize         = 128
+	SpriteScale    = 128
 	TBThick        = 2
 	ToolBarOffsetX = 0
 	ToolBarOffsetY = 0

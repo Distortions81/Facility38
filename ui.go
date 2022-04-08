@@ -102,16 +102,16 @@ func (g *Game) Update() error {
 	}
 
 	/* Zoom limits */
-	if glob.ZoomMouse > 100 {
-		glob.ZoomMouse = 100
+	if glob.ZoomMouse > 80 {
+		glob.ZoomMouse = 80
 	} else if glob.ZoomMouse < 0.2 {
 		glob.ZoomMouse = 0.2
 	}
 	if !glob.ZoomSetup {
-		glob.ZoomMouse = 64
+		glob.ZoomMouse = 50
 		glob.ZoomSetup = true
 	}
-	glob.ZoomScale = ((glob.ZoomMouse * glob.ZoomMouse * glob.ZoomMouse) / 4000)
+	glob.ZoomScale = ((glob.ZoomMouse * glob.ZoomMouse * glob.ZoomMouse) / 1000)
 
 	//If scroll wheel, lock to sharp ratios when zoomed in, otherwise dont
 	/*if !glob.PinchPressed {
