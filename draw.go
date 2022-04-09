@@ -165,7 +165,8 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 		} else {
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
-			op.GeoM.Scale(((xs)*zoom)/consts.SpriteScale, ((ys)*zoom)/consts.SpriteScale)
+			iSize := typeData.Image.Bounds()
+			op.GeoM.Scale(((xs)*zoom)/float64(iSize.Max.X), ((ys)*zoom)/float64(iSize.Max.Y))
 			op.GeoM.Translate(x, y)
 			if zoom < 128 {
 				op.Filter = ebiten.FilterLinear

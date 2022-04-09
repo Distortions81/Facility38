@@ -25,7 +25,7 @@ var (
 		consts.ObjTypeBasicSmelter:    {ImagePath: "world-obj/basic-smelter.png", Name: "Basic smelter", Size: Position{X: 1, Y: 1}},
 		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png", Name: "Iron rod caster", Size: Position{X: 1, Y: 1}},
 		consts.ObjTypeBasicLoader:     {ImagePath: "world-obj/basic-loader.png", Name: "Basic loader", Size: Position{X: 1, Y: 1}},
-		consts.ObjTypeBasicBox:        {ImagePath: "world-obj/basic-box.png", Name: "Basic box", Size: Position{X: 1, Y: 1}},
+		consts.ObjTypeBasicBox:        {ImagePath: "world-obj/basic-box.png", Name: "Basic box", Size: Position{X: 2, Y: 2}},
 	}
 
 	MatTypes = map[int]ObjType{
