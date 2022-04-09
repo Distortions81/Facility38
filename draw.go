@@ -189,6 +189,10 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		op.GeoM.Reset()
+		if item.Image.Bounds().Max.X != consts.TBSize {
+			iSize := item.Image.Bounds()
+			op.GeoM.Scale(1.0/(float64(iSize.Max.X)/consts.TBSize), 1.0/(float64(iSize.Max.Y)/consts.TBSize))
+		}
 		op.GeoM.Translate(x, 0)
 		screen.DrawImage(item.Image, op)
 	}
