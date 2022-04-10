@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -102,25 +103,26 @@ func (g *Game) Update() error {
 	}
 
 	/* Zoom limits */
-	if glob.ZoomMouse > 80 {
-		glob.ZoomMouse = 80
-	} else if glob.ZoomMouse < 0.2 {
-		glob.ZoomMouse = 0.2
+	if glob.ZoomMouse > 100 {
+		glob.ZoomMouse = 100
+	} else if glob.ZoomMouse < 10 {
+		glob.ZoomMouse = 10
 	}
 	if !glob.ZoomSetup {
-		glob.ZoomMouse = 50
+		glob.ZoomMouse = 63.46
 		glob.ZoomSetup = true
 	}
 	glob.ZoomScale = ((glob.ZoomMouse * glob.ZoomMouse * glob.ZoomMouse) / 1000)
 
 	//If scroll wheel, lock to sharp ratios when zoomed in, otherwise dont
-	/*if !glob.PinchPressed {
-		if glob.ZoomScale >= 1 {
-			glob.ZoomScale = math.Round(glob.ZoomScale)
+	if !glob.PinchPressed {
+		if glob.ZoomScale >= consts.SpriteScale {
+			lockto := float64(consts.SpriteScale) / 2.0
+			glob.ZoomScale = math.Round(glob.ZoomScale/lockto) * lockto
 		} else {
-			glob.ZoomScale = math.Round(glob.ZoomScale*10) / 10
+			glob.ZoomScale = math.Round(glob.ZoomScale)
 		}
-	}*/
+	}
 
 	/* Mouse position */
 	intx, inty := ebiten.CursorPosition()
