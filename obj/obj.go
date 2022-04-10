@@ -3,8 +3,10 @@ package obj
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"fmt"
+	"runtime"
 	"time"
+
+	"github.com/remeh/sizedwaitgroup"
 )
 
 func GLogic() {
@@ -13,19 +15,31 @@ func GLogic() {
 	var ticks uint64 = 0
 
 	for {
-		if time.Since(lastUpdate) > consts.GameLogicRate {
-			ticks++
-			fmt.Println("Tick:", ticks)
 
+		if time.Since(lastUpdate) > consts.GameLogicRate {
+			wg := sizedwaitgroup.New(runtime.NumCPU())
+			ticks++
+			//fmt.Println("Tick:", ticks)
+
+			glob.WorldMapLock.RLock()
 			for _, item := range glob.WorldMap {
 				for okey, o := range item.MObj {
-					oData := GameObjTypes[o.Type]
-					if oData.ObjUpdate != nil {
-						//fmt.Println(okey, oData.Name)
-						oData.ObjUpdate(okey, o)
-					}
+					wg.Add()
+					go func(okey glob.Position, o *glob.MObj) {
+
+						oData := GameObjTypes[o.Type]
+						if oData.ObjUpdate != nil {
+							if time.Since(o.LastUpdate) > oData.UpdateInterval {
+								o.LastUpdate = time.Now()
+								oData.ObjUpdate(okey, o)
+							}
+						}
+						wg.Done()
+					}(okey, o)
 				}
 			}
+			wg.Wait()
+			glob.WorldMapLock.RUnlock()
 		}
 
 		//Reduce busy waiting

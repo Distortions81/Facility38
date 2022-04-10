@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"io/ioutil"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -25,6 +26,8 @@ type MapChunk struct {
 type MObj struct {
 	Type      int
 	MContents []int
+
+	LastUpdate time.Time
 }
 
 type Position struct {
@@ -42,8 +45,9 @@ type ObjType struct {
 	ImagePath string
 	Image     *ebiten.Image
 
-	UIAction  func()
-	ObjUpdate func(Key Position, Obj *MObj)
+	UIAction       func()
+	ObjUpdate      func(Key Position, Obj *MObj)
+	UpdateInterval time.Duration
 }
 
 type ToolbarItem struct {
@@ -53,7 +57,8 @@ type ToolbarItem struct {
 }
 
 var (
-	WorldMap map[Position]*MapChunk
+	WorldMapLock sync.RWMutex
+	WorldMap     map[Position]*MapChunk
 
 	XYEmpty = Position{X: -2147483648, Y: -2147483648}
 

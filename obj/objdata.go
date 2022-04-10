@@ -3,6 +3,7 @@ package obj
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"time"
 )
 
 var (
@@ -24,7 +25,7 @@ var (
 
 	GameObjTypes = map[int]glob.ObjType{
 		//Game Objects
-		consts.ObjTypeBasicMiner:      {ImagePath: "world-obj/basic-miner.png", Name: "Basic miner", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: MinerUpdate},
+		consts.ObjTypeBasicMiner:      {ImagePath: "world-obj/basic-miner.png", Name: "Basic miner", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: MinerUpdate, UpdateInterval: time.Second * 10},
 		consts.ObjTypeBasicSmelter:    {ImagePath: "world-obj/basic-smelter.png", Name: "Basic smelter", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: SmelterUpdate},
 		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png", Name: "Iron rod caster", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: IronCasterUpdate},
 		consts.ObjTypeBasicLoader:     {ImagePath: "world-obj/basic-loader.png", Name: "Basic loader", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: LoaderUpdate},

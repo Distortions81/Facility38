@@ -130,7 +130,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		/* Draw tool tip */
 		pos := util.FloatXYToPosition(gwx, gwy)
+		glob.WorldMapLock.RLock()
 		chunk := util.GetChunk(pos)
+		glob.WorldMapLock.RUnlock()
+
 		if chunk != nil {
 			o := chunk.MObj[pos]
 			if o != nil {
