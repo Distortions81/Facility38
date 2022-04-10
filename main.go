@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/data"
 	"GameTest/glob"
+	"GameTest/obj"
 	"fmt"
 	"log"
 	"runtime"
@@ -20,9 +21,9 @@ type Game struct {
 
 func NewGame() *Game {
 
-	glob.GameTypeMax = len(glob.GameObjTypes)
-	glob.UITypeMax = len(glob.UIObjsTypes)
-	glob.MatTypeMax = len(glob.MatTypes)
+	obj.GameTypeMax = len(obj.GameObjTypes)
+	obj.UITypeMax = len(obj.UIObjsTypes)
+	obj.MatTypeMax = len(obj.MatTypes)
 
 	var img *ebiten.Image
 	var bg *ebiten.Image
@@ -73,7 +74,7 @@ func NewGame() *Game {
 	}
 
 	//Load Sprites
-	for _, otype := range glob.SubTypes {
+	for _, otype := range obj.SubTypes {
 		for key, icon := range otype {
 			if icon.ImagePath != "" {
 				img, err = data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
@@ -96,24 +97,24 @@ func NewGame() *Game {
 	}
 
 	//Make default toolbar
-	t := len(glob.SubTypes)
+	t := len(obj.SubTypes)
 	var z int = 0
 	for x := 0; x <= t; x++ {
 		if x == consts.ObjSubUI || x == consts.ObjSubGame {
-			link := glob.SubTypes[x]
+			link := obj.SubTypes[x]
 			llen := len(link)
 			for y := 1; y <= llen; y++ {
 				temp := glob.ToolbarItem{}
 				temp.Link = link
 				temp.Key = y
 				temp.Type = x
-				glob.ToolbarItems[z] = temp
+				obj.ToolbarItems[z] = temp
 				//fmt.Println(link[y].Name)
 				z++
 			}
 		}
 	}
-	glob.ToolbarMax = z
+	obj.ToolbarMax = z
 
 	//Boot Image
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
@@ -129,7 +130,7 @@ func NewGame() *Game {
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
 
 	//Game logic runs on its own thread
-	go GLogic()
+	go obj.GLogic()
 
 	// Initialize the game.
 	return &Game{}

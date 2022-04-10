@@ -23,7 +23,8 @@ type MapChunk struct {
 }
 
 type MObj struct {
-	Type int
+	Type      int
+	MContents []int
 }
 
 type Position struct {
@@ -118,9 +119,9 @@ func SaveGame() {
 
 	var item []SaveObj
 	for _, objs := range WorldMap {
-		for okeys, obj := range objs.MObj {
+		for okeys, o := range objs.MObj {
 
-			item = append(item, SaveObj{Pos: okeys, Type: obj.Type})
+			item = append(item, SaveObj{Pos: okeys, Type: o.Type})
 		}
 	}
 	b, err := json.MarshalIndent(item, "", "\t")
@@ -181,8 +182,8 @@ func LoadGame() {
 			WorldMap[cpos] = chunk
 		}
 
-		var obj = &MObj{}
-		obj.Type = i.Type
-		WorldMap[cpos].MObj[i.Pos] = obj
+		var o = &MObj{}
+		o.Type = i.Type
+		WorldMap[cpos].MObj[i.Pos] = o
 	}
 }

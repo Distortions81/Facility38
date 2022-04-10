@@ -3,6 +3,7 @@ package main
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/obj"
 	"GameTest/util"
 	"fmt"
 	"math"
@@ -141,20 +142,20 @@ func (g *Game) Update() error {
 		glob.LastActionType = consts.DragActionTypeNone
 
 		//Toolbar
-		uipix := float64(glob.ToolbarMax * int(consts.TBSize))
+		uipix := float64(obj.ToolbarMax * int(consts.TBSize))
 		if glob.MousePosX <= uipix+consts.ToolBarOffsetX {
 			if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
 				ipos := int((glob.MousePosX - consts.ToolBarOffsetX) / consts.TBSize)
-				temp := glob.ToolbarItems[ipos].Link
-				item := temp[glob.ToolbarItems[ipos].Key]
+				temp := obj.ToolbarItems[ipos].Link
+				item := temp[obj.ToolbarItems[ipos].Key]
 
 				//Actions
-				if item.Action != nil {
-					item.Action()
+				if item.UIAction != nil {
+					item.UIAction()
 
 					fmt.Println("UI Action:", item.Name)
 				} else {
-					glob.SelectedItemType = glob.ToolbarItems[ipos].Key
+					obj.SelectedItemType = obj.ToolbarItems[ipos].Key
 					fmt.Println("Selected:", item.Name)
 				}
 				captured = true
@@ -191,12 +192,12 @@ func (g *Game) Update() error {
 						chunk.MObj = make(map[glob.Position]*glob.MObj)
 					}
 					//Make obj if needed
-					obj := chunk.MObj[pos]
+					o := chunk.MObj[pos]
 					bypass := false
-					if obj == nil {
+					if o == nil {
 						//Prevent flopping between delete and create when dragging
 						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
-							size := glob.GameObjTypes[glob.SelectedItemType].Size
+							size := obj.GameObjTypes[obj.SelectedItemType].Size
 							if size.X > 1 || size.Y > 1 {
 								for tx := 0; tx < size.X; tx++ {
 									for ty := 0; ty < size.Y; ty++ {
@@ -209,16 +210,17 @@ func (g *Game) Update() error {
 							}
 							if !bypass {
 								fmt.Println("Made obj:", pos)
-								obj = &glob.MObj{}
-								chunk.MObj[pos] = obj
+								o = &glob.MObj{}
+								chunk.MObj[pos] = o
+								chunk.MObj[pos].MContents = make([]int, obj.MatTypeMax)
 							}
 						}
 					}
-					if !bypass && obj != nil {
+					if !bypass && o != nil {
 						//Change obj type
-						if obj.Type == consts.ObjTypeNone {
+						if o.Type == consts.ObjTypeNone {
 
-							obj.Type = glob.SelectedItemType
+							o.Type = obj.SelectedItemType
 
 							//Action completed, save position and time
 							glob.LastObjPos = pos
