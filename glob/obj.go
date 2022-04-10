@@ -15,16 +15,16 @@ var (
 
 	UIObjsTypes = map[int]ObjType{
 		//Ui Only
-		consts.ObjTypeSave: {ItemColor: &ColorGray, Name: "Save", ImagePath: "ui/save.png", Action: SaveGame},
-		consts.ObjTypeLoad: {ItemColor: &ColorGray, Name: "Load", ImagePath: "ui/load.png", Action: LoadGame},
+		consts.ObjTypeSave: {ItemColor: &ColorGray, Name: "Save", ImagePath: "ui/save.png", UIAction: SaveGame},
+		consts.ObjTypeLoad: {ItemColor: &ColorGray, Name: "Load", ImagePath: "ui/load.png", UIAction: LoadGame},
 	}
 
 	GameObjTypes = map[int]ObjType{
 		//Game Objects
-		consts.ObjTypeBasicMiner:      {ImagePath: "world-obj/basic-miner.png", Name: "Basic miner", Size: Position{X: 1, Y: 1}},
-		consts.ObjTypeBasicSmelter:    {ImagePath: "world-obj/basic-smelter.png", Name: "Basic smelter", Size: Position{X: 1, Y: 1}},
-		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png", Name: "Iron rod caster", Size: Position{X: 1, Y: 1}},
-		consts.ObjTypeBasicLoader:     {ImagePath: "world-obj/basic-loader.png", Name: "Basic loader", Size: Position{X: 1, Y: 1}},
+		consts.ObjTypeBasicMiner:      {ImagePath: "world-obj/basic-miner.png", Name: "Basic miner", Size: Position{X: 1, Y: 1}, ObjUpdate: MinerUpdate},
+		consts.ObjTypeBasicSmelter:    {ImagePath: "world-obj/basic-smelter.png", Name: "Basic smelter", Size: Position{X: 1, Y: 1}, ObjUpdate: SmelterUpdate},
+		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png", Name: "Iron rod caster", Size: Position{X: 1, Y: 1}, ObjUpdate: IronCasterUpdate},
+		consts.ObjTypeBasicLoader:     {ImagePath: "world-obj/basic-loader.png", Name: "Basic loader", Size: Position{X: 1, Y: 1}, ObjUpdate: LoaderUpdate},
 		consts.ObjTypeBasicBox:        {ImagePath: "world-obj/basic-box.png", Name: "Basic box", Size: Position{X: 1, Y: 1}},
 	}
 

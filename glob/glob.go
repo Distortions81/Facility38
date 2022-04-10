@@ -41,7 +41,8 @@ type ObjType struct {
 	ImagePath string
 	Image     *ebiten.Image
 
-	Action func()
+	UIAction  func()
+	ObjUpdate func(Key Position, Obj *MObj)
 }
 
 type ToolbarItem struct {

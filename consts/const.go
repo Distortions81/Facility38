@@ -13,7 +13,7 @@ const (
 	IconsDir = "icons/"
 	SaveGame = "save.json"
 
-	LogicUPS       = 4
+	LogicUPS       = 1
 	GameLogicRate  = time.Millisecond * (1000 / LogicUPS)
 	GameLogicSleep = GameLogicRate / 10
 
