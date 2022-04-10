@@ -51,7 +51,7 @@ const (
 
 	//Toolbar settings
 	TBSize         = 64
-	SpriteScale    = 128
+	SpriteScale    = 256
 	TBThick        = 2
 	ToolBarOffsetX = 0
 	ToolBarOffsetY = 0
