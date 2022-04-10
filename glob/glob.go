@@ -16,6 +16,7 @@ import (
 
 type SaveObj struct {
 	Pos  Position
+	Con  []int
 	Type int
 }
 
@@ -23,11 +24,19 @@ type MapChunk struct {
 	MObj map[Position]*MObj
 }
 
+//L suffix var require Lock
 type MObj struct {
-	Type      int
+	Type int
+
+	//Internal only
 	MContents []int
 
+	//External
+	MOutputL   []int
+	ReadObjsL  []*MObj
 	LastUpdate time.Time
+
+	Lock sync.RWMutex
 }
 
 type Position struct {
@@ -59,6 +68,10 @@ type ToolbarItem struct {
 var (
 	WorldMapLock sync.RWMutex
 	WorldMap     map[Position]*MapChunk
+
+	SourceList    []*MObj
+	TransportList []*MObj
+	RecvList      []*MObj
 
 	XYEmpty = Position{X: -2147483648, Y: -2147483648}
 
