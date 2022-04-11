@@ -217,6 +217,7 @@ func (g *Game) Update() error {
 								o = &glob.MObj{}
 								chunk.MObj[pos] = o
 
+								o.Valid = true
 								if obj.GameObjTypes[obj.SelectedItemType].ProcInterval > 0 {
 									obj.AddProcQ(pos, o, obj.WorldTick+1)
 								}
@@ -242,6 +243,9 @@ func (g *Game) Update() error {
 								if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 									//Delete object
 									fmt.Println("Object deleted:", pos)
+
+									//Invalidate and delete
+									chunk.MObj[pos].Valid = false
 									delete(chunk.MObj, pos)
 
 									//Action completed, save position and time

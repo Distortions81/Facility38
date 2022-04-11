@@ -102,9 +102,11 @@ func RunProcs() {
 	found := false
 	for _, event := range ProcList[WorldTick] {
 		//Process
-		GameObjTypes[event.Target.Type].ObjUpdate(event.Key, event.Target)
-		AddProcQ(event.Key, event.Target, WorldTick+GameObjTypes[event.Target.Type].ProcInterval)
-		found = true
+		if event.Target.Valid {
+			GameObjTypes[event.Target.Type].ObjUpdate(event.Key, event.Target)
+			AddProcQ(event.Key, event.Target, WorldTick+GameObjTypes[event.Target.Type].ProcInterval)
+			found = true
+		}
 	}
 	if found {
 		fmt.Println("Delete procs for ", WorldTick)

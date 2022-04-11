@@ -31,6 +31,8 @@ type MObj struct {
 	External [consts.DIR_MAX]MatData
 	Contents [consts.DIR_MAX]MatData
 	SendTo   [consts.DIR_MAX]*MObj
+
+	Valid bool
 }
 
 type MatData struct {
