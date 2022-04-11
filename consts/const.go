@@ -13,7 +13,7 @@ const (
 	IconsDir = "icons/"
 	SaveGame = "save.json"
 
-	LogicUPS       = 1
+	LogicUPS       = 4
 	GameLogicRate  = time.Millisecond * (1000 / LogicUPS)
 	GameLogicSleep = time.Millisecond
 
@@ -44,10 +44,10 @@ const (
 	ObjTypeBasicBox        = 5
 
 	//Materials
-	ObjTypeDefault = 1
-	ObjTypeWood    = 2
-	ObjTypeCoal    = 3
-	ObjTypeIronOre = 4
+	MAT_DEFAULT = 1
+	MAT_WOOD    = 2
+	MAT_COAL    = 3
+	MAT_IRONORE = 4
 
 	//Item Symbol
 	SymbOffX = 7
@@ -66,9 +66,10 @@ const (
 
 	ItemSpacing = 0.0 //Spacing between items
 
-	DIR_NORTH = 0
-	DIR_EAST  = 1
-	DIR_SOUTH = 2
-	DIR_WEST  = 3
-	DIR_MAX   = 4
+	DIR_INTERNAL = 0
+	DIR_NORTH    = 1
+	DIR_EAST     = 2
+	DIR_SOUTH    = 3
+	DIR_WEST     = 4
+	DIR_MAX      = 5
 )

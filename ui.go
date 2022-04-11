@@ -216,6 +216,11 @@ func (g *Game) Update() error {
 								fmt.Println("Made obj:", pos)
 								o = &glob.MObj{}
 								chunk.MObj[pos] = o
+
+								if obj.GameObjTypes[obj.SelectedItemType].ProcInterval > 0 {
+									obj.AddProcQ(pos, o, obj.WorldTick+1)
+								}
+
 							}
 						}
 					}
@@ -224,6 +229,8 @@ func (g *Game) Update() error {
 						if o.Type == consts.ObjTypeNone {
 
 							o.Type = obj.SelectedItemType
+
+							//Create tick and tock events
 
 							//Action completed, save position and time
 							glob.LastObjPos = pos

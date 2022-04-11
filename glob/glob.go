@@ -28,8 +28,8 @@ type MapChunk struct {
 type MObj struct {
 	Type int
 
-	External [consts.DIR_MAX]*MatData
-	Contents [consts.DIR_MAX]*MatData
+	External [consts.DIR_MAX]MatData
+	Contents [consts.DIR_MAX]MatData
 	SendTo   [consts.DIR_MAX]*MObj
 }
 
@@ -53,9 +53,9 @@ type ObjType struct {
 	ImagePath string
 	Image     *ebiten.Image
 
-	UIAction       func()
-	ObjUpdate      func(Key Position, Obj *MObj)
-	UpdateInterval time.Duration
+	UIAction     func()
+	ObjUpdate    func(Key Position, Obj *MObj)
+	ProcInterval uint64
 }
 
 type ToolbarItem struct {
@@ -65,6 +65,7 @@ type ToolbarItem struct {
 }
 
 type TickEvent struct {
+	Key    Position
 	Target *MObj
 	Dir    int
 }

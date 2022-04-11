@@ -141,7 +141,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				if o.Type != 0 {
 					toolTip = fmt.Sprintf("%v (%5.0f, %5.0f)", obj.GameObjTypes[o.Type].Name, gwx, gwy)
 					for _, c := range o.Contents {
-						if c == nil {
+						if c.Amount == 0 {
 							continue
 						}
 						if c.Amount > 0 {
