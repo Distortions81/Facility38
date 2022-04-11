@@ -15,7 +15,7 @@ const (
 
 	LogicUPS       = 4
 	GameLogicRate  = time.Millisecond * (1000 / LogicUPS)
-	GameLogicSleep = time.Millisecond
+	GameLogicSleep = time.Millisecond * 10
 
 	WorldStepTick = 1
 	//WorldStepMod = 2
