@@ -41,7 +41,7 @@ type MObj struct {
 type MatData struct {
 	Type   int
 	TypeP  ObjType
-	Amount float64
+	Amount int
 }
 
 type Position struct {
@@ -59,7 +59,7 @@ type ObjType struct {
 	ImagePath string
 	Image     *ebiten.Image
 
-	MinerProductPerSecond float64
+	MinerOutput int
 
 	UIAction     func()
 	ObjUpdate    func(Key Position, Obj *MObj)

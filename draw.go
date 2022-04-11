@@ -147,7 +147,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						continue
 					}
 					if c.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%.2fkg %v)", c.Amount, c.TypeP.Name)
+						toolTip += fmt.Sprintf(" (%vkg %v)", c.Amount, c.TypeP.Name)
 					}
 				}
 			}
