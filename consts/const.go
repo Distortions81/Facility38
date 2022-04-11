@@ -66,4 +66,7 @@ const (
 	COAL_KWH_KG        = 8
 	BOILER_EFFICIENCY  = 0.4
 	TURBINE_EFFICIENCY = 0.9
+
+	//Coal needed per boiler per kwh
+	KWH_GRAMSECOND_COAL = 0.75
 )
