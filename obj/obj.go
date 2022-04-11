@@ -3,43 +3,31 @@ package obj
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"runtime"
+	"fmt"
 	"time"
+)
 
-	"github.com/remeh/sizedwaitgroup"
+var (
+	Tick             uint64 = 0
+	CurrentWorldStep int
+	TickList         map[uint64][]glob.TickEvent
+	TockList         map[uint64][]glob.TickEvent
+	AddToWorld       []*glob.MObj
+	DelFromWorld     []*glob.MObj
 )
 
 func GLogic() {
 
 	lastUpdate := time.Now()
-	var ticks uint64 = 0
 
 	for {
 
 		if time.Since(lastUpdate) > consts.GameLogicRate {
-			wg := sizedwaitgroup.New(runtime.NumCPU())
-			ticks++
-			//fmt.Println("Tick:", ticks)
+			Tick++
 
-			glob.WorldMapLock.RLock()
-			for _, item := range glob.WorldMap {
-				for okey, o := range item.MObj {
-					wg.Add()
-					go func(okey glob.Position, o *glob.MObj) {
-
-						oData := GameObjTypes[o.Type]
-						if oData.ObjUpdate != nil {
-							if time.Since(o.LastUpdate) > oData.UpdateInterval {
-								o.LastUpdate = time.Now()
-								oData.ObjUpdate(okey, o)
-							}
-						}
-						wg.Done()
-					}(okey, o)
-				}
-			}
-			wg.Wait()
-			glob.WorldMapLock.RUnlock()
+			RunTicks()
+			//RunMods()
+			RunTocks()
 		}
 
 		//Reduce busy waiting
@@ -48,8 +36,7 @@ func GLogic() {
 }
 
 func MinerUpdate(key glob.Position, o *glob.MObj) {
-	matType := consts.ObjTypeCoal
-	o.MContents[matType]++
+	//oData := glob.GameObjTypes[Obj.Type]
 }
 
 func SmelterUpdate(key glob.Position, obj *glob.MObj) {
@@ -65,4 +52,51 @@ func IronCasterUpdate(key glob.Position, obj *glob.MObj) {
 func LoaderUpdate(key glob.Position, obj *glob.MObj) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
+}
+
+func RunTicks() {
+	//wg := sizedwaitgroup.New(runtime.NumCPU())
+
+	for _, event := range TickList[Tick] {
+		for dir, o := range event.Target.SendTo {
+			if o.Contents[dir].Amount > 0 && len(o.SendTo) > 0 {
+				//Send to object
+				if o.SendTo[dir].External[dir].Amount == 0 {
+					o.SendTo[dir].External[dir] = o.Contents[dir]
+
+					fmt.Println("Sent ", o.External[dir].Amount, " to ", o.SendTo[dir].External[dir].Type)
+					o.Contents[dir] = nil
+				}
+			}
+		}
+	}
+}
+
+func RunTocks() {
+
+	for _, event := range TockList[Tick] {
+		for dir, o := range event.Target.External {
+
+			if o.Amount > 0 {
+				event.Target.Contents[dir] = o
+
+				fmt.Println("Sent ", o.Amount, " to ", o.Type)
+				o = nil
+			}
+		}
+	}
+}
+
+func RevDir(dir int) int {
+	if dir == consts.DIR_NORTH {
+		return consts.DIR_SOUTH
+	} else if dir == consts.DIR_SOUTH {
+		return consts.DIR_NORTH
+	} else if dir == consts.DIR_EAST {
+		return consts.DIR_WEST
+	} else if dir == consts.DIR_WEST {
+		return consts.DIR_EAST
+	} else {
+		return -1
+	}
 }

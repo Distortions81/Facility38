@@ -15,7 +15,11 @@ const (
 
 	LogicUPS       = 1
 	GameLogicRate  = time.Millisecond * (1000 / LogicUPS)
-	GameLogicSleep = GameLogicRate / 10
+	GameLogicSleep = time.Millisecond
+
+	WorldStepTick = 1
+	//WorldStepMod = 2
+	WorldStepTock = 2
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
@@ -61,4 +65,10 @@ const (
 	ChunkSize = 32
 
 	ItemSpacing = 0.0 //Spacing between items
+
+	DIR_NORTH = 0
+	DIR_EAST  = 1
+	DIR_SOUTH = 2
+	DIR_WEST  = 3
+	DIR_MAX   = 4
 )

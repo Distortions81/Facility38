@@ -28,15 +28,14 @@ type MapChunk struct {
 type MObj struct {
 	Type int
 
-	//Internal only
-	MContents []int
+	External [consts.DIR_MAX]*MatData
+	Contents [consts.DIR_MAX]*MatData
+	SendTo   [consts.DIR_MAX]*MObj
+}
 
-	//External
-	MOutputL   []int
-	ReadObjsL  []*MObj
-	LastUpdate time.Time
-
-	Lock sync.RWMutex
+type MatData struct {
+	Type   int
+	Amount int
 }
 
 type Position struct {
@@ -65,13 +64,14 @@ type ToolbarItem struct {
 	Key  int
 }
 
+type TickEvent struct {
+	Target *MObj
+	Dir    int
+}
+
 var (
 	WorldMapLock sync.RWMutex
 	WorldMap     map[Position]*MapChunk
-
-	SourceList    []*MObj
-	TransportList []*MObj
-	RecvList      []*MObj
 
 	XYEmpty = Position{X: -2147483648, Y: -2147483648}
 

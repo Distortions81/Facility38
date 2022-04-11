@@ -216,7 +216,6 @@ func (g *Game) Update() error {
 								fmt.Println("Made obj:", pos)
 								o = &glob.MObj{}
 								chunk.MObj[pos] = o
-								chunk.MObj[pos].MContents = make([]int, obj.MatTypeMax)
 							}
 						}
 					}
