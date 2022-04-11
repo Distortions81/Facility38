@@ -3,8 +3,8 @@ package consts
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
-	Version  = "004"        //increment
-	Build    = "04.07.2022" //mmddyyyy
+	Version  = "005"        //increment
+	Build    = "04.11.2022" //mmddyyyy
 	Wasm     = "js"         //Detect wasm/js
 	DataDir  = "data/"
 	GfxDir   = "gfx/"
@@ -64,6 +64,6 @@ const (
 	DIR_MAX      = 5
 
 	COAL_KWH_KG        = 8
-	BOILER_EFFICIENCY  = 0.75
-	TURBINE_EFFICIENCY = 0.95
+	BOILER_EFFICIENCY  = 0.4
+	TURBINE_EFFICIENCY = 0.9
 )
