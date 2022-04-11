@@ -134,30 +134,33 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		chunk := util.GetChunk(pos)
 		glob.WorldMapLock.RUnlock()
 
+		toolTip := ""
+		found := false
 		if chunk != nil {
 			o := chunk.MObj[pos]
 			if o != nil {
-				toolTip := ""
-				if o.Type != 0 {
-					toolTip = fmt.Sprintf("%v (%5.0f, %5.0f)", o.TypeP.Name, gwx, gwy)
-					for _, c := range o.Contents {
-						if c.Amount == 0 {
-							continue
-						}
-						if c.Amount > 0 {
-							toolTip += fmt.Sprintf("  (%v: %.2fkg %v)", o.TypeP.Name, c.Amount, c.TypeP.Name)
-						}
+				found = true
+				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", gwx, gwy, o.TypeP.Name)
+				for _, c := range o.Contents {
+					if c.Amount == 0 {
+						continue
 					}
-				} else {
-					toolTip = fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+					if c.Amount > 0 {
+						toolTip += fmt.Sprintf(" (%.2fkg %v)", c.Amount, c.TypeP.Name)
+					}
 				}
-				tRect := text.BoundString(glob.TipFont, toolTip)
-				mx := glob.MousePosX + 20
-				my := glob.MousePosY + 20
-				ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
-				text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
 			}
 		}
+
+		if !found {
+			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+		}
+
+		tRect := text.BoundString(glob.TipFont, toolTip)
+		mx := glob.MousePosX + 20
+		my := glob.MousePosY + 20
+		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
+		text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
 	}
 }
 
