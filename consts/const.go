@@ -69,4 +69,6 @@ const (
 
 	//Coal needed per boiler per kwh
 	KWH_GRAMSECOND_COAL = 0.75
+
+	TIMESCALE = 0.0667 //Approx 1 Hour every 15 minutes
 )
