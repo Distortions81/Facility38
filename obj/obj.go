@@ -47,7 +47,7 @@ func MinerUpdate(key glob.Position, o *glob.MObj) {
 	o.Contents[consts.DIR_INTERNAL].TypeP = MatTypes[consts.MAT_COAL]
 	/* Temporary for testing */
 
-	o.Contents[consts.DIR_INTERNAL].Amount += ((float64(time.Since(o.LastUpdate).Milliseconds()) / consts.TIMESCALE) / 1000.0) * o.TypeP.MinerProductPerSecond
+	o.Contents[consts.DIR_INTERNAL].Amount += ((float64(time.Since(o.LastUpdate).Milliseconds()) * consts.TIMESCALE) / 1000.0) * o.TypeP.MinerProductPerSecond
 	o.LastUpdate = time.Now()
 }
 
