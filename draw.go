@@ -59,8 +59,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			//Item spacing
 			if consts.DrawScale >= 1.0 {
-				xisize = float64(obj.GameObjTypes[mobj.Type].Size.X) - consts.ItemSpacing
-				yisize = float64(obj.GameObjTypes[mobj.Type].Size.Y) - consts.ItemSpacing
+				xisize = float64(mobj.TypeP.Size.X) - consts.ItemSpacing
+				yisize = float64(mobj.TypeP.Size.Y) - consts.ItemSpacing
 			}
 
 			//Item size, scaled
@@ -91,7 +91,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				yss = 1
 			}
 
-			DrawObject(screen, scrX, scrY, xs, ys, mobj.Type)
+			DrawObject(screen, scrX, scrY, xs, ys, mobj)
 
 		}
 	}
@@ -139,13 +139,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				toolTip := ""
 				if o.Type != 0 {
-					toolTip = fmt.Sprintf("%v (%5.0f, %5.0f)", obj.GameObjTypes[o.Type].Name, gwx, gwy)
+					toolTip = fmt.Sprintf("%v (%5.0f, %5.0f)", o.TypeP.Name, gwx, gwy)
 					for _, c := range o.Contents {
 						if c.Amount == 0 {
 							continue
 						}
 						if c.Amount > 0 {
-							toolTip += fmt.Sprintf("  (%v: %v)", obj.MatTypes[c.Type].Name, c.Amount)
+							toolTip += fmt.Sprintf("  (%v: %.2fkg %v)", o.TypeP.Name, c.Amount, c.TypeP.Name)
 						}
 					}
 				} else {
@@ -161,29 +161,27 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 }
 
-func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, objType int) {
+func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, o *glob.MObj) {
 
 	var zoom float64 = glob.ZoomScale
 
 	/* Skip if not visible */
-	if objType > consts.ObjTypeNone {
-		temp := obj.SubTypes[consts.ObjSubGame]
-		typeData := temp[objType]
+	if o.Type > consts.ObjTypeNone {
 
 		/* Draw sprite */
-		if typeData.Image == nil {
-			fmt.Println("DrawObject: nil ebiten.*image encountered:", typeData.Name)
+		if o.TypeP.Image == nil {
+			fmt.Println("DrawObject: nil ebiten.*image encountered:", o.TypeP.Name)
 			return
 		} else {
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
-			iSize := typeData.Image.Bounds()
+			iSize := o.TypeP.Image.Bounds()
 			op.GeoM.Scale(((xs)*zoom)/float64(iSize.Max.X), ((ys)*zoom)/float64(iSize.Max.Y))
 			op.GeoM.Translate(x, y)
 			if zoom < consts.SpriteScale {
 				op.Filter = ebiten.FilterLinear
 			}
-			screen.DrawImage(typeData.Image, op)
+			screen.DrawImage(o.TypeP.Image, op)
 		}
 	} else {
 		fmt.Println("DrawObject: empty object encountered.")

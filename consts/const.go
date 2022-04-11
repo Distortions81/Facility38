@@ -1,7 +1,5 @@
 package consts
 
-import "time"
-
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
@@ -12,14 +10,6 @@ const (
 	GfxDir   = "gfx/"
 	IconsDir = "icons/"
 	SaveGame = "save.json"
-
-	LogicUPS       = 4
-	GameLogicRate  = time.Millisecond * (1000 / LogicUPS)
-	GameLogicSleep = time.Millisecond * 10
-
-	WorldStepTick = 1
-	//WorldStepMod = 2
-	WorldStepTock = 2
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
@@ -72,4 +62,8 @@ const (
 	DIR_SOUTH    = 3
 	DIR_WEST     = 4
 	DIR_MAX      = 5
+
+	COAL_KWH_KG        = 8
+	BOILER_EFFICIENCY  = 0.75
+	TURBINE_EFFICIENCY = 0.95
 )

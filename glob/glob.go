@@ -26,7 +26,10 @@ type MapChunk struct {
 
 //L suffix var require Lock
 type MObj struct {
-	Type int
+	Type  int
+	TypeP ObjType
+
+	LastUpdate time.Time
 
 	External [consts.DIR_MAX]MatData
 	Contents [consts.DIR_MAX]MatData
@@ -37,7 +40,8 @@ type MObj struct {
 
 type MatData struct {
 	Type   int
-	Amount int
+	TypeP  ObjType
+	Amount float64
 }
 
 type Position struct {
@@ -54,6 +58,8 @@ type ObjType struct {
 
 	ImagePath string
 	Image     *ebiten.Image
+
+	MinerProductPerSecond float64
 
 	UIAction     func()
 	ObjUpdate    func(Key Position, Obj *MObj)
@@ -81,6 +87,11 @@ var (
 	//eBiten settings
 	ScreenWidth  int = 1280 //Screen width default
 	ScreenHeight int = 720  //Screen height default
+
+	//Game UPS rate
+	LogicUPS       = 4
+	GameLogicRate  = time.Duration((1000 / LogicUPS)) * time.Millisecond
+	GameLogicSleep = time.Millisecond * 10
 
 	//eBiten variables
 	ZoomMouse float64 = 1.0   //Zoom mouse
@@ -205,6 +216,8 @@ func LoadGame() {
 
 		var o = &MObj{}
 		o.Type = i.Type
+		//Import cycle... grr
+		//o.TypeP = obj.GameObjTypes[o.Type]
 		WorldMap[cpos].MObj[i.Pos] = o
 	}
 }

@@ -213,15 +213,8 @@ func (g *Game) Update() error {
 								}
 							}
 							if !bypass {
-								fmt.Println("Made obj:", pos)
 								o = &glob.MObj{}
 								chunk.MObj[pos] = o
-
-								o.Valid = true
-								if obj.GameObjTypes[obj.SelectedItemType].ProcInterval > 0 {
-									obj.AddProcQ(pos, o, obj.WorldTick+1)
-								}
-
 							}
 						}
 					}
@@ -230,6 +223,19 @@ func (g *Game) Update() error {
 						if o.Type == consts.ObjTypeNone {
 
 							o.Type = obj.SelectedItemType
+							o.TypeP = obj.GameObjTypes[o.Type]
+							o.LastUpdate = time.Now()
+
+							fmt.Println("Made obj:", pos, o.TypeP.Name)
+
+							o.Valid = true
+							if o.TypeP.ProcInterval > 0 {
+								//Process on a specifc ticks
+								obj.AddProcQ(pos, o, obj.WorldTick+1)
+							} else {
+								//Eternal
+								obj.AddProcQ(pos, o, 0)
+							}
 
 							//Create tick and tock events
 
@@ -242,7 +248,7 @@ func (g *Game) Update() error {
 							if time.Since(glob.LastActionTime) > glob.RemoveActionDelay {
 								if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 									//Delete object
-									fmt.Println("Object deleted:", pos)
+									fmt.Println("Object deleted:", pos, o.TypeP.Name)
 
 									//Invalidate and delete
 									chunk.MObj[pos].Valid = false

@@ -8,6 +8,7 @@ import (
 )
 
 var (
+	WorldEpoch       time.Time
 	WorldTick        uint64 = 0
 	CurrentWorldStep int
 	TickList         []glob.TickEvent
@@ -20,27 +21,34 @@ var (
 func GLogic() {
 
 	lastUpdate := time.Now()
+	WorldEpoch = time.Now()
 
 	for {
 
-		if time.Since(lastUpdate) > consts.GameLogicRate {
+		if time.Since(lastUpdate) > glob.GameLogicRate {
+			WorldTick++
 			RunTicks()
 			//RunMods()
 			RunTocks()
 			RunProcs()
-			WorldTick++
 
 			lastUpdate = time.Now()
 		}
 
 		//Reduce busy waiting
-		time.Sleep(consts.GameLogicSleep)
+		time.Sleep(glob.GameLogicSleep)
 	}
 }
 
 func MinerUpdate(key glob.Position, o *glob.MObj) {
-	o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_IRONORE
-	o.Contents[consts.DIR_INTERNAL].Amount = o.Contents[consts.DIR_INTERNAL].Amount + 1
+
+	/* Temporary for testing */
+	o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
+	o.Contents[consts.DIR_INTERNAL].TypeP = MatTypes[consts.MAT_COAL]
+	/* Temporary for testing */
+
+	o.Contents[consts.DIR_INTERNAL].Amount += (float64(time.Since(o.LastUpdate).Milliseconds()) / 1000.0) * o.TypeP.MinerProductPerSecond
+	o.LastUpdate = time.Now()
 }
 
 func SmelterUpdate(key glob.Position, obj *glob.MObj) {
@@ -69,7 +77,7 @@ func RunTicks() {
 				if o.SendTo[dir].External[dir].Amount == 0 {
 					o.SendTo[dir].External[dir] = o.Contents[dir]
 
-					fmt.Println("Sent ", o.External[dir].Amount, " to ", o.SendTo[dir].External[dir].Type)
+					fmt.Println("Sent ", o.External[dir].Amount, " to ", o.SendTo[dir].External[dir].TypeP.Name)
 					o.Contents[dir].Amount = 0
 				}
 			}
@@ -91,7 +99,7 @@ func RunTocks() {
 			if o.Amount > 0 {
 				event.Target.Contents[dir] = o
 
-				fmt.Println("Sent ", o.Amount, " to ", o.Type)
+				fmt.Println("Got ", o.Amount, " to ", o.TypeP.Name)
 				o.Amount = 0
 			}
 		}
@@ -100,16 +108,26 @@ func RunTocks() {
 
 func RunProcs() {
 	found := false
+
+	//Processes these every tick
+	for _, event := range ProcList[0] {
+		if event.Target.Valid {
+			event.Target.TypeP.ObjUpdate(event.Key, event.Target)
+		}
+	}
+
+	//Process these at specific intervals
 	for _, event := range ProcList[WorldTick] {
 		//Process
 		if event.Target.Valid {
-			GameObjTypes[event.Target.Type].ObjUpdate(event.Key, event.Target)
-			AddProcQ(event.Key, event.Target, WorldTick+GameObjTypes[event.Target.Type].ProcInterval)
+			event.Target.TypeP.ObjUpdate(event.Key, event.Target)
+
+			AddProcQ(event.Key, event.Target, WorldTick+1+event.Target.TypeP.ProcInterval)
 			found = true
 		}
 	}
 	if found {
-		fmt.Println("Delete procs for ", WorldTick)
+		//fmt.Println("Deleted procs for ", WorldTick)
 		delete(ProcList, WorldTick)
 	}
 }
