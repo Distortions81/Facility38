@@ -47,8 +47,10 @@ func MinerUpdate(key glob.Position, o *glob.MObj) {
 	o.Contents[consts.DIR_INTERNAL].TypeP = MatTypes[consts.MAT_COAL]
 	/* Temporary for testing */
 
-	o.Contents[consts.DIR_INTERNAL].Amount += o.TypeP.MinerOutput
-	o.LastUpdate = time.Now()
+	input := int(float64(o.TypeP.MinerKGSec*consts.TIMESCALE) / o.TypeP.ProcSeconds)
+	if o.Contents[consts.DIR_INTERNAL].Amount+input < o.TypeP.CapacityKG {
+		o.Contents[consts.DIR_INTERNAL].Amount += input
+	}
 }
 
 func SmelterUpdate(key glob.Position, obj *glob.MObj) {
@@ -122,7 +124,7 @@ func RunProcs() {
 		if event.Target.Valid {
 			event.Target.TypeP.ObjUpdate(event.Key, event.Target)
 
-			AddProcQ(event.Key, event.Target, WorldTick+1+event.Target.TypeP.ProcInterval)
+			AddProcQ(event.Key, event.Target, WorldTick+uint64(event.Target.TypeP.ProcSeconds*float64(glob.LogicUPS)))
 			found = true
 		}
 	}

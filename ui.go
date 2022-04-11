@@ -224,12 +224,11 @@ func (g *Game) Update() error {
 
 							o.Type = obj.SelectedItemType
 							o.TypeP = obj.GameObjTypes[o.Type]
-							o.LastUpdate = time.Now()
 
 							fmt.Println("Made obj:", pos, o.TypeP.Name)
 
 							o.Valid = true
-							if o.TypeP.ProcInterval > 0 {
+							if o.TypeP.ProcSeconds > 0 {
 								//Process on a specifc ticks
 								obj.AddProcQ(pos, o, obj.WorldTick+1)
 							} else {

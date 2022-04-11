@@ -67,8 +67,7 @@ const (
 	BOILER_EFFICIENCY  = 0.4
 	TURBINE_EFFICIENCY = 0.9
 
-	//Coal needed per boiler per kwh
-	KWH_GRAMSECOND_COAL = 0.75
+	COAL_KWH_MTON = 1927
 
 	TIMESCALE = 60 //1 Day passes in 24 minutes
 )

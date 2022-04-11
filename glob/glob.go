@@ -29,8 +29,6 @@ type MObj struct {
 	Type  int
 	TypeP ObjType
 
-	LastUpdate time.Time
-
 	External [consts.DIR_MAX]MatData
 	Contents [consts.DIR_MAX]MatData
 	SendTo   [consts.DIR_MAX]*MObj
@@ -59,11 +57,12 @@ type ObjType struct {
 	ImagePath string
 	Image     *ebiten.Image
 
-	MinerOutput int
+	MinerKGSec float64
+	CapacityKG int
 
-	UIAction     func()
-	ObjUpdate    func(Key Position, Obj *MObj)
-	ProcInterval uint64
+	UIAction    func()
+	ObjUpdate   func(Key Position, Obj *MObj)
+	ProcSeconds float64
 }
 
 type ToolbarItem struct {
