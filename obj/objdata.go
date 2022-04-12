@@ -27,7 +27,8 @@ var (
 		consts.ObjTypeBasicMiner:      {ImagePath: "world-obj/basic-miner.png", Name: "Basic miner", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: MinerUpdate, MinerKGSec: 9, ProcSeconds: 4, CapacityKG: 500},
 		consts.ObjTypeBasicSmelter:    {ImagePath: "world-obj/basic-smelter.png", Name: "Basic smelter", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: SmelterUpdate},
 		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png", Name: "Iron rod caster", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: IronCasterUpdate},
-		consts.ObjTypeBasicLoader:     {ImagePath: "world-obj/basic-loader.png", Name: "Basic loader", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: LoaderUpdate},
+		consts.ObjTypeBasicBelt:       {ImagePath: "world-obj/basic-belt.png", Name: "Basic belt", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: LoaderUpdate},
+		consts.ObjTypeBasicBeltVert:   {ImagePath: "world-obj/basic-belt-vert.png", Name: "Basic belt", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: LoaderUpdate},
 		consts.ObjTypeBasicBox:        {ImagePath: "world-obj/basic-box.png", Name: "Basic box", Size: glob.Position{X: 1, Y: 1}},
 	}
 

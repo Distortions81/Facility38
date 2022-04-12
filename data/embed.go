@@ -15,7 +15,8 @@ import (
 //go:embed gfx/icons/world-obj/basic-miner.png
 //go:embed gfx/icons/world-obj/basic-smelter.png
 //go:embed gfx/icons/world-obj/iron-rod-caster.png
-//go:embed gfx/icons/world-obj/basic-loader.png
+//go:embed gfx/icons/world-obj/basic-belt.png
+//go:embed gfx/icons/world-obj/basic-belt-vert.png
 //go:embed gfx/icons/belt-obj/iron-ore.png
 //go:embed gfx/icons/world-obj/basic-box.png
 

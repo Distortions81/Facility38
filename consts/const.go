@@ -30,8 +30,9 @@ const (
 	ObjTypeBasicMiner      = 1
 	ObjTypeBasicSmelter    = 2
 	ObjTypeBasicIronCaster = 3
-	ObjTypeBasicLoader     = 4
-	ObjTypeBasicBox        = 5
+	ObjTypeBasicBelt       = 4
+	ObjTypeBasicBeltVert   = 5
+	ObjTypeBasicBox        = 6
 
 	//Materials
 	MAT_DEFAULT = 1

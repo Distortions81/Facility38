@@ -228,12 +228,14 @@ func (g *Game) Update() error {
 							fmt.Println("Made obj:", pos, o.TypeP.Name)
 
 							o.Valid = true
-							if o.TypeP.ProcSeconds > 0 {
-								//Process on a specifc ticks
-								obj.AddProcQ(pos, o, obj.WorldTick+1)
-							} else {
-								//Eternal
-								obj.AddProcQ(pos, o, 0)
+							if o.TypeP.ObjUpdate != nil {
+								if o.TypeP.ProcSeconds > 0 {
+									//Process on a specifc ticks
+									obj.AddProcQ(pos, o, obj.WorldTick+1)
+								} else {
+									//Eternal
+									obj.AddProcQ(pos, o, 0)
+								}
 							}
 
 							//Create tick and tock events
