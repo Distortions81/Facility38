@@ -24,6 +24,7 @@ func NewGame() *Game {
 	obj.GameTypeMax = len(obj.GameObjTypes)
 	obj.UITypeMax = len(obj.UIObjsTypes)
 	obj.MatTypeMax = len(obj.MatTypes)
+	obj.OverlayMax = len(obj.ObjOverlayTypes)
 
 	var img *ebiten.Image
 	var bg *ebiten.Image

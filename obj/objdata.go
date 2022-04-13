@@ -12,6 +12,7 @@ var (
 	UITypeMax   = 0
 	MatTypeMax  = 0
 	ToolbarMax  = 0
+	OverlayMax  = 0
 
 	SelectedItemType = 1
 	ToolbarItems     = map[int]glob.ToolbarItem{}

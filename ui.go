@@ -20,6 +20,12 @@ func (g *Game) Update() error {
 		return nil
 	}
 
+	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
+		glob.ShiftPressed = true
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyShift) {
+		glob.ShiftPressed = false
+	}
+
 	//Touchscreen input
 	tids := ebiten.TouchIDs()
 
@@ -301,5 +307,36 @@ func (g *Game) Update() error {
 	} else {
 		glob.SetupMouse = false
 	}
+
+	//Rotate object
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		//Get mouse position on world
+		dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
+		dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+		//Get position on game world
+		gwx := (dtx / consts.DrawScale)
+		gwy := (dty / consts.DrawScale)
+
+		pos := util.FloatXYToPosition(gwx, gwy)
+
+		chunk := util.GetChunk(pos)
+		o := chunk.MObj[pos]
+
+		if o != nil {
+			if glob.ShiftPressed {
+				o.OutputDir = o.OutputDir - 1
+				if o.OutputDir < 0 {
+					o.OutputDir = consts.DIR_WEST
+				}
+			} else {
+				o.OutputDir = o.OutputDir + 1
+				if o.OutputDir > consts.DIR_WEST {
+					o.OutputDir = 0
+				}
+			}
+			fmt.Println("Rotated obj:", pos, o.TypeP.Name, o.OutputDir)
+		}
+	}
+
 	return nil
 }

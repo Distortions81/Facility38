@@ -29,9 +29,10 @@ type MObj struct {
 	Type  int
 	TypeP ObjType
 
-	External [consts.DIR_MAX]MatData
-	Contents [consts.DIR_MAX]MatData
-	SendTo   [consts.DIR_MAX]*MObj
+	External  [consts.DIR_MAX]MatData
+	Contents  [consts.DIR_MAX]MatData
+	SendTo    [consts.DIR_MAX]*MObj
+	OutputDir int
 
 	Valid bool
 }
@@ -135,6 +136,7 @@ var (
 	MouseRightPressed bool = false
 	TouchPressed      bool = false
 	PinchPressed      bool = false
+	ShiftPressed      bool = false
 
 	DrewStartup bool = false
 	DrewMap     bool = false
