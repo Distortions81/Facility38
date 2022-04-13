@@ -10,15 +10,15 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-//go:embed gfx/icons/ui/save.png
-//go:embed gfx/icons/ui/load.png
-//go:embed gfx/icons/world-obj/basic-miner.png
-//go:embed gfx/icons/world-obj/basic-smelter.png
-//go:embed gfx/icons/world-obj/iron-rod-caster.png
-//go:embed gfx/icons/world-obj/basic-belt.png
-//go:embed gfx/icons/world-obj/basic-belt-vert.png
-//go:embed gfx/icons/belt-obj/iron-ore.png
-//go:embed gfx/icons/world-obj/basic-box.png
+//go:embed gfx/ui/save.png
+//go:embed gfx/ui/load.png
+//go:embed gfx/world-obj/basic-miner.png
+//go:embed gfx/world-obj/basic-smelter.png
+//go:embed gfx/world-obj/iron-rod-caster.png
+//go:embed gfx/world-obj/basic-belt.png
+//go:embed gfx/world-obj/basic-belt-vert.png
+//go:embed gfx/belt-obj/iron-ore.png
+//go:embed gfx/world-obj/basic-box.png
 
 var f embed.FS
 

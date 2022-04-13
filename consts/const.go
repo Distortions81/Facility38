@@ -8,7 +8,6 @@ const (
 	Wasm     = "js"         //Detect wasm/js
 	DataDir  = "data/"
 	GfxDir   = "gfx/"
-	IconsDir = "icons/"
 	SaveGame = "save.json"
 
 	DragActionTypeNone   = 0
@@ -33,6 +32,12 @@ const (
 	ObjTypeBasicBelt       = 4
 	ObjTypeBasicBeltVert   = 5
 	ObjTypeBasicBox        = 6
+
+	//Overlays
+	ArrowNorth = 1
+	ArrowSouth = 2
+	ArrowEast  = 3
+	ArrowWest  = 4
 
 	//Materials
 	MAT_DEFAULT = 1

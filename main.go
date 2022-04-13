@@ -77,7 +77,7 @@ func NewGame() *Game {
 	for _, otype := range obj.SubTypes {
 		for key, icon := range otype {
 			if icon.ImagePath != "" {
-				img, err = data.GetSpriteImage(true, consts.GfxDir+consts.IconsDir+icon.ImagePath)
+				img, err = data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
 				bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
 				//bg.Fill(otype[key].ItemColor)
 				bg.DrawImage(img, nil)

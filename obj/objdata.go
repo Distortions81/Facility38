@@ -32,6 +32,14 @@ var (
 		consts.ObjTypeBasicBox:        {ImagePath: "world-obj/basic-box.png", Name: "Basic box", Size: glob.Position{X: 1, Y: 1}},
 	}
 
+	ObjOverlayTypes = map[int]glob.ObjType{
+		//Overlays
+		consts.ArrowNorth: {ImagePath: "world-obj/arrow-north.png", Name: "Arrow North", Size: glob.Position{X: 1, Y: 1}},
+		consts.ArrowSouth: {ImagePath: "world-obj/arrow-south.png", Name: "Arrow South", Size: glob.Position{X: 1, Y: 1}},
+		consts.ArrowEast:  {ImagePath: "world-obj/arrow-east.png", Name: "Arrow East", Size: glob.Position{X: 1, Y: 1}},
+		consts.ArrowWest:  {ImagePath: "world-obj/arrow-west.png", Name: "Arrow West", Size: glob.Position{X: 1, Y: 1}},
+	}
+
 	MatTypes = map[int]glob.ObjType{
 		//Materials
 		consts.MAT_DEFAULT: {ItemColor: &glob.ColorWhite, Symbol: "?", SymbolColor: &glob.ColorBlack, Name: "Default", Size: glob.Position{X: 1, Y: 1}},
