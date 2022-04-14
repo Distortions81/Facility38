@@ -313,10 +313,10 @@ func (g *Game) Update() error {
 
 	//Toggle arrows
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
-		if glob.ShowArrows {
-			glob.ShowArrows = false
+		if glob.ShowAltView {
+			glob.ShowAltView = false
 		} else {
-			glob.ShowArrows = true
+			glob.ShowAltView = true
 		}
 	}
 

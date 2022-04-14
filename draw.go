@@ -187,7 +187,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			}
 			screen.DrawImage(o.TypeP.Image, op)
 
-			if glob.ShowArrows && o.TypeP.HasOutput {
+			if glob.ShowAltView && o.TypeP.HasOutput {
 				img := obj.ObjOverlayTypes[o.OutputDir].Image
 				if img != nil {
 					screen.DrawImage(img, op)
