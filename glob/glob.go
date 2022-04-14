@@ -22,7 +22,10 @@ type MapChunk struct {
 	MObj map[Position]*MObj
 }
 
-//L suffix var require Lock
+type SaveMObj struct {
+	O *MObj
+	P Position
+}
 type MObj struct {
 	Type  int     `json:"t,omitempty"`
 	TypeP ObjType `json:"-"`
@@ -156,10 +159,10 @@ func SaveGame() {
 	WorldMapLock.Lock()
 	WorldMapUpdateLock.Lock()
 
-	tempList := []*MObj{}
+	tempList := []*SaveMObj{}
 	for _, chunk := range WorldMap {
-		for _, mObj := range chunk.MObj {
-			tempList = append(tempList, mObj)
+		for pos, mObj := range chunk.MObj {
+			tempList = append(tempList, &SaveMObj{mObj, pos})
 		}
 	}
 
