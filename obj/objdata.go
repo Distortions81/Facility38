@@ -56,10 +56,10 @@ var (
 
 	ObjOverlayTypes = map[int]glob.ObjType{
 		//Overlays
-		consts.ArrowNorth: {ImagePath: "overlays/arrow-north.png", Name: "Arrow North"},
-		consts.ArrowSouth: {ImagePath: "overlays/arrow-south.png", Name: "Arrow South"},
-		consts.ArrowEast:  {ImagePath: "overlays/arrow-east.png", Name: "Arrow East"},
-		consts.ArrowWest:  {ImagePath: "overlays/arrow-west.png", Name: "Arrow West"},
+		consts.DIR_NORTH: {ImagePath: "overlays/arrow-north.png", Name: "Arrow North"},
+		consts.DIR_EAST:  {ImagePath: "overlays/arrow-east.png", Name: "Arrow East"},
+		consts.DIR_SOUTH: {ImagePath: "overlays/arrow-south.png", Name: "Arrow South"},
+		consts.DIR_WEST:  {ImagePath: "overlays/arrow-west.png", Name: "Arrow West"},
 	}
 
 	MatTypes = map[int]glob.ObjType{

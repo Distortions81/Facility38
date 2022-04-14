@@ -34,12 +34,6 @@ const (
 	ObjTypeBasicBeltVert   = 5
 	ObjTypeBasicBox        = 6
 
-	//Overlays
-	ArrowNorth = 1
-	ArrowSouth = 2
-	ArrowEast  = 3
-	ArrowWest  = 4
-
 	//Materials
 	MAT_DEFAULT = 1
 	MAT_WOOD    = 2
@@ -65,8 +59,8 @@ const (
 
 	DIR_INTERNAL = 0
 	DIR_NORTH    = 1
-	DIR_SOUTH    = 2
-	DIR_EAST     = 3
+	DIR_EAST     = 2
+	DIR_SOUTH    = 3
 	DIR_WEST     = 4
 	DIR_MAX      = 5
 
