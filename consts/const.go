@@ -52,7 +52,6 @@ const (
 	ToolBarOffsetY = 0
 
 	//Draw settings
-	DrawScale = 1 //Map item draw size
 	ChunkSize = 32
 
 	ItemSpacing = 0.0 //Spacing between items

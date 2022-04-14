@@ -26,6 +26,8 @@ import (
 //go:embed gfx/overlays/arrow-east.png
 //go:embed gfx/overlays/arrow-west.png
 
+//go:embed gfx/belt-obj/coal-ore.png
+
 var f embed.FS
 
 func GetSpriteImage(embeded bool, name string) (*ebiten.Image, error) {

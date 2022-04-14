@@ -36,7 +36,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw start */
 	screen.Fill(glob.BGColor)
-	var x, y, xs, ys, xisize, yisize float64
 	var sx, sy, ex, ey int
 
 	/* Get the camera position */
@@ -44,10 +43,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	mainy := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
 
 	/* Calculate screen on world */
-	sx = int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / consts.DrawScale)
-	sy = int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / consts.DrawScale)
-	ex = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)) / consts.DrawScale)
-	ey = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)) / consts.DrawScale)
+	sx = int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
+	sy = int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
+	ex = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
+	ey = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
 
 	/* Draw world */
 	for ckey, chunk := range glob.WorldMap {
@@ -58,41 +57,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 		for mkey, mobj := range chunk.MObj {
 
-			//Item spacing
-			if consts.DrawScale >= 1.0 {
-				xisize = float64(mobj.TypeP.Size.X) - consts.ItemSpacing
-				yisize = float64(mobj.TypeP.Size.Y) - consts.ItemSpacing
-			}
-
-			//Item size, scaled
-			xs = xisize * consts.DrawScale
-			ys = yisize * consts.DrawScale
-
-			//Item size, scaled
-			x = (float64(mkey.X) * consts.DrawScale)
-			y = (float64(mkey.Y) * consts.DrawScale)
-
 			/* camera + object */
-			newx := mainx + (x)
-			newy := mainy + (y)
+			newx := mainx + (float64(mkey.X))
+			newy := mainy + (float64(mkey.Y))
 
 			/* camera zoom */
 			scrX := newx * glob.ZoomScale
 			scrY := newy * glob.ZoomScale
 
-			/* item magnification */
-			xss := xs * glob.ZoomScale
-			yss := ys * glob.ZoomScale
-
-			/* Helps far zoom */
-			if xss < 1 {
-				xss = 1
-			}
-			if yss < 1 {
-				yss = 1
-			}
-
-			DrawObject(screen, scrX, scrY, xs, ys, mobj)
+			DrawObject(screen, scrX, scrY, float64(mobj.TypeP.Size.X), float64(mobj.TypeP.Size.Y), mobj)
 
 		}
 	}
@@ -100,9 +73,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	//Get mouse position on world
 	dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 	dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
-	//Adjust for draw scale
-	gwx := (dtx / consts.DrawScale)
-	gwy := (dty / consts.DrawScale)
 
 	/* Draw debug info */
 	if glob.StatusStr != "" {
@@ -130,7 +100,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		text.Draw(screen, toolTip, glob.TipFont, int(mx), int(my), glob.ColorAqua)
 	} else {
 		/* Draw tool tip */
-		pos := util.FloatXYToPosition(gwx, gwy)
+		pos := util.FloatXYToPosition(dtx, dty)
 		glob.WorldMapLock.RLock()
 		chunk := util.GetChunk(pos)
 		glob.WorldMapLock.RUnlock()
@@ -141,7 +111,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			o := chunk.MObj[pos]
 			if o != nil {
 				found = true
-				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", gwx, gwy, o.TypeP.Name)
+				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", dtx, dty, o.TypeP.Name)
 				for _, c := range o.Contents {
 					if c.Amount == 0 {
 						continue
@@ -154,7 +124,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 
 		if !found {
-			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", gwx, gwy)
+			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", dtx, dty)
 		}
 
 		tRect := text.BoundString(glob.TipFont, toolTip)
@@ -167,8 +137,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, o *glob.MObj) {
 
-	var zoom float64 = glob.ZoomScale
-
 	/* Skip if not visible */
 	if o.Type > consts.ObjTypeNone {
 
@@ -180,9 +148,9 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
 			iSize := o.TypeP.Image.Bounds()
-			op.GeoM.Scale(((xs)*zoom)/float64(iSize.Max.X), ((ys)*zoom)/float64(iSize.Max.Y))
+			op.GeoM.Scale(((xs)*glob.ZoomScale)/float64(iSize.Max.X), ((ys)*glob.ZoomScale)/float64(iSize.Max.Y))
 			op.GeoM.Translate(x, y)
-			if zoom < consts.SpriteScale {
+			if glob.ZoomScale < consts.SpriteScale {
 				op.Filter = ebiten.FilterLinear
 			}
 			screen.DrawImage(o.TypeP.Image, op)
@@ -193,6 +161,18 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 					screen.DrawImage(img, op)
 				} else {
 					fmt.Println("Arrow overlay image not found.")
+				}
+
+				for _, c := range o.Contents {
+					if c.Amount <= 0 {
+						continue
+					}
+					img := c.TypeP.Image
+					if img != nil {
+						screen.DrawImage(img, op)
+					} else {
+						fmt.Println("Mat image not found.")
+					}
 				}
 			}
 		}

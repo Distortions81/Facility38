@@ -177,11 +177,8 @@ func (g *Game) Update() error {
 			//Get mouse position on world
 			dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 			dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
-			//Get position on game world
-			gwx := (dtx / consts.DrawScale)
-			gwy := (dty / consts.DrawScale)
 
-			pos := util.FloatXYToPosition(gwx, gwy)
+			pos := util.FloatXYToPosition(dtx, dty)
 
 			if pos != glob.LastObjPos {
 				if time.Since(glob.LastActionTime) > glob.BuildActionDelay {
@@ -325,11 +322,8 @@ func (g *Game) Update() error {
 		//Get mouse position on world
 		dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 		dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
-		//Get position on game world
-		gwx := (dtx / consts.DrawScale)
-		gwy := (dty / consts.DrawScale)
 
-		pos := util.FloatXYToPosition(gwx, gwy)
+		pos := util.FloatXYToPosition(dtx, dty)
 
 		chunk := util.GetChunk(pos)
 		o := chunk.MObj[pos]

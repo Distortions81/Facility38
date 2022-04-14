@@ -64,10 +64,8 @@ var (
 
 	MatTypes = map[int]glob.ObjType{
 		//Materials
-		consts.MAT_DEFAULT: {ItemColor: &glob.ColorWhite, Symbol: "?", SymbolColor: &glob.ColorBlack, Name: "Default", Size: glob.Position{X: 1, Y: 1}},
-		consts.MAT_WOOD:    {ItemColor: &glob.ColorBrown, Symbol: "w", SymbolColor: &glob.ColorYellow, Name: "Wood", Size: glob.Position{X: 1, Y: 1}},
-		consts.MAT_COAL:    {ItemColor: &glob.ColorBlack, Symbol: "c", SymbolColor: &glob.ColorWhite, Name: "Coal", Size: glob.Position{X: 1, Y: 1}},
-		consts.MAT_IRONORE: {ImagePath: "belt-obj/iron-ore.png", Name: "Iron Ore", Size: glob.Position{X: 1, Y: 1}},
+		consts.MAT_COAL:    {ImagePath: "belt-obj/coal-ore.png", Name: "Coal Ore"},
+		consts.MAT_IRONORE: {ImagePath: "belt-obj/iron-ore.png", Name: "Iron Ore"},
 	}
 
 	SubTypes = map[int]map[int]glob.ObjType{
