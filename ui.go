@@ -230,6 +230,8 @@ func (g *Game) Update() error {
 
 							o.Type = obj.SelectedItemType
 							o.TypeP = obj.GameObjTypes[o.Type]
+							o.OutputDir = consts.DIR_EAST
+							glob.WorldMapDirty = true
 
 							fmt.Println("Made obj:", pos, o.TypeP.Name)
 
@@ -260,6 +262,7 @@ func (g *Game) Update() error {
 									//Invalidate and delete
 									chunk.MObj[pos].Valid = false
 									delete(chunk.MObj, pos)
+									glob.WorldMapDirty = true
 
 									//Action completed, save position and time
 									glob.LastObjPos = pos
@@ -331,10 +334,11 @@ func (g *Game) Update() error {
 			} else {
 				o.OutputDir = o.OutputDir + 1
 				if o.OutputDir > consts.DIR_WEST {
-					o.OutputDir = 0
+					o.OutputDir = 1
 				}
 			}
 			fmt.Println("Rotated obj:", pos, o.TypeP.Name, o.OutputDir)
+			glob.WorldMapDirty = true
 		}
 	}
 

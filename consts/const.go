@@ -20,6 +20,7 @@ const (
 	ObjSubUI   = 1
 	ObjSubGame = 2
 	ObjSubMat  = 3
+	ObjOverlay = 4
 
 	//UI Only
 	ObjTypeSave = 1
@@ -64,8 +65,8 @@ const (
 
 	DIR_INTERNAL = 0
 	DIR_NORTH    = 1
-	DIR_EAST     = 2
-	DIR_SOUTH    = 3
+	DIR_SOUTH    = 2
+	DIR_EAST     = 3
 	DIR_WEST     = 4
 	DIR_MAX      = 5
 

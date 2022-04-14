@@ -25,20 +25,41 @@ var (
 
 	GameObjTypes = map[int]glob.ObjType{
 		//Game Objects
-		consts.ObjTypeBasicMiner:      {ImagePath: "world-obj/basic-miner.png", Name: "Basic miner", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: MinerUpdate, MinerKGSec: 9, ProcSeconds: 4, CapacityKG: 500},
-		consts.ObjTypeBasicSmelter:    {ImagePath: "world-obj/basic-smelter.png", Name: "Basic smelter", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: SmelterUpdate},
-		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png", Name: "Iron rod caster", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: IronCasterUpdate},
-		consts.ObjTypeBasicBelt:       {ImagePath: "world-obj/basic-belt.png", Name: "Basic belt", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: LoaderUpdate},
-		consts.ObjTypeBasicBeltVert:   {ImagePath: "world-obj/basic-belt-vert.png", Name: "Basic belt", Size: glob.Position{X: 1, Y: 1}, ObjUpdate: LoaderUpdate},
-		consts.ObjTypeBasicBox:        {ImagePath: "world-obj/basic-box.png", Name: "Basic box", Size: glob.Position{X: 1, Y: 1}},
+		consts.ObjTypeBasicMiner: {ImagePath: "world-obj/basic-miner.png",
+			Name:        "Basic miner",
+			Size:        glob.Position{X: 1, Y: 1},
+			ObjUpdate:   MinerUpdate,
+			MinerKGSec:  9,
+			ProcSeconds: 4,
+			CapacityKG:  500,
+			HasOutput:   true},
+		consts.ObjTypeBasicSmelter: {ImagePath: "world-obj/basic-smelter.png",
+			Name:      "Basic smelter",
+			Size:      glob.Position{X: 1, Y: 1},
+			ObjUpdate: SmelterUpdate},
+		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png",
+			Name:      "Iron rod caster",
+			Size:      glob.Position{X: 1, Y: 1},
+			ObjUpdate: IronCasterUpdate},
+		consts.ObjTypeBasicBelt: {ImagePath: "world-obj/basic-belt.png",
+			Name:      "Basic belt",
+			Size:      glob.Position{X: 1, Y: 1},
+			ObjUpdate: LoaderUpdate},
+		consts.ObjTypeBasicBeltVert: {ImagePath: "world-obj/basic-belt-vert.png",
+			Name:      "Basic belt",
+			Size:      glob.Position{X: 1, Y: 1},
+			ObjUpdate: LoaderUpdate},
+		consts.ObjTypeBasicBox: {ImagePath: "world-obj/basic-box.png",
+			Name: "Basic box",
+			Size: glob.Position{X: 1, Y: 1}},
 	}
 
 	ObjOverlayTypes = map[int]glob.ObjType{
 		//Overlays
-		consts.ArrowNorth: {ImagePath: "world-obj/arrow-north.png", Name: "Arrow North", Size: glob.Position{X: 1, Y: 1}},
-		consts.ArrowSouth: {ImagePath: "world-obj/arrow-south.png", Name: "Arrow South", Size: glob.Position{X: 1, Y: 1}},
-		consts.ArrowEast:  {ImagePath: "world-obj/arrow-east.png", Name: "Arrow East", Size: glob.Position{X: 1, Y: 1}},
-		consts.ArrowWest:  {ImagePath: "world-obj/arrow-west.png", Name: "Arrow West", Size: glob.Position{X: 1, Y: 1}},
+		consts.ArrowNorth: {ImagePath: "overlays/arrow-north.png", Name: "Arrow North"},
+		consts.ArrowSouth: {ImagePath: "overlays/arrow-south.png", Name: "Arrow South"},
+		consts.ArrowEast:  {ImagePath: "overlays/arrow-east.png", Name: "Arrow East"},
+		consts.ArrowWest:  {ImagePath: "overlays/arrow-west.png", Name: "Arrow West"},
 	}
 
 	MatTypes = map[int]glob.ObjType{
@@ -53,5 +74,6 @@ var (
 		consts.ObjSubGame: GameObjTypes,
 		consts.ObjSubUI:   UIObjsTypes,
 		consts.ObjSubMat:  MatTypes,
+		consts.ObjOverlay: ObjOverlayTypes,
 	}
 )

@@ -64,6 +64,7 @@ type ObjType struct {
 	UIAction    func()
 	ObjUpdate   func(Key Position, Obj *MObj)
 	ProcSeconds float64
+	HasOutput   bool
 }
 
 type ToolbarItem struct {
@@ -79,8 +80,9 @@ type TickEvent struct {
 }
 
 var (
-	WorldMapLock sync.RWMutex
-	WorldMap     map[Position]*MapChunk
+	WorldMapLock  sync.RWMutex
+	WorldMap      map[Position]*MapChunk
+	WorldMapDirty bool
 
 	XYEmpty = Position{X: -2147483648, Y: -2147483648}
 

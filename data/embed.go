@@ -12,6 +12,7 @@ import (
 
 //go:embed gfx/ui/save.png
 //go:embed gfx/ui/load.png
+
 //go:embed gfx/world-obj/basic-miner.png
 //go:embed gfx/world-obj/basic-smelter.png
 //go:embed gfx/world-obj/iron-rod-caster.png
@@ -19,6 +20,11 @@ import (
 //go:embed gfx/world-obj/basic-belt-vert.png
 //go:embed gfx/belt-obj/iron-ore.png
 //go:embed gfx/world-obj/basic-box.png
+
+//go:embed gfx/overlays/arrow-north.png
+//go:embed gfx/overlays/arrow-south.png
+//go:embed gfx/overlays/arrow-east.png
+//go:embed gfx/overlays/arrow-west.png
 
 var f embed.FS
 
