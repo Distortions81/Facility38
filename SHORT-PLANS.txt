@@ -1,0 +1,11 @@
+Reduce tick queue load and memory footprint. Possibly a few lists for different tick intervals, maybe process x/total per tick?
+
+Start miner and other object outputs and inputs
+Possibly cache overlays, since they change infrequently. This should reduce draw calls.
+
+Cache toolbar UI, overlay for button press or selection.
+
+Check if smaller ints and floats reduce memory footprint
+
+
+https://github.com/Distortions81/GameTest/issues/1

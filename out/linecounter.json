@@ -548,6 +548,624 @@
                     "filename": "util/util.go"
                 }
             ]
+        },
+        {
+            "version": "0.2.7",
+            "counttime": "2022-04-14 10:57:54",
+            "filesum": 40,
+            "codesum": 1759,
+            "commentsum": 214,
+            "blanksum": 372,
+            "statistics": {
+                ".go": {
+                    "code": 1040,
+                    "comment": 140,
+                    "blank": 298
+                },
+                "": {
+                    "code": 11,
+                    "comment": 2,
+                    "blank": 2
+                },
+                ".mod": {
+                    "code": 18,
+                    "comment": 8,
+                    "blank": 3
+                },
+                ".sh": {
+                    "code": 4,
+                    "comment": 0,
+                    "blank": 1
+                },
+                ".sum": {
+                    "code": 136,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".js": {
+                    "code": 525,
+                    "comment": 64,
+                    "blank": 64
+                },
+                ".html": {
+                    "code": 25,
+                    "comment": 0,
+                    "blank": 4
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 0,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "bwash.sh"
+                },
+                {
+                    "blank": 14,
+                    "code": 48,
+                    "comment": 13,
+                    "filename": "consts/const.go"
+                },
+                {
+                    "filename": "data/blender/concrete1.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/obj.blend",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/obj.blend1",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/rust.jpg",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/scratch-blue-paint.jpg",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/scratched-rust.jpg",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 14,
+                    "code": 23,
+                    "comment": 14,
+                    "filename": "data/embed.go"
+                },
+                {
+                    "filename": "data/gfx/belt-obj/coal-ore.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/belt-obj/iron-ore.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/overlays/arrow-east.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/overlays/arrow-north.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/overlays/arrow-south.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/overlays/arrow-west.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/ui/load.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/ui/save.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-belt-vert.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-belt.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-box.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-miner.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-smelter.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/iron-rod-caster.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 41,
+                    "code": 156,
+                    "comment": 18,
+                    "filename": "draw.go"
+                },
+                {
+                    "filename": "GameTest",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 5,
+                    "code": 61,
+                    "comment": 0,
+                    "filename": "glob/colors.go"
+                },
+                {
+                    "blank": 57,
+                    "code": 157,
+                    "comment": 19,
+                    "filename": "glob/glob.go"
+                },
+                {
+                    "blank": 3,
+                    "code": 18,
+                    "comment": 8,
+                    "filename": "go.mod"
+                },
+                {
+                    "blank": 0,
+                    "code": 136,
+                    "comment": 0,
+                    "filename": "go.sum"
+                },
+                {
+                    "blank": 4,
+                    "code": 25,
+                    "comment": 0,
+                    "filename": "html/index.html"
+                },
+                {
+                    "filename": "html/main.wasm.gz",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "html/pako.min.js"
+                },
+                {
+                    "blank": 64,
+                    "code": 524,
+                    "comment": 63,
+                    "filename": "html/wasm_exec.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 7,
+                    "comment": 2,
+                    "filename": "LICENSE"
+                },
+                {
+                    "blank": 47,
+                    "code": 137,
+                    "comment": 19,
+                    "filename": "main.go"
+                },
+                {
+                    "blank": 38,
+                    "code": 111,
+                    "comment": 16,
+                    "filename": "obj/obj.go"
+                },
+                {
+                    "blank": 11,
+                    "code": 61,
+                    "comment": 5,
+                    "filename": "obj/objdata.go"
+                },
+                {
+                    "blank": 59,
+                    "code": 261,
+                    "comment": 35,
+                    "filename": "ui.go"
+                },
+                {
+                    "blank": 12,
+                    "code": 25,
+                    "comment": 1,
+                    "filename": "util/util.go"
+                }
+            ]
+        },
+        {
+            "version": "0.2.7",
+            "counttime": "2022-04-14 10:57:59",
+            "filesum": 40,
+            "codesum": 1759,
+            "commentsum": 214,
+            "blanksum": 372,
+            "statistics": {
+                "": {
+                    "code": 11,
+                    "comment": 2,
+                    "blank": 2
+                },
+                ".sh": {
+                    "code": 4,
+                    "comment": 0,
+                    "blank": 1
+                },
+                ".sum": {
+                    "code": 136,
+                    "comment": 0,
+                    "blank": 0
+                },
+                ".mod": {
+                    "code": 18,
+                    "comment": 8,
+                    "blank": 3
+                },
+                ".go": {
+                    "code": 1040,
+                    "comment": 140,
+                    "blank": 298
+                },
+                ".html": {
+                    "code": 25,
+                    "comment": 0,
+                    "blank": 4
+                },
+                ".js": {
+                    "code": 525,
+                    "comment": 64,
+                    "blank": 64
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 0,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "bwash.sh"
+                },
+                {
+                    "blank": 14,
+                    "code": 48,
+                    "comment": 13,
+                    "filename": "consts/const.go"
+                },
+                {
+                    "filename": "data/blender/concrete1.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/obj.blend",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/obj.blend1",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/rust.jpg",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/scratch-blue-paint.jpg",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/blender/scratched-rust.jpg",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 14,
+                    "code": 23,
+                    "comment": 14,
+                    "filename": "data/embed.go"
+                },
+                {
+                    "filename": "data/gfx/belt-obj/coal-ore.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/belt-obj/iron-ore.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/overlays/arrow-east.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/overlays/arrow-north.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/overlays/arrow-south.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/overlays/arrow-west.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/ui/load.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/ui/save.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-belt-vert.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-belt.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-box.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-miner.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/basic-smelter.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "data/gfx/world-obj/iron-rod-caster.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 41,
+                    "code": 156,
+                    "comment": 18,
+                    "filename": "draw.go"
+                },
+                {
+                    "filename": "GameTest",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 5,
+                    "code": 61,
+                    "comment": 0,
+                    "filename": "glob/colors.go"
+                },
+                {
+                    "blank": 57,
+                    "code": 157,
+                    "comment": 19,
+                    "filename": "glob/glob.go"
+                },
+                {
+                    "blank": 3,
+                    "code": 18,
+                    "comment": 8,
+                    "filename": "go.mod"
+                },
+                {
+                    "blank": 0,
+                    "code": 136,
+                    "comment": 0,
+                    "filename": "go.sum"
+                },
+                {
+                    "blank": 4,
+                    "code": 25,
+                    "comment": 0,
+                    "filename": "html/index.html"
+                },
+                {
+                    "filename": "html/main.wasm.gz",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 1,
+                    "filename": "html/pako.min.js"
+                },
+                {
+                    "blank": 64,
+                    "code": 524,
+                    "comment": 63,
+                    "filename": "html/wasm_exec.js"
+                },
+                {
+                    "blank": 2,
+                    "code": 7,
+                    "comment": 2,
+                    "filename": "LICENSE"
+                },
+                {
+                    "blank": 47,
+                    "code": 137,
+                    "comment": 19,
+                    "filename": "main.go"
+                },
+                {
+                    "blank": 38,
+                    "code": 111,
+                    "comment": 16,
+                    "filename": "obj/obj.go"
+                },
+                {
+                    "blank": 11,
+                    "code": 61,
+                    "comment": 5,
+                    "filename": "obj/objdata.go"
+                },
+                {
+                    "blank": 59,
+                    "code": 261,
+                    "comment": 35,
+                    "filename": "ui.go"
+                },
+                {
+                    "blank": 12,
+                    "code": 25,
+                    "comment": 1,
+                    "filename": "util/util.go"
+                }
+            ]
         }
     ]
 }
