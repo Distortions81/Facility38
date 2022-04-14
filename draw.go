@@ -48,13 +48,29 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ey = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
 
 	/* Draw world */
+	cSkip := 0
+	oSkip := 0
+
+	cCount := 0
+	oCount := 0
 	for ckey, chunk := range glob.WorldMap {
 
 		//Is this chunk on the screen?
 		if ckey.X < sx/consts.ChunkSize || ckey.X > ex/consts.ChunkSize || ckey.Y < sy/consts.ChunkSize || ckey.Y > ey/consts.ChunkSize {
+			cSkip++
 			continue
 		}
+		cCount++
+
 		for mkey, mobj := range chunk.MObj {
+
+			//Is this object on the screen?
+			if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
+				oSkip++
+				continue
+			}
+
+			oCount++
 
 			/* camera + object */
 			newx := mainx + (float64(mkey.X))
@@ -68,6 +84,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		}
 	}
+	fmt.Println("Chunks skipped:", cSkip, "Objects skipped:", oSkip)
+	fmt.Println("Chunks drawn:", cCount, "Objects drawn:", oCount)
 
 	//Get mouse position on world
 	dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
