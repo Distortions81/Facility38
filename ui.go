@@ -311,6 +311,15 @@ func (g *Game) Update() error {
 		glob.SetupMouse = false
 	}
 
+	//Toggle arrows
+	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
+		if glob.ShowArrows {
+			glob.ShowArrows = false
+		} else {
+			glob.ShowArrows = true
+		}
+	}
+
 	//Rotate object
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		//Get mouse position on world

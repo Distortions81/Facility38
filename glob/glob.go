@@ -140,6 +140,7 @@ var (
 	PinchPressed      bool = false
 	ShiftPressed      bool = false
 
+	ShowArrows  bool = true
 	DrewStartup bool = false
 	DrewMap     bool = false
 	DrewMapInt  int  = 0
