@@ -62,7 +62,7 @@ type ObjType struct {
 	CapacityKG int
 
 	UIAction    func()
-	ObjUpdate   func(Key Position, Obj *MObj)
+	ObjUpdate   func(Obj *MObj)
 	ProcSeconds float64
 	HasOutput   bool
 }
@@ -74,7 +74,6 @@ type ToolbarItem struct {
 }
 
 type TickEvent struct {
-	Key    Position
 	Target *MObj
 	Dir    int
 }

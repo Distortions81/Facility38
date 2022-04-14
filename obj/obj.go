@@ -36,6 +36,7 @@ func GLogic() {
 
 			lastUpdate = time.Now()
 			glob.UpdateTook = time.Since(start)
+			fmt.Println("Update budget used: ", (float64(glob.UpdateTook.Microseconds()/1000.0)/250.0)*100.0, "%")
 		}
 
 		//Reduce busy waiting
@@ -43,30 +44,25 @@ func GLogic() {
 	}
 }
 
-func MinerUpdate(key glob.Position, o *glob.MObj) {
-
-	/* Temporary for testing */
-	o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
-	o.Contents[consts.DIR_INTERNAL].TypeP = MatTypes[consts.MAT_COAL]
-	/* Temporary for testing */
+func MinerUpdate(o *glob.MObj) {
 
 	input := int(float64(o.TypeP.MinerKGSec*consts.TIMESCALE) / o.TypeP.ProcSeconds)
-	if o.Contents[consts.DIR_INTERNAL].Amount+input < o.TypeP.CapacityKG {
-		o.Contents[consts.DIR_INTERNAL].Amount += input
-	}
+	//if o.Contents[consts.DIR_INTERNAL].Amount+input < o.TypeP.CapacityKG {
+	o.Contents[consts.DIR_INTERNAL].Amount += input
+	//}
 }
 
-func SmelterUpdate(key glob.Position, obj *glob.MObj) {
+func SmelterUpdate(obj *glob.MObj) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func IronCasterUpdate(key glob.Position, obj *glob.MObj) {
+func IronCasterUpdate(obj *glob.MObj) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func LoaderUpdate(key glob.Position, obj *glob.MObj) {
+func LoaderUpdate(obj *glob.MObj) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
@@ -113,21 +109,24 @@ func RunTocks() {
 
 func RunProcs() {
 	found := false
+	count := 0
 
 	//Processes these every tick
 	for _, event := range ProcList[0] {
+		count++
 		if event.Target.Valid {
-			event.Target.TypeP.ObjUpdate(event.Key, event.Target)
+			event.Target.TypeP.ObjUpdate(event.Target)
 		}
 	}
 
 	//Process these at specific intervals
 	for _, event := range ProcList[WorldTick] {
+		count++
 		//Process
 		if event.Target.Valid {
-			event.Target.TypeP.ObjUpdate(event.Key, event.Target)
+			event.Target.TypeP.ObjUpdate(event.Target)
 
-			AddProcQ(event.Key, event.Target, WorldTick+uint64(event.Target.TypeP.ProcSeconds*float64(glob.LogicUPS)))
+			AddProcQ(event.Target, WorldTick+uint64(event.Target.TypeP.ProcSeconds*float64(glob.LogicUPS)))
 			found = true
 		}
 	}
@@ -135,6 +134,8 @@ func RunProcs() {
 		//fmt.Println("Deleted procs for ", WorldTick)
 		delete(ProcList, WorldTick)
 	}
+
+	fmt.Println("Count: ", count)
 }
 
 func RevDir(dir int) int {
@@ -151,17 +152,14 @@ func RevDir(dir int) int {
 	}
 }
 
-func AddTickQ(key glob.Position, target *glob.MObj) {
-	fmt.Println("Adding tick for ", key)
-	TickList = append(TickList, glob.TickEvent{Target: target, Key: key})
+func AddTickQ(target *glob.MObj) {
+	TickList = append(TickList, glob.TickEvent{Target: target})
 }
 
-func AddTockQ(key glob.Position, target *glob.MObj) {
-	fmt.Println("Adding tock for ", key)
-	TockList = append(TockList, glob.TickEvent{Target: target, Key: key})
+func AddTockQ(target *glob.MObj) {
+	TockList = append(TockList, glob.TickEvent{Target: target})
 }
 
-func AddProcQ(key glob.Position, target *glob.MObj, tick uint64) {
-	//fmt.Println("Adding proc for ", key, " at ", tick)
-	ProcList[tick] = append(ProcList[tick], glob.TickEvent{Target: target, Key: key})
+func AddProcQ(target *glob.MObj, tick uint64) {
+	ProcList[tick] = append(ProcList[tick], glob.TickEvent{Target: target})
 }

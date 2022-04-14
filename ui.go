@@ -234,13 +234,18 @@ func (g *Game) Update() error {
 							fmt.Println("Made obj:", pos, o.TypeP.Name)
 
 							o.Valid = true
+							/* Temporary for testing */
+							o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
+							o.Contents[consts.DIR_INTERNAL].TypeP = obj.MatTypes[consts.MAT_COAL]
+							/* Temporary for testing */
+
 							if o.TypeP.ObjUpdate != nil {
 								if o.TypeP.ProcSeconds > 0 {
 									//Process on a specifc ticks
-									obj.AddProcQ(pos, o, obj.WorldTick+1+uint64(rand.Intn(int(o.TypeP.ProcSeconds))))
+									obj.AddProcQ(o, obj.WorldTick+1+uint64(rand.Intn(int(o.TypeP.ProcSeconds))))
 								} else {
 									//Eternal
-									obj.AddProcQ(pos, o, 0)
+									obj.AddProcQ(o, 0)
 								}
 							}
 

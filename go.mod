@@ -4,9 +4,9 @@ go 1.17
 
 require (
 	github.com/hajimehoshi/ebiten v1.12.12
-	github.com/hajimehoshi/ebiten/v2 v2.2.5
+	github.com/hajimehoshi/ebiten/v2 v2.2.6
 	github.com/remeh/sizedwaitgroup v1.0.0
-	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a
+	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9
 )
 
 require (
@@ -14,8 +14,8 @@ require (
 	github.com/jezek/xgb v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
 	golang.org/x/exp/shiny v0.0.0-20220407100705-7b9b53b0aca4 // indirect
-	golang.org/x/mobile v0.0.0-20220325161704-447654d348e3 // indirect
+	golang.org/x/mobile v0.0.0-20220407111146-e579adbbc4a2 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220403205710-6acee93ad0eb // indirect
+	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/text v0.3.7 // indirect
 )

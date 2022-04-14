@@ -8,7 +8,6 @@ import (
 	"GameTest/util"
 	"fmt"
 	"log"
-	"math/rand"
 	"runtime"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -133,8 +132,9 @@ func NewGame() *Game {
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
 	obj.ProcList = make(map[uint64][]glob.TickEvent)
 
-	for x := 0; x < 1000; x++ {
-		for y := 0; y < 1000; y++ {
+	/* Perf test */
+	for x := 0; x < 2000; x++ {
+		for y := 0; y < 2000; y++ {
 			pos := glob.Position{X: x, Y: y}
 			chunk := util.GetChunk(pos)
 
@@ -155,15 +155,21 @@ func NewGame() *Game {
 			o.OutputDir = consts.DIR_EAST
 
 			o.Valid = true
+
+			/* Temporary for testing */
+			o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
+			o.Contents[consts.DIR_INTERNAL].TypeP = obj.MatTypes[consts.MAT_COAL]
+			/* Temporary for testing */
+
 			if o.TypeP.ObjUpdate != nil {
 				if o.TypeP.ProcSeconds > 0 {
 					//Process on a specifc ticks
-					r := uint64(rand.Intn(int(o.TypeP.ProcSeconds)))
+					//r := uint64(rand.Intn(int(o.TypeP.ProcSeconds) * glob.LogicUPS))
 					//fmt.Println(r)
-					obj.AddProcQ(pos, o, obj.WorldTick+1+r)
+					obj.AddProcQ(o, 0)
 				} else {
 					//Eternal
-					obj.AddProcQ(pos, o, 0)
+					obj.AddProcQ(o, 0)
 				}
 			}
 
@@ -190,6 +196,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 //Main function
 func main() {
+
 	if err := ebiten.RunGame(NewGame()); err != nil {
 		log.Fatal(err)
 	}

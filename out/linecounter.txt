@@ -51,3 +51,66 @@ save.json, code is 58, comment is 0, blank is 0.
 ui.go, code is 200, comment is 34, blank is 44.
 util/util.go, code is 25, comment is 1, blank is 12.
 ===============================================================================
+===============================================================================
+EXTENSION NAME : linecounter
+EXTENSION VERSION : 0.2.7
+-------------------------------------------------------------------------------
+count time : 2022-04-13 22:18:58
+count workspace : /home/carl/Documents/github/GameTest
+total files : 40
+total code lines : 1763
+total comment lines : 214
+total blank lines : 372
+
+    statistics
+   |      extension|     total code|  total comment|    total blank|percent|
+   -------------------------------------------------------------------------
+   |           .mod|             18|              8|              3|    1.0|
+   |            .go|           1044|            140|            298|     59|
+   |            .js|            525|             64|             64|     30|
+   |          .html|             25|              0|              4|    1.4|
+   |            .sh|              4|              0|              1|   0.23|
+   |               |             11|              2|              2|   0.62|
+   |           .sum|            136|              0|              0|    7.7|
+   -------------------------------------------------------------------------
+.gitignore, code is 4, comment is 0, blank is 0.
+bwash.sh, code is 4, comment is 0, blank is 1.
+consts/const.go, code is 48, comment is 13, blank is 14.
+data/blender/concrete1.png, it is a binary file.
+data/blender/obj.blend, it is a binary file.
+data/blender/obj.blend1, it is a binary file.
+data/blender/rust.jpg, it is a binary file.
+data/blender/scratch-blue-paint.jpg, it is a binary file.
+data/blender/scratched-rust.jpg, it is a binary file.
+data/embed.go, code is 23, comment is 14, blank is 14.
+data/gfx/belt-obj/coal-ore.png, it is a binary file.
+data/gfx/belt-obj/iron-ore.png, it is a binary file.
+data/gfx/overlays/arrow-east.png, it is a binary file.
+data/gfx/overlays/arrow-north.png, it is a binary file.
+data/gfx/overlays/arrow-south.png, it is a binary file.
+data/gfx/overlays/arrow-west.png, it is a binary file.
+data/gfx/ui/load.png, it is a binary file.
+data/gfx/ui/save.png, it is a binary file.
+data/gfx/world-obj/basic-belt-vert.png, it is a binary file.
+data/gfx/world-obj/basic-belt.png, it is a binary file.
+data/gfx/world-obj/basic-box.png, it is a binary file.
+data/gfx/world-obj/basic-miner.png, it is a binary file.
+data/gfx/world-obj/basic-smelter.png, it is a binary file.
+data/gfx/world-obj/iron-rod-caster.png, it is a binary file.
+draw.go, code is 156, comment is 18, blank is 41.
+GameTest, it is a binary file.
+glob/colors.go, code is 61, comment is 0, blank is 5.
+glob/glob.go, code is 158, comment is 19, blank is 57.
+go.mod, code is 18, comment is 8, blank is 3.
+go.sum, code is 136, comment is 0, blank is 0.
+html/index.html, code is 25, comment is 0, blank is 4.
+html/main.wasm.gz, it is a binary file.
+html/pako.min.js, code is 1, comment is 1, blank is 0.
+html/wasm_exec.js, code is 524, comment is 63, blank is 64.
+LICENSE, code is 7, comment is 2, blank is 2.
+main.go, code is 138, comment is 18, blank is 47.
+obj/obj.go, code is 113, comment is 17, blank is 38.
+obj/objdata.go, code is 61, comment is 5, blank is 11.
+ui.go, code is 261, comment is 35, blank is 59.
+util/util.go, code is 25, comment is 1, blank is 12.
+===============================================================================

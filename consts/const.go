@@ -54,8 +54,6 @@ const (
 	//Draw settings
 	ChunkSize = 32
 
-	ItemSpacing = 0.0 //Spacing between items
-
 	DIR_INTERNAL = 0
 	DIR_NORTH    = 1
 	DIR_EAST     = 2
