@@ -2,23 +2,21 @@ package glob
 
 import (
 	"GameTest/consts"
+	"bytes"
+	"compress/zlib"
 	"encoding/json"
 	"fmt"
 	"image/color"
 	"io/ioutil"
+	"log"
 	"os"
 	"sync"
 	"time"
 
+	"code.cloudfoundry.org/bytefmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )
-
-type SaveObj struct {
-	Pos  Position
-	Con  []int
-	Type int
-}
 
 type MapChunk struct {
 	MObj map[Position]*MObj
@@ -26,21 +24,21 @@ type MapChunk struct {
 
 //L suffix var require Lock
 type MObj struct {
-	Type  int
-	TypeP ObjType
+	Type  int     `json:"t,omitempty"`
+	TypeP ObjType `json:"-"`
 
-	External  [consts.DIR_MAX]MatData
-	Contents  [consts.DIR_MAX]MatData
-	SendTo    [consts.DIR_MAX]*MObj
-	OutputDir int
+	External  [consts.DIR_MAX]MatData `json:"e,omitempty"`
+	Contents  [consts.DIR_MAX]MatData `json:"c,omitempty"`
+	SendTo    [consts.DIR_MAX]*MObj   `json:"-"`
+	OutputDir int                     `json:"o,omitempty"`
 
-	Valid bool
+	Valid bool `json:"-"`
 }
 
 type MatData struct {
-	Type   int
-	TypeP  ObjType
-	Amount int
+	Type   int     `json:"m,omitempty"`
+	TypeP  ObjType `json:"-"`
+	Amount int     `json:"a,omitempty"`
 }
 
 type Position struct {
@@ -79,10 +77,11 @@ type TickEvent struct {
 }
 
 var (
-	WorldMapLock  sync.RWMutex
-	WorldMap      map[Position]*MapChunk
-	WorldMapDirty bool
-	UpdateTook    time.Duration
+	WorldMapLock       sync.RWMutex
+	WorldMapUpdateLock sync.Mutex
+	WorldMap           map[Position]*MapChunk
+	WorldMapDirty      bool
+	UpdateTook         time.Duration
 
 	XYEmpty = Position{X: -2147483648, Y: -2147483648}
 
@@ -150,23 +149,30 @@ var (
 )
 
 func SaveGame() {
-	tempPath := consts.SaveGame + ".tmp"
-	finalPath := consts.SaveGame
 
-	var item []SaveObj
-	for _, objs := range WorldMap {
-		for okeys, o := range objs.MObj {
+	tempPath := "save.dat.tmp"
+	finalPath := "save.dat"
 
-			item = append(item, SaveObj{Pos: okeys, Type: o.Type})
+	WorldMapLock.Lock()
+	WorldMapUpdateLock.Lock()
+
+	tempList := []*MObj{}
+	for _, chunk := range WorldMap {
+		for _, mObj := range chunk.MObj {
+			tempList = append(tempList, mObj)
 		}
 	}
-	b, err := json.MarshalIndent(item, "", "\t")
+
+	b, err := json.MarshalIndent(tempList, "", "\t")
 
 	if err != nil {
 		fmt.Println("WriteSave: enc.Encode failure")
 		fmt.Println(err)
 		return
 	}
+
+	WorldMapUpdateLock.Unlock()
+	WorldMapLock.Unlock()
 
 	_, err = os.Create(tempPath)
 
@@ -175,7 +181,9 @@ func SaveGame() {
 		return
 	}
 
-	err = ioutil.WriteFile(tempPath, b, 0644)
+	zip := compressZip(b)
+
+	err = ioutil.WriteFile(tempPath, zip, 0644)
 
 	if err != nil {
 		fmt.Println("WriteGCfg: WriteFile failure")
@@ -190,38 +198,53 @@ func SaveGame() {
 }
 
 func LoadGame() {
-	file, err := os.Open(consts.SaveGame)
+	file, err := os.Open("save.dat")
 	if err != nil {
 		fmt.Println("LoadGame: os.Open failure")
 		return
 	}
 	defer file.Close()
 
-	var item []SaveObj
-	dec := json.NewDecoder(file)
-	err = dec.Decode(&item)
+	b, _ := ioutil.ReadAll(file)
+	data := uncompressZip(b)
+	dbuf := bytes.NewBuffer(data)
+
+	dec := json.NewDecoder(dbuf)
+	err = dec.Decode(&WorldMap)
 	if err != nil {
 		fmt.Println("LoadGame: dec.Decode failure")
 		return
 	}
+}
 
-	//Cleap map
-	WorldMap = make(map[Position]*MapChunk)
+func uncompressZip(data []byte) []byte {
 
-	for _, i := range item {
-		var cpos = Position{X: i.Pos.X / consts.ChunkSize, Y: i.Pos.Y / consts.ChunkSize}
+	b := bytes.NewReader(data)
 
-		//Make chunk if needed
-		if WorldMap[cpos] == nil {
-			var chunk = &MapChunk{}
-			chunk.MObj = make(map[Position]*MObj)
-			WorldMap[cpos] = chunk
-		}
-
-		var o = &MObj{}
-		o.Type = i.Type
-		//Import cycle... grr
-		//o.TypeP = obj.GameObjTypes[o.Type]
-		WorldMap[cpos].MObj[i.Pos] = o
+	log.Println("Uncompressing: ", bytefmt.ByteSize(uint64(len(data))))
+	z, err := zlib.NewReader(b)
+	if err != nil {
+		log.Println("Error: ", err)
+		return nil
 	}
+	defer z.Close()
+
+	p, err := ioutil.ReadAll(z)
+	if err != nil {
+		log.Println("Error: ", err)
+		return nil
+	}
+	log.Print("Uncompressed: ", bytefmt.ByteSize(uint64(len(p))))
+	return p
+}
+
+func compressZip(data []byte) []byte {
+	var b bytes.Buffer
+	w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
+	if err != nil {
+		fmt.Println("ERROR: gz failure:", err)
+	}
+	w.Write(data)
+	w.Close()
+	return b.Bytes()
 }

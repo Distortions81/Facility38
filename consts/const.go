@@ -3,12 +3,11 @@ package consts
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
-	Version  = "006"        //increment
-	Build    = "04.14.2022" //mmddyyyy
-	Wasm     = "js"         //Detect wasm/js
-	DataDir  = "data/"
-	GfxDir   = "gfx/"
-	SaveGame = "save.json"
+	Version = "006"        //increment
+	Build   = "04.14.2022" //mmddyyyy
+	Wasm    = "js"         //Detect wasm/js
+	DataDir = "data/"
+	GfxDir  = "gfx/"
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1

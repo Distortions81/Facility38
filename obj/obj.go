@@ -26,6 +26,8 @@ func GLogic() {
 	for {
 
 		if time.Since(lastUpdate) > glob.GameLogicRate {
+			glob.WorldMapUpdateLock.Lock()
+
 			start := time.Now()
 
 			WorldTick++
@@ -34,6 +36,7 @@ func GLogic() {
 			RunTocks()
 			RunProcs()
 
+			glob.WorldMapUpdateLock.Unlock()
 			lastUpdate = time.Now()
 			glob.UpdateTook = time.Since(start)
 			fmt.Println("Update budget used: ", (float64(glob.UpdateTook.Microseconds()/1000.0)/250.0)*100.0, "%")
