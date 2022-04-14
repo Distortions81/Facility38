@@ -26,6 +26,8 @@ func GLogic() {
 	for {
 
 		if time.Since(lastUpdate) > glob.GameLogicRate {
+			start := time.Now()
+
 			WorldTick++
 			RunTicks()
 			//RunMods()
@@ -33,6 +35,7 @@ func GLogic() {
 			RunProcs()
 
 			lastUpdate = time.Now()
+			glob.UpdateTook = time.Since(start)
 		}
 
 		//Reduce busy waiting
@@ -159,6 +162,6 @@ func AddTockQ(key glob.Position, target *glob.MObj) {
 }
 
 func AddProcQ(key glob.Position, target *glob.MObj, tick uint64) {
-	fmt.Println("Adding proc for ", key, " at ", tick)
+	//fmt.Println("Adding proc for ", key, " at ", tick)
 	ProcList[tick] = append(ProcList[tick], glob.TickEvent{Target: target, Key: key})
 }

@@ -6,7 +6,6 @@ import (
 	"GameTest/obj"
 	"GameTest/util"
 	"fmt"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -78,7 +77,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if glob.StatusStr != "" {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
-		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("v%v-%v, %vfps, z: %v, wt/rt: %v/%v", consts.Version, consts.Build, int(ebiten.CurrentFPS()), glob.ZoomScale, time.Duration(float64(time.Since(obj.WorldEpoch))*consts.TIMESCALE).Round(time.Second).String(), time.Duration(time.Since(obj.WorldEpoch)).Round(time.Second).String()), 0, glob.ScreenHeight-20)
+		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("v%v-%v, %vfps, z: %v, up: %v", consts.Version, consts.Build, int(ebiten.CurrentFPS()), glob.ZoomScale, glob.UpdateTook.String()), 0, glob.ScreenHeight-20)
 	}
 
 	/* Draw toolbar */

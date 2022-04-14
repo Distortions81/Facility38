@@ -7,6 +7,7 @@ import (
 	"GameTest/util"
 	"fmt"
 	"math"
+	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -236,7 +237,7 @@ func (g *Game) Update() error {
 							if o.TypeP.ObjUpdate != nil {
 								if o.TypeP.ProcSeconds > 0 {
 									//Process on a specifc ticks
-									obj.AddProcQ(pos, o, obj.WorldTick+1)
+									obj.AddProcQ(pos, o, obj.WorldTick+1+uint64(rand.Intn(int(o.TypeP.ProcSeconds))))
 								} else {
 									//Eternal
 									obj.AddProcQ(pos, o, 0)

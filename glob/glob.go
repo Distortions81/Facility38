@@ -83,6 +83,7 @@ var (
 	WorldMapLock  sync.RWMutex
 	WorldMap      map[Position]*MapChunk
 	WorldMapDirty bool
+	UpdateTook    time.Duration
 
 	XYEmpty = Position{X: -2147483648, Y: -2147483648}
 

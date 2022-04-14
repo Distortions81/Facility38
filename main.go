@@ -5,8 +5,10 @@ import (
 	"GameTest/data"
 	"GameTest/glob"
 	"GameTest/obj"
+	"GameTest/util"
 	"fmt"
 	"log"
+	"math/rand"
 	"runtime"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -130,6 +132,44 @@ func NewGame() *Game {
 
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
 	obj.ProcList = make(map[uint64][]glob.TickEvent)
+
+	for x := 0; x < 1000; x++ {
+		for y := 0; y < 1000; y++ {
+			pos := glob.Position{X: x, Y: y}
+			chunk := util.GetChunk(pos)
+
+			//Make chunk if needed
+			if chunk == nil {
+				cpos := util.PosToChunkPos(pos)
+
+				chunk = &glob.MapChunk{}
+				glob.WorldMap[cpos] = chunk
+				chunk.MObj = make(map[glob.Position]*glob.MObj)
+			}
+
+			o := &glob.MObj{}
+			chunk.MObj[pos] = o
+
+			o.Type = consts.ObjTypeBasicMiner
+			o.TypeP = obj.GameObjTypes[o.Type]
+			o.OutputDir = consts.DIR_EAST
+
+			o.Valid = true
+			if o.TypeP.ObjUpdate != nil {
+				if o.TypeP.ProcSeconds > 0 {
+					//Process on a specifc ticks
+					r := uint64(rand.Intn(int(o.TypeP.ProcSeconds)))
+					//fmt.Println(r)
+					obj.AddProcQ(pos, o, obj.WorldTick+1+r)
+				} else {
+					//Eternal
+					obj.AddProcQ(pos, o, 0)
+				}
+			}
+
+		}
+	}
+	glob.WorldMapDirty = true
 
 	//Game logic runs on its own thread
 	go obj.GLogic()
