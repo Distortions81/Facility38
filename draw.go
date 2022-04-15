@@ -190,7 +190,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			}
 			screen.DrawImage(o.TypeP.Image, op)
 
-			if glob.ShowAltView && o.TypeP.HasOutput {
+			if glob.ShowAltView {
 
 				/* Draw contents */
 				for _, c := range o.Contents {
@@ -223,12 +223,14 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 					}
 				}
 
-				/* Draw Arrow */
-				img := objects.ObjOverlayTypes[o.OutputDir].Image
-				if img != nil {
-					screen.DrawImage(img, op)
-				} else {
-					fmt.Println("Arrow overlay image not found.")
+				if o.TypeP.HasOutput {
+					/* Draw Arrow */
+					img := objects.ObjOverlayTypes[o.OutputDir].Image
+					if img != nil {
+						screen.DrawImage(img, op)
+					} else {
+						fmt.Println("Arrow overlay image not found.")
+					}
 				}
 			}
 		}
