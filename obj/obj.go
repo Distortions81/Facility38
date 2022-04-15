@@ -121,7 +121,7 @@ func RunProcs() {
 		if event.Target.Valid {
 			event.Target.TypeP.ObjUpdate(event.Target)
 		} else {
-			//Delete eternal objects
+			//Delete eternal events if object was invalidated
 			ProcList[0] = append(ProcList[0][:key], ProcList[0][key+1:]...)
 		}
 	}
