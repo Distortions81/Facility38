@@ -76,6 +76,7 @@ func RunTicks() {
 
 	for _, event := range TickList {
 		for dir, o := range event.Target.SendTo {
+
 			if o.Contents[dir].Amount > 0 && len(o.SendTo) > 0 {
 				//Send to object
 				if o.SendTo[dir].External[dir].Amount == 0 {

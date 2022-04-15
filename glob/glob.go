@@ -30,10 +30,10 @@ type MObj struct {
 	Type  int     `json:"t,omitempty"`
 	TypeP ObjType `json:"-"`
 
-	External  [consts.DIR_MAX]MatData `json:"e,omitempty"`
-	Contents  [consts.DIR_MAX]MatData `json:"c,omitempty"`
-	SendTo    [consts.DIR_MAX]*MObj   `json:"-"`
-	OutputDir int                     `json:"o,omitempty"`
+	External  [consts.DIR_MAX]*MatData `json:"e,omitempty"`
+	Contents  [consts.DIR_MAX]*MatData `json:"c,omitempty"`
+	SendTo    [consts.DIR_MAX]*MObj    `json:"-"`
+	OutputDir int                      `json:"o,omitempty"`
 
 	Valid bool `json:"-"`
 }
@@ -76,7 +76,7 @@ type ToolbarItem struct {
 
 type TickEvent struct {
 	Target *MObj
-	Dir    int
+	Dir    *int
 }
 
 var (

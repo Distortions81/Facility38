@@ -134,6 +134,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				found = true
 				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", dtx, dty, o.TypeP.Name)
 				for _, c := range o.Contents {
+					if c == nil {
+						continue
+					}
 					if c.Amount == 0 {
 						continue
 					}
@@ -177,10 +180,12 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			screen.DrawImage(o.TypeP.Image, op)
 
 			if glob.ShowAltView && o.TypeP.HasOutput {
-				img := obj.ObjOverlayTypes[o.OutputDir].Image
 
 				/* Draw contents */
 				for _, c := range o.Contents {
+					if c == nil {
+						continue
+					}
 					if c.Amount <= 0 {
 						continue
 					}
@@ -193,6 +198,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 				}
 
 				/* Draw Arrow */
+				img := obj.ObjOverlayTypes[o.OutputDir].Image
 				if img != nil {
 					screen.DrawImage(img, op)
 				} else {
