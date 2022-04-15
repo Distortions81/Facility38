@@ -192,7 +192,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			}
 			screen.DrawImage(o.TypeP.Image, op)
 
-			if glob.ShowAltView {
+			if glob.ShowAltView || o.Type == consts.ObjTypeBasicBelt {
 
 				/* Draw contents */
 				for _, c := range o.Contains {
@@ -227,7 +227,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 					}
 				}
 
-				if o.TypeP.HasOutput {
+				if o.TypeP.HasOutput && o.Type != consts.ObjTypeBasicBelt {
 					/* Draw Arrow */
 					img := objects.ObjOverlayTypes[o.OutputDir].Image
 					if img != nil {
