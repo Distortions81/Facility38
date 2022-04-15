@@ -3,7 +3,7 @@ package main
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"GameTest/obj"
+	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
 
@@ -105,14 +105,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw toolbar */
-	for i := 0; i < obj.ToolbarMax; i++ {
+	for i := 0; i < objects.ToolbarMax; i++ {
 		DrawToolItem(screen, i)
 	}
 
 	/* Toolbar tool tip */
-	uipix := float64(obj.ToolbarMax * int(consts.TBSize))
+	uipix := float64(objects.ToolbarMax * int(consts.TBSize))
 	if glob.MousePosX <= uipix+consts.ToolBarOffsetX && glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
-		temp := obj.ToolbarItems[int(glob.MousePosX/consts.TBSize)]
+		temp := objects.ToolbarItems[int(glob.MousePosX/consts.TBSize)]
 		item := temp.Link[temp.Key]
 
 		toolTip := fmt.Sprintf("%v", item.Name)
@@ -133,7 +133,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", dtx, dty, o.TypeP.Name)
-				for _, c := range o.Contents {
+				for dir, c := range o.Contents {
 					if c == nil {
 						continue
 					}
@@ -141,7 +141,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						continue
 					}
 					if c.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%vkg %v)", c.Amount, c.TypeP.Name)
+						toolTip += fmt.Sprintf(" (%vkg %v int) %v", c.Amount, c.TypeP.Name, dir)
+					}
+				}
+				for dir, c := range o.External {
+					if c == nil {
+						continue
+					}
+					if c.Amount == 0 {
+						continue
+					}
+					if c.Amount > 0 {
+						toolTip += fmt.Sprintf(" (%vkg %v ext) %v", c.Amount, c.TypeP.Name, dir)
 					}
 				}
 			}
@@ -198,7 +209,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 				}
 
 				/* Draw Arrow */
-				img := obj.ObjOverlayTypes[o.OutputDir].Image
+				img := objects.ObjOverlayTypes[o.OutputDir].Image
 				if img != nil {
 					screen.DrawImage(img, op)
 				} else {
@@ -212,7 +223,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 }
 
 func DrawToolItem(screen *ebiten.Image, pos int) {
-	temp := obj.ToolbarItems[pos]
+	temp := objects.ToolbarItems[pos]
 	item := temp.Link[temp.Key]
 
 	x := float64(consts.TBSize * pos)
@@ -232,7 +243,7 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 	}
 
 	if temp.Type == consts.ObjSubGame {
-		if temp.Key == obj.SelectedItemType {
+		if temp.Key == objects.SelectedItemType {
 			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.TBSize, consts.ToolBarOffsetY, consts.TBThick, consts.TBSize, glob.ColorTBSelected)
 			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.TBSize, consts.ToolBarOffsetY, consts.TBSize, consts.TBThick, glob.ColorTBSelected)
 

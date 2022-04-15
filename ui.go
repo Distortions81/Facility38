@@ -3,7 +3,7 @@ package main
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"GameTest/obj"
+	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
 	"math"
@@ -149,12 +149,12 @@ func (g *Game) Update() error {
 		glob.LastActionType = consts.DragActionTypeNone
 
 		//Toolbar
-		uipix := float64(obj.ToolbarMax * int(consts.TBSize))
+		uipix := float64(objects.ToolbarMax * int(consts.TBSize))
 		if glob.MousePosX <= uipix+consts.ToolBarOffsetX {
 			if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
 				ipos := int((glob.MousePosX - consts.ToolBarOffsetX) / consts.TBSize)
-				temp := obj.ToolbarItems[ipos].Link
-				item := temp[obj.ToolbarItems[ipos].Key]
+				temp := objects.ToolbarItems[ipos].Link
+				item := temp[objects.ToolbarItems[ipos].Key]
 
 				//Actions
 				if item.UIAction != nil {
@@ -162,7 +162,7 @@ func (g *Game) Update() error {
 
 					fmt.Println("UI Action:", item.Name)
 				} else {
-					obj.SelectedItemType = obj.ToolbarItems[ipos].Key
+					objects.SelectedItemType = objects.ToolbarItems[ipos].Key
 					fmt.Println("Selected:", item.Name)
 				}
 				captured = true
@@ -201,7 +201,7 @@ func (g *Game) Update() error {
 					if o == nil {
 						//Prevent flopping between delete and create when dragging
 						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
-							size := obj.GameObjTypes[obj.SelectedItemType].Size
+							size := objects.GameObjTypes[objects.SelectedItemType].Size
 							if size.X > 1 || size.Y > 1 {
 								for tx := 0; tx < size.X; tx++ {
 									for ty := 0; ty < size.Y; ty++ {
@@ -222,12 +222,14 @@ func (g *Game) Update() error {
 						//Change obj type
 						if o.Type == consts.ObjTypeNone {
 
-							o.Type = obj.SelectedItemType
-							o.TypeP = obj.GameObjTypes[o.Type]
+							o.Type = objects.SelectedItemType
+							o.TypeP = objects.GameObjTypes[o.Type]
 							o.OutputDir = consts.DIR_EAST
 							glob.WorldMapDirty = true
 
 							fmt.Println("Made obj:", pos, o.TypeP.Name)
+
+							objects.LinkObj(pos, o)
 
 							o.Valid = true
 							/* Temporary for testing */
@@ -235,25 +237,27 @@ func (g *Game) Update() error {
 								o.Contents[consts.DIR_INTERNAL] = &glob.MatData{}
 							}
 							o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
-							o.Contents[consts.DIR_INTERNAL].TypeP = obj.MatTypes[consts.MAT_COAL]
+							o.Contents[consts.DIR_INTERNAL].TypeP = objects.MatTypes[consts.MAT_COAL]
 							/* Temporary for testing */
 
 							if o.TypeP.ObjUpdate != nil {
 								if o.TypeP.ProcSeconds > 0 {
 									//Process on a specifc ticks
-									obj.AddProcQ(o, obj.WorldTick+1+uint64(rand.Intn(int(o.TypeP.ProcSeconds))))
+									objects.ToProcQue(o, objects.WorldTick+1+uint64(rand.Intn(int(o.TypeP.ProcSeconds))))
 								} else {
 									//Eternal
-									obj.AddProcQ(o, 0)
+									objects.ToProcQue(o, 0)
 								}
 							}
+							objects.ToTickQue(o)
+							objects.ToTockQue(o)
 
 							//Create tick and tock events
 
 							//Action completed, save position and time
 							glob.LastObjPos = pos
 							glob.LastActionType = consts.DragActionTypeBuild
-							glob.LastActionTime = time.Now()
+							//glob.LastActionTime = time.Now()
 
 						} else {
 							if time.Since(glob.LastActionTime) > glob.RemoveActionDelay {
@@ -344,6 +348,7 @@ func (g *Game) Update() error {
 				}
 			}
 			fmt.Println("Rotated output:", pos, o.TypeP.Name, o.OutputDir)
+			objects.LinkObj(pos, o)
 			glob.WorldMapDirty = true
 		}
 	}

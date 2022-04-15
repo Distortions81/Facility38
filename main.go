@@ -4,7 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/data"
 	"GameTest/glob"
-	"GameTest/obj"
+	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
 	"log"
@@ -22,10 +22,10 @@ type Game struct {
 
 func NewGame() *Game {
 
-	obj.GameTypeMax = len(obj.GameObjTypes)
-	obj.UITypeMax = len(obj.UIObjsTypes)
-	obj.MatTypeMax = len(obj.MatTypes)
-	obj.OverlayMax = len(obj.ObjOverlayTypes)
+	objects.GameTypeMax = len(objects.GameObjTypes)
+	objects.UITypeMax = len(objects.UIObjsTypes)
+	objects.MatTypeMax = len(objects.MatTypes)
+	objects.OverlayMax = len(objects.ObjOverlayTypes)
 
 	var img *ebiten.Image
 	var bg *ebiten.Image
@@ -76,7 +76,7 @@ func NewGame() *Game {
 	}
 
 	//Load Sprites
-	for _, otype := range obj.SubTypes {
+	for _, otype := range objects.SubTypes {
 		for key, icon := range otype {
 			if icon.ImagePath != "" {
 				img, err = data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
@@ -99,30 +99,30 @@ func NewGame() *Game {
 	}
 
 	//Make default toolbar
-	t := len(obj.SubTypes)
+	t := len(objects.SubTypes)
 	var z int = 0
 	for x := 0; x <= t; x++ {
 		if x == consts.ObjSubUI || x == consts.ObjSubGame {
-			link := obj.SubTypes[x]
+			link := objects.SubTypes[x]
 			llen := len(link)
 			for y := 1; y <= llen; y++ {
 				temp := glob.ToolbarItem{}
 				temp.Link = link
 				temp.Key = y
 				temp.Type = x
-				obj.ToolbarItems[z] = temp
+				objects.ToolbarItems[z] = temp
 				//fmt.Println(link[y].Name)
 				z++
 			}
 		}
 	}
-	obj.ToolbarMax = z
+	objects.ToolbarMax = z
 
 	//Boot Image
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
 
-	glob.CameraX = float64(glob.ScreenWidth / 2)
-	glob.CameraY = float64(glob.ScreenHeight / 2)
+	glob.CameraX = 0
+	glob.CameraY = 0
 	glob.BootImage.Fill(glob.BootColor)
 
 	str := "Starting up..."
@@ -130,58 +130,65 @@ func NewGame() *Game {
 	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
 
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
-	obj.ProcList = make(map[uint64][]glob.TickEvent)
+	objects.ProcList = make(map[uint64][]glob.TickEvent)
 
 	/* Perf test */
-	for x := 0; x < 2000; x++ {
-		for y := 0; y < 2000; y++ {
-			pos := glob.Position{X: x, Y: y}
-			chunk := util.GetChunk(pos)
+	if 1 == 2 {
+		for x := 0; x < 10; x++ {
+			for y := 0; y < 10; y++ {
+				pos := glob.Position{X: x, Y: y}
+				chunk := util.GetChunk(pos)
 
-			//Make chunk if needed
-			if chunk == nil {
-				cpos := util.PosToChunkPos(pos)
+				//Make chunk if needed
+				if chunk == nil {
+					cpos := util.PosToChunkPos(pos)
 
-				chunk = &glob.MapChunk{}
-				glob.WorldMap[cpos] = chunk
-				chunk.MObj = make(map[glob.Position]*glob.MObj)
-			}
-
-			o := &glob.MObj{}
-			chunk.MObj[pos] = o
-
-			o.Type = consts.ObjTypeBasicMiner
-			o.TypeP = obj.GameObjTypes[o.Type]
-			o.OutputDir = consts.DIR_EAST
-
-			o.Valid = true
-
-			/* Temporary for testing */
-			if o.Contents[consts.DIR_INTERNAL] == nil {
-				o.Contents[consts.DIR_INTERNAL] = &glob.MatData{}
-			}
-			o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
-			o.Contents[consts.DIR_INTERNAL].TypeP = obj.MatTypes[consts.MAT_COAL]
-			/* Temporary for testing */
-
-			if o.TypeP.ObjUpdate != nil {
-				if o.TypeP.ProcSeconds > 0 {
-					//Process on a specifc ticks
-					//r := uint64(rand.Intn(int(o.TypeP.ProcSeconds) * glob.LogicUPS))
-					//fmt.Println(r)
-					obj.AddProcQ(o, 0)
-				} else {
-					//Eternal
-					obj.AddProcQ(o, 0)
+					chunk = &glob.MapChunk{}
+					glob.WorldMap[cpos] = chunk
+					chunk.MObj = make(map[glob.Position]*glob.MObj)
 				}
-			}
 
+				o := &glob.MObj{}
+				chunk.MObj[pos] = o
+
+				o.Type = consts.ObjTypeBasicMiner
+				o.TypeP = objects.GameObjTypes[o.Type]
+				o.OutputDir = consts.DIR_EAST
+
+				o.Valid = true
+
+				/* Temporary for testing */
+				if o.Contents[consts.DIR_INTERNAL] == nil {
+					o.Contents[consts.DIR_INTERNAL] = &glob.MatData{}
+				}
+				o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
+				o.Contents[consts.DIR_INTERNAL].TypeP = objects.MatTypes[consts.MAT_COAL]
+				/* Temporary for testing */
+
+				if o.TypeP.ObjUpdate != nil {
+					if o.TypeP.ProcSeconds > 0 {
+						//Process on a specifc ticks
+						//r := uint64(rand.Intn(int(o.TypeP.ProcSeconds) * glob.LogicUPS))
+						//fmt.Println(r)
+						objects.ToProcQue(o, 0)
+					} else {
+						//Eternal
+						objects.ToProcQue(o, 0)
+					}
+				}
+				objects.ToTickQue(o)
+				objects.ToTockQue(o)
+
+			}
 		}
 	}
+
 	glob.WorldMapDirty = true
 
+	objects.LinkAll()
+
 	//Game logic runs on its own thread
-	go obj.GLogic()
+	go objects.GLogic()
 
 	// Initialize the game.
 	return &Game{}

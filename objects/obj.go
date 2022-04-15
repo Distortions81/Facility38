@@ -1,27 +1,27 @@
-package obj
+package objects
 
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/util"
 	"fmt"
 	"time"
 )
 
 var (
-	WorldEpoch       time.Time
-	WorldTick        uint64 = 0
-	CurrentWorldStep int
-	TickList         []glob.TickEvent
-	TockList         []glob.TickEvent
-	ProcList         map[uint64][]glob.TickEvent
-	AddToWorld       []*glob.MObj
-	DelFromWorld     []*glob.MObj
+	WorldTick uint64 = 0
+
+	TickList []glob.TickEvent
+	TockList []glob.TickEvent
+	ProcList map[uint64][]glob.TickEvent
+
+	AddToWorld   []*glob.MObj
+	DelFromWorld []*glob.MObj
 )
 
 func GLogic() {
 
 	lastUpdate := time.Now()
-	WorldEpoch = time.Now()
 
 	for {
 
@@ -31,10 +31,10 @@ func GLogic() {
 			start := time.Now()
 
 			WorldTick++
-			RunTicks()
+			RunTicks() //Move external and send to objects
 			//RunMods()
-			RunTocks()
-			RunProcs()
+			RunTocks() //Move internal
+			RunProcs() //Process objects
 
 			glob.WorldMapUpdateLock.Unlock()
 			lastUpdate = time.Now()
@@ -70,27 +70,23 @@ func LoaderUpdate(obj *glob.MObj) {
 
 }
 
-//Send to external
+//Send external to other objects
 func RunTicks() {
 	//wg := sizedwaitgroup.New(runtime.NumCPU())
 
 	for _, event := range TickList {
-		for dir, o := range event.Target.SendTo {
-
-			if o.Contents[dir].Amount > 0 && len(o.SendTo) > 0 {
-				//Send to object
-				if o.SendTo[dir].External[dir].Amount == 0 {
-					o.SendTo[dir].External[dir] = o.Contents[dir]
-
-					fmt.Println("Sent ", o.External[dir].Amount, " to ", o.SendTo[dir].External[dir].TypeP.Name)
-					o.Contents[dir].Amount = 0
+		if event.Target != nil {
+			for dir, dest := range event.Target.SendTo {
+				if dest != nil {
+					//Send to object
+					util.MoveMaterialExt(event.Target, dest, dir, event.Target.External[dir])
 				}
 			}
 		}
 	}
 }
 
-//Move internal and process
+//Move internal to external
 func RunTocks() {
 
 	for _, event := range TockList {
@@ -100,12 +96,11 @@ func RunTocks() {
 		}
 		//Move internal
 		for dir, o := range event.Target.Contents {
+			if o != nil {
+				if o.Amount > 0 {
+					util.MoveMaterialInt(event.Target, dir, o)
 
-			if o.Amount > 0 {
-				event.Target.Contents[dir] = o
-
-				fmt.Println("Got ", o.Amount, " to ", o.TypeP.Name)
-				o.Amount = 0
+				}
 			}
 		}
 	}
@@ -133,40 +128,53 @@ func RunProcs() {
 		if event.Target.Valid {
 			event.Target.TypeP.ObjUpdate(event.Target)
 
-			AddProcQ(event.Target, WorldTick+uint64(event.Target.TypeP.ProcSeconds*float64(glob.LogicUPS)))
+			ToProcQue(event.Target, WorldTick+uint64(event.Target.TypeP.ProcSeconds*float64(glob.LogicUPS)))
 			found = true
 		}
 	}
 	if found {
-		//fmt.Println("Deleted procs for ", WorldTick)
+		fmt.Println("Deleted procs for ", WorldTick)
 		delete(ProcList, WorldTick)
 	}
-
-	fmt.Println("Count: ", count)
 }
 
-func RevDir(dir int) int {
-	if dir == consts.DIR_NORTH {
-		return consts.DIR_SOUTH
-	} else if dir == consts.DIR_SOUTH {
-		return consts.DIR_NORTH
-	} else if dir == consts.DIR_EAST {
-		return consts.DIR_WEST
-	} else if dir == consts.DIR_WEST {
-		return consts.DIR_EAST
-	} else {
-		return -1
-	}
-}
-
-func AddTickQ(target *glob.MObj) {
+func ToTickQue(target *glob.MObj) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
 }
 
-func AddTockQ(target *glob.MObj) {
+func ToTockQue(target *glob.MObj) {
 	TockList = append(TockList, glob.TickEvent{Target: target})
 }
 
-func AddProcQ(target *glob.MObj, tick uint64) {
+func ToProcQue(target *glob.MObj, tick uint64) {
 	ProcList[tick] = append(ProcList[tick], glob.TickEvent{Target: target})
+}
+
+func LinkAll() {
+	for _, chunk := range glob.WorldMap {
+		for pos, obj := range chunk.MObj {
+			if obj.OutputDir > 0 {
+				destObj := util.GetNeighborObj(pos, obj.OutputDir)
+				obj.SendTo[obj.OutputDir] = destObj
+			}
+		}
+	}
+}
+
+func LinkObj(pos glob.Position, obj *glob.MObj) {
+	if obj.OutputDir > 0 {
+		destObj := util.GetNeighborObj(pos, obj.OutputDir)
+		if destObj != nil {
+			obj.SendTo[obj.OutputDir] = destObj
+			fmt.Println("Linked object: ", obj.Type, " to: ", destObj.Type)
+		}
+	} else {
+		for i := consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
+			neigh := util.GetNeighborObj(pos, i)
+			if neigh != nil {
+				neigh.SendTo[i] = obj
+				fmt.Println("Linked object: ", obj.Type, " to: ", neigh.Type)
+			}
+		}
+	}
 }

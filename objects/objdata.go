@@ -1,4 +1,4 @@
-package obj
+package objects
 
 import (
 	"GameTest/consts"
