@@ -116,10 +116,13 @@ func RunProcs() {
 	count := 0
 
 	//Processes these every tick
-	for _, event := range ProcList[0] {
+	for key, event := range ProcList[0] {
 		count++
 		if event.Target.Valid {
 			event.Target.TypeP.ObjUpdate(event.Target)
+		} else {
+			//Delete eternal objects
+			ProcList[0] = append(ProcList[0][:key], ProcList[0][key+1:]...)
 		}
 	}
 
@@ -139,7 +142,7 @@ func RunProcs() {
 		delete(ProcList, WorldTick)
 	}
 
-	//fmt.Println("Count: ", count)
+	fmt.Println("Count: ", count)
 }
 
 func RevDir(dir int) int {
