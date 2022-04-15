@@ -141,7 +141,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						continue
 					}
 					if c.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%vkg %v int) %v", c.Amount, c.TypeP.Name, dir)
+						toolTip += fmt.Sprintf(" (%vkg %v int) %v", c.Amount, c.TypeP.Name, util.DirToName(dir))
 					}
 				}
 				for dir, c := range o.External {
@@ -152,7 +152,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						continue
 					}
 					if c.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%vkg %v ext) %v", c.Amount, c.TypeP.Name, dir)
+						toolTip += fmt.Sprintf(" (%vkg %v ext) %v", c.Amount, c.TypeP.Name, util.DirToName(dir))
 					}
 				}
 			}
@@ -194,6 +194,21 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 
 				/* Draw contents */
 				for _, c := range o.Contents {
+					if c == nil {
+						continue
+					}
+					if c.Amount <= 0 {
+						continue
+					}
+					img := c.TypeP.Image
+					if img != nil {
+						screen.DrawImage(img, op)
+					} else {
+						fmt.Println("Mat image not found.")
+					}
+				}
+				/* Draw Ext */
+				for _, c := range o.External {
 					if c == nil {
 						continue
 					}

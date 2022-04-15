@@ -56,38 +56,60 @@ func GetNeighborObj(pos glob.Position, dir int) *glob.MObj {
 	return obj
 }
 
-func MoveMaterialExt(src *glob.MObj, dest *glob.MObj, dir int, mat *glob.MatData) {
+func MoveMaterialToObj(src *glob.MObj, dest *glob.MObj, dir int) {
 
 	success := false
 	dead := true
 
-	if dest != nil && mat != nil {
+	mat := src.External[dir]
+	if mat == nil {
+		return
+	}
+
+	if dest != nil {
 		if src.Valid && dest.Valid {
 			dead = false
-			if dest.External[dir] == nil {
-				dest.External[dir] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
+
+			if src.External[dir].Amount <= 0 {
+				return
+			}
+
+			var destDir int
+			if dest.OutputDir == consts.DIR_INTERNAL {
+				destDir = consts.DIR_INTERNAL
+			} else {
+				destDir = dir
+			}
+
+			if dest.External[destDir] == nil {
+				dest.External[destDir] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
 				success = true
-			} else if dest.External[dir].Type == mat.Type {
-				dest.External[dir].Amount += mat.Amount
+			} else if dest.External[destDir].Type == mat.Type {
+				dest.External[destDir].Amount += mat.Amount
 				success = true
 			} else {
-				fmt.Println("Material mismatch")
+				fmt.Println("Material mismatch: ", dest.External[destDir].Type, " != ", mat.Type)
 			}
+
 		}
 	}
 
 	if dead {
 		src.SendTo[dir] = nil
 		fmt.Println("Removed dead link.")
+		return
 	}
 
 	if success {
+		fmt.Println("Sent ", mat.Amount, mat.TypeP.Name, "to dest", DirToName(dir))
 		src.External[dir].Amount = 0
+	} else {
+		fmt.Println("Failed to send ", mat.Amount, mat.TypeP.Name, "to dest", DirToName(dir))
 	}
 
 }
 
-func MoveMaterialInt(obj *glob.MObj, dir int, mat *glob.MatData) {
+func MoveMaterialOut(obj *glob.MObj, dir int, mat *glob.MatData) {
 
 	success := false
 
@@ -111,8 +133,27 @@ func MoveMaterialInt(obj *glob.MObj, dir int, mat *glob.MatData) {
 	}
 
 	if success {
-		fmt.Println("Sent ", mat.Amount, mat.TypeP.Name, "to ext", outDir)
+		fmt.Println("Sent ", mat.Amount, mat.TypeP.Name, "to ext", DirToName(outDir))
 		obj.Contents[dir].Amount = 0
+	} else {
+		fmt.Println("Failed to send ", mat.Amount, mat.TypeP.Name, "to ext", DirToName(outDir))
 	}
 
+}
+
+func DirToName(dir int) string {
+	switch dir {
+	case consts.DIR_NORTH:
+		return "North"
+	case consts.DIR_EAST:
+		return "East"
+	case consts.DIR_SOUTH:
+		return "South"
+	case consts.DIR_WEST:
+		return "West"
+	case consts.DIR_INTERNAL:
+		return "Internal"
+	}
+
+	return "Error"
 }

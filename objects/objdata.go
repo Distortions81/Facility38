@@ -44,14 +44,17 @@ var (
 		consts.ObjTypeBasicBelt: {ImagePath: "world-obj/basic-belt.png",
 			Name:      "Basic belt",
 			Size:      glob.Position{X: 1, Y: 1},
-			ObjUpdate: LoaderUpdate},
+			ObjUpdate: BeltUpdate,
+			HasOutput: true},
 		consts.ObjTypeBasicBeltVert: {ImagePath: "world-obj/basic-belt-vert.png",
 			Name:      "Basic belt",
 			Size:      glob.Position{X: 1, Y: 1},
-			ObjUpdate: LoaderUpdate},
+			ObjUpdate: BeltUpdate,
+			HasOutput: true},
 		consts.ObjTypeBasicBox: {ImagePath: "world-obj/basic-box.png",
-			Name: "Basic box",
-			Size: glob.Position{X: 1, Y: 1}},
+			Name:      "Basic box",
+			Size:      glob.Position{X: 1, Y: 1},
+			ObjUpdate: BoxUpdate},
 	}
 
 	ObjOverlayTypes = map[int]glob.ObjType{

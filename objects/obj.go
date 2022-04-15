@@ -65,9 +65,22 @@ func IronCasterUpdate(obj *glob.MObj) {
 
 }
 
-func LoaderUpdate(obj *glob.MObj) {
-	//oData := glob.GameObjTypes[Obj.Type]
+func BeltUpdate(obj *glob.MObj) {
+}
 
+func BoxUpdate(obj *glob.MObj) {
+	for dir, v := range obj.External {
+		if v != nil {
+			if obj.Contents[dir] != nil {
+				obj.Contents[dir].Type = v.Type
+				obj.Contents[dir].TypeP = v.TypeP
+				obj.Contents[dir].Amount += v.Amount
+			} else {
+				obj.Contents[dir] = &glob.MatData{Type: v.Type, Amount: v.Amount}
+			}
+			v.Amount = 0
+		}
+	}
 }
 
 //Send external to other objects
@@ -78,8 +91,7 @@ func RunTicks() {
 		if event.Target != nil {
 			for dir, dest := range event.Target.SendTo {
 				if dest != nil {
-					//Send to object
-					util.MoveMaterialExt(event.Target, dest, dir, event.Target.External[dir])
+					util.MoveMaterialToObj(event.Target, dest, dir)
 				}
 			}
 		}
@@ -98,7 +110,7 @@ func RunTocks() {
 		for dir, o := range event.Target.Contents {
 			if o != nil {
 				if o.Amount > 0 {
-					util.MoveMaterialInt(event.Target, dir, o)
+					util.MoveMaterialOut(event.Target, dir, o)
 
 				}
 			}
@@ -173,7 +185,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 			neigh := util.GetNeighborObj(pos, i)
 			if neigh != nil {
 				neigh.SendTo[i] = obj
-				fmt.Println("Linked object: ", obj.Type, " to: ", neigh.Type)
+				fmt.Println("Linked object REVERSE: ", obj.Type, " to: ", neigh.Type)
 			}
 		}
 	}

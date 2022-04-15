@@ -249,8 +249,10 @@ func (g *Game) Update() error {
 									objects.ToProcQue(o, 0)
 								}
 							}
-							objects.ToTickQue(o)
-							objects.ToTockQue(o)
+							if o.TypeP.HasOutput {
+								objects.ToTickQue(o)
+								objects.ToTockQue(o)
+							}
 
 							//Create tick and tock events
 
@@ -347,9 +349,9 @@ func (g *Game) Update() error {
 					o.OutputDir = consts.DIR_NORTH
 				}
 			}
-			fmt.Println("Rotated output:", pos, o.TypeP.Name, o.OutputDir)
-			objects.LinkObj(pos, o)
+			fmt.Println("Rotated output:", pos, o.TypeP.Name, util.DirToName(o.OutputDir))
 			glob.WorldMapDirty = true
+			objects.LinkObj(pos, o)
 		}
 	}
 
