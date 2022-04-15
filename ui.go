@@ -184,9 +184,7 @@ func (g *Game) Update() error {
 			if pos != glob.LastObjPos {
 				if time.Since(glob.LastActionTime) > glob.BuildActionDelay {
 
-					glob.WorldMapLock.RLock()
 					chunk := util.GetChunk(pos)
-					glob.WorldMapLock.RUnlock()
 
 					//Make chunk if needed
 					if chunk == nil {
@@ -194,9 +192,7 @@ func (g *Game) Update() error {
 						fmt.Println("Made chunk:", cpos)
 
 						chunk = &glob.MapChunk{}
-						glob.WorldMapLock.Lock()
 						glob.WorldMap[cpos] = chunk
-						glob.WorldMapLock.Unlock()
 						chunk.MObj = make(map[glob.Position]*glob.MObj)
 					}
 					//Make obj if needed
@@ -270,15 +266,13 @@ func (g *Game) Update() error {
 									//Action completed, save position and time
 									glob.LastObjPos = pos
 									glob.LastActionType = consts.DragActionTypeDelete
-									glob.LastActionTime = time.Now()
+									//glob.LastActionTime = time.Now()
 
 									//Delete chunk if empty
 									if len(chunk.MObj) <= 0 {
 										cpos := util.PosToChunkPos(pos)
 										fmt.Println("Chunk deleted:", cpos)
-										glob.WorldMapLock.Lock()
 										delete(glob.WorldMap, cpos)
-										glob.WorldMapLock.Unlock()
 									}
 								}
 							}

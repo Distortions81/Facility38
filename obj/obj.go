@@ -39,7 +39,7 @@ func GLogic() {
 			glob.WorldMapUpdateLock.Unlock()
 			lastUpdate = time.Now()
 			glob.UpdateTook = time.Since(start)
-			fmt.Println("Update budget used: ", (float64(glob.UpdateTook.Microseconds()/1000.0)/250.0)*100.0, "%")
+			//fmt.Println("Update budget used: ", (float64(glob.UpdateTook.Microseconds()/1000.0)/250.0)*100.0, "%")
 		}
 
 		//Reduce busy waiting
@@ -138,7 +138,7 @@ func RunProcs() {
 		delete(ProcList, WorldTick)
 	}
 
-	fmt.Println("Count: ", count)
+	//fmt.Println("Count: ", count)
 }
 
 func RevDir(dir int) int {

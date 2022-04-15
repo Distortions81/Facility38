@@ -124,9 +124,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		/* Draw tool tip */
 		pos := util.FloatXYToPosition(dtx, dty)
-		glob.WorldMapLock.RLock()
 		chunk := util.GetChunk(pos)
-		glob.WorldMapLock.RUnlock()
 
 		toolTip := ""
 		found := false

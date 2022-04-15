@@ -80,7 +80,6 @@ type TickEvent struct {
 }
 
 var (
-	WorldMapLock       sync.RWMutex
 	WorldMapUpdateLock sync.Mutex
 	WorldMap           map[Position]*MapChunk
 	WorldMapDirty      bool
@@ -156,7 +155,6 @@ func SaveGame() {
 	tempPath := "save.dat.tmp"
 	finalPath := "save.dat"
 
-	WorldMapLock.Lock()
 	WorldMapUpdateLock.Lock()
 
 	tempList := []*SaveMObj{}
@@ -175,7 +173,6 @@ func SaveGame() {
 	}
 
 	WorldMapUpdateLock.Unlock()
-	WorldMapLock.Unlock()
 
 	_, err = os.Create(tempPath)
 
