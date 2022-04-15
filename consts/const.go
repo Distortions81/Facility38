@@ -34,10 +34,12 @@ const (
 	ObjTypeBasicBox        = 6
 
 	//Materials
+	MAT_ERROR   = 0
 	MAT_DEFAULT = 1
 	MAT_WOOD    = 2
 	MAT_COAL    = 3
 	MAT_IRONORE = 4
+	MAT_MAX     = 5
 
 	//Item Symbol
 	SymbOffX = 7

@@ -31,9 +31,7 @@ func GLogic() {
 			start := time.Now()
 
 			WorldTick++
-			RunTicks() //Move external and send to objects
-			//RunMods()
-			RunTocks() //Move internal
+			RunTicks() //Send to other objects
 			RunProcs() //Process objects
 
 			glob.WorldMapUpdateLock.Unlock()
@@ -50,9 +48,13 @@ func GLogic() {
 func MinerUpdate(o *glob.MObj) {
 
 	input := int(float64(o.TypeP.MinerKGSec*consts.TIMESCALE) / o.TypeP.ProcSeconds)
-	//if o.Contents[consts.DIR_INTERNAL].Amount+input < o.TypeP.CapacityKG {
-	o.Contents[consts.DIR_INTERNAL].Amount += input
-	//}
+	if o.Contains[consts.MAT_COAL] == nil {
+		o.Contains[consts.MAT_COAL] = &glob.MatData{Type: consts.MAT_COAL, TypeP: MatTypes[consts.MAT_COAL], Amount: 0}
+	}
+
+	o.Contains[consts.MAT_COAL].Amount += input
+
+	util.MoveMaterialOut(o)
 }
 
 func SmelterUpdate(obj *glob.MObj) {
@@ -69,16 +71,19 @@ func BeltUpdate(obj *glob.MObj) {
 }
 
 func BoxUpdate(obj *glob.MObj) {
-	for dir, v := range obj.External {
-		if v != nil {
-			if obj.Contents[dir] != nil {
-				obj.Contents[dir].Type = v.Type
-				obj.Contents[dir].TypeP = v.TypeP
-				obj.Contents[dir].Amount += v.Amount
-			} else {
-				obj.Contents[dir] = &glob.MatData{Type: v.Type, Amount: v.Amount}
+	for _, v := range obj.External {
+		for mtype, m := range v {
+			if m == nil {
+				continue
 			}
-			v.Amount = 0
+			if obj.Contains[mtype] != nil {
+				obj.Contains[mtype].Type = m.Type
+				obj.Contains[mtype].TypeP = m.TypeP
+				obj.Contains[mtype].Amount += m.Amount
+			} else {
+				obj.Contains[mtype] = &glob.MatData{Type: mtype, Amount: m.Amount}
+			}
+			m.Amount = 0
 		}
 	}
 }
@@ -92,26 +97,6 @@ func RunTicks() {
 			for dir, dest := range event.Target.SendTo {
 				if dest != nil {
 					util.MoveMaterialToObj(event.Target, dest, dir)
-				}
-			}
-		}
-	}
-}
-
-//Move internal to external
-func RunTocks() {
-
-	for _, event := range TockList {
-
-		if len(event.Target.Contents) == 0 {
-			continue
-		}
-		//Move internal
-		for dir, o := range event.Target.Contents {
-			if o != nil {
-				if o.Amount > 0 {
-					util.MoveMaterialOut(event.Target, dir, o)
-
 				}
 			}
 		}

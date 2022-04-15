@@ -3,7 +3,6 @@ package util
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"fmt"
 	"math"
 )
 
@@ -58,85 +57,40 @@ func GetNeighborObj(pos glob.Position, dir int) *glob.MObj {
 
 func MoveMaterialToObj(src *glob.MObj, dest *glob.MObj, dir int) {
 
-	success := false
-	dead := true
-
-	mat := src.External[dir]
-	if mat == nil {
+	if src == nil || dest == nil {
 		return
 	}
-
-	if dest != nil {
-		if src.Valid && dest.Valid {
-			dead = false
-
-			if src.External[dir].Amount <= 0 {
-				return
-			}
-
-			var destDir int
-			if dest.OutputDir == consts.DIR_INTERNAL {
-				destDir = consts.DIR_INTERNAL
-			} else {
-				destDir = dir
-			}
-
-			if dest.External[destDir] == nil {
-				dest.External[destDir] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
-				success = true
-			} else if dest.External[destDir].Type == mat.Type {
-				dest.External[destDir].Amount += mat.Amount
-				success = true
-			} else {
-				fmt.Println("Material mismatch: ", dest.External[destDir].Type, " != ", mat.Type)
-			}
-
+	for _, mat := range src.External[dir] {
+		if mat == nil {
+			continue
 		}
-	}
+		if dest.External[dir][mat.Type] == nil {
+			dest.External[dir][mat.Type] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
+		} else {
+			dest.External[dir][mat.Type].Amount += mat.Amount
+		}
 
-	if dead {
-		src.SendTo[dir] = nil
-		fmt.Println("Removed dead link.")
-		return
-	}
-
-	if success {
-		fmt.Println("Sent ", mat.Amount, mat.TypeP.Name, "to dest", DirToName(dir))
-		src.External[dir].Amount = 0
-	} else {
-		fmt.Println("Failed to send ", mat.Amount, mat.TypeP.Name, "to dest", DirToName(dir))
+		src.External[dir][mat.Type].Amount = 0
 	}
 
 }
 
-func MoveMaterialOut(obj *glob.MObj, dir int, mat *glob.MatData) {
+func MoveMaterialOut(obj *glob.MObj) {
 
-	success := false
-
-	var outDir int
-
-	if obj.OutputDir != consts.DIR_INTERNAL {
-		outDir = obj.OutputDir
-	} else {
-		outDir = dir
+	if obj == nil {
+		return
 	}
-
-	if obj != nil && mat != nil {
-		if obj.External[outDir] == nil {
-			obj.External[outDir] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
-			success = true
-		} else if obj.External[outDir].Type == mat.Type {
-			obj.External[outDir].Amount += mat.Amount
-			success = true
+	for _, mat := range obj.Contains {
+		if mat == nil {
+			continue
 		}
+		if obj.External[obj.OutputDir][mat.Type] == nil {
+			obj.External[obj.OutputDir][mat.Type] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
+		} else {
+			obj.External[obj.OutputDir][mat.Type].Amount += mat.Amount
+		}
+		obj.Contains[mat.Type].Amount = 0
 
-	}
-
-	if success {
-		fmt.Println("Sent ", mat.Amount, mat.TypeP.Name, "to ext", DirToName(outDir))
-		obj.Contents[dir].Amount = 0
-	} else {
-		fmt.Println("Failed to send ", mat.Amount, mat.TypeP.Name, "to ext", DirToName(outDir))
 	}
 
 }

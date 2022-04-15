@@ -133,7 +133,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", dtx, dty, o.TypeP.Name)
-				for dir, c := range o.Contents {
+				for _, c := range o.Contains {
 					if c == nil {
 						continue
 					}
@@ -141,18 +141,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						continue
 					}
 					if c.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%vkg %v int) %v", c.Amount, c.TypeP.Name, util.DirToName(dir))
+						toolTip += fmt.Sprintf(" (%vkg %v int) %v", c.Amount, c.TypeP.Name, c.TypeP.Name)
 					}
 				}
-				for dir, c := range o.External {
-					if c == nil {
-						continue
-					}
-					if c.Amount == 0 {
-						continue
-					}
-					if c.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%vkg %v ext) %v", c.Amount, c.TypeP.Name, util.DirToName(dir))
+				for _, c := range o.External {
+					for _, m := range c {
+						if m == nil {
+							continue
+						}
+						if m.Amount == 0 {
+							continue
+						}
+						if m.Amount > 0 {
+							toolTip += fmt.Sprintf(" (%vkg %v ext) %v", m.Amount, m.TypeP.Name, m.TypeP.Name)
+						}
 					}
 				}
 			}
@@ -193,7 +195,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			if glob.ShowAltView {
 
 				/* Draw contents */
-				for _, c := range o.Contents {
+				for _, c := range o.Contains {
 					if c == nil {
 						continue
 					}
@@ -209,17 +211,19 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 				}
 				/* Draw Ext */
 				for _, c := range o.External {
-					if c == nil {
-						continue
-					}
-					if c.Amount <= 0 {
-						continue
-					}
-					img := c.TypeP.Image
-					if img != nil {
-						screen.DrawImage(img, op)
-					} else {
-						fmt.Println("Mat image not found.")
+					for _, m := range c {
+						if m == nil {
+							continue
+						}
+						if m.Amount <= 0 {
+							continue
+						}
+						img := m.TypeP.Image
+						if img != nil {
+							screen.DrawImage(img, op)
+						} else {
+							fmt.Println("Mat image not found.")
+						}
 					}
 				}
 

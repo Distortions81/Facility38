@@ -232,13 +232,6 @@ func (g *Game) Update() error {
 							objects.LinkObj(pos, o)
 
 							o.Valid = true
-							/* Temporary for testing */
-							if o.Contents[consts.DIR_INTERNAL] == nil {
-								o.Contents[consts.DIR_INTERNAL] = &glob.MatData{}
-							}
-							o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
-							o.Contents[consts.DIR_INTERNAL].TypeP = objects.MatTypes[consts.MAT_COAL]
-							/* Temporary for testing */
 
 							if o.TypeP.ObjUpdate != nil {
 								if o.TypeP.ProcSeconds > 0 {

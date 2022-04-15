@@ -67,6 +67,8 @@ var (
 
 	MatTypes = map[int]glob.ObjType{
 		//Materials
+		consts.MAT_ERROR:   {Symbol: "?", ItemColor: &glob.ColorAqua, SymbolColor: &glob.ColorBlack, Name: "Error"},
+		consts.MAT_DEFAULT: {Symbol: "D", ItemColor: &glob.ColorAqua, SymbolColor: &glob.ColorBlack, Name: "Defalt"},
 		consts.MAT_COAL:    {ImagePath: "belt-obj/coal-ore.png", Name: "Coal Ore"},
 		consts.MAT_IRONORE: {ImagePath: "belt-obj/iron-ore.png", Name: "Iron Ore"},
 	}

@@ -158,11 +158,11 @@ func NewGame() *Game {
 				o.Valid = true
 
 				/* Temporary for testing */
-				if o.Contents[consts.DIR_INTERNAL] == nil {
-					o.Contents[consts.DIR_INTERNAL] = &glob.MatData{}
+				if o.Contains[consts.MAT_COAL] == nil {
+					o.Contains[consts.MAT_COAL] = &glob.MatData{}
 				}
-				o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
-				o.Contents[consts.DIR_INTERNAL].TypeP = objects.MatTypes[consts.MAT_COAL]
+				o.Contains[consts.MAT_COAL].Type = consts.MAT_COAL
+				o.Contains[consts.MAT_COAL].TypeP = objects.MatTypes[consts.MAT_COAL]
 				/* Temporary for testing */
 
 				if o.TypeP.ObjUpdate != nil {
