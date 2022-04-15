@@ -92,10 +92,20 @@ func BoxUpdate(obj *glob.MObj) {
 func RunTicks() {
 	//wg := sizedwaitgroup.New(runtime.NumCPU())
 
-	for _, event := range TickList {
+	for p, event := range TickList {
+		if !event.Target.Valid {
+			RemoveTickQue(p)
+			fmt.Println("Deleted eternal tick event for invalid object")
+			continue
+		}
 		if event.Target != nil {
 			for dir, dest := range event.Target.SendTo {
 				if dest != nil {
+					if !dest.Valid {
+						event.Target.SendTo[dir] = nil
+						fmt.Println("Deleted SendTo for invalid object.")
+						continue
+					}
 					util.MoveMaterialToObj(event.Target, dest, dir)
 				}
 			}
@@ -145,6 +155,18 @@ func ToTockQue(target *glob.MObj) {
 
 func ToProcQue(target *glob.MObj, tick uint64) {
 	ProcList[tick] = append(ProcList[tick], glob.TickEvent{Target: target})
+}
+
+func RemoveTickQue(pos int) {
+	TickList = append(TickList[:pos], TickList[pos+1:]...)
+}
+
+func RemoveTockQue(pos int) {
+	TockList = append(TockList[:pos], TockList[pos+1:]...)
+}
+
+func RemoveProcQue(tick uint64, pos int) {
+	ProcList[tick] = append(ProcList[tick][:pos], ProcList[tick][pos+1:]...)
 }
 
 func LinkAll() {
