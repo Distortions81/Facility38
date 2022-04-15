@@ -231,6 +231,9 @@ func (g *Game) Update() error {
 
 							o.Valid = true
 							/* Temporary for testing */
+							if o.Contents[consts.DIR_INTERNAL] == nil {
+								o.Contents[consts.DIR_INTERNAL] = &glob.MatData{}
+							}
 							o.Contents[consts.DIR_INTERNAL].Type = consts.MAT_COAL
 							o.Contents[consts.DIR_INTERNAL].TypeP = obj.MatTypes[consts.MAT_COAL]
 							/* Temporary for testing */
