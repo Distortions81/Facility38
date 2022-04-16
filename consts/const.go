@@ -32,6 +32,7 @@ const (
 	ObjTypeBasicBelt       = 4
 	ObjTypeBasicBeltVert   = 5
 	ObjTypeBasicBox        = 6
+	ObjTypeSteamEngine     = 7
 
 	//Materials
 	MAT_ERROR   = 0

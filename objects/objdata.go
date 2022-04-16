@@ -55,6 +55,10 @@ var (
 			Name:      "Basic box",
 			Size:      glob.Position{X: 1, Y: 1},
 			ObjUpdate: BoxUpdate},
+		consts.ObjTypeSteamEngine: {ImagePath: "world-obj/steam-engine.png",
+			Name:      "Steam engine",
+			Size:      glob.Position{X: 1, Y: 1},
+			ObjUpdate: SteamEngineUpdate},
 	}
 
 	ObjOverlayTypes = map[int]glob.ObjType{

@@ -71,6 +71,9 @@ func IronCasterUpdate(obj *glob.MObj) {
 func BeltUpdate(obj *glob.MObj) {
 }
 
+func SteamEngineUpdate(obj *glob.MObj) {
+}
+
 func BoxUpdate(obj *glob.MObj) {
 	for _, v := range obj.External {
 		for mtype, m := range v {
