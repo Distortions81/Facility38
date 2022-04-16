@@ -32,6 +32,7 @@ func GLogic() {
 
 			WorldTick++
 			RunTicks() //Send to other objects
+			//RunTocks()
 			RunProcs() //Process objects
 
 			glob.WorldMapUpdateLock.Unlock()

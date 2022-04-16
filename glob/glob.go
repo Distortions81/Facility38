@@ -20,12 +20,9 @@ import (
 
 type MapChunk struct {
 	MObj map[Position]*MObj
+	CObj map[Position]*MObj //Map for oversize objects
 }
 
-type SaveMObj struct {
-	O *MObj
-	P Position
-}
 type MObj struct {
 	Type  int     `json:"t,omitempty"`
 	TypeP ObjType `json:"-"`
@@ -77,6 +74,11 @@ type ToolbarItem struct {
 type TickEvent struct {
 	Target *MObj
 	Dir    *int
+}
+
+type SaveMObj struct {
+	O *MObj
+	P Position
 }
 
 var (
