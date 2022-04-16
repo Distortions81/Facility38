@@ -49,9 +49,13 @@ func GLogic() {
 func MinerUpdate(o *glob.MObj) {
 
 	input := int(float64(o.TypeP.MinerKGSec*consts.TIMESCALE) / o.TypeP.ProcSeconds)
+	/* Temporary for testing */
 	if o.Contains[consts.MAT_COAL] == nil {
-		o.Contains[consts.MAT_COAL] = &glob.MatData{Type: consts.MAT_COAL, TypeP: MatTypes[consts.MAT_COAL], Amount: 0}
+		o.Contains[consts.MAT_COAL] = &glob.MatData{}
 	}
+	o.Contains[consts.MAT_COAL].Type = consts.MAT_COAL
+	o.Contains[consts.MAT_COAL].TypeP = MatTypes[consts.MAT_COAL]
+	/* Temporary for testing */
 
 	o.Contains[consts.MAT_COAL].Amount += input
 
@@ -186,18 +190,24 @@ func LinkAll() {
 
 func LinkObj(pos glob.Position, obj *glob.MObj) {
 	if obj.OutputDir > 0 {
+		fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
 		destObj := util.GetNeighborObj(pos, obj.OutputDir)
 		if destObj != nil {
 			obj.SendTo[obj.OutputDir] = destObj
 			fmt.Println("Linked object: ", obj.Type, " to: ", destObj.Type)
-		}
-	} else {
-		for i := consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
-			neigh := util.GetNeighborObj(pos, i)
-			if neigh != nil {
-				neigh.SendTo[i] = obj
-				fmt.Println("Linked object REVERSE: ", obj.Type, " to: ", neigh.Type)
-			}
+		} else {
+			fmt.Println("Unable to find object to link to.")
 		}
 	}
+
+	for i := consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
+		neigh := util.GetNeighborObj(pos, i)
+		if neigh != nil {
+			neigh.SendTo[util.ReverseDirection(i)] = obj
+			fmt.Println("Linked object REVERSE: ", obj.Type, " to: ", neigh.Type)
+		} else {
+			fmt.Println("Unable to find object to reverse link to.")
+		}
+	}
+
 }

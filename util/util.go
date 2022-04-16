@@ -3,6 +3,7 @@ package util
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"fmt"
 	"math"
 )
 
@@ -17,9 +18,12 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 }
 
 func GetObj(pos glob.Position, chunk *glob.MapChunk) *glob.MObj {
-	o := chunk.MObj[pos]
-
-	return o
+	if chunk != nil {
+		o := chunk.MObj[pos]
+		return o
+	} else {
+		return nil
+	}
 }
 
 //Automatically converts position to chunk format
@@ -40,7 +44,7 @@ func FloatXYToPosition(x float64, y float64) glob.Position {
 func GetNeighborObj(pos glob.Position, dir int) *glob.MObj {
 	switch dir {
 	case consts.DIR_NORTH:
-		pos.Y--
+		pos.Y++
 	case consts.DIR_EAST:
 		pos.X++
 	case consts.DIR_SOUTH:
@@ -49,12 +53,11 @@ func GetNeighborObj(pos glob.Position, dir int) *glob.MObj {
 		pos.X--
 	}
 
-	chunk := GetChunk(PosToChunkPos(pos))
-	if chunk != nil {
-		obj := GetObj(pos, chunk)
-		return obj
-	}
-	return nil
+	fmt.Println("Finding neighbor:", pos, dir)
+
+	chunk := GetChunk(pos)
+	fmt.Println("chunk: ", chunk)
+	return GetObj(pos, chunk)
 }
 
 func MoveMaterialToObj(src *glob.MObj, dest *glob.MObj, dir int) {
@@ -112,4 +115,21 @@ func DirToName(dir int) string {
 	}
 
 	return "Error"
+}
+
+func ReverseDirection(dir int) int {
+	switch dir {
+	case consts.DIR_NORTH:
+		return consts.DIR_SOUTH
+	case consts.DIR_EAST:
+		return consts.DIR_WEST
+	case consts.DIR_SOUTH:
+		return consts.DIR_NORTH
+	case consts.DIR_WEST:
+		return consts.DIR_EAST
+	case consts.DIR_INTERNAL:
+		return consts.DIR_INTERNAL
+	}
+
+	return -1
 }

@@ -206,7 +206,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 					if img != nil {
 						screen.DrawImage(img, op)
 					} else {
-						fmt.Println("Mat image not found.")
+						fmt.Println("Mat image not found.", c.Type)
 					}
 				}
 				/* Draw Ext */
@@ -222,7 +222,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 						if img != nil {
 							screen.DrawImage(img, op)
 						} else {
-							fmt.Println("Mat image not found.")
+							fmt.Println("Mat image not found.", m.Type)
 						}
 					}
 				}
