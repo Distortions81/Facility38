@@ -29,6 +29,7 @@ type MObj struct {
 
 	External  [consts.DIR_MAX][consts.MAT_MAX]*MatData `json:"e,omitempty"`
 	Contains  [consts.MAT_MAX]*MatData                 `json:"c,omitempty"`
+	Product   [consts.MAT_MAX]*MatData                 `json:"p,omitempty"`
 	SendTo    [consts.DIR_MAX]*MObj                    `json:"-"`
 	OutputDir int                                      `json:"o,omitempty"`
 

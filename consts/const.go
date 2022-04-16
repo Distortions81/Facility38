@@ -27,11 +27,11 @@ const (
 
 	//Buildings
 	ObjTypeBasicMiner      = 1
-	ObjTypeBasicSmelter    = 2
-	ObjTypeBasicIronCaster = 3
-	ObjTypeBasicBelt       = 4
-	ObjTypeBasicBeltVert   = 5
-	ObjTypeBasicBox        = 6
+	ObjTypeBasicBox        = 2
+	ObjTypeBasicSmelter    = 3
+	ObjTypeBasicIronCaster = 4
+	ObjTypeBasicBelt       = 5
+	ObjTypeBasicBeltVert   = 6
 	ObjTypeSteamEngine     = 7
 
 	//Materials

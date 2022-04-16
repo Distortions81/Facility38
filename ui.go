@@ -162,8 +162,13 @@ func (g *Game) Update() error {
 
 					fmt.Println("UI Action:", item.Name)
 				} else {
-					objects.SelectedItemType = objects.ToolbarItems[ipos].Key
-					fmt.Println("Selected:", item.Name)
+					if objects.SelectedItemType == objects.ToolbarItems[ipos].Key {
+						objects.SelectedItemType = -1
+						fmt.Println("Deselected")
+					} else {
+						objects.SelectedItemType = objects.ToolbarItems[ipos].Key
+						fmt.Println("Selected:", item.Name)
+					}
 				}
 				captured = true
 				glob.MousePressed = false
@@ -205,7 +210,7 @@ func (g *Game) Update() error {
 							if size.X > 1 || size.Y > 1 {
 								for tx := 0; tx < size.X; tx++ {
 									for ty := 0; ty < size.Y; ty++ {
-										if chunk.MObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
+										if chunk.CObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
 											fmt.Println("ERROR: Occupied.")
 											bypass = true
 										}
@@ -220,7 +225,7 @@ func (g *Game) Update() error {
 					}
 					if !bypass && o != nil {
 						//Change obj type
-						if o.Type == consts.ObjTypeNone {
+						if o.Type == consts.ObjTypeNone && objects.SelectedItemType > consts.ObjTypeNone {
 
 							o.Type = objects.SelectedItemType
 							o.TypeP = objects.GameObjTypes[o.Type]

@@ -14,7 +14,7 @@ var (
 	ToolbarMax  = 0
 	OverlayMax  = 0
 
-	SelectedItemType = 1
+	SelectedItemType = -1
 	ToolbarItems     = map[int]glob.ToolbarItem{}
 
 	UIObjsTypes = map[int]glob.ObjType{
@@ -33,28 +33,34 @@ var (
 			ProcSeconds: 4,
 			CapacityKG:  500,
 			HasOutput:   true},
+
+		consts.ObjTypeBasicBox: {ImagePath: "world-obj/basic-box.png",
+			Name:      "Basic box",
+			Size:      glob.Position{X: 1, Y: 1},
+			ObjUpdate: BoxUpdate},
+
 		consts.ObjTypeBasicSmelter: {ImagePath: "world-obj/basic-smelter.png",
 			Name:      "Basic smelter",
 			Size:      glob.Position{X: 1, Y: 1},
 			ObjUpdate: SmelterUpdate},
+
 		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png",
 			Name:      "Iron rod caster",
 			Size:      glob.Position{X: 1, Y: 1},
 			ObjUpdate: IronCasterUpdate},
+
 		consts.ObjTypeBasicBelt: {ImagePath: "world-obj/basic-belt.png",
 			Name:      "Basic belt",
 			Size:      glob.Position{X: 1, Y: 1},
 			ObjUpdate: BeltUpdate,
 			HasOutput: true},
+
 		consts.ObjTypeBasicBeltVert: {ImagePath: "world-obj/basic-belt-vert.png",
 			Name:      "Basic belt",
 			Size:      glob.Position{X: 1, Y: 1},
 			ObjUpdate: BeltUpdate,
 			HasOutput: true},
-		consts.ObjTypeBasicBox: {ImagePath: "world-obj/basic-box.png",
-			Name:      "Basic box",
-			Size:      glob.Position{X: 1, Y: 1},
-			ObjUpdate: BoxUpdate},
+
 		consts.ObjTypeSteamEngine: {ImagePath: "world-obj/steam-engine.png",
 			Name:      "Steam engine",
 			Size:      glob.Position{X: 1, Y: 1},

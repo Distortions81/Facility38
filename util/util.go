@@ -50,9 +50,11 @@ func GetNeighborObj(pos glob.Position, dir int) *glob.MObj {
 	}
 
 	chunk := GetChunk(PosToChunkPos(pos))
-	obj := GetObj(pos, chunk)
-
-	return obj
+	if chunk != nil {
+		obj := GetObj(pos, chunk)
+		return obj
+	}
+	return nil
 }
 
 func MoveMaterialToObj(src *glob.MObj, dest *glob.MObj, dir int) {
