@@ -57,7 +57,9 @@ func MinerUpdate(o *glob.MObj) {
 	o.Contains[consts.MAT_COAL].TypeP = MatTypes[consts.MAT_COAL]
 	/* Temporary for testing */
 
-	o.Contains[consts.MAT_COAL].Amount += input
+	if o.Contains[consts.MAT_COAL].Amount < o.TypeP.CapacityKG {
+		o.Contains[consts.MAT_COAL].Amount += input
+	}
 
 	util.MoveMaterialOut(o)
 }

@@ -72,6 +72,9 @@ func MoveMaterialToObj(src *glob.MObj, dest *glob.MObj, dir int) {
 		if dest.External[dir][mat.Type] == nil {
 			dest.External[dir][mat.Type] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
 		} else {
+			if dest.External[dir][mat.Type].Amount > dest.TypeP.CapacityKG {
+				continue
+			}
 			dest.External[dir][mat.Type].Amount += mat.Amount
 		}
 
@@ -92,6 +95,9 @@ func MoveMaterialOut(obj *glob.MObj) {
 		if obj.External[obj.OutputDir][mat.Type] == nil {
 			obj.External[obj.OutputDir][mat.Type] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
 		} else {
+			if obj.External[obj.OutputDir][mat.Type].Amount > obj.TypeP.CapacityKG {
+				continue
+			}
 			obj.External[obj.OutputDir][mat.Type].Amount += mat.Amount
 		}
 		obj.Contains[mat.Type].Amount = 0
