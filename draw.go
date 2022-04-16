@@ -92,7 +92,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	//Draw overlays, we should queue these in a list instead of scanning all.
+	//Draw overlays, we should queue these in a list (if needed)
+	//This is a quick test fix
 	for ckey, chunk := range glob.WorldMap {
 
 		//Is this chunk on the screen?
