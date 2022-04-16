@@ -201,10 +201,14 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 	}
 
 	for i := consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
+		if i == obj.OutputDir {
+			continue
+		}
 		neigh := util.GetNeighborObj(pos, i)
 		if neigh != nil {
 			neigh.SendTo[util.ReverseDirection(i)] = obj
 			fmt.Println("Linked object REVERSE: ", obj.Type, " to: ", neigh.Type)
+			break
 		} else {
 			fmt.Println("Unable to find object to reverse link to.")
 		}
