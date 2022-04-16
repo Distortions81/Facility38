@@ -1,14 +1,16 @@
+
+
 Move tick/tock/proc lists to a map, where key is how many ticks before processing.
 Divide by number of entries, process X per tick. Store position in list.
 Eventually, we need to test if reading while being written is ACTUALLY a data race or not and if it matters.
 If it does, lock per chunk. Make chunks smaller and make nested chunks for rendering speed IF NEEDED.
 
 
-Start miner and other object outputs and inputs
+DONE Start miner and other object outputs and inputs
 Possibly cache overlays, since they change infrequently. This should reduce draw calls.
 
 Cache toolbar UI, overlay for button press or selection.
 Check if smaller ints and floats reduce memory footprint
-
+Go through and break up and clean code, too much duplicated code.
 
 https://github.com/Distortions81/GameTest/issues/1
