@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"fmt"
 	"math"
+	"time"
 )
 
 func Distance(xa, ya, xb, yb int) float64 {
@@ -70,12 +71,13 @@ func MoveMaterialToObj(src *glob.MObj, dest *glob.MObj, dir int) {
 			continue
 		}
 		if dest.External[dir][mat.Type] == nil {
-			dest.External[dir][mat.Type] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount}
+			dest.External[dir][mat.Type] = &glob.MatData{Type: mat.Type, TypeP: mat.TypeP, Amount: mat.Amount, GotDate: time.Now()}
 		} else {
 			if dest.External[dir][mat.Type].Amount > dest.TypeP.CapacityKG {
 				continue
 			}
 			dest.External[dir][mat.Type].Amount += mat.Amount
+			dest.External[dir][mat.Type].GotDate = time.Now()
 		}
 
 		src.External[dir][mat.Type].Amount = 0

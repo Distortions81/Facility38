@@ -37,9 +37,10 @@ type MObj struct {
 }
 
 type MatData struct {
-	Type   int     `json:"m,omitempty"`
-	TypeP  ObjType `json:"-"`
-	Amount int     `json:"a,omitempty"`
+	Type    int     `json:"m,omitempty"`
+	TypeP   ObjType `json:"-"`
+	Amount  int     `json:"a,omitempty"`
+	GotDate time.Time
 }
 
 type Position struct {

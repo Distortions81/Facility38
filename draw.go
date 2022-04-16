@@ -6,6 +6,7 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -90,6 +91,122 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		}
 	}
+
+	//Draw overlays
+	for ckey, chunk := range glob.WorldMap {
+
+		//Is this chunk on the screen?
+		if ckey.X < csx || ckey.X > cex || ckey.Y < csy || ckey.Y > cey {
+			cSkip++
+			continue
+		}
+		cCount++
+
+		for mkey, o := range chunk.MObj {
+
+			//Is this object on the screen?
+			if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
+				oSkip++
+				continue
+			}
+
+			if glob.ShowAltView || o.Type == consts.ObjTypeBasicBelt {
+
+				xs := float64(o.TypeP.Size.X)
+				ys := float64(o.TypeP.Size.Y)
+
+				/* camera + object */
+				newx := mainx + (float64(mkey.X))
+				newy := mainy + (float64(mkey.Y))
+
+				/* camera zoom */
+				scrX := newx * glob.ZoomScale
+				scrY := newy * glob.ZoomScale
+
+				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+				op.GeoM.Reset()
+				iSize := o.TypeP.Image.Bounds()
+				op.GeoM.Scale(((xs)*glob.ZoomScale)/float64(iSize.Max.X), ((ys)*glob.ZoomScale)/float64(iSize.Max.Y))
+				op.GeoM.Translate(scrX, scrY)
+
+				if o.Type == consts.ObjTypeBasicBelt {
+					/* Draw Ext */
+					for _, c := range o.External {
+						for _, m := range c {
+							if m == nil {
+								continue
+							}
+							if m.Amount <= 0 {
+								continue
+							}
+							img := m.TypeP.Image
+							if img != nil {
+								if m.GotDate.IsZero() {
+									continue
+								}
+								move := time.Since(m.GotDate).Microseconds()
+								amount := (float64(move) / 1000.0) - 64.0
+								if amount > 128.0+128.0 {
+									amount = 128.0 + 128.0
+								}
+								op.GeoM.Translate((amount/256.0)*glob.ZoomScale, (150.0/256.0)*glob.ZoomScale)
+								//fmt.Println(amount)
+
+								screen.DrawImage(img, op)
+							} else {
+								fmt.Println("Mat image not found.", m.Type)
+							}
+						}
+					}
+				} else {
+					/* Draw contents */
+					for _, c := range o.Contains {
+						if c == nil {
+							continue
+						}
+						if c.Amount <= 0 {
+							continue
+						}
+						img := c.TypeP.Image
+						if img != nil {
+							screen.DrawImage(img, op)
+						} else {
+							fmt.Println("Mat image not found.", c.Type)
+						}
+					}
+					/* Draw Ext */
+					for _, c := range o.External {
+						for _, m := range c {
+							if m == nil {
+								continue
+							}
+							if m.Amount <= 0 {
+								continue
+							}
+							img := m.TypeP.Image
+							if img != nil {
+								screen.DrawImage(img, op)
+							} else {
+								fmt.Println("Mat image not found.", m.Type)
+							}
+						}
+					}
+				}
+
+				if o.TypeP.HasOutput && o.Type != consts.ObjTypeBasicBelt {
+					/* Draw Arrow */
+					img := objects.ObjOverlayTypes[o.OutputDir].Image
+					if img != nil {
+						screen.DrawImage(img, op)
+					} else {
+						fmt.Println("Arrow overlay image not found.")
+					}
+				}
+			}
+
+		}
+	}
+
 	//fmt.Println("Chunks skipped:", cSkip, "Objects skipped:", oSkip)
 	//fmt.Println("Chunks drawn:", cCount, "Objects drawn:", oCount)
 
@@ -191,52 +308,6 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 				op.Filter = ebiten.FilterLinear
 			}
 			screen.DrawImage(o.TypeP.Image, op)
-
-			if glob.ShowAltView || o.Type == consts.ObjTypeBasicBelt {
-
-				/* Draw contents */
-				for _, c := range o.Contains {
-					if c == nil {
-						continue
-					}
-					if c.Amount <= 0 {
-						continue
-					}
-					img := c.TypeP.Image
-					if img != nil {
-						screen.DrawImage(img, op)
-					} else {
-						fmt.Println("Mat image not found.", c.Type)
-					}
-				}
-				/* Draw Ext */
-				for _, c := range o.External {
-					for _, m := range c {
-						if m == nil {
-							continue
-						}
-						if m.Amount <= 0 {
-							continue
-						}
-						img := m.TypeP.Image
-						if img != nil {
-							screen.DrawImage(img, op)
-						} else {
-							fmt.Println("Mat image not found.", m.Type)
-						}
-					}
-				}
-
-				if o.TypeP.HasOutput && o.Type != consts.ObjTypeBasicBelt {
-					/* Draw Arrow */
-					img := objects.ObjOverlayTypes[o.OutputDir].Image
-					if img != nil {
-						screen.DrawImage(img, op)
-					} else {
-						fmt.Println("Arrow overlay image not found.")
-					}
-				}
-			}
 		}
 	} else {
 		fmt.Println("DrawObject: empty object encountered.")

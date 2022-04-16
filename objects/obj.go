@@ -31,9 +31,8 @@ func GLogic() {
 			start := time.Now()
 
 			WorldTick++
-			RunTicks() //Send to other objects
-			//RunTocks()
 			RunProcs() //Process objects
+			RunTicks() //Send to other objects
 
 			glob.WorldMapUpdateLock.Unlock()
 			lastUpdate = time.Now()
