@@ -52,12 +52,11 @@ var (
 			ObjUpdate: IronCasterUpdate},
 
 		consts.ObjTypeBasicBelt: {ImagePath: "world-obj/basic-belt.png",
-			Name:            "Basic belt",
-			Size:            glob.Position{X: 1, Y: 1},
-			CapacityKG:      20,
-			ObjUpdate:       BeltUpdate,
-			ProcessInterval: 8,
-			HasOutput:       true},
+			Name:       "Basic belt",
+			Size:       glob.Position{X: 1, Y: 1},
+			CapacityKG: 20,
+			ObjUpdate:  BeltUpdate,
+			HasOutput:  true},
 
 		consts.ObjTypeBasicBeltVert: {ImagePath: "world-obj/basic-belt-vert.png",
 			Name:       "Basic belt",

@@ -102,7 +102,7 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	LogicUPS         = 4.0
+	LogicUPS         = 1.0
 	GameLogicRate_ns = time.Duration((1000000000.0 / LogicUPS))
 	RealUPS_ns       = GameLogicRate_ns
 

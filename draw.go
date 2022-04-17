@@ -6,6 +6,7 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -146,7 +147,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 								m.TweenStamp = time.Now()
 							}
 							move := time.Since(m.TweenStamp).Nanoseconds()
-							amount := ((float64(move) / float64(glob.RealUPS_ns)) / float64(o.TypeP.ProcessInterval))
+							amount := (float64(move) / float64(glob.RealUPS_ns))
 							if o.OutputObj != nil {
 								if amount > 1 {
 									amount = 1
@@ -157,7 +158,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 								}
 							}
 							glob.AniPix = amount
-							op.GeoM.Translate(amount*glob.ZoomScale, consts.HBeltVertOffset*glob.ZoomScale)
+							op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
 							screen.DrawImage(img, op)
 
 							//fmt.Println("Amount:", amount)
