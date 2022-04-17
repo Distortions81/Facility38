@@ -211,7 +211,7 @@ func (g *Game) Update() error {
 							}
 
 							if !bypass {
-								objects.MakeMObj(pos, objects.SelectedItemType)
+								objects.QueAddDelMObj(nil, objects.SelectedItemType, &pos, false)
 								glob.LastObjPos = pos
 								glob.LastActionType = consts.DragActionTypeBuild
 							}
@@ -220,7 +220,7 @@ func (g *Game) Update() error {
 						if time.Since(glob.LastActionTime) > glob.RemoveActionDelay {
 							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 
-								objects.DeleteMObj(o, &pos)
+								objects.QueAddDelMObj(o, 0, &pos, true)
 								//Action completed, save position and time
 								glob.LastObjPos = pos
 								glob.LastActionType = consts.DragActionTypeDelete

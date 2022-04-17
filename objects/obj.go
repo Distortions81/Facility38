@@ -12,11 +12,9 @@ var (
 	WorldTick uint64 = 0
 
 	TickList []glob.TickEvent
-	TockList []glob.TickEvent
 	ProcList map[uint64][]glob.TickEvent
 
-	AddToWorld   []*glob.MObj
-	DelFromWorld []*glob.MObj
+	AddRemoveObjList []*glob.QueAddRemoveObjData
 )
 
 func GLogic() {
@@ -33,6 +31,8 @@ func GLogic() {
 		glob.WorldMapUpdateLock.Lock()
 
 		WorldTick++
+
+		ProcessAddDelObjQue()
 		RunObjOutputs() //Send to other objects
 		RunProcs()      //Process objects
 
@@ -61,7 +61,7 @@ func MinerUpdate(o *glob.MObj) {
 		o.Contains[consts.MAT_COAL].Amount += input
 	}
 
-	fmt.Println("Miner", o.TypeP.Name, "retrieved", o.Contains[consts.MAT_COAL].Amount, "coal")
+	//fmt.Println("Miner", o.TypeP.Name, "retrieved", o.Contains[consts.MAT_COAL].Amount, "coal")
 	util.MoveMateriaslOut(o)
 }
 
@@ -154,10 +154,6 @@ func ToTickQue(target *glob.MObj) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
 }
 
-func ToTockQue(target *glob.MObj) {
-	TockList = append(TockList, glob.TickEvent{Target: target})
-}
-
 func ToProcQue(target *glob.MObj, tick uint64) {
 	ProcList[tick] = append(ProcList[tick], glob.TickEvent{Target: target})
 }
@@ -167,14 +163,6 @@ func RemoveTickQue(pos int) {
 		TickList = append(TickList[:pos], TickList[pos+1:]...)
 	} else {
 		TickList = nil
-	}
-}
-
-func RemoveTockQue(pos int) {
-	if len(TockList) > 1 {
-		TockList = append(TockList[:pos], TockList[pos+1:]...)
-	} else {
-		TockList = nil
 	}
 }
 
@@ -197,8 +185,6 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 			obj.OutputObj = destObj
 			ToTickQue(obj)
 			fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
-		} else {
-			//fmt.Println("Unable to find object to link to.")
 		}
 	}
 
@@ -217,8 +203,6 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 				break
 			}
-		} else {
-			//fmt.Println("Unable to find object to reverse link to.", pos)
 		}
 	}
 
@@ -275,6 +259,31 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 	}
 
 	return obj
+}
+
+func QueAddDelMObj(obj *glob.MObj, otype int, pos *glob.Position, delete bool) {
+	AddRemoveObjList = append(AddRemoveObjList, &glob.QueAddRemoveObjData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
+}
+
+func ProcessAddDelObjQue() {
+
+	for _, item := range AddRemoveObjList {
+		if item.Delete {
+			//Delete
+			if item.Obj.Valid {
+				item.Obj.Valid = false
+				fmt.Println("Deleted:", item.Obj.TypeP.Name)
+			}
+			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].MObj, *item.Pos)
+		} else {
+			//Add
+			obj := MakeMObj(*item.Pos, item.OType)
+			if obj != nil {
+				fmt.Println("Added:", obj.TypeP.Name)
+			}
+		}
+	}
+	AddRemoveObjList = []*glob.QueAddRemoveObjData{}
 }
 
 func DeleteMObj(obj *glob.MObj, pos *glob.Position) {

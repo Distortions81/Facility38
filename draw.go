@@ -148,16 +148,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							}
 							move := time.Since(m.TweenStamp).Nanoseconds()
 							amount := (float64(move) / float64(glob.RealUPS_ns))
+
+							//Limit item movement, but go off end to smoothly transition between belts
 							if o.OutputObj != nil {
 								if amount > 1 {
 									amount = 1
 								}
 							} else {
+								//If the belt is a dead end, stop before we go off
 								if amount > consts.HBeltLimitEnd {
 									amount = consts.HBeltLimitEnd
 								}
 							}
-							glob.AniPix = amount
+
 							op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
 							screen.DrawImage(img, op)
 
@@ -212,8 +215,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
 		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v Ani: %0.2f (v%v-%v)",
-				ebiten.CurrentFPS(), ebiten.CurrentTPS(), 1000000000.0/float64(glob.RealUPS_ns), glob.ZoomScale, glob.AniPix, consts.Version, consts.Build),
+			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v (v%v-%v)",
+				ebiten.CurrentFPS(), ebiten.CurrentTPS(), 1000000000.0/float64(glob.RealUPS_ns), glob.ZoomScale, consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}
 

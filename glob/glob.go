@@ -89,11 +89,17 @@ type SaveMObj struct {
 	P Position
 }
 
+type QueAddRemoveObjData struct {
+	Delete bool
+	Obj    *MObj
+	OType  int
+	Pos    *Position
+}
+
 var (
 	WorldMapUpdateLock sync.Mutex
 	WorldMap           map[Position]*MapChunk
 	UpdateTook         time.Duration
-	AniPix             float64
 
 	XYEmpty = Position{X: 0, Y: 0}
 
@@ -102,7 +108,7 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	LogicUPS         = 1.0
+	LogicUPS         = 4.0
 	GameLogicRate_ns = time.Duration((1000000000.0 / LogicUPS))
 	RealUPS_ns       = GameLogicRate_ns
 

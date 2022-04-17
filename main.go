@@ -141,15 +141,25 @@ func NewGame() *Game {
 	objects.ProcList = make(map[uint64][]glob.TickEvent)
 
 	//For testing
-	tx := 994
 	ty := 1000
-	objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
-	for i := 0; i < 10; i++ {
+	cols := 0
+	for j := 0; j < 100000; j++ {
+		cols++
+
+		tx := 994
+		objects.MakeMObj(glob.Position{X: tx + (cols * 15), Y: ty}, consts.ObjTypeBasicMiner)
+		for i := 0; i < 10; i++ {
+			tx++
+			objects.MakeMObj(glob.Position{X: tx + (cols * 15), Y: ty}, consts.ObjTypeBasicBelt)
+		}
 		tx++
-		objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
+		objects.MakeMObj(glob.Position{X: tx + (cols * 15), Y: ty}, consts.ObjTypeBasicBox)
+
+		if cols%100 == 0 {
+			ty += 2
+			cols = 0
+		}
 	}
-	tx++
-	objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
 
 	//Game logic runs on its own thread
 	go objects.GLogic()
