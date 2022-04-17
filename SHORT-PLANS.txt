@@ -1,6 +1,9 @@
 PRUNE INPUT BUFFERS ON OBJECT DELETE
 Tick/proc event delete crashes <---- probably needs lock
 DONT INIT BUFFERS IF NOT USED
+DONT QUE TICK/PROC UNTIL NEEDED
+INCREASE PROC PERFORMANCE (TIMED)
+REMOVE OLD QUE CODE
 
 
 Move tick/tock/proc lists to a map, where key is how many ticks before processing.
