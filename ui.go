@@ -7,7 +7,6 @@ import (
 	"GameTest/util"
 	"fmt"
 	"math"
-	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -189,20 +188,13 @@ func (g *Game) Update() error {
 			if pos != glob.LastObjPos {
 				if time.Since(glob.LastActionTime) > glob.BuildActionDelay {
 
-					chunk := util.GetChunk(&pos)
-
-					//Make chunk if needed
-					if chunk == nil {
-						cpos := util.PosToChunkPos(&pos)
-						fmt.Println("Made chunk:", cpos)
-
-						chunk = &glob.MapChunk{}
-						glob.WorldMap[cpos] = chunk
-						chunk.MObj = make(map[glob.Position]*glob.MObj)
-					}
-					//Make obj if needed
-					o := chunk.MObj[pos]
 					bypass := false
+					chunk := util.GetChunk(&pos)
+					o := util.GetObj(&pos, chunk)
+
+					glob.LastObjPos = pos
+					glob.LastActionType = consts.DragActionTypeBuild
+
 					if o == nil {
 						//Prevent flopping between delete and create when dragging
 						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
@@ -219,70 +211,21 @@ func (g *Game) Update() error {
 								}
 							}
 							if !bypass {
-								o = &glob.MObj{}
-								chunk.MObj[pos] = o
+								o = objects.MakeMObj(pos, objects.SelectedItemType)
 							}
 						}
-					}
-					if !bypass && o != nil {
-						//Change obj type
-						if o.TypeP.Key == consts.ObjTypeNone && objects.SelectedItemType > consts.ObjTypeNone {
+					} else {
+						if time.Since(glob.LastActionTime) > glob.RemoveActionDelay {
+							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 
-							o.TypeP.Key = objects.SelectedItemType
-							o.TypeP = objects.GameObjTypes[o.TypeP.Key]
-							o.OutputDir = consts.DIR_EAST
-
-							fmt.Println("Made obj:", pos, o.TypeP.Name)
-
-							objects.LinkObj(pos, o)
-
-							o.Valid = true
-
-							if o.TypeP.ObjUpdate != nil {
-								if o.TypeP.ProcessInterval > 0 {
-									//Process on a specifc ticks
-									objects.ToProcQue(o, objects.WorldTick+1+uint64(rand.Intn(int(o.TypeP.ProcessInterval))))
-								} else {
-									//Eternal
-									objects.ToProcQue(o, 0)
-								}
-							}
-							if o.TypeP.HasOutput {
-								objects.ToTickQue(o)
-								objects.ToTockQue(o)
-							}
-
-							//Create tick and tock events
-
-							//Action completed, save position and time
-							glob.LastObjPos = pos
-							glob.LastActionType = consts.DragActionTypeBuild
-							//glob.LastActionTime = time.Now()
-
-						} else {
-							if time.Since(glob.LastActionTime) > glob.RemoveActionDelay {
-								if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
-									//Delete object
-									fmt.Println("Object deleted:", pos, o.TypeP.Name)
-
-									//Invalidate and delete
-									chunk.MObj[pos].Valid = false
-									delete(chunk.MObj, pos)
-
-									//Action completed, save position and time
-									glob.LastObjPos = pos
-									glob.LastActionType = consts.DragActionTypeDelete
-									//glob.LastActionTime = time.Now()
-
-									//Delete chunk if empty
-									if len(chunk.MObj) <= 0 {
-										cpos := util.PosToChunkPos(&pos)
-										fmt.Println("Chunk deleted:", cpos)
-										delete(glob.WorldMap, cpos)
-									}
-								}
+								objects.DeleteMObj(o, &pos)
+								//Action completed, save position and time
+								glob.LastObjPos = pos
+								glob.LastActionType = consts.DragActionTypeDelete
+								//glob.LastActionTime = time.Now()
 							}
 						}
+
 					}
 				}
 			}

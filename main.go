@@ -75,11 +75,13 @@ func NewGame() *Game {
 	}
 
 	//Assign keys
-	for key, obj := range objects.GameObjTypes {
-		obj.Key = key
+	for key, pos := range objects.GameObjTypes {
+		pos.Key = key
+		objects.GameObjTypes[key] = pos
 	}
-	for key, mat := range objects.MatTypes {
-		mat.Key = key
+	for key, pos := range objects.MatTypes {
+		pos.Key = key
+		objects.MatTypes[key] = pos
 	}
 
 	//Load Sprites

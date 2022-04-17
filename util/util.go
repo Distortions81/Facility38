@@ -53,7 +53,7 @@ func GetNeighborObj(pos *glob.Position, dir int) *glob.MObj {
 		pos.X--
 	}
 
-	fmt.Println("Finding neighbor:", pos, dir)
+	//fmt.Println("Finding neighbor:", pos, dir)
 
 	chunk := GetChunk(pos)
 	obj := GetObj(pos, chunk)

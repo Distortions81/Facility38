@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -131,7 +132,12 @@ func RunProcs() {
 			event.Target.TypeP.ObjUpdate(event.Target)
 		} else {
 			//Delete eternal events if object was invalidated
-			ProcList[0] = append(ProcList[0][:key], ProcList[0][key+1:]...)
+			if len(ProcList[0]) > 1 {
+				ProcList[0] = append(ProcList[0][:key], ProcList[0][key+1:]...)
+			} else {
+				delete(ProcList, 0)
+			}
+			fmt.Println("Deleted eternal proc event for invalid object")
 		}
 	}
 
@@ -165,15 +171,27 @@ func ToProcQue(target *glob.MObj, tick uint64) {
 }
 
 func RemoveTickQue(pos int) {
-	TickList = append(TickList[:pos], TickList[pos+1:]...)
+	if len(TickList) > 1 {
+		TickList = append(TickList[:pos], TickList[pos+1:]...)
+	} else {
+		TickList = nil
+	}
 }
 
 func RemoveTockQue(pos int) {
-	TockList = append(TockList[:pos], TockList[pos+1:]...)
+	if len(TockList) > 1 {
+		TockList = append(TockList[:pos], TockList[pos+1:]...)
+	} else {
+		TockList = nil
+	}
 }
 
 func RemoveProcQue(tick uint64, pos int) {
-	ProcList[tick] = append(ProcList[tick][:pos], ProcList[tick][pos+1:]...)
+	if len(ProcList[tick]) > 1 {
+		ProcList[tick] = append(ProcList[tick][:pos], ProcList[tick][pos+1:]...)
+	} else {
+		delete(ProcList, tick)
+	}
 }
 
 func LinkObj(pos glob.Position, obj *glob.MObj) {
@@ -187,7 +205,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 			obj.OutputObj = destObj
 			fmt.Println("Linked object: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		} else {
-			fmt.Println("Unable to find object to link to.")
+			//fmt.Println("Unable to find object to link to.")
 		}
 	}
 
@@ -195,7 +213,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 	var i int
 	found := false
 	for i = consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
-		if i == obj.OutputDir {
+		if obj.TypeP.HasOutput && i == obj.OutputDir {
 			continue
 		}
 		neigh := util.GetNeighborObj(&pos, i)
@@ -212,8 +230,90 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 				break
 			}
 		} else {
-			fmt.Println("Unable to find object to reverse link to.")
+			//fmt.Println("Unable to find object to reverse link to.")
 		}
 	}
 
+}
+
+func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
+
+	//Make chunk if needed
+	chunk := util.GetChunk(&pos)
+	if chunk == nil {
+		cpos := util.PosToChunkPos(&pos)
+		fmt.Println("Made chunk:", cpos)
+
+		chunk = &glob.MapChunk{}
+		glob.WorldMap[cpos] = chunk
+		chunk.MObj = make(map[glob.Position]*glob.MObj)
+	}
+
+	obj := chunk.MObj[pos]
+
+	if obj != nil {
+		fmt.Println("Object already exists at:", pos)
+		return nil
+	}
+
+	obj = &glob.MObj{}
+
+	obj.TypeP = GameObjTypes[mtype]
+
+	obj.OutputObj = nil
+	obj.OutputBuffer = &[consts.MAT_MAX]*glob.MatData{}
+
+	obj.Contains = &[consts.MAT_MAX]*glob.MatData{}
+
+	obj.InputObjs = make([]*glob.MObj, 0)
+	obj.InputBuffer = [][consts.MAT_MAX]*glob.MatData{}
+
+	obj.OutputDir = consts.DIR_EAST
+	obj.Valid = true
+
+	//Put in chunk map
+	glob.WorldMap[util.PosToChunkPos(&pos)].MObj[pos] = obj
+	fmt.Println("Made obj:", pos, obj.TypeP.Name)
+	LinkObj(pos, obj)
+
+	if obj.TypeP.ObjUpdate != nil {
+		if obj.TypeP.ProcessInterval > 0 {
+			//Process on a specifc ticks
+			ToProcQue(obj, WorldTick+1+uint64(rand.Intn(int(obj.TypeP.ProcessInterval))))
+		} else {
+			//Eternal
+			ToProcQue(obj, 0)
+		}
+	}
+	if obj.TypeP.HasOutput {
+		ToTickQue(obj)
+		ToTockQue(obj)
+	}
+
+	return obj
+}
+
+func DeleteMObj(obj *glob.MObj, pos *glob.Position) {
+	if obj == nil || !obj.Valid {
+		fmt.Print("DeleteMObj: NIL or invalid object supplied.", pos)
+		return
+	}
+
+	chunk := util.GetChunk(pos)
+	if chunk == nil {
+		fmt.Print("DeleteMObj: No chunk found for: ", pos)
+		return
+	}
+
+	//Delete object
+	obj.Valid = false
+	delete(chunk.MObj, *pos)
+	fmt.Println("Object deleted:", pos, obj.TypeP.Name)
+
+	//Delete chunk if empty
+	if len(chunk.MObj) <= 0 {
+		cpos := util.PosToChunkPos(pos)
+		fmt.Println("Chunk deleted:", cpos)
+		delete(glob.WorldMap, cpos)
+	}
 }
