@@ -26,17 +26,16 @@ type MapChunk struct {
 type MObj struct {
 	TypeP ObjType `json:"-"`
 
-	OutputDir    int                       `json:"o,omitempty"`
-	OutputObj    *MObj                     `json:"-"`
-	OutputBuffer *[consts.MAT_MAX]*MatData `json:"b,omitempty"`
+	OutputDir    int                      `json:"o,omitempty"`
+	OutputObj    *MObj                    `json:"-"`
+	OutputBuffer [consts.MAT_MAX]*MatData `json:"b,omitempty"`
 
-	//Internal use
-	Contains *[consts.MAT_MAX]*MatData `json:"c,omitempty"`
-	KGHeld   uint64                    `json:"k,omitempty"`
+	//Internal useW
+	Contains [consts.MAT_MAX]*MatData `json:"c,omitempty"`
+	KGHeld   uint64                   `json:"k,omitempty"`
 
 	//Input/Output
-	InputObjs   []*MObj                    `json:"-"`
-	InputBuffer [][consts.MAT_MAX]*MatData `json:"i,omitempty"`
+	InputBuffer map[*MObj]*[consts.MAT_MAX]*MatData `json:"i,omitempty"`
 
 	Valid bool `json:"-"`
 }

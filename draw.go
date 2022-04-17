@@ -133,67 +133,64 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				if o.TypeP.Key == consts.ObjTypeBasicBelt {
 					/* Draw Ext */
 
-					if o.OutputBuffer != nil {
-						for _, m := range o.OutputBuffer {
-							if m == nil {
-								continue
+					for _, m := range o.OutputBuffer {
+						if m == nil {
+							continue
+						}
+						if m.Amount <= 0 {
+							continue
+						}
+						img := m.TypeP.Image
+						if img != nil {
+							if m.TweenStamp.IsZero() {
+								m.TweenStamp = time.Now()
 							}
-							if m.Amount <= 0 {
-								continue
+							move := time.Since(m.TweenStamp).Microseconds()
+							amount := (float64(move) / 1000.0) - 64.0
+							if amount > 128.0+128.0 {
+								amount = 128.0 + 128.0
 							}
-							img := m.TypeP.Image
-							if img != nil {
-								if m.TweenStamp.IsZero() {
-									m.TweenStamp = time.Now()
-								}
-								move := time.Since(m.TweenStamp).Microseconds()
-								amount := (float64(move) / 1000.0) - 64.0
-								if amount > 128.0+128.0 {
-									amount = 128.0 + 128.0
-								}
-								op.GeoM.Translate((amount/256.0)*glob.ZoomScale, (150.0/256.0)*glob.ZoomScale)
-								//fmt.Println(amount)
+							op.GeoM.Translate((amount/256.0)*glob.ZoomScale, (150.0/256.0)*glob.ZoomScale)
+							//fmt.Println(amount)
 
-								screen.DrawImage(img, op)
-							} else {
-								fmt.Println("Mat image not found.", m.TypeP.Name)
-							}
+							screen.DrawImage(img, op)
+						} else {
+							fmt.Println("Mat image not found.", m.TypeP.Name)
 						}
 					}
 
 				} else {
 					/* Draw contents */
-					if o.Contains != nil {
-						for _, c := range o.Contains {
-							if c == nil {
-								continue
-							}
-							if c.Amount <= 0 {
-								continue
-							}
-							img := c.TypeP.Image
-							if img != nil {
-								screen.DrawImage(img, op)
-							} else {
-								fmt.Println("Mat image not found.", c.TypeP.Name)
-							}
+
+					for _, c := range o.Contains {
+						if c == nil {
+							continue
+						}
+						if c.Amount <= 0 {
+							continue
+						}
+						img := c.TypeP.Image
+						if img != nil {
+							screen.DrawImage(img, op)
+						} else {
+							fmt.Println("Mat image not found.", c.TypeP.Name)
 						}
 					}
+
 					/* Draw Ext */
-					if o.OutputBuffer != nil {
-						for _, m := range o.OutputBuffer {
-							if m == nil {
-								continue
-							}
-							if m.Amount <= 0 {
-								continue
-							}
-							img := m.TypeP.Image
-							if img != nil {
-								screen.DrawImage(img, op)
-							} else {
-								fmt.Println("Mat image not found.", m.TypeP.Name)
-							}
+
+					for _, m := range o.OutputBuffer {
+						if m == nil {
+							continue
+						}
+						if m.Amount <= 0 {
+							continue
+						}
+						img := m.TypeP.Image
+						if img != nil {
+							screen.DrawImage(img, op)
+						} else {
+							fmt.Println("Mat image not found.", m.TypeP.Name)
 						}
 					}
 
@@ -257,34 +254,51 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", dtx, dty, o.TypeP.Name)
-				if o.Contains != nil {
-					for _, c := range o.Contains {
-						if c == nil {
+
+				for _, c := range o.Contains {
+					if c == nil {
+						continue
+					}
+					if c.Amount == 0 {
+						continue
+					}
+					if c.Amount > 0 {
+						toolTip += fmt.Sprintf(" (%vkg %v cont) %v", c.Amount, c.TypeP.Name, c.TypeP.Name)
+					}
+				}
+
+				for _, m := range o.OutputBuffer {
+
+					if m == nil {
+						continue
+					}
+					if m.Amount == 0 {
+						continue
+					}
+					if m.Amount > 0 {
+						toolTip += fmt.Sprintf(" (%vkg %v out) %v", m.Amount, m.TypeP.Name, m.TypeP.Name)
+					}
+
+				}
+
+				for _, c := range o.InputBuffer {
+					for _, m := range c {
+						if m == nil {
 							continue
 						}
-						if c.Amount == 0 {
+						if m.Amount == 0 {
 							continue
 						}
-						if c.Amount > 0 {
-							toolTip += fmt.Sprintf(" (%vkg %v int) %v", c.Amount, c.TypeP.Name, c.TypeP.Name)
+						if m.Amount > 0 {
+							toolTip += fmt.Sprintf(" (%vkg %v in) %v", m.Amount, m.TypeP.Name, m.TypeP.Name)
 						}
 					}
 				}
-				if o.OutputBuffer != nil {
-					for _, c := range o.InputBuffer {
-						for _, m := range c {
-							if m == nil {
-								continue
-							}
-							if m.Amount == 0 {
-								continue
-							}
-							if m.Amount > 0 {
-								toolTip += fmt.Sprintf(" (%vkg %v ext) %v", m.Amount, m.TypeP.Name, m.TypeP.Name)
-							}
-						}
-					}
+
+				if o.OutputObj != nil {
+					toolTip += fmt.Sprintf(" Output To: %v (%v)", o.OutputObj.TypeP.Name, util.DirToName(o.OutputDir))
 				}
+
 			}
 		}
 

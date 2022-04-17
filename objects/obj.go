@@ -32,8 +32,8 @@ func GLogic() {
 			start := time.Now()
 
 			WorldTick++
-			RunProcs() //Process objects
-			RunTicks() //Send to other objects
+			RunProcs()      //Process objects
+			RunObjOutputs() //Send to other objects
 
 			glob.WorldMapUpdateLock.Unlock()
 			lastUpdate = time.Now()
@@ -51,19 +51,19 @@ func MinerUpdate(o *glob.MObj) {
 	input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
 
 	/* Temporary for testing */
-	if o.Contains != nil {
-		if o.Contains[consts.MAT_COAL] == nil {
-			o.Contains[consts.MAT_COAL] = &glob.MatData{}
-		}
-		o.Contains[consts.MAT_COAL].TypeP = MatTypes[consts.MAT_COAL]
-		/* Temporary for testing */
 
-		if o.Contains[consts.MAT_COAL].Amount < o.TypeP.CapacityKG {
-			o.Contains[consts.MAT_COAL].Amount += input
-		}
-
-		util.MoveMaterialOut(o)
+	if o.Contains[consts.MAT_COAL] == nil {
+		o.Contains[consts.MAT_COAL] = &glob.MatData{}
 	}
+	o.Contains[consts.MAT_COAL].TypeP = MatTypes[consts.MAT_COAL]
+	/* Temporary for testing */
+
+	if o.Contains[consts.MAT_COAL].Amount < o.TypeP.CapacityKG {
+		o.Contains[consts.MAT_COAL].Amount += input
+	}
+
+	fmt.Println("Miner", o.TypeP.Name, "retrieved", o.Contains[consts.MAT_COAL].Amount, "coal")
+	util.MoveMaterialOut(o)
 }
 
 func SmelterUpdate(obj *glob.MObj) {
@@ -88,19 +88,22 @@ func BoxUpdate(obj *glob.MObj) {
 			if m == nil {
 				continue
 			}
-			if obj.Contains[mtype] != nil {
-				obj.Contains[mtype].TypeP = m.TypeP
-				obj.Contains[mtype].Amount += m.Amount
-			} else {
-				obj.Contains[mtype] = &glob.MatData{TypeP: m.TypeP, Amount: m.Amount}
+			if m.Amount > 0 {
+				if obj.Contains[mtype] != nil {
+					obj.Contains[mtype].TypeP = m.TypeP
+					obj.Contains[mtype].Amount += m.Amount
+				} else {
+					obj.Contains[mtype] = &glob.MatData{TypeP: m.TypeP, Amount: m.Amount}
+				}
+				fmt.Println("Added", m.Amount, m.TypeP.Name, "to", obj.TypeP.Name)
+				m.Amount = 0
 			}
-			m.Amount = 0
 		}
 	}
 }
 
 //Send external to other objects
-func RunTicks() {
+func RunObjOutputs() {
 	//wg := sizedwaitgroup.New(runtime.NumCPU())
 
 	for p, event := range TickList {
@@ -122,6 +125,7 @@ func RunTicks() {
 	}
 }
 
+//Process objects
 func RunProcs() {
 	found := false
 	count := 0
@@ -130,6 +134,7 @@ func RunProcs() {
 	for key, event := range ProcList[0] {
 		count++
 		if event.Target.Valid {
+			//fmt.Println("Processed", event.Target.TypeP.Name)
 			event.Target.TypeP.ObjUpdate(event.Target)
 		} else {
 			//Delete eternal events if object was invalidated
@@ -145,16 +150,18 @@ func RunProcs() {
 	//Process these at specific intervals
 	for _, event := range ProcList[WorldTick] {
 		count++
+		found = true
+
 		//Process
 		if event.Target.Valid {
 			event.Target.TypeP.ObjUpdate(event.Target)
 
+			//fmt.Println("Processed", event.Target.TypeP.Name)
 			ToProcQue(event.Target, WorldTick+uint64(event.Target.TypeP.ProcessInterval)*uint64(glob.LogicUPS))
-			found = true
 		}
 	}
 	if found {
-		fmt.Println("Deleted procs for ", WorldTick)
+		//fmt.Println("Deleted procs for ", WorldTick)
 		delete(ProcList, WorldTick)
 	}
 }
@@ -204,7 +211,8 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 
 		if destObj != nil {
 			obj.OutputObj = destObj
-			fmt.Println("Linked object: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
+			ToTickQue(obj)
+			fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		} else {
 			//fmt.Println("Unable to find object to link to.")
 		}
@@ -219,16 +227,10 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 		}
 		neigh := util.GetNeighborObj(obj, pos, i)
 		if neigh != nil {
-
-			for _, v := range neigh.InputObjs {
-				if v == obj {
-					found = true
-					fmt.Println("Neighbor object input already linked to us.")
-				}
-			}
 			if !found {
-				neigh.InputObjs = append(neigh.InputObjs, obj)
-				fmt.Println("Linked object REVERSE: ", obj.TypeP.Name, " to: ", neigh.TypeP.Name)
+				neigh.OutputObj = obj
+				ToTickQue(neigh)
+				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 				break
 			}
 		} else {
@@ -263,12 +265,11 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 	obj.TypeP = GameObjTypes[mtype]
 
 	obj.OutputObj = nil
-	obj.OutputBuffer = &[consts.MAT_MAX]*glob.MatData{}
+	obj.OutputBuffer = [consts.MAT_MAX]*glob.MatData{}
 
-	obj.Contains = &[consts.MAT_MAX]*glob.MatData{}
+	obj.Contains = [consts.MAT_MAX]*glob.MatData{}
 
-	obj.InputObjs = make([]*glob.MObj, 0)
-	obj.InputBuffer = [][consts.MAT_MAX]*glob.MatData{}
+	obj.InputBuffer = make(map[*glob.MObj]*[consts.MAT_MAX]*glob.MatData)
 
 	obj.OutputDir = consts.DIR_EAST
 	obj.Valid = true
@@ -286,10 +287,7 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 			//Eternal
 			ToProcQue(obj, 0)
 		}
-	}
-	if obj.TypeP.HasOutput {
-		ToTickQue(obj)
-		ToTockQue(obj)
+		fmt.Println("Added proc event for:", obj.TypeP.Name)
 	}
 
 	return obj

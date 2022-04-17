@@ -81,11 +81,28 @@ func OutputMaterial(src *glob.MObj) {
 		return
 	}
 
-	dest := src.OutputObj
-	if dest.InputBuffer == nil {
-		dest.InputBuffer = append(dest.InputBuffer, *src.OutputBuffer)
+	if src != nil && src.Valid && src.OutputObj != nil && src.OutputObj.Valid {
+		dest := src.OutputObj
+
+		if dest.InputBuffer[src] == nil {
+			dest.InputBuffer[src] = &[consts.MAT_MAX]*glob.MatData{}
+		}
+
+		for mtype, mat := range src.OutputBuffer {
+			if mat != nil && mat.Amount > 0 {
+				if dest.InputBuffer[src][mtype] == nil {
+					dest.InputBuffer[src][mtype] = &glob.MatData{}
+				}
+				dest.InputBuffer[src][mtype].Amount += mat.Amount
+				dest.InputBuffer[src][mtype].TypeP = mat.TypeP
+				dest.InputBuffer[src][mtype].Obj = mat.Obj
+				mat.Amount = 0
+			}
+		}
+
+	} else {
+		fmt.Println("OutputMaterial: Invalid source or output object")
 	}
-	src.OutputBuffer = nil
 }
 
 //Just move the pointer, don't copy or add.
@@ -98,10 +115,20 @@ func MoveMaterialOut(obj *glob.MObj) {
 		return
 	}
 
-	if obj.OutputObj == nil {
-		obj.OutputBuffer = obj.Contains
+	for mtype, mat := range obj.Contains {
+		if mat != nil && mat.Amount > 0 {
+			if obj.OutputBuffer[mtype] == nil {
+				obj.OutputBuffer[mtype] = &glob.MatData{}
+			}
+			obj.OutputBuffer[mtype].Amount += mat.Amount
+			obj.OutputBuffer[mtype].TypeP = mat.TypeP
+			obj.OutputBuffer[mtype].Obj = mat.Obj
+
+			mat.Amount = 0
+		}
 	}
-	obj.Contains = nil
+
+	fmt.Println("MoveMaterialOut:", obj.TypeP.Name)
 
 }
 
@@ -112,20 +139,21 @@ func MoveMaterialsIn(obj *glob.MObj) {
 	}
 
 	if obj.TypeP.CapacityKG < obj.KGHeld {
-		if obj.Contains == nil {
-			obj.Contains = &[consts.MAT_MAX]*glob.MatData{}
-		}
 
 		for _, mats := range obj.InputBuffer {
 			for mtype, mat := range mats {
-
+				if obj.Contains[mtype] == nil {
+					obj.Contains[mtype] = &glob.MatData{}
+				}
 				obj.Contains[mtype].Amount += mat.Amount
 				obj.Contains[mtype].TypeP = mat.TypeP
 				obj.Contains[mtype].Obj = mat.Obj
+
+				mat.Amount = 0
 			}
 		}
 
-		obj.InputBuffer = nil
+		fmt.Println("MoveMaterialIn:", obj.TypeP.Name, obj.Contains)
 	}
 }
 
