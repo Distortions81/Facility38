@@ -105,8 +105,6 @@ func OutputMaterial(src *glob.MObj) {
 	}
 }
 
-//Just move the pointer, don't copy or add.
-//We only do this internally in the object so we don't do this operation twice.
 //These are dedicated buffers for multithreading
 func MoveMaterialOut(obj *glob.MObj) {
 
