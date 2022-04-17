@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"fmt"
 	"math"
+	"time"
 )
 
 func Distance(xa, ya, xb, yb int) float64 {
@@ -173,6 +174,7 @@ func MoveMaterialsAlong(obj *glob.MObj) {
 				obj.OutputBuffer[mtype].Amount += mat.Amount
 				obj.OutputBuffer[mtype].TypeP = mat.TypeP
 				obj.OutputBuffer[mtype].Obj = mat.Obj
+				obj.OutputBuffer[mtype].TweenStamp = time.Time{}
 
 				mat.Amount = 0
 			}

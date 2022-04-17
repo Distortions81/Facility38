@@ -116,7 +116,7 @@ func (g *Game) Update() error {
 		glob.ZoomMouse = 10
 	}
 	if !glob.ZoomSetup {
-		glob.ZoomMouse = 63.46
+		glob.ZoomMouse = 40
 		glob.ZoomSetup = true
 	}
 	glob.ZoomScale = ((glob.ZoomMouse * glob.ZoomMouse * glob.ZoomMouse) / 1000)

@@ -30,7 +30,7 @@ var (
 			Size:            glob.Position{X: 1, Y: 1},
 			ObjUpdate:       MinerUpdate,
 			MinerKGSec:      9,
-			ProcessInterval: 4,
+			ProcessInterval: 8,
 			CapacityKG:      500,
 			HasOutput:       true},
 
@@ -52,11 +52,12 @@ var (
 			ObjUpdate: IronCasterUpdate},
 
 		consts.ObjTypeBasicBelt: {ImagePath: "world-obj/basic-belt.png",
-			Name:       "Basic belt",
-			Size:       glob.Position{X: 1, Y: 1},
-			CapacityKG: 20,
-			ObjUpdate:  BeltUpdate,
-			HasOutput:  true},
+			Name:            "Basic belt",
+			Size:            glob.Position{X: 1, Y: 1},
+			CapacityKG:      20,
+			ObjUpdate:       BeltUpdate,
+			ProcessInterval: 8,
+			HasOutput:       true},
 
 		consts.ObjTypeBasicBeltVert: {ImagePath: "world-obj/basic-belt-vert.png",
 			Name:       "Basic belt",

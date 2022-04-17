@@ -3,11 +3,13 @@ package consts
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
-	Version = "008"        //increment
-	Build   = "04.17.2022" //mmddyyyy
-	Wasm    = "js"         //Detect wasm/js
-	DataDir = "data/"
-	GfxDir  = "gfx/"
+	Version         = "008"        //increment
+	Build           = "04.17.2022" //mmddyyyy
+	Wasm            = "js"         //Detect wasm/js
+	DataDir         = "data/"
+	GfxDir          = "gfx/"
+	HBeltVertOffset = 0.6
+	HBeltLimitEnd   = 0.75
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1

@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"fmt"
-	"math/rand"
 	"time"
 )
 
@@ -29,8 +28,7 @@ func GLogic() {
 		start = time.Now()
 
 		/* Calculate real frame time and adjust */
-		diff := start.Sub(lastUpdate)
-		glob.RealUPS = 1000000000.0 / float64(diff)
+		glob.RealUPS_ns = start.Sub(lastUpdate) //Used for animation tweening
 
 		glob.WorldMapUpdateLock.Lock()
 
@@ -143,7 +141,7 @@ func RunProcs() {
 			event.Target.TypeP.ObjUpdate(event.Target)
 
 			//fmt.Println("Processed", event.Target.TypeP.Name)
-			ToProcQue(event.Target, WorldTick+uint64(event.Target.TypeP.ProcessInterval)*uint64(glob.LogicUPS))
+			ToProcQue(event.Target, WorldTick+event.Target.TypeP.ProcessInterval)
 		}
 	}
 	if found {
@@ -268,7 +266,7 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 	if obj.TypeP.ObjUpdate != nil {
 		if obj.TypeP.ProcessInterval > 0 {
 			//Process on a specifc ticks
-			ToProcQue(obj, WorldTick+1+uint64(rand.Intn(int(obj.TypeP.ProcessInterval))))
+			ToProcQue(obj, WorldTick+1+obj.TypeP.ProcessInterval)
 		} else {
 			//Eternal
 			ToProcQue(obj, 0)

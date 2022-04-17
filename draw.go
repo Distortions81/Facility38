@@ -145,12 +145,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							if m.TweenStamp.IsZero() {
 								m.TweenStamp = time.Now()
 							}
-							move := time.Since(m.TweenStamp).Microseconds()
-							amount := (float64(move) / 1000.0) - 64.0
-							if amount > 128.0+128.0 {
-								amount = 128.0 + 128.0
+							move := time.Since(m.TweenStamp).Nanoseconds()
+							amount := ((float64(move) / float64(glob.RealUPS_ns)) / float64(o.TypeP.ProcessInterval))
+							if o.OutputObj != nil {
+								if amount > 1 {
+									amount = 1
+								}
+							} else {
+								if amount > consts.HBeltLimitEnd {
+									amount = consts.HBeltLimitEnd
+								}
 							}
-							op.GeoM.Translate((amount/256.0)*glob.ZoomScale, (150.0/256.0)*glob.ZoomScale)
+							glob.AniPix = amount
+							op.GeoM.Translate(amount*glob.ZoomScale, consts.HBeltVertOffset*glob.ZoomScale)
 							screen.DrawImage(img, op)
 
 							//fmt.Println("Amount:", amount)
@@ -176,24 +183,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							fmt.Println("Mat image not found.", c.TypeP.Name)
 						}
 					}
-
-					/* Draw Ext */
-
-					for _, m := range o.OutputBuffer {
-						if m == nil {
-							continue
-						}
-						if m.Amount <= 0 {
-							continue
-						}
-						img := m.TypeP.Image
-						if img != nil {
-							screen.DrawImage(img, op)
-						} else {
-							fmt.Println("Mat image not found.", m.TypeP.Name)
-						}
-					}
-
 				}
 
 				if o.TypeP.HasOutput && o.TypeP.Key != consts.ObjTypeBasicBelt {
@@ -222,8 +211,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
 		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v (v%v-%v)",
-				ebiten.CurrentFPS(), ebiten.CurrentTPS(), glob.RealUPS, glob.ZoomScale, consts.Version, consts.Build),
+			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v Ani: %0.2f (v%v-%v)",
+				ebiten.CurrentFPS(), ebiten.CurrentTPS(), 1000000000.0/float64(glob.RealUPS_ns), glob.ZoomScale, glob.AniPix, consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}
 

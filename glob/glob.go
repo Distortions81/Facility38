@@ -67,7 +67,7 @@ type ObjType struct {
 	MinerKGSec float64
 	CapacityKG uint64
 
-	ProcessInterval int
+	ProcessInterval uint64
 	HasOutput       bool
 
 	UIAction  func()
@@ -93,6 +93,7 @@ var (
 	WorldMapUpdateLock sync.Mutex
 	WorldMap           map[Position]*MapChunk
 	UpdateTook         time.Duration
+	AniPix             float64
 
 	XYEmpty = Position{X: 0, Y: 0}
 
@@ -103,7 +104,7 @@ var (
 	//Game UPS rate
 	LogicUPS         = 4.0
 	GameLogicRate_ns = time.Duration((1000000000.0 / LogicUPS))
-	RealUPS          = LogicUPS
+	RealUPS_ns       = GameLogicRate_ns
 
 	//eBiten variables
 	ZoomMouse float64 = 1.0   //Zoom mouse

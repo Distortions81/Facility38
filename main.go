@@ -140,6 +140,17 @@ func NewGame() *Game {
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
 	objects.ProcList = make(map[uint64][]glob.TickEvent)
 
+	//For testing
+	tx := 994
+	ty := 1000
+	objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
+	for i := 0; i < 10; i++ {
+		tx++
+		objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
+	}
+	tx++
+	objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+
 	//Game logic runs on its own thread
 	go objects.GLogic()
 
