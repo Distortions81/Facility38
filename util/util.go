@@ -41,10 +41,11 @@ func FloatXYToPosition(x float64, y float64) glob.Position {
 	return glob.Position{X: int(x), Y: int(y)}
 }
 
-func GetNeighborObj(pos *glob.Position, dir int) *glob.MObj {
+func GetNeighborObj(src *glob.MObj, pos glob.Position, dir int) *glob.MObj {
+
 	switch dir {
 	case consts.DIR_NORTH:
-		pos.Y++
+		pos.Y--
 	case consts.DIR_EAST:
 		pos.X++
 	case consts.DIR_SOUTH:
@@ -55,8 +56,13 @@ func GetNeighborObj(pos *glob.Position, dir int) *glob.MObj {
 
 	//fmt.Println("Finding neighbor:", pos, dir)
 
-	chunk := GetChunk(pos)
-	obj := GetObj(pos, chunk)
+	chunk := GetChunk(&pos)
+	obj := GetObj(&pos, chunk)
+
+	if obj == src {
+		fmt.Println("GetNeighborObj: Self reference")
+	}
+
 	if chunk != nil && obj != nil {
 		fmt.Println("Neighbor:", obj.TypeP.Name, pos)
 	}

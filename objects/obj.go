@@ -113,6 +113,7 @@ func RunTicks() {
 			if event.Target.OutputObj != nil {
 				if !event.Target.OutputObj.Valid {
 					fmt.Println("Deleted OutputObj for invalid object.")
+					event.Target.OutputObj = nil
 					continue
 				}
 				util.OutputMaterial(event.Target)
@@ -199,7 +200,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 	//Link output
 	if obj.OutputDir > 0 && obj.TypeP.HasOutput {
 		fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
-		destObj := util.GetNeighborObj(&pos, obj.OutputDir)
+		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
 
 		if destObj != nil {
 			obj.OutputObj = destObj
@@ -216,12 +217,13 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 		if obj.TypeP.HasOutput && i == obj.OutputDir {
 			continue
 		}
-		neigh := util.GetNeighborObj(&pos, i)
+		neigh := util.GetNeighborObj(obj, pos, i)
 		if neigh != nil {
 
 			for _, v := range neigh.InputObjs {
 				if v == obj {
 					found = true
+					fmt.Println("Neighbor object input already linked to us.")
 				}
 			}
 			if !found {
@@ -230,7 +232,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 				break
 			}
 		} else {
-			//fmt.Println("Unable to find object to reverse link to.")
+			//fmt.Println("Unable to find object to reverse link to.", pos)
 		}
 	}
 
@@ -295,13 +297,13 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 
 func DeleteMObj(obj *glob.MObj, pos *glob.Position) {
 	if obj == nil || !obj.Valid {
-		fmt.Print("DeleteMObj: NIL or invalid object supplied.", pos)
+		fmt.Println("DeleteMObj: NIL or invalid object supplied.", pos)
 		return
 	}
 
 	chunk := util.GetChunk(pos)
 	if chunk == nil {
-		fmt.Print("DeleteMObj: No chunk found for: ", pos)
+		fmt.Println("DeleteMObj: No chunk found for: ", pos)
 		return
 	}
 

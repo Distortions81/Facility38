@@ -192,12 +192,11 @@ func (g *Game) Update() error {
 					chunk := util.GetChunk(&pos)
 					o := util.GetObj(&pos, chunk)
 
-					glob.LastObjPos = pos
-					glob.LastActionType = consts.DragActionTypeBuild
+					if o == nil && objects.SelectedItemType > consts.ObjTypeNone {
 
-					if o == nil {
 						//Prevent flopping between delete and create when dragging
 						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
+
 							size := objects.GameObjTypes[objects.SelectedItemType].Size
 							if size.X > 1 || size.Y > 1 {
 								var tx, ty int
@@ -210,8 +209,11 @@ func (g *Game) Update() error {
 									}
 								}
 							}
+
 							if !bypass {
-								o = objects.MakeMObj(pos, objects.SelectedItemType)
+								objects.MakeMObj(pos, objects.SelectedItemType)
+								glob.LastObjPos = pos
+								glob.LastActionType = consts.DragActionTypeBuild
 							}
 						}
 					} else {
