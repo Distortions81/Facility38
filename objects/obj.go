@@ -21,28 +21,35 @@ var (
 )
 
 func GLogic() {
-
-	lastUpdate := time.Now()
+	lastUpdate := time.Time{}
+	start := time.Now()
 
 	for {
+		lastUpdate = start
+		start = time.Now()
 
-		if time.Since(lastUpdate) > glob.GameLogicRate {
-			glob.WorldMapUpdateLock.Lock()
+		/* Calculate real frame time and adjust */
+		diff := start.Sub(lastUpdate)
+		delta := diff - glob.GameLogicRate_ns
+		glob.RealUPS = 1000000000.0 / float64(diff)
 
-			start := time.Now()
-
-			WorldTick++
-			RunProcs()      //Process objects
-			RunObjOutputs() //Send to other objects
-
-			glob.WorldMapUpdateLock.Unlock()
-			lastUpdate = time.Now()
-			glob.UpdateTook = time.Since(start)
-			//fmt.Println("Update budget used: ", (float64(glob.UpdateTook.Microseconds()/1000.0)/250.0)*100.0, "%")
+		//Debug
+		if WorldTick%uint64(glob.LogicUPS) == 0 {
+			fmt.Printf("RealUPS: %.8f, delta: %v\n", glob.RealUPS, delta)
 		}
 
-		//Reduce busy waiting
-		time.Sleep(glob.GameLogicSleep)
+		glob.WorldMapUpdateLock.Lock()
+
+		WorldTick++
+		RunObjOutputs() //Send to other objects
+		RunProcs()      //Process objects
+
+		glob.WorldMapUpdateLock.Unlock()
+
+		//If there is time left, sleep
+		frameTook := time.Since(start)
+		sleepFor := glob.GameLogicRate_ns - frameTook + (delta / 2)
+		time.Sleep(sleepFor)
 	}
 }
 
@@ -63,7 +70,7 @@ func MinerUpdate(o *glob.MObj) {
 	}
 
 	fmt.Println("Miner", o.TypeP.Name, "retrieved", o.Contains[consts.MAT_COAL].Amount, "coal")
-	util.MoveMaterialOut(o)
+	util.MoveMateriaslOut(o)
 }
 
 func SmelterUpdate(obj *glob.MObj) {
@@ -77,29 +84,14 @@ func IronCasterUpdate(obj *glob.MObj) {
 }
 
 func BeltUpdate(obj *glob.MObj) {
+	util.MoveMaterialsAlong(obj)
 }
 
 func SteamEngineUpdate(obj *glob.MObj) {
 }
 
 func BoxUpdate(obj *glob.MObj) {
-	for _, v := range obj.InputBuffer {
-		for mtype, m := range v {
-			if m == nil {
-				continue
-			}
-			if m.Amount > 0 {
-				if obj.Contains[mtype] != nil {
-					obj.Contains[mtype].TypeP = m.TypeP
-					obj.Contains[mtype].Amount += m.Amount
-				} else {
-					obj.Contains[mtype] = &glob.MatData{TypeP: m.TypeP, Amount: m.Amount}
-				}
-				fmt.Println("Added", m.Amount, m.TypeP.Name, "to", obj.TypeP.Name)
-				m.Amount = 0
-			}
-		}
-	}
+	util.MoveMaterialsIn(obj)
 }
 
 //Send external to other objects

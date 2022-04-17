@@ -151,9 +151,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 								amount = 128.0 + 128.0
 							}
 							op.GeoM.Translate((amount/256.0)*glob.ZoomScale, (150.0/256.0)*glob.ZoomScale)
-							//fmt.Println(amount)
-
 							screen.DrawImage(img, op)
+
+							//fmt.Println("Amount:", amount)
 						} else {
 							fmt.Println("Mat image not found.", m.TypeP.Name)
 						}

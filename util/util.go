@@ -106,7 +106,7 @@ func OutputMaterial(src *glob.MObj) {
 }
 
 //These are dedicated buffers for multithreading
-func MoveMaterialOut(obj *glob.MObj) {
+func MoveMateriaslOut(obj *glob.MObj) {
 
 	if obj == nil || !obj.Valid {
 		fmt.Println("MoveMaterialOut: Invalid object")
@@ -115,6 +115,8 @@ func MoveMaterialOut(obj *glob.MObj) {
 
 	for mtype, mat := range obj.Contains {
 		if mat != nil && mat.Amount > 0 {
+			fmt.Println("mmo:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
+
 			if obj.OutputBuffer[mtype] == nil {
 				obj.OutputBuffer[mtype] = &glob.MatData{}
 			}
@@ -125,9 +127,6 @@ func MoveMaterialOut(obj *glob.MObj) {
 			mat.Amount = 0
 		}
 	}
-
-	fmt.Println("MoveMaterialOut:", obj.TypeP.Name)
-
 }
 
 func MoveMaterialsIn(obj *glob.MObj) {
@@ -136,22 +135,48 @@ func MoveMaterialsIn(obj *glob.MObj) {
 		return
 	}
 
-	if obj.TypeP.CapacityKG < obj.KGHeld {
+	if obj.TypeP.CapacityKG > obj.KGHeld {
 
 		for _, mats := range obj.InputBuffer {
 			for mtype, mat := range mats {
-				if obj.Contains[mtype] == nil {
-					obj.Contains[mtype] = &glob.MatData{}
+				if mat != nil && mat.Amount > 0 {
+					fmt.Println("mmi:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
+
+					if obj.Contains[mtype] == nil {
+						obj.Contains[mtype] = &glob.MatData{}
+					}
+					obj.Contains[mtype].Amount += mat.Amount
+					obj.Contains[mtype].TypeP = mat.TypeP
+					obj.Contains[mtype].Obj = mat.Obj
+
+					mat.Amount = 0
 				}
-				obj.Contains[mtype].Amount += mat.Amount
-				obj.Contains[mtype].TypeP = mat.TypeP
-				obj.Contains[mtype].Obj = mat.Obj
+			}
+		}
+	}
+}
+
+func MoveMaterialsAlong(obj *glob.MObj) {
+	if obj == nil || !obj.Valid {
+		fmt.Println("MoveMaterialAlong: Invalid object")
+		return
+	}
+
+	for _, mats := range obj.InputBuffer {
+		for mtype, mat := range mats {
+			if mat != nil && mat.Amount > 0 {
+				fmt.Println("mma:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
+
+				if obj.OutputBuffer[mtype] == nil {
+					obj.OutputBuffer[mtype] = &glob.MatData{}
+				}
+				obj.OutputBuffer[mtype].Amount += mat.Amount
+				obj.OutputBuffer[mtype].TypeP = mat.TypeP
+				obj.OutputBuffer[mtype].Obj = mat.Obj
 
 				mat.Amount = 0
 			}
 		}
-
-		fmt.Println("MoveMaterialIn:", obj.TypeP.Name, obj.Contains)
 	}
 }
 
