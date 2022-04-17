@@ -269,12 +269,15 @@ func ProcessAddDelObjQue() {
 
 	for _, item := range AddRemoveObjList {
 		if item.Delete {
-			//Delete
-			if item.Obj.Valid {
-				item.Obj.Valid = false
-				fmt.Println("Deleted:", item.Obj.TypeP.Name)
+			if item.Obj != nil {
+				//Delete
+				if item.Obj.Valid {
+					item.Obj.Valid = false
+					fmt.Println("Deleted:", item.Obj.TypeP.Name)
+				}
 			}
 			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].MObj, *item.Pos)
+
 		} else {
 			//Add
 			obj := MakeMObj(*item.Pos, item.OType)
