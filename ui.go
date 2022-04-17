@@ -163,7 +163,7 @@ func (g *Game) Update() error {
 					fmt.Println("UI Action:", item.Name)
 				} else {
 					if objects.SelectedItemType == objects.ToolbarItems[ipos].Key {
-						objects.SelectedItemType = -1
+						objects.SelectedItemType = 0
 						fmt.Println("Deselected")
 					} else {
 						objects.SelectedItemType = objects.ToolbarItems[ipos].Key
@@ -189,11 +189,11 @@ func (g *Game) Update() error {
 			if pos != glob.LastObjPos {
 				if time.Since(glob.LastActionTime) > glob.BuildActionDelay {
 
-					chunk := util.GetChunk(pos)
+					chunk := util.GetChunk(&pos)
 
 					//Make chunk if needed
 					if chunk == nil {
-						cpos := util.PosToChunkPos(pos)
+						cpos := util.PosToChunkPos(&pos)
 						fmt.Println("Made chunk:", cpos)
 
 						chunk = &glob.MapChunk{}
@@ -208,8 +208,9 @@ func (g *Game) Update() error {
 						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
 							size := objects.GameObjTypes[objects.SelectedItemType].Size
 							if size.X > 1 || size.Y > 1 {
-								for tx := 0; tx < size.X; tx++ {
-									for ty := 0; ty < size.Y; ty++ {
+								var tx, ty int
+								for tx = 0; tx < size.X; tx++ {
+									for ty = 0; ty < size.Y; ty++ {
 										if chunk.CObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
 											fmt.Println("ERROR: Occupied.")
 											bypass = true
@@ -225,12 +226,11 @@ func (g *Game) Update() error {
 					}
 					if !bypass && o != nil {
 						//Change obj type
-						if o.Type == consts.ObjTypeNone && objects.SelectedItemType > consts.ObjTypeNone {
+						if o.TypeP.Key == consts.ObjTypeNone && objects.SelectedItemType > consts.ObjTypeNone {
 
-							o.Type = objects.SelectedItemType
-							o.TypeP = objects.GameObjTypes[o.Type]
+							o.TypeP.Key = objects.SelectedItemType
+							o.TypeP = objects.GameObjTypes[o.TypeP.Key]
 							o.OutputDir = consts.DIR_EAST
-							glob.WorldMapDirty = true
 
 							fmt.Println("Made obj:", pos, o.TypeP.Name)
 
@@ -239,9 +239,9 @@ func (g *Game) Update() error {
 							o.Valid = true
 
 							if o.TypeP.ObjUpdate != nil {
-								if o.TypeP.ProcSeconds > 0 {
+								if o.TypeP.ProcessInterval > 0 {
 									//Process on a specifc ticks
-									objects.ToProcQue(o, objects.WorldTick+1+uint64(rand.Intn(int(o.TypeP.ProcSeconds))))
+									objects.ToProcQue(o, objects.WorldTick+1+uint64(rand.Intn(int(o.TypeP.ProcessInterval))))
 								} else {
 									//Eternal
 									objects.ToProcQue(o, 0)
@@ -268,7 +268,6 @@ func (g *Game) Update() error {
 									//Invalidate and delete
 									chunk.MObj[pos].Valid = false
 									delete(chunk.MObj, pos)
-									glob.WorldMapDirty = true
 
 									//Action completed, save position and time
 									glob.LastObjPos = pos
@@ -277,7 +276,7 @@ func (g *Game) Update() error {
 
 									//Delete chunk if empty
 									if len(chunk.MObj) <= 0 {
-										cpos := util.PosToChunkPos(pos)
+										cpos := util.PosToChunkPos(&pos)
 										fmt.Println("Chunk deleted:", cpos)
 										delete(glob.WorldMap, cpos)
 									}
@@ -332,7 +331,7 @@ func (g *Game) Update() error {
 
 		pos := util.FloatXYToPosition(dtx, dty)
 
-		chunk := util.GetChunk(pos)
+		chunk := util.GetChunk(&pos)
 		o := chunk.MObj[pos]
 
 		if o != nil {
@@ -348,7 +347,6 @@ func (g *Game) Update() error {
 				}
 			}
 			fmt.Println("Rotated output:", pos, o.TypeP.Name, util.DirToName(o.OutputDir))
-			glob.WorldMapDirty = true
 			objects.LinkObj(pos, o)
 		}
 	}

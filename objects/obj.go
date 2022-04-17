@@ -47,20 +47,22 @@ func GLogic() {
 
 func MinerUpdate(o *glob.MObj) {
 
-	input := int(float64(o.TypeP.MinerKGSec*consts.TIMESCALE) / o.TypeP.ProcSeconds)
-	/* Temporary for testing */
-	if o.Contains[consts.MAT_COAL] == nil {
-		o.Contains[consts.MAT_COAL] = &glob.MatData{}
-	}
-	o.Contains[consts.MAT_COAL].Type = consts.MAT_COAL
-	o.Contains[consts.MAT_COAL].TypeP = MatTypes[consts.MAT_COAL]
-	/* Temporary for testing */
+	input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
 
-	if o.Contains[consts.MAT_COAL].Amount < o.TypeP.CapacityKG {
-		o.Contains[consts.MAT_COAL].Amount += input
-	}
+	/* Temporary for testing */
+	if o.Contains != nil {
+		if o.Contains[consts.MAT_COAL] == nil {
+			o.Contains[consts.MAT_COAL] = &glob.MatData{}
+		}
+		o.Contains[consts.MAT_COAL].TypeP = MatTypes[consts.MAT_COAL]
+		/* Temporary for testing */
 
-	util.MoveMaterialOut(o)
+		if o.Contains[consts.MAT_COAL].Amount < o.TypeP.CapacityKG {
+			o.Contains[consts.MAT_COAL].Amount += input
+		}
+
+		util.MoveMaterialOut(o)
+	}
 }
 
 func SmelterUpdate(obj *glob.MObj) {
@@ -80,17 +82,16 @@ func SteamEngineUpdate(obj *glob.MObj) {
 }
 
 func BoxUpdate(obj *glob.MObj) {
-	for _, v := range obj.External {
+	for _, v := range obj.InputBuffer {
 		for mtype, m := range v {
 			if m == nil {
 				continue
 			}
 			if obj.Contains[mtype] != nil {
-				obj.Contains[mtype].Type = m.Type
 				obj.Contains[mtype].TypeP = m.TypeP
 				obj.Contains[mtype].Amount += m.Amount
 			} else {
-				obj.Contains[mtype] = &glob.MatData{Type: mtype, Amount: m.Amount}
+				obj.Contains[mtype] = &glob.MatData{TypeP: m.TypeP, Amount: m.Amount}
 			}
 			m.Amount = 0
 		}
@@ -108,15 +109,12 @@ func RunTicks() {
 			continue
 		}
 		if event.Target != nil {
-			for dir, dest := range event.Target.SendTo {
-				if dest != nil {
-					if !dest.Valid {
-						event.Target.SendTo[dir] = nil
-						fmt.Println("Deleted SendTo for invalid object.")
-						continue
-					}
-					util.MoveMaterialToObj(event.Target, dest, dir)
+			if event.Target.OutputObj != nil {
+				if !event.Target.OutputObj.Valid {
+					fmt.Println("Deleted OutputObj for invalid object.")
+					continue
 				}
+				util.OutputMaterial(event.Target)
 			}
 		}
 	}
@@ -144,7 +142,7 @@ func RunProcs() {
 		if event.Target.Valid {
 			event.Target.TypeP.ObjUpdate(event.Target)
 
-			ToProcQue(event.Target, WorldTick+uint64(event.Target.TypeP.ProcSeconds*float64(glob.LogicUPS)))
+			ToProcQue(event.Target, WorldTick+uint64(event.Target.TypeP.ProcessInterval)*uint64(glob.LogicUPS))
 			found = true
 		}
 	}
@@ -178,38 +176,41 @@ func RemoveProcQue(tick uint64, pos int) {
 	ProcList[tick] = append(ProcList[tick][:pos], ProcList[tick][pos+1:]...)
 }
 
-func LinkAll() {
-	for _, chunk := range glob.WorldMap {
-		for pos, obj := range chunk.MObj {
-			if obj.OutputDir > 0 {
-				destObj := util.GetNeighborObj(pos, obj.OutputDir)
-				obj.SendTo[obj.OutputDir] = destObj
-			}
-		}
-	}
-}
-
 func LinkObj(pos glob.Position, obj *glob.MObj) {
-	if obj.OutputDir > 0 {
+
+	//Link output
+	if obj.OutputDir > 0 && obj.TypeP.HasOutput {
 		fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
-		destObj := util.GetNeighborObj(pos, obj.OutputDir)
+		destObj := util.GetNeighborObj(&pos, obj.OutputDir)
+
 		if destObj != nil {
-			obj.SendTo[obj.OutputDir] = destObj
-			fmt.Println("Linked object: ", obj.Type, " to: ", destObj.Type)
+			obj.OutputObj = destObj
+			fmt.Println("Linked object: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		} else {
 			fmt.Println("Unable to find object to link to.")
 		}
 	}
 
-	for i := consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
+	//Link inputs
+	var i int
+	found := false
+	for i = consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
 		if i == obj.OutputDir {
 			continue
 		}
-		neigh := util.GetNeighborObj(pos, i)
+		neigh := util.GetNeighborObj(&pos, i)
 		if neigh != nil {
-			neigh.SendTo[util.ReverseDirection(i)] = obj
-			fmt.Println("Linked object REVERSE: ", obj.Type, " to: ", neigh.Type)
-			break
+
+			for _, v := range neigh.InputObjs {
+				if v == obj {
+					found = true
+				}
+			}
+			if !found {
+				neigh.InputObjs = append(neigh.InputObjs, obj)
+				fmt.Println("Linked object REVERSE: ", obj.TypeP.Name, " to: ", neigh.TypeP.Name)
+				break
+			}
 		} else {
 			fmt.Println("Unable to find object to reverse link to.")
 		}

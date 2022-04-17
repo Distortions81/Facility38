@@ -111,7 +111,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				continue
 			}
 
-			if glob.ShowAltView || o.Type == consts.ObjTypeBasicBelt {
+			if glob.ShowAltView || o.TypeP.Key == consts.ObjTypeBasicBelt {
 
 				xs := float64(o.TypeP.Size.X)
 				ys := float64(o.TypeP.Size.Y)
@@ -130,10 +130,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				op.GeoM.Scale(((xs)*glob.ZoomScale)/float64(iSize.Max.X), ((ys)*glob.ZoomScale)/float64(iSize.Max.Y))
 				op.GeoM.Translate(scrX, scrY)
 
-				if o.Type == consts.ObjTypeBasicBelt {
+				if o.TypeP.Key == consts.ObjTypeBasicBelt {
 					/* Draw Ext */
-					for _, c := range o.External {
-						for _, m := range c {
+
+					if o.OutputBuffer != nil {
+						for _, m := range o.OutputBuffer {
 							if m == nil {
 								continue
 							}
@@ -142,10 +143,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							}
 							img := m.TypeP.Image
 							if img != nil {
-								if m.GotDate.IsZero() {
-									continue
+								if m.TweenStamp.IsZero() {
+									m.TweenStamp = time.Now()
 								}
-								move := time.Since(m.GotDate).Microseconds()
+								move := time.Since(m.TweenStamp).Microseconds()
 								amount := (float64(move) / 1000.0) - 64.0
 								if amount > 128.0+128.0 {
 									amount = 128.0 + 128.0
@@ -155,29 +156,32 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 								screen.DrawImage(img, op)
 							} else {
-								fmt.Println("Mat image not found.", m.Type)
+								fmt.Println("Mat image not found.", m.TypeP.Name)
 							}
 						}
 					}
+
 				} else {
 					/* Draw contents */
-					for _, c := range o.Contains {
-						if c == nil {
-							continue
-						}
-						if c.Amount <= 0 {
-							continue
-						}
-						img := c.TypeP.Image
-						if img != nil {
-							screen.DrawImage(img, op)
-						} else {
-							fmt.Println("Mat image not found.", c.Type)
+					if o.Contains != nil {
+						for _, c := range o.Contains {
+							if c == nil {
+								continue
+							}
+							if c.Amount <= 0 {
+								continue
+							}
+							img := c.TypeP.Image
+							if img != nil {
+								screen.DrawImage(img, op)
+							} else {
+								fmt.Println("Mat image not found.", c.TypeP.Name)
+							}
 						}
 					}
 					/* Draw Ext */
-					for _, c := range o.External {
-						for _, m := range c {
+					if o.OutputBuffer != nil {
+						for _, m := range o.OutputBuffer {
 							if m == nil {
 								continue
 							}
@@ -188,13 +192,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							if img != nil {
 								screen.DrawImage(img, op)
 							} else {
-								fmt.Println("Mat image not found.", m.Type)
+								fmt.Println("Mat image not found.", m.TypeP.Name)
 							}
 						}
 					}
+
 				}
 
-				if o.TypeP.HasOutput && o.Type != consts.ObjTypeBasicBelt {
+				if o.TypeP.HasOutput && o.TypeP.Key != consts.ObjTypeBasicBelt {
 					/* Draw Arrow */
 					img := objects.ObjOverlayTypes[o.OutputDir].Image
 					if img != nil {
@@ -223,6 +228,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw toolbar */
+
 	for i := 0; i < objects.ToolbarMax; i++ {
 		DrawToolItem(screen, i)
 	}
@@ -242,7 +248,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		/* Draw tool tip */
 		pos := util.FloatXYToPosition(dtx, dty)
-		chunk := util.GetChunk(pos)
+		chunk := util.GetChunk(&pos)
 
 		toolTip := ""
 		found := false
@@ -251,27 +257,31 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", dtx, dty, o.TypeP.Name)
-				for _, c := range o.Contains {
-					if c == nil {
-						continue
-					}
-					if c.Amount == 0 {
-						continue
-					}
-					if c.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%vkg %v int) %v", c.Amount, c.TypeP.Name, c.TypeP.Name)
+				if o.Contains != nil {
+					for _, c := range o.Contains {
+						if c == nil {
+							continue
+						}
+						if c.Amount == 0 {
+							continue
+						}
+						if c.Amount > 0 {
+							toolTip += fmt.Sprintf(" (%vkg %v int) %v", c.Amount, c.TypeP.Name, c.TypeP.Name)
+						}
 					}
 				}
-				for _, c := range o.External {
-					for _, m := range c {
-						if m == nil {
-							continue
-						}
-						if m.Amount == 0 {
-							continue
-						}
-						if m.Amount > 0 {
-							toolTip += fmt.Sprintf(" (%vkg %v ext) %v", m.Amount, m.TypeP.Name, m.TypeP.Name)
+				if o.OutputBuffer != nil {
+					for _, c := range o.InputBuffer {
+						for _, m := range c {
+							if m == nil {
+								continue
+							}
+							if m.Amount == 0 {
+								continue
+							}
+							if m.Amount > 0 {
+								toolTip += fmt.Sprintf(" (%vkg %v ext) %v", m.Amount, m.TypeP.Name, m.TypeP.Name)
+							}
 						}
 					}
 				}
@@ -293,7 +303,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, o *glob.MObj) {
 
 	/* Skip if not visible */
-	if o.Type > consts.ObjTypeNone {
+	if o.TypeP.Key > consts.ObjTypeNone {
 
 		/* Draw sprite */
 		if o.TypeP.Image == nil {
@@ -310,6 +320,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float
 			}
 			screen.DrawImage(o.TypeP.Image, op)
 		}
+
 	} else {
 		fmt.Println("DrawObject: empty object encountered.")
 	}
@@ -319,7 +330,7 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 	temp := objects.ToolbarItems[pos]
 	item := temp.Link[temp.Key]
 
-	x := float64(consts.TBSize * pos)
+	x := float64(consts.TBSize * int(pos))
 
 	if item.Image == nil {
 		fmt.Println("DrawToolItem: nil ebiten.*image encountered:", item.Name)

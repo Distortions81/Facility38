@@ -8,14 +8,14 @@ import (
 var (
 
 	//Automatically set
-	GameTypeMax = 0
-	UITypeMax   = 0
-	MatTypeMax  = 0
-	ToolbarMax  = 0
-	OverlayMax  = 0
+	GameTypeMax int = 0
+	UITypeMax   int = 0
+	MatTypeMax  int = 0
+	ToolbarMax  int = 0
+	OverlayMax  int = 0
 
-	SelectedItemType = -1
-	ToolbarItems     = map[int]glob.ToolbarItem{}
+	SelectedItemType int = 0
+	ToolbarItems         = map[int]glob.ToolbarItem{}
 
 	UIObjsTypes = map[int]glob.ObjType{
 		//Ui Only
@@ -26,13 +26,13 @@ var (
 	GameObjTypes = map[int]glob.ObjType{
 		//Game Objects
 		consts.ObjTypeBasicMiner: {ImagePath: "world-obj/basic-miner.png",
-			Name:        "Basic miner",
-			Size:        glob.Position{X: 1, Y: 1},
-			ObjUpdate:   MinerUpdate,
-			MinerKGSec:  9,
-			ProcSeconds: 4,
-			CapacityKG:  500,
-			HasOutput:   true},
+			Name:            "Basic miner",
+			Size:            glob.Position{X: 1, Y: 1},
+			ObjUpdate:       MinerUpdate,
+			MinerKGSec:      9,
+			ProcessInterval: 4,
+			CapacityKG:      500,
+			HasOutput:       true},
 
 		consts.ObjTypeBasicBox: {ImagePath: "world-obj/basic-box.png",
 			Name:       "Basic box",
@@ -82,10 +82,13 @@ var (
 
 	MatTypes = map[int]glob.ObjType{
 		//Materials
-		consts.MAT_ERROR:   {Symbol: "?", ItemColor: &glob.ColorAqua, SymbolColor: &glob.ColorBlack, Name: "Error"},
-		consts.MAT_DEFAULT: {Symbol: "D", ItemColor: &glob.ColorAqua, SymbolColor: &glob.ColorBlack, Name: "Defalt"},
-		consts.MAT_COAL:    {ImagePath: "belt-obj/coal-ore.png", Name: "Coal Ore"},
-		consts.MAT_IRONORE: {ImagePath: "belt-obj/iron-ore.png", Name: "Iron Ore"},
+		consts.MAT_NONE: {Symbol: "?", ItemColor: &glob.ColorAqua, SymbolColor: &glob.ColorBlack, Name: "Error"},
+
+		consts.MAT_WOOD: {Symbol: "W", ItemColor: &glob.ColorBrown, SymbolColor: &glob.ColorBlack, Name: "Wood"},
+
+		consts.MAT_COAL: {ImagePath: "belt-obj/coal-ore.png", Name: "Coal Ore"},
+
+		consts.MAT_COPPER_ORE: {Symbol: "C", ItemColor: &glob.ColorDarkAqua, SymbolColor: &glob.ColorBlack, Name: "Copper Ore"},
 	}
 
 	SubTypes = map[int]map[int]glob.ObjType{

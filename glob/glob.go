@@ -24,23 +24,29 @@ type MapChunk struct {
 }
 
 type MObj struct {
-	Type  int     `json:"t,omitempty"`
 	TypeP ObjType `json:"-"`
 
-	External  [consts.DIR_MAX][consts.MAT_MAX]*MatData `json:"e,omitempty"`
-	Contains  [consts.MAT_MAX]*MatData                 `json:"c,omitempty"`
-	Product   [consts.MAT_MAX]*MatData                 `json:"p,omitempty"`
-	SendTo    [consts.DIR_MAX]*MObj                    `json:"-"`
-	OutputDir int                                      `json:"o,omitempty"`
+	OutputDir    int                       `json:"o,omitempty"`
+	OutputObj    *MObj                     `json:"-"`
+	OutputBuffer *[consts.MAT_MAX]*MatData `json:"b,omitempty"`
+
+	//Internal use
+	Contains *[consts.MAT_MAX]*MatData `json:"c,omitempty"`
+	KGHeld   uint64                    `json:"k,omitempty"`
+
+	//Input/Output
+	InputObjs   []*MObj                    `json:"-"`
+	InputBuffer [][consts.MAT_MAX]*MatData `json:"i,omitempty"`
 
 	Valid bool `json:"-"`
 }
 
 type MatData struct {
-	Type    int     `json:"m,omitempty"`
-	TypeP   ObjType `json:"-"`
-	Amount  int     `json:"a,omitempty"`
-	GotDate time.Time
+	TypeP  ObjType `json:"-"`
+	Obj    *MObj   `json:"-"`
+	Amount uint64  `json:"a,omitempty"`
+
+	TweenStamp time.Time
 }
 
 type Position struct {
@@ -50,6 +56,7 @@ type Position struct {
 type ObjType struct {
 	Name string
 
+	Key         int
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
@@ -59,12 +66,13 @@ type ObjType struct {
 	Image     *ebiten.Image
 
 	MinerKGSec float64
-	CapacityKG int
+	CapacityKG uint64
 
-	UIAction    func()
-	ObjUpdate   func(Obj *MObj)
-	ProcSeconds float64
-	HasOutput   bool
+	ProcessInterval int
+	HasOutput       bool
+
+	UIAction  func()
+	ObjUpdate func(Obj *MObj)
 }
 
 type ToolbarItem struct {
@@ -75,7 +83,6 @@ type ToolbarItem struct {
 
 type TickEvent struct {
 	Target *MObj
-	Dir    *int
 }
 
 type SaveMObj struct {
@@ -86,10 +93,9 @@ type SaveMObj struct {
 var (
 	WorldMapUpdateLock sync.Mutex
 	WorldMap           map[Position]*MapChunk
-	WorldMapDirty      bool
 	UpdateTook         time.Duration
 
-	XYEmpty = Position{X: -2147483648, Y: -2147483648}
+	XYEmpty = Position{X: 0, Y: 0}
 
 	//eBiten settings
 	ScreenWidth  int = 1280 //Screen width default
@@ -98,7 +104,7 @@ var (
 	//Game UPS rate
 	LogicUPS       = 4
 	GameLogicRate  = time.Duration((1000 / LogicUPS)) * time.Millisecond
-	GameLogicSleep = time.Millisecond * 10
+	GameLogicSleep = time.Millisecond * 1
 
 	//eBiten variables
 	ZoomMouse float64 = 1.0   //Zoom mouse
@@ -148,7 +154,6 @@ var (
 	ShowAltView bool = true
 	DrewStartup bool = false
 	DrewMap     bool = false
-	DrewMapInt  int  = 0
 
 	DetOS     string
 	StatusStr string = "Starting: " + consts.Version + "-" + consts.Build
