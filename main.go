@@ -37,7 +37,6 @@ func NewGame() *Game {
 
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build))
 	ebiten.SetWindowResizable(true)
-	ebiten.SetMaxTPS(60)
 
 	glob.DetOS = runtime.GOOS
 
