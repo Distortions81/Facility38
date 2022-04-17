@@ -5,6 +5,8 @@ DONT QUE TICK/PROC UNTIL NEEDED
 INCREASE PROC PERFORMANCE (TIMED)
 REMOVE OLD QUE CODE
 
+Possibly use a fixed number of buffers for belts, for the max number of items they can hold. Allows for more than one object of the same type as well
+
 
 Move tick/tock/proc lists to a map, where key is how many ticks before processing.
 Divide by number of entries, process X per tick. Store position in list.
