@@ -30,13 +30,7 @@ func GLogic() {
 
 		/* Calculate real frame time and adjust */
 		diff := start.Sub(lastUpdate)
-		delta := diff - glob.GameLogicRate_ns
 		glob.RealUPS = 1000000000.0 / float64(diff)
-
-		//Debug
-		if WorldTick%uint64(glob.LogicUPS) == 0 {
-			fmt.Printf("RealUPS: %.8f, delta: %v\n", glob.RealUPS, delta)
-		}
 
 		glob.WorldMapUpdateLock.Lock()
 
@@ -48,7 +42,7 @@ func GLogic() {
 
 		//If there is time left, sleep
 		frameTook := time.Since(start)
-		sleepFor := glob.GameLogicRate_ns - frameTook + (delta / 2)
+		sleepFor := glob.GameLogicRate_ns - frameTook
 		time.Sleep(sleepFor)
 	}
 }
