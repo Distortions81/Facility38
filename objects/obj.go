@@ -66,7 +66,7 @@ func MinerUpdate(o *glob.MObj) {
 		o.Contains[consts.MAT_COAL].Amount += input
 	}
 
-	//fmt.Println("Miner", o.TypeP.Name, "retrieved", o.Contains[consts.MAT_COAL].Amount, "coal")
+	fmt.Println("Miner", o.TypeP.Name, "retrieved", o.Contains[consts.MAT_COAL].Amount, "coal")
 	util.MoveMateriaslOut(o)
 }
 
@@ -100,8 +100,18 @@ func RunObjOutputs() {
 	each := (l / numWorkers)
 	p := 0
 
-	//fmt.Println("RunObjOutputs: ", len, " objects", each, " each")
+	if each < 1 {
+		each = l + 1
+		numWorkers = 1
+	} else {
+		fmt.Println("RunObjOutputs: ", l, " objects", each, " each")
+	}
 	for n := 0; n < numWorkers; n++ {
+		//Handle remainder on last worker
+		if n == numWorkers-1 {
+			each = l - p
+		}
+
 		wg.Add()
 		go func(start int, end int) {
 
@@ -129,8 +139,18 @@ func RunProcs() {
 	each := (l / numWorkers)
 	p := 0
 
-	//fmt.Println("RunProcs: ", len, " objects", each, " each")
+	if each < 1 {
+		each = l + 1
+		numWorkers = 1
+	} else {
+		fmt.Println("RunProcs: ", l, " objects", each, " each")
+	}
 	for n := 0; n < numWorkers; n++ {
+		//Handle remainder on last worker
+		if n == numWorkers-1 {
+			each = l - p
+		}
+
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
@@ -139,6 +159,7 @@ func RunProcs() {
 			wg.Done()
 		}(p, p+each)
 		p += each
+
 	}
 	wg.Wait()
 }
@@ -189,13 +210,13 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 
 	//Link output
 	if obj.OutputDir > 0 && obj.TypeP.HasOutput {
-		//fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
+		fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
 		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
 
 		if destObj != nil {
 			obj.OutputObj = destObj
 			QueAddRemoveEvent(obj, consts.QUEUE_TYPE_TICK, false)
-			//fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
+			fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		}
 	}
 
@@ -211,7 +232,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 			if !found {
 				neigh.OutputObj = obj
 				QueAddRemoveEvent(neigh, consts.QUEUE_TYPE_TICK, false)
-				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
+				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 				break
 			}
 		}
@@ -225,7 +246,7 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 	chunk := util.GetChunk(&pos)
 	if chunk == nil {
 		cpos := util.PosToChunkPos(&pos)
-		//fmt.Println("Made chunk:", cpos)
+		fmt.Println("Made chunk:", cpos)
 
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
@@ -255,12 +276,12 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 
 	//Put in chunk map
 	glob.WorldMap[util.PosToChunkPos(&pos)].MObj[pos] = obj
-	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
+	fmt.Println("Made obj:", pos, obj.TypeP.Name)
 	LinkObj(pos, obj)
 
 	if obj.TypeP.ObjUpdate != nil {
 		QueAddRemoveEvent(obj, consts.QUEUE_TYPE_PROC, false)
-		//fmt.Println("Added proc event for:", obj.TypeP.Name)
+		fmt.Println("Added proc event for:", obj.TypeP.Name)
 	}
 
 	return obj

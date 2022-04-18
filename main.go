@@ -120,7 +120,7 @@ func NewGame() *Game {
 				temp.Key = y
 				temp.Type = x
 				objects.ToolbarItems[z] = temp
-				//fmt.Println(link[y].Name)
+				fmt.Println(link[y].Name)
 				z++
 			}
 		}
@@ -141,34 +141,47 @@ func NewGame() *Game {
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
 	objects.ProcList = []glob.TickEvent{}
 
-	multi := 43
-	rows := 32 * multi
-	columns := 6 * multi
-	beltLength := 10
+	multi := 1
+	rows := 16 * multi
+	columns := 3 * multi
+	beltLength := 30
 	hSpace := 3
 
 	fmt.Println("Test items", rows*columns*beltLength)
 	time.Sleep(time.Second * 3)
 
 	//For testing
-	ty := int(glob.CameraY) - (rows)
-	cols := 0
-	for j := 0; j < rows*columns; j++ {
-		cols++
+	if 1 == 2 {
+		ty := int(glob.CameraY) - (rows)
+		cols := 0
+		for j := 0; j < rows*columns; j++ {
+			cols++
 
-		tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
-		objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+			tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
+			objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+			for i := 0; i < beltLength-hSpace; i++ {
+				tx++
+				objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt)
+			}
+			tx++
+			objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox)
+
+			if cols%columns == 0 {
+				ty += 2
+				cols = 0
+			}
+		}
+	} else if 1 == 1 {
+		tx := 1500
+		ty := 1500
+		objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
 		for i := 0; i < beltLength-hSpace; i++ {
 			tx++
-			objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt)
+			objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
 		}
 		tx++
-		objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox)
+		objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
 
-		if cols%columns == 0 {
-			ty += 2
-			cols = 0
-		}
 	}
 
 	//Game logic runs on its own thread

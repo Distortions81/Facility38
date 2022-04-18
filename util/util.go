@@ -55,7 +55,7 @@ func GetNeighborObj(src *glob.MObj, pos glob.Position, dir int) *glob.MObj {
 		pos.X--
 	}
 
-	//fmt.Println("Finding neighbor:", pos, dir)
+	fmt.Println("Finding neighbor:", pos, dir)
 
 	chunk := GetChunk(&pos)
 	obj := GetObj(&pos, chunk)
@@ -65,7 +65,7 @@ func GetNeighborObj(src *glob.MObj, pos glob.Position, dir int) *glob.MObj {
 	}
 
 	if chunk != nil && obj != nil {
-		//fmt.Println("Neighbor:", obj.TypeP.Name, pos)
+		fmt.Println("Neighbor:", obj.TypeP.Name, pos)
 	}
 	return obj
 }
@@ -116,7 +116,7 @@ func MoveMateriaslOut(obj *glob.MObj) {
 
 	for mtype, mat := range obj.Contains {
 		if mat != nil && mat.Amount > 0 {
-			//fmt.Println("mmo:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
+			fmt.Println("mmo:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
 
 			if obj.OutputBuffer[mtype] == nil {
 				obj.OutputBuffer[mtype] = &glob.MatData{}
@@ -141,7 +141,7 @@ func MoveMaterialsIn(obj *glob.MObj) {
 		for _, mats := range obj.InputBuffer {
 			for mtype, mat := range mats {
 				if mat != nil && mat.Amount > 0 {
-					//fmt.Println("mmi:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
+					fmt.Println("mmi:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
 
 					if obj.Contains[mtype] == nil {
 						obj.Contains[mtype] = &glob.MatData{}
