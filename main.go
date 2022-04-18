@@ -129,8 +129,8 @@ func NewGame() *Game {
 	//Boot Image
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
 
-	glob.CameraX = 1000
-	glob.CameraY = 1000
+	glob.CameraX = 1500
+	glob.CameraY = 1500
 	glob.BootImage.Fill(glob.BootColor)
 
 	str := "Starting up..."

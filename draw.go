@@ -6,6 +6,8 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
+	"math"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -87,6 +89,83 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			DrawObject(screen, objCamPosX, objCamPosY, obj)
 
+			/* Overlays */
+			if glob.ShowAltView || obj.TypeP.Key == consts.ObjTypeBasicBelt {
+
+				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+				op.GeoM.Reset()
+				iSize := obj.TypeP.Image.Bounds()
+				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+				op.GeoM.Translate(objCamPosX, objCamPosY)
+
+				if obj.TypeP.Key == consts.ObjTypeBasicBelt {
+
+					/* Draw Output Materials */
+					for _, m := range obj.OutputBuffer {
+						if m == nil {
+							continue
+						}
+						if m.Amount <= 0 {
+							continue
+						}
+						img := m.TypeP.Image
+						if img != nil {
+							if m.TweenStamp.IsZero() {
+								m.TweenStamp = time.Now()
+							}
+							move := time.Since(m.TweenStamp).Nanoseconds()
+							amount := (float64(move) / float64(glob.RealUPS_ns))
+
+							//Limit item movement, but go off end to smoothly transition between belts
+							if obj.OutputObj != nil {
+								if amount > 1 {
+									amount = 1
+								}
+							} else {
+								//If the belt is a dead end, stop before we go off
+								if amount > consts.HBeltLimitEnd {
+									amount = consts.HBeltLimitEnd
+								}
+							}
+
+							op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
+							screen.DrawImage(img, op)
+
+							//fmt.Println("Amount:", amount)
+						} else {
+							fmt.Println("Mat image not found.", m.TypeP.Name)
+						}
+					}
+
+				} else {
+					/* Draw contents */
+
+					for _, c := range obj.Contains {
+						if c == nil {
+							continue
+						}
+						if c.Amount <= 0 {
+							continue
+						}
+						img := c.TypeP.Image
+						if img != nil {
+							screen.DrawImage(img, op)
+						} else {
+							fmt.Println("Mat image not found.", c.TypeP.Name)
+						}
+					}
+				}
+
+				if obj.TypeP.HasOutput && obj.TypeP.Key != consts.ObjTypeBasicBelt {
+					/* Draw Arrow */
+					img := objects.ObjOverlayTypes[obj.OutputDir].Image
+					if img != nil {
+						screen.DrawImage(img, op)
+					} else {
+						fmt.Println("Arrow overlay image not found.")
+					}
+				}
+			}
 		}
 	}
 
