@@ -6,8 +6,6 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
-	"math"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -37,174 +35,60 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw start */
 	screen.Fill(glob.BGColor)
-	var sx, sy, ex, ey int
 
-	/* Get the camera position */
-	mainx := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
-	mainy := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
+	/* Adjust camerea position for zoom */
+	camXPos := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
+	camYPos := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
 
-	/* Calculate screen on world */
-	sx = int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
-	sy = int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
-	ex = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
-	ey = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
+	/* Get camera bounds */
+	camStartX := int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
+	camStarty := int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
+	camEndX := int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
+	camEndY := int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
 
-	/* Draw world */
-	cSkip := 0
-	oSkip := 0
+	/* Draw stats */
+	chunkSkip := 0
+	objSkip := 0
+	chunkCount := 0
+	objCount := 0
 
-	cCount := 0
-	oCount := 0
+	/* Pre-calc camera chunk position */
+	chunkStartX := camStartX / consts.ChunkSize
+	chunkStartY := camStarty / consts.ChunkSize
+	chunkEndX := camEndX / consts.ChunkSize
+	chunkEndY := camEndY / consts.ChunkSize
 
-	csx := sx / consts.ChunkSize
-	csy := sy / consts.ChunkSize
-	cex := ex / consts.ChunkSize
-	cey := ey / consts.ChunkSize
-
-	for ckey, chunk := range glob.WorldMap {
+	/*Draw world*/
+	for chunkPos, chunk := range glob.WorldMap {
 
 		//Is this chunk on the screen?
-		if ckey.X < csx || ckey.X > cex || ckey.Y < csy || ckey.Y > cey {
-			cSkip++
+		if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
+			chunkSkip++
 			continue
 		}
-		cCount++
+		chunkCount++
 
-		for mkey, mobj := range chunk.MObj {
+		for objPos, obj := range chunk.MObj {
 
 			//Is this object on the screen?
-			if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
-				oSkip++
+			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
+				objSkip++
 				continue
 			}
-
-			oCount++
+			objCount++
 
 			/* camera + object */
-			newx := mainx + (float64(mkey.X))
-			newy := mainy + (float64(mkey.Y))
+			objOffX := camXPos + (float64(objPos.X))
+			objOffY := camYPos + (float64(objPos.Y))
 
 			/* camera zoom */
-			scrX := newx * glob.ZoomScale
-			scrY := newy * glob.ZoomScale
+			objCamPosX := objOffX * glob.ZoomScale
+			objCamPosY := objOffY * glob.ZoomScale
 
-			DrawObject(screen, scrX, scrY, float64(mobj.TypeP.Size.X), float64(mobj.TypeP.Size.Y), mobj)
-
-		}
-	}
-
-	//Draw overlays, we should queue these in a list (if needed)
-	//This is a quick test fix
-	for ckey, chunk := range glob.WorldMap {
-
-		//Is this chunk on the screen?
-		if ckey.X < csx || ckey.X > cex || ckey.Y < csy || ckey.Y > cey {
-			cSkip++
-			continue
-		}
-		cCount++
-
-		for mkey, o := range chunk.MObj {
-
-			//Is this object on the screen?
-			if mkey.X < sx || mkey.X > ex || mkey.Y < sy || mkey.Y > ey {
-				oSkip++
-				continue
-			}
-
-			if glob.ShowAltView || o.TypeP.Key == consts.ObjTypeBasicBelt {
-
-				xs := float64(o.TypeP.Size.X)
-				ys := float64(o.TypeP.Size.Y)
-
-				/* camera + object */
-				newx := mainx + (float64(mkey.X))
-				newy := mainy + (float64(mkey.Y))
-
-				/* camera zoom */
-				scrX := newx * glob.ZoomScale
-				scrY := newy * glob.ZoomScale
-
-				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-				op.GeoM.Reset()
-				iSize := o.TypeP.Image.Bounds()
-				op.GeoM.Scale(((xs)*glob.ZoomScale)/float64(iSize.Max.X), ((ys)*glob.ZoomScale)/float64(iSize.Max.Y))
-				op.GeoM.Translate(scrX, scrY)
-
-				if o.TypeP.Key == consts.ObjTypeBasicBelt {
-					/* Draw Ext */
-
-					for _, m := range o.OutputBuffer {
-						if m == nil {
-							continue
-						}
-						if m.Amount <= 0 {
-							continue
-						}
-						img := m.TypeP.Image
-						if img != nil {
-							if m.TweenStamp.IsZero() {
-								m.TweenStamp = time.Now()
-							}
-							move := time.Since(m.TweenStamp).Nanoseconds()
-							amount := (float64(move) / float64(glob.RealUPS_ns))
-
-							//Limit item movement, but go off end to smoothly transition between belts
-							if o.OutputObj != nil {
-								if amount > 1 {
-									amount = 1
-								}
-							} else {
-								//If the belt is a dead end, stop before we go off
-								if amount > consts.HBeltLimitEnd {
-									amount = consts.HBeltLimitEnd
-								}
-							}
-
-							op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
-							screen.DrawImage(img, op)
-
-							//fmt.Println("Amount:", amount)
-						} else {
-							fmt.Println("Mat image not found.", m.TypeP.Name)
-						}
-					}
-
-				} else {
-					/* Draw contents */
-
-					for _, c := range o.Contains {
-						if c == nil {
-							continue
-						}
-						if c.Amount <= 0 {
-							continue
-						}
-						img := c.TypeP.Image
-						if img != nil {
-							screen.DrawImage(img, op)
-						} else {
-							fmt.Println("Mat image not found.", c.TypeP.Name)
-						}
-					}
-				}
-
-				if o.TypeP.HasOutput && o.TypeP.Key != consts.ObjTypeBasicBelt {
-					/* Draw Arrow */
-					img := objects.ObjOverlayTypes[o.OutputDir].Image
-					if img != nil {
-						screen.DrawImage(img, op)
-					} else {
-						fmt.Println("Arrow overlay image not found.")
-					}
-				}
-			}
+			DrawObject(screen, objCamPosX, objCamPosY, obj)
 
 		}
 	}
-
-	//fmt.Println("Chunks skipped:", cSkip, "Objects skipped:", oSkip)
-	//fmt.Println("Chunks drawn:", cCount, "Objects drawn:", oCount)
 
 	//Get mouse position on world
 	dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
@@ -215,13 +99,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
 		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v (v%v-%v)",
-				ebiten.CurrentFPS(), ebiten.CurrentTPS(), 1000000000.0/float64(glob.RealUPS_ns), glob.ZoomScale, consts.Version, consts.Build),
+			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v Draw: %v/%v Skip: %v/%v (v%v-%v)",
+				ebiten.CurrentFPS(), ebiten.CurrentTPS(), 1000000000.0/float64(glob.RealUPS_ns), glob.ZoomScale, chunkCount, objCount, chunkSkip, objSkip, consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}
 
 	/* Draw toolbar */
-
 	for i := 0; i < objects.ToolbarMax; i++ {
 		DrawToolItem(screen, i)
 	}
@@ -250,51 +133,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", dtx, dty, o.TypeP.Name)
-
-				for _, c := range o.Contains {
-					if c == nil {
-						continue
-					}
-					if c.Amount == 0 {
-						continue
-					}
-					if c.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%vkg %v cont) %v", c.Amount, c.TypeP.Name, c.TypeP.Name)
-					}
-				}
-
-				for _, m := range o.OutputBuffer {
-
-					if m == nil {
-						continue
-					}
-					if m.Amount == 0 {
-						continue
-					}
-					if m.Amount > 0 {
-						toolTip += fmt.Sprintf(" (%vkg %v out) %v", m.Amount, m.TypeP.Name, m.TypeP.Name)
-					}
-
-				}
-
-				for _, c := range o.InputBuffer {
-					for _, m := range c {
-						if m == nil {
-							continue
-						}
-						if m.Amount == 0 {
-							continue
-						}
-						if m.Amount > 0 {
-							toolTip += fmt.Sprintf(" (%vkg %v in) %v", m.Amount, m.TypeP.Name, m.TypeP.Name)
-						}
-					}
-				}
-
-				if o.OutputObj != nil {
-					toolTip += fmt.Sprintf(" Output To: %v (%v)", o.OutputObj.TypeP.Name, util.DirToName(o.OutputDir))
-				}
-
 			}
 		}
 
@@ -310,25 +148,25 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 }
 
-func DrawObject(screen *ebiten.Image, x float64, y float64, xs float64, ys float64, o *glob.MObj) {
+func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.MObj) {
 
 	/* Skip if not visible */
-	if o.TypeP.Key > consts.ObjTypeNone {
+	if obj.TypeP.Key > consts.ObjTypeNone {
 
 		/* Draw sprite */
-		if o.TypeP.Image == nil {
-			fmt.Println("DrawObject: nil ebiten.*image encountered:", o.TypeP.Name)
+		if obj.TypeP.Image == nil {
+			fmt.Println("DrawObject: nil ebiten.*image encountered:", obj.TypeP.Name)
 			return
 		} else {
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			op.GeoM.Reset()
-			iSize := o.TypeP.Image.Bounds()
-			op.GeoM.Scale(((xs)*glob.ZoomScale)/float64(iSize.Max.X), ((ys)*glob.ZoomScale)/float64(iSize.Max.Y))
+			iSize := obj.TypeP.Image.Bounds()
+			op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
 			op.GeoM.Translate(x, y)
 			if glob.ZoomScale < consts.SpriteScale {
 				op.Filter = ebiten.FilterLinear
 			}
-			screen.DrawImage(o.TypeP.Image, op)
+			screen.DrawImage(obj.TypeP.Image, op)
 		}
 
 	} else {
