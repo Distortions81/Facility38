@@ -34,7 +34,8 @@ const (
 	ObjTypeBasicIronCaster = 4
 	ObjTypeBasicBelt       = 5
 	ObjTypeBasicBeltVert   = 6
-	ObjTypeSteamEngine     = 7
+	ObjTypeBasicBoiler     = 7
+	ObjTypeSteamEngine     = 8
 
 	/*Materials
 	MAT_NONE     = 0

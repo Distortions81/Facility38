@@ -21,6 +21,7 @@ import (
 //go:embed gfx/belt-obj/iron-ore.png
 //go:embed gfx/world-obj/basic-box.png
 //go:embed gfx/world-obj/steam-engine.png
+//go:embed gfx/world-obj/basic-boiler.png
 
 //go:embed gfx/overlays/arrow-north.png
 //go:embed gfx/overlays/arrow-south.png

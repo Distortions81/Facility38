@@ -64,7 +64,11 @@ var (
 			CapacityKG: 20,
 			ObjUpdate:  BeltUpdate,
 			HasOutput:  true},
-
+		consts.ObjTypeBasicBoiler: {ImagePath: "world-obj/basic-boiler.png",
+			Name:       "Basic boiler",
+			Size:       glob.Position{X: 1, Y: 1},
+			CapacityKG: 500,
+			ObjUpdate:  SteamEngineUpdate},
 		consts.ObjTypeSteamEngine: {ImagePath: "world-obj/steam-engine.png",
 			Name:       "Steam engine",
 			Size:       glob.Position{X: 1, Y: 1},
