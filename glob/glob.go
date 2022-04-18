@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"sync"
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
@@ -103,9 +102,8 @@ type QueAddRemoveEventData struct {
 }
 
 var (
-	WorldMapUpdateLock sync.Mutex
-	WorldMap           map[Position]*MapChunk
-	UpdateTook         time.Duration
+	WorldMap   map[Position]*MapChunk
+	UpdateTook time.Duration
 
 	XYEmpty = Position{X: 0, Y: 0}
 
@@ -176,8 +174,6 @@ func SaveGame() {
 	tempPath := "save.dat.tmp"
 	finalPath := "save.dat"
 
-	WorldMapUpdateLock.Lock()
-
 	tempList := []*SaveMObj{}
 	for _, chunk := range WorldMap {
 		for pos, mObj := range chunk.MObj {
@@ -192,8 +188,6 @@ func SaveGame() {
 		fmt.Println(err)
 		return
 	}
-
-	WorldMapUpdateLock.Unlock()
 
 	_, err = os.Create(tempPath)
 

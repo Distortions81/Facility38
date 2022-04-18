@@ -32,16 +32,12 @@ func GLogic() {
 		/* Calculate real frame time and adjust */
 		glob.RealUPS_ns = start.Sub(lastUpdate) //Used for animation tweening
 
-		glob.WorldMapUpdateLock.Lock()
-
 		WorldTick++
 
-		ProcessAddDelObjQue()
-		ProcessAddDelEventQue()
 		RunObjOutputs() //Send to other objects
 		RunProcs()      //Process objects
-
-		glob.WorldMapUpdateLock.Unlock()
+		ProcessAddDelEventQue()
+		ProcessAddDelObjQue()
 
 		//If there is time left, sleep
 		frameTook := time.Since(start)
@@ -97,6 +93,9 @@ func RunObjOutputs() {
 	wg := sizedwaitgroup.New(numWorkers)
 
 	l := len(TickList) - 1
+	if l < 1 {
+		return
+	}
 	each := (l / numWorkers)
 	p := 0
 
@@ -109,7 +108,7 @@ func RunObjOutputs() {
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
 		if n == numWorkers-1 {
-			each = l - p
+			each = l + 1 - p
 		}
 
 		wg.Add()
@@ -136,6 +135,9 @@ func RunProcs() {
 	wg := sizedwaitgroup.New(numWorkers)
 
 	l := len(ProcList) - 1
+	if l < 1 {
+		return
+	}
 	each := (l / numWorkers)
 	p := 0
 
@@ -148,7 +150,7 @@ func RunProcs() {
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
 		if n == numWorkers-1 {
-			each = l - p
+			each = l + 1 - p
 		}
 
 		wg.Add()

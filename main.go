@@ -144,7 +144,7 @@ func NewGame() *Game {
 	multi := 1
 	rows := 16 * multi
 	columns := 3 * multi
-	beltLength := 30
+	beltLength := 10
 	hSpace := 3
 
 	fmt.Println("Test items", rows*columns*beltLength)
