@@ -96,6 +96,12 @@ type QueAddRemoveObjData struct {
 	Pos    *Position
 }
 
+type QueAddRemoveEventData struct {
+	Delete bool
+	Obj    *MObj
+	QType  int
+}
+
 var (
 	WorldMapUpdateLock sync.Mutex
 	WorldMap           map[Position]*MapChunk

@@ -17,7 +17,8 @@ var (
 	TickList []glob.TickEvent
 	ProcList []glob.TickEvent
 
-	AddRemoveObjList []*glob.QueAddRemoveObjData
+	AddRemoveObjList   []*glob.QueAddRemoveObjData
+	AddRemoveEventList []*glob.QueAddRemoveEventData
 )
 
 func GLogic() {
@@ -36,6 +37,7 @@ func GLogic() {
 		WorldTick++
 
 		ProcessAddDelObjQue()
+		ProcessAddDelEventQue()
 		RunObjOutputs() //Send to other objects
 		RunProcs()      //Process objects
 
@@ -149,19 +151,37 @@ func ToProcQue(target *glob.MObj) {
 	ProcList = append(ProcList, glob.TickEvent{Target: target})
 }
 
-func RemoveTickQue(pos int) {
-	if len(TickList) > 1 {
-		TickList = append(TickList[:pos], TickList[pos+1:]...)
-	} else {
-		TickList = nil
+func QueAddRemoveEvent(obj *glob.MObj, qtype int, delete bool) {
+	AddRemoveEventList = append(AddRemoveEventList, &glob.QueAddRemoveEventData{Obj: obj, QType: qtype, Delete: delete})
+}
+
+func RemoveTickQue(obj *glob.MObj) {
+
+	for i, e := range TickList {
+		if e.Target == obj {
+
+			if len(ProcList) > 1 {
+				TickList = append(TickList[:i], TickList[i+1:]...)
+			} else {
+				TickList = []glob.TickEvent{}
+			}
+			break
+		}
 	}
 }
 
-func RemoveProcQue(tick uint64, pos int) {
-	if len(ProcList) > 1 {
-		ProcList = append(ProcList[:pos], ProcList[pos+1:]...)
-	} else {
-		ProcList = []glob.TickEvent{}
+func RemoveProcQue(obj *glob.MObj) {
+
+	for i, e := range ProcList {
+		if e.Target == obj {
+
+			if len(ProcList) > 1 {
+				ProcList = append(ProcList[:i], ProcList[i+1:]...)
+			} else {
+				ProcList = []glob.TickEvent{}
+			}
+			break
+		}
 	}
 }
 
@@ -174,7 +194,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 
 		if destObj != nil {
 			obj.OutputObj = destObj
-			ToTickQue(obj)
+			QueAddRemoveEvent(obj, consts.QUEUE_TYPE_TICK, false)
 			//fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		}
 	}
@@ -190,7 +210,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 		if neigh != nil {
 			if !found {
 				neigh.OutputObj = obj
-				ToTickQue(neigh)
+				QueAddRemoveEvent(neigh, consts.QUEUE_TYPE_TICK, false)
 				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 				break
 			}
@@ -239,7 +259,7 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 	LinkObj(pos, obj)
 
 	if obj.TypeP.ObjUpdate != nil {
-		ToProcQue(obj)
+		QueAddRemoveEvent(obj, consts.QUEUE_TYPE_PROC, false)
 		//fmt.Println("Added proc event for:", obj.TypeP.Name)
 	}
 
@@ -247,7 +267,32 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 }
 
 func QueAddDelMObj(obj *glob.MObj, otype int, pos *glob.Position, delete bool) {
+	if delete {
+		QueAddRemoveEvent(obj, consts.QUEUE_TYPE_TICK, true)
+		QueAddRemoveEvent(obj, consts.QUEUE_TYPE_PROC, true)
+	}
 	AddRemoveObjList = append(AddRemoveObjList, &glob.QueAddRemoveObjData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
+}
+
+func ProcessAddDelEventQue() {
+	for _, e := range AddRemoveEventList {
+		if e.Delete {
+			switch e.QType {
+			case consts.QUEUE_TYPE_TICK:
+				RemoveTickQue(e.Obj)
+			case consts.QUEUE_TYPE_PROC:
+				RemoveProcQue(e.Obj)
+			}
+		} else {
+			switch e.QType {
+			case consts.QUEUE_TYPE_TICK:
+				ToTickQue(e.Obj)
+			case consts.QUEUE_TYPE_PROC:
+				ToProcQue(e.Obj)
+			}
+		}
+	}
+	AddRemoveEventList = []*glob.QueAddRemoveEventData{}
 }
 
 func ProcessAddDelObjQue() {

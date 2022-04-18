@@ -100,4 +100,8 @@ const (
 	COAL_KWH_MTON = 1927
 
 	TIMESCALE = 60 //1 Day passes in 24 minutes
+
+	QUEUE_TYPE_NONE = 0
+	QUEUE_TYPE_PROC = 1
+	QUEUE_TYPE_TICK = 2
 )
