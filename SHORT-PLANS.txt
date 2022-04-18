@@ -16,5 +16,26 @@ make item flags for proc/tick and input/output/contains, etc.
 
 
 
-
 REMOVE ALL UNEEDED CHECKS ONCE CODE IS GOOD!
+
+
+old embed data:
+//go:embed gfx/ui/save.png
+//go:embed gfx/ui/load.png
+
+//go:embed gfx/world-obj/basic-miner.png
+//go:embed gfx/world-obj/basic-smelter.png
+//go:embed gfx/world-obj/iron-rod-caster.png
+//go:embed gfx/world-obj/basic-belt.png
+//go:embed gfx/world-obj/basic-belt-vert.png
+//go:embed gfx/belt-obj/iron-ore.png
+//go:embed gfx/world-obj/basic-box.png
+//go:embed gfx/world-obj/steam-engine.png
+//go:embed gfx/world-obj/basic-boiler.png
+
+//go:embed gfx/overlays/arrow-north.png
+//go:embed gfx/overlays/arrow-south.png
+//go:embed gfx/overlays/arrow-east.png
+//go:embed gfx/overlays/arrow-west.png
+
+//go:embed gfx/belt-obj/coal-ore.png
