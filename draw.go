@@ -88,6 +88,31 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			objCamPosY := objOffY * glob.ZoomScale
 
 			DrawObject(screen, objCamPosX, objCamPosY, obj)
+		}
+	}
+
+	/* Draw overlays */
+	for chunkPos, chunk := range glob.WorldMap {
+
+		//Is this chunk on the screen?
+		if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
+			continue
+		}
+
+		for objPos, obj := range chunk.MObj {
+
+			//Is this object on the screen?
+			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
+				continue
+			}
+
+			/* camera + object */
+			objOffX := camXPos + (float64(objPos.X))
+			objOffY := camYPos + (float64(objPos.Y))
+
+			/* camera zoom */
+			objCamPosX := objOffX * glob.ZoomScale
+			objCamPosY := objOffY * glob.ZoomScale
 
 			/* Overlays */
 			if glob.ShowAltView || obj.TypeP.Key == consts.ObjTypeBasicBelt {
