@@ -19,6 +19,11 @@ make item flags for proc/tick and input/output/contains, etc.
 REMOVE ALL UNEEDED CHECKS ONCE CODE IS GOOD!
 
 
+****************************
+** FIX BELT MATS BLINKING **
+** DUE TO INPUT BUFFER    **
+****************************
+
 old embed data:
 //go:embed gfx/ui/save.png
 //go:embed gfx/ui/load.png

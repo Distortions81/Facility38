@@ -141,17 +141,18 @@ func NewGame() *Game {
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
 	objects.ProcList = []glob.TickEvent{}
 
-	multi := 1
+	multi := 100
 	rows := 16 * multi
 	columns := 3 * multi
 	beltLength := 10
 	hSpace := 3
 
-	fmt.Println("Test items", rows*columns*beltLength)
-	time.Sleep(time.Second * 3)
-
 	//For testing
-	if 1 == 2 {
+	if 1 == 1 {
+
+		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
+		time.Sleep(time.Second * 3)
+
 		ty := int(glob.CameraY) - (rows)
 		cols := 0
 		for j := 0; j < rows*columns; j++ {
@@ -171,7 +172,7 @@ func NewGame() *Game {
 				cols = 0
 			}
 		}
-	} else if 1 == 1 {
+	} else if 1 == 2 {
 		tx := 1500
 		ty := 1500
 		objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
