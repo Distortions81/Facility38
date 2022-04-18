@@ -140,22 +140,27 @@ func NewGame() *Game {
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
 	objects.ProcList = make(map[uint64][]glob.TickEvent)
 
+	rows := 32
+	columns := 6
+	beltLength := 10
+	hSpace := 3
+
 	//For testing
-	ty := 1000
+	ty := int(glob.CameraY) - (rows)
 	cols := 0
-	for j := 0; j < 100000; j++ {
+	for j := 0; j < rows*columns; j++ {
 		cols++
 
-		tx := 994
-		objects.MakeMObj(glob.Position{X: tx + (cols * 15), Y: ty}, consts.ObjTypeBasicMiner)
-		for i := 0; i < 10; i++ {
+		tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
+		objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+		for i := 0; i < beltLength-hSpace; i++ {
 			tx++
-			objects.MakeMObj(glob.Position{X: tx + (cols * 15), Y: ty}, consts.ObjTypeBasicBelt)
+			objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt)
 		}
 		tx++
-		objects.MakeMObj(glob.Position{X: tx + (cols * 15), Y: ty}, consts.ObjTypeBasicBox)
+		objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox)
 
-		if cols%100 == 0 {
+		if cols%columns == 0 {
 			ty += 2
 			cols = 0
 		}

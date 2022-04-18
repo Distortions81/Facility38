@@ -144,7 +144,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							//Limit item movement, but go off end to smoothly transition between belts
 							if obj.OutputObj != nil {
 								if amount > 1 {
-									amount = 1
+									amount = 1.5
 								}
 							} else {
 								//If the belt is a dead end, stop before we go off

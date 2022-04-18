@@ -220,11 +220,13 @@ func (g *Game) Update() error {
 						if time.Since(glob.LastActionTime) > glob.RemoveActionDelay {
 							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 
-								objects.QueAddDelMObj(o, 0, &pos, true)
-								//Action completed, save position and time
-								glob.LastObjPos = pos
-								glob.LastActionType = consts.DragActionTypeDelete
-								//glob.LastActionTime = time.Now()
+								if o != nil {
+									objects.QueAddDelMObj(o, 0, &pos, true)
+									//Action completed, save position and time
+									glob.LastObjPos = pos
+									glob.LastActionType = consts.DragActionTypeDelete
+									//glob.LastActionTime = time.Now()
+								}
 							}
 						}
 
