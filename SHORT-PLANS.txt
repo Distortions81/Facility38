@@ -24,6 +24,8 @@ REMOVE ALL UNEEDED CHECKS ONCE CODE IS GOOD!
 ** DUE TO INPUT BUFFER    **
 ****************************
 
+** Draw a ghost for pending delete/add object **
+
 old embed data:
 //go:embed gfx/ui/save.png
 //go:embed gfx/ui/load.png
