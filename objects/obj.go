@@ -5,14 +5,17 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"fmt"
+	"runtime"
 	"time"
+
+	"github.com/remeh/sizedwaitgroup"
 )
 
 var (
 	WorldTick uint64 = 0
 
 	TickList []glob.TickEvent
-	ProcList map[uint64][]glob.TickEvent
+	ProcList []glob.TickEvent
 
 	AddRemoveObjList []*glob.QueAddRemoveObjData
 )
@@ -88,74 +91,62 @@ func BoxUpdate(obj *glob.MObj) {
 
 //Send external to other objects
 func RunObjOutputs() {
-	//wg := sizedwaitgroup.New(runtime.NumCPU())
+	numWorkers := runtime.NumCPU()
+	wg := sizedwaitgroup.New(numWorkers)
 
-	for p, event := range TickList {
-		if !event.Target.Valid {
-			RemoveTickQue(p)
-			fmt.Println("Deleted eternal tick event for invalid object")
-			continue
-		}
-		if event.Target != nil {
-			if event.Target.OutputObj != nil {
-				if !event.Target.OutputObj.Valid {
-					fmt.Println("Deleted OutputObj for invalid object.")
-					event.Target.OutputObj = nil
-					continue
+	l := len(TickList) - 1
+	each := (l / numWorkers)
+	p := 0
+
+	//fmt.Println("RunObjOutputs: ", len, " objects", each, " each")
+	for n := 0; n < numWorkers; n++ {
+		wg.Add()
+		go func(start int, end int) {
+
+			for i := start; i < end; i++ {
+				if TickList[i].Target != nil {
+					if TickList[i].Target.OutputObj != nil {
+						util.OutputMaterial(TickList[i].Target)
+					}
 				}
-				util.OutputMaterial(event.Target)
+
 			}
-		}
+			wg.Done()
+		}(p, p+each)
+		p += each
 	}
+	wg.Wait()
 }
 
 //Process objects
 func RunProcs() {
-	found := false
-	count := 0
+	numWorkers := runtime.NumCPU()
+	wg := sizedwaitgroup.New(numWorkers)
 
-	//Processes these every tick
-	for key, event := range ProcList[0] {
-		count++
-		if event.Target.Valid {
-			//fmt.Println("Processed", event.Target.TypeP.Name)
-			event.Target.TypeP.ObjUpdate(event.Target)
-		} else {
-			//Delete eternal events if object was invalidated
-			if len(ProcList[0]) > 1 {
-				ProcList[0] = append(ProcList[0][:key], ProcList[0][key+1:]...)
-			} else {
-				delete(ProcList, 0)
+	l := len(ProcList) - 1
+	each := (l / numWorkers)
+	p := 0
+
+	//fmt.Println("RunProcs: ", len, " objects", each, " each")
+	for n := 0; n < numWorkers; n++ {
+		wg.Add()
+		go func(start int, end int) {
+			for i := start; i < end; i++ {
+				ProcList[i].Target.TypeP.ObjUpdate(ProcList[i].Target)
 			}
-			fmt.Println("Deleted eternal proc event for invalid object")
-		}
+			wg.Done()
+		}(p, p+each)
+		p += each
 	}
-
-	//Process these at specific intervals
-	for _, event := range ProcList[WorldTick] {
-		count++
-		found = true
-
-		//Process
-		if event.Target.Valid {
-			event.Target.TypeP.ObjUpdate(event.Target)
-
-			//fmt.Println("Processed", event.Target.TypeP.Name)
-			ToProcQue(event.Target, WorldTick+event.Target.TypeP.ProcessInterval)
-		}
-	}
-	if found {
-		//fmt.Println("Deleted procs for ", WorldTick)
-		delete(ProcList, WorldTick)
-	}
+	wg.Wait()
 }
 
 func ToTickQue(target *glob.MObj) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
 }
 
-func ToProcQue(target *glob.MObj, tick uint64) {
-	ProcList[tick] = append(ProcList[tick], glob.TickEvent{Target: target})
+func ToProcQue(target *glob.MObj) {
+	ProcList = append(ProcList, glob.TickEvent{Target: target})
 }
 
 func RemoveTickQue(pos int) {
@@ -167,10 +158,10 @@ func RemoveTickQue(pos int) {
 }
 
 func RemoveProcQue(tick uint64, pos int) {
-	if len(ProcList[tick]) > 1 {
-		ProcList[tick] = append(ProcList[tick][:pos], ProcList[tick][pos+1:]...)
+	if len(ProcList) > 1 {
+		ProcList = append(ProcList[:pos], ProcList[pos+1:]...)
 	} else {
-		delete(ProcList, tick)
+		ProcList = []glob.TickEvent{}
 	}
 }
 
@@ -178,13 +169,13 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 
 	//Link output
 	if obj.OutputDir > 0 && obj.TypeP.HasOutput {
-		fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
+		//fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
 		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
 
 		if destObj != nil {
 			obj.OutputObj = destObj
 			ToTickQue(obj)
-			fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
+			//fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		}
 	}
 
@@ -200,7 +191,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 			if !found {
 				neigh.OutputObj = obj
 				ToTickQue(neigh)
-				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
+				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 				break
 			}
 		}
@@ -214,7 +205,7 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 	chunk := util.GetChunk(&pos)
 	if chunk == nil {
 		cpos := util.PosToChunkPos(&pos)
-		fmt.Println("Made chunk:", cpos)
+		//fmt.Println("Made chunk:", cpos)
 
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
@@ -244,18 +235,12 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 
 	//Put in chunk map
 	glob.WorldMap[util.PosToChunkPos(&pos)].MObj[pos] = obj
-	fmt.Println("Made obj:", pos, obj.TypeP.Name)
+	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
 	LinkObj(pos, obj)
 
 	if obj.TypeP.ObjUpdate != nil {
-		if obj.TypeP.ProcessInterval > 0 {
-			//Process on a specifc ticks
-			ToProcQue(obj, WorldTick+1+obj.TypeP.ProcessInterval)
-		} else {
-			//Eternal
-			ToProcQue(obj, 0)
-		}
-		fmt.Println("Added proc event for:", obj.TypeP.Name)
+		ToProcQue(obj)
+		//fmt.Println("Added proc event for:", obj.TypeP.Name)
 	}
 
 	return obj

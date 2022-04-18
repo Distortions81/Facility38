@@ -65,7 +65,7 @@ func GetNeighborObj(src *glob.MObj, pos glob.Position, dir int) *glob.MObj {
 	}
 
 	if chunk != nil && obj != nil {
-		fmt.Println("Neighbor:", obj.TypeP.Name, pos)
+		//fmt.Println("Neighbor:", obj.TypeP.Name, pos)
 	}
 	return obj
 }

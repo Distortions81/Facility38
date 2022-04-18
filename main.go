@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
@@ -138,12 +139,16 @@ func NewGame() *Game {
 	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
 
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
-	objects.ProcList = make(map[uint64][]glob.TickEvent)
+	objects.ProcList = []glob.TickEvent{}
 
-	rows := 32
-	columns := 6
+	multi := 43
+	rows := 32 * multi
+	columns := 6 * multi
 	beltLength := 10
 	hSpace := 3
+
+	fmt.Println("Test items", rows*columns*beltLength)
+	time.Sleep(time.Second * 3)
 
 	//For testing
 	ty := int(glob.CameraY) - (rows)
