@@ -22,6 +22,8 @@ REMOVE ALL UNEEDED CHECKS ONCE CODE IS GOOD!
 ****************************
 ** FIX BELT MATS BLINKING **
 ** DUE TO INPUT BUFFER    **
+
+either check both buffers, keep a special index... or tween farther
 ****************************
 
 ** Draw a ghost for pending delete/add object **
