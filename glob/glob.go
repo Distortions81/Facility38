@@ -18,15 +18,15 @@ import (
 )
 
 type MapChunk struct {
-	MObj map[Position]*MObj
-	CObj map[Position]*MObj //Map for oversize objects
+	WObject map[Position]*WObject
+	CObj    map[Position]*WObject //Map for multi-tile objects
 }
 
-type MObj struct {
+type WObject struct {
 	TypeP ObjType `json:"-"`
 
 	OutputDir    int                      `json:"o,omitempty"`
-	OutputObj    *MObj                    `json:"-"`
+	OutputObj    *WObject                 `json:"-"`
 	OutputBuffer [consts.MAT_MAX]*MatData `json:"b,omitempty"`
 
 	//Internal useW
@@ -34,14 +34,13 @@ type MObj struct {
 	KGHeld   uint64                   `json:"k,omitempty"`
 
 	//Input/Output
-	InputBuffer map[*MObj]*[consts.MAT_MAX]*MatData `json:"i,omitempty"`
+	InputBuffer map[*WObject]*[consts.MAT_MAX]*MatData `json:"i,omitempty"`
 
 	Valid bool `json:"-"`
 }
 
 type MatData struct {
 	TypeP  ObjType `json:"-"`
-	Obj    *MObj   `json:"-"`
 	Amount uint64  `json:"a,omitempty"`
 
 	TweenStamp time.Time
@@ -67,10 +66,11 @@ type ObjType struct {
 	CapacityKG uint64
 
 	ProcessInterval uint64
-	HasOutput       bool
+	HasMatOutput    bool
+	HasMatInput     bool
 
-	UIAction  func()
-	ObjUpdate func(Obj *MObj)
+	ToolbarAction func()
+	UpdateObj     func(Obj *WObject)
 }
 
 type ToolbarItem struct {
@@ -80,24 +80,24 @@ type ToolbarItem struct {
 }
 
 type TickEvent struct {
-	Target *MObj
+	Target *WObject
 }
 
 type SaveMObj struct {
-	O *MObj
+	O *WObject
 	P Position
 }
 
-type QueAddRemoveObjData struct {
+type ObjectHitlistData struct {
 	Delete bool
-	Obj    *MObj
+	Obj    *WObject
 	OType  int
 	Pos    *Position
 }
 
-type QueAddRemoveEventData struct {
+type EventHitlistData struct {
 	Delete bool
-	Obj    *MObj
+	Obj    *WObject
 	QType  int
 }
 
@@ -112,9 +112,9 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	LogicUPS         = 4.0
-	GameLogicRate_ns = time.Duration((1000000000.0 / LogicUPS))
-	RealUPS_ns       = GameLogicRate_ns
+	ObjectUPS            = 4.0
+	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
+	MeasuredObjectUPS_ns = ObjectUPS_ns
 
 	//eBiten variables
 	ZoomMouse float64 = 1.0   //Zoom mouse
@@ -123,36 +123,36 @@ var (
 
 	BootImage *ebiten.Image //Boot image
 
-	BootFont font.Face
-	TipFont  font.Face
-	ItemFont font.Face
+	BootFont    font.Face
+	ToolTipFont font.Face
+	ObjectFont  font.Face
 
 	CameraX float64 = 0
 	CameraY float64 = 0
 
 	//Mouse vars
-	MousePosX  float64 = 0
-	MousePosY  float64 = 0
-	LastMouseX float64 = 0
-	LastMouseY float64 = 0
+	MouseX     float64 = 0
+	MouseY     float64 = 0
+	PrevMouseX float64 = 0
+	PrevMouseY float64 = 0
 
 	//Last object we performed an action on
 	//Used for click-drag
-	LastObjPos        Position
-	LastActionTime    time.Time
-	BuildActionDelay  time.Duration = time.Millisecond * 125
-	RemoveActionDelay time.Duration = time.Millisecond * 500
-	LastActionType    int           = 0
+	LastActionPosition Position
+	LastActionTime     time.Time
+	BuildActionDelay   time.Duration = time.Millisecond * 125
+	RemoveActionDelay  time.Duration = time.Millisecond * 500
+	LastActionType     int           = 0
 
 	//Touch vars
-	LastTouchX int     = 0
-	LastTouchY int     = 0
-	LastTouchA int     = 0
-	LastTouchB int     = 0
-	LastPinch  float64 = 0
+	PrevTouchX int     = 0
+	PrevTouchY int     = 0
+	PrevTouchA int     = 0
+	PrevTouchB int     = 0
+	PrevPinch  float64 = 0
 
 	//Setup latches
-	SetupMouse = false
+	InitMouse  = false
 	InitCamera = false
 
 	MousePressed      bool = false
@@ -161,12 +161,12 @@ var (
 	PinchPressed      bool = false
 	ShiftPressed      bool = false
 
-	ShowAltView bool = true
-	DrewStartup bool = false
-	DrewMap     bool = false
+	ShowInfoLayer bool = true
+	DrewStartup   bool = false
+	DrewMap       bool = false
 
-	DetOS     string
-	StatusStr string = "Starting: " + consts.Version + "-" + consts.Build
+	DetectedOS string
+	StatusStr  string = "Starting: " + consts.Version + "-" + consts.Build
 )
 
 func SaveGame() {
@@ -176,7 +176,7 @@ func SaveGame() {
 
 	tempList := []*SaveMObj{}
 	for _, chunk := range WorldMap {
-		for pos, mObj := range chunk.MObj {
+		for pos, mObj := range chunk.WObject {
 			tempList = append(tempList, &SaveMObj{mObj, pos})
 		}
 	}

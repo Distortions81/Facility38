@@ -15,13 +15,13 @@ var (
 	WorldTick uint64 = 0
 
 	TickList []glob.TickEvent
-	ProcList []glob.TickEvent
+	TockList []glob.TickEvent
 
-	AddRemoveObjList   []*glob.QueAddRemoveObjData
-	AddRemoveEventList []*glob.QueAddRemoveEventData
+	ObjectHitlist []*glob.ObjectHitlistData
+	EventHitlist  []*glob.EventHitlistData
 )
 
-func GLogic() {
+func TickTockLoop() {
 	lastUpdate := time.Time{}
 	start := time.Now()
 
@@ -30,23 +30,23 @@ func GLogic() {
 		start = time.Now()
 
 		/* Calculate real frame time and adjust */
-		glob.RealUPS_ns = start.Sub(lastUpdate) //Used for animation tweening
+		glob.MeasuredObjectUPS_ns = start.Sub(lastUpdate) //Used for animation tweening
 
 		WorldTick++
 
-		RunObjOutputs() //Send to other objects
-		RunProcs()      //Process objects
-		ProcessAddDelEventQue()
-		ProcessAddDelObjQue()
+		runTicks() //Send to other objects
+		runTocks() //Process objects
+		runEventHitlist()
+		runObjectHitlist()
 
 		//If there is time left, sleep
 		frameTook := time.Since(start)
-		sleepFor := glob.GameLogicRate_ns - frameTook
+		sleepFor := glob.ObjectUPS_ns - frameTook
 		time.Sleep(sleepFor)
 	}
 }
 
-func MinerUpdate(o *glob.MObj) {
+func MinerUpdate(o *glob.WObject) {
 
 	input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
 
@@ -66,29 +66,29 @@ func MinerUpdate(o *glob.MObj) {
 	util.MoveMateriaslOut(o)
 }
 
-func SmelterUpdate(obj *glob.MObj) {
+func SmelterUpdate(obj *glob.WObject) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func IronCasterUpdate(obj *glob.MObj) {
+func IronCasterUpdate(obj *glob.WObject) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func BeltUpdate(obj *glob.MObj) {
+func BeltUpdate(obj *glob.WObject) {
 	util.MoveMaterialsAlong(obj)
 }
 
-func SteamEngineUpdate(obj *glob.MObj) {
+func SteamEngineUpdate(obj *glob.WObject) {
 }
 
-func BoxUpdate(obj *glob.MObj) {
+func BoxUpdate(obj *glob.WObject) {
 	util.MoveMaterialsIn(obj)
 }
 
 //Send external to other objects
-func RunObjOutputs() {
+func runTicks() {
 	numWorkers := runtime.NumCPU()
 	wg := sizedwaitgroup.New(numWorkers)
 
@@ -103,7 +103,7 @@ func RunObjOutputs() {
 		each = l + 1
 		numWorkers = 1
 	} else {
-		fmt.Println("RunObjOutputs: ", l, " objects", each, " each")
+		fmt.Println("runTicks: ", l, " objects", each, " each")
 	}
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
@@ -130,11 +130,11 @@ func RunObjOutputs() {
 }
 
 //Process objects
-func RunProcs() {
+func runTocks() {
 	numWorkers := runtime.NumCPU()
 	wg := sizedwaitgroup.New(numWorkers)
 
-	l := len(ProcList) - 1
+	l := len(TockList) - 1
 	if l < 1 {
 		return
 	}
@@ -145,7 +145,7 @@ func RunProcs() {
 		each = l + 1
 		numWorkers = 1
 	} else {
-		fmt.Println("RunProcs: ", l, " objects", each, " each")
+		fmt.Println("runTocks: ", l, " objects", each, " each")
 	}
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
@@ -156,7 +156,7 @@ func RunProcs() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				ProcList[i].Target.TypeP.ObjUpdate(ProcList[i].Target)
+				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)
@@ -166,24 +166,24 @@ func RunProcs() {
 	wg.Wait()
 }
 
-func ToTickQue(target *glob.MObj) {
+func ticklistAdd(target *glob.WObject) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
 }
 
-func ToProcQue(target *glob.MObj) {
-	ProcList = append(ProcList, glob.TickEvent{Target: target})
+func tockListAdd(target *glob.WObject) {
+	TockList = append(TockList, glob.TickEvent{Target: target})
 }
 
-func QueAddRemoveEvent(obj *glob.MObj, qtype int, delete bool) {
-	AddRemoveEventList = append(AddRemoveEventList, &glob.QueAddRemoveEventData{Obj: obj, QType: qtype, Delete: delete})
+func eventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
+	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
 }
 
-func RemoveTickQue(obj *glob.MObj) {
+func ticklistRemove(obj *glob.WObject) {
 
 	for i, e := range TickList {
 		if e.Target == obj {
 
-			if len(ProcList) > 1 {
+			if len(TockList) > 1 {
 				TickList = append(TickList[:i], TickList[i+1:]...)
 			} else {
 				TickList = []glob.TickEvent{}
@@ -193,31 +193,31 @@ func RemoveTickQue(obj *glob.MObj) {
 	}
 }
 
-func RemoveProcQue(obj *glob.MObj) {
+func tocklistRemove(obj *glob.WObject) {
 
-	for i, e := range ProcList {
+	for i, e := range TockList {
 		if e.Target == obj {
 
-			if len(ProcList) > 1 {
-				ProcList = append(ProcList[:i], ProcList[i+1:]...)
+			if len(TockList) > 1 {
+				TockList = append(TockList[:i], TockList[i+1:]...)
 			} else {
-				ProcList = []glob.TickEvent{}
+				TockList = []glob.TickEvent{}
 			}
 			break
 		}
 	}
 }
 
-func LinkObj(pos glob.Position, obj *glob.MObj) {
+func LinkObj(pos glob.Position, obj *glob.WObject) {
 
 	//Link output
-	if obj.OutputDir > 0 && obj.TypeP.HasOutput {
+	if obj.OutputDir > 0 && obj.TypeP.HasMatOutput {
 		fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
 		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
 
 		if destObj != nil {
 			obj.OutputObj = destObj
-			QueAddRemoveEvent(obj, consts.QUEUE_TYPE_TICK, false)
+			eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
 			fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		}
 	}
@@ -226,14 +226,14 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 	var i int
 	found := false
 	for i = consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
-		if obj.TypeP.HasOutput && i == obj.OutputDir {
+		if obj.TypeP.HasMatOutput && i == obj.OutputDir {
 			continue
 		}
 		neigh := util.GetNeighborObj(obj, pos, i)
 		if neigh != nil {
 			if !found {
 				neigh.OutputObj = obj
-				QueAddRemoveEvent(neigh, consts.QUEUE_TYPE_TICK, false)
+				eventHitlistAdd(neigh, consts.QUEUE_TYPE_TICK, false)
 				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 				break
 			}
@@ -242,7 +242,7 @@ func LinkObj(pos glob.Position, obj *glob.MObj) {
 
 }
 
-func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
+func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 
 	//Make chunk if needed
 	chunk := util.GetChunk(&pos)
@@ -252,17 +252,17 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
-		chunk.MObj = make(map[glob.Position]*glob.MObj)
+		chunk.WObject = make(map[glob.Position]*glob.WObject)
 	}
 
-	obj := chunk.MObj[pos]
+	obj := chunk.WObject[pos]
 
 	if obj != nil {
 		fmt.Println("Object already exists at:", pos)
 		return nil
 	}
 
-	obj = &glob.MObj{}
+	obj = &glob.WObject{}
 
 	obj.TypeP = GameObjTypes[mtype]
 
@@ -271,56 +271,56 @@ func MakeMObj(pos glob.Position, mtype int) *glob.MObj {
 
 	obj.Contains = [consts.MAT_MAX]*glob.MatData{}
 
-	obj.InputBuffer = make(map[*glob.MObj]*[consts.MAT_MAX]*glob.MatData)
+	obj.InputBuffer = make(map[*glob.WObject]*[consts.MAT_MAX]*glob.MatData)
 
 	obj.OutputDir = consts.DIR_EAST
 	obj.Valid = true
 
 	//Put in chunk map
-	glob.WorldMap[util.PosToChunkPos(&pos)].MObj[pos] = obj
+	glob.WorldMap[util.PosToChunkPos(&pos)].WObject[pos] = obj
 	fmt.Println("Made obj:", pos, obj.TypeP.Name)
 	LinkObj(pos, obj)
 
-	if obj.TypeP.ObjUpdate != nil {
-		QueAddRemoveEvent(obj, consts.QUEUE_TYPE_PROC, false)
+	if obj.TypeP.UpdateObj != nil {
+		eventHitlistAdd(obj, consts.QUEUE_TYPE_PROC, false)
 		fmt.Println("Added proc event for:", obj.TypeP.Name)
 	}
 
 	return obj
 }
 
-func QueAddDelMObj(obj *glob.MObj, otype int, pos *glob.Position, delete bool) {
+func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.Position, delete bool) {
 	if delete {
-		QueAddRemoveEvent(obj, consts.QUEUE_TYPE_TICK, true)
-		QueAddRemoveEvent(obj, consts.QUEUE_TYPE_PROC, true)
+		eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, true)
+		eventHitlistAdd(obj, consts.QUEUE_TYPE_PROC, true)
 	}
-	AddRemoveObjList = append(AddRemoveObjList, &glob.QueAddRemoveObjData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
+	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
 }
 
-func ProcessAddDelEventQue() {
-	for _, e := range AddRemoveEventList {
+func runEventHitlist() {
+	for _, e := range EventHitlist {
 		if e.Delete {
 			switch e.QType {
 			case consts.QUEUE_TYPE_TICK:
-				RemoveTickQue(e.Obj)
+				ticklistRemove(e.Obj)
 			case consts.QUEUE_TYPE_PROC:
-				RemoveProcQue(e.Obj)
+				tocklistRemove(e.Obj)
 			}
 		} else {
 			switch e.QType {
 			case consts.QUEUE_TYPE_TICK:
-				ToTickQue(e.Obj)
+				ticklistAdd(e.Obj)
 			case consts.QUEUE_TYPE_PROC:
-				ToProcQue(e.Obj)
+				tockListAdd(e.Obj)
 			}
 		}
 	}
-	AddRemoveEventList = []*glob.QueAddRemoveEventData{}
+	EventHitlist = []*glob.EventHitlistData{}
 }
 
-func ProcessAddDelObjQue() {
+func runObjectHitlist() {
 
-	for _, item := range AddRemoveObjList {
+	for _, item := range ObjectHitlist {
 		if item.Delete {
 			if item.Obj != nil {
 				//Delete
@@ -329,40 +329,15 @@ func ProcessAddDelObjQue() {
 					fmt.Println("Deleted:", item.Obj.TypeP.Name)
 				}
 			}
-			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].MObj, *item.Pos)
+			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].WObject, *item.Pos)
 
 		} else {
 			//Add
-			obj := MakeMObj(*item.Pos, item.OType)
+			obj := CreateObj(*item.Pos, item.OType)
 			if obj != nil {
 				fmt.Println("Added:", obj.TypeP.Name)
 			}
 		}
 	}
-	AddRemoveObjList = []*glob.QueAddRemoveObjData{}
-}
-
-func DeleteMObj(obj *glob.MObj, pos *glob.Position) {
-	if obj == nil || !obj.Valid {
-		fmt.Println("DeleteMObj: NIL or invalid object supplied.", pos)
-		return
-	}
-
-	chunk := util.GetChunk(pos)
-	if chunk == nil {
-		fmt.Println("DeleteMObj: No chunk found for: ", pos)
-		return
-	}
-
-	//Delete object
-	obj.Valid = false
-	delete(chunk.MObj, *pos)
-	fmt.Println("Object deleted:", pos, obj.TypeP.Name)
-
-	//Delete chunk if empty
-	if len(chunk.MObj) <= 0 {
-		cpos := util.PosToChunkPos(pos)
-		fmt.Println("Chunk deleted:", cpos)
-		delete(glob.WorldMap, cpos)
-	}
+	ObjectHitlist = []*glob.ObjectHitlistData{}
 }

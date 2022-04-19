@@ -18,9 +18,9 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 	return (x1 + x2) / 2, (y1 + y2) / 2
 }
 
-func GetObj(pos *glob.Position, chunk *glob.MapChunk) *glob.MObj {
+func GetObj(pos *glob.Position, chunk *glob.MapChunk) *glob.WObject {
 	if chunk != nil {
-		o := chunk.MObj[*pos]
+		o := chunk.WObject[*pos]
 		return o
 	} else {
 		return nil
@@ -42,7 +42,7 @@ func FloatXYToPosition(x float64, y float64) glob.Position {
 	return glob.Position{X: int(x), Y: int(y)}
 }
 
-func GetNeighborObj(src *glob.MObj, pos glob.Position, dir int) *glob.MObj {
+func GetNeighborObj(src *glob.WObject, pos glob.Position, dir int) *glob.WObject {
 
 	switch dir {
 	case consts.DIR_NORTH:
@@ -70,7 +70,7 @@ func GetNeighborObj(src *glob.MObj, pos glob.Position, dir int) *glob.MObj {
 	return obj
 }
 
-func OutputMaterial(src *glob.MObj) {
+func OutputMaterial(src *glob.WObject) {
 
 	if src == nil || src.OutputObj == nil ||
 		!src.Valid || !src.OutputObj.Valid {
@@ -96,7 +96,6 @@ func OutputMaterial(src *glob.MObj) {
 				}
 				dest.InputBuffer[src][mtype].Amount += mat.Amount
 				dest.InputBuffer[src][mtype].TypeP = mat.TypeP
-				dest.InputBuffer[src][mtype].Obj = mat.Obj
 				mat.Amount = 0
 			}
 		}
@@ -107,7 +106,7 @@ func OutputMaterial(src *glob.MObj) {
 }
 
 //These are dedicated buffers for multithreading
-func MoveMateriaslOut(obj *glob.MObj) {
+func MoveMateriaslOut(obj *glob.WObject) {
 
 	if obj == nil || !obj.Valid {
 		fmt.Println("MoveMaterialOut: Invalid object")
@@ -123,14 +122,13 @@ func MoveMateriaslOut(obj *glob.MObj) {
 			}
 			obj.OutputBuffer[mtype].Amount += mat.Amount
 			obj.OutputBuffer[mtype].TypeP = mat.TypeP
-			obj.OutputBuffer[mtype].Obj = mat.Obj
 
 			mat.Amount = 0
 		}
 	}
 }
 
-func MoveMaterialsIn(obj *glob.MObj) {
+func MoveMaterialsIn(obj *glob.WObject) {
 	if obj == nil || !obj.Valid {
 		fmt.Println("MoveMaterialIn: Invalid object")
 		return
@@ -148,7 +146,6 @@ func MoveMaterialsIn(obj *glob.MObj) {
 					}
 					obj.Contains[mtype].Amount += mat.Amount
 					obj.Contains[mtype].TypeP = mat.TypeP
-					obj.Contains[mtype].Obj = mat.Obj
 
 					mat.Amount = 0
 				}
@@ -157,7 +154,7 @@ func MoveMaterialsIn(obj *glob.MObj) {
 	}
 }
 
-func MoveMaterialsAlong(obj *glob.MObj) {
+func MoveMaterialsAlong(obj *glob.WObject) {
 	if obj == nil || !obj.Valid {
 		fmt.Println("MoveMaterialAlong: Invalid object")
 		return
@@ -173,7 +170,6 @@ func MoveMaterialsAlong(obj *glob.MObj) {
 				}
 				obj.OutputBuffer[mtype].Amount += mat.Amount
 				obj.OutputBuffer[mtype].TypeP = mat.TypeP
-				obj.OutputBuffer[mtype].Obj = mat.Obj
 				obj.OutputBuffer[mtype].TweenStamp = time.Time{}
 
 				mat.Amount = 0

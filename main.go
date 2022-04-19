@@ -39,7 +39,7 @@ func NewGame() *Game {
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build))
 	ebiten.SetWindowResizable(true)
 
-	glob.DetOS = runtime.GOOS
+	glob.DetectedOS = runtime.GOOS
 
 	//Font setup
 	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
@@ -56,7 +56,7 @@ func NewGame() *Game {
 		log.Fatal(err)
 	}
 
-	glob.ItemFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	glob.ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    56,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
@@ -65,7 +65,7 @@ func NewGame() *Game {
 		log.Fatal(err)
 	}
 
-	glob.TipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	glob.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    8,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
@@ -95,7 +95,7 @@ func NewGame() *Game {
 			} else {
 				bg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
 				bg.Fill(icon.ItemColor)
-				text.Draw(bg, icon.Symbol, glob.ItemFont, consts.SymbOffX, 64-consts.SymbOffY, icon.SymbolColor)
+				text.Draw(bg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, 64-consts.SymbOffY, icon.SymbolColor)
 			}
 
 			if err != nil {
@@ -139,7 +139,8 @@ func NewGame() *Game {
 	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
 
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
-	objects.ProcList = []glob.TickEvent{}
+	objects.TockList = []glob.TickEvent{}
+	objects.TickList = []glob.TickEvent{}
 
 	multi := 100
 	rows := 16 * multi
@@ -159,13 +160,13 @@ func NewGame() *Game {
 			cols++
 
 			tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
-			objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+			objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt)
+				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt)
 			}
 			tx++
-			objects.MakeMObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox)
+			objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox)
 
 			if cols%columns == 0 {
 				ty += 2
@@ -175,18 +176,18 @@ func NewGame() *Game {
 	} else if 1 == 2 {
 		tx := 1500
 		ty := 1500
-		objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
+		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
 		for i := 0; i < beltLength-hSpace; i++ {
 			tx++
-			objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
 		}
 		tx++
-		objects.MakeMObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
 
 	}
 
 	//Game logic runs on its own thread
-	go objects.GLogic()
+	go objects.TickTockLoop()
 
 	// Initialize the game.
 	return &Game{}
@@ -197,7 +198,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	if outsideWidth != glob.ScreenWidth || outsideHeight != glob.ScreenHeight {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight
-		glob.SetupMouse = false
+		glob.InitMouse = false
 	}
 	return glob.ScreenWidth, glob.ScreenHeight
 }

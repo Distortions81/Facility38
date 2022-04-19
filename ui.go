@@ -58,11 +58,11 @@ func (g *Game) Update() error {
 	if foundPinch {
 		dist := util.Distance((ta), (tb), (tx), (ty))
 		if !glob.PinchPressed {
-			glob.LastPinch = dist
+			glob.PrevPinch = dist
 		}
 		glob.PinchPressed = true
-		glob.ZoomMouse = (glob.ZoomMouse + ((dist - glob.LastPinch) / 75))
-		glob.LastPinch = dist
+		glob.ZoomMouse = (glob.ZoomMouse + ((dist - glob.PrevPinch) / 75))
+		glob.PrevPinch = dist
 	} else {
 		if glob.PinchPressed {
 			glob.TouchPressed = false
@@ -74,25 +74,25 @@ func (g *Game) Update() error {
 	if foundTouch {
 		if !glob.TouchPressed {
 			if glob.PinchPressed {
-				glob.LastTouchA, glob.LastTouchB = util.MidPoint(tx, ty, ta, tb)
+				glob.PrevTouchA, glob.PrevTouchB = util.MidPoint(tx, ty, ta, tb)
 
 			} else {
-				glob.LastTouchX = tx
-				glob.LastTouchY = ty
+				glob.PrevTouchX = tx
+				glob.PrevTouchY = ty
 			}
 		}
 		glob.TouchPressed = true
 
 		if glob.PinchPressed {
 			nx, ny := util.MidPoint(tx, ty, ta, tb)
-			glob.CameraX = glob.CameraX + (float64(glob.LastTouchA-nx) / glob.ZoomScale)
-			glob.CameraY = glob.CameraY + (float64(glob.LastTouchB-ny) / glob.ZoomScale)
-			glob.LastTouchA, glob.LastTouchB = util.MidPoint(tx, ty, ta, tb)
+			glob.CameraX = glob.CameraX + (float64(glob.PrevTouchA-nx) / glob.ZoomScale)
+			glob.CameraY = glob.CameraY + (float64(glob.PrevTouchB-ny) / glob.ZoomScale)
+			glob.PrevTouchA, glob.PrevTouchB = util.MidPoint(tx, ty, ta, tb)
 		} else {
-			glob.CameraX = glob.CameraX + (float64(glob.LastTouchX-tx) / glob.ZoomScale)
-			glob.CameraY = glob.CameraY + (float64(glob.LastTouchY-ty) / glob.ZoomScale)
-			glob.LastTouchX = tx
-			glob.LastTouchY = ty
+			glob.CameraX = glob.CameraX + (float64(glob.PrevTouchX-tx) / glob.ZoomScale)
+			glob.CameraY = glob.CameraY + (float64(glob.PrevTouchY-ty) / glob.ZoomScale)
+			glob.PrevTouchX = tx
+			glob.PrevTouchY = ty
 		}
 	} else {
 		glob.TouchPressed = false
@@ -103,7 +103,7 @@ func (g *Game) Update() error {
 	_, fsy := ebiten.Wheel()
 
 	//Workaround for wasm mouse scroll being insane
-	if glob.DetOS == consts.Wasm {
+	if glob.DetectedOS == consts.Wasm {
 		glob.ZoomMouse = (glob.ZoomMouse + (fsy / 50))
 	} else {
 		glob.ZoomMouse = (glob.ZoomMouse + (fsy))
@@ -135,8 +135,8 @@ func (g *Game) Update() error {
 	intx, inty := ebiten.CursorPosition()
 	mx := float64(intx)
 	my := float64(inty)
-	glob.MousePosX = mx
-	glob.MousePosY = my
+	glob.MouseX = mx
+	glob.MouseY = my
 	var captured bool = false
 
 	//Mouse clicks
@@ -144,20 +144,20 @@ func (g *Game) Update() error {
 		glob.MousePressed = false
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		glob.MousePressed = true
-		glob.LastObjPos = glob.XYEmpty
+		glob.LastActionPosition = glob.XYEmpty
 		glob.LastActionType = consts.DragActionTypeNone
 
 		//Toolbar
-		uipix := float64(objects.ToolbarMax * int(consts.TBSize))
-		if glob.MousePosX <= uipix+consts.ToolBarOffsetX {
-			if glob.MousePosY <= consts.TBSize+consts.ToolBarOffsetY {
-				ipos := int((glob.MousePosX - consts.ToolBarOffsetX) / consts.TBSize)
+		uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
+		if glob.MouseX <= uipix+consts.ToolBarOffsetX {
+			if glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
+				ipos := int((glob.MouseX - consts.ToolBarOffsetX) / consts.ToolBarScale)
 				temp := objects.ToolbarItems[ipos].Link
 				item := temp[objects.ToolbarItems[ipos].Key]
 
 				//Actions
-				if item.UIAction != nil {
-					item.UIAction()
+				if item.ToolbarAction != nil {
+					item.ToolbarAction()
 
 					fmt.Println("UI Action:", item.Name)
 				} else {
@@ -180,12 +180,12 @@ func (g *Game) Update() error {
 		//UI area
 		if !captured {
 			//Get mouse position on world
-			dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-			dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+			worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
+			worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
 
-			pos := util.FloatXYToPosition(dtx, dty)
+			pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
-			if pos != glob.LastObjPos {
+			if pos != glob.LastActionPosition {
 				if time.Since(glob.LastActionTime) > glob.BuildActionDelay {
 
 					bypass := false
@@ -211,8 +211,8 @@ func (g *Game) Update() error {
 							}
 
 							if !bypass {
-								objects.QueAddDelMObj(nil, objects.SelectedItemType, &pos, false)
-								glob.LastObjPos = pos
+								objects.ObjectHitlistAdd(nil, objects.SelectedItemType, &pos, false)
+								glob.LastActionPosition = pos
 								glob.LastActionType = consts.DragActionTypeBuild
 							}
 						}
@@ -221,9 +221,9 @@ func (g *Game) Update() error {
 							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 
 								if o != nil {
-									objects.QueAddDelMObj(o, 0, &pos, true)
+									objects.ObjectHitlistAdd(o, 0, &pos, true)
 									//Action completed, save position and time
-									glob.LastObjPos = pos
+									glob.LastActionPosition = pos
 									glob.LastActionType = consts.DragActionTypeDelete
 									//glob.LastActionTime = time.Now()
 								}
@@ -244,42 +244,42 @@ func (g *Game) Update() error {
 
 	/* Mouse pan */
 	if glob.MouseRightPressed {
-		if !glob.SetupMouse {
-			glob.LastMouseX = mx
-			glob.LastMouseY = my
-			glob.SetupMouse = true
+		if !glob.InitMouse {
+			glob.PrevMouseX = mx
+			glob.PrevMouseY = my
+			glob.InitMouse = true
 		}
 
-		glob.CameraX = glob.CameraX + (float64(glob.LastMouseX-mx) / glob.ZoomScale)
-		glob.CameraY = glob.CameraY + (float64(glob.LastMouseY-my) / glob.ZoomScale)
+		glob.CameraX = glob.CameraX + (float64(glob.PrevMouseX-mx) / glob.ZoomScale)
+		glob.CameraY = glob.CameraY + (float64(glob.PrevMouseY-my) / glob.ZoomScale)
 
-		glob.LastMouseX = mx
-		glob.LastMouseY = my
+		glob.PrevMouseX = mx
+		glob.PrevMouseY = my
 
 		//log.Println(cameraX, cameraY)
 	} else {
-		glob.SetupMouse = false
+		glob.InitMouse = false
 	}
 
 	//Toggle arrows
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
-		if glob.ShowAltView {
-			glob.ShowAltView = false
+		if glob.ShowInfoLayer {
+			glob.ShowInfoLayer = false
 		} else {
-			glob.ShowAltView = true
+			glob.ShowInfoLayer = true
 		}
 	}
 
 	//Rotate object
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		//Get mouse position on world
-		dtx := (glob.MousePosX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-		dty := (glob.MousePosY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+		worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
+		worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
 
-		pos := util.FloatXYToPosition(dtx, dty)
+		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
 		chunk := util.GetChunk(&pos)
-		o := chunk.MObj[pos]
+		o := chunk.WObject[pos]
 
 		if o != nil {
 			if glob.ShiftPressed {

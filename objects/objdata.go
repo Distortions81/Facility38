@@ -19,8 +19,8 @@ var (
 
 	UIObjsTypes = map[int]glob.ObjType{
 		//Ui Only
-		consts.ObjTypeSave: {ItemColor: &glob.ColorGray, Name: "Save", ImagePath: "ui/save.png", UIAction: glob.SaveGame},
-		consts.ObjTypeLoad: {ItemColor: &glob.ColorGray, Name: "Load", ImagePath: "ui/load.png", UIAction: glob.LoadGame},
+		consts.ObjTypeSave: {ItemColor: &glob.ColorGray, Name: "Save", ImagePath: "ui/save.png", ToolbarAction: glob.SaveGame},
+		consts.ObjTypeLoad: {ItemColor: &glob.ColorGray, Name: "Load", ImagePath: "ui/load.png", ToolbarAction: glob.LoadGame},
 	}
 
 	GameObjTypes = map[int]glob.ObjType{
@@ -28,52 +28,52 @@ var (
 		consts.ObjTypeBasicMiner: {ImagePath: "world-obj/basic-miner.png",
 			Name:            "Basic miner",
 			Size:            glob.Position{X: 1, Y: 1},
-			ObjUpdate:       MinerUpdate,
+			UpdateObj:       MinerUpdate,
 			MinerKGSec:      9,
 			ProcessInterval: 8,
 			CapacityKG:      500,
-			HasOutput:       true},
+			HasMatOutput:    true},
 
 		consts.ObjTypeBasicBox: {ImagePath: "world-obj/basic-box.png",
 			Name:       "Basic box",
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 5000,
-			ObjUpdate:  BoxUpdate},
+			UpdateObj:  BoxUpdate},
 
 		consts.ObjTypeBasicSmelter: {ImagePath: "world-obj/basic-smelter.png",
 			Name:       "Basic smelter",
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 50,
-			ObjUpdate:  SmelterUpdate},
+			UpdateObj:  SmelterUpdate},
 
 		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png",
 			Name:      "Iron rod caster",
 			Size:      glob.Position{X: 1, Y: 1},
-			ObjUpdate: IronCasterUpdate},
+			UpdateObj: IronCasterUpdate},
 
 		consts.ObjTypeBasicBelt: {ImagePath: "world-obj/basic-belt.png",
-			Name:       "Basic belt",
-			Size:       glob.Position{X: 1, Y: 1},
-			CapacityKG: 20,
-			ObjUpdate:  BeltUpdate,
-			HasOutput:  true},
+			Name:         "Basic belt",
+			Size:         glob.Position{X: 1, Y: 1},
+			CapacityKG:   20,
+			UpdateObj:    BeltUpdate,
+			HasMatOutput: true},
 
 		consts.ObjTypeBasicBeltVert: {ImagePath: "world-obj/basic-belt-vert.png",
-			Name:       "Basic belt",
-			Size:       glob.Position{X: 1, Y: 1},
-			CapacityKG: 20,
-			ObjUpdate:  BeltUpdate,
-			HasOutput:  true},
+			Name:         "Basic belt",
+			Size:         glob.Position{X: 1, Y: 1},
+			CapacityKG:   20,
+			UpdateObj:    BeltUpdate,
+			HasMatOutput: true},
 		consts.ObjTypeBasicBoiler: {ImagePath: "world-obj/basic-boiler.png",
 			Name:       "Basic boiler",
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 500,
-			ObjUpdate:  SteamEngineUpdate},
+			UpdateObj:  SteamEngineUpdate},
 		consts.ObjTypeSteamEngine: {ImagePath: "world-obj/steam-engine.png",
 			Name:       "Steam engine",
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 500,
-			ObjUpdate:  SteamEngineUpdate},
+			UpdateObj:  SteamEngineUpdate},
 	}
 
 	ObjOverlayTypes = map[int]glob.ObjType{
