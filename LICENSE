@@ -1,4 +1,4 @@
-Attributions: 
+Attributions:
 Coal photo: https://www.flickr.com/photos/47445767@N05/50504571422/
 Creative Commons 2.0. Modifcations: Added alpha channel and resized to 128x128
 Orignal photo by James St. John
@@ -6,4 +6,23 @@ Image title: Peacock coal 5
 https://creativecommons.org/licenses/by/2.0/
 Thank you, for contributing to CC!
 
+WASM decompressor: https://github.com/nodeca/pako
 
+3D Program used: Blender
+2D program used: Aseprite
+IDE: Microsoft Visual Studio Code
+Run on: Ubuntu 20
+
+Language/Compiler: Go: https://go.dev/
+
+Libraries:
+SizedWaitGroup library: https://github.com/remeh/sizedwaitgroup
+License: MIT
+
+Copyright: Rémy Mathieu © 2016
+
+Ebiten 2D game library: https://ebiten.org/
+License: Apache 2.0
+https://go.dev/conduct
+
+All assets and code are copyright Carl Frank Otto III, unless otherwise stated above.
