@@ -15,27 +15,25 @@ const (
 	DragActionTypeBuild  = 1
 	DragActionTypeDelete = 2
 
-	ObjTypeNone = 0
-
 	//Subtypes
-	ObjSubUI   = 1
-	ObjSubGame = 2
-	ObjSubMat  = 3
-	ObjOverlay = 4
+	ObjSubUI   = 0
+	ObjSubGame = 1
+	ObjSubMat  = 2
+	ObjOverlay = 3
 
 	//UI Only
-	ObjTypeSave = 1
-	ObjTypeLoad = 2
+	ObjTypeSave = 0
+	ObjTypeLoad = 1
 
 	//Buildings
-	ObjTypeBasicMiner      = 1
-	ObjTypeBasicBox        = 2
-	ObjTypeBasicSmelter    = 3
-	ObjTypeBasicIronCaster = 4
-	ObjTypeBasicBelt       = 5
-	ObjTypeBasicBeltVert   = 6
-	ObjTypeBasicBoiler     = 7
-	ObjTypeSteamEngine     = 8
+	ObjTypeBasicMiner      = 0
+	ObjTypeBasicBox        = 1
+	ObjTypeBasicSmelter    = 2
+	ObjTypeBasicIronCaster = 3
+	ObjTypeBasicBelt       = 4
+	ObjTypeBasicBeltVert   = 5
+	ObjTypeBasicBoiler     = 6
+	ObjTypeSteamEngine     = 7
 
 	/*Materials
 	MAT_NONE     = 0

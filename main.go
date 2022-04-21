@@ -74,16 +74,6 @@ func NewGame() *Game {
 		log.Fatal(err)
 	}
 
-	//Assign keys
-	for key, pos := range objects.GameObjTypes {
-		pos.Key = key
-		objects.GameObjTypes[key] = pos
-	}
-	for key, pos := range objects.MatTypes {
-		pos.Key = key
-		objects.MatTypes[key] = pos
-	}
-
 	//Load Sprites
 	for _, otype := range objects.SubTypes {
 		for key, icon := range otype {
@@ -108,19 +98,12 @@ func NewGame() *Game {
 	}
 
 	//Make default toolbar
-	t := int(len(objects.SubTypes))
-	var z, x, y int
-	for x = 0; x <= t; x++ {
-		if x == consts.ObjSubUI || x == consts.ObjSubGame {
-			link := objects.SubTypes[x]
-			llen := int(len(link))
-			for y = 1; y <= llen; y++ {
-				temp := glob.ToolbarItem{}
-				temp.Link = link
-				temp.Key = y
-				temp.Type = x
-				objects.ToolbarItems[z] = temp
-				fmt.Println(link[y].Name)
+	var z int
+	for spos, stype := range objects.SubTypes {
+		if spos == consts.ObjSubUI || spos == consts.ObjSubGame {
+			for _, otype := range stype {
+				objects.ToolbarItems = append(objects.ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
+				fmt.Println(otype.Name)
 				z++
 			}
 		}
@@ -149,7 +132,7 @@ func NewGame() *Game {
 	hSpace := 3
 
 	//For testing
-	if 1 == 1 {
+	if 1 == 2 {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
 		time.Sleep(time.Second * 3)
@@ -173,7 +156,7 @@ func NewGame() *Game {
 				cols = 0
 			}
 		}
-	} else if 1 == 2 {
+	} else if 1 != 2 {
 		tx := 1500
 		ty := 1500
 		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)

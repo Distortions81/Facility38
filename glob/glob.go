@@ -23,11 +23,13 @@ type MapChunk struct {
 }
 
 type WObject struct {
-	TypeP ObjType `json:"-"`
+	TypeP *ObjType `json:"-"`
+	TypeI int      `json:"t"`
 
-	OutputDir    int                      `json:"o,omitempty"`
+	OutputDir    int                      `json:"d,omitempty"`
 	OutputObj    *WObject                 `json:"-"`
-	OutputBuffer [consts.MAT_MAX]*MatData `json:"b,omitempty"`
+	OutputBuffer [consts.MAT_MAX]*MatData `json:"o,omitempty"`
+	AuxBuffer    [consts.MAT_MAX]*MatData `json:"a,omitempty"`
 
 	//Internal useW
 	Contains [consts.MAT_MAX]*MatData `json:"c,omitempty"`
@@ -36,14 +38,15 @@ type WObject struct {
 	//Input/Output
 	InputBuffer map[*WObject]*[consts.MAT_MAX]*MatData `json:"i,omitempty"`
 
-	Valid bool `json:"-"`
+	Valid bool `json:"v,omitempty"`
 }
 
 type MatData struct {
 	TypeP  ObjType `json:"-"`
+	TypeI  int     `json:"t,omitempty"`
 	Amount uint64  `json:"a,omitempty"`
 
-	TweenStamp time.Time
+	TweenStamp time.Time `json:"-"`
 }
 
 type Position struct {
@@ -53,7 +56,7 @@ type Position struct {
 type ObjType struct {
 	Name string
 
-	Key         int
+	TypeI       int
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
@@ -65,7 +68,7 @@ type ObjType struct {
 	MinerKGSec float64
 	CapacityKG uint64
 
-	ProcessInterval uint64
+	ProcessInterval int
 	HasMatOutput    bool
 	HasMatInput     bool
 
@@ -74,9 +77,8 @@ type ObjType struct {
 }
 
 type ToolbarItem struct {
-	Type int
-	Link map[int]ObjType
-	Key  int
+	SType int
+	OType *ObjType
 }
 
 type TickEvent struct {

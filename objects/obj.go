@@ -55,7 +55,7 @@ func MinerUpdate(o *glob.WObject) {
 	if o.Contains[consts.MAT_COAL] == nil {
 		o.Contains[consts.MAT_COAL] = &glob.MatData{}
 	}
-	o.Contains[consts.MAT_COAL].TypeP = MatTypes[consts.MAT_COAL]
+	o.Contains[consts.MAT_COAL].TypeP = *MatTypes[consts.MAT_COAL]
 	/* Temporary for testing */
 
 	if o.Contains[consts.MAT_COAL].Amount < o.TypeP.CapacityKG {

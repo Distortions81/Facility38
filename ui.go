@@ -152,8 +152,7 @@ func (g *Game) Update() error {
 		if glob.MouseX <= uipix+consts.ToolBarOffsetX {
 			if glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
 				ipos := int((glob.MouseX - consts.ToolBarOffsetX) / consts.ToolBarScale)
-				temp := objects.ToolbarItems[ipos].Link
-				item := temp[objects.ToolbarItems[ipos].Key]
+				item := objects.ToolbarItems[ipos].OType
 
 				//Actions
 				if item.ToolbarAction != nil {
@@ -161,11 +160,11 @@ func (g *Game) Update() error {
 
 					fmt.Println("UI Action:", item.Name)
 				} else {
-					if objects.SelectedItemType == objects.ToolbarItems[ipos].Key {
+					if objects.SelectedItemType == objects.ToolbarItems[ipos].OType.TypeI {
 						objects.SelectedItemType = 0
 						fmt.Println("Deselected")
 					} else {
-						objects.SelectedItemType = objects.ToolbarItems[ipos].Key
+						objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
 						fmt.Println("Selected:", item.Name)
 					}
 				}
@@ -192,7 +191,7 @@ func (g *Game) Update() error {
 					chunk := util.GetChunk(&pos)
 					o := util.GetObj(&pos, chunk)
 
-					if o == nil && objects.SelectedItemType > consts.ObjTypeNone {
+					if o == nil {
 
 						//Prevent flopping between delete and create when dragging
 						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {

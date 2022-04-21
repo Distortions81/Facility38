@@ -115,7 +115,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			objCamPosY := objOffY * glob.ZoomScale
 
 			/* Overlays */
-			if glob.ShowInfoLayer || obj.TypeP.Key == consts.ObjTypeBasicBelt {
+			if glob.ShowInfoLayer || obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
 
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Reset()
@@ -123,7 +123,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 				op.GeoM.Translate(objCamPosX, objCamPosY)
 
-				if obj.TypeP.Key == consts.ObjTypeBasicBelt {
+				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
 
 					/* Draw Output Materials */
 					for _, m := range obj.OutputBuffer {
@@ -181,7 +181,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					}
 				}
 
-				if obj.TypeP.HasMatOutput && obj.TypeP.Key != consts.ObjTypeBasicBelt {
+				if obj.TypeP.HasMatOutput && obj.TypeP.TypeI != consts.ObjTypeBasicBelt {
 					/* Draw Arrow */
 					img := objects.ObjOverlayTypes[obj.OutputDir].Image
 					if img != nil {
@@ -217,15 +217,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Toolbar tool tip */
 	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
 	if glob.MouseX <= uipix+consts.ToolBarOffsetX && glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
-		temp := objects.ToolbarItems[int(glob.MouseX/consts.ToolBarScale)]
-		item := temp.Link[temp.Key]
+		item := objects.ToolbarItems[int(glob.MouseX/consts.ToolBarScale)]
 
-		toolTip := fmt.Sprintf("%v", item.Name)
+		toolTip := fmt.Sprintf("%v", item.OType.Name)
 		tRect := text.BoundString(glob.ToolTipFont, toolTip)
 		mx := glob.MouseX + 20
 		my := glob.MouseY + 20
 		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
+
 	} else {
 		/* Draw tool tip */
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
@@ -255,52 +255,45 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
 
-	/* Skip if not visible */
-	if obj.TypeP.Key > consts.ObjTypeNone {
-
-		/* Draw sprite */
-		if obj.TypeP.Image == nil {
-			fmt.Println("DrawObject: nil ebiten.*image encountered:", obj.TypeP.Name)
-			return
-		} else {
-			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-			op.GeoM.Reset()
-			iSize := obj.TypeP.Image.Bounds()
-			op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
-			op.GeoM.Translate(x, y)
-			if glob.ZoomScale < consts.SpriteScale {
-				op.Filter = ebiten.FilterLinear
-			}
-			screen.DrawImage(obj.TypeP.Image, op)
-		}
-
-	} else {
-		fmt.Println("DrawObject: empty object encountered.")
-	}
-}
-
-func DrawToolItem(screen *ebiten.Image, pos int) {
-	temp := objects.ToolbarItems[pos]
-	item := temp.Link[temp.Key]
-
-	x := float64(consts.ToolBarScale * int(pos))
-
-	if item.Image == nil {
-		fmt.Println("DrawToolItem: nil ebiten.*image encountered:", item.Name)
+	/* Draw sprite */
+	if obj.TypeP.Image == nil {
+		fmt.Println("DrawObject: nil ebiten.*image encountered:", obj.TypeP.Name)
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		op.GeoM.Reset()
-		if item.Image.Bounds().Max.X != consts.ToolBarScale {
-			iSize := item.Image.Bounds()
+		iSize := obj.TypeP.Image.Bounds()
+		op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
+		op.GeoM.Translate(x, y)
+		if glob.ZoomScale < consts.SpriteScale {
+			op.Filter = ebiten.FilterLinear
+		}
+		screen.DrawImage(obj.TypeP.Image, op)
+	}
+
+}
+
+func DrawToolItem(screen *ebiten.Image, pos int) {
+	item := objects.ToolbarItems[pos]
+
+	x := float64(consts.ToolBarScale * int(pos))
+
+	if item.OType.Image == nil {
+		fmt.Println("DrawToolItem: nil ebiten.*image encountered:", item.OType.Name)
+		return
+	} else {
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+		op.GeoM.Reset()
+		if item.OType.Image.Bounds().Max.X != consts.ToolBarScale {
+			iSize := item.OType.Image.Bounds()
 			op.GeoM.Scale(1.0/(float64(iSize.Max.X)/consts.ToolBarScale), 1.0/(float64(iSize.Max.Y)/consts.ToolBarScale))
 		}
 		op.GeoM.Translate(x, 0)
-		screen.DrawImage(item.Image, op)
+		screen.DrawImage(item.OType.Image, op)
 	}
 
-	if temp.Type == consts.ObjSubGame {
-		if temp.Key == objects.SelectedItemType {
+	if item.SType == consts.ObjSubGame {
+		if item.OType.TypeI == objects.SelectedItemType {
 			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale, consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
 			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale, consts.ToolBarOffsetY, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
 

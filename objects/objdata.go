@@ -15,18 +15,19 @@ var (
 	OverlayMax  int = 0
 
 	SelectedItemType int = 0
-	ToolbarItems         = map[int]glob.ToolbarItem{}
+	ToolbarItems         = []glob.ToolbarItem{}
 
-	UIObjsTypes = map[int]glob.ObjType{
+	UIObjsTypes = []*glob.ObjType{
 		//Ui Only
-		consts.ObjTypeSave: {ItemColor: &glob.ColorGray, Name: "Save", ImagePath: "ui/save.png", ToolbarAction: glob.SaveGame},
-		consts.ObjTypeLoad: {ItemColor: &glob.ColorGray, Name: "Load", ImagePath: "ui/load.png", ToolbarAction: glob.LoadGame},
+		{ItemColor: &glob.ColorGray, Name: "Save", ImagePath: "ui/save.png", ToolbarAction: glob.SaveGame},
+		{ItemColor: &glob.ColorGray, Name: "Load", ImagePath: "ui/load.png", ToolbarAction: glob.LoadGame},
 	}
 
-	GameObjTypes = map[int]glob.ObjType{
+	GameObjTypes = []*glob.ObjType{
 		//Game Objects
-		consts.ObjTypeBasicMiner: {ImagePath: "world-obj/basic-miner.png",
+		{ImagePath: "world-obj/basic-miner.png",
 			Name:            "Basic miner",
+			TypeI:           consts.ObjTypeBasicMiner,
 			Size:            glob.Position{X: 1, Y: 1},
 			UpdateObj:       MinerUpdate,
 			MinerKGSec:      9,
@@ -34,71 +35,77 @@ var (
 			CapacityKG:      500,
 			HasMatOutput:    true},
 
-		consts.ObjTypeBasicBox: {ImagePath: "world-obj/basic-box.png",
+		{ImagePath: "world-obj/basic-box.png",
 			Name:       "Basic box",
+			TypeI:      consts.ObjTypeBasicBox,
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 5000,
 			UpdateObj:  BoxUpdate},
 
-		consts.ObjTypeBasicSmelter: {ImagePath: "world-obj/basic-smelter.png",
+		{ImagePath: "world-obj/basic-smelter.png",
 			Name:       "Basic smelter",
+			TypeI:      consts.ObjTypeBasicSmelter,
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 50,
 			UpdateObj:  SmelterUpdate},
 
-		consts.ObjTypeBasicIronCaster: {ImagePath: "world-obj/iron-rod-caster.png",
+		{ImagePath: "world-obj/iron-rod-caster.png",
 			Name:      "Iron rod caster",
+			TypeI:     consts.ObjTypeBasicIronCaster,
 			Size:      glob.Position{X: 1, Y: 1},
 			UpdateObj: IronCasterUpdate},
 
-		consts.ObjTypeBasicBelt: {ImagePath: "world-obj/basic-belt.png",
+		{ImagePath: "world-obj/basic-belt.png",
 			Name:         "Basic belt",
+			TypeI:        consts.ObjTypeBasicBelt,
 			Size:         glob.Position{X: 1, Y: 1},
 			CapacityKG:   20,
 			UpdateObj:    BeltUpdate,
 			HasMatOutput: true},
 
-		consts.ObjTypeBasicBeltVert: {ImagePath: "world-obj/basic-belt-vert.png",
+		{ImagePath: "world-obj/basic-belt-vert.png",
 			Name:         "Basic belt",
+			TypeI:        consts.ObjTypeBasicBeltVert,
 			Size:         glob.Position{X: 1, Y: 1},
 			CapacityKG:   20,
 			UpdateObj:    BeltUpdate,
 			HasMatOutput: true},
-		consts.ObjTypeBasicBoiler: {ImagePath: "world-obj/basic-boiler.png",
+
+		{ImagePath: "world-obj/basic-boiler.png",
 			Name:       "Basic boiler",
+			TypeI:      consts.ObjTypeBasicBoiler,
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 500,
 			UpdateObj:  SteamEngineUpdate},
-		consts.ObjTypeSteamEngine: {ImagePath: "world-obj/steam-engine.png",
+
+		{ImagePath: "world-obj/steam-engine.png",
 			Name:       "Steam engine",
+			TypeI:      consts.ObjTypeSteamEngine,
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 500,
 			UpdateObj:  SteamEngineUpdate},
 	}
 
-	ObjOverlayTypes = map[int]glob.ObjType{
+	ObjOverlayTypes = []*glob.ObjType{
 		//Overlays
-		consts.DIR_NORTH: {ImagePath: "overlays/arrow-north.png", Name: "Arrow North"},
-		consts.DIR_EAST:  {ImagePath: "overlays/arrow-east.png", Name: "Arrow East"},
-		consts.DIR_SOUTH: {ImagePath: "overlays/arrow-south.png", Name: "Arrow South"},
-		consts.DIR_WEST:  {ImagePath: "overlays/arrow-west.png", Name: "Arrow West"},
+		{ImagePath: "overlays/arrow-north.png", Name: "Arrow North"},
+		{ImagePath: "overlays/arrow-east.png", Name: "Arrow East"},
+		{ImagePath: "overlays/arrow-south.png", Name: "Arrow South"},
+		{ImagePath: "overlays/arrow-west.png", Name: "Arrow West"},
 	}
 
-	MatTypes = map[int]glob.ObjType{
+	MatTypes = []*glob.ObjType{
 		//Materials
-		consts.MAT_NONE: {Symbol: "?", ItemColor: &glob.ColorAqua, SymbolColor: &glob.ColorBlack, Name: "Error"},
-
-		consts.MAT_WOOD: {Symbol: "W", ItemColor: &glob.ColorBrown, SymbolColor: &glob.ColorBlack, Name: "Wood"},
-
-		consts.MAT_COAL: {ImagePath: "belt-obj/coal-ore.png", Name: "Coal Ore"},
-
-		consts.MAT_COPPER_ORE: {Symbol: "C", ItemColor: &glob.ColorDarkAqua, SymbolColor: &glob.ColorBlack, Name: "Copper Ore"},
+		{Symbol: "?", ItemColor: &glob.ColorAqua, SymbolColor: &glob.ColorBlack, Name: "Error"},
+		{Symbol: "W", ItemColor: &glob.ColorBrown, SymbolColor: &glob.ColorBlack, Name: "Wood"},
+		{ImagePath: "belt-obj/coal-ore.png", Name: "Coal Ore"},
+		{Symbol: "C", ItemColor: &glob.ColorDarkAqua, SymbolColor: &glob.ColorBlack, Name: "Copper Ore"},
 	}
 
-	SubTypes = map[int]map[int]glob.ObjType{
-		consts.ObjSubGame: GameObjTypes,
-		consts.ObjSubUI:   UIObjsTypes,
-		consts.ObjSubMat:  MatTypes,
-		consts.ObjOverlay: ObjOverlayTypes,
+	SubTypes = [][]*glob.ObjType{
+		UIObjsTypes,
+		GameObjTypes,
+		MatTypes,
+		ObjOverlayTypes,
 	}
 )
