@@ -26,17 +26,15 @@ type WObject struct {
 	TypeP *ObjType `json:"-"`
 	TypeI int      `json:"t"`
 
-	OutputDir    int                      `json:"d,omitempty"`
-	OutputObj    *WObject                 `json:"-"`
-	OutputBuffer [consts.MAT_MAX]*MatData `json:"o,omitempty"`
-	AuxBuffer    [consts.MAT_MAX]*MatData `json:"a,omitempty"`
+	OutputDir int      `json:"d,omitempty"`
+	OutputObj *WObject `json:"-"`
 
 	//Internal useW
-	Contains [consts.MAT_MAX]*MatData `json:"c,omitempty"`
+	Contents [consts.MAT_MAX]*MatData `json:"c,omitempty"`
 	KGHeld   uint64                   `json:"k,omitempty"`
 
 	//Input/Output
-	InputBuffer map[*WObject]*[consts.MAT_MAX]*MatData `json:"i,omitempty"`
+	InputBuffer map[*WObject]*MatData `json:"i,omitempty"`
 
 	Valid bool `json:"v,omitempty"`
 }

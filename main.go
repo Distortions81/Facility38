@@ -156,7 +156,7 @@ func NewGame() *Game {
 				cols = 0
 			}
 		}
-	} else if 1 != 2 {
+	} else if 1 == 1 {
 		tx := 1500
 		ty := 1500
 		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)

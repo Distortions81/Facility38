@@ -34,7 +34,6 @@ func TickTockLoop() {
 
 		WorldTick++
 
-		runTicks() //Send to other objects
 		runTocks() //Process objects
 		runEventHitlist()
 		runObjectHitlist()
@@ -48,22 +47,17 @@ func TickTockLoop() {
 
 func MinerUpdate(o *glob.WObject) {
 
-	input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
+	if o.OutputObj != nil {
+		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
 
-	/* Temporary for testing */
+		/* Temporary for testing */
 
-	if o.Contains[consts.MAT_COAL] == nil {
-		o.Contains[consts.MAT_COAL] = &glob.MatData{}
+		o.OutputObj.InputBuffer[o].Amount = input
+		o.OutputObj.InputBuffer[o].TypeI = consts.MAT_COAL
+		o.OutputObj.InputBuffer[o].TypeP = *MatTypes[consts.MAT_COAL]
+
+		fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
 	}
-	o.Contains[consts.MAT_COAL].TypeP = *MatTypes[consts.MAT_COAL]
-	/* Temporary for testing */
-
-	if o.Contains[consts.MAT_COAL].Amount < o.TypeP.CapacityKG {
-		o.Contains[consts.MAT_COAL].Amount += input
-	}
-
-	fmt.Println("Miner", o.TypeP.Name, "retrieved", o.Contains[consts.MAT_COAL].Amount, "coal")
-	util.MoveMateriaslOut(o)
 }
 
 func SmelterUpdate(obj *glob.WObject) {
@@ -77,56 +71,29 @@ func IronCasterUpdate(obj *glob.WObject) {
 }
 
 func BeltUpdate(obj *glob.WObject) {
-	util.MoveMaterialsAlong(obj)
+	for src, mat := range obj.InputBuffer {
+		if mat.Amount > 0 {
+			if obj.OutputObj != nil {
+				obj.OutputObj.InputBuffer[obj].Amount = mat.Amount
+				obj.OutputObj.InputBuffer[obj].TypeI = mat.TypeI
+				obj.OutputObj.InputBuffer[obj].TypeP = mat.TypeP
+				obj.InputBuffer[src].Amount = 0
+				fmt.Println(obj.TypeP.Name, " output: ", mat.Amount)
+			}
+		}
+	}
 }
 
 func SteamEngineUpdate(obj *glob.WObject) {
 }
 
 func BoxUpdate(obj *glob.WObject) {
-	util.MoveMaterialsIn(obj)
-}
-
-//Send external to other objects
-func runTicks() {
-	numWorkers := runtime.NumCPU()
-	wg := sizedwaitgroup.New(numWorkers)
-
-	l := len(TickList) - 1
-	if l < 1 {
-		return
-	}
-	each := (l / numWorkers)
-	p := 0
-
-	if each < 1 {
-		each = l + 1
-		numWorkers = 1
-	} else {
-		fmt.Println("runTicks: ", l, " objects", each, " each")
-	}
-	for n := 0; n < numWorkers; n++ {
-		//Handle remainder on last worker
-		if n == numWorkers-1 {
-			each = l + 1 - p
+	for src, mat := range obj.InputBuffer {
+		if mat.Amount > 0 {
+			fmt.Println(obj.TypeP.Name, " input: ", mat.Amount)
+			obj.InputBuffer[src] = &glob.MatData{}
 		}
-
-		wg.Add()
-		go func(start int, end int) {
-
-			for i := start; i < end; i++ {
-				if TickList[i].Target != nil {
-					if TickList[i].Target.OutputObj != nil {
-						util.OutputMaterial(TickList[i].Target)
-					}
-				}
-
-			}
-			wg.Done()
-		}(p, p+each)
-		p += each
 	}
-	wg.Wait()
 }
 
 //Process objects
@@ -211,12 +178,13 @@ func tocklistRemove(obj *glob.WObject) {
 func LinkObj(pos glob.Position, obj *glob.WObject) {
 
 	//Link output
-	if obj.OutputDir > 0 && obj.TypeP.HasMatOutput {
-		fmt.Println("pos", pos, "output dir: ", obj.OutputDir)
+	if obj.TypeP.HasMatOutput {
+		fmt.Println("pos", pos, "output dir: ", util.DirToName(obj.OutputDir))
 		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
 
 		if destObj != nil {
 			obj.OutputObj = destObj
+			destObj.InputBuffer[obj] = &glob.MatData{}
 			eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
 			fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		}
@@ -233,6 +201,7 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 		if neigh != nil {
 			if !found {
 				neigh.OutputObj = obj
+				obj.InputBuffer[neigh] = &glob.MatData{}
 				eventHitlistAdd(neigh, consts.QUEUE_TYPE_TICK, false)
 				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 				break
@@ -267,11 +236,10 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	obj.TypeP = GameObjTypes[mtype]
 
 	obj.OutputObj = nil
-	obj.OutputBuffer = [consts.MAT_MAX]*glob.MatData{}
 
-	obj.Contains = [consts.MAT_MAX]*glob.MatData{}
+	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
 
-	obj.InputBuffer = make(map[*glob.WObject]*[consts.MAT_MAX]*glob.MatData)
+	obj.InputBuffer = make(map[*glob.WObject]*glob.MatData)
 
 	obj.OutputDir = consts.DIR_EAST
 	obj.Valid = true

@@ -124,61 +124,39 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				op.GeoM.Translate(objCamPosX, objCamPosY)
 
 				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
-
 					/* Draw Output Materials */
-					for _, m := range obj.OutputBuffer {
-						if m == nil {
-							continue
-						}
-						if m.Amount <= 0 {
-							continue
-						}
-						img := m.TypeP.Image
-						if img != nil {
-							if m.TweenStamp.IsZero() {
-								m.TweenStamp = time.Now()
-							}
-							move := time.Since(m.TweenStamp).Nanoseconds()
-							amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
-
-							//Limit item movement, but go off end to smoothly transition between belts
-							if obj.OutputObj != nil {
-								if amount > 1 {
-									amount = 1.5
+					for _, m := range obj.InputBuffer {
+						if m.Amount > 0 {
+							img := m.TypeP.Image
+							if img != nil {
+								if m.TweenStamp.IsZero() {
+									m.TweenStamp = time.Now()
 								}
+								move := time.Since(m.TweenStamp).Nanoseconds()
+								amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
+
+								//Limit item movement, but go off end to smoothly transition between belts
+								if obj.OutputObj != nil {
+									if amount > 1 {
+										amount = 1.5
+									}
+								} else {
+									//If the belt is a dead end, stop before we go off
+									if amount > consts.HBeltLimitEnd {
+										amount = consts.HBeltLimitEnd
+									}
+								}
+
+								op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
+								screen.DrawImage(img, op)
+
+								//fmt.Println("Amount:", amount)
 							} else {
-								//If the belt is a dead end, stop before we go off
-								if amount > consts.HBeltLimitEnd {
-									amount = consts.HBeltLimitEnd
-								}
+								fmt.Println("Mat image not found: ", m.TypeI)
 							}
-
-							op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
-							screen.DrawImage(img, op)
-
-							//fmt.Println("Amount:", amount)
-						} else {
-							fmt.Println("Mat image not found.", m.TypeP.Name)
 						}
 					}
 
-				} else {
-					/* Draw contents */
-
-					for _, c := range obj.Contains {
-						if c == nil {
-							continue
-						}
-						if c.Amount <= 0 {
-							continue
-						}
-						img := c.TypeP.Image
-						if img != nil {
-							screen.DrawImage(img, op)
-						} else {
-							fmt.Println("Mat image not found.", c.TypeP.Name)
-						}
-					}
 				}
 
 				if obj.TypeP.HasMatOutput && obj.TypeP.TypeI != consts.ObjTypeBasicBelt {

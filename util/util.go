@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"fmt"
 	"math"
-	"time"
 )
 
 func Distance(xa, ya, xb, yb int) float64 {
@@ -55,7 +54,7 @@ func GetNeighborObj(src *glob.WObject, pos glob.Position, dir int) *glob.WObject
 		pos.X--
 	}
 
-	fmt.Println("Finding neighbor:", pos, dir)
+	//fmt.Println("Finding neighbor:", pos, DirToName(dir))
 
 	chunk := GetChunk(&pos)
 	obj := GetObj(&pos, chunk)
@@ -68,114 +67,6 @@ func GetNeighborObj(src *glob.WObject, pos glob.Position, dir int) *glob.WObject
 		fmt.Println("Neighbor:", obj.TypeP.Name, pos)
 	}
 	return obj
-}
-
-func OutputMaterial(src *glob.WObject) {
-
-	if src == nil || src.OutputObj == nil ||
-		!src.Valid || !src.OutputObj.Valid {
-
-		fmt.Println("OutputMaterial: Invalid source or output object")
-		if src != nil && src.Valid {
-			src.OutputObj = nil
-		}
-		return
-	}
-
-	if src != nil && src.Valid && src.OutputObj != nil && src.OutputObj.Valid {
-		dest := src.OutputObj
-
-		if dest.InputBuffer[src] == nil {
-			dest.InputBuffer[src] = &[consts.MAT_MAX]*glob.MatData{}
-		}
-
-		for mtype, mat := range src.OutputBuffer {
-			if mat != nil && mat.Amount > 0 {
-				if dest.InputBuffer[src][mtype] == nil {
-					dest.InputBuffer[src][mtype] = &glob.MatData{}
-				}
-				dest.InputBuffer[src][mtype].Amount += mat.Amount
-				dest.InputBuffer[src][mtype].TypeP = mat.TypeP
-				mat.Amount = 0
-			}
-		}
-
-	} else {
-		fmt.Println("OutputMaterial: Invalid source or output object")
-	}
-}
-
-//These are dedicated buffers for multithreading
-func MoveMateriaslOut(obj *glob.WObject) {
-
-	if obj == nil || !obj.Valid {
-		fmt.Println("MoveMaterialOut: Invalid object")
-		return
-	}
-
-	for mtype, mat := range obj.Contains {
-		if mat != nil && mat.Amount > 0 {
-			fmt.Println("mmo:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
-
-			if obj.OutputBuffer[mtype] == nil {
-				obj.OutputBuffer[mtype] = &glob.MatData{}
-			}
-			obj.OutputBuffer[mtype].Amount += mat.Amount
-			obj.OutputBuffer[mtype].TypeP = mat.TypeP
-
-			mat.Amount = 0
-		}
-	}
-}
-
-func MoveMaterialsIn(obj *glob.WObject) {
-	if obj == nil || !obj.Valid {
-		fmt.Println("MoveMaterialIn: Invalid object")
-		return
-	}
-
-	if obj.TypeP.CapacityKG > obj.KGHeld {
-
-		for _, mats := range obj.InputBuffer {
-			for mtype, mat := range mats {
-				if mat != nil && mat.Amount > 0 {
-					fmt.Println("mmi:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
-
-					if obj.Contains[mtype] == nil {
-						obj.Contains[mtype] = &glob.MatData{}
-					}
-					obj.Contains[mtype].Amount += mat.Amount
-					obj.Contains[mtype].TypeP = mat.TypeP
-
-					mat.Amount = 0
-				}
-			}
-		}
-	}
-}
-
-func MoveMaterialsAlong(obj *glob.WObject) {
-	if obj == nil || !obj.Valid {
-		fmt.Println("MoveMaterialAlong: Invalid object")
-		return
-	}
-
-	for _, mats := range obj.InputBuffer {
-		for mtype, mat := range mats {
-			if mat != nil && mat.Amount > 0 {
-				//fmt.Println("mma:", obj.TypeP.Name, ":", mat.Amount, mat.TypeP.Name)
-
-				if obj.OutputBuffer[mtype] == nil {
-					obj.OutputBuffer[mtype] = &glob.MatData{}
-				}
-				obj.OutputBuffer[mtype].Amount += mat.Amount
-				obj.OutputBuffer[mtype].TypeP = mat.TypeP
-				obj.OutputBuffer[mtype].TweenStamp = time.Time{}
-
-				mat.Amount = 0
-			}
-		}
-	}
 }
 
 func DirToName(dir int) string {
