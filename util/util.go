@@ -188,8 +188,6 @@ func DirToName(dir int) string {
 		return "South"
 	case consts.DIR_WEST:
 		return "West"
-	case consts.DIR_NONE:
-		return "None"
 	}
 
 	return "Error"
@@ -205,8 +203,6 @@ func ReverseDirection(dir int) int {
 		return consts.DIR_NORTH
 	case consts.DIR_WEST:
 		return consts.DIR_EAST
-	case consts.DIR_NONE:
-		return consts.DIR_NONE
 	}
 
 	return consts.DIR_NONE

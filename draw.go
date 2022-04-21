@@ -217,15 +217,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Toolbar tool tip */
 	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
 	if glob.MouseX <= uipix+consts.ToolBarOffsetX && glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
-		item := objects.ToolbarItems[int(glob.MouseX/consts.ToolBarScale)]
+		val := int(glob.MouseX / consts.ToolBarScale)
+		if val >= 0 && val < objects.ToolbarMax {
 
-		toolTip := fmt.Sprintf("%v", item.OType.Name)
-		tRect := text.BoundString(glob.ToolTipFont, toolTip)
-		mx := glob.MouseX + 20
-		my := glob.MouseY + 20
-		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
-		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
+			item := objects.ToolbarItems[int(glob.MouseX/consts.ToolBarScale)]
 
+			toolTip := fmt.Sprintf("%v", item.OType.Name)
+			tRect := text.BoundString(glob.ToolTipFont, toolTip)
+			mx := glob.MouseX + 20
+			my := glob.MouseY + 20
+			ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
+			text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
+		}
 	} else {
 		/* Draw tool tip */
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
