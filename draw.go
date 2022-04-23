@@ -147,9 +147,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 								op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
 								screen.DrawImage(img, op)
 
-								//fmt.Println("Amount:", amount)
+								////fmt.Println("Amount:", amount)
 							} else {
-								fmt.Println("Mat image not found: ", m.TypeI)
+								//fmt.Println("Mat image not found: ", m.TypeI)
 							}
 						}
 					}
@@ -162,7 +162,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					if img != nil {
 						screen.DrawImage(img, op)
 					} else {
-						fmt.Println("Arrow overlay image not found.")
+						//fmt.Println("Arrow overlay image not found.")
 					}
 				}
 			}
@@ -246,7 +246,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
 
 	/* Draw sprite */
 	if obj.TypeP.Image == nil {
-		fmt.Println("DrawObject: nil ebiten.*image encountered:", obj.TypeP.Name)
+		//fmt.Println("DrawObject: nil ebiten.*image encountered:", obj.TypeP.Name)
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
@@ -268,7 +268,7 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 	x := float64(consts.ToolBarScale * int(pos))
 
 	if item.OType.Image == nil {
-		fmt.Println("DrawToolItem: nil ebiten.*image encountered:", item.OType.Name)
+		//fmt.Println("DrawToolItem: nil ebiten.*image encountered:", item.OType.Name)
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}

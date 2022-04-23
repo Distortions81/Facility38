@@ -4,7 +4,6 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
-	"fmt"
 	"runtime"
 	"time"
 
@@ -52,36 +51,26 @@ func TickObj(o *glob.WObject) {
 		if o.OutputObj.InputBuffer[o].Amount == 0 &&
 			o.OutputBuffer.Amount > 0 {
 
-			o.OutputObj.InputBuffer[o] = o.OutputBuffer
-			fmt.Println("TickObj:", o.TypeP.Name, o.OutputBuffer.Amount, "Output: ", o.OutputObj.TypeP.Name)
-			o.OutputBuffer = &glob.MatData{}
-		}
-	} else {
-		o.OutputObj = nil
-		fmt.Println(o.TypeP.Name, "output deleted, object invalidated.")
-		eventHitlistAdd(o, consts.QUEUE_TYPE_TICK, true)
+			o.OutputObj.InputBuffer[o].Amount = o.OutputBuffer.Amount
+			o.OutputObj.InputBuffer[o].TypeI = o.OutputBuffer.TypeI
+			o.OutputObj.InputBuffer[o].TypeP = o.OutputBuffer.TypeP
 
+			o.OutputBuffer.Amount = 0
+		}
 	}
 }
 
 func MinerUpdate(o *glob.WObject) {
 
-	if o.OutputObj != nil && o.OutputObj.Valid {
-		if o.OutputBuffer.Amount == 0 {
-			input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
+	if o.OutputBuffer.Amount == 0 {
+		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
 
-			o.OutputBuffer.Amount += input
-			o.OutputBuffer.TypeI = consts.MAT_COAL
-			o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
-			o.OutputBuffer.TweenStamp = time.Now()
+		o.OutputBuffer.Amount += input
+		o.OutputBuffer.TypeI = consts.MAT_COAL
+		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
+		o.OutputBuffer.TweenStamp = time.Now()
 
-			fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
-		} else {
-			fmt.Println("Miner: ", o.TypeP.Name, " output buffer full")
-		}
-
-	} else {
-		o.OutputObj = nil
+		//fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
 	}
 }
 
@@ -100,13 +89,13 @@ func BeltUpdate(obj *glob.WObject) {
 		for src, mat := range obj.InputBuffer {
 			if mat.Amount > 0 {
 				mat.TweenStamp = time.Now()
-				obj.OutputBuffer = mat
-				obj.InputBuffer[src] = &glob.MatData{}
-				fmt.Println(obj.TypeP.Name, " moved: ", mat.Amount)
+				obj.OutputBuffer.Amount = mat.Amount
+				obj.OutputBuffer.TypeI = mat.TypeI
+				obj.OutputBuffer.TypeP = mat.TypeP
+				obj.InputBuffer[src].Amount = 0
+				//fmt.Println(obj.TypeP.Name, " moved: ", mat.Amount)
 			}
 		}
-	} else {
-		fmt.Println(obj.TypeP.Name, " output is full:", obj.OutputBuffer.Amount, obj.OutputBuffer.TypeP.Name)
 	}
 
 }
@@ -119,7 +108,7 @@ func BoxUpdate(obj *glob.WObject) {
 		if mat.Amount > 0 {
 			obj.Contents[mat.TypeI] = mat
 			obj.InputBuffer[src] = &glob.MatData{}
-			fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
+			//fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
 		}
 	}
 }
@@ -139,8 +128,6 @@ func runTicks() {
 	if each < 1 {
 		each = l + 1
 		numWorkers = 1
-	} else {
-		fmt.Println("runTicks: ", l, " objects", each, " each")
 	}
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
@@ -151,12 +138,7 @@ func runTicks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				if TickList[i].Target.Valid {
-					TickObj(TickList[i].Target)
-				} else {
-					fmt.Println("runTicks: invalid object, deleting from tick list.")
-					eventHitlistAdd(TickList[i].Target, consts.QUEUE_TYPE_TICK, true)
-				}
+				TickObj(TickList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)
@@ -181,8 +163,6 @@ func runTocks() {
 	if each < 1 {
 		each = l + 1
 		numWorkers = 1
-	} else {
-		fmt.Println("runTocks: ", l, " objects", each, " each")
 	}
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
@@ -193,12 +173,7 @@ func runTocks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				if TockList[i].Target == nil || !TockList[i].Target.Valid {
-					eventHitlistAdd(TockList[i].Target, consts.QUEUE_TYPE_TOCK, true)
-					fmt.Println("Deleted tock event for invalidated object")
-				} else {
-					TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
-				}
+				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)
@@ -217,12 +192,6 @@ func tockListAdd(target *glob.WObject) {
 }
 
 func eventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
-	for _, e := range EventHitlist {
-		if e.QType == qtype && e.Obj == obj {
-			fmt.Println("eventHitlistAdd:", obj.TypeP.Name, "already in list")
-			return
-		}
-	}
 	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
 }
 
@@ -260,17 +229,13 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 
 	//Link output
 	if obj.TypeP.HasMatOutput {
-		fmt.Println("pos", pos, "output dir: ", util.DirToName(obj.OutputDir))
+		//fmt.Println("pos", pos, "output dir: ", util.DirToName(obj.OutputDir))
 		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
 
 		if destObj != nil {
 			obj.OutputObj = destObj
 			destObj.InputBuffer[obj] = &glob.MatData{}
-			eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
-			eventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
-			eventHitlistAdd(destObj, consts.QUEUE_TYPE_TICK, false)
-			eventHitlistAdd(destObj, consts.QUEUE_TYPE_TOCK, false)
-			fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
+			//fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		}
 	}
 
@@ -286,11 +251,7 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 			if !found {
 				neigh.OutputObj = obj
 				obj.InputBuffer[neigh] = &glob.MatData{}
-				eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
-				eventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
-				eventHitlistAdd(neigh, consts.QUEUE_TYPE_TICK, false)
-				eventHitlistAdd(neigh, consts.QUEUE_TYPE_TOCK, false)
-				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
+				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 			}
 		}
 	}
@@ -303,7 +264,7 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	chunk := util.GetChunk(&pos)
 	if chunk == nil {
 		cpos := util.PosToChunkPos(&pos)
-		fmt.Println("Made chunk:", cpos)
+		//fmt.Println("Made chunk:", cpos)
 
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
@@ -313,7 +274,7 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	obj := chunk.WObject[pos]
 
 	if obj != nil {
-		fmt.Println("Object already exists at:", pos)
+		//fmt.Println("Object already exists at:", pos)
 		return nil
 	}
 
@@ -332,17 +293,15 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 
 	//Put in chunk map
 	glob.WorldMap[util.PosToChunkPos(&pos)].WObject[pos] = obj
-	fmt.Println("Made obj:", pos, obj.TypeP.Name)
+	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
 	LinkObj(pos, obj)
+	eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+	eventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
 
 	return obj
 }
 
 func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.Position, delete bool) {
-	if delete {
-		eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, true)
-		eventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, true)
-	}
 	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
 }
 
@@ -373,11 +332,11 @@ func runObjectHitlist() {
 		if item.Delete {
 			if item.Obj != nil {
 				//Delete
-				fmt.Println("Deleted:", item.Obj.TypeP.Name)
+				//fmt.Println("Deleted:", item.Obj.TypeP.Name)
 
 				if item.Obj.Valid {
 					if item.Obj.OutputObj != nil {
-						fmt.Println("Deleting output:", item.Obj.OutputObj.TypeP.Name)
+						//fmt.Println("Deleting output:", item.Obj.OutputObj.TypeP.Name)
 						item.Obj.OutputObj.InputBuffer[item.Obj] = &glob.MatData{}
 					}
 				}
@@ -386,10 +345,7 @@ func runObjectHitlist() {
 
 		} else {
 			//Add
-			obj := CreateObj(*item.Pos, item.OType)
-			if obj != nil {
-				fmt.Println("Added:", obj.TypeP.Name)
-			}
+			CreateObj(*item.Pos, item.OType)
 		}
 	}
 	ObjectHitlist = []*glob.ObjectHitlistData{}

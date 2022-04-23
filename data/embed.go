@@ -2,7 +2,6 @@ package data
 
 import (
 	"embed"
-	"fmt"
 	"image"
 	_ "image/png"
 
@@ -28,7 +27,7 @@ func GetSpriteImage(embeded bool, name string) (*ebiten.Image, error) {
 	} else {
 		img, _, err := ebitenutil.NewImageFromFile("data/" + name)
 		if err != nil {
-			fmt.Println(err)
+			//fmt.Println(err)
 		}
 		return img, err
 	}

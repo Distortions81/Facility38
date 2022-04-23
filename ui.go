@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"GameTest/objects"
 	"GameTest/util"
-	"fmt"
 	"math"
 	"time"
 
@@ -158,14 +157,14 @@ func (g *Game) Update() error {
 				if item.ToolbarAction != nil {
 					item.ToolbarAction()
 
-					fmt.Println("UI Action:", item.Name)
+					//fmt.Println("UI Action:", item.Name)
 				} else {
 					if objects.SelectedItemType == objects.ToolbarItems[ipos].OType.TypeI {
 						objects.SelectedItemType = 0
-						fmt.Println("Deselected")
+						//fmt.Println("Deselected")
 					} else {
 						objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
-						fmt.Println("Selected:", item.Name)
+						//fmt.Println("Selected:", item.Name)
 					}
 				}
 				captured = true
@@ -202,7 +201,7 @@ func (g *Game) Update() error {
 								for tx = 0; tx < size.X; tx++ {
 									for ty = 0; ty < size.Y; ty++ {
 										if chunk.CObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
-											fmt.Println("ERROR: Occupied.")
+											//fmt.Println("ERROR: Occupied.")
 											bypass = true
 										}
 									}
@@ -304,7 +303,7 @@ func (g *Game) Update() error {
 					o.OutputDir = consts.DIR_NORTH
 				}
 			}
-			fmt.Println("Rotated output:", pos, o.TypeP.Name, util.DirToName(o.OutputDir))
+			//fmt.Println("Rotated output:", pos, o.TypeP.Name, util.DirToName(o.OutputDir))
 			objects.LinkObj(pos, o)
 		}
 	}

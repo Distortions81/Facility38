@@ -89,7 +89,7 @@ func NewGame() *Game {
 			}
 
 			if err != nil {
-				fmt.Println(err)
+				//fmt.Println(err)
 			} else {
 				icon.Image = bg
 				otype[key] = icon
@@ -103,7 +103,7 @@ func NewGame() *Game {
 		if spos == consts.ObjSubUI || spos == consts.ObjSubGame {
 			for _, otype := range stype {
 				objects.ToolbarItems = append(objects.ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
-				fmt.Println(otype.Name)
+				//fmt.Println(otype.Name)
 				z++
 			}
 		}
@@ -133,7 +133,7 @@ func NewGame() *Game {
 	hSpace := 3
 
 	//For testing
-	if 1 == 2 {
+	if 1 == 1 {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
 		time.Sleep(time.Second * 3)
@@ -157,7 +157,7 @@ func NewGame() *Game {
 				cols = 0
 			}
 		}
-	} else if 1 == 1 {
+	} else {
 		tx := int(consts.XYCenter - 5)
 		ty := int(consts.XYCenter)
 		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)

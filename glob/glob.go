@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"compress/zlib"
 	"encoding/json"
-	"fmt"
 	"image/color"
 	"io/ioutil"
 	"log"
@@ -185,15 +184,15 @@ func SaveGame() {
 	b, err := json.MarshalIndent(tempList, "", "\t")
 
 	if err != nil {
-		fmt.Println("WriteSave: enc.Encode failure")
-		fmt.Println(err)
+		//fmt.Println("WriteSave: enc.Encode failure")
+		//fmt.Println(err)
 		return
 	}
 
 	_, err = os.Create(tempPath)
 
 	if err != nil {
-		fmt.Println("WriteGCfg: os.Create failure")
+		//fmt.Println("WriteGCfg: os.Create failure")
 		return
 	}
 
@@ -202,13 +201,13 @@ func SaveGame() {
 	err = ioutil.WriteFile(tempPath, zip, 0644)
 
 	if err != nil {
-		fmt.Println("WriteGCfg: WriteFile failure")
+		//fmt.Println("WriteGCfg: WriteFile failure")
 	}
 
 	err = os.Rename(tempPath, finalPath)
 
 	if err != nil {
-		fmt.Println("Couldn't rename Gcfg file.")
+		//fmt.Println("Couldn't rename Gcfg file.")
 		return
 	}
 }
@@ -216,7 +215,7 @@ func SaveGame() {
 func LoadGame() {
 	file, err := os.Open("save.dat")
 	if err != nil {
-		fmt.Println("LoadGame: os.Open failure")
+		//fmt.Println("LoadGame: os.Open failure")
 		return
 	}
 	defer file.Close()
@@ -228,7 +227,7 @@ func LoadGame() {
 	dec := json.NewDecoder(dbuf)
 	err = dec.Decode(&WorldMap)
 	if err != nil {
-		fmt.Println("LoadGame: dec.Decode failure")
+		//fmt.Println("LoadGame: dec.Decode failure")
 		return
 	}
 }
@@ -258,7 +257,7 @@ func compressZip(data []byte) []byte {
 	var b bytes.Buffer
 	w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
 	if err != nil {
-		fmt.Println("ERROR: gz failure:", err)
+		//fmt.Println("ERROR: gz failure:", err)
 	}
 	w.Write(data)
 	w.Close()

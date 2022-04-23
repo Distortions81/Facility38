@@ -3,7 +3,6 @@ package util
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"fmt"
 	"math"
 )
 
@@ -54,17 +53,17 @@ func GetNeighborObj(src *glob.WObject, pos glob.Position, dir int) *glob.WObject
 		pos.X--
 	}
 
-	//fmt.Println("Finding neighbor:", pos, DirToName(dir))
+	////fmt.Println("Finding neighbor:", pos, DirToName(dir))
 
 	chunk := GetChunk(&pos)
 	obj := GetObj(&pos, chunk)
 
 	if obj == src {
-		fmt.Println("GetNeighborObj: Self reference")
+		//fmt.Println("GetNeighborObj: Self reference")
 	}
 
 	if chunk != nil && obj != nil {
-		fmt.Println("Neighbor:", obj.TypeP.Name, pos)
+		//fmt.Println("Neighbor:", obj.TypeP.Name, pos)
 	}
 	return obj
 }
