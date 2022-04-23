@@ -158,8 +158,8 @@ func NewGame() *Game {
 			}
 		}
 	} else if 1 == 1 {
-		tx := 1500
-		ty := 1500
+		tx := int(consts.XYCenter - 5)
+		ty := int(consts.XYCenter)
 		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
 		for i := 0; i < beltLength-hSpace; i++ {
 			tx++

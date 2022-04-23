@@ -34,6 +34,7 @@ func TickTockLoop() {
 
 		WorldTick++
 
+		runTicks() //Tick objects
 		runTocks() //Process objects
 		runEventHitlist()
 		runObjectHitlist()
@@ -43,6 +44,10 @@ func TickTockLoop() {
 		sleepFor := glob.ObjectUPS_ns - frameTook
 		time.Sleep(sleepFor)
 	}
+}
+
+func TickObj(obj *glob.WObject) {
+	//Internal to external
 }
 
 func MinerUpdate(o *glob.WObject) {
@@ -94,6 +99,43 @@ func BoxUpdate(obj *glob.WObject) {
 			obj.InputBuffer[src] = &glob.MatData{}
 		}
 	}
+}
+
+//Move materials from one object to another
+func runTicks() {
+	numWorkers := runtime.NumCPU()
+	wg := sizedwaitgroup.New(numWorkers)
+
+	l := len(TickList) - 1
+	if l < 1 {
+		return
+	}
+	each := (l / numWorkers)
+	p := 0
+
+	if each < 1 {
+		each = l + 1
+		numWorkers = 1
+	} else {
+		fmt.Println("runTocks: ", l, " objects", each, " each")
+	}
+	for n := 0; n < numWorkers; n++ {
+		//Handle remainder on last worker
+		if n == numWorkers-1 {
+			each = l + 1 - p
+		}
+
+		wg.Add()
+		go func(start int, end int) {
+			for i := start; i < end; i++ {
+				TickObj(TickList[i].Target)
+			}
+			wg.Done()
+		}(p, p+each)
+		p += each
+
+	}
+	wg.Wait()
 }
 
 //Process objects
