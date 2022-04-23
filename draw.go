@@ -218,12 +218,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			o := chunk.WObject[pos]
 			if o != nil {
 				found = true
-				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", worldMouseX, worldMouseY, o.TypeP.Name)
+				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", math.Floor(worldMouseX-consts.XYCenter), math.Floor(worldMouseY-consts.XYCenter), o.TypeP.Name)
 			}
 		}
 
 		if !found {
-			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", worldMouseX, worldMouseY)
+			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", math.Floor(worldMouseX-consts.XYCenter), math.Floor(worldMouseY-consts.XYCenter))
 		}
 
 		tRect := text.BoundString(glob.ToolTipFont, toolTip)
