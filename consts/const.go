@@ -16,7 +16,7 @@ const (
 	DragActionTypeDelete = 2
 
 	MaxUint  = ^uint32(0)
-	XYCenter = float64(int32(MaxUint>>1) / 2)
+	XYCenter = float64(uint32(MaxUint>>1) / 2)
 
 	//Subtypes
 	ObjSubUI   = 0

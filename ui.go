@@ -252,6 +252,18 @@ func (g *Game) Update() error {
 		glob.CameraX = glob.CameraX + (float64(glob.PrevMouseX-mx) / glob.ZoomScale)
 		glob.CameraY = glob.CameraY + (float64(glob.PrevMouseY-my) / glob.ZoomScale)
 
+		if glob.CameraX > float64(consts.MaxUint) {
+			glob.CameraX = float64(consts.MaxUint)
+		} else if glob.CameraX < 0 {
+			glob.CameraX = 0
+		}
+
+		if glob.CameraY > float64(consts.MaxUint) {
+			glob.CameraY = float64(consts.MaxUint)
+		} else if glob.CameraY < 0 {
+			glob.CameraY = 0
+		}
+
 		glob.PrevMouseX = mx
 		glob.PrevMouseY = my
 

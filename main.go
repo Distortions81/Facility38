@@ -115,6 +115,7 @@ func NewGame() *Game {
 
 	glob.CameraX = float64(consts.XYCenter)
 	glob.CameraY = float64(consts.XYCenter)
+
 	glob.BootImage.Fill(glob.BootColor)
 
 	str := "Starting up..."
