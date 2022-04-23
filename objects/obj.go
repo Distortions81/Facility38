@@ -54,6 +54,7 @@ func TickObj(o *glob.WObject) {
 			o.OutputObj.InputBuffer[o].Amount = o.OutputBuffer.Amount
 			o.OutputObj.InputBuffer[o].TypeI = o.OutputBuffer.TypeI
 			o.OutputObj.InputBuffer[o].TypeP = o.OutputBuffer.TypeP
+			//o.OutputObj.InputBuffer[o].TweenStamp = time.Now()
 
 			o.OutputBuffer.Amount = 0
 		}

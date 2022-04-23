@@ -126,33 +126,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
 					/* Draw Output Materials */
 					for _, m := range obj.InputBuffer {
-						if m.Amount > 0 {
-							img := m.TypeP.Image
-							if img != nil {
-								move := time.Since(m.TweenStamp).Nanoseconds()
-								amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
-
-								//Limit item movement, but go off end to smoothly transition between belts
-								if obj.OutputObj != nil && obj.OutputObj.Valid {
-									if amount > 1 {
-										amount = 1
-									}
-								} else {
-									//If the belt is a dead end, stop before we go off
-									if amount > consts.HBeltLimitEnd {
-										amount = consts.HBeltLimitEnd
-									}
-								}
-
-								op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
-								screen.DrawImage(img, op)
-
-								////fmt.Println("Amount:", amount)
-							} else {
-								//fmt.Println("Mat image not found: ", m.TypeI)
-							}
-						}
+						matTween(m, obj, op, screen)
 					}
+
+					matTween(obj.OutputBuffer, obj, op, screen)
 
 				}
 
@@ -239,6 +216,35 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		my := glob.MouseY + 20
 		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
+	}
+}
+
+func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
+	if m.Amount > 0 {
+		img := m.TypeP.Image
+		if img != nil {
+			move := time.Since(m.TweenStamp).Nanoseconds()
+			amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
+
+			//Limit item movement, but go off end to smoothly transition between belts
+			if obj.OutputObj != nil && obj.OutputObj.Valid {
+				if amount > 1 {
+					amount = 1
+				}
+			} else {
+				//If the belt is a dead end, stop before we go off
+				if amount > consts.HBeltLimitEnd {
+					amount = consts.HBeltLimitEnd
+				}
+			}
+
+			op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
+			screen.DrawImage(img, op)
+
+			////fmt.Println("Amount:", amount)
+		} else {
+			//fmt.Println("Mat image not found: ", m.TypeI)
+		}
 	}
 }
 
