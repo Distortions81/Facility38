@@ -34,8 +34,8 @@ func TickTockLoop() {
 
 		WorldTick++
 
-		runTicks() //Tick objects
 		runTocks() //Process objects
+		runTicks() //Tick objects
 		runEventHitlist()
 		runObjectHitlist()
 
@@ -46,22 +46,31 @@ func TickTockLoop() {
 	}
 }
 
-func TickObj(obj *glob.WObject) {
-	//Internal to external
+func TickObj(o *glob.WObject) {
+
+	if o.OutputObj != nil && o.OutputObj.Valid && o.OutputObj.InputBuffer[o].Amount == 0 {
+		o.OutputObj.InputBuffer[o] = o.OutputBuffer
+		o.OutputBuffer = &glob.MatData{}
+
+		fmt.Println(o.TypeP.Name, o.OutputObj.InputBuffer[o].Amount, "Output: ", o.OutputObj.TypeP.Name)
+	} else {
+		o.OutputObj = nil
+	}
 }
 
 func MinerUpdate(o *glob.WObject) {
 
-	if o.OutputObj != nil {
+	if o.OutputObj != nil && o.OutputObj.Valid {
 		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
 
-		/* Temporary for testing */
-
-		o.OutputObj.InputBuffer[o].Amount = input
-		o.OutputObj.InputBuffer[o].TypeI = consts.MAT_COAL
-		o.OutputObj.InputBuffer[o].TypeP = *MatTypes[consts.MAT_COAL]
+		o.OutputBuffer.Amount += input
+		o.OutputBuffer.TypeI = consts.MAT_COAL
+		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
+		o.OutputBuffer.TweenStamp = time.Now()
 
 		fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
+	} else {
+		o.OutputObj = nil
 	}
 }
 
@@ -76,17 +85,17 @@ func IronCasterUpdate(obj *glob.WObject) {
 }
 
 func BeltUpdate(obj *glob.WObject) {
-	for src, mat := range obj.InputBuffer {
-		if mat.Amount > 0 {
-			if obj.OutputObj != nil {
-				obj.OutputObj.InputBuffer[obj].Amount = mat.Amount
-				obj.OutputObj.InputBuffer[obj].TypeI = mat.TypeI
-				obj.OutputObj.InputBuffer[obj].TypeP = mat.TypeP
-				obj.InputBuffer[src].Amount = 0
-				fmt.Println(obj.TypeP.Name, " output: ", mat.Amount)
+	if obj.OutputBuffer.Amount == 0 {
+		for src, mat := range obj.InputBuffer {
+			if mat.Amount > 0 {
+				mat.TweenStamp = time.Now()
+				obj.OutputBuffer = mat
+				obj.InputBuffer[src] = &glob.MatData{}
+				fmt.Println(obj.TypeP.Name, " moved: ", mat.Amount)
 			}
 		}
 	}
+
 }
 
 func SteamEngineUpdate(obj *glob.WObject) {
@@ -95,8 +104,9 @@ func SteamEngineUpdate(obj *glob.WObject) {
 func BoxUpdate(obj *glob.WObject) {
 	for src, mat := range obj.InputBuffer {
 		if mat.Amount > 0 {
-			fmt.Println(obj.TypeP.Name, " input: ", mat.Amount)
+			src.Contents[mat.TypeI] = mat
 			obj.InputBuffer[src] = &glob.MatData{}
+			fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
 		}
 	}
 }
@@ -117,7 +127,7 @@ func runTicks() {
 		each = l + 1
 		numWorkers = 1
 	} else {
-		fmt.Println("runTocks: ", l, " objects", each, " each")
+		fmt.Println("runTicks: ", l, " objects", each, " each")
 	}
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
@@ -184,6 +194,12 @@ func tockListAdd(target *glob.WObject) {
 }
 
 func eventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
+	for _, e := range EventHitlist {
+		if e.QType == qtype && e.Obj == obj {
+			fmt.Println("eventHitlistAdd:", obj.TypeP.Name, "already in list")
+			return
+		}
+	}
 	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
 }
 
@@ -228,6 +244,9 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 			obj.OutputObj = destObj
 			destObj.InputBuffer[obj] = &glob.MatData{}
 			eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+			eventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+			eventHitlistAdd(destObj, consts.QUEUE_TYPE_TICK, false)
+			eventHitlistAdd(destObj, consts.QUEUE_TYPE_TOCK, false)
 			fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
 		}
 	}
@@ -244,7 +263,10 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 			if !found {
 				neigh.OutputObj = obj
 				obj.InputBuffer[neigh] = &glob.MatData{}
+				eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+				eventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
 				eventHitlistAdd(neigh, consts.QUEUE_TYPE_TICK, false)
+				eventHitlistAdd(neigh, consts.QUEUE_TYPE_TOCK, false)
 				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
 				break
 			}
@@ -280,8 +302,8 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	obj.OutputObj = nil
 
 	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
-
 	obj.InputBuffer = make(map[*glob.WObject]*glob.MatData)
+	obj.OutputBuffer = &glob.MatData{}
 
 	obj.OutputDir = consts.DIR_EAST
 	obj.Valid = true
@@ -291,18 +313,13 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	fmt.Println("Made obj:", pos, obj.TypeP.Name)
 	LinkObj(pos, obj)
 
-	if obj.TypeP.UpdateObj != nil {
-		eventHitlistAdd(obj, consts.QUEUE_TYPE_PROC, false)
-		fmt.Println("Added proc event for:", obj.TypeP.Name)
-	}
-
 	return obj
 }
 
 func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.Position, delete bool) {
 	if delete {
 		eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, true)
-		eventHitlistAdd(obj, consts.QUEUE_TYPE_PROC, true)
+		eventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, true)
 	}
 	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
 }
@@ -313,14 +330,14 @@ func runEventHitlist() {
 			switch e.QType {
 			case consts.QUEUE_TYPE_TICK:
 				ticklistRemove(e.Obj)
-			case consts.QUEUE_TYPE_PROC:
+			case consts.QUEUE_TYPE_TOCK:
 				tocklistRemove(e.Obj)
 			}
 		} else {
 			switch e.QType {
 			case consts.QUEUE_TYPE_TICK:
 				ticklistAdd(e.Obj)
-			case consts.QUEUE_TYPE_PROC:
+			case consts.QUEUE_TYPE_TOCK:
 				tockListAdd(e.Obj)
 			}
 		}

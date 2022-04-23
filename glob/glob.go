@@ -34,7 +34,8 @@ type WObject struct {
 	KGHeld   uint64                   `json:"k,omitempty"`
 
 	//Input/Output
-	InputBuffer map[*WObject]*MatData `json:"i,omitempty"`
+	InputBuffer  map[*WObject]*MatData `json:"i,omitempty"`
+	OutputBuffer *MatData              `json:"o,omitempty"`
 
 	Valid bool `json:"v,omitempty"`
 }

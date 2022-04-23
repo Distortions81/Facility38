@@ -129,16 +129,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						if m.Amount > 0 {
 							img := m.TypeP.Image
 							if img != nil {
-								if m.TweenStamp.IsZero() {
-									m.TweenStamp = time.Now()
-								}
 								move := time.Since(m.TweenStamp).Nanoseconds()
 								amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
 
 								//Limit item movement, but go off end to smoothly transition between belts
 								if obj.OutputObj != nil {
 									if amount > 1 {
-										amount = 1.5
+										amount = 1
 									}
 								} else {
 									//If the belt is a dead end, stop before we go off
