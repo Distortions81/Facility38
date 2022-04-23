@@ -36,8 +36,8 @@ func TickTockLoop() {
 
 		runTocks() //Process objects
 		runTicks() //Tick objects
-		runEventHitlist()
 		runObjectHitlist()
+		runEventHitlist()
 
 		//If there is time left, sleep
 		frameTook := time.Since(start)
@@ -48,27 +48,38 @@ func TickTockLoop() {
 
 func TickObj(o *glob.WObject) {
 
-	if o.OutputObj != nil && o.OutputObj.Valid && o.OutputObj.InputBuffer[o].Amount == 0 {
-		o.OutputObj.InputBuffer[o] = o.OutputBuffer
-		o.OutputBuffer = &glob.MatData{}
+	if o.OutputObj != nil && o.OutputObj.Valid {
+		if o.OutputObj.InputBuffer[o].Amount == 0 &&
+			o.OutputBuffer.Amount > 0 {
 
-		fmt.Println(o.TypeP.Name, o.OutputObj.InputBuffer[o].Amount, "Output: ", o.OutputObj.TypeP.Name)
+			o.OutputObj.InputBuffer[o] = o.OutputBuffer
+			fmt.Println("TickObj:", o.TypeP.Name, o.OutputBuffer.Amount, "Output: ", o.OutputObj.TypeP.Name)
+			o.OutputBuffer = &glob.MatData{}
+		}
 	} else {
 		o.OutputObj = nil
+		fmt.Println(o.TypeP.Name, "output deleted, object invalidated.")
+		eventHitlistAdd(o, consts.QUEUE_TYPE_TICK, true)
+
 	}
 }
 
 func MinerUpdate(o *glob.WObject) {
 
 	if o.OutputObj != nil && o.OutputObj.Valid {
-		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
+		if o.OutputBuffer.Amount == 0 {
+			input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
 
-		o.OutputBuffer.Amount += input
-		o.OutputBuffer.TypeI = consts.MAT_COAL
-		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
-		o.OutputBuffer.TweenStamp = time.Now()
+			o.OutputBuffer.Amount += input
+			o.OutputBuffer.TypeI = consts.MAT_COAL
+			o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
+			o.OutputBuffer.TweenStamp = time.Now()
 
-		fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
+			fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
+		} else {
+			fmt.Println("Miner: ", o.TypeP.Name, " output buffer full")
+		}
+
 	} else {
 		o.OutputObj = nil
 	}
@@ -94,6 +105,8 @@ func BeltUpdate(obj *glob.WObject) {
 				fmt.Println(obj.TypeP.Name, " moved: ", mat.Amount)
 			}
 		}
+	} else {
+		fmt.Println(obj.TypeP.Name, " output is full:", obj.OutputBuffer.Amount, obj.OutputBuffer.TypeP.Name)
 	}
 
 }
@@ -104,7 +117,7 @@ func SteamEngineUpdate(obj *glob.WObject) {
 func BoxUpdate(obj *glob.WObject) {
 	for src, mat := range obj.InputBuffer {
 		if mat.Amount > 0 {
-			src.Contents[mat.TypeI] = mat
+			obj.Contents[mat.TypeI] = mat
 			obj.InputBuffer[src] = &glob.MatData{}
 			fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
 		}
@@ -138,7 +151,12 @@ func runTicks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				TickObj(TickList[i].Target)
+				if TickList[i].Target.Valid {
+					TickObj(TickList[i].Target)
+				} else {
+					fmt.Println("runTicks: invalid object, deleting from tick list.")
+					eventHitlistAdd(TickList[i].Target, consts.QUEUE_TYPE_TICK, true)
+				}
 			}
 			wg.Done()
 		}(p, p+each)
@@ -175,7 +193,12 @@ func runTocks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				if TockList[i].Target == nil || !TockList[i].Target.Valid {
+					eventHitlistAdd(TockList[i].Target, consts.QUEUE_TYPE_TOCK, true)
+					fmt.Println("Deleted tock event for invalidated object")
+				} else {
+					TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				}
 			}
 			wg.Done()
 		}(p, p+each)
@@ -268,7 +291,6 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 				eventHitlistAdd(neigh, consts.QUEUE_TYPE_TICK, false)
 				eventHitlistAdd(neigh, consts.QUEUE_TYPE_TOCK, false)
 				fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
-				break
 			}
 		}
 	}
@@ -351,9 +373,13 @@ func runObjectHitlist() {
 		if item.Delete {
 			if item.Obj != nil {
 				//Delete
+				fmt.Println("Deleted:", item.Obj.TypeP.Name)
+
 				if item.Obj.Valid {
-					item.Obj.Valid = false
-					fmt.Println("Deleted:", item.Obj.TypeP.Name)
+					if item.Obj.OutputObj != nil {
+						fmt.Println("Deleting output:", item.Obj.OutputObj.TypeP.Name)
+						item.Obj.OutputObj.InputBuffer[item.Obj] = &glob.MatData{}
+					}
 				}
 			}
 			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].WObject, *item.Pos)

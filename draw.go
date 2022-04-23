@@ -133,7 +133,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 								amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
 
 								//Limit item movement, but go off end to smoothly transition between belts
-								if obj.OutputObj != nil {
+								if obj.OutputObj != nil && obj.OutputObj.Valid {
 									if amount > 1 {
 										amount = 1
 									}
@@ -216,6 +216,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", math.Floor(worldMouseX-consts.XYCenter), math.Floor(worldMouseY-consts.XYCenter), o.TypeP.Name)
+
+				for _, t := range o.InputBuffer {
+					if t.Amount > 0 {
+						toolTip += fmt.Sprintf("INPUT BUF: %v: %v\n", t.TypeP.Name, t.Amount)
+					}
+				}
+				t := o.OutputBuffer
+				if t.Amount > 0 {
+					toolTip += fmt.Sprintf("OUTPUT BUF: %v: %v\n", t.TypeP.Name, t.Amount)
+				}
+
 			}
 		}
 
@@ -242,7 +253,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
 		op.GeoM.Reset()
 		iSize := obj.TypeP.Image.Bounds()
 		op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
-		op.GeoM.Translate(x, y)
+		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 		if glob.ZoomScale < consts.SpriteScale {
 			op.Filter = ebiten.FilterLinear
 		}
