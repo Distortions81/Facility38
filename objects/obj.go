@@ -54,7 +54,7 @@ func TickObj(o *glob.WObject) {
 			o.OutputObj.InputBuffer[o].Amount = o.OutputBuffer.Amount
 			o.OutputObj.InputBuffer[o].TypeI = o.OutputBuffer.TypeI
 			o.OutputObj.InputBuffer[o].TypeP = o.OutputBuffer.TypeP
-			//o.OutputObj.InputBuffer[o].TweenStamp = time.Now()
+			o.OutputObj.InputBuffer[o].TweenStamp = o.OutputBuffer.TweenStamp
 
 			o.OutputBuffer.Amount = 0
 		}
@@ -89,7 +89,7 @@ func BeltUpdate(obj *glob.WObject) {
 	if obj.OutputBuffer.Amount == 0 {
 		for src, mat := range obj.InputBuffer {
 			if mat.Amount > 0 {
-				mat.TweenStamp = time.Now()
+				obj.OutputBuffer.TweenStamp = time.Now()
 				obj.OutputBuffer.Amount = mat.Amount
 				obj.OutputBuffer.TypeI = mat.TypeI
 				obj.OutputBuffer.TypeP = mat.TypeP
