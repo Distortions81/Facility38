@@ -66,7 +66,7 @@ func MinerUpdate(o *glob.WObject) {
 	if o.OutputBuffer.Amount == 0 {
 		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
 
-		o.OutputBuffer.Amount += input
+		o.OutputBuffer.Amount = input
 		o.OutputBuffer.TypeI = consts.MAT_COAL
 		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
 		o.OutputBuffer.TweenStamp = time.Now()
@@ -107,8 +107,14 @@ func SteamEngineUpdate(obj *glob.WObject) {
 func BoxUpdate(obj *glob.WObject) {
 	for src, mat := range obj.InputBuffer {
 		if mat.Amount > 0 {
-			obj.Contents[mat.TypeI] = mat
-			obj.InputBuffer[src] = &glob.MatData{}
+			if obj.Contents[mat.TypeI] == nil {
+				obj.Contents[mat.TypeI] = &glob.MatData{}
+			}
+			obj.Contents[mat.TypeI].Amount += mat.Amount
+			obj.Contents[mat.TypeI].TypeI = mat.TypeI
+			obj.Contents[mat.TypeI].TypeP = mat.TypeP
+
+			obj.InputBuffer[src].Amount = 0
 			//fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
 		}
 	}
