@@ -71,7 +71,7 @@ type ObjType struct {
 	HasMatInput     bool
 
 	ToolbarAction func()
-	UpdateObj     func(Obj *WObject)
+	UpdateObj     func(Obj *WObject, tickNow time.Time)
 }
 
 type ToolbarItem struct {

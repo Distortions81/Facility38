@@ -4,6 +4,10 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"flag"
+	"log"
+	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -22,7 +26,17 @@ var (
 func TickTockLoop() {
 	start := time.Time{}
 
-	for {
+	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+	}
+
+	for i := 0; i < 100; i++ {
 		start = time.Now()
 
 		WorldTick++
@@ -36,6 +50,9 @@ func TickTockLoop() {
 		time.Sleep(sleepFor)
 		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
+
+	pprof.StopCPUProfile()
+
 }
 
 func TickObj(o *glob.WObject) {
@@ -54,7 +71,7 @@ func TickObj(o *glob.WObject) {
 	}
 }
 
-func MinerUpdate(o *glob.WObject) {
+func MinerUpdate(o *glob.WObject, tickNow time.Time) {
 
 	if o.OutputBuffer.Amount == 0 {
 		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
@@ -62,27 +79,27 @@ func MinerUpdate(o *glob.WObject) {
 		o.OutputBuffer.Amount = input
 		o.OutputBuffer.TypeI = consts.MAT_COAL
 		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
-		o.OutputBuffer.TweenStamp = time.Now()
+		o.OutputBuffer.TweenStamp = tickNow
 
 		//fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
 	}
 }
 
-func SmelterUpdate(obj *glob.WObject) {
+func SmelterUpdate(obj *glob.WObject, tickNow time.Time) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func IronCasterUpdate(obj *glob.WObject) {
+func IronCasterUpdate(obj *glob.WObject, tickNow time.Time) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func BeltUpdate(obj *glob.WObject) {
+func BeltUpdate(obj *glob.WObject, tickNow time.Time) {
 	if obj.OutputBuffer.Amount == 0 {
 		for src, mat := range obj.InputBuffer {
 			if mat.Amount > 0 {
-				obj.OutputBuffer.TweenStamp = time.Now()
+				obj.OutputBuffer.TweenStamp = tickNow
 				obj.OutputBuffer.Amount = mat.Amount
 				obj.OutputBuffer.TypeI = mat.TypeI
 				obj.OutputBuffer.TypeP = mat.TypeP
@@ -94,10 +111,10 @@ func BeltUpdate(obj *glob.WObject) {
 
 }
 
-func SteamEngineUpdate(obj *glob.WObject) {
+func SteamEngineUpdate(obj *glob.WObject, tickNow time.Time) {
 }
 
-func BoxUpdate(obj *glob.WObject) {
+func BoxUpdate(obj *glob.WObject, tickNow time.Time) {
 	for src, mat := range obj.InputBuffer {
 		if mat.Amount > 0 {
 			if obj.Contents[mat.TypeI] == nil {
@@ -178,8 +195,9 @@ func runTocks() {
 
 		wg.Add()
 		go func(start int, end int) {
+			tickNow := time.Now()
 			for i := start; i < end; i++ {
-				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target, tickNow)
 			}
 			wg.Done()
 		}(p, p+each)

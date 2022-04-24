@@ -22,7 +22,7 @@ type Game struct {
 
 func NewGame() *Game {
 
-	glob.NumWorkers = (runtime.NumCPU() / 2) - 2
+	glob.NumWorkers = (runtime.NumCPU() / 2) - 1
 	if glob.NumWorkers < 1 {
 		glob.NumWorkers = 1
 	}
@@ -131,7 +131,7 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
-	multi := 100
+	multi := 200
 	rows := 16 * multi
 	columns := 3 * multi
 	beltLength := 10
