@@ -4,9 +4,9 @@ go 1.17
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20211005130812-5bb3c17173e5
-	github.com/hajimehoshi/ebiten v1.12.12
 	github.com/hajimehoshi/ebiten/v2 v2.2.7
 	github.com/remeh/sizedwaitgroup v1.0.0
+	github.com/shirou/gopsutil/v3 v3.22.3
 	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9
 )
 
@@ -14,9 +14,8 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20220320163800-277f93cfa958 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/jezek/xgb v1.0.0 // indirect
-	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
-	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
-	github.com/shirou/gopsutil/v3 v3.22.3 // indirect
+	github.com/lufia/plan9stats v0.0.0-20220326011226-f1430873d8db // indirect
+	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
