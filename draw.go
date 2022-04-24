@@ -17,7 +17,9 @@ import (
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	//Average over about UPS duration
-	glob.AVR_UPS = time.Duration((float64(glob.AVR_UPS) * 0.85) + (float64(glob.PrevMeasuredObjectUPS_ns) * 0.15))
+	if glob.PrevMeasuredObjectUPS_ns > glob.MeasuredObjectUPS_ns {
+		glob.AVR_UPS = time.Duration((float64(glob.AVR_UPS) * 0.75)) + time.Duration(float64(glob.MeasuredObjectUPS_ns)*0.25)
+	}
 
 	/* Init */
 	if glob.DrewStartup {

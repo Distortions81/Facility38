@@ -41,6 +41,8 @@ func TickTockLoop() {
 			/* Calculate real frame time and adjust */
 			glob.PrevMeasuredObjectUPS_ns = glob.MeasuredObjectUPS_ns
 			glob.MeasuredObjectUPS_ns = start.Sub(lastUpdate) //Used for animation tweening
+		} else {
+			time.Sleep(time.Millisecond * 1)
 		}
 	}
 }
