@@ -1,4 +1,6 @@
 DETECT WINDOWS, DISABLE VSYNC
+DETECT CORES/VCORES and BUSY CORES for sheduling.
+https://pkg.go.dev/github.com/shirou/gopsutil/cpu#Percent
 
 
 /Possibly use a fixed number of buffers for belts, for the max number of items they can hold. Allows for more than one object of the same type as well.... Optimize: Make uninterrupted sections of belt one entity.

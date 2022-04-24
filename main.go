@@ -22,7 +22,10 @@ type Game struct {
 
 func NewGame() *Game {
 
-	glob.NumWorkers = (runtime.NumCPU() / 2)
+	glob.NumWorkers = ((runtime.NumCPU() / 2) - 1)
+	if glob.NumWorkers < 1 {
+		glob.NumWorkers = 1
+	}
 
 	objects.GameTypeMax = int(len(objects.GameObjTypes))
 	objects.UITypeMax = int(len(objects.UIObjsTypes))
@@ -128,14 +131,14 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
-	multi := 200
+	multi := 100
 	rows := 16 * multi
 	columns := 3 * multi
 	beltLength := 10
 	hSpace := 3
 
 	//For testing
-	if 1 == 2 {
+	if 1 == 1 {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
 		time.Sleep(time.Second * 3)
