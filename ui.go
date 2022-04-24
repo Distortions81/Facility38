@@ -173,7 +173,7 @@ func (g *Game) Update() error {
 		}
 	}
 
-	if glob.MousePressed {
+	if glob.MousePressed && 1 == 2 {
 
 		//UI area
 		if !captured {

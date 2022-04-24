@@ -22,6 +22,8 @@ type Game struct {
 
 func NewGame() *Game {
 
+	glob.NumWorkers = (runtime.NumCPU() / 2)
+
 	objects.GameTypeMax = int(len(objects.GameObjTypes))
 	objects.UITypeMax = int(len(objects.UIObjsTypes))
 	objects.MatTypeMax = int(len(objects.MatTypes))
@@ -31,7 +33,7 @@ func NewGame() *Game {
 	var bg *ebiten.Image
 	var err error
 
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
 
 	//Ebiten
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)

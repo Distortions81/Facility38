@@ -102,6 +102,7 @@ type EventHitlistData struct {
 }
 
 var (
+	NumWorkers int = 1
 	WorldMap   map[Position]*MapChunk
 	UpdateTook time.Duration
 

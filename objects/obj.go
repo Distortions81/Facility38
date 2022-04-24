@@ -4,7 +4,6 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
-	"runtime"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -122,7 +121,7 @@ func BoxUpdate(obj *glob.WObject) {
 
 //Move materials from one object to another
 func runTicks() {
-	numWorkers := runtime.NumCPU()
+	numWorkers := glob.NumWorkers
 	wg := sizedwaitgroup.New(numWorkers)
 
 	l := len(TickList) - 1
@@ -157,7 +156,7 @@ func runTicks() {
 
 //Process objects
 func runTocks() {
-	numWorkers := runtime.NumCPU()
+	numWorkers := glob.NumWorkers
 	wg := sizedwaitgroup.New(numWorkers)
 
 	l := len(TockList) - 1

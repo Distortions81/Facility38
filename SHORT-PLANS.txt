@@ -1,4 +1,7 @@
-Possibly use a fixed number of buffers for belts, for the max number of items they can hold. Allows for more than one object of the same type as well.... Optimize: Make uninterrupted sections of belt one entity.
+DETECT WINDOWS, DISABLE VSYNC
+
+
+/Possibly use a fixed number of buffers for belts, for the max number of items they can hold. Allows for more than one object of the same type as well.... Optimize: Make uninterrupted sections of belt one entity.
 
 Cache toolbar UI, overlay for button press or selection.
 Go through and break up and clean code, too much duplicated code.
