@@ -16,6 +16,8 @@ import (
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
+	glob.AVR_UPS = time.Duration((float64(glob.AVR_UPS) * 0.85) + (float64(glob.PrevMeasuredObjectUPS_ns) * 0.15))
+
 	/* Init */
 	if glob.DrewStartup {
 		//Load map here eventually
@@ -156,7 +158,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		ebitenutil.DebugPrintAt(screen,
 			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v Draw: c%v/o%v Skip: c%v/o%v (v%v-%v)",
-				ebiten.CurrentFPS(), ebiten.CurrentTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
+				ebiten.CurrentFPS(), ebiten.CurrentTPS(), 1000000000.0/float64(glob.AVR_UPS),
 				glob.ZoomScale, chunkCount, objCount, chunkSkip, objSkip, consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}
@@ -226,7 +228,7 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 		img := m.TypeP.Image
 		if img != nil {
 			move := time.Since(m.TweenStamp).Nanoseconds()
-			amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
+			amount := (float64(move) / float64(glob.AVR_UPS))
 
 			//Limit item movement, but go off end to smoothly transition between belts
 			if obj.OutputObj != nil && obj.OutputObj.Valid {

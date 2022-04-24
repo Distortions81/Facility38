@@ -113,9 +113,11 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	ObjectUPS            = 4.0
-	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
-	MeasuredObjectUPS_ns = ObjectUPS_ns
+	ObjectUPS                = 4.0
+	ObjectUPS_ns             = time.Duration((1000000000.0 / ObjectUPS))
+	MeasuredObjectUPS_ns     = time.Duration((1000000000.0 / ObjectUPS))
+	PrevMeasuredObjectUPS_ns = time.Duration((1000000000.0 / ObjectUPS))
+	AVR_UPS                  time.Duration
 
 	//eBiten variables
 	ZoomMouse float64 = 1.0   //Zoom mouse
