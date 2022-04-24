@@ -20,25 +20,21 @@ var (
 )
 
 func TickTockLoop() {
-	lastUpdate := time.Now()
-	start := time.Now()
+	start := time.Time{}
 
 	for {
-		if time.Since(lastUpdate) > time.Duration(glob.ObjectUPS_ns) {
-			lastUpdate = start
-			start = time.Now()
-			glob.MeasuredObjectUPS_ns = start.Sub(lastUpdate) //Used for animation tweening
+		start = time.Now()
 
-			WorldTick++
+		WorldTick++
 
-			runTocks() //Process objects
-			runTicks() //Tick objects
-			runObjectHitlist()
-			runEventHitlist()
+		runTocks() //Process objects
+		runTicks() //Tick objects
+		runObjectHitlist()
+		runEventHitlist()
 
-		} else {
-			time.Sleep(time.Millisecond * 10)
-		}
+		sleepFor := glob.ObjectUPS_ns - time.Since(start)
+		time.Sleep(sleepFor)
+		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
 }
 
