@@ -124,9 +124,9 @@ func (g *Game) Update() error {
 	if !glob.PinchPressed {
 		if glob.ZoomScale >= consts.SpriteScale {
 			lockto := float64(consts.SpriteScale) / 2.0
-			glob.ZoomScale = math.Round(glob.ZoomScale/lockto) * lockto
+			glob.ZoomScale = math.Floor(glob.ZoomScale/lockto) * lockto
 		} else {
-			glob.ZoomScale = math.Round(glob.ZoomScale)
+			glob.ZoomScale = math.Floor(glob.ZoomScale)
 		}
 	}
 

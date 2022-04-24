@@ -244,7 +244,7 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 				}
 			}
 
-			op.GeoM.Translate(math.Round(amount*glob.ZoomScale), math.Round(consts.HBeltVertOffset*glob.ZoomScale))
+			op.GeoM.Translate(math.Floor(amount*glob.ZoomScale), math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
 			screen.DrawImage(img, op)
 
 			////fmt.Println("Amount:", amount)

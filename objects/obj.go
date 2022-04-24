@@ -4,10 +4,6 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
-	"flag"
-	"log"
-	"os"
-	"runtime/pprof"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -26,7 +22,7 @@ var (
 func TickTockLoop() {
 	start := time.Time{}
 
-	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	/*var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 	flag.Parse()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
@@ -34,9 +30,9 @@ func TickTockLoop() {
 			log.Fatal(err)
 		}
 		pprof.StartCPUProfile(f)
-	}
+	} */
 
-	for i := 0; i < 100; i++ {
+	for {
 		start = time.Now()
 
 		WorldTick++
@@ -51,7 +47,7 @@ func TickTockLoop() {
 		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
 
-	pprof.StopCPUProfile()
+	//pprof.StopCPUProfile()
 
 }
 

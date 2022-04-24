@@ -13,6 +13,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/shirou/gopsutil/v3/cpu"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -22,10 +23,20 @@ type Game struct {
 
 func NewGame() *Game {
 
-	glob.NumWorkers = (runtime.NumCPU() / 2) - 1
-	if glob.NumWorkers < 1 {
-		glob.NumWorkers = 1
+	var lCPUs int = runtime.NumCPU()
+	cdat, cerr := cpu.Counts(false)
+	if cerr == nil {
+		fmt.Println("Logical CPUs:", cdat)
+		lCPUs = cdat
+	} else {
+		fmt.Println("Unable to detect logical CPUs.")
 	}
+
+	if lCPUs < 1 {
+		lCPUs = 1
+	}
+
+	glob.NumWorkers = lCPUs
 
 	objects.GameTypeMax = int(len(objects.GameObjTypes))
 	objects.UITypeMax = int(len(objects.UIObjsTypes))
