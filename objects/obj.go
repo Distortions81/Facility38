@@ -20,28 +20,28 @@ var (
 )
 
 func TickTockLoop() {
-	lastUpdate := time.Time{}
+	lastUpdate := time.Now()
 	start := time.Now()
 
+	glob.PrevMeasuredObjectUPS_ns = glob.ObjectUPS_ns
+	glob.MeasuredObjectUPS_ns = glob.ObjectUPS_ns
+
 	for {
-		lastUpdate = start
-		start = time.Now()
+		if time.Since(lastUpdate) >= time.Duration(glob.ObjectUPS_ns) {
+			lastUpdate = start
+			start = time.Now()
 
-		/* Calculate real frame time and adjust */
-		glob.PrevMeasuredObjectUPS_ns = glob.MeasuredObjectUPS_ns
-		glob.MeasuredObjectUPS_ns = start.Sub(lastUpdate) //Used for animation tweening
+			WorldTick++
 
-		WorldTick++
+			runTocks() //Process objects
+			runTicks() //Tick objects
+			runObjectHitlist()
+			runEventHitlist()
 
-		runTocks() //Process objects
-		runTicks() //Tick objects
-		runObjectHitlist()
-		runEventHitlist()
-
-		//If there is time left, sleep
-		frameTook := time.Since(start)
-		sleepFor := glob.ObjectUPS_ns - frameTook
-		time.Sleep(sleepFor)
+			/* Calculate real frame time and adjust */
+			glob.PrevMeasuredObjectUPS_ns = glob.MeasuredObjectUPS_ns
+			glob.MeasuredObjectUPS_ns = start.Sub(lastUpdate) //Used for animation tweening
+		}
 	}
 }
 

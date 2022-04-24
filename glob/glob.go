@@ -117,7 +117,7 @@ var (
 	ObjectUPS_ns             = time.Duration((1000000000.0 / ObjectUPS))
 	MeasuredObjectUPS_ns     = ObjectUPS_ns
 	PrevMeasuredObjectUPS_ns = ObjectUPS_ns
-	AVR_UPS                  time.Duration
+	AVR_UPS                  = ObjectUPS_ns
 
 	//eBiten variables
 	ZoomMouse float64 = 1.0   //Zoom mouse
