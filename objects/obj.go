@@ -128,6 +128,9 @@ func runTicks() {
 	if l < 1 {
 		return
 	}
+
+	//Hard lock to 250 work chunks, about a ms a peice at full load
+	numWorkers = l / 250
 	each := (l / numWorkers)
 	p := 0
 
@@ -163,6 +166,9 @@ func runTocks() {
 	if l < 1 {
 		return
 	}
+
+	//Hard lock to 250 work chunks, about a ms a peice at full load
+	numWorkers = l / 250
 	each := (l / numWorkers)
 	p := 0
 

@@ -22,7 +22,7 @@ type Game struct {
 
 func NewGame() *Game {
 
-	glob.NumWorkers = ((runtime.NumCPU() / 2) - 1)
+	glob.NumWorkers = (runtime.NumCPU() / 2) - 2
 	if glob.NumWorkers < 1 {
 		glob.NumWorkers = 1
 	}
