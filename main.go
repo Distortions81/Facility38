@@ -131,7 +131,7 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
-	multi := 200
+	multi := 100
 	rows := 16 * multi
 	columns := 3 * multi
 	beltLength := 10

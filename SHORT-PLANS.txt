@@ -11,25 +11,7 @@ Go through and break up and clean code, too much duplicated code.
 https://github.com/Distortions81/GameTest/issues/1
 
 
-post threading:
-make object create/delete handle removing proc/tick queue entries and buffers.
-make a queue for deleting and adding events, after proc/tick.
-Make belts support non-merged material amounts (no MAT_MAX!)
-
-remove any memory copy/alloc we don't need... just do them on events like object create based on item type.
-make item flags for proc/tick and input/output/contains, etc.
-
-
-
 REMOVE ALL UNEEDED CHECKS ONCE CODE IS GOOD!
-
-
-****************************
-** FIX BELT MATS BLINKING **
-** DUE TO INPUT BUFFER    **
-either check both buffers, keep a special index... or tween farther
-****************************
-*** ** Make mat buffers single object, per input!
 ** Draw a ghost for pending delete/add object **
 
 old embed data:
