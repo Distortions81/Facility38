@@ -16,6 +16,8 @@ import (
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
+	drawStart := time.Now()
+
 	/* Init */
 	if glob.DrewStartup {
 		//Load map here eventually
@@ -218,7 +220,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 	}
 
-	time.Sleep(1 * time.Millisecond)
+	//Limit frame rate
+	sleepFor := consts.MAX_RENDER_NS - time.Since(drawStart)
+	time.Sleep(sleepFor)
 }
 
 func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
