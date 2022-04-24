@@ -1,1 +1,2 @@
 GOGC=10 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o GameTest.exe
+upx --brute GameTest.exe
