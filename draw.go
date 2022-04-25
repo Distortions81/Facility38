@@ -240,9 +240,10 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 			amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
 
 			//Limit item movement, but go off end to smoothly transition between belts
-			if obj.OutputObj.TypeI == consts.ObjTypeBasicBelt {
-				if amount > 2 {
-					amount = 2
+			if obj.OutputObj != nil && obj.OutputObj.Valid &&
+				obj.OutputObj.TypeI == consts.ObjTypeBasicBelt {
+				if amount > 1.1 {
+					amount = 1.1
 				}
 			} else {
 				//If the belt is a dead end, stop before we go off
