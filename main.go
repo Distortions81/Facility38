@@ -154,7 +154,7 @@ func NewGame() *Game {
 	hSpace := 3
 
 	//For testing
-	if 1 == 1 {
+	if 1 == 2 {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
 		time.Sleep(time.Second * 3)

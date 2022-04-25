@@ -142,6 +142,9 @@ func runTicks() {
 
 	//Hard lock to 250 work chunks, about a ms a peice at full load
 	numWorkers = l / 250
+	if numWorkers < 1 {
+		numWorkers = 1
+	}
 	each := (l / numWorkers)
 	p := 0
 
@@ -180,6 +183,9 @@ func runTocks() {
 
 	//Hard lock to 250 work chunks, about a ms a peice at full load
 	numWorkers = l / 250
+	if numWorkers < 1 {
+		numWorkers = 1
+	}
 	each := (l / numWorkers)
 	p := 0
 
@@ -305,6 +311,7 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	obj = &glob.WObject{}
 
 	obj.TypeP = GameObjTypes[mtype]
+	obj.TypeI = mtype
 
 	obj.OutputObj = nil
 
