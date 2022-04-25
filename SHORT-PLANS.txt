@@ -10,6 +10,20 @@ Check on belt blinking when miner replaced.
 
 ** Draw a ghost for pending delete/add object **
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 old embed data:
 //go:embed gfx/ui/save.png
 //go:embed gfx/ui/load.png
