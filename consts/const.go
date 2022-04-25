@@ -90,13 +90,15 @@ const (
 	//Draw settings
 	ChunkSize = 32
 
-	DIR_NORTH = 0
-	DIR_EAST  = 1
-	DIR_SOUTH = 2
-	DIR_WEST  = 3
-	DIR_UP    = 4
-	DIR_DOWN  = 5
-	DIR_NONE  = 6
+	//Overlays
+	DIR_NORTH      = 0
+	DIR_EAST       = 1
+	DIR_SOUTH      = 2
+	DIR_WEST       = 3
+	ObjTypeBlocked = 4
+	DIR_UP         = 5
+	DIR_DOWN       = 6
+	DIR_NONE       = 7
 
 	COAL_KWH_KG        = 8
 	BOILER_EFFICIENCY  = 0.4

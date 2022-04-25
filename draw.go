@@ -146,6 +146,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					} else {
 						//fmt.Println("Arrow overlay image not found.")
 					}
+
+					//Show blocked outputs
+					img = objects.ObjOverlayTypes[consts.ObjTypeBlocked].Image
+					if obj.OutputObj != nil && obj.OutputBuffer.Amount > 0 &&
+						obj.OutputObj.InputBuffer[obj] != nil && obj.OutputObj.InputBuffer[obj].Amount > 0 {
+
+						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+						op.GeoM.Reset()
+
+						iSize := obj.TypeP.Bounds
+						op.GeoM.Translate(float64(iSize.Max.X)-float64(img.Bounds().Max.X)-12, 12)
+						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+						op.GeoM.Translate(objCamPosX, objCamPosY)
+						screen.DrawImage(img, op)
+					}
 				}
 			}
 		}

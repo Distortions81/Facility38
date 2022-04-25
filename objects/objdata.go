@@ -105,6 +105,8 @@ var (
 			Symbol: "v", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorOrange},
 		{ImagePath: "overlays/arrow-west.png", Name: "Arrow West",
 			Symbol: "<", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorOrange},
+		{ImagePath: "overlays/blocked.png", Name: "Blocked",
+			Symbol: "*", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorOrange},
 	}
 
 	MatTypes = []*glob.ObjType{
