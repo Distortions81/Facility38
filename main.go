@@ -7,6 +7,7 @@ import (
 	"GameTest/objects"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 	"time"
 
@@ -56,6 +57,9 @@ func NewGame() *Game {
 	ebiten.SetWindowResizable(true)
 
 	glob.DetectedOS = runtime.GOOS
+	if glob.DetectedOS == "windows" {
+		os.Setenv("EBITEN_GRAPHICS_LIBRARY", "directx")
+	}
 
 	//Font setup
 	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
