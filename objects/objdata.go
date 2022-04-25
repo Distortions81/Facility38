@@ -30,7 +30,7 @@ var (
 			TypeI:        consts.ObjTypeBasicMiner,
 			Size:         glob.Position{X: 1, Y: 1},
 			UpdateObj:    MinerUpdate,
-			MinerKGSec:   9,
+			MinerKGTock:  1,
 			CapacityKG:   500,
 			HasMatOutput: true},
 

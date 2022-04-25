@@ -198,14 +198,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				found = true
 				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", math.Floor(worldMouseX-consts.XYCenter), math.Floor(worldMouseY-consts.XYCenter), o.TypeP.Name)
 
-				for _, t := range o.InputBuffer {
-					if t.Amount > 0 {
-						toolTip += fmt.Sprintf("INPUT BUF: %v: %v\n", t.TypeP.Name, t.Amount)
+				found := false
+				for _, t := range o.Contents {
+					if t != nil && t.Amount > 0 {
+						found = true
+						toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, t.Amount)
 					}
 				}
-				t := o.OutputBuffer
-				if t.Amount > 0 {
-					toolTip += fmt.Sprintf("OUTPUT BUF: %v: %v\n", t.TypeP.Name, t.Amount)
+				if !found {
+					for _, t := range o.InputBuffer {
+						if t != nil && t.Amount > 0 {
+							toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, t.Amount)
+						}
+					}
 				}
 
 			}
@@ -235,7 +240,7 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 			amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
 
 			//Limit item movement, but go off end to smoothly transition between belts
-			if obj.OutputObj != nil && obj.OutputObj.Valid {
+			if obj.OutputObj.TypeI == consts.ObjTypeBasicBelt {
 				if amount > 2 {
 					amount = 2
 				}

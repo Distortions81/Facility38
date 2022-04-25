@@ -70,7 +70,7 @@ func TickObj(o *glob.WObject) {
 func MinerUpdate(o *glob.WObject, tickNow time.Time) {
 
 	if o.OutputBuffer.Amount == 0 {
-		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE))
+		input := uint64((o.TypeP.MinerKGTock))
 
 		o.OutputBuffer.Amount = input
 		o.OutputBuffer.TypeI = consts.MAT_COAL
@@ -111,17 +111,21 @@ func SteamEngineUpdate(obj *glob.WObject, tickNow time.Time) {
 }
 
 func BoxUpdate(obj *glob.WObject, tickNow time.Time) {
+
 	for src, mat := range obj.InputBuffer {
 		if mat.Amount > 0 {
-			if obj.Contents[mat.TypeI] == nil {
-				obj.Contents[mat.TypeI] = &glob.MatData{}
-			}
-			obj.Contents[mat.TypeI].Amount += mat.Amount
-			obj.Contents[mat.TypeI].TypeI = mat.TypeI
-			obj.Contents[mat.TypeI].TypeP = mat.TypeP
+			if obj.KGHeld+mat.Amount <= obj.TypeP.CapacityKG {
+				if obj.Contents[mat.TypeI] == nil {
+					obj.Contents[mat.TypeI] = &glob.MatData{}
+				}
+				obj.Contents[mat.TypeI].Amount += mat.Amount
+				obj.KGHeld += mat.Amount
+				obj.Contents[mat.TypeI].TypeI = mat.TypeI
+				obj.Contents[mat.TypeI].TypeP = mat.TypeP
 
-			obj.InputBuffer[src].Amount = 0
-			//fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
+				obj.InputBuffer[src].Amount = 0
+				//fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
+			}
 		}
 	}
 }
@@ -183,6 +187,7 @@ func runTocks() {
 		each = l + 1
 		numWorkers = 1
 	}
+	tickNow := time.Now()
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
 		if n == numWorkers-1 {
@@ -190,13 +195,12 @@ func runTocks() {
 		}
 
 		wg.Add()
-		go func(start int, end int) {
-			tickNow := time.Now()
+		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
 				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target, tickNow)
 			}
 			wg.Done()
-		}(p, p+each)
+		}(p, p+each, tickNow)
 		p += each
 
 	}

@@ -63,8 +63,8 @@ type ObjType struct {
 	ImagePath string
 	Image     *ebiten.Image
 
-	MinerKGSec float64
-	CapacityKG uint64
+	MinerKGTock float64
+	CapacityKG  uint64
 
 	HasMatOutput bool
 
