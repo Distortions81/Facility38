@@ -1,17 +1,13 @@
 DETECT WINDOWS, DISABLE VSYNC
-DETECT CORES/VCORES and BUSY CORES for sheduling.
-https://pkg.go.dev/github.com/shirou/gopsutil/cpu#Percent
 
-
-/Possibly use a fixed number of buffers for belts, for the max number of items they can hold. Allows for more than one object of the same type as well.... Optimize: Make uninterrupted sections of belt one entity.
+Optimize: Make uninterrupted sections of belt one entity.
 
 Cache toolbar UI, overlay for button press or selection.
-Go through and break up and clean code, too much duplicated code.
 
 https://github.com/Distortions81/GameTest/issues/1
 
+Check on belt blinking when miner replaced.
 
-REMOVE ALL UNEEDED CHECKS ONCE CODE IS GOOD!
 ** Draw a ghost for pending delete/add object **
 
 old embed data:
