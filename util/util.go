@@ -57,14 +57,6 @@ func GetNeighborObj(src *glob.WObject, pos glob.Position, dir int) *glob.WObject
 
 	chunk := GetChunk(&pos)
 	obj := GetObj(&pos, chunk)
-
-	if obj == src {
-		//fmt.Println("GetNeighborObj: Self reference")
-	}
-
-	if chunk != nil && obj != nil {
-		//fmt.Println("Neighbor:", obj.TypeP.Name, pos)
-	}
 	return obj
 }
 

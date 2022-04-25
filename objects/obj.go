@@ -271,14 +271,12 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 
 	//Link inputs
 	var i int
-	found := false
+
 	for i = consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
-		if obj.TypeP.HasMatOutput && i == obj.OutputDir {
-			continue
-		}
 		neigh := util.GetNeighborObj(obj, pos, i)
+
 		if neigh != nil {
-			if !found {
+			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.OutputDir) == i {
 				neigh.OutputObj = obj
 				obj.InputBuffer[neigh] = &glob.MatData{}
 				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)

@@ -288,6 +288,7 @@ func (g *Game) Update() error {
 				}
 			}
 			//fmt.Println("Rotated output:", pos, o.TypeP.Name, util.DirToName(o.OutputDir))
+			o.OutputObj = nil
 			objects.LinkObj(pos, o)
 		}
 	}
