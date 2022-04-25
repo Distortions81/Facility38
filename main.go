@@ -7,7 +7,6 @@ import (
 	"GameTest/objects"
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 	"time"
 
@@ -44,11 +43,11 @@ func NewGame() *Game {
 	objects.MatTypeMax = int(len(objects.MatTypes))
 	objects.OverlayMax = int(len(objects.ObjOverlayTypes))
 
-	var img *ebiten.Image
 	var bg *ebiten.Image
 	var err error
 
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
+	ebiten.SetScreenFilterEnabled(true)
 
 	//Ebiten
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)
@@ -57,9 +56,6 @@ func NewGame() *Game {
 	ebiten.SetWindowResizable(true)
 
 	glob.DetectedOS = runtime.GOOS
-	if glob.DetectedOS == "windows" {
-		os.Setenv("EBITEN_GRAPHICS_LIBRARY", "directx")
-	}
 
 	//Font setup
 	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
@@ -97,17 +93,16 @@ func NewGame() *Game {
 	//Load Sprites
 	for _, otype := range objects.SubTypes {
 		for key, icon := range otype {
+			found := false
 			if icon.ImagePath != "" {
-				img, err = data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
+				img, err := data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
 				if err == nil {
 					bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
-					//bg.Fill(otype[key].ItemColor)
 					bg.DrawImage(img, nil)
-				} else {
-					bg = ebiten.NewImage(32, 32)
-					bg.Fill(glob.ColorDarkRed)
+					found = true
 				}
-			} else {
+			}
+			if !found {
 				bg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
 				bg.Fill(icon.ItemColor)
 				text.Draw(bg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, 64-consts.SymbOffY, icon.SymbolColor)
@@ -117,6 +112,7 @@ func NewGame() *Game {
 				//fmt.Println(err)
 			} else {
 				icon.Image = bg
+				icon.Bounds = bg.Bounds()
 				otype[key] = icon
 			}
 		}

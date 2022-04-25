@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"encoding/json"
+	"image"
 	"image/color"
 	"io/ioutil"
 	"log"
@@ -59,6 +60,7 @@ type ObjType struct {
 	SymbolColor *color.NRGBA
 	Symbol      string
 	Size        Position
+	Bounds      image.Rectangle `json:"-"`
 
 	ImagePath string
 	Image     *ebiten.Image

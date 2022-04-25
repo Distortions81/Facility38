@@ -121,7 +121,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Reset()
-				iSize := obj.TypeP.Image.Bounds()
+				iSize := obj.TypeP.Bounds
 				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 				op.GeoM.Translate(objCamPosX, objCamPosY)
 
