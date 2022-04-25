@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"GameTest/objects"
 	"GameTest/util"
-	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -101,33 +100,17 @@ func (g *Game) Update() error {
 	//Scroll zoom
 	_, fsy := ebiten.Wheel()
 
-	//Workaround for wasm mouse scroll being insane
-	if glob.DetectedOS == consts.Wasm {
-		glob.ZoomMouse = (glob.ZoomMouse + (fsy / 50))
-	} else {
-		glob.ZoomMouse = (glob.ZoomMouse + (fsy))
+	if fsy > 0 {
+		glob.ZoomScale = glob.ZoomScale * 2
+	} else if fsy < 0 {
+		glob.ZoomScale = glob.ZoomScale / 2
 	}
+	glob.ZoomMouse = 0
 
-	/* Zoom limits */
-	if glob.ZoomMouse > 100 {
-		glob.ZoomMouse = 100
-	} else if glob.ZoomMouse < 10 {
-		glob.ZoomMouse = 10
-	}
-	if !glob.ZoomSetup {
-		glob.ZoomMouse = 47
-		glob.ZoomSetup = true
-	}
-	glob.ZoomScale = ((glob.ZoomMouse * glob.ZoomMouse * glob.ZoomMouse) / 1000)
-
-	//If scroll wheel, lock to sharp ratios when zoomed in, otherwise dont
-	if !glob.PinchPressed {
-		if glob.ZoomScale >= consts.SpriteScale {
-			lockto := float64(consts.SpriteScale) / 2.0
-			glob.ZoomScale = math.Floor(glob.ZoomScale/lockto) * lockto
-		} else {
-			glob.ZoomScale = math.Floor(glob.ZoomScale)
-		}
+	if glob.ZoomScale < 8 {
+		glob.ZoomScale = 8
+	} else if glob.ZoomScale > 1024 {
+		glob.ZoomScale = 1024
 	}
 
 	/* Mouse position */

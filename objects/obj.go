@@ -141,7 +141,7 @@ func runTicks() {
 	}
 
 	//Hard lock to 250 work chunks, about a ms a peice at full load
-	numWorkers = l / 250
+	numWorkers = l / consts.TickTockWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -182,7 +182,7 @@ func runTocks() {
 	}
 
 	//Hard lock to 250 work chunks, about a ms a peice at full load
-	numWorkers = l / 250
+	numWorkers = l / consts.TickTockWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}

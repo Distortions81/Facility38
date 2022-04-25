@@ -11,6 +11,8 @@ const (
 	HBeltVertOffset = 0.6
 	HBeltLimitEnd   = 0.75
 
+	TickTockWorkSize = 100
+
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
 	DragActionTypeDelete = 2

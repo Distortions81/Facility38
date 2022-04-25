@@ -116,9 +116,8 @@ var (
 	MeasuredObjectUPS_ns = ObjectUPS_ns
 
 	//eBiten variables
-	ZoomMouse float64 = 1.0   //Zoom mouse
-	ZoomScale float64 = 1.0   //Current zoom
-	ZoomSetup bool    = false //Zoom was setup
+	ZoomMouse float64 = 0.0   //Zoom mouse
+	ZoomScale float64 = 256.0 //Current zoom
 
 	BootImage *ebiten.Image //Boot image
 

@@ -273,9 +273,9 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
 		iSize := obj.TypeP.Image.Bounds()
 		op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
-		if glob.ZoomScale < consts.SpriteScale {
+		/*if glob.ZoomScale < consts.SpriteScale {
 			op.Filter = ebiten.FilterLinear
-		}
+		}*/
 		screen.DrawImage(obj.TypeP.Image, op)
 	}
 
