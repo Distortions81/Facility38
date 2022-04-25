@@ -97,8 +97,7 @@ func NewGame() *Game {
 			if icon.ImagePath != "" {
 				img, err := data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
 				if err == nil {
-					bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
-					bg.DrawImage(img, nil)
+					bg = img
 					found = true
 				}
 			}
