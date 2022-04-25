@@ -12,6 +12,18 @@ Check on belt blinking when miner replaced
 Make belts reversable, make tween reversable
 make belt juctions, and vertical belts.
 
+1:
+make occupied map
+
+2:
+instead of maps, use 32 line blocks
+chunks become multi line objects
+do this so we can render and process
+left to right, top to bottom
+
+3:
+add tick lists, and divide up work for every nth tick loads
+
 
 
 
