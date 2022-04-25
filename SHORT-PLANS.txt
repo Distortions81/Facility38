@@ -6,7 +6,6 @@ Cache toolbar UI, overlay for button press or selection.
 https://github.com/Distortions81/GameTest/issues/1
 
 Check on belt blinking when miner replaced
-**Caused by process order, consider processing by chunk**
 
 ** Draw a ghost for pending delete/add object **
 Make belts reversable, make tween reversable
