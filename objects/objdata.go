@@ -26,14 +26,13 @@ var (
 	GameObjTypes = []*glob.ObjType{
 		//Game Objects
 		{ImagePath: "world-obj/basic-miner.png",
-			Name:            "Basic miner",
-			TypeI:           consts.ObjTypeBasicMiner,
-			Size:            glob.Position{X: 1, Y: 1},
-			UpdateObj:       MinerUpdate,
-			MinerKGSec:      9,
-			ProcessInterval: 8,
-			CapacityKG:      500,
-			HasMatOutput:    true},
+			Name:         "Basic miner",
+			TypeI:        consts.ObjTypeBasicMiner,
+			Size:         glob.Position{X: 1, Y: 1},
+			UpdateObj:    MinerUpdate,
+			MinerKGSec:   9,
+			CapacityKG:   500,
+			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-box.png",
 			Name:       "Basic box",

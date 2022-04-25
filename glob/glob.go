@@ -66,9 +66,7 @@ type ObjType struct {
 	MinerKGSec float64
 	CapacityKG uint64
 
-	ProcessInterval int
-	HasMatOutput    bool
-	HasMatInput     bool
+	HasMatOutput bool
 
 	ToolbarAction func()
 	UpdateObj     func(Obj *WObject, tickNow time.Time)

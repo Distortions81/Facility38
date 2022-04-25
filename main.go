@@ -95,9 +95,14 @@ func NewGame() *Game {
 		for key, icon := range otype {
 			if icon.ImagePath != "" {
 				img, err = data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
-				bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
-				//bg.Fill(otype[key].ItemColor)
-				bg.DrawImage(img, nil)
+				if err == nil {
+					bg = ebiten.NewImage(img.Bounds().Dx(), img.Bounds().Dy())
+					//bg.Fill(otype[key].ItemColor)
+					bg.DrawImage(img, nil)
+				} else {
+					bg = ebiten.NewImage(32, 32)
+					bg.Fill(glob.ColorDarkRed)
+				}
 			} else {
 				bg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
 				bg.Fill(icon.ItemColor)
@@ -161,9 +166,11 @@ func NewGame() *Game {
 
 			tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
 			objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
 				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt)
+
 			}
 			tx++
 			objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox)

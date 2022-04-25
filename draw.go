@@ -126,16 +126,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				op.GeoM.Translate(objCamPosX, objCamPosY)
 
 				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
-					/* Draw Output Materials */
-					for _, m := range obj.InputBuffer {
-						matTween(m, obj, op, screen)
+					/* Draw Input Materials */
+					if obj.OutputBuffer.Amount > 0 {
+						matTween(obj.OutputBuffer, obj, op, screen)
+					} else {
+						for _, m := range obj.InputBuffer {
+							if m.Amount > 0 {
+								matTween(m, obj, op, screen)
+								break
+							}
+						}
 					}
-
-					matTween(obj.OutputBuffer, obj, op, screen)
-
-				}
-
-				if obj.TypeP.HasMatOutput && obj.TypeP.TypeI != consts.ObjTypeBasicBelt {
+				} else if obj.TypeP.HasMatOutput {
 					/* Draw Arrow */
 					img := objects.ObjOverlayTypes[obj.OutputDir].Image
 					if img != nil {

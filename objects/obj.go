@@ -38,9 +38,9 @@ func TickTockLoop() {
 		WorldTick++
 
 		runTocks() //Process objects
-		runTicks() //Tick objects
-		runObjectHitlist()
+		runTicks() //Move external
 		runEventHitlist()
+		runObjectHitlist()
 
 		sleepFor := glob.ObjectUPS_ns - time.Since(start)
 		time.Sleep(sleepFor)
@@ -70,7 +70,7 @@ func TickObj(o *glob.WObject) {
 func MinerUpdate(o *glob.WObject, tickNow time.Time) {
 
 	if o.OutputBuffer.Amount == 0 {
-		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE) / float64(o.TypeP.ProcessInterval))
+		input := uint64((o.TypeP.MinerKGSec * consts.TIMESCALE))
 
 		o.OutputBuffer.Amount = input
 		o.OutputBuffer.TypeI = consts.MAT_COAL
@@ -211,7 +211,7 @@ func tockListAdd(target *glob.WObject) {
 	TockList = append(TockList, glob.TickEvent{Target: target})
 }
 
-func eventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
+func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
 	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
 }
 
@@ -220,7 +220,7 @@ func ticklistRemove(obj *glob.WObject) {
 	for i, e := range TickList {
 		if e.Target == obj {
 
-			if len(TockList) > 1 {
+			if len(TickList) > 1 {
 				TickList = append(TickList[:i], TickList[i+1:]...)
 			} else {
 				TickList = []glob.TickEvent{}
@@ -311,12 +311,13 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	obj.OutputDir = consts.DIR_EAST
 	obj.Valid = true
 
+	EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+	EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+
 	//Put in chunk map
 	glob.WorldMap[util.PosToChunkPos(&pos)].WObject[pos] = obj
 	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
 	LinkObj(pos, obj)
-	eventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
-	eventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
 
 	return obj
 }
@@ -351,16 +352,11 @@ func runObjectHitlist() {
 	for _, item := range ObjectHitlist {
 		if item.Delete {
 			if item.Obj != nil {
-				//Delete
-				//fmt.Println("Deleted:", item.Obj.TypeP.Name)
-
-				if item.Obj.Valid {
-					if item.Obj.OutputObj != nil {
-						//fmt.Println("Deleting output:", item.Obj.OutputObj.TypeP.Name)
-						item.Obj.OutputObj.InputBuffer[item.Obj] = &glob.MatData{}
-					}
-				}
+				item.Obj.Valid = false
 			}
+			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
+			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
+
 			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].WObject, *item.Pos)
 
 		} else {

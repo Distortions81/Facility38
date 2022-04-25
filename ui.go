@@ -173,7 +173,7 @@ func (g *Game) Update() error {
 		}
 	}
 
-	if glob.MousePressed && 1 == 2 {
+	if glob.MousePressed {
 
 		//UI area
 		if !captured {
@@ -209,7 +209,8 @@ func (g *Game) Update() error {
 							}
 
 							if !bypass {
-								objects.ObjectHitlistAdd(nil, objects.SelectedItemType, &pos, false)
+								objects.ObjectHitlistAdd(o, objects.SelectedItemType, &pos, false)
+
 								glob.LastActionPosition = pos
 								glob.LastActionType = consts.DragActionTypeBuild
 							}
@@ -219,7 +220,7 @@ func (g *Game) Update() error {
 							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 
 								if o != nil {
-									objects.ObjectHitlistAdd(o, 0, &pos, true)
+									objects.ObjectHitlistAdd(o, o.TypeI, &pos, true)
 									//Action completed, save position and time
 									glob.LastActionPosition = pos
 									glob.LastActionType = consts.DragActionTypeDelete
