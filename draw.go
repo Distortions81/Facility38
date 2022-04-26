@@ -286,12 +286,12 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 					math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
 
 			} else if dir == consts.DIR_WEST {
-				op.GeoM.Translate(math.Floor((0.75*glob.ZoomScale)-amount*glob.ZoomScale),
+				op.GeoM.Translate(math.Floor((consts.ReverseBeltOffset*glob.ZoomScale)-amount*glob.ZoomScale),
 					math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
 
 			} else if dir == consts.DIR_NORTH {
 				op.GeoM.Translate(math.Floor(consts.VBeltVertOffset*glob.ZoomScale),
-					math.Floor((0.75*glob.ZoomScale)-amount*glob.ZoomScale))
+					math.Floor((consts.ReverseBeltOffset*glob.ZoomScale)-amount*glob.ZoomScale))
 			} else if dir == consts.DIR_SOUTH {
 				op.GeoM.Translate(math.Floor(consts.VBeltVertOffset*glob.ZoomScale),
 					math.Floor(amount*glob.ZoomScale))
