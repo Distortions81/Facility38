@@ -3,8 +3,8 @@ package consts
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
-	Version           = "008"        //increment
-	Build             = "04.17.2022" //mmddyyyy
+	Version           = "009"        //increment
+	Build             = "04.25.2022" //mmddyyyy
 	Wasm              = "js"         //Detect wasm/js
 	DataDir           = "data/"
 	GfxDir            = "gfx/"

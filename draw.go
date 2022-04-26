@@ -63,6 +63,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	chunkEndX := camEndX / consts.ChunkSize
 	chunkEndY := camEndY / consts.ChunkSize
 
+	drawTerrain(screen, camXPos, camYPos, camStartX, camStarty, camEndX, camEndY)
+
 	/*Draw world*/
 	for chunkPos, chunk := range glob.WorldMap {
 
@@ -260,6 +262,34 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	time.Sleep(sleepFor)
 }
 
+func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStartX int, camStartY int, camEndX int, camEndY int) {
+	/* Adjust camerea position for zoom */
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Reset()
+	img := objects.TerrainTypes[1].Image
+	iSize := img.Bounds()
+
+	sc := 8
+
+	for j := 0; j < 100; j += sc {
+		for i := 0; i < 100; i += sc {
+			pos := glob.Position{X: int(float64((consts.XYCenter)-50.0+float64(i)+camXPos) * glob.ZoomScale),
+				Y: int(float64((consts.XYCenter)-50.0+float64(j)+camYPos) * glob.ZoomScale)}
+			if pos.X < camStartX || pos.X > camEndX || pos.Y < camStartY || pos.Y > camEndY {
+				//continue
+			}
+
+			op.GeoM.Scale((float64(sc)*glob.ZoomScale)/float64(iSize.Max.X), (float64(sc)*glob.ZoomScale)/float64(iSize.Max.Y))
+
+			op.GeoM.Translate(float64(pos.X), float64(pos.Y))
+
+			screen.DrawImage(img, op)
+			op.GeoM.Reset()
+		}
+	}
+}
+
 func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
 	if m.Amount > 0 {
 		img := m.TypeP.Image
@@ -316,6 +346,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
 		op.GeoM.Reset()
 		iSize := obj.TypeP.Image.Bounds()
 		op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
+
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 		/*if glob.ZoomScale < consts.SpriteScale {
 			op.Filter = ebiten.FilterLinear

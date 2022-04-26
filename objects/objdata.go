@@ -95,6 +95,14 @@ var (
 			UpdateObj: SteamEngineUpdate},
 	}
 
+	TerrainTypes = []*glob.ObjType{
+		//Overlays
+		{ImagePath: "terrain/grass1.png", Name: "grass",
+			Symbol: ".", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorGreen},
+		{ImagePath: "terrain/gravel1.png", Name: "grass",
+			Symbol: ".", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorGreen},
+	}
+
 	ObjOverlayTypes = []*glob.ObjType{
 		//Overlays
 		{ImagePath: "overlays/arrow-north.png", Name: "Arrow North",
@@ -122,5 +130,6 @@ var (
 		GameObjTypes,
 		MatTypes,
 		ObjOverlayTypes,
+		TerrainTypes,
 	}
 )
