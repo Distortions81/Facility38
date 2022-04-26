@@ -270,24 +270,26 @@ func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStar
 	img := objects.TerrainTypes[1].Image
 	iSize := img.Bounds()
 
-	sc := 8
-
+	sc := 1
+	c := 0
 	for j := 0; j < 100; j += sc {
 		for i := 0; i < 100; i += sc {
-			pos := glob.Position{X: int(float64((consts.XYCenter)-50.0+float64(i)+camXPos) * glob.ZoomScale),
-				Y: int(float64((consts.XYCenter)-50.0+float64(j)+camYPos) * glob.ZoomScale)}
+			pos := glob.Position{X: int(float64((consts.XYCenter) - 50.0 + float64(i))),
+				Y: int(float64((consts.XYCenter) - 50.0 + float64(j)))}
 			if pos.X < camStartX || pos.X > camEndX || pos.Y < camStartY || pos.Y > camEndY {
-				//continue
+				continue
 			}
-
 			op.GeoM.Scale((float64(sc)*glob.ZoomScale)/float64(iSize.Max.X), (float64(sc)*glob.ZoomScale)/float64(iSize.Max.Y))
 
-			op.GeoM.Translate(float64(pos.X), float64(pos.Y))
+			op.GeoM.Translate((float64(pos.X)+camXPos)*glob.ZoomScale, (float64(pos.Y)+camYPos)*glob.ZoomScale)
 
 			screen.DrawImage(img, op)
 			op.GeoM.Reset()
+			c++
+
 		}
 	}
+	fmt.Println(c)
 }
 
 func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
