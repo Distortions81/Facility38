@@ -118,14 +118,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			objCamPosY := objOffY * glob.ZoomScale
 
 			/* Overlays */
-			if glob.ShowInfoLayer || obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
+			if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
 
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Reset()
 				iSize := obj.TypeP.Bounds
 				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 				op.GeoM.Translate(objCamPosX, objCamPosY)
-
 				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
 					/* Draw Input Materials */
 					if obj.OutputBuffer.Amount > 0 {
@@ -138,7 +137,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							}
 						}
 					}
-				} else if obj.TypeP.HasMatOutput {
+				}
+
+			} else if glob.ShowInfoLayer {
+				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+				op.GeoM.Reset()
+				iSize := obj.TypeP.Bounds
+				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+				op.GeoM.Translate(objCamPosX, objCamPosY)
+
+				if obj.TypeP.HasMatOutput {
+					op.GeoM.Reset()
+					iSize := obj.TypeP.Bounds
+					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+					op.GeoM.Translate(objCamPosX, objCamPosY)
 					/* Draw Arrow */
 					img := objects.ObjOverlayTypes[obj.OutputDir].Image
 					if img != nil {
@@ -268,7 +280,13 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 				}
 			}
 
-			op.GeoM.Translate(math.Floor(amount*glob.ZoomScale), math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
+			dir := obj.OutputDir
+			if dir == consts.DIR_EAST {
+				op.GeoM.Translate(math.Floor(amount*glob.ZoomScale), math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
+			} else if dir == consts.DIR_WEST {
+
+				op.GeoM.Translate(math.Floor((1*glob.ZoomScale)-amount*glob.ZoomScale), math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
+			}
 			screen.DrawImage(img, op)
 
 			////fmt.Println("Amount:", amount)
