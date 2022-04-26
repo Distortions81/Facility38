@@ -191,15 +191,40 @@ func NewGame() *Game {
 		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
 
 		tx = int(consts.XYCenter - 5)
-		ty = int(consts.XYCenter + 2)
+		ty = int(consts.XYCenter - 2)
 		o := objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
+		o.OutputDir = consts.DIR_WEST
+		for i := 0; i < beltLength-hSpace; i++ {
+			tx--
+			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
+			o.OutputDir = consts.DIR_WEST
+		}
+		tx--
+		o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+		o.OutputDir = consts.DIR_WEST
+
+		tx = int(consts.XYCenter - 5)
+		ty = int(consts.XYCenter + 2)
+		o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
 		o.OutputDir = consts.DIR_SOUTH
 		for i := 0; i < beltLength-hSpace; i++ {
 			ty++
-			o := objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBeltVert)
+			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBeltVert)
 			o.OutputDir = consts.DIR_SOUTH
 		}
 		ty++
+		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+
+		tx = int(consts.XYCenter - 5)
+		ty = int(consts.XYCenter - 4)
+		o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
+		o.OutputDir = consts.DIR_NORTH
+		for i := 0; i < beltLength-hSpace; i++ {
+			ty--
+			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBeltVert)
+			o.OutputDir = consts.DIR_NORTH
+		}
+		ty--
 		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
 
 	}
