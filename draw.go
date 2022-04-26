@@ -265,7 +265,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStartX int, camStartY int, camEndX int, camEndY int) {
 	/* Adjust camerea position for zoom */
 
-	op := &ebiten.DrawImageOptions{}
+	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 	op.GeoM.Reset()
 	img := objects.TerrainTypes[1].Image
 	iSize := img.Bounds()
