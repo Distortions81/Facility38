@@ -271,11 +271,10 @@ func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStar
 	iSize := img.Bounds()
 
 	sc := 1
-	c := 0
-	for j := 0; j < 100; j += sc {
-		for i := 0; i < 100; i += sc {
-			pos := glob.Position{X: int(float64((consts.XYCenter) - 50.0 + float64(i))),
-				Y: int(float64((consts.XYCenter) - 50.0 + float64(j)))}
+	for j := 0; j < 1000; j += sc {
+		for i := 0; i < 1000; i += sc {
+			pos := glob.Position{X: int(float64((consts.XYCenter) - 500.0 + float64(i))),
+				Y: int(float64((consts.XYCenter) - 500.0 + float64(j)))}
 			if pos.X < camStartX || pos.X > camEndX || pos.Y < camStartY || pos.Y > camEndY {
 				continue
 			}
@@ -285,11 +284,9 @@ func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStar
 
 			screen.DrawImage(img, op)
 			op.GeoM.Reset()
-			c++
 
 		}
 	}
-	fmt.Println(c)
 }
 
 func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
