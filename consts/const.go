@@ -9,6 +9,7 @@ const (
 	DataDir         = "data/"
 	GfxDir          = "gfx/"
 	HBeltVertOffset = 0.6
+	VBeltVertOffset = 0.4
 	HBeltLimitEnd   = 0.75
 
 	TickTockWorkSize = 100

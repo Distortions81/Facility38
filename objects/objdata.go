@@ -70,12 +70,12 @@ var (
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-belt-vert.png",
-			Name:       "Basic belt",
+			Name:       "Basic vbelt",
 			TypeI:      consts.ObjTypeBasicBeltVert,
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 20,
 			UpdateObj:  BeltUpdate,
-			Symbol:     "BELT", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorWhite,
+			Symbol:     "VBELT", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorWhite,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-boiler.png",

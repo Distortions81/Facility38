@@ -153,7 +153,7 @@ func NewGame() *Game {
 	hSpace := 3
 
 	//For testing
-	if 1 == 1 {
+	if 1 == 2 {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
 		time.Sleep(time.Second * 3)
@@ -188,6 +188,18 @@ func NewGame() *Game {
 			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
 		}
 		tx++
+		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+
+		tx = int(consts.XYCenter - 5)
+		ty = int(consts.XYCenter + 2)
+		o := objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
+		o.OutputDir = consts.DIR_SOUTH
+		for i := 0; i < beltLength-hSpace; i++ {
+			ty++
+			o := objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBeltVert)
+			o.OutputDir = consts.DIR_SOUTH
+		}
+		ty++
 		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
 
 	}

@@ -118,23 +118,23 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			objCamPosY := objOffY * glob.ZoomScale
 
 			/* Overlays */
-			if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
+			if obj.TypeP.TypeI == consts.ObjTypeBasicBelt ||
+				obj.TypeP.TypeI == consts.ObjTypeBasicBeltVert {
 
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Reset()
 				iSize := obj.TypeP.Bounds
 				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 				op.GeoM.Translate(objCamPosX, objCamPosY)
-				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
-					/* Draw Input Materials */
-					if obj.OutputBuffer.Amount > 0 {
-						matTween(obj.OutputBuffer, obj, op, screen)
-					} else {
-						for _, m := range obj.InputBuffer {
-							if m.Amount > 0 {
-								matTween(m, obj, op, screen)
-								break
-							}
+
+				/* Draw Input Materials */
+				if obj.OutputBuffer.Amount > 0 {
+					matTween(obj.OutputBuffer, obj, op, screen)
+				} else {
+					for _, m := range obj.InputBuffer {
+						if m.Amount > 0 {
+							matTween(m, obj, op, screen)
+							break
 						}
 					}
 				}
@@ -269,7 +269,7 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 
 			//Limit item movement, but go off end to smoothly transition between belts
 			if obj.OutputObj != nil && obj.OutputObj.Valid &&
-				obj.OutputObj.TypeI == consts.ObjTypeBasicBelt {
+				(obj.OutputObj.TypeI == consts.ObjTypeBasicBelt || obj.OutputObj.TypeI == consts.ObjTypeBasicBeltVert) {
 				if amount > 1.1 {
 					amount = 1.1
 				}
@@ -283,9 +283,14 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 			dir := obj.OutputDir
 			if dir == consts.DIR_EAST {
 				op.GeoM.Translate(math.Floor(amount*glob.ZoomScale), math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
-			} else if dir == consts.DIR_WEST {
 
+			} else if dir == consts.DIR_WEST {
 				op.GeoM.Translate(math.Floor((1*glob.ZoomScale)-amount*glob.ZoomScale), math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
+
+			} else if dir == consts.DIR_NORTH {
+				op.GeoM.Translate(math.Floor(consts.VBeltVertOffset*glob.ZoomScale), math.Floor(-amount*glob.ZoomScale))
+			} else if dir == consts.DIR_SOUTH {
+				op.GeoM.Translate(math.Floor(consts.VBeltVertOffset*glob.ZoomScale), math.Floor(amount*glob.ZoomScale))
 			}
 			screen.DrawImage(img, op)
 
