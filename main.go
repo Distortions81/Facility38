@@ -23,6 +23,7 @@ type Game struct {
 
 func NewGame() *Game {
 
+	/* Detect logical CPUs */
 	var lCPUs int = runtime.NumCPU()
 	cdat, cerr := cpu.Counts(false)
 	if cerr == nil {
@@ -31,17 +32,10 @@ func NewGame() *Game {
 	} else {
 		fmt.Println("Unable to detect logical CPUs.")
 	}
-
 	if lCPUs < 1 {
 		lCPUs = 1
 	}
-
 	glob.NumWorkers = lCPUs
-
-	objects.GameTypeMax = int(len(objects.GameObjTypes))
-	objects.UITypeMax = int(len(objects.UIObjsTypes))
-	objects.MatTypeMax = int(len(objects.MatTypes))
-	objects.OverlayMax = int(len(objects.ObjOverlayTypes))
 
 	var bg *ebiten.Image
 	var err error
@@ -118,17 +112,16 @@ func NewGame() *Game {
 	}
 
 	//Make default toolbar
-	var z int
+	objects.ToolbarMax = 0
 	for spos, stype := range objects.SubTypes {
 		if spos == consts.ObjSubUI || spos == consts.ObjSubGame {
 			for _, otype := range stype {
+				objects.ToolbarMax++
 				objects.ToolbarItems = append(objects.ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
 				//fmt.Println(otype.Name)
-				z++
 			}
 		}
 	}
-	objects.ToolbarMax = z
 
 	//Boot Image
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)

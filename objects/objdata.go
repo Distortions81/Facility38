@@ -8,11 +8,7 @@ import (
 var (
 
 	//Automatically set
-	GameTypeMax int = 0
-	UITypeMax   int = 0
-	MatTypeMax  int = 0
-	ToolbarMax  int = 0
-	OverlayMax  int = 0
+	ToolbarMax int = 0
 
 	SelectedItemType int = 0
 	ToolbarItems         = []glob.ToolbarItem{}
