@@ -8,10 +8,12 @@ const (
 	Wasm              = "js"         //Detect wasm/js
 	DataDir           = "data/"
 	GfxDir            = "gfx/"
+
 	HBeltVertOffset   = 0.6
 	VBeltVertOffset   = 0.4
 	ReverseBeltOffset = 0.75
 	HBeltLimitEnd     = 0.75
+	BlockedIndicatorOffset = 12
 
 	TickTockWorkSize = 100
 

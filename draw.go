@@ -170,7 +170,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						op.GeoM.Reset()
 
 						iSize := obj.TypeP.Bounds
-						op.GeoM.Translate(float64(iSize.Max.X)-float64(img.Bounds().Max.X)-12, 12)
+						op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjTypeBlocked].Bounds.Max.X)-consts.BlockedIndicatorOffset, consts.BlockedIndicatorOffset)
 						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 						screen.DrawImage(img, op)
@@ -268,7 +268,7 @@ func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStar
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 	op.GeoM.Reset()
 	img := objects.TerrainTypes[1].Image
-	iSize := img.Bounds()
+	iSize := objects.TerrainTypes[1].Bounds
 
 	sc := 1
 	for j := 0; j < 1000; j += sc {
@@ -343,7 +343,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		op.GeoM.Reset()
-		iSize := obj.TypeP.Image.Bounds()
+		iSize := obj.TypeP.Bounds
 		op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
@@ -366,8 +366,8 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		op.GeoM.Reset()
-		if item.OType.Image.Bounds().Max.X != consts.ToolBarScale {
-			iSize := item.OType.Image.Bounds()
+		if item.OType.Bounds.Max.X != consts.ToolBarScale {
+			iSize := item.OType.Bounds
 			op.GeoM.Scale(1.0/(float64(iSize.Max.X)/consts.ToolBarScale), 1.0/(float64(iSize.Max.Y)/consts.ToolBarScale))
 		}
 		op.GeoM.Translate(x, 0)

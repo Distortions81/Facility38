@@ -60,15 +60,18 @@ type ObjType struct {
 	SymbolColor *color.NRGBA
 	Symbol      string
 	Size        Position
-	Bounds      image.Rectangle `json:"-"`
+	Bounds      image.Rectangle
 
 	ImagePath string
 	Image     *ebiten.Image
+	HasDirImg bool
+	DirImage  [consts.DIR_WEST]*ebiten.Image
 
 	MinerKGTock float64
 	CapacityKG  uint64
 
 	HasMatOutput bool
+	HasMapInput  bool
 
 	ToolbarAction func()
 	UpdateObj     func(Obj *WObject, tickNow time.Time)

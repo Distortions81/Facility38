@@ -53,7 +53,7 @@ func NewGame() *Game {
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)
 
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build))
-	ebiten.SetWindowResizable(true)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	glob.DetectedOS = runtime.GOOS
 
