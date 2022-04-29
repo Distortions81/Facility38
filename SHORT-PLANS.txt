@@ -8,7 +8,7 @@ https://github.com/Distortions81/GameTest/issues/1
 Check on belt blinking when miner replaced
 
 ** Draw a ghost for pending delete/add object **
-make belt juctions, and vertical belts.
+make belt juctions
 
 1:
 make occupied map

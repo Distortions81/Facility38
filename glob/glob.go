@@ -116,7 +116,7 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	ObjectUPS            = 4.0
+	ObjectUPS            = 1.0
 	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
 	MeasuredObjectUPS_ns = ObjectUPS_ns
 
