@@ -272,6 +272,7 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 	//Link inputs
 	var i int
 
+	obj.BeltStart = true
 	for i = consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
 		neigh := util.GetNeighborObj(obj, pos, i)
 
@@ -280,6 +281,9 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 				neigh.OutputObj = obj
 				obj.InputBuffer[neigh] = &glob.MatData{}
 				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
+				if neigh.TypeI == consts.ObjTypeBasicBelt || neigh.TypeI == consts.ObjTypeBasicBeltVert {
+					obj.BeltStart = false
+				}
 			}
 		}
 	}

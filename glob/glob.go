@@ -36,6 +36,7 @@ type WObject struct {
 	//Input/Output
 	InputBuffer  map[*WObject]*MatData `json:"i,omitempty"`
 	OutputBuffer *MatData              `json:"o,omitempty"`
+	BeltStart    bool
 
 	Valid bool `json:"v,omitempty"`
 }
@@ -116,7 +117,7 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	ObjectUPS            = 1.0
+	ObjectUPS            = 2.0
 	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
 	MeasuredObjectUPS_ns = ObjectUPS_ns
 

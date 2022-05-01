@@ -295,34 +295,36 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 			move := time.Since(m.TweenStamp).Nanoseconds()
 			amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
 
-			//Limit item movement, but go off end to smoothly transition between belts
+			//Replace with subimage cropping
 			if obj.OutputObj != nil && obj.OutputObj.Valid &&
 				(obj.OutputObj.TypeI == consts.ObjTypeBasicBelt || obj.OutputObj.TypeI == consts.ObjTypeBasicBeltVert) {
-				if amount > 1.1 {
-					amount = 1.1
+				if amount > 1.0 {
+					amount = 1.0
+					return
 				}
 			} else {
 				//If the belt is a dead end, stop before we go off
 				if amount > consts.HBeltLimitEnd {
 					amount = consts.HBeltLimitEnd
+					return
 				}
 			}
 
 			dir := obj.OutputDir
 			if dir == consts.DIR_EAST {
-				op.GeoM.Translate(math.Floor(amount*glob.ZoomScale),
+				op.GeoM.Translate(math.Floor((amount)*glob.ZoomScale),
 					math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
 
 			} else if dir == consts.DIR_WEST {
-				op.GeoM.Translate(math.Floor((consts.ReverseBeltOffset*glob.ZoomScale)-amount*glob.ZoomScale),
+				op.GeoM.Translate(math.Floor((consts.ReverseBeltOffset*glob.ZoomScale)-(amount)*glob.ZoomScale),
 					math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
 
 			} else if dir == consts.DIR_NORTH {
 				op.GeoM.Translate(math.Floor(consts.VBeltVertOffset*glob.ZoomScale),
-					math.Floor((consts.ReverseBeltOffset*glob.ZoomScale)-amount*glob.ZoomScale))
+					math.Floor((consts.ReverseBeltOffset*glob.ZoomScale)-(amount)*glob.ZoomScale))
 			} else if dir == consts.DIR_SOUTH {
 				op.GeoM.Translate(math.Floor(consts.VBeltVertOffset*glob.ZoomScale),
-					math.Floor(amount*glob.ZoomScale))
+					math.Floor((amount)*glob.ZoomScale))
 			}
 			screen.DrawImage(img, op)
 
