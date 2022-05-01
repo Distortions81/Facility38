@@ -267,19 +267,18 @@ func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStar
 
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 	op.GeoM.Reset()
-	img := objects.TerrainTypes[1].Image
-	iSize := objects.TerrainTypes[1].Bounds
+	img := objects.TerrainTypes[2].Image
+	iSize := objects.TerrainTypes[2].Bounds
+	oSize := objects.TerrainTypes[2].Size
 
-	sc := 1
-	for j := 0; j < 1000; j += sc {
-		for i := 0; i < 1000; i += sc {
+	for j := 0; j < 1000; j += oSize.X {
+		for i := 0; i < 1000; i += oSize.Y {
 			pos := glob.Position{X: int(float64((consts.XYCenter) - 500.0 + float64(i))),
 				Y: int(float64((consts.XYCenter) - 500.0 + float64(j)))}
-			if pos.X < camStartX || pos.X > camEndX || pos.Y < camStartY || pos.Y > camEndY {
+			if pos.X+oSize.X < camStartX || pos.X-oSize.X*2 > camEndX || pos.Y+oSize.Y*2 < camStartY || pos.Y-oSize.Y*2 > camEndY {
 				continue
 			}
-			op.GeoM.Scale((float64(sc)*glob.ZoomScale)/float64(iSize.Max.X), (float64(sc)*glob.ZoomScale)/float64(iSize.Max.Y))
-
+			op.GeoM.Scale(float64(oSize.X)*glob.ZoomScale/float64(iSize.Max.X-1), float64(oSize.Y)*glob.ZoomScale/float64(iSize.Max.X-1))
 			op.GeoM.Translate((float64(pos.X)+camXPos)*glob.ZoomScale, (float64(pos.Y)+camYPos)*glob.ZoomScale)
 
 			screen.DrawImage(img, op)

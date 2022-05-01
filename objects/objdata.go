@@ -94,8 +94,13 @@ var (
 	TerrainTypes = []*glob.ObjType{
 		//Overlays
 		{ImagePath: "terrain/grass1.png", Name: "grass",
+			Size:   glob.Position{X: 16, Y: 16},
 			Symbol: ".", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorGreen},
 		{ImagePath: "terrain/gravel1.png", Name: "grass",
+			Size:   glob.Position{X: 16, Y: 16},
+			Symbol: ".", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorGreen},
+		{ImagePath: "terrain/grass2.png", Name: "grass2",
+			Size:   glob.Position{X: 16, Y: 16},
 			Symbol: ".", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorGreen},
 	}
 

@@ -276,7 +276,7 @@ func (g *Game) Update() error {
 		o := chunk.WObject[pos]
 
 		if o != nil {
-			
+
 			if glob.ShiftPressed {
 				o.OutputDir = o.OutputDir - 1
 				if o.OutputDir < consts.DIR_NORTH {
