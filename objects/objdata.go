@@ -122,7 +122,7 @@ var (
 		//Materials
 		{Symbol: "?", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorRed, Name: "Error"},
 		{Symbol: "WOOD", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorBrown, Name: "Wood"},
-		{Symbol: "COAL", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal-ore2.png", Name: "Coal Ore"},
+		{Symbol: "COAL", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal-ore.png", Name: "Coal Ore"},
 		{Symbol: "COPPER", ItemColor: &glob.ColorTransparent, SymbolColor: &glob.ColorAqua, Name: "Copper Ore"},
 	}
 

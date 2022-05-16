@@ -9,8 +9,8 @@ const (
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
-	HBeltVertOffset        = 0.0
-	VBeltVertOffset        = 0.0
+	HBeltVertOffset        = 0.6
+	VBeltVertOffset        = 0.38
 	ReverseBeltOffset      = 0.0
 	HBeltLimitEnd          = 0.1
 	BlockedIndicatorOffset = 12
