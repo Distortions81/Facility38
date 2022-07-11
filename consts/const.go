@@ -4,7 +4,7 @@ const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
 	Version = "009"        //increment
-	Build   = "04.25.2022" //mmddyyyy
+	Build   = "06.10.2022" //mmddyyyy
 	Wasm    = "js"         //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
