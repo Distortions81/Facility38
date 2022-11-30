@@ -67,70 +67,7 @@ func TickObj(o *glob.WObject) {
 	}
 }
 
-func MinerUpdate(o *glob.WObject, tickNow time.Time) {
-
-	if o.OutputBuffer.Amount == 0 {
-		input := uint64((o.TypeP.MinerKGTock))
-
-		o.OutputBuffer.Amount = input
-		o.OutputBuffer.TypeI = consts.MAT_COAL
-		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
-		o.OutputBuffer.TweenStamp = tickNow
-
-		//fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
-	}
-}
-
-func SmelterUpdate(obj *glob.WObject, tickNow time.Time) {
-	//oData := glob.GameObjTypes[Obj.Type]
-
-}
-
-func IronCasterUpdate(obj *glob.WObject, tickNow time.Time) {
-	//oData := glob.GameObjTypes[Obj.Type]
-
-}
-
-func BeltUpdate(obj *glob.WObject, tickNow time.Time) {
-	if obj.OutputBuffer.Amount == 0 {
-		for src, mat := range obj.InputBuffer {
-			if mat.Amount > 0 {
-				obj.OutputBuffer.TweenStamp = tickNow
-				obj.OutputBuffer.Amount = mat.Amount
-				obj.OutputBuffer.TypeI = mat.TypeI
-				obj.OutputBuffer.TypeP = mat.TypeP
-				obj.InputBuffer[src].Amount = 0
-				//fmt.Println(obj.TypeP.Name, " moved: ", mat.Amount)
-			}
-		}
-	}
-
-}
-
-func SteamEngineUpdate(obj *glob.WObject, tickNow time.Time) {
-}
-
-func BoxUpdate(obj *glob.WObject, tickNow time.Time) {
-
-	for src, mat := range obj.InputBuffer {
-		if mat.Amount > 0 {
-			if obj.KGHeld+mat.Amount <= obj.TypeP.CapacityKG {
-				if obj.Contents[mat.TypeI] == nil {
-					obj.Contents[mat.TypeI] = &glob.MatData{}
-				}
-				obj.Contents[mat.TypeI].Amount += mat.Amount
-				obj.KGHeld += mat.Amount
-				obj.Contents[mat.TypeI].TypeI = mat.TypeI
-				obj.Contents[mat.TypeI].TypeP = mat.TypeP
-
-				obj.InputBuffer[src].Amount = 0
-				//fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
-			}
-		}
-	}
-}
-
-//Move materials from one object to another
+// Move materials from one object to another
 func runTicks() {
 	numWorkers := glob.NumWorkers
 	wg := sizedwaitgroup.New(numWorkers)
@@ -140,8 +77,7 @@ func runTicks() {
 		return
 	}
 
-	//Hard lock to 250 work chunks, about a ms a peice at full load
-	numWorkers = l / consts.TickTockWorkSize
+	numWorkers = l / consts.WorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -171,7 +107,7 @@ func runTicks() {
 	wg.Wait()
 }
 
-//Process objects
+// Process objects
 func runTocks() {
 	numWorkers := glob.NumWorkers
 	wg := sizedwaitgroup.New(numWorkers)
@@ -181,8 +117,7 @@ func runTocks() {
 		return
 	}
 
-	//Hard lock to 250 work chunks, about a ms a peice at full load
-	numWorkers = l / consts.TickTockWorkSize
+	numWorkers = l / consts.WorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}

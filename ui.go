@@ -11,7 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-//Ebiten main loop
+// Ebiten main loop
 func (g *Game) Update() error {
 
 	if !glob.DrewMap {

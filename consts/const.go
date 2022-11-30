@@ -4,7 +4,7 @@ const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
 	Version = "009"        //increment
-	Build   = "06.10.2022" //mmddyyyy
+	Build   = "11.30.2022" //mmddyyyy
 	Wasm    = "js"         //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
@@ -15,7 +15,7 @@ const (
 	HBeltLimitEnd          = 0.1
 	BlockedIndicatorOffset = 12
 
-	TickTockWorkSize = 100
+	WorkSize = 100
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
