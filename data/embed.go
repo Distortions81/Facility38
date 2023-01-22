@@ -9,12 +9,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
+//go:embed gfx
+
 var f embed.FS
 
 func GetSpriteImage(embeded bool, name string) (*ebiten.Image, error) {
 
 	var err error
-	if embeded && 1 == 2 {
+	if embeded {
 		gpng, err := f.Open(name)
 		if err == nil {
 

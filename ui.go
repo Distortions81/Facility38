@@ -14,6 +14,10 @@ import (
 // Ebiten main loop
 func (g *Game) Update() error {
 
+	if consts.TestMode {
+		return nil
+	}
+
 	if !glob.DrewMap {
 		return nil
 	}
@@ -192,7 +196,9 @@ func (g *Game) Update() error {
 							}
 
 							if !bypass {
+								objects.ListLock.Lock()
 								objects.ObjectHitlistAdd(o, objects.SelectedItemType, &pos, false)
+								objects.ListLock.Unlock()
 
 								glob.LastActionPosition = pos
 								glob.LastActionType = consts.DragActionTypeBuild
@@ -203,7 +209,9 @@ func (g *Game) Update() error {
 							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 
 								if o != nil {
+									objects.ListLock.Lock()
 									objects.ObjectHitlistAdd(o, o.TypeI, &pos, true)
+									objects.ListLock.Unlock()
 									//Action completed, save position and time
 									glob.LastActionPosition = pos
 									glob.LastActionType = consts.DragActionTypeDelete

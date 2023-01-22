@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"sync"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -12,6 +13,7 @@ import (
 var (
 	WorldTick uint64 = 0
 
+	ListLock sync.Mutex
 	TickList []glob.TickEvent
 	TockList []glob.TickEvent
 
@@ -37,10 +39,12 @@ func TickTockLoop() {
 
 		WorldTick++
 
+		ListLock.Lock()
 		runTocks() //Process objects
 		runTicks() //Move external
 		runEventHitlist()
 		runObjectHitlist()
+		ListLock.Unlock()
 
 		//sleepFor := glob.ObjectUPS_ns - time.Since(start)
 		//time.Sleep(sleepFor)
@@ -161,7 +165,6 @@ func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
 }
 
 func ticklistRemove(obj *glob.WObject) {
-
 	for i, e := range TickList {
 		if e.Target == obj {
 
@@ -176,7 +179,6 @@ func ticklistRemove(obj *glob.WObject) {
 }
 
 func tocklistRemove(obj *glob.WObject) {
-
 	for i, e := range TockList {
 		if e.Target == obj {
 

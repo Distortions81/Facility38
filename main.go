@@ -138,14 +138,14 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
-	multi := 145
+	multi := 47
 	rows := 16 * multi
 	columns := 3 * multi
 	beltLength := 10
 	hSpace := 3
 
 	//For testing
-	if 1 == 1 {
+	if consts.TestMode {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
 		//time.Sleep(time.Second * 3)
@@ -156,7 +156,7 @@ func NewGame() *Game {
 			cols++
 
 			tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
-			//objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+			objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
 
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
