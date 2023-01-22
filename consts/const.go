@@ -15,7 +15,7 @@ const (
 	HBeltLimitEnd          = 0.1
 	BlockedIndicatorOffset = 12
 
-	WorkSize = 100
+	WorkSize = 100000
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1

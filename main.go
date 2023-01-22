@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
@@ -40,7 +39,7 @@ func NewGame() *Game {
 	var bg *ebiten.Image
 	var err error
 
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 	ebiten.SetScreenFilterEnabled(true)
 
 	//Ebiten
@@ -139,17 +138,17 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
-	multi := 10
+	multi := 145
 	rows := 16 * multi
 	columns := 3 * multi
 	beltLength := 10
 	hSpace := 3
 
 	//For testing
-	if 1 == 2 {
+	if 1 == 1 {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
-		time.Sleep(time.Second * 3)
+		//time.Sleep(time.Second * 3)
 
 		ty := int(glob.CameraY) - (rows)
 		cols := 0
@@ -157,7 +156,7 @@ func NewGame() *Game {
 			cols++
 
 			tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
-			objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+			//objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
 
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
@@ -229,7 +228,7 @@ func NewGame() *Game {
 	return &Game{}
 }
 
-//Ebiten resize handling
+// Ebiten resize handling
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	if outsideWidth != glob.ScreenWidth || outsideHeight != glob.ScreenHeight {
 		glob.ScreenWidth = outsideWidth
@@ -239,7 +238,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return glob.ScreenWidth, glob.ScreenHeight
 }
 
-//Main function
+// Main function
 func main() {
 
 	if err := ebiten.RunGame(NewGame()); err != nil {

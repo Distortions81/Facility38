@@ -16,7 +16,7 @@ import (
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
-	drawStart := time.Now()
+	//drawStart := time.Now()
 
 	/* Init */
 	if glob.DrewStartup {
@@ -190,7 +190,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		ebitenutil.DebugPrintAt(screen,
 			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v Draw: c%v/o%v Skip: c%v/o%v (v%v-%v)",
-				ebiten.CurrentFPS(), ebiten.CurrentTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
+				ebiten.ActualFPS(), ebiten.ActualTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
 				glob.ZoomScale, chunkCount, objCount, chunkSkip, objSkip, consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}
@@ -258,8 +258,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	//Limit frame rate
-	sleepFor := consts.MAX_RENDER_NS - time.Since(drawStart)
-	time.Sleep(sleepFor)
+	//sleepFor := consts.MAX_RENDER_NS - time.Since(drawStart)
+	//time.Sleep(sleepFor)
 }
 
 func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStartX int, camStartY int, camEndX int, camEndY int) {
