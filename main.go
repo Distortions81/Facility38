@@ -53,6 +53,7 @@ func NewGame() *Game {
 	} else if xSize <= 1280 && ySize <= 800 {
 		glob.ScreenWidth = xSize
 		glob.ScreenHeight = ySize
+		ebiten.SetFullscreen(true)
 	}
 
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)

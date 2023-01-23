@@ -1,8 +1,5 @@
-/GameTest.exe
+*.exe
+*.zip
 GameTest
 save.json
-html/main.wasm.gz
-GameTest.zip
-GameTest.upx
-GameTest-win64.zip
 html/main.wasm.gz
