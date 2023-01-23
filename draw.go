@@ -6,6 +6,7 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
+	"image/color"
 	"math"
 	"time"
 
@@ -13,6 +14,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
+
+var toolBG *ebiten.Image
+var lastBGColor color.Color
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
@@ -375,12 +379,14 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
-		/* Icon BG Color */
-		bg := ebiten.NewImage(63, 64)
-		bg.Fill(item.OType.ItemColor)
+		/* Icon BG Color, only refill if needed */
+		if lastBGColor != item.OType.ItemColor {
+			toolBG.Fill(item.OType.ItemColor)
+			lastBGColor = item.OType.ItemColor
+		}
 		op.GeoM.Reset()
 		op.GeoM.Translate(x, 0)
-		screen.DrawImage(bg, op)
+		screen.DrawImage(toolBG, op)
 
 		op.GeoM.Reset()
 		if item.OType.Bounds.Max.X != consts.ToolBarScale {

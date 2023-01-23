@@ -117,6 +117,8 @@ func NewGame() *Game {
 		}
 	}
 
+	toolBG = ebiten.NewImage(63, 64)
+
 	/* Make default toolbar */
 	objects.ToolbarMax = 0
 	for spos, stype := range objects.SubTypes {
@@ -124,6 +126,7 @@ func NewGame() *Game {
 			for _, otype := range stype {
 				objects.ToolbarMax++
 				objects.ToolbarItems = append(objects.ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
+
 			}
 		}
 	}
