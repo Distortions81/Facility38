@@ -14,7 +14,7 @@ import (
 // Ebiten main loop
 func (g *Game) Update() error {
 
-	if consts.TestMode {
+	if consts.UPSBench {
 		return nil
 	}
 

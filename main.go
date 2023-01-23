@@ -32,10 +32,12 @@ func NewGame() *Game {
 		fmt.Println("Unable to detect logical CPUs.")
 	}
 	/* Just in case we get a invalid value somehow */
-	if lCPUs < 1 {
+	if lCPUs <= 1 {
 		lCPUs = 1
+		glob.NumWorkers = 1
+	} else {
+		glob.NumWorkers = lCPUs
 	}
-	glob.NumWorkers = lCPUs
 
 	/* Set up ebiten */
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
@@ -152,7 +154,7 @@ func NewGame() *Game {
 	hSpace := 3
 
 	/* Load Test Mode */
-	if consts.TestMode {
+	if consts.LoadTest {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
 		//time.Sleep(time.Second * 3)

@@ -9,14 +9,16 @@ const (
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
-	TestMode               = false
+	UPSBench = false
+	LoadTest = false
+
 	HBeltVertOffset        = 0.6
 	VBeltVertOffset        = 0.38
 	ReverseBeltOffset      = 0.0
 	HBeltLimitEnd          = 0.1
 	BlockedIndicatorOffset = 12
 
-	WorkSize = 1000
+	WorkSize = 100
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1

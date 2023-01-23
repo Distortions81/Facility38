@@ -46,7 +46,7 @@ func TickTockLoop() {
 		runObjectHitlist()
 		ListLock.Unlock()
 
-		if !consts.TestMode {
+		if !consts.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		}
