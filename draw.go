@@ -65,19 +65,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	drawTerrain(screen, camXPos, camYPos, camStartX, camStarty, camEndX, camEndY)
 
-	/*Draw world*/
+	/* Draw world */
 	for chunkPos, chunk := range glob.WorldMap {
 
-		//Is this chunk on the screen?
+		/* Is this chunk on the screen? */
 		if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
 			chunkSkip++
 			continue
 		}
 		chunkCount++
 
+		/* Draw objects in chunk */
 		for objPos, obj := range chunk.WObject {
 
-			//Is this object on the screen?
+			/* Is this object on the screen? */
 			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
 				objSkip++
 				continue
@@ -92,6 +93,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			objCamPosX := objOffX * glob.ZoomScale
 			objCamPosY := objOffY * glob.ZoomScale
 
+			/* Time to draw it */
 			DrawObject(screen, objCamPosX, objCamPosY, obj)
 		}
 	}
@@ -99,14 +101,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw overlays */
 	for chunkPos, chunk := range glob.WorldMap {
 
-		//Is this chunk on the screen?
+		/* Is this chunk on the screen? */
 		if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
 			continue
 		}
 
 		for objPos, obj := range chunk.WObject {
 
-			//Is this object on the screen?
+			/* Is this object on the screen? */
 			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
 				continue
 			}
@@ -120,6 +122,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			objCamPosY := objOffY * glob.ZoomScale
 
 			/* Overlays */
+			/* Draw belt overlays */
 			if obj.TypeP.TypeI == consts.ObjTypeBasicBelt ||
 				obj.TypeP.TypeI == consts.ObjTypeBasicBeltVert {
 
@@ -142,6 +145,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 
 			} else if glob.ShowInfoLayer {
+				/* Info Overlays, such as arrows and blocked indicator */
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Reset()
 				iSize := obj.TypeP.Bounds
@@ -161,7 +165,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						//fmt.Println("Arrow overlay image not found.")
 					}
 
-					//Show blocked outputs
+					/* Show blocked outputs */
 					img = objects.ObjOverlayTypes[consts.ObjTypeBlocked].Image
 					if obj.OutputObj != nil && obj.OutputBuffer.Amount > 0 &&
 						obj.OutputObj.InputBuffer[obj] != nil && obj.OutputObj.InputBuffer[obj].Amount > 0 {
@@ -180,7 +184,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	//Get mouse position on world
+	/* Get mouse position on world */
 	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 	worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
 
@@ -216,7 +220,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 		}
 	} else {
-		/* Draw tool tip */
+		/* World Obj tool tip */
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 		chunk := util.GetChunk(&pos)
 
@@ -246,6 +250,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}
 		}
 
+		/* No object contents found */
 		if !found {
 			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", math.Floor(worldMouseX-consts.XYCenter), math.Floor(worldMouseY-consts.XYCenter))
 		}
@@ -257,7 +262,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 	}
 
-	//Limit frame rate
+	/* Limit frame rate */
 	//sleepFor := consts.MAX_RENDER_NS - time.Since(drawStart)
 	//time.Sleep(sleepFor)
 }
@@ -303,7 +308,7 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 					return
 				}
 			} else {
-				//If the belt is a dead end, stop before we go off
+				/* If the belt is a dead end, stop before we go off */
 				if amount > consts.HBeltLimitEnd {
 					amount = consts.HBeltLimitEnd
 					return
@@ -366,6 +371,14 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
+		/* Icon BG Color */
+		bg := ebiten.NewImage(63, 64)
+		bg.Fill(item.OType.ItemColor)
+		op.GeoM.Reset()
+		op.GeoM.Translate(x, 0)
+		screen.DrawImage(bg, op)
+
 		op.GeoM.Reset()
 		if item.OType.Bounds.Max.X != consts.ToolBarScale {
 			iSize := item.OType.Bounds
