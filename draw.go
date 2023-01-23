@@ -16,7 +16,7 @@ import (
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
-	//drawStart := time.Now()
+	drawStart := time.Now()
 
 	/* Init */
 	if glob.DrewStartup {
@@ -39,7 +39,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw start */
-	screen.Fill(glob.BGColor)
+	screen.Fill(glob.ColorRed)
 
 	/* Adjust camerea position for zoom */
 	camXPos := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
@@ -263,8 +263,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Limit frame rate */
-	//sleepFor := consts.MAX_RENDER_NS - time.Since(drawStart)
-	//time.Sleep(sleepFor)
+	sleepFor := consts.MAX_RENDER_NS - time.Since(drawStart)
+	if sleepFor > time.Millisecond {
+		time.Sleep(sleepFor)
+	}
+
 }
 
 func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStartX int, camStartY int, camEndX int, camEndY int) {

@@ -46,8 +46,10 @@ func TickTockLoop() {
 		runObjectHitlist()
 		ListLock.Unlock()
 
-		//sleepFor := glob.ObjectUPS_ns - time.Since(start)
-		//time.Sleep(sleepFor)
+		if !consts.TestMode {
+			sleepFor := glob.ObjectUPS_ns - time.Since(start)
+			time.Sleep(sleepFor)
+		}
 		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
 

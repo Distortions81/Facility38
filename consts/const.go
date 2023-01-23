@@ -9,7 +9,7 @@ const (
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
-	TestMode               = true
+	TestMode               = false
 	HBeltVertOffset        = 0.6
 	VBeltVertOffset        = 0.38
 	ReverseBeltOffset      = 0.0
