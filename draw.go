@@ -6,7 +6,6 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
-	"image/color"
 	"math"
 	"time"
 
@@ -16,7 +15,6 @@ import (
 )
 
 var toolBG *ebiten.Image
-var lastBGColor color.Color
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
@@ -379,11 +377,6 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
-		/* Icon BG Color, only refill if needed */
-		if lastBGColor != item.OType.ItemColor {
-			toolBG.Fill(item.OType.ItemColor)
-			lastBGColor = item.OType.ItemColor
-		}
 		op.GeoM.Reset()
 		op.GeoM.Translate(x, 0)
 		screen.DrawImage(toolBG, op)
