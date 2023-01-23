@@ -31,31 +31,33 @@ func NewGame() *Game {
 	} else {
 		fmt.Println("Unable to detect logical CPUs.")
 	}
+	/* Just in case we get a invalid value somehow */
 	if lCPUs < 1 {
 		lCPUs = 1
 	}
 	glob.NumWorkers = lCPUs
 
-	var bg *ebiten.Image
-	var err error
-
+	/* Set up ebiten */
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 	ebiten.SetScreenFilterEnabled(true)
-
-	//Ebiten
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)
-
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build))
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
+	/* Save detected OS */
 	glob.DetectedOS = runtime.GOOS
 
-	//Font setup
+	/* Font setup, eventually use ttf files */
 	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	if err != nil {
 		log.Fatal(err)
 	}
+	/*
+	 * Font DPI
+	 * Not important. This just changes how large the font is for a given point value
+	 */
 	const dpi = 96
+	/* Boot screen font */
 	glob.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    24,
 		DPI:     dpi,
@@ -65,6 +67,7 @@ func NewGame() *Game {
 		log.Fatal(err)
 	}
 
+	/* Missing texture font */
 	glob.ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    56,
 		DPI:     dpi,
@@ -74,6 +77,7 @@ func NewGame() *Game {
 		log.Fatal(err)
 	}
 
+	/* Tooltip font */
 	glob.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    8,
 		DPI:     dpi,
@@ -83,46 +87,46 @@ func NewGame() *Game {
 		log.Fatal(err)
 	}
 
-	//Load Sprites
+	/* Load Sprites */
+	var timg *ebiten.Image
 	for _, otype := range objects.SubTypes {
 		for key, icon := range otype {
 			found := false
+
+			/* If there is a image name, attempt to fetch it */
 			if icon.ImagePath != "" {
-				img, err := data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
+				img, err := data.GetSpriteImage(false, consts.GfxDir+icon.ImagePath)
 				if err == nil {
-					bg = img
+					timg = img
 					found = true
 				}
 			}
+
+			/* If not found, fill texture with a letter */
 			if !found {
-				bg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
-				bg.Fill(icon.ItemColor)
-				text.Draw(bg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, 64-consts.SymbOffY, icon.SymbolColor)
+				timg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
+				timg.Fill(icon.ItemColor)
+				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, 64-consts.SymbOffY, icon.SymbolColor)
 			}
 
-			if err != nil {
-				//fmt.Println(err)
-			} else {
-				icon.Image = bg
-				icon.Bounds = bg.Bounds()
-				otype[key] = icon
-			}
+			icon.Image = timg
+			icon.Bounds = timg.Bounds()
+			otype[key] = icon
 		}
 	}
 
-	//Make default toolbar
+	/* Make default toolbar */
 	objects.ToolbarMax = 0
 	for spos, stype := range objects.SubTypes {
 		if spos == consts.ObjSubUI || spos == consts.ObjSubGame {
 			for _, otype := range stype {
 				objects.ToolbarMax++
 				objects.ToolbarItems = append(objects.ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
-				//fmt.Println(otype.Name)
 			}
 		}
 	}
 
-	//Boot Image
+	/* Boot Image */
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
 
 	glob.CameraX = float64(consts.XYCenter)
@@ -134,7 +138,9 @@ func NewGame() *Game {
 	tRect := text.BoundString(glob.BootFont, str)
 	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
 
+	/* Make gomap for world */
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
+
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
