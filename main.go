@@ -144,13 +144,14 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
+	/* Test load map generator parameters */
 	multi := 47
 	rows := 16 * multi
 	columns := 3 * multi
 	beltLength := 10
 	hSpace := 3
 
-	//For testing
+	/* Load Test Mode */
 	if consts.TestMode {
 
 		fmt.Println("Test items", rows*columns*beltLength/1000, "K")
@@ -178,6 +179,7 @@ func NewGame() *Game {
 			}
 		}
 	} else {
+		/* Default map generator */
 		tx := int(consts.XYCenter - 5)
 		ty := int(consts.XYCenter)
 		objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
@@ -227,14 +229,14 @@ func NewGame() *Game {
 
 	}
 
-	//Game logic runs on its own thread
+	/* Game logic runs on its own thread */
 	go objects.TickTockLoop()
 
-	// Initialize the game.
+	/* Initialize the game */
 	return &Game{}
 }
 
-// Ebiten resize handling
+/* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	if outsideWidth != glob.ScreenWidth || outsideHeight != glob.ScreenHeight {
 		glob.ScreenWidth = outsideWidth
@@ -244,7 +246,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return glob.ScreenWidth, glob.ScreenHeight
 }
 
-// Main function
+/* Main function */
 func main() {
 
 	if err := ebiten.RunGame(NewGame()); err != nil {
