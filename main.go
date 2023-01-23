@@ -40,10 +40,23 @@ func NewGame() *Game {
 	}
 
 	/* Set up ebiten */
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
 	ebiten.SetScreenFilterEnabled(true)
+	xSize, ySize := ebiten.ScreenSizeInFullscreen()
+
+	/* Handle high res displays, 50% window */
+	if xSize > 2560 && ySize > 1600 {
+		glob.ScreenWidth = xSize / 2
+		glob.ScreenHeight = ySize / 2
+
+		/* Small Screen, just go fullscreen */
+	} else if xSize <= 1280 && ySize <= 800 {
+		glob.ScreenWidth = xSize
+		glob.ScreenHeight = ySize
+	}
+
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)
-	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build))
+	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build + " " + fmt.Sprintf("%vx%v", glob.ScreenWidth, glob.ScreenHeight)))
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	/* Save detected OS */
@@ -248,6 +261,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		glob.ScreenHeight = outsideHeight
 		glob.InitMouse = false
 	}
+
+	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build + " " + fmt.Sprintf("%vx%v", glob.ScreenWidth, glob.ScreenHeight)))
 	return glob.ScreenWidth, glob.ScreenHeight
 }
 
