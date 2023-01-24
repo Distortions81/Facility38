@@ -27,7 +27,9 @@ func GetObj(pos *glob.Position, chunk *glob.MapChunk) *glob.WObject {
 
 // Automatically converts position to chunk format
 func GetChunk(pos *glob.Position) *glob.MapChunk {
+	glob.WorldMapLock.Lock()
 	chunk := glob.WorldMap[glob.Position{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}]
+	glob.WorldMapLock.Unlock()
 	return chunk
 }
 

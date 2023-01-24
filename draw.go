@@ -53,6 +53,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	drawTerrain(screen, camXPos, camYPos, camStartX, camStarty, camEndX, camEndY)
 
 	/* Draw world */
+	glob.WorldMapLock.Lock()
 	for chunkPos, chunk := range glob.WorldMap {
 
 		/* Is this chunk on the screen? */
@@ -84,8 +85,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			DrawObject(screen, objCamPosX, objCamPosY, obj)
 		}
 	}
+	glob.WorldMapLock.Unlock()
 
 	/* Draw overlays */
+	glob.WorldMapLock.Lock()
 	for chunkPos, chunk := range glob.WorldMap {
 
 		/* Is this chunk on the screen? */
@@ -167,6 +170,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}
 		}
 	}
+	glob.WorldMapLock.Unlock()
 
 	/* Get mouse position on world */
 	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))

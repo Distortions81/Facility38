@@ -247,9 +247,11 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 		cpos := util.PosToChunkPos(&pos)
 		//fmt.Println("Made chunk:", cpos)
 
+		glob.WorldMapLock.Lock()
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
 		chunk.WObject = make(map[glob.Position]*glob.WObject)
+		glob.WorldMapLock.Unlock()
 	}
 
 	obj := chunk.WObject[pos]
@@ -319,7 +321,9 @@ func runObjectHitlist() {
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 
+			glob.WorldMapLock.Lock()
 			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].WObject, *item.Pos)
+			glob.WorldMapLock.Unlock()
 
 		} else {
 			//Add

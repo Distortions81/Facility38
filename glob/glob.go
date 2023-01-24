@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
@@ -105,8 +106,9 @@ type EventHitlistData struct {
 }
 
 var (
-	WorldMap   map[Position]*MapChunk
-	UpdateTook time.Duration
+	WorldMap     map[Position]*MapChunk
+	WorldMapLock sync.Mutex
+	UpdateTook   time.Duration
 
 	XYEmpty = Position{X: 0, Y: 0}
 
@@ -176,11 +178,13 @@ func SaveGame() {
 	finalPath := "save.dat"
 
 	tempList := []*SaveMObj{}
+	WorldMapLock.Lock()
 	for _, chunk := range WorldMap {
 		for pos, mObj := range chunk.WObject {
 			tempList = append(tempList, &SaveMObj{mObj, pos})
 		}
 	}
+	WorldMapLock.Unlock()
 
 	b, err := json.MarshalIndent(tempList, "", "\t")
 
