@@ -195,9 +195,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
 		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f Zoom: %v Draw: c%v/o%v Skip: c%v/o%v (v%v-%v)",
+			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f, WorkSize: %v/%v (v%v-%v)",
 				ebiten.ActualFPS(), ebiten.ActualTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-				glob.ZoomScale, chunkCount, objCount, chunkSkip, objSkip, consts.Version, consts.Build),
+				objects.WorkSize, objects.NumWorkers,
+				consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}
 
