@@ -20,23 +20,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	drawStart := time.Now()
 
-	/* Init */
-	if glob.DrewStartup {
-		//Load map here eventually
-		glob.DrewMap = true
-		glob.StatusStr = ""
-	} else {
-		glob.DrewStartup = true
-	}
-
 	if !glob.DrewMap {
-		glob.BootImage.Fill(glob.BootColor)
-		str := "Loading..."
-		tRect := text.BoundString(glob.BootFont, str)
-		text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
 		screen.DrawImage(glob.BootImage, nil)
-		glob.BootImage.Dispose()
-		glob.DrewStartup = true
 		return
 	}
 
@@ -189,8 +174,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw debug info */
 	if glob.StatusStr != "" {
-		ebitenutil.DebugPrint(screen, glob.StatusStr)
-	} else {
 		ebitenutil.DebugPrintAt(screen,
 			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f, TockPerSec: %.2fm  (v%v-%v)",
 				ebiten.ActualFPS(), ebiten.ActualTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),

@@ -9,9 +9,9 @@ const (
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
-	UPSBench    = true
+	UPSBench    = false
 	LoadTest    = true
-	TestObjects = 1000000 //Make (approx) this number items
+	TestObjects = 10000000 //Make (approx) this number items
 
 	WorkChunksPerThread = 8
 
@@ -29,7 +29,9 @@ const (
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
 	DragActionTypeDelete = 2
-	MAX_RENDER_NS        = 1000000000 / 240
+
+	/* FPS limiter */
+	MAX_RENDER_NS = 1000000000 / 240
 
 	MaxUint  = ^uint32(0)
 	XYCenter = float64(uint32(MaxUint>>1) / 2)

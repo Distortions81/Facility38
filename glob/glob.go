@@ -114,7 +114,7 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	ObjectUPS            = 1.0
+	ObjectUPS            = 2.0
 	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
 	MeasuredObjectUPS_ns = ObjectUPS_ns
 
@@ -163,7 +163,6 @@ var (
 	ShiftPressed      bool = false
 
 	ShowInfoLayer bool = true
-	DrewStartup   bool = false
 	DrewMap       bool = false
 
 	DetectedOS string
