@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"encoding/json"
+	"fmt"
 	"image"
 	"image/color"
 	"io/ioutil"
@@ -114,7 +115,7 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	ObjectUPS            = 2.0
+	ObjectUPS            = 4.0
 	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
 	MeasuredObjectUPS_ns = ObjectUPS_ns
 
@@ -184,15 +185,15 @@ func SaveGame() {
 	b, err := json.MarshalIndent(tempList, "", "\t")
 
 	if err != nil {
-		//fmt.Println("WriteSave: enc.Encode failure")
-		//fmt.Println(err)
+		fmt.Println("WriteSave: enc.Encode failure")
+		fmt.Println(err)
 		return
 	}
 
 	_, err = os.Create(tempPath)
 
 	if err != nil {
-		//fmt.Println("WriteGCfg: os.Create failure")
+		fmt.Println("WriteGCfg: os.Create failure")
 		return
 	}
 
@@ -201,13 +202,13 @@ func SaveGame() {
 	err = ioutil.WriteFile(tempPath, zip, 0644)
 
 	if err != nil {
-		//fmt.Println("WriteGCfg: WriteFile failure")
+		fmt.Println("WriteGCfg: WriteFile failure")
 	}
 
 	err = os.Rename(tempPath, finalPath)
 
 	if err != nil {
-		//fmt.Println("Couldn't rename Gcfg file.")
+		fmt.Println("Couldn't rename Gcfg file.")
 		return
 	}
 }
@@ -257,7 +258,7 @@ func compressZip(data []byte) []byte {
 	var b bytes.Buffer
 	w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
 	if err != nil {
-		//fmt.Println("ERROR: gz failure:", err)
+		fmt.Println("ERROR: gz failure:", err)
 	}
 	w.Write(data)
 	w.Close()

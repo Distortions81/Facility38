@@ -11,7 +11,7 @@ const (
 
 	UPSBench    = false
 	LoadTest    = true
-	TestObjects = 10000000 //Make (approx) this number items
+	TestObjects = 1000000 //Make (approx) this number items
 
 	WorkChunksPerThread = 8
 
