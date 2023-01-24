@@ -12,7 +12,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/shirou/gopsutil/v3/cpu"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -30,20 +29,8 @@ func NewGame() *Game {
 	fmt.Println("Virtual CPUs:", lCPUs)
 	objects.NumWorkers = lCPUs
 
-	cdat, cerr := cpu.Counts(false)
-	if cerr == nil {
-		fmt.Println("Logical CPUs:", cdat)
-
-		/* If this is a multi-core system, reserve one core for rendering */
-		if cdat <= 1 {
-			lCPUs = 1
-		} else {
-			lCPUs = cdat
-		}
-		//objects.NumWorkers = lCPUs
-	} else {
-		fmt.Println("Unable to detect logical CPUs.")
-	}
+	//Logical CPUs
+	//cdat, cerr := cpu.Counts(false)
 
 	/* Set up ebiten */
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)

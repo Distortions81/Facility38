@@ -15,9 +15,14 @@ const (
 
 	WorkChunksPerThread = 8
 
-	HBeltVertOffset        = 0.6
-	VBeltVertOffset        = 0.38
-	ReverseBeltOffset      = 0.0
+	HBeltOffsetX       = 0.0
+	HBeltOffsetY       = 0.0
+	HReverseBeltOffset = 1.0
+
+	VBeltOffsetX       = 0.0
+	VBeltOffsetY       = -0.25
+	VReverseBeltOffset = -1.0
+
 	HBeltLimitEnd          = 0.1
 	BlockedIndicatorOffset = 12
 

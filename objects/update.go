@@ -3,42 +3,37 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"time"
 )
 
-func MinerUpdate(o *glob.WObject, tickNow time.Time) {
+func MinerUpdate(o *glob.WObject) {
 
 	if o.OutputBuffer.Amount == 0 {
 		input := uint64((o.TypeP.MinerKGTock))
 
 		o.OutputBuffer.Amount = input
-		o.OutputBuffer.TypeI = consts.MAT_COAL
 		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
-		o.OutputBuffer.TweenStamp = tickNow
 
 		//fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
 	}
 }
 
-func SmelterUpdate(obj *glob.WObject, tickNow time.Time) {
+func SmelterUpdate(o *glob.WObject) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func IronCasterUpdate(obj *glob.WObject, tickNow time.Time) {
+func IronCasterUpdate(o *glob.WObject) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func BeltUpdate(obj *glob.WObject, tickNow time.Time) {
-	if obj.OutputBuffer.Amount == 0 {
-		for src, mat := range obj.InputBuffer {
+func BeltUpdate(o *glob.WObject) {
+	if o.OutputBuffer.Amount == 0 {
+		for src, mat := range o.InputBuffer {
 			if mat.Amount > 0 {
-				obj.OutputBuffer.TweenStamp = tickNow
-				obj.OutputBuffer.Amount = mat.Amount
-				obj.OutputBuffer.TypeI = mat.TypeI
-				obj.OutputBuffer.TypeP = mat.TypeP
-				obj.InputBuffer[src].Amount = 0
+				o.OutputBuffer.Amount = mat.Amount
+				o.OutputBuffer.TypeP = mat.TypeP
+				o.InputBuffer[src].Amount = 0
 				//fmt.Println(obj.TypeP.Name, " moved: ", mat.Amount)
 			}
 		}
@@ -46,24 +41,22 @@ func BeltUpdate(obj *glob.WObject, tickNow time.Time) {
 
 }
 
-func SteamEngineUpdate(obj *glob.WObject, tickNow time.Time) {
+func SteamEngineUpdate(o *glob.WObject) {
 }
 
-func BoxUpdate(obj *glob.WObject, tickNow time.Time) {
+func BoxUpdate(o *glob.WObject) {
 
-	for src, mat := range obj.InputBuffer {
+	for src, mat := range o.InputBuffer {
 		if mat.Amount > 0 {
-			if obj.KGHeld+mat.Amount <= obj.TypeP.CapacityKG {
-				if obj.Contents[mat.TypeI] == nil {
-					obj.Contents[mat.TypeI] = &glob.MatData{}
+			if o.KGHeld+mat.Amount <= o.TypeP.CapacityKG {
+				if o.Contents[mat.TypeP.TypeI] == nil {
+					o.Contents[mat.TypeP.TypeI] = &glob.MatData{}
 				}
-				obj.Contents[mat.TypeI].Amount += mat.Amount
-				obj.KGHeld += mat.Amount
-				obj.Contents[mat.TypeI].TypeI = mat.TypeI
-				obj.Contents[mat.TypeI].TypeP = mat.TypeP
+				o.Contents[mat.TypeP.TypeI].Amount += mat.Amount
+				o.KGHeld += mat.Amount
+				o.Contents[mat.TypeP.TypeI].TypeP = mat.TypeP
 
-				obj.InputBuffer[src].Amount = 0
-				//fmt.Println(MatTypes[mat.TypeI].Name, " input: ", mat.Amount)
+				o.InputBuffer[src].Amount = 0
 			}
 		}
 	}

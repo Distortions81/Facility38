@@ -163,10 +163,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					img := objects.ObjOverlayTypes[obj.OutputDir].Image
 					if img != nil {
 						screen.DrawImage(img, op)
-					} else {
-						//fmt.Println("Arrow overlay image not found.")
 					}
-
 					/* Show blocked outputs */
 					img = objects.ObjOverlayTypes[consts.ObjTypeBlocked].Image
 					if obj.OutputObj != nil && obj.OutputBuffer.Amount > 0 &&
@@ -194,15 +191,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if glob.StatusStr != "" {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
-		/*ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f, WorkSize:(Tick:%.2fk,Tock:%.2fk Workers: %v), TotalWork: %.2fm, TickPerSec: %.2fm, TockPerSec: %.2fm  (v%v-%v)",
-			ebiten.ActualFPS(), ebiten.ActualTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-			float64(objects.TickWorkSize)/1000, float64(objects.TockWorkSize)/1000, objects.NumWorkers, float64(objects.TickCount+objects.TockCount)/1000000.0,
-			(float64(objects.TickCount)*(1000000000.0/float64(glob.MeasuredObjectUPS_ns)))/1000000,
-			(float64(objects.TockCount)*(1000000000.0/float64(glob.MeasuredObjectUPS_ns)))/1000000,
-			consts.Version, consts.Build),
-		0, glob.ScreenHeight-20) */
-
 		ebitenutil.DebugPrintAt(screen,
 			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f, TockPerSec: %.2fm  (v%v-%v)",
 				ebiten.ActualFPS(), ebiten.ActualTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
@@ -313,45 +301,23 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 	if m.Amount > 0 {
 		img := m.TypeP.Image
 		if img != nil {
-			move := time.Since(m.TweenStamp).Nanoseconds()
-			amount := (float64(move) / float64(glob.MeasuredObjectUPS_ns))
-
-			//Replace with subimage cropping
-			if obj.OutputObj != nil && obj.OutputObj.Valid &&
-				(obj.OutputObj.TypeI == consts.ObjTypeBasicBelt || obj.OutputObj.TypeI == consts.ObjTypeBasicBeltVert) {
-				if amount > 1.0 {
-					amount = 1.0
-					return
-				}
-			} else {
-				/* If the belt is a dead end, stop before we go off */
-				if amount > consts.HBeltLimitEnd {
-					amount = consts.HBeltLimitEnd
-					return
-				}
-			}
-
 			dir := obj.OutputDir
 			if dir == consts.DIR_EAST {
-				op.GeoM.Translate(math.Floor((amount)*glob.ZoomScale),
-					math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
+				op.GeoM.Translate(math.Floor(consts.HBeltOffsetX*glob.ZoomScale),
+					math.Floor(consts.HBeltOffsetY*glob.ZoomScale))
 
 			} else if dir == consts.DIR_WEST {
-				op.GeoM.Translate(math.Floor((consts.ReverseBeltOffset*glob.ZoomScale)-(amount)*glob.ZoomScale),
-					math.Floor(consts.HBeltVertOffset*glob.ZoomScale))
+				op.GeoM.Translate(math.Floor((consts.HBeltOffsetX+consts.HReverseBeltOffset*glob.ZoomScale)-glob.ZoomScale),
+					math.Floor(consts.HBeltOffsetY*glob.ZoomScale))
 
 			} else if dir == consts.DIR_NORTH {
-				op.GeoM.Translate(math.Floor(consts.VBeltVertOffset*glob.ZoomScale),
-					math.Floor((consts.ReverseBeltOffset*glob.ZoomScale)-(amount)*glob.ZoomScale))
+				op.GeoM.Translate(math.Floor(consts.VBeltOffsetX*glob.ZoomScale),
+					math.Floor(((consts.VBeltOffsetY-consts.VReverseBeltOffset)*glob.ZoomScale)-glob.ZoomScale))
 			} else if dir == consts.DIR_SOUTH {
-				op.GeoM.Translate(math.Floor(consts.VBeltVertOffset*glob.ZoomScale),
-					math.Floor((amount)*glob.ZoomScale))
+				op.GeoM.Translate(math.Floor(consts.VBeltOffsetX*glob.ZoomScale),
+					math.Floor(consts.VBeltOffsetY*glob.ZoomScale))
 			}
 			screen.DrawImage(img, op)
-
-			////fmt.Println("Amount:", amount)
-		} else {
-			//fmt.Println("Mat image not found: ", m.TypeI)
 		}
 	}
 }
@@ -360,7 +326,6 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
 
 	/* Draw sprite */
 	if obj.TypeP.Image == nil {
-		//fmt.Println("DrawObject: nil ebiten.*image encountered:", obj.TypeP.Name)
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
@@ -369,9 +334,6 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
 		op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
-		/*if glob.ZoomScale < consts.SpriteScale {
-			op.Filter = ebiten.FilterLinear
-		}*/
 		screen.DrawImage(obj.TypeP.Image, op)
 	}
 
@@ -383,7 +345,6 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 	x := float64(consts.ToolBarScale * int(pos))
 
 	if item.OType.Image == nil {
-		//fmt.Println("DrawToolItem: nil ebiten.*image encountered:", item.OType.Name)
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}

@@ -37,16 +37,14 @@ type WObject struct {
 	InputBuffer  map[*WObject]*MatData `json:"i,omitempty"`
 	OutputBuffer *MatData              `json:"o,omitempty"`
 	BeltStart    bool
+	Blocked      bool
 
 	Valid bool `json:"v,omitempty"`
 }
 
 type MatData struct {
 	TypeP  ObjType `json:"-"`
-	TypeI  int     `json:"t,omitempty"`
 	Amount uint64  `json:"a,omitempty"`
-
-	TweenStamp time.Time `json:"-"`
 }
 
 type Position struct {
@@ -75,7 +73,7 @@ type ObjType struct {
 	HasMapInput  bool
 
 	ToolbarAction func()
-	UpdateObj     func(Obj *WObject, tickNow time.Time)
+	UpdateObj     func(Obj *WObject)
 }
 
 type ToolbarItem struct {
@@ -116,7 +114,7 @@ var (
 	ScreenHeight int = 720  //Screen height default
 
 	//Game UPS rate
-	ObjectUPS            = 4.0
+	ObjectUPS            = 1.0
 	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
 	MeasuredObjectUPS_ns = ObjectUPS_ns
 

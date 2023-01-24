@@ -75,9 +75,7 @@ func TickObj(o *glob.WObject) {
 			o.OutputBuffer.Amount > 0 {
 
 			o.OutputObj.InputBuffer[o].Amount = o.OutputBuffer.Amount
-			o.OutputObj.InputBuffer[o].TypeI = o.OutputBuffer.TypeI
 			o.OutputObj.InputBuffer[o].TypeP = o.OutputBuffer.TypeP
-			o.OutputObj.InputBuffer[o].TweenStamp = o.OutputBuffer.TweenStamp
 
 			o.OutputBuffer.Amount = 0
 		}
@@ -152,7 +150,7 @@ func runTocks() {
 		wg.Add()
 		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
-				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target, tickNow)
+				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each, tickNow)
