@@ -9,8 +9,9 @@ const (
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
-	UPSBench = false
-	LoadTest = false
+	UPSBench    = true
+	LoadTest    = true
+	TestObjects = 7000000 //Makke (approx) this number items
 
 	WorkChunksPerThread = 8
 

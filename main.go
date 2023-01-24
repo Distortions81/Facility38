@@ -174,11 +174,17 @@ func NewGame() *Game {
 	objects.TickList = []glob.TickEvent{}
 
 	/* Test load map generator parameters */
-	multi := 47
-	rows := 16 * multi
-	columns := 3 * multi
-	beltLength := 10
+	total := 0
+	rows := 0
+	columns := 0
 	hSpace := 3
+	beltLength := 10
+	for i := 0; total < consts.TestObjects; i++ {
+		rows = 16 * i
+		columns = 3 * i
+
+		total = rows * columns * beltLength
+	}
 
 	/* Load Test Mode */
 	if consts.LoadTest {

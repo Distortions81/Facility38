@@ -20,10 +20,11 @@ var (
 	ObjectHitlist []*glob.ObjectHitlistData
 	EventHitlist  []*glob.EventHitlistData
 
-	TickCount  int
-	TockCount  int
-	WorkSize   int
-	NumWorkers int
+	TickCount    int
+	TockCount    int
+	TickWorkSize int
+	TockWorkSize int
+	NumWorkers   int
 
 	wg sizedwaitgroup.SizedWaitGroup
 )
@@ -46,8 +47,8 @@ func TickTockLoop() {
 		start = time.Now()
 
 		WorldTick++
-		WorldSize := ((TickCount + TockCount) / 2)
-		WorkSize = int((WorldSize / NumWorkers))
+		TickWorkSize = TickCount / NumWorkers
+		TockWorkSize = TockCount / NumWorkers
 
 		ListLock.Lock()
 		runTocks() //Process objects
@@ -91,7 +92,7 @@ func runTicks() {
 		return
 	}
 
-	numWorkers := l / WorkSize
+	numWorkers := l / TickWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -130,7 +131,7 @@ func runTocks() {
 		return
 	}
 
-	numWorkers := l / WorkSize
+	numWorkers := l / TockWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
