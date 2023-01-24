@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"math"
 	"sync"
 	"time"
 
@@ -19,6 +20,10 @@ var (
 
 	ObjectHitlist []*glob.ObjectHitlistData
 	EventHitlist  []*glob.EventHitlistData
+
+	TickCount int
+	TockCount int
+	WorkSize  int
 )
 
 func TickTockLoop() {
@@ -38,6 +43,8 @@ func TickTockLoop() {
 		start = time.Now()
 
 		WorldTick++
+		WorldSize := ((TickCount + TockCount) / 2)
+		WorkSize = int(math.Ceil(float64(WorldSize / glob.NumWorkers)))
 
 		ListLock.Lock()
 		runTocks() //Process objects
@@ -83,7 +90,7 @@ func runTicks() {
 		return
 	}
 
-	numWorkers = l / consts.WorkSize
+	numWorkers = l / WorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -123,7 +130,7 @@ func runTocks() {
 		return
 	}
 
-	numWorkers = l / consts.WorkSize
+	numWorkers = l / WorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -156,10 +163,12 @@ func runTocks() {
 
 func ticklistAdd(target *glob.WObject) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
+	TickCount++
 }
 
 func tockListAdd(target *glob.WObject) {
 	TockList = append(TockList, glob.TickEvent{Target: target})
+	TockCount++
 }
 
 func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
@@ -178,6 +187,7 @@ func ticklistRemove(obj *glob.WObject) {
 			break
 		}
 	}
+	TickCount--
 }
 
 func tocklistRemove(obj *glob.WObject) {
@@ -192,6 +202,7 @@ func tocklistRemove(obj *glob.WObject) {
 			break
 		}
 	}
+	TockCount--
 }
 
 func LinkObj(pos glob.Position, obj *glob.WObject) {

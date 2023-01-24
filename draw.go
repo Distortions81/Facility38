@@ -41,9 +41,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw start */
-	screen.Fill(glob.ColorRed)
+	//screen.Fill(glob.ColorRed)
 
-	/* Adjust camerea position for zoom */
+	/* Adjust cam position for zoom */
 	camXPos := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
 	camYPos := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
 
@@ -272,8 +272,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 }
 
+/* Prototype, needs optimization */
 func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStartX int, camStartY int, camEndX int, camEndY int) {
-	/* Adjust camerea position for zoom */
 
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 	op.GeoM.Reset()
