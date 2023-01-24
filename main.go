@@ -127,7 +127,7 @@ func NewGame() *Game {
 		}
 	}
 
-	toolBG = ebiten.NewImage(63, 64)
+	toolBG = ebiten.NewImage(64, 64)
 	toolBG.Fill(glob.ColorVeryDarkGray)
 
 	/* Make default toolbar */
