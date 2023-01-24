@@ -194,11 +194,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if glob.StatusStr != "" {
 		ebitenutil.DebugPrint(screen, glob.StatusStr)
 	} else {
+		/*ebitenutil.DebugPrintAt(screen,
+		fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f, WorkSize:(Tick:%.2fk,Tock:%.2fk Workers: %v), TotalWork: %.2fm, TickPerSec: %.2fm, TockPerSec: %.2fm  (v%v-%v)",
+			ebiten.ActualFPS(), ebiten.ActualTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
+			float64(objects.TickWorkSize)/1000, float64(objects.TockWorkSize)/1000, objects.NumWorkers, float64(objects.TickCount+objects.TockCount)/1000000.0,
+			(float64(objects.TickCount)*(1000000000.0/float64(glob.MeasuredObjectUPS_ns)))/1000000,
+			(float64(objects.TockCount)*(1000000000.0/float64(glob.MeasuredObjectUPS_ns)))/1000000,
+			consts.Version, consts.Build),
+		0, glob.ScreenHeight-20) */
+
 		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f, WorkSize:(Tick:%.2fk,Tock:%.2fk Workers: %v), TotalWork: %.2fm, TickPerSec: %.2fm, TockPerSec: %.2fm  (v%v-%v)",
+			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f, TockPerSec: %.2fm  (v%v-%v)",
 				ebiten.ActualFPS(), ebiten.ActualTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-				float64(objects.TickWorkSize)/1000, float64(objects.TockWorkSize)/1000, objects.NumWorkers, float64(objects.TickCount+objects.TockCount)/1000000.0,
-				(float64(objects.TickCount)*(1000000000.0/float64(glob.MeasuredObjectUPS_ns)))/1000000,
 				(float64(objects.TockCount)*(1000000000.0/float64(glob.MeasuredObjectUPS_ns)))/1000000,
 				consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
@@ -302,6 +309,7 @@ func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStar
 }
 
 func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
+
 	if m.Amount > 0 {
 		img := m.TypeP.Image
 		if img != nil {
