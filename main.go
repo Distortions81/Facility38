@@ -40,7 +40,7 @@ func NewGame() *Game {
 	}
 
 	/* Set up ebiten */
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 	ebiten.SetScreenFilterEnabled(true)
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
