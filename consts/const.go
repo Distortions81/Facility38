@@ -3,14 +3,14 @@ package consts
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
-	Version = "009"        //increment
-	Build   = "01.22.2023" //mmddyyyy
-	Wasm    = "js"         //Detect wasm/js
+	Version = "009"              //increment
+	Build   = "01.23.2023-0858p" //mmddyyyy-hhmm(p)
+	Wasm    = "js"               //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
-	UPSBench = false
-	LoadTest = false
+	UPSBench = true
+	LoadTest = true
 
 	HBeltVertOffset        = 0.6
 	VBeltVertOffset        = 0.38

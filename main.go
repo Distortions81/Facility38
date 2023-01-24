@@ -44,16 +44,19 @@ func NewGame() *Game {
 	ebiten.SetScreenFilterEnabled(true)
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
-	/* Handle high res displays, 50% window */
-	if xSize > 2560 && ySize > 1600 {
-		glob.ScreenWidth = xSize / 2
-		glob.ScreenHeight = ySize / 2
+	/* Skip in benchmark mode */
+	if !consts.UPSBench {
+		/* Handle high res displays, 50% window */
+		if xSize > 2560 && ySize > 1600 {
+			glob.ScreenWidth = xSize / 2
+			glob.ScreenHeight = ySize / 2
 
-		/* Small Screen, just go fullscreen */
-	} else if xSize <= 1280 && ySize <= 800 {
-		glob.ScreenWidth = xSize
-		glob.ScreenHeight = ySize
-		ebiten.SetFullscreen(true)
+			/* Small Screen, just go fullscreen */
+		} else if xSize <= 1280 && ySize <= 800 {
+			glob.ScreenWidth = xSize
+			glob.ScreenHeight = ySize
+			ebiten.SetFullscreen(true)
+		}
 	}
 
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)
@@ -258,6 +261,9 @@ func NewGame() *Game {
 
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	if consts.UPSBench {
+		return glob.ScreenWidth, glob.ScreenHeight
+	}
 	if outsideWidth != glob.ScreenWidth || outsideHeight != glob.ScreenHeight {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight
