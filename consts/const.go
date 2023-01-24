@@ -9,8 +9,10 @@ const (
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
-	UPSBench = true
-	LoadTest = true
+	UPSBench = false
+	LoadTest = false
+
+	WorkChunksPerThread = 8
 
 	HBeltVertOffset        = 0.6
 	VBeltVertOffset        = 0.38

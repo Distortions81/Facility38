@@ -4,7 +4,6 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
-	"math"
 	"sync"
 	"time"
 
@@ -21,13 +20,17 @@ var (
 	ObjectHitlist []*glob.ObjectHitlistData
 	EventHitlist  []*glob.EventHitlistData
 
-	TickCount int
-	TockCount int
-	WorkSize  int
+	TickCount  int
+	TockCount  int
+	WorkSize   int
+	NumWorkers int
+
+	wg sizedwaitgroup.SizedWaitGroup
 )
 
 func TickTockLoop() {
-	start := time.Time{}
+	var start time.Time
+	wg = sizedwaitgroup.New(NumWorkers)
 
 	/*var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 	flag.Parse()
@@ -44,7 +47,7 @@ func TickTockLoop() {
 
 		WorldTick++
 		WorldSize := ((TickCount + TockCount) / 2)
-		WorkSize = int(math.Ceil(float64(WorldSize / glob.NumWorkers)))
+		WorkSize = int((WorldSize / NumWorkers))
 
 		ListLock.Lock()
 		runTocks() //Process objects
@@ -82,15 +85,13 @@ func TickObj(o *glob.WObject) {
 
 // Move materials from one object to another
 func runTicks() {
-	numWorkers := glob.NumWorkers
-	wg := sizedwaitgroup.New(numWorkers)
 
-	l := len(TickList) - 1
+	l := TickCount - 1
 	if l < 1 {
 		return
 	}
 
-	numWorkers = l / WorkSize
+	numWorkers := l / WorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -101,6 +102,7 @@ func runTicks() {
 		each = l + 1
 		numWorkers = 1
 	}
+
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
 		if n == numWorkers-1 {
@@ -122,15 +124,13 @@ func runTicks() {
 
 // Process objects
 func runTocks() {
-	numWorkers := glob.NumWorkers
-	wg := sizedwaitgroup.New(numWorkers)
 
-	l := len(TockList) - 1
+	l := TockCount - 1
 	if l < 1 {
 		return
 	}
 
-	numWorkers = l / WorkSize
+	numWorkers := l / WorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
