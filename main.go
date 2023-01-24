@@ -22,21 +22,27 @@ type Game struct {
 
 func NewGame() *Game {
 
-	/* Detect logical CPUs */
+	/* Detect logical CPUs, failing that use numcpu */
 	var lCPUs int = runtime.NumCPU()
+	if lCPUs <= 1 {
+		lCPUs = 1
+	}
+	fmt.Println("Virtual CPUs:", lCPUs)
+	objects.NumWorkers = lCPUs
+
 	cdat, cerr := cpu.Counts(false)
 	if cerr == nil {
 		fmt.Println("Logical CPUs:", cdat)
-		lCPUs = cdat
+
+		/* If this is a multi-core system, reserve one core for rendering */
+		if cdat <= 1 {
+			lCPUs = 1
+		} else {
+			lCPUs = cdat
+		}
+		//objects.NumWorkers = lCPUs
 	} else {
 		fmt.Println("Unable to detect logical CPUs.")
-	}
-	/* Just in case we get a invalid value somehow */
-	if lCPUs <= 1 {
-		lCPUs = 1
-		glob.NumWorkers = 1
-	} else {
-		glob.NumWorkers = lCPUs
 	}
 
 	/* Set up ebiten */
