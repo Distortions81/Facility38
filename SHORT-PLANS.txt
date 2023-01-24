@@ -20,5 +20,6 @@ do this so we can render and process
 left to right, top to bottom
 
 3:
-add tick lists, and divide up work for every nth tick loads
+add tick lists, and divide up work for every nth tick loads ---------
+
 
