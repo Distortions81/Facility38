@@ -15,7 +15,7 @@ const (
 
 	WorkChunksPerThread = 8
 
-	BlockedIndicatorOffset = 12
+	BlockedIndicatorOffset = 0
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
