@@ -160,6 +160,7 @@ func NewGame() *Game {
 				glob.BackgroundTile.DrawImage(bg, op)
 			}
 		}
+		glob.NumTilesBG = consts.BGTilePix / sx
 	} else {
 		panic("No valid bg texture.")
 	}

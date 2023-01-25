@@ -88,6 +88,9 @@ var (
 		{ImagePath: "terrain/grass-1.png", Name: "grass",
 			Size:   glob.Position{X: 1, Y: 1},
 			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorGreen},
+		{ImagePath: "terrain/dirt-1.png", Name: "dirt",
+			Size:   glob.Position{X: 1, Y: 1},
+			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown},
 	}
 
 	ObjOverlayTypes = []*glob.ObjType{

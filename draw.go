@@ -85,10 +85,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			DrawObject(screen, objCamPosX, objCamPosY, obj)
 		}
 	}
-	glob.WorldMapLock.Unlock()
 
 	/* Draw overlays */
-	glob.WorldMapLock.Lock()
 	for chunkPos, chunk := range glob.WorldMap {
 
 		/* Is this chunk on the screen? */
@@ -262,26 +260,14 @@ func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStar
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 	op.GeoM.Reset()
 	sizeX := glob.BackgroundTile.Bounds().Size().X
-	sizeY := glob.BackgroundTile.Bounds().Size().Y
 
-	size := 1000
-	halfSize := float64((sizeX * size) / 2)
-
-	for i := 0; i < size; i++ {
-		posX := int(consts.XYCenter - halfSize + float64(i*sizeX))
-		if posX+sizeX < camStartX {
-			continue
-		} else if posX-sizeX > camEndX {
-			break
-		}
-		for j := 0; j < size; j++ {
-			posY := int(consts.XYCenter - halfSize + float64(j*sizeY))
-			if posY+sizeY < camStartY {
-				continue
-			} else if posY-sizeY > camEndY {
-				break
-			}
-			op.GeoM.Scale(float64(sizeX/consts.BGTilePix)*glob.ZoomScale, float64(sizeY/consts.BGTilePix)*glob.ZoomScale)
+	size := 10
+	halfSize := float64((sizeX) / 2)
+	for i := 0; i < size*glob.NumTilesBG; i += size {
+		posX := int((consts.XYCenter - halfSize) + float64(i))
+		for j := 0; j < size*glob.NumTilesBG; j += size {
+			posY := int((consts.XYCenter - halfSize) + float64(j))
+			op.GeoM.Scale((float64(sizeX/glob.NumTilesBG)/consts.SpriteScale)*glob.ZoomScale, (float64(sizeX/glob.NumTilesBG)/consts.SpriteScale)*glob.ZoomScale)
 			op.GeoM.Translate((float64(posX)+camXPos)*glob.ZoomScale, (float64(posY)+camYPos)*glob.ZoomScale)
 
 			screen.DrawImage(glob.BackgroundTile, op)

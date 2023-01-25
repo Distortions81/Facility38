@@ -125,6 +125,7 @@ var (
 
 	BootImage      *ebiten.Image //Boot image
 	BackgroundTile *ebiten.Image //Optimized BG tile
+	NumTilesBG     int
 
 	BootFont    font.Face
 	ToolTipFont font.Face
