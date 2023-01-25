@@ -6,7 +6,6 @@ import (
 	"compress/zlib"
 	"encoding/json"
 	"fmt"
-	"image"
 	"image/color"
 	"io/ioutil"
 	"log"
@@ -28,7 +27,7 @@ type WObject struct {
 	TypeP *ObjType `json:"-"`
 	TypeI int      `json:"t"`
 
-	OutputDir int      `json:"d,omitempty"`
+	Direction int      `json:"d,omitempty"`
 	OutputObj *WObject `json:"-"`
 
 	//Internal useW
@@ -60,7 +59,7 @@ type ObjType struct {
 	SymbolColor *color.NRGBA
 	Symbol      string
 	Size        Position
-	Bounds      image.Rectangle
+	Rotatable   bool
 
 	ImagePath string
 	Image     *ebiten.Image

@@ -61,17 +61,9 @@ var (
 			TypeI:      consts.ObjTypeBasicBelt,
 			Size:       glob.Position{X: 1, Y: 1},
 			CapacityKG: 20,
+			Rotatable:  true,
 			UpdateObj:  BeltUpdate,
 			Symbol:     "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			HasMatOutput: true},
-
-		{ImagePath: "world-obj/basic-vbelt.png",
-			Name:       "Basic vbelt",
-			TypeI:      consts.ObjTypeBasicBeltVert,
-			Size:       glob.Position{X: 1, Y: 1},
-			CapacityKG: 20,
-			UpdateObj:  BeltUpdate,
-			Symbol:     "VBELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-boiler.png",

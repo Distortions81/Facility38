@@ -1,5 +1,7 @@
 package consts
 
+import "math"
+
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
@@ -14,6 +16,7 @@ const (
 	TestObjects = 1000000 //Make (approx) this number items
 
 	WorkChunksPerThread = 8
+	NinetyDeg           = math.Pi / 2
 
 	BlockedIndicatorOffset = 0
 

@@ -209,7 +209,8 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 	//Link output
 	if obj.TypeP.HasMatOutput {
 		//fmt.Println("pos", pos, "output dir: ", util.DirToName(obj.OutputDir))
-		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
+		var destObj *glob.WObject
+		destObj = util.GetNeighborObj(obj, pos, obj.Direction)
 
 		if destObj != nil {
 			obj.OutputObj = destObj
@@ -226,7 +227,7 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 		neigh := util.GetNeighborObj(obj, pos, i)
 
 		if neigh != nil {
-			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.OutputDir) == i {
+			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.Direction) == i {
 				neigh.OutputObj = obj
 				obj.InputBuffer[neigh] = &glob.MatData{}
 				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
@@ -272,7 +273,7 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	obj.InputBuffer = make(map[*glob.WObject]*glob.MatData)
 	obj.OutputBuffer = &glob.MatData{}
 
-	obj.OutputDir = consts.DIR_EAST
+	obj.Direction = consts.DIR_EAST
 	obj.Valid = true
 
 	EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)

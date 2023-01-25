@@ -290,16 +290,17 @@ func (g *Game) Update() error {
 		if o != nil {
 
 			if glob.ShiftPressed {
-				o.OutputDir = o.OutputDir - 1
-				if o.OutputDir < consts.DIR_NORTH {
-					o.OutputDir = consts.DIR_WEST
+				o.Direction = o.Direction - 1
+				if o.Direction < consts.DIR_NORTH {
+					o.Direction = consts.DIR_WEST
 				}
 			} else {
-				o.OutputDir = o.OutputDir + 1
-				if o.OutputDir > consts.DIR_WEST {
-					o.OutputDir = consts.DIR_NORTH
+				o.Direction = o.Direction + 1
+				if o.Direction > consts.DIR_WEST {
+					o.Direction = consts.DIR_NORTH
 				}
 			}
+
 			//fmt.Println("Rotated output:", pos, o.TypeP.Name, util.DirToName(o.OutputDir))
 			o.OutputObj = nil
 			objects.LinkObj(pos, o)
