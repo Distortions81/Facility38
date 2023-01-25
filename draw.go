@@ -113,8 +113,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			/* Overlays */
 			/* Draw belt overlays */
-			if obj.TypeP.TypeI == consts.ObjTypeBasicBelt ||
-				obj.TypeP.TypeI == consts.ObjTypeBasicBeltVert {
+			if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
 
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Reset()
@@ -335,11 +334,21 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 		screen.DrawImage(toolBG, op)
 
 		op.GeoM.Reset()
+		iSize := item.OType.Image.Bounds()
+
+		if item.OType.Rotatable && item.OType.Direction > 0 {
+			x := float64(iSize.Size().X / 2)
+			y := float64(iSize.Size().Y / 2)
+			op.GeoM.Translate(-x, -y)
+			op.GeoM.Rotate(consts.NinetyDeg * float64(item.OType.Direction))
+			op.GeoM.Translate(x, y)
+		}
+
 		if item.OType.Image.Bounds().Max.X != consts.ToolBarScale {
-			iSize := item.OType.Image.Bounds()
 			op.GeoM.Scale(1.0/(float64(iSize.Max.X)/consts.ToolBarScale), 1.0/(float64(iSize.Max.Y)/consts.ToolBarScale))
 		}
 		op.GeoM.Translate(x, 0)
+
 		screen.DrawImage(item.OType.Image, op)
 	}
 

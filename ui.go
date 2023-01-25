@@ -11,6 +11,45 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
+func handleToolbar(rotate bool) bool {
+	//Toolbar
+	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
+	if glob.MouseX <= uipix+consts.ToolBarOffsetX {
+		if glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
+			ipos := int((glob.MouseX - consts.ToolBarOffsetX) / consts.ToolBarScale)
+			item := objects.ToolbarItems[ipos].OType
+
+			//Actions
+			if item.ToolbarAction != nil {
+				item.ToolbarAction()
+			} else {
+				if rotate && objects.GameObjTypes[objects.SelectedItemType] != nil {
+					dir := objects.GameObjTypes[objects.SelectedItemType].Direction
+					if glob.ShiftPressed {
+						dir = dir - 1
+						if dir < consts.DIR_NORTH {
+							dir = consts.DIR_WEST
+						}
+					} else {
+						dir = dir + 1
+						if dir > consts.DIR_WEST {
+							dir = consts.DIR_NORTH
+						}
+					}
+					objects.GameObjTypes[objects.SelectedItemType].Direction = dir
+				} else if objects.SelectedItemType == objects.ToolbarItems[ipos].OType.TypeI {
+					objects.SelectedItemType = 0
+				} else {
+					objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
+				}
+			}
+			glob.MousePressed = false
+			return true
+		}
+	}
+	return false
+}
+
 // Ebiten main loop
 func (g *Game) Update() error {
 
@@ -133,31 +172,9 @@ func (g *Game) Update() error {
 		glob.LastActionPosition = glob.XYEmpty
 		glob.LastActionType = consts.DragActionTypeNone
 
-		//Toolbar
-		uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
-		if glob.MouseX <= uipix+consts.ToolBarOffsetX {
-			if glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
-				ipos := int((glob.MouseX - consts.ToolBarOffsetX) / consts.ToolBarScale)
-				item := objects.ToolbarItems[ipos].OType
-
-				//Actions
-				if item.ToolbarAction != nil {
-					item.ToolbarAction()
-
-					//fmt.Println("UI Action:", item.Name)
-				} else {
-					if objects.SelectedItemType == objects.ToolbarItems[ipos].OType.TypeI {
-						objects.SelectedItemType = 0
-						//fmt.Println("Deselected")
-					} else {
-						objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
-						//fmt.Println("Selected:", item.Name)
-					}
-				}
-				captured = true
-				glob.MousePressed = false
-			}
-		}
+		captured = handleToolbar(false)
+	} else if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		captured = handleToolbar(true)
 	}
 
 	if glob.MousePressed {
@@ -198,7 +215,8 @@ func (g *Game) Update() error {
 							if !bypass {
 								go func(o *glob.WObject, pos glob.Position) {
 									objects.ListLock.Lock()
-									objects.ObjectHitlistAdd(o, objects.SelectedItemType, &pos, false)
+									dir := objects.GameObjTypes[objects.SelectedItemType].Direction
+									objects.ObjectHitlistAdd(o, objects.SelectedItemType, &pos, false, dir)
 									objects.ListLock.Unlock()
 								}(o, pos)
 
@@ -213,13 +231,12 @@ func (g *Game) Update() error {
 								if o != nil {
 									go func(o *glob.WObject, pos glob.Position) {
 										objects.ListLock.Lock()
-										objects.ObjectHitlistAdd(o, o.TypeI, &pos, true)
+										objects.ObjectHitlistAdd(o, o.TypeI, &pos, true, 0)
 										objects.ListLock.Unlock()
 									}(o, pos)
 									//Action completed, save position and time
 									glob.LastActionPosition = pos
 									glob.LastActionType = consts.DragActionTypeDelete
-									//glob.LastActionTime = time.Now()
 								}
 							}
 						}
@@ -277,7 +294,7 @@ func (g *Game) Update() error {
 	}
 
 	//Rotate object
-	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+	if !captured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		//Get mouse position on world
 		worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 		worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
@@ -301,7 +318,6 @@ func (g *Game) Update() error {
 				}
 			}
 
-			//fmt.Println("Rotated output:", pos, o.TypeP.Name, util.DirToName(o.OutputDir))
 			o.OutputObj = nil
 			objects.LinkObj(pos, o)
 		}

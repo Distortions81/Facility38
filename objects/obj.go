@@ -231,7 +231,7 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 				neigh.OutputObj = obj
 				obj.InputBuffer[neigh] = &glob.MatData{}
 				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
-				if neigh.TypeI == consts.ObjTypeBasicBelt || neigh.TypeI == consts.ObjTypeBasicBeltVert {
+				if neigh.TypeI == consts.ObjTypeBasicBelt {
 					obj.BeltStart = false
 				}
 			}
@@ -240,7 +240,7 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 
 }
 
-func CreateObj(pos glob.Position, mtype int) *glob.WObject {
+func CreateObj(pos glob.Position, mtype int, dir int) *glob.WObject {
 
 	//Make chunk if needed
 	chunk := util.GetChunk(&pos)
@@ -272,8 +272,7 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
 	obj.InputBuffer = make(map[*glob.WObject]*glob.MatData)
 	obj.OutputBuffer = &glob.MatData{}
-
-	obj.Direction = consts.DIR_EAST
+	obj.Direction = dir
 	obj.Valid = true
 
 	EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
@@ -287,8 +286,8 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	return obj
 }
 
-func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.Position, delete bool) {
-	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
+func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.Position, delete bool, dir int) {
+	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 }
 
 func runEventHitlist() {
@@ -328,7 +327,7 @@ func runObjectHitlist() {
 
 		} else {
 			//Add
-			CreateObj(*item.Pos, item.OType)
+			CreateObj(*item.Pos, item.OType, item.Dir)
 		}
 	}
 	ObjectHitlist = []*glob.ObjectHitlistData{}

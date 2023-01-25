@@ -185,15 +185,15 @@ func NewGame() *Game {
 				cols++
 
 				tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
-				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, 0)
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
-					objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt)
+					objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, 0)
 
 				}
 				tx++
-				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox)
+				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, 0)
 
 				if cols%columns == 0 {
 					ty += 2
@@ -204,51 +204,43 @@ func NewGame() *Game {
 			/* Default map generator */
 			tx := int(consts.XYCenter - 5)
 			ty := int(consts.XYCenter)
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				o := objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
-				o.Direction = consts.DIR_EAST
+				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
 			}
 			tx++
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 2)
-			o := objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
-			o.Direction = consts.DIR_WEST
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
-				o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
-				o.Direction = consts.DIR_WEST
+				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
 			}
 			tx--
-			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
-			o.Direction = consts.DIR_WEST
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter + 2)
-			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
-			o.Direction = consts.DIR_SOUTH
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
-				o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
-				o.Direction = consts.DIR_SOUTH
+				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
 			}
 			ty++
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 4)
-			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
-			o.Direction = consts.DIR_NORTH
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
-				o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
-				o.Direction = consts.DIR_NORTH
+				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
 			}
 			ty--
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
 
 		}
 

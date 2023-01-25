@@ -60,6 +60,7 @@ type ObjType struct {
 	Symbol      string
 	Size        Position
 	Rotatable   bool
+	Direction   int
 
 	ImagePath string
 	Image     *ebiten.Image
@@ -93,6 +94,7 @@ type ObjectHitlistData struct {
 	Obj    *WObject
 	OType  int
 	Pos    *Position
+	Dir    int
 }
 
 type EventHitlistData struct {
@@ -140,8 +142,8 @@ var (
 	//Used for click-drag
 	LastActionPosition Position
 	LastActionTime     time.Time
-	BuildActionDelay   time.Duration = time.Millisecond * 125
-	RemoveActionDelay  time.Duration = time.Millisecond * 500
+	BuildActionDelay   time.Duration = 0
+	RemoveActionDelay  time.Duration = 0
 	LastActionType     int           = 0
 
 	//Touch vars
