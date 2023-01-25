@@ -15,15 +15,6 @@ const (
 
 	WorkChunksPerThread = 8
 
-	HBeltOffsetX       = 0.0
-	HBeltOffsetY       = 0.0
-	HReverseBeltOffset = 1.0
-
-	VBeltOffsetX       = 0.0
-	VBeltOffsetY       = -0.25
-	VReverseBeltOffset = -1.0
-
-	HBeltLimitEnd          = 0.1
 	BlockedIndicatorOffset = 12
 
 	DragActionTypeNone   = 0
@@ -31,7 +22,7 @@ const (
 	DragActionTypeDelete = 2
 
 	/* FPS limiter */
-	MAX_RENDER_NS = 1000000000 / 240
+	MAX_RENDER_NS = 1000000000 / 360
 
 	MaxUint  = ^uint32(0)
 	XYCenter = float64(uint32(MaxUint>>1) / 2)
@@ -55,25 +46,6 @@ const (
 	ObjTypeBasicBeltVert   = 5
 	ObjTypeBasicBoiler     = 6
 	ObjTypeSteamEngine     = 7
-
-	/*Materials
-	MAT_NONE     = 0
-	MAT_GOLD     = 1
-	MAT_SILVER   = 2
-	MAT_COPPER   = 3
-	MAT_LEAD     = 4
-	MAT_TIN      = 5
-	MAT_IRON     = 6
-	MAT_MERCURY  = 7
-	MAT_URANIUM  = 8
-	MAT_PLATINUM = 9
-	MAT_TUNGSTEN = 10
-	MAT_NICKEL   = 11
-	MAT_TITANIUM = 12
-	MAT_LITHIUM  = 13
-	MAT_STEEL    = 14
-	MAT_ALUMINUM = 15
-	MAT_MAX      = 99 */
 
 	//Materials
 	MAT_NONE       = 0

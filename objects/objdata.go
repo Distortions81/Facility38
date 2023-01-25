@@ -41,7 +41,7 @@ var (
 			Symbol:     "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj: BoxUpdate},
 
-		{ImagePath: "world-obj/basic-smelter.png",
+		{ImagePath: "world-obj/basic-smelter-1.png",
 			Name:       "Basic smelter",
 			TypeI:      consts.ObjTypeBasicSmelter,
 			Size:       glob.Position{X: 1, Y: 1},

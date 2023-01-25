@@ -53,6 +53,16 @@ type Position struct {
 	X, Y int
 }
 
+type ImageData struct {
+	Path  string
+	Image *ebiten.Image
+}
+
+type SpriteData struct {
+	Active   ImageData
+	Inactive ImageData
+}
+
 type ObjType struct {
 	Name string
 
@@ -63,8 +73,10 @@ type ObjType struct {
 	Size        Position
 	Bounds      image.Rectangle
 
-	ImagePath string
-	Image     *ebiten.Image
+	Sprites    SpriteData
+	ImagePaths string
+	Images     *ebiten.Image
+
 	HasDirImg bool
 	DirImage  [consts.DIR_WEST]*ebiten.Image
 
