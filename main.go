@@ -142,6 +142,28 @@ func NewGame() *Game {
 		}
 	}
 
+	/* Make optimized background */
+	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+
+	bg := objects.TerrainTypes[0].Image
+	sx := bg.Bounds().Size().X
+	sy := bg.Bounds().Size().Y
+
+	if sx > 0 && sy > 0 {
+
+		glob.BackgroundTile = ebiten.NewImage(consts.BGTilePix, consts.BGTilePix)
+
+		for i := 0; i <= consts.BGTilePix; i += sx {
+			for j := 0; j <= consts.BGTilePix; j += sy {
+				op.GeoM.Reset()
+				op.GeoM.Translate(float64(i), float64(j))
+				glob.BackgroundTile.DrawImage(bg, op)
+			}
+		}
+	} else {
+		panic("No valid bg texture.")
+	}
+
 	/* Boot Image */
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
 
@@ -186,15 +208,15 @@ func NewGame() *Game {
 				cols++
 
 				tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
-				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, 0)
+				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
-					objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, 0)
+					objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
 
 				}
 				tx++
-				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, 0)
+				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
 
 				if cols%columns == 0 {
 					ty += 2
@@ -251,8 +273,13 @@ func NewGame() *Game {
 			str = string(txt)
 		}
 		tRect := text.BoundString(glob.BootFont, str)
-		glob.BootImage.Fill(glob.ColorBlack)
+		glob.BootImage.Fill(glob.ColorCharcol)
 		text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
+
+		//Skip help for benchmark
+		if consts.UPSBench {
+			glob.DrewMap = true
+		}
 
 		objects.TickTockLoop()
 	}()

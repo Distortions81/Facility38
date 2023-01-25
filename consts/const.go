@@ -17,6 +17,7 @@ const (
 
 	WorkChunksPerThread = 8
 	NinetyDeg           = math.Pi / 2
+	BGTilePix           = 1024
 
 	BlockedIndicatorOffset = 0
 

@@ -261,21 +261,30 @@ func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStar
 
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 	op.GeoM.Reset()
-	img := objects.TerrainTypes[0].Image
-	iSize := objects.TerrainTypes[0].Image.Bounds()
-	oSize := objects.TerrainTypes[0].Size
+	sizeX := glob.BackgroundTile.Bounds().Size().X
+	sizeY := glob.BackgroundTile.Bounds().Size().Y
 
-	for j := 0; j < 1000; j += oSize.X {
-		for i := 0; i < 1000; i += oSize.Y {
-			pos := glob.Position{X: int(float64((consts.XYCenter) - 500.0 + float64(i))),
-				Y: int(float64((consts.XYCenter) - 500.0 + float64(j)))}
-			if pos.X+oSize.X < camStartX || pos.X-oSize.X*2 > camEndX || pos.Y+oSize.Y*2 < camStartY || pos.Y-oSize.Y*2 > camEndY {
+	size := 1000
+	halfSize := float64((sizeX * size) / 2)
+
+	for i := 0; i < size; i++ {
+		posX := int(consts.XYCenter - halfSize + float64(i*sizeX))
+		if posX+sizeX < camStartX {
+			continue
+		} else if posX-sizeX > camEndX {
+			break
+		}
+		for j := 0; j < size; j++ {
+			posY := int(consts.XYCenter - halfSize + float64(j*sizeY))
+			if posY+sizeY < camStartY {
 				continue
+			} else if posY-sizeY > camEndY {
+				break
 			}
-			op.GeoM.Scale(float64(oSize.X)*glob.ZoomScale/float64(iSize.Max.X-1), float64(oSize.Y)*glob.ZoomScale/float64(iSize.Max.X-1))
-			op.GeoM.Translate((float64(pos.X)+camXPos)*glob.ZoomScale, (float64(pos.Y)+camYPos)*glob.ZoomScale)
+			op.GeoM.Scale(float64(sizeX/consts.BGTilePix)*glob.ZoomScale, float64(sizeY/consts.BGTilePix)*glob.ZoomScale)
+			op.GeoM.Translate((float64(posX)+camXPos)*glob.ZoomScale, (float64(posY)+camYPos)*glob.ZoomScale)
 
-			screen.DrawImage(img, op)
+			screen.DrawImage(glob.BackgroundTile, op)
 			op.GeoM.Reset()
 
 		}

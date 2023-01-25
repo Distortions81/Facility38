@@ -155,10 +155,10 @@ func (g *Game) Update() error {
 	}
 	glob.ZoomMouse = 0
 
-	if glob.ZoomScale < 8 {
-		glob.ZoomScale = 8
-	} else if glob.ZoomScale > 1024 {
-		glob.ZoomScale = 1024
+	if glob.ZoomScale < 1 {
+		glob.ZoomScale = 1
+	} else if glob.ZoomScale > 256 {
+		glob.ZoomScale = 256
 	}
 
 	/* Mouse position */
