@@ -77,7 +77,8 @@ const (
 	ToolBarOffsetY = 0
 
 	//Draw settings
-	ChunkSize = 32
+	ChunkSize   = 32
+	DefaultZoom = SpriteScale * 2
 
 	//Overlays
 	DIR_NORTH      = 0

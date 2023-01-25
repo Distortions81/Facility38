@@ -148,9 +148,9 @@ func (g *Game) Update() error {
 	//Scroll zoom
 	_, fsy := ebiten.Wheel()
 
-	if fsy > 0 {
+	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
 		glob.ZoomScale = glob.ZoomScale * 2
-	} else if fsy < 0 {
+	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) {
 		glob.ZoomScale = glob.ZoomScale / 2
 	}
 	glob.ZoomMouse = 0
