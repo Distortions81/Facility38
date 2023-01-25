@@ -7,6 +7,7 @@ import (
 	"GameTest/objects"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -151,7 +152,7 @@ func NewGame() *Game {
 
 	str := "Starting up..."
 	tRect := text.BoundString(glob.BootFont, str)
-	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
+	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
 
 	/* Make gomap for world */
 	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
@@ -244,7 +245,14 @@ func NewGame() *Game {
 
 		}
 
-		glob.DrewMap = true
+		str := "Press enter to continue..."
+		txt, err := os.ReadFile("intro.txt")
+		if err == nil {
+			str = string(txt)
+		}
+		tRect := text.BoundString(glob.BootFont, str)
+		glob.BootImage.Fill(glob.ColorBlack)
+		text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
 
 		objects.TickTockLoop()
 	}()

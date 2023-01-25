@@ -53,6 +53,11 @@ func handleToolbar(rotate bool) bool {
 // Ebiten main loop
 func (g *Game) Update() error {
 
+	if !glob.DrewMap &&
+		(inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyKPEnter)) {
+		glob.DrewMap = true
+	}
+
 	if consts.UPSBench {
 		return nil
 	}
