@@ -81,7 +81,7 @@ func NewGame() *Game {
 
 	/* Missing texture font */
 	glob.ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    56,
+		Size:    5,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
@@ -118,7 +118,7 @@ func NewGame() *Game {
 			if !found {
 				timg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
 				timg.Fill(icon.ItemColor)
-				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, 64-consts.SymbOffY, icon.SymbolColor)
+				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, consts.SymbOffY, icon.SymbolColor)
 			}
 
 			icon.Image = timg

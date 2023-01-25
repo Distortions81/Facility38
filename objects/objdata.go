@@ -65,7 +65,7 @@ var (
 			Symbol:     "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			HasMatOutput: true},
 
-		{ImagePath: "world-obj/basic-belt-vert.png",
+		{ImagePath: "world-obj/basic-vbelt.png",
 			Name:       "Basic vbelt",
 			TypeI:      consts.ObjTypeBasicBeltVert,
 			Size:       glob.Position{X: 1, Y: 1},
@@ -93,14 +93,8 @@ var (
 
 	TerrainTypes = []*glob.ObjType{
 		//Overlays
-		{ImagePath: "terrain/grass1.png", Name: "grass",
-			Size:   glob.Position{X: 16, Y: 16},
-			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorGreen},
-		{ImagePath: "terrain/gravel1.png", Name: "grass",
-			Size:   glob.Position{X: 16, Y: 16},
-			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorGreen},
-		{ImagePath: "terrain/grass2.png", Name: "grass2",
-			Size:   glob.Position{X: 16, Y: 16},
+		{ImagePath: "terrain/grass-1.png", Name: "grass",
+			Size:   glob.Position{X: 1, Y: 1},
 			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorGreen},
 	}
 
@@ -122,7 +116,7 @@ var (
 		//Materials
 		{Symbol: "?", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed, Name: "Error"},
 		{Symbol: "WOOD", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown, Name: "Wood"},
-		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal-ore2.png", Name: "Coal Ore"},
+		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal.png", Name: "Coal Ore"},
 		{Symbol: "COPPER", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorAqua, Name: "Copper Ore"},
 	}
 

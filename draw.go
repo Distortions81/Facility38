@@ -260,11 +260,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 /* Prototype, needs optimization */
 func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStartX int, camStartY int, camEndX int, camEndY int) {
 
-	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
+	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 	op.GeoM.Reset()
-	img := objects.TerrainTypes[2].Image
-	iSize := objects.TerrainTypes[2].Bounds
-	oSize := objects.TerrainTypes[2].Size
+	img := objects.TerrainTypes[0].Image
+	iSize := objects.TerrainTypes[0].Bounds
+	oSize := objects.TerrainTypes[0].Size
 
 	for j := 0; j < 1000; j += oSize.X {
 		for i := 0; i < 1000; i += oSize.Y {
@@ -288,7 +288,6 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 	if m.Amount > 0 {
 		img := m.TypeP.Image
 		if img != nil {
-			op.GeoM.Translate(math.Floor(glob.ZoomScale), math.Floor(glob.ZoomScale))
 			screen.DrawImage(img, op)
 		}
 	}

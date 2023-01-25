@@ -64,12 +64,12 @@ const (
 	MAT_MAX = 11
 
 	//Item Symbol
-	SymbOffX = 7
-	SymbOffY = 4
+	SymbOffX = 0
+	SymbOffY = 10
 
 	//Toolbar settings
 	ToolBarScale   = 64
-	SpriteScale    = 256
+	SpriteScale    = 16
 	TBThick        = 2
 	ToolBarOffsetX = 0
 	ToolBarOffsetY = 0
