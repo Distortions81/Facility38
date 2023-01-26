@@ -134,11 +134,13 @@ func (g *Game) Update() error {
 			glob.CameraX = glob.CameraX + (float64(glob.PrevTouchA-nx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(glob.PrevTouchB-ny) / glob.ZoomScale)
 			glob.PrevTouchA, glob.PrevTouchB = util.MidPoint(tx, ty, ta, tb)
+			glob.CameraDirty = true
 		} else {
 			glob.CameraX = glob.CameraX + (float64(glob.PrevTouchX-tx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(glob.PrevTouchY-ty) / glob.ZoomScale)
 			glob.PrevTouchX = tx
 			glob.PrevTouchY = ty
+			glob.CameraDirty = true
 		}
 	} else {
 		glob.TouchPressed = false
@@ -150,15 +152,19 @@ func (g *Game) Update() error {
 
 	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
 		glob.ZoomScale = glob.ZoomScale * 2
+		glob.ZoomDirty = true
 	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) {
 		glob.ZoomScale = glob.ZoomScale / 2
+		glob.ZoomDirty = true
 	}
 	glob.ZoomMouse = 0
 
 	if glob.ZoomScale < 1 {
 		glob.ZoomScale = 1
+		glob.ZoomDirty = true
 	} else if glob.ZoomScale > 256 {
 		glob.ZoomScale = 256
+		glob.ZoomDirty = true
 	}
 
 	/* Mouse position */
@@ -268,6 +274,7 @@ func (g *Game) Update() error {
 
 		glob.CameraX = glob.CameraX + (float64(glob.PrevMouseX-mx) / glob.ZoomScale)
 		glob.CameraY = glob.CameraY + (float64(glob.PrevMouseY-my) / glob.ZoomScale)
+		glob.CameraDirty = true
 
 		//Max of 0 to 4,294,967,295
 		if glob.CameraX > float64(consts.MaxUint) {

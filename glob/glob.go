@@ -133,6 +133,9 @@ var (
 	CameraX float64 = 0
 	CameraY float64 = 0
 
+	ZoomDirty   bool = true
+	CameraDirty bool = true
+
 	//Mouse vars
 	MouseX     float64 = 0
 	MouseY     float64 = 0
