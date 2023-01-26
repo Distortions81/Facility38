@@ -16,9 +16,8 @@ const (
 	LoadTest    = true
 	TestObjects = 10000000 //Make (approx) this number items
 
-	WorkChunksPerThread = 8
-	NinetyDeg           = math.Pi / 2
-	BGTilePix           = 1024
+	NinetyDeg = math.Pi / 2
+	BGTilePix = 1024
 
 	BlockedIndicatorOffset = 0
 
