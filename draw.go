@@ -38,12 +38,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	camEndX := int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
 	camEndY := int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
 
-	/* Draw stats */
-	chunkSkip := 0
-	objSkip := 0
-	chunkCount := 0
-	objCount := 0
-
 	/* Pre-calc camera chunk position */
 	chunkStartX := camStartX / consts.ChunkSize
 	chunkStartY := camStarty / consts.ChunkSize
@@ -52,14 +46,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	glob.WorldMapLock.Lock()
 
-	/* Caching, don't recalc unless needed */
+	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
 		glob.ListTop = 0
 		for chunkPos, chunk := range glob.WorldMap {
 
 			/* Is this chunk on the screen? */
 			if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
-				chunkSkip++
 				continue
 			}
 			if glob.ListTop < consts.MAX_DRAW_CHUNKS {
@@ -90,10 +83,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			/* Is this object on the screen? */
 			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
-				objSkip++
 				continue
 			}
-			objCount++
 
 			/* camera + object */
 			objOffX := camXPos + (float64(objPos.X))
@@ -194,9 +185,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw debug info */
 	if glob.StatusStr != "" {
 		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f,UPS: %.2f Workers: %v WorkSize: %v Chunks: d%v/s%v (v%v-%v)",
+			fmt.Sprintf("FPS: %.2f,UPS: %.2f Workers: %v WorkSize: %v Chunks-Drawn: %v (v%v-%v)",
 				ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-				objects.NumWorkers, objects.TickWorkSize, chunkCount, chunkSkip,
+				objects.NumWorkers, objects.TickWorkSize, glob.ListTop,
 				consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}
