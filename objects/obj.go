@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"fmt"
 	"sync"
 	"time"
 
@@ -238,6 +239,32 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 		}
 	}
 
+}
+
+func ExploreMap(input int) {
+	/* Explore some map */
+	//Make chunk if needed
+
+	area := input * consts.ChunkSize
+	offs := int(consts.XYCenter)
+	for x := -area; x < area; x += consts.ChunkSize {
+		for y := -area; y < area; y += consts.ChunkSize {
+			pos := &glob.Position{X: offs - x, Y: offs - y}
+
+			//Make chunk if needed
+			chunk := util.GetChunk(pos)
+			if chunk == nil {
+				cpos := util.PosToChunkPos(pos)
+				fmt.Println("Made chunk:", cpos)
+
+				glob.WorldMapLock.Lock()
+				chunk = &glob.MapChunk{}
+				glob.WorldMap[cpos] = chunk
+				chunk.WObject = make(map[glob.Position]*glob.WObject)
+				glob.WorldMapLock.Unlock()
+			}
+		}
+	}
 }
 
 func CreateObj(pos glob.Position, mtype int, dir int) *glob.WObject {

@@ -204,12 +204,12 @@ func NewGame() *Game {
 			fmt.Println("Test items", rows*columns*beltLength/1000, "K")
 			//time.Sleep(time.Second * 3)
 
-			ty := int(glob.CameraY) - (rows)
+			ty := int(consts.XYCenter) - (rows)
 			cols := 0
 			for j := 0; j < rows*columns; j++ {
 				cols++
 
-				tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
+				tx := int(consts.XYCenter) - (columns*(beltLength+hSpace))/2
 				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 
 				for i := 0; i < beltLength-hSpace; i++ {
@@ -268,6 +268,7 @@ func NewGame() *Game {
 			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
 
 		}
+		objects.ExploreMap(10)
 
 		str := "Press enter to continue..."
 		txt, err := os.ReadFile("intro.txt")
