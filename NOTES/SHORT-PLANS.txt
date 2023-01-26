@@ -25,6 +25,7 @@ add tick lists, and divide up work for every nth tick loads ---------
 
 
 Performance:
-drawTerrain badly needs optimization
-material movement should be a single pointer
 cache toolbar to a single draw call
+cache chunks and update each UPS for icon mode, pre-render map mode.
+Only update if chunk gets marked dirty, and we are in that mode.
+
