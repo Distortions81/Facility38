@@ -10,6 +10,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/dustin/go-humanize"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -204,7 +205,7 @@ func NewGame() *Game {
 	go func() {
 		if consts.LoadTest {
 
-			fmt.Println("Test items", rows*columns*beltLength/1000, "K")
+			fmt.Println("Test items:", humanize.SI(float64(rows*columns*beltLength), ""))
 			//time.Sleep(time.Second * 3)
 
 			ty := int(consts.XYCenter) - (rows)
