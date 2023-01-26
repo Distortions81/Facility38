@@ -12,7 +12,7 @@ const (
 	GfxDir  = "gfx/"
 
 	UPSBench    = false
-	LoadTest    = true
+	LoadTest    = false
 	TestObjects = 1000000 //Make (approx) this number items
 
 	WorkChunksPerThread = 8
