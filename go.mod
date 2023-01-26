@@ -6,6 +6,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/hajimehoshi/ebiten/v2 v2.4.16
 	github.com/remeh/sizedwaitgroup v1.0.0
+	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/shirou/gopsutil/v3 v3.22.12
 	golang.org/x/image v0.3.0
 )
