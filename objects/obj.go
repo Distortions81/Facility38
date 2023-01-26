@@ -308,8 +308,13 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	obj.OutputBuffer = &glob.MatData{}
 	obj.Direction = dir
 
-	EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
-	EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+	if obj.TypeP.HasMatOutput {
+		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+	}
+	/* Only add to list if the object calls an update function */
+	if obj.TypeP.UpdateObj != nil {
+		EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+	}
 
 	//Put in chunk map
 	glob.WorldMap[util.PosToChunkPos(&pos)].WObject[pos] = obj

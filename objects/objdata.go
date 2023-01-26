@@ -35,7 +35,8 @@ var (
 			MinerKGTock: 1,
 			CapacityKG:  500,
 			Symbol:      "MINE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			HasMatOutput: true},
+			HasMatOutput: true,
+		},
 
 		{ImagePath: "world-obj/basic-belt.png",
 			Name:       "Basic belt",
