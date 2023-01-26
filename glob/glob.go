@@ -105,7 +105,6 @@ type EventHitlistData struct {
 var (
 	WorldMap     map[XY]*MapChunk
 	WorldMapLock sync.Mutex
-	UpdateTook   time.Duration
 
 	XYEmpty = XY{X: 0, Y: 0}
 
@@ -160,6 +159,7 @@ var (
 	InitMouse  = false
 	InitCamera = false
 
+	//UI state
 	MousePressed      bool = false
 	MouseRightPressed bool = false
 	TouchPressed      bool = false
@@ -170,8 +170,9 @@ var (
 	DrewMap       bool = false
 
 	DetectedOS string
-	StatusStr  string = "Starting: " + consts.Version + "-" + consts.Build
+	StatusStr  string
 
+	/* Visible Chunk Cache */
 	CameraList [consts.MAX_DRAW_CHUNKS]*MapChunk
 	XYList     [consts.MAX_DRAW_CHUNKS]XY
 	ListTop    int
