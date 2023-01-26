@@ -209,8 +209,7 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 	//Link output
 	if obj.TypeP.HasMatOutput {
 		//fmt.Println("pos", pos, "output dir: ", util.DirToName(obj.OutputDir))
-		var destObj *glob.WObject
-		destObj = util.GetNeighborObj(obj, pos, obj.Direction)
+		destObj := util.GetNeighborObj(obj, pos, obj.Direction)
 
 		if destObj != nil {
 			obj.OutputObj = destObj

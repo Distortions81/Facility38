@@ -1,0 +1,205 @@
+[
+	{
+		"Name": "Basic miner",
+		"TypeI": 0,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "MINER",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/basic-miner.png",
+		"Image": null,
+		"MinerKGTock": 1,
+		"CapacityKG": 500,
+		"HasMatOutput": true,
+		"HasMapInput": false
+	},
+	{
+		"Name": "Basic box",
+		"TypeI": 1,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "BOX",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/basic-box.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 5000,
+		"HasMatOutput": false,
+		"HasMapInput": false
+	},
+	{
+		"Name": "Basic smelter",
+		"TypeI": 2,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "SMELT",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/basic-smelter-1.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 50,
+		"HasMatOutput": false,
+		"HasMapInput": false
+	},
+	{
+		"Name": "Iron rod caster",
+		"TypeI": 3,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "CAST",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/iron-rod-caster.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 0,
+		"HasMatOutput": false,
+		"HasMapInput": false
+	},
+	{
+		"Name": "Basic belt",
+		"TypeI": 4,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "BELT",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": true,
+		"Direction": 0,
+		"ImagePath": "world-obj/basic-belt.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 20,
+		"HasMatOutput": true,
+		"HasMapInput": false
+	},
+	{
+		"Name": "Basic boiler",
+		"TypeI": 5,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "BOIL",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/basic-boiler.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 500,
+		"HasMatOutput": false,
+		"HasMapInput": false
+	},
+	{
+		"Name": "Steam engine",
+		"TypeI": 6,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "STEAM",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/steam-engine.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 500,
+		"HasMatOutput": false,
+		"HasMapInput": false
+	}
+]

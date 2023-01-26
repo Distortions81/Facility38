@@ -71,8 +71,8 @@ type ObjType struct {
 	HasMatOutput bool
 	HasMapInput  bool
 
-	ToolbarAction func()
-	UpdateObj     func(Obj *WObject)
+	ToolbarAction func()             `json:"-"`
+	UpdateObj     func(Obj *WObject) `json:"-"`
 }
 
 type ToolbarItem struct {

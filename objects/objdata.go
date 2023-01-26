@@ -3,6 +3,10 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"os"
 )
 
 var (
@@ -123,3 +127,31 @@ var (
 		TerrainTypes,
 	}
 )
+
+func DumpItems() bool {
+
+	outbuf := new(bytes.Buffer)
+	enc := json.NewEncoder(outbuf)
+	enc.SetIndent("", "\t")
+
+	if err := enc.Encode(GameObjTypes); err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	_, err := os.Create("items.json")
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	err = os.WriteFile("items.json", outbuf.Bytes(), 0644)
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	return true
+}

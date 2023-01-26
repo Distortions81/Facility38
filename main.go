@@ -21,6 +21,7 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	objects.DumpItems()
 
 	/* Detect logical CPUs, failing that use numcpu */
 	var lCPUs int = runtime.NumCPU()
