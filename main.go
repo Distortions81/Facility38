@@ -192,20 +192,25 @@ func NewGame() *Game {
 	total := 0
 	rows := 0
 	columns := 0
-	hSpace := 3
-	beltLength := 10
+	hSpace := 20
+	vSpace := 20
+	bLen := 10
+	beltLength := hSpace + bLen
 	for i := 0; total < consts.TestObjects; i++ {
-		rows = 16 * i
-		columns = 3 * i
+		if i%2 == 0 {
+			rows++
+		} else {
+			columns++
+		}
 
-		total = rows * columns * beltLength
+		total = (rows * columns) * (bLen + 2)
 	}
 
 	/* Load Test Mode */
 	go func() {
 		if consts.LoadTest {
 
-			fmt.Println("Test items:", humanize.SI(float64(rows*columns*beltLength), ""))
+			fmt.Printf("Test items: Rows: %v,  Cols: %v,  Total: %v\n", rows, columns, humanize.SIWithDigits(float64(total), 2, ""))
 			//time.Sleep(time.Second * 3)
 
 			ty := int(consts.XYCenter) - (rows)
@@ -225,7 +230,7 @@ func NewGame() *Game {
 				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
 
 				if cols%columns == 0 {
-					ty += 2
+					ty += vSpace
 					cols = 0
 				}
 			}
@@ -283,7 +288,7 @@ func NewGame() *Game {
 		text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
 
 		//Skip help for benchmark
-		if consts.UPSBench {
+		if consts.NoInterface {
 			glob.DrewMap = true
 		}
 

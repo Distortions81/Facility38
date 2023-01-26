@@ -6,11 +6,12 @@ const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
 	Version = "009"              //increment
-	Build   = "01.25.2023-0707p" //mmddyyyy-hhmm(p)
+	Build   = "01.26.2023-0204p" //mmddyyyy-hhmm(p)
 	Wasm    = "js"               //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
+	NoInterface = false
 	UPSBench    = false
 	LoadTest    = true
 	TestObjects = 10000000 //Make (approx) this number items

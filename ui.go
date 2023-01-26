@@ -58,7 +58,7 @@ func (g *Game) Update() error {
 		glob.DrewMap = true
 	}
 
-	if consts.UPSBench {
+	if consts.NoInterface {
 		return nil
 	}
 
@@ -159,8 +159,8 @@ func (g *Game) Update() error {
 	}
 	glob.ZoomMouse = 0
 
-	if glob.ZoomScale < 1 {
-		glob.ZoomScale = 1
+	if glob.ZoomScale < 4 {
+		glob.ZoomScale = 4
 		glob.CameraDirty = true
 	} else if glob.ZoomScale > 256 {
 		glob.ZoomScale = 256

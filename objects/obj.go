@@ -269,6 +269,7 @@ func ExploreMap(input int) {
 				chunk = &glob.MapChunk{}
 				glob.WorldMap[cpos] = chunk
 				chunk.WObject = make(map[glob.XY]*glob.WObject)
+				glob.CameraDirty = true
 				glob.WorldMapLock.Unlock()
 			}
 		}
@@ -287,6 +288,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
 		chunk.WObject = make(map[glob.XY]*glob.WObject)
+		glob.CameraDirty = true
 		glob.WorldMapLock.Unlock()
 	}
 

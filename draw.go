@@ -185,10 +185,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw debug info */
 	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("FPS: %.2f,UPS: %.2f Workers: %v WorkSize: %v Chunks-Drawn: %v (v%v-%v)",
+		fmt.Sprintf("FPS: %.2f,UPS: %.2f Work: Workers: %v, Job-size: %v, Active Objects: %v, Chunks-Drawn: %v (v%v-%v-%v)",
 			ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-			objects.NumWorkers, humanize.SI(float64(objects.TickWorkSize), ""), glob.ListTop,
-			consts.Version, consts.Build),
+			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), glob.ListTop,
+			consts.Version, consts.Build, glob.DetectedOS),
 		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
@@ -228,13 +228,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				for _, t := range o.Contents {
 					if t != nil && t.Amount > 0 {
 						found = true
-						toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SI(float64(t.Amount), ""))
+						toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SIWithDigits(float64(t.Amount), 2, ""))
 					}
 				}
 				if !found {
 					for _, t := range o.InputBuffer {
 						if t != nil && t.Amount > 0 {
-							toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SI(float64(t.Amount), ""))
+							toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SIWithDigits(float64(t.Amount), 2, ""))
 						}
 					}
 				}
