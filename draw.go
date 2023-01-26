@@ -50,10 +50,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	chunkEndX := camEndX / consts.ChunkSize
 	chunkEndY := camEndY / consts.ChunkSize
 
-	drawTerrain(screen, camXPos, camYPos, camStartX, camStarty, camEndX, camEndY)
-
-	/* Draw world */
 	glob.WorldMapLock.Lock()
+	/* Draw world */
 	for chunkPos, chunk := range glob.WorldMap {
 
 		/* Is this chunk on the screen? */
@@ -62,6 +60,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			continue
 		}
 		chunkCount++
+
+		/* Drag ground */
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+		op.GeoM.Reset()
+		iSize := glob.BackgroundTile.Bounds().Size()
+		op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
+		op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
+		screen.DrawImage(glob.BackgroundTile, op)
 
 		/* Draw objects in chunk */
 		for objPos, obj := range chunk.WObject {
@@ -252,29 +258,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		time.Sleep(sleepFor)
 	}
 
-}
-
-/* Prototype, needs optimization */
-func drawTerrain(screen *ebiten.Image, camXPos float64, camYPos float64, camStartX int, camStartY int, camEndX int, camEndY int) {
-
-	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-	op.GeoM.Reset()
-	sizeX := glob.BackgroundTile.Bounds().Size().X
-
-	size := 10
-	halfSize := float64((sizeX) / 2)
-	for i := 0; i < size*glob.NumTilesBG; i += size {
-		posX := int((consts.XYCenter - halfSize) + float64(i))
-		for j := 0; j < size*glob.NumTilesBG; j += size {
-			posY := int((consts.XYCenter - halfSize) + float64(j))
-			op.GeoM.Scale((float64(sizeX/glob.NumTilesBG)/consts.SpriteScale)*glob.ZoomScale, (float64(sizeX/glob.NumTilesBG)/consts.SpriteScale)*glob.ZoomScale)
-			op.GeoM.Translate((float64(posX)+camXPos)*glob.ZoomScale, (float64(posY)+camYPos)*glob.ZoomScale)
-
-			screen.DrawImage(glob.BackgroundTile, op)
-			op.GeoM.Reset()
-
-		}
-	}
 }
 
 func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {

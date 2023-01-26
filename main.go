@@ -149,18 +149,19 @@ func NewGame() *Game {
 	sx := bg.Bounds().Size().X
 	sy := bg.Bounds().Size().Y
 
+	chunkPix := consts.SpriteScale * consts.ChunkSize
+
 	if sx > 0 && sy > 0 {
 
-		glob.BackgroundTile = ebiten.NewImage(consts.BGTilePix, consts.BGTilePix)
+		glob.BackgroundTile = ebiten.NewImage(chunkPix, chunkPix)
 
-		for i := 0; i <= consts.BGTilePix; i += sx {
-			for j := 0; j <= consts.BGTilePix; j += sy {
+		for i := 0; i <= chunkPix; i += sx {
+			for j := 0; j <= chunkPix; j += sy {
 				op.GeoM.Reset()
 				op.GeoM.Translate(float64(i), float64(j))
 				glob.BackgroundTile.DrawImage(bg, op)
 			}
 		}
-		glob.NumTilesBG = consts.BGTilePix / sx
 	} else {
 		panic("No valid bg texture.")
 	}
