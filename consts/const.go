@@ -12,8 +12,8 @@ const (
 	GfxDir  = "gfx/"
 
 	UPSBench    = false
-	LoadTest    = false
-	TestObjects = 1000000 //Make (approx) this number items
+	LoadTest    = true
+	TestObjects = 10000000 //Make (approx) this number items
 
 	WorkChunksPerThread = 8
 	NinetyDeg           = math.Pi / 2
