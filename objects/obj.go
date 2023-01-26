@@ -4,7 +4,6 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
-	"fmt"
 	"sync"
 	"time"
 
@@ -255,7 +254,7 @@ func ExploreMap(input int) {
 			chunk := util.GetChunk(pos)
 			if chunk == nil {
 				cpos := util.PosToChunkPos(pos)
-				fmt.Println("Made chunk:", cpos)
+				//fmt.Println("Made chunk:", cpos)
 
 				glob.WorldMapLock.Lock()
 				chunk = &glob.MapChunk{}

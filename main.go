@@ -72,7 +72,7 @@ func NewGame() *Game {
 	const dpi = 96
 	/* Boot screen font */
 	glob.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    24,
+		Size:    15,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
@@ -184,6 +184,8 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
+	objects.ExploreMap(10)
+
 	/* Test load map generator parameters */
 	total := 0
 	rows := 0
@@ -268,7 +270,6 @@ func NewGame() *Game {
 			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
 
 		}
-		objects.ExploreMap(10)
 
 		str := "Press enter to continue..."
 		txt, err := os.ReadFile("intro.txt")
