@@ -5,9 +5,9 @@ import "math"
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
-	Version = "009"             //increment
-	Build   = "01.24.2023-0937" //mmddyyyy-hhmm(p)
-	Wasm    = "js"              //Detect wasm/js
+	Version = "009"              //increment
+	Build   = "01.25.2023-0707p" //mmddyyyy-hhmm(p)
+	Wasm    = "js"               //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 

@@ -182,9 +182,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw debug info */
 	if glob.StatusStr != "" {
 		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f, IPS: %.2f, UPS: %.2f, TockPerSec: %.2fm  (v%v-%v)",
-				ebiten.ActualFPS(), ebiten.ActualTPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-				(float64(objects.TockCount)*(1000000000.0/float64(glob.MeasuredObjectUPS_ns)))/1000000,
+			fmt.Sprintf("FPS: %.2f,UPS: %.2f (v%v-%v)",
+				ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
 				consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}
