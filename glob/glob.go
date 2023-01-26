@@ -35,9 +35,8 @@ type WObject struct {
 	KGHeld   uint64                   `json:"k,omitempty"`
 
 	//Input/Output
-	InputBuffer  map[*WObject]*MatData `json:"i,omitempty"`
-	OutputBuffer *MatData              `json:"o,omitempty"`
-	BeltStart    bool
+	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
+	OutputBuffer *MatData                 `json:"o,omitempty"`
 
 	Valid bool `json:"v,omitempty"`
 }
@@ -69,7 +68,7 @@ type ObjType struct {
 	CapacityKG  uint64
 
 	HasMatOutput bool
-	HasMapInput  bool
+	HasMatInput  bool
 
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *WObject) `json:"-"`

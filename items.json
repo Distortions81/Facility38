@@ -14,7 +14,7 @@
 			"B": 255,
 			"A": 255
 		},
-		"Symbol": "MINER",
+		"Symbol": "MINE",
 		"Size": {
 			"X": 1,
 			"Y": 1
@@ -26,98 +26,11 @@
 		"MinerKGTock": 1,
 		"CapacityKG": 500,
 		"HasMatOutput": true,
-		"HasMapInput": false
-	},
-	{
-		"Name": "Basic box",
-		"TypeI": 1,
-		"ItemColor": {
-			"R": 64,
-			"G": 64,
-			"B": 64,
-			"A": 255
-		},
-		"SymbolColor": {
-			"R": 255,
-			"G": 255,
-			"B": 255,
-			"A": 255
-		},
-		"Symbol": "BOX",
-		"Size": {
-			"X": 1,
-			"Y": 1
-		},
-		"Rotatable": false,
-		"Direction": 0,
-		"ImagePath": "world-obj/basic-box.png",
-		"Image": null,
-		"MinerKGTock": 0,
-		"CapacityKG": 5000,
-		"HasMatOutput": false,
-		"HasMapInput": false
-	},
-	{
-		"Name": "Basic smelter",
-		"TypeI": 2,
-		"ItemColor": {
-			"R": 64,
-			"G": 64,
-			"B": 64,
-			"A": 255
-		},
-		"SymbolColor": {
-			"R": 255,
-			"G": 255,
-			"B": 255,
-			"A": 255
-		},
-		"Symbol": "SMELT",
-		"Size": {
-			"X": 1,
-			"Y": 1
-		},
-		"Rotatable": false,
-		"Direction": 0,
-		"ImagePath": "world-obj/basic-smelter-1.png",
-		"Image": null,
-		"MinerKGTock": 0,
-		"CapacityKG": 50,
-		"HasMatOutput": false,
-		"HasMapInput": false
-	},
-	{
-		"Name": "Iron rod caster",
-		"TypeI": 3,
-		"ItemColor": {
-			"R": 64,
-			"G": 64,
-			"B": 64,
-			"A": 255
-		},
-		"SymbolColor": {
-			"R": 255,
-			"G": 255,
-			"B": 255,
-			"A": 255
-		},
-		"Symbol": "CAST",
-		"Size": {
-			"X": 1,
-			"Y": 1
-		},
-		"Rotatable": false,
-		"Direction": 0,
-		"ImagePath": "world-obj/iron-rod-caster.png",
-		"Image": null,
-		"MinerKGTock": 0,
-		"CapacityKG": 0,
-		"HasMatOutput": false,
-		"HasMapInput": false
+		"HasMatInput": false
 	},
 	{
 		"Name": "Basic belt",
-		"TypeI": 4,
+		"TypeI": 1,
 		"ItemColor": {
 			"R": 64,
 			"G": 64,
@@ -142,11 +55,127 @@
 		"MinerKGTock": 0,
 		"CapacityKG": 20,
 		"HasMatOutput": true,
-		"HasMapInput": false
+		"HasMatInput": true
+	},
+	{
+		"Name": "Basic Splitter",
+		"TypeI": 2,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "SPLIT",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": true,
+		"Direction": 0,
+		"ImagePath": "world-obj/basic-splitter.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 0,
+		"HasMatOutput": true,
+		"HasMatInput": true
+	},
+	{
+		"Name": "Basic box",
+		"TypeI": 3,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "BOX",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/basic-box.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 5000,
+		"HasMatOutput": false,
+		"HasMatInput": true
+	},
+	{
+		"Name": "Basic smelter",
+		"TypeI": 4,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "SMELT",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/basic-smelter-1.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 50,
+		"HasMatOutput": true,
+		"HasMatInput": true
+	},
+	{
+		"Name": "Iron rod caster",
+		"TypeI": 5,
+		"ItemColor": {
+			"R": 64,
+			"G": 64,
+			"B": 64,
+			"A": 255
+		},
+		"SymbolColor": {
+			"R": 255,
+			"G": 255,
+			"B": 255,
+			"A": 255
+		},
+		"Symbol": "CAST",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"Rotatable": false,
+		"Direction": 0,
+		"ImagePath": "world-obj/iron-rod-caster.png",
+		"Image": null,
+		"MinerKGTock": 0,
+		"CapacityKG": 0,
+		"HasMatOutput": true,
+		"HasMatInput": true
 	},
 	{
 		"Name": "Basic boiler",
-		"TypeI": 5,
+		"TypeI": 6,
 		"ItemColor": {
 			"R": 64,
 			"G": 64,
@@ -170,12 +199,12 @@
 		"Image": null,
 		"MinerKGTock": 0,
 		"CapacityKG": 500,
-		"HasMatOutput": false,
-		"HasMapInput": false
+		"HasMatOutput": true,
+		"HasMatInput": true
 	},
 	{
 		"Name": "Steam engine",
-		"TypeI": 6,
+		"TypeI": 7,
 		"ItemColor": {
 			"R": 64,
 			"G": 64,
@@ -200,6 +229,6 @@
 		"MinerKGTock": 0,
 		"CapacityKG": 500,
 		"HasMatOutput": false,
-		"HasMapInput": false
+		"HasMatInput": true
 	}
 ]

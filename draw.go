@@ -130,7 +130,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					matTween(obj.OutputBuffer, obj, op, screen)
 				} else {
 					for _, m := range obj.InputBuffer {
-						if m.Amount > 0 {
+						if m != nil && m.Amount > 0 {
 							matTween(m, obj, op, screen)
 							break
 						}
@@ -156,15 +156,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						screen.DrawImage(img, op)
 					}
 					/* Show blocked outputs */
-					img = objects.ObjOverlayTypes[consts.ObjTypeBlocked].Image
+					img = objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image
+					revDir := util.ReverseDirection(obj.Direction)
 					if obj.OutputObj != nil && obj.OutputBuffer.Amount > 0 &&
-						obj.OutputObj.InputBuffer[obj] != nil && obj.OutputObj.InputBuffer[obj].Amount > 0 {
+						obj.OutputObj.InputBuffer[revDir] != nil && obj.OutputObj.InputBuffer[revDir].Amount > 0 {
 
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 						op.GeoM.Reset()
 
 						iSize := obj.TypeP.Image.Bounds()
-						op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjTypeBlocked].Image.Bounds().Max.X)-consts.BlockedIndicatorOffset, consts.BlockedIndicatorOffset)
+						op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-consts.BlockedIndicatorOffset, consts.BlockedIndicatorOffset)
 						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 						screen.DrawImage(img, op)
@@ -182,8 +183,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw debug info */
 	if glob.StatusStr != "" {
 		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f,UPS: %.2f (v%v-%v)",
+			fmt.Sprintf("FPS: %.2f,UPS: %.2f Workers: %v WorkSize: %v (v%v-%v)",
 				ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
+				objects.NumWorkers, objects.TickWorkSize,
 				consts.Version, consts.Build),
 			0, glob.ScreenHeight-20)
 	}

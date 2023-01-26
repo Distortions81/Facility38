@@ -312,15 +312,9 @@ func (g *Game) Update() error {
 		if o != nil {
 
 			if glob.ShiftPressed {
-				o.Direction = o.Direction - 1
-				if o.Direction < consts.DIR_NORTH {
-					o.Direction = consts.DIR_WEST
-				}
+				o.Direction = util.RotCW(o.Direction)
 			} else {
-				o.Direction = o.Direction + 1
-				if o.Direction > consts.DIR_WEST {
-					o.Direction = consts.DIR_NORTH
-				}
+				o.Direction = util.RotCCW(o.Direction)
 			}
 
 			o.OutputObj = nil

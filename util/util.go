@@ -6,6 +6,21 @@ import (
 	"math"
 )
 
+func RotCW(dir int) int {
+	dir = dir - 1
+	if dir < consts.DIR_NORTH {
+		dir = consts.DIR_WEST
+	}
+	return dir
+}
+func RotCCW(dir int) int {
+	dir = dir + 1
+	if dir > consts.DIR_WEST {
+		dir = consts.DIR_NORTH
+	}
+	return dir
+}
+
 func Distance(xa, ya, xb, yb int) float64 {
 	x := math.Abs(float64(xa - xb))
 	y := math.Abs(float64(ya - yb))
@@ -87,6 +102,10 @@ func ReverseDirection(dir int) int {
 		return consts.DIR_NORTH
 	case consts.DIR_WEST:
 		return consts.DIR_EAST
+	case consts.DIR_UP:
+		return consts.DIR_DOWN
+	case consts.DIR_DOWN:
+		return consts.DIR_UP
 	}
 
 	return consts.DIR_NONE

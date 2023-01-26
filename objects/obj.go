@@ -70,12 +70,13 @@ func TickTockLoop() {
 
 func TickObj(o *glob.WObject) {
 
-	if o.OutputObj != nil && o.OutputObj.Valid {
-		if o.OutputObj.InputBuffer[o].Amount == 0 &&
+	if o.OutputObj != nil {
+		revDir := util.ReverseDirection(o.Direction)
+		if o.OutputObj.InputBuffer[revDir] != nil && o.OutputObj.InputBuffer[revDir].Amount == 0 &&
 			o.OutputBuffer.Amount > 0 {
 
-			o.OutputObj.InputBuffer[o].Amount = o.OutputBuffer.Amount
-			o.OutputObj.InputBuffer[o].TypeP = o.OutputBuffer.TypeP
+			o.OutputObj.InputBuffer[revDir].Amount = o.OutputBuffer.Amount
+			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
 
 			o.OutputBuffer.Amount = 0
 		}
@@ -204,36 +205,46 @@ func tocklistRemove(obj *glob.WObject) {
 	TockCount--
 }
 
-func LinkObj(pos glob.Position, obj *glob.WObject) {
+func linkOut(pos glob.Position, obj *glob.WObject, dir int) {
+	destObj := util.GetNeighborObj(obj, pos, dir)
 
-	//Link output
-	if obj.TypeP.HasMatOutput {
-		//fmt.Println("pos", pos, "output dir: ", util.DirToName(obj.OutputDir))
-		destObj := util.GetNeighborObj(obj, pos, obj.Direction)
-
-		if destObj != nil {
-			obj.OutputObj = destObj
-			destObj.InputBuffer[obj] = &glob.MatData{}
-			//fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
-		}
+	if destObj != nil {
+		obj.OutputObj = destObj
+		destObj.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
 	}
+}
+
+func LinkObj(pos glob.Position, obj *glob.WObject) {
 
 	//Link inputs
 	var i int
 
-	obj.BeltStart = true
-	for i = consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
+	for i = consts.DIR_NORTH; i <= consts.DIR_NONE; i++ {
 		neigh := util.GetNeighborObj(obj, pos, i)
 
 		if neigh != nil {
 			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.Direction) == i {
 				neigh.OutputObj = obj
-				obj.InputBuffer[neigh] = &glob.MatData{}
-				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
-				if neigh.TypeI == consts.ObjTypeBasicBelt {
-					obj.BeltStart = false
-				}
+				obj.InputBuffer[i] = &glob.MatData{}
 			}
+		}
+	}
+
+	//Link output
+	if obj.TypeP.HasMatOutput {
+		linkOut(pos, obj, obj.Direction)
+
+		//Link up additonal outputs for splitters
+		if obj.TypeI == consts.ObjTypeBasicSplit {
+			dir := util.RotCW(obj.Direction)
+			linkOut(pos, obj, dir)
+
+			dir = util.RotCW(dir)
+			linkOut(pos, obj, dir)
+
+			dir = util.RotCW(dir)
+			linkOut(pos, obj, dir)
+
 		}
 	}
 
@@ -241,7 +252,6 @@ func LinkObj(pos glob.Position, obj *glob.WObject) {
 
 func ExploreMap(input int) {
 	/* Explore some map */
-	//Make chunk if needed
 
 	area := input * consts.ChunkSize
 	offs := int(consts.XYCenter)
@@ -295,10 +305,8 @@ func CreateObj(pos glob.Position, mtype int, dir int) *glob.WObject {
 	obj.OutputObj = nil
 
 	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
-	obj.InputBuffer = make(map[*glob.WObject]*glob.MatData)
 	obj.OutputBuffer = &glob.MatData{}
 	obj.Direction = dir
-	obj.Valid = true
 
 	EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
 	EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
@@ -340,9 +348,6 @@ func runObjectHitlist() {
 
 	for _, item := range ObjectHitlist {
 		if item.Delete {
-			if item.Obj != nil {
-				item.Obj.Valid = false
-			}
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 

@@ -43,12 +43,13 @@ const (
 
 	//Buildings
 	ObjTypeBasicMiner      = 0
-	ObjTypeBasicBox        = 1
-	ObjTypeBasicSmelter    = 2
-	ObjTypeBasicIronCaster = 3
-	ObjTypeBasicBelt       = 4
-	ObjTypeBasicBoiler     = 5
-	ObjTypeSteamEngine     = 6
+	ObjTypeBasicBelt       = 1
+	ObjTypeBasicSplit      = 2
+	ObjTypeBasicBox        = 3
+	ObjTypeBasicSmelter    = 4
+	ObjTypeBasicIronCaster = 5
+	ObjTypeBasicBoiler     = 6
+	ObjTypeSteamEngine     = 7
 
 	//Materials
 	MAT_NONE       = 0
@@ -82,14 +83,21 @@ const (
 	DefaultZoom = SpriteScale * 2
 
 	//Overlays
-	DIR_NORTH      = 0
-	DIR_EAST       = 1
-	DIR_SOUTH      = 2
-	DIR_WEST       = 3
-	ObjTypeBlocked = 4
-	DIR_UP         = 5
-	DIR_DOWN       = 6
-	DIR_NONE       = 7
+	DIR_NORTH = 0
+	DIR_EAST  = 1
+	DIR_SOUTH = 2
+	DIR_WEST  = 3
+	DIR_UP    = 4
+	DIR_DOWN  = 5
+	DIR_NONE  = 6
+	DIR_MAX   = 7
+
+	//Overlay Types
+	ObjOverlayNorth   = 0
+	ObjOverlayEast    = 1
+	ObjOverlaySouth   = 2
+	ObjOverlayWest    = 3
+	ObjOverlayBlocked = 4
 
 	COAL_KWH_KG        = 8
 	BOILER_EFFICIENCY  = 0.4
