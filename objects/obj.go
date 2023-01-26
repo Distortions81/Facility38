@@ -205,7 +205,7 @@ func tocklistRemove(obj *glob.WObject) {
 	TockCount--
 }
 
-func linkOut(pos glob.Position, obj *glob.WObject, dir int) {
+func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 	destObj := util.GetNeighborObj(obj, pos, dir)
 
 	if destObj != nil {
@@ -214,7 +214,7 @@ func linkOut(pos glob.Position, obj *glob.WObject, dir int) {
 	}
 }
 
-func LinkObj(pos glob.Position, obj *glob.WObject) {
+func LinkObj(pos glob.XY, obj *glob.WObject) {
 
 	//Link inputs
 	var i int
@@ -257,7 +257,7 @@ func ExploreMap(input int) {
 	offs := int(consts.XYCenter)
 	for x := -area; x < area; x += consts.ChunkSize {
 		for y := -area; y < area; y += consts.ChunkSize {
-			pos := &glob.Position{X: offs - x, Y: offs - y}
+			pos := &glob.XY{X: offs - x, Y: offs - y}
 
 			//Make chunk if needed
 			chunk := util.GetChunk(pos)
@@ -268,14 +268,14 @@ func ExploreMap(input int) {
 				glob.WorldMapLock.Lock()
 				chunk = &glob.MapChunk{}
 				glob.WorldMap[cpos] = chunk
-				chunk.WObject = make(map[glob.Position]*glob.WObject)
+				chunk.WObject = make(map[glob.XY]*glob.WObject)
 				glob.WorldMapLock.Unlock()
 			}
 		}
 	}
 }
 
-func CreateObj(pos glob.Position, mtype int, dir int) *glob.WObject {
+func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	//Make chunk if needed
 	chunk := util.GetChunk(&pos)
@@ -286,7 +286,7 @@ func CreateObj(pos glob.Position, mtype int, dir int) *glob.WObject {
 		glob.WorldMapLock.Lock()
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
-		chunk.WObject = make(map[glob.Position]*glob.WObject)
+		chunk.WObject = make(map[glob.XY]*glob.WObject)
 		glob.WorldMapLock.Unlock()
 	}
 
@@ -319,7 +319,7 @@ func CreateObj(pos glob.Position, mtype int, dir int) *glob.WObject {
 	return obj
 }
 
-func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.Position, delete bool, dir int) {
+func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.XY, delete bool, dir int) {
 	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 }
 

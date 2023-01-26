@@ -31,7 +31,7 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 	return (x1 + x2) / 2, (y1 + y2) / 2
 }
 
-func GetObj(pos *glob.Position, chunk *glob.MapChunk) *glob.WObject {
+func GetObj(pos *glob.XY, chunk *glob.MapChunk) *glob.WObject {
 	if chunk != nil {
 		o := chunk.WObject[*pos]
 		return o
@@ -41,23 +41,23 @@ func GetObj(pos *glob.Position, chunk *glob.MapChunk) *glob.WObject {
 }
 
 // Automatically converts position to chunk format
-func GetChunk(pos *glob.Position) *glob.MapChunk {
+func GetChunk(pos *glob.XY) *glob.MapChunk {
 	glob.WorldMapLock.Lock()
-	chunk := glob.WorldMap[glob.Position{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}]
+	chunk := glob.WorldMap[glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}]
 	glob.WorldMapLock.Unlock()
 	return chunk
 }
 
-func PosToChunkPos(pos *glob.Position) glob.Position {
-	return glob.Position{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}
+func PosToChunkPos(pos *glob.XY) glob.XY {
+	return glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}
 }
 
-func FloatXYToPosition(x float64, y float64) glob.Position {
+func FloatXYToPosition(x float64, y float64) glob.XY {
 
-	return glob.Position{X: int(x), Y: int(y)}
+	return glob.XY{X: int(x), Y: int(y)}
 }
 
-func GetNeighborObj(src *glob.WObject, pos glob.Position, dir int) *glob.WObject {
+func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
 
 	switch dir {
 	case consts.DIR_NORTH:

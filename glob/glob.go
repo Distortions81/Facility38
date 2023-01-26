@@ -19,8 +19,8 @@ import (
 )
 
 type MapChunk struct {
-	WObject map[Position]*WObject
-	CObj    map[Position]*WObject //Map for multi-tile objects
+	WObject map[XY]*WObject
+	CObj    map[XY]*WObject //Map for multi-tile objects
 }
 
 type WObject struct {
@@ -46,7 +46,7 @@ type MatData struct {
 	Amount uint64  `json:"a,omitempty"`
 }
 
-type Position struct {
+type XY struct {
 	X, Y int
 }
 
@@ -57,7 +57,7 @@ type ObjType struct {
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
-	Size        Position
+	Size        XY
 	Rotatable   bool
 	Direction   int
 
@@ -85,14 +85,14 @@ type TickEvent struct {
 
 type SaveMObj struct {
 	O *WObject
-	P Position
+	P XY
 }
 
 type ObjectHitlistData struct {
 	Delete bool
 	Obj    *WObject
 	OType  int
-	Pos    *Position
+	Pos    *XY
 	Dir    int
 }
 
@@ -103,11 +103,11 @@ type EventHitlistData struct {
 }
 
 var (
-	WorldMap     map[Position]*MapChunk
+	WorldMap     map[XY]*MapChunk
 	WorldMapLock sync.Mutex
 	UpdateTook   time.Duration
 
-	XYEmpty = Position{X: 0, Y: 0}
+	XYEmpty = XY{X: 0, Y: 0}
 
 	//eBiten settings
 	ScreenWidth  int = 1280 //Screen width default
@@ -141,7 +141,7 @@ var (
 
 	//Last object we performed an action on
 	//Used for click-drag
-	LastActionPosition Position
+	LastActionPosition XY
 	LastActionTime     time.Time
 	BuildActionDelay   time.Duration = 0
 	RemoveActionDelay  time.Duration = 0

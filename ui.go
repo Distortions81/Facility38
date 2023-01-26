@@ -209,7 +209,7 @@ func (g *Game) Update() error {
 								var tx, ty int
 								for tx = 0; tx < size.X; tx++ {
 									for ty = 0; ty < size.Y; ty++ {
-										if chunk.CObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
+										if chunk.CObj[glob.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
 											//fmt.Println("ERROR: Occupied.")
 											bypass = true
 										}
@@ -218,7 +218,7 @@ func (g *Game) Update() error {
 							}
 
 							if !bypass {
-								go func(o *glob.WObject, pos glob.Position) {
+								go func(o *glob.WObject, pos glob.XY) {
 									objects.ListLock.Lock()
 									dir := objects.GameObjTypes[objects.SelectedItemType].Direction
 									objects.ObjectHitlistAdd(o, objects.SelectedItemType, &pos, false, dir)
@@ -234,7 +234,7 @@ func (g *Game) Update() error {
 							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 
 								if o != nil {
-									go func(o *glob.WObject, pos glob.Position) {
+									go func(o *glob.WObject, pos glob.XY) {
 										objects.ListLock.Lock()
 										objects.ObjectHitlistAdd(o, o.TypeI, &pos, true, 0)
 										objects.ListLock.Unlock()

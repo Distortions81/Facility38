@@ -180,7 +180,7 @@ func NewGame() *Game {
 	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
 
 	/* Make gomap for world */
-	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
+	glob.WorldMap = make(map[glob.XY]*glob.MapChunk)
 
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
@@ -213,15 +213,15 @@ func NewGame() *Game {
 				cols++
 
 				tx := int(consts.XYCenter) - (columns*(beltLength+hSpace))/2
-				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
-					objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
+					objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
 
 				}
 				tx++
-				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
 
 				if cols%columns == 0 {
 					ty += 2
@@ -232,43 +232,43 @@ func NewGame() *Game {
 			/* Default map generator */
 			tx := int(consts.XYCenter - 5)
 			ty := int(consts.XYCenter)
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
 			}
 			tx++
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 2)
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
-				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
 			}
 			tx--
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter + 2)
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
-				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
 			}
 			ty++
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 4)
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
-				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
 			}
 			ty--
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
 
 		}
 
