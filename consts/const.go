@@ -25,6 +25,8 @@ const (
 	DragActionTypeBuild  = 1
 	DragActionTypeDelete = 2
 
+	MAX_DRAW_CHUNKS = 10000
+
 	/* FPS limiter */
 	MAX_RENDER_NS = 1000000000 / 360
 

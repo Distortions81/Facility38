@@ -302,6 +302,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight
 		glob.InitMouse = false
+		glob.CameraDirty = true
 	}
 
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build + " " + fmt.Sprintf("%vx%v", glob.ScreenWidth, glob.ScreenHeight)))

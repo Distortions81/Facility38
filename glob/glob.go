@@ -133,7 +133,6 @@ var (
 	CameraX float64 = 0
 	CameraY float64 = 0
 
-	ZoomDirty   bool = true
 	CameraDirty bool = true
 
 	//Mouse vars
@@ -172,6 +171,10 @@ var (
 
 	DetectedOS string
 	StatusStr  string = "Starting: " + consts.Version + "-" + consts.Build
+
+	CameraList [consts.MAX_DRAW_CHUNKS]*MapChunk
+	XYList     [consts.MAX_DRAW_CHUNKS]XY
+	ListTop    int
 )
 
 func SaveGame() {

@@ -51,15 +51,31 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	chunkEndY := camEndY / consts.ChunkSize
 
 	glob.WorldMapLock.Lock()
-	/* Draw world */
-	for chunkPos, chunk := range glob.WorldMap {
 
-		/* Is this chunk on the screen? */
-		if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
-			chunkSkip++
-			continue
+	/* Caching, don't recalc unless needed */
+	if glob.CameraDirty {
+		glob.ListTop = 0
+		for chunkPos, chunk := range glob.WorldMap {
+
+			/* Is this chunk on the screen? */
+			if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
+				chunkSkip++
+				continue
+			}
+			if glob.ListTop < consts.MAX_DRAW_CHUNKS {
+				glob.CameraList[glob.ListTop] = chunk
+				glob.XYList[glob.ListTop] = chunkPos
+				glob.ListTop++
+			} else {
+				break
+			}
+			glob.CameraDirty = false
 		}
-		chunkCount++
+	}
+
+	/* Draw world */
+	for i := 0; i < glob.ListTop; i++ {
+		chunkPos := glob.XYList[i]
 
 		/* Drag ground */
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
@@ -70,7 +86,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		screen.DrawImage(glob.BackgroundTile, op)
 
 		/* Draw objects in chunk */
-		for objPos, obj := range chunk.WObject {
+		for objPos, obj := range glob.CameraList[i].WObject {
 
 			/* Is this object on the screen? */
 			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
@@ -93,14 +109,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw overlays */
-	for chunkPos, chunk := range glob.WorldMap {
+	for i := 0; i < glob.ListTop; i++ {
 
-		/* Is this chunk on the screen? */
-		if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
-			continue
-		}
-
-		for objPos, obj := range chunk.WObject {
+		for objPos, obj := range glob.CameraList[i].WObject {
 
 			/* Is this object on the screen? */
 			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {

@@ -152,19 +152,19 @@ func (g *Game) Update() error {
 
 	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
 		glob.ZoomScale = glob.ZoomScale * 2
-		glob.ZoomDirty = true
+		glob.CameraDirty = true
 	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) {
 		glob.ZoomScale = glob.ZoomScale / 2
-		glob.ZoomDirty = true
+		glob.CameraDirty = true
 	}
 	glob.ZoomMouse = 0
 
 	if glob.ZoomScale < 1 {
 		glob.ZoomScale = 1
-		glob.ZoomDirty = true
+		glob.CameraDirty = true
 	} else if glob.ZoomScale > 256 {
 		glob.ZoomScale = 256
-		glob.ZoomDirty = true
+		glob.CameraDirty = true
 	}
 
 	/* Mouse position */
