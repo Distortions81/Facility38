@@ -68,7 +68,7 @@ func NewGame() *Game {
 	}
 	/*
 	 * Font DPI
-	 * Not important. This just changes how large the font is for a given point value
+	 * Changes how large the font is for a given point value
 	 */
 	const dpi = 96
 	/* Boot screen font */
@@ -93,7 +93,7 @@ func NewGame() *Game {
 
 	/* Tooltip font */
 	glob.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    8,
+		Size:    9,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})

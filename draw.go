@@ -9,6 +9,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -183,14 +184,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
 
 	/* Draw debug info */
-	if glob.StatusStr != "" {
-		ebitenutil.DebugPrintAt(screen,
-			fmt.Sprintf("FPS: %.2f,UPS: %.2f Workers: %v WorkSize: %v Chunks-Drawn: %v (v%v-%v)",
-				ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-				objects.NumWorkers, objects.TickWorkSize, glob.ListTop,
-				consts.Version, consts.Build),
-			0, glob.ScreenHeight-20)
-	}
+	ebitenutil.DebugPrintAt(screen,
+		fmt.Sprintf("FPS: %.2f,UPS: %.2f Workers: %v WorkSize: %v Chunks-Drawn: %v (v%v-%v)",
+			ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
+			objects.NumWorkers, humanize.SI(float64(objects.TickWorkSize), ""), glob.ListTop,
+			consts.Version, consts.Build),
+		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
 	for i := 0; i < objects.ToolbarMax; i++ {
@@ -223,19 +222,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			o := chunk.WObject[pos]
 			if o != nil {
 				found = true
-				toolTip = fmt.Sprintf("(%5.0f, %5.0f) %v", math.Floor(worldMouseX-consts.XYCenter), math.Floor(worldMouseY-consts.XYCenter), o.TypeP.Name)
+				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(worldMouseX-consts.XYCenter)), humanize.Comma(int64(worldMouseY-consts.XYCenter)), o.TypeP.Name)
 
 				found := false
 				for _, t := range o.Contents {
 					if t != nil && t.Amount > 0 {
 						found = true
-						toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, t.Amount)
+						toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SI(float64(t.Amount), ""))
 					}
 				}
 				if !found {
 					for _, t := range o.InputBuffer {
 						if t != nil && t.Amount > 0 {
-							toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, t.Amount)
+							toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SI(float64(t.Amount), ""))
 						}
 					}
 				}
@@ -245,7 +244,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		/* No object contents found */
 		if !found {
-			toolTip = fmt.Sprintf("(%5.0f, %5.0f)", math.Floor(worldMouseX-consts.XYCenter), math.Floor(worldMouseY-consts.XYCenter))
+			toolTip = fmt.Sprintf("(%v, %v)", humanize.Comma(int64(worldMouseX-consts.XYCenter)), humanize.Comma(int64(worldMouseY-consts.XYCenter)))
 		}
 
 		tRect := text.BoundString(glob.ToolTipFont, toolTip)

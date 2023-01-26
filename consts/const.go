@@ -27,7 +27,7 @@ const (
 
 	MAX_DRAW_CHUNKS = 10000
 
-	/* FPS limiter */
+	/* FPS limiter, 360fps */
 	MAX_RENDER_NS = 1000000000 / 360
 
 	MaxUint  = ^uint32(0)
@@ -101,13 +101,12 @@ const (
 	ObjOverlayWest    = 3
 	ObjOverlayBlocked = 4
 
+	//World Values
 	COAL_KWH_KG        = 8
 	BOILER_EFFICIENCY  = 0.4
 	TURBINE_EFFICIENCY = 0.9
-
-	COAL_KWH_MTON = 1927
-
-	TIMESCALE = 60 //1 Day passes in 24 minutes
+	COAL_KWH_MTON      = 1927
+	TIMESCALE          = 60 //1 Day passes in 24 minutes
 
 	QUEUE_TYPE_NONE = 0
 	QUEUE_TYPE_TOCK = 1

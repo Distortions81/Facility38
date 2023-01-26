@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"code.cloudfoundry.org/bytefmt"
+	"github.com/dustin/go-humanize"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )
@@ -247,7 +247,7 @@ func uncompressZip(data []byte) []byte {
 
 	b := bytes.NewReader(data)
 
-	log.Println("Uncompressing: ", bytefmt.ByteSize(uint64(len(data))))
+	log.Println("Uncompressing: ", humanize.Bytes(uint64(len(data))))
 	z, err := zlib.NewReader(b)
 	if err != nil {
 		log.Println("Error: ", err)
@@ -260,7 +260,7 @@ func uncompressZip(data []byte) []byte {
 		log.Println("Error: ", err)
 		return nil
 	}
-	log.Print("Uncompressed: ", bytefmt.ByteSize(uint64(len(p))))
+	log.Print("Uncompressed: ", humanize.Bytes(uint64(len(p))))
 	return p
 }
 

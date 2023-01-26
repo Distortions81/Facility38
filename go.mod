@@ -3,7 +3,7 @@ module GameTest
 go 1.17
 
 require (
-	code.cloudfoundry.org/bytefmt v0.0.0-20211005130812-5bb3c17173e5
+	github.com/dustin/go-humanize v1.0.1
 	github.com/hajimehoshi/ebiten/v2 v2.4.16
 	github.com/remeh/sizedwaitgroup v1.0.0
 	github.com/shirou/gopsutil/v3 v3.22.12
@@ -23,7 +23,7 @@ require (
 	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
-	golang.org/x/exp/shiny v0.0.0-20230125214544-b3c2aaf6208d // indirect
+	golang.org/x/exp/shiny v0.0.0-20230126173853-a67bb567ff2e // indirect
 	golang.org/x/mobile v0.0.0-20221110043201-43a038452099 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect

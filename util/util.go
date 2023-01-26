@@ -70,8 +70,6 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
 		pos.X--
 	}
 
-	////fmt.Println("Finding neighbor:", pos, DirToName(dir))
-
 	chunk := GetChunk(&pos)
 	obj := GetObj(&pos, chunk)
 	return obj
