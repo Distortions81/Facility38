@@ -3,11 +3,12 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"GameTest/noise"
 	"GameTest/util"
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/remeh/sizedwaitgroup"
 )
 
@@ -67,6 +68,31 @@ func TickTockLoop() {
 
 	//pprof.StopCPUProfile()
 
+}
+
+func CacheCleanup() {
+	time.Sleep(time.Second)
+
+	for {
+		glob.WorldMapLock.Lock()
+		tmpWorld := glob.WorldMap
+		glob.WorldMapLock.Unlock()
+
+		for _, chunk := range tmpWorld {
+			if chunk.GroundImg != nil && !chunk.Visible {
+				if time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
+					chunk.GroundLock.Lock()
+					chunk.GroundImg = nil
+					chunk.GroundLock.Unlock()
+				}
+			} else {
+				if chunk.GroundImg == nil && chunk.Visible {
+					RenderChunkGround(chunk)
+				}
+			}
+		}
+		time.Sleep(time.Millisecond * 100)
+	}
 }
 
 func TickObj(o *glob.WObject) {
@@ -258,26 +284,59 @@ func MakeChunk(pos glob.XY) {
 	chunk := util.GetChunk(&newPos)
 	if chunk == nil {
 		cpos := util.PosToChunkPos(&newPos)
-		//fmt.Println("Made chunk:", cpos)
+		fmt.Println("Made chunk:", cpos)
 
 		glob.WorldMapLock.Lock()
+
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
 		chunk.WObject = make(map[glob.XY]*glob.WObject)
-		chunk.Height = make(map[glob.XY]uint8, consts.ChunkSize*consts.ChunkSize)
-
 		glob.CameraDirty = true
 
+		glob.WorldMapLock.Unlock()
+	}
+}
+
+func RenderChunkGround(chunk *glob.MapChunk) {
+	/* Make optimized background */
+	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+
+	bg := TerrainTypes[0].Image
+	sx := bg.Bounds().Size().X
+	sy := bg.Bounds().Size().Y
+
+	chunkPix := consts.SpriteScale * consts.ChunkSize
+	var tImg *ebiten.Image
+
+	if sx > 0 && sy > 0 {
+
+		tImg = ebiten.NewImage(chunkPix, chunkPix)
+
+		for i := 0; i <= chunkPix; i += sx {
+			for j := 0; j <= chunkPix; j += sy {
+				op.GeoM.Reset()
+				op.GeoM.Translate(float64(i), float64(j))
+				tImg.DrawImage(bg, op)
+			}
+		}
+
+	} else {
+		panic("No valid bg texture.")
+	}
+
+	/*
 		for i := 0; i < consts.ChunkSize; i++ {
 			for j := 0; j < consts.ChunkSize; j++ {
 
 				pos := glob.XY{X: i, Y: j}
-				chunk.Height[pos] = noise.HeightMap(float64(i+(cpos.X*consts.ChunkSize)), float64(j+(cpos.Y*consts.ChunkSize)))
+				height := noise.HeightMap(float64(i+(cpos.X*consts.ChunkSize)), float64(j+(cpos.Y*consts.ChunkSize)))
 			}
 		}
+	*/
 
-		glob.WorldMapLock.Unlock()
-	}
+	chunk.GroundLock.Lock()
+	chunk.GroundImg = tImg
+	chunk.GroundLock.Unlock()
 }
 
 func ExploreMap(input int) {

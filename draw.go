@@ -6,7 +6,6 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
-	"image/color"
 	"math"
 	"time"
 
@@ -55,8 +54,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			/* Is this chunk on the screen? */
 			if chunkPos.X < chunkStartX || chunkPos.X > chunkEndX || chunkPos.Y < chunkStartY || chunkPos.Y > chunkEndY {
+				chunk.Visible = false
 				continue
 			}
+			chunk.Visible = true
+			chunk.LastSaw = time.Now()
+
 			if glob.ListTop < consts.MAX_DRAW_CHUNKS {
 				glob.CameraList[glob.ListTop] = chunk
 				glob.XYList[glob.ListTop] = chunkPos
@@ -69,35 +72,26 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw world */
+	screen.Fill(glob.GroundColor)
 	for i := 0; i < glob.ListTop; i++ {
 		chunkPos := glob.XYList[i]
+		chunk := glob.CameraList[i]
 
 		/* Draw ground */
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 		op.GeoM.Reset()
-		iSize := glob.BackgroundTile.Bounds().Size()
-		op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
-		op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
-		screen.DrawImage(glob.BackgroundTile, op)
-
-		//Noise
-		block := ebiten.NewImage(1, 1)
-		for nx := 0; nx < consts.ChunkSize; nx++ {
-			for ny := 0; ny < consts.ChunkSize; ny++ {
-				op.GeoM.Reset()
-				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(32), (consts.ChunkSize*glob.ZoomScale)/float64(32))
-				op.GeoM.Translate(
-					(camXPos+float64(chunkPos.X*consts.ChunkSize)+float64(nx))*glob.ZoomScale,
-					(camYPos+float64(chunkPos.Y*consts.ChunkSize)+float64(ny))*glob.ZoomScale)
-				val := glob.CameraList[i].Height[glob.XY{X: nx, Y: ny}]
-				block.Fill(color.NRGBA{0, 0, 0, val / 2})
-				screen.DrawImage(block, op)
-			}
+		chunk.GroundLock.Lock()
+		if chunk.GroundImg != nil {
+			iSize := chunk.GroundImg.Bounds().Size()
+			op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
+			op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
+			screen.DrawImage(chunk.GroundImg, op)
 		}
+		chunk.GroundLock.Unlock()
 
 		/* Draw objects in chunk */
-		for objPos, obj := range glob.CameraList[i].WObject {
+		for objPos, obj := range chunk.WObject {
 
 			/* Is this object on the screen? */
 			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {

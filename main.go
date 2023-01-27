@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"runtime/debug"
 
 	"github.com/dustin/go-humanize"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -24,6 +25,8 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	debug.SetMemoryLimit(1024 * 1024 * 1024 * 20)
+
 	noise.InitPerlin()
 	objects.DumpItems()
 
@@ -161,30 +164,6 @@ func NewGame() *Game {
 		}
 	}
 
-	/* Make optimized background */
-	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-
-	bg := objects.TerrainTypes[0].Image
-	sx := bg.Bounds().Size().X
-	sy := bg.Bounds().Size().Y
-
-	chunkPix := consts.SpriteScale * consts.ChunkSize
-
-	if sx > 0 && sy > 0 {
-
-		glob.BackgroundTile = ebiten.NewImage(chunkPix, chunkPix)
-
-		for i := 0; i <= chunkPix; i += sx {
-			for j := 0; j <= chunkPix; j += sy {
-				op.GeoM.Reset()
-				op.GeoM.Translate(float64(i), float64(j))
-				glob.BackgroundTile.DrawImage(bg, op)
-			}
-		}
-	} else {
-		panic("No valid bg texture.")
-	}
-
 	/* Boot Image */
 	glob.BootImage = ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
 
@@ -203,15 +182,15 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
-	objects.ExploreMap(2)
+	objects.ExploreMap(64)
 
 	/* Test load map generator parameters */
 	total := 0
 	rows := 0
 	columns := 0
-	hSpace := 20
-	vSpace := 20
-	bLen := 10
+	hSpace := 4
+	vSpace := 4
+	bLen := 2
 	beltLength := hSpace + bLen
 	for i := 0; total < consts.TestObjects; i++ {
 		if i%2 == 0 {
@@ -310,8 +289,10 @@ func NewGame() *Game {
 			glob.BootImage.Dispose()
 		}
 
-		objects.TickTockLoop()
+		go objects.TickTockLoop()
 	}()
+
+	go objects.CacheCleanup()
 
 	/* Initialize the game */
 	return &Game{}

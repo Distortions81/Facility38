@@ -21,7 +21,12 @@ import (
 type MapChunk struct {
 	WObject      map[XY]*WObject
 	LargeWObject map[XY]*WObject
-	Height       map[XY]uint8
+
+	GroundLock sync.Mutex
+	GroundImg  *ebiten.Image
+	Visible    bool
+
+	LastSaw time.Time
 }
 
 type WObject struct {
@@ -126,9 +131,8 @@ var (
 	ZoomMouse float64 = 0.0                //Zoom mouse
 	ZoomScale float64 = consts.DefaultZoom //Current zoom
 
-	BootImage      *ebiten.Image //Boot image
-	BackgroundTile *ebiten.Image //Optimized BG tile
-	NumTilesBG     int
+	BootImage  *ebiten.Image //Boot imag
+	NumTilesBG int
 
 	BootFont    font.Face
 	ToolTipFont font.Face

@@ -1,6 +1,9 @@
 package consts
 
-import "math"
+import (
+	"math"
+	"time"
+)
 
 const (
 	//Code written by CarlOtto81@gmail.com
@@ -14,10 +17,9 @@ const (
 	NoInterface = false
 	UPSBench    = false
 	LoadTest    = true
-	TestObjects = 1000000 //Make (approx) this number items
+	TestObjects = 100 //Make (approx) this number items
 
 	NinetyDeg = math.Pi / 2
-	BGTilePix = 1024
 
 	BlockedIndicatorOffset = 0
 
@@ -32,6 +34,8 @@ const (
 
 	MaxUint  = ^uint32(0)
 	XYCenter = float64(uint32(MaxUint>>1) / 2)
+
+	ChunkGroundCacheTime = time.Second * 10
 
 	//Subtypes
 	ObjSubUI   = 0

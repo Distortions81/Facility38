@@ -160,8 +160,8 @@ func (g *Game) Update() error {
 	}
 	glob.ZoomMouse = 0
 
-	if glob.ZoomScale < 4 {
-		glob.ZoomScale = 4
+	if glob.ZoomScale < 16 {
+		glob.ZoomScale = 16
 		glob.CameraDirty = true
 	} else if glob.ZoomScale > 256 {
 		glob.ZoomScale = 256
