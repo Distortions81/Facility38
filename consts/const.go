@@ -9,7 +9,7 @@ const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
 	Version = "009"              //increment
-	Build   = "01.26.2023-0204p" //mmddyyyy-hhmm(p)
+	Build   = "01.27.2023-0459p" //mmddyyyy-hhmm(p)
 	Wasm    = "js"               //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
