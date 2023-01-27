@@ -329,14 +329,15 @@ func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 		tImg = ebiten.NewImage(chunkPix, chunkPix)
 
-		for i := 0; i <= consts.ChunkSize; i++ {
-			for j := 0; j <= consts.ChunkSize; j++ {
+		for i := 0; i < consts.ChunkSize; i++ {
+			for j := 0; j < consts.ChunkSize; j++ {
 				op.GeoM.Reset()
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
 				if doDetail {
-					x := (float64(i) + float64(cpos.X*consts.ChunkSize))
-					y := (float64(j) + float64(cpos.Y*consts.ChunkSize))
+					op.ColorM.Reset()
+					x := (float64(j) + float64(cpos.X*consts.ChunkSize))
+					y := (float64(i) + float64(cpos.Y*consts.ChunkSize))
 					h := noise.NoiseMap(x, y)
 
 					fmt.Printf("%.2f,%.2f: %.2f\n", x, y, h)
