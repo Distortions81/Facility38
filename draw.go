@@ -6,6 +6,7 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
+	"image/color"
 	"math"
 	"time"
 
@@ -71,13 +72,29 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for i := 0; i < glob.ListTop; i++ {
 		chunkPos := glob.XYList[i]
 
-		/* Drag ground */
+		/* Draw ground */
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
 		op.GeoM.Reset()
 		iSize := glob.BackgroundTile.Bounds().Size()
 		op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
 		op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
 		screen.DrawImage(glob.BackgroundTile, op)
+
+		//Noise
+		block := ebiten.NewImage(1, 1)
+		for nx := 0; nx < consts.ChunkSize; nx++ {
+			for ny := 0; ny < consts.ChunkSize; ny++ {
+				op.GeoM.Reset()
+				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(32), (consts.ChunkSize*glob.ZoomScale)/float64(32))
+				op.GeoM.Translate(
+					(camXPos+float64(chunkPos.X*consts.ChunkSize)+float64(nx))*glob.ZoomScale,
+					(camYPos+float64(chunkPos.Y*consts.ChunkSize)+float64(ny))*glob.ZoomScale)
+				val := glob.CameraList[i].Height[glob.XY{X: nx, Y: ny}]
+				block.Fill(color.NRGBA{0, 0, 0, val})
+				screen.DrawImage(block, op)
+			}
+		}
 
 		/* Draw objects in chunk */
 		for objPos, obj := range glob.CameraList[i].WObject {

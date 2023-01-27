@@ -210,18 +210,20 @@ func (g *Game) Update() error {
 						//Prevent flopping between delete and create when dragging
 						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
 
-							size := objects.GameObjTypes[objects.SelectedItemType].Size
-							if size.X > 1 || size.Y > 1 {
-								var tx, ty int
-								for tx = 0; tx < size.X; tx++ {
-									for ty = 0; ty < size.Y; ty++ {
-										if chunk.CObj[glob.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
-											//fmt.Println("ERROR: Occupied.")
-											bypass = true
+							/*
+								size := objects.GameObjTypes[objects.SelectedItemType].Size
+								if size.X > 1 || size.Y > 1 {
+									var tx, ty int
+									for tx = 0; tx < size.X; tx++ {
+										for ty = 0; ty < size.Y; ty++ {
+											if chunk.LargeWObject[glob.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
+												//fmt.Println("ERROR: Occupied.")
+												bypass = true
+											}
 										}
 									}
 								}
-							}
+							*/
 
 							if !bypass {
 								go func(o *glob.WObject, pos glob.XY) {

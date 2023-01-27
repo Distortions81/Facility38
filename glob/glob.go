@@ -19,8 +19,9 @@ import (
 )
 
 type MapChunk struct {
-	WObject map[XY]*WObject
-	CObj    map[XY]*WObject //Map for multi-tile objects
+	WObject      map[XY]*WObject
+	LargeWObject map[XY]*WObject
+	Height       map[XY]uint8
 }
 
 type WObject struct {

@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/data"
 	"GameTest/glob"
+	"GameTest/noise"
 	"GameTest/objects"
 	"fmt"
 	"log"
@@ -23,6 +24,7 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	noise.InitPerlin()
 	objects.DumpItems()
 
 	/* Detect logical CPUs, failing that use numcpu */
@@ -201,7 +203,7 @@ func NewGame() *Game {
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
 
-	objects.ExploreMap(10)
+	objects.ExploreMap(2)
 
 	/* Test load map generator parameters */
 	total := 0

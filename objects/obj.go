@@ -3,6 +3,7 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/noise"
 	"GameTest/util"
 	"sync"
 	"time"
@@ -250,6 +251,34 @@ func LinkObj(pos glob.XY, obj *glob.WObject) {
 
 }
 
+func MakeChunk(pos glob.XY) {
+	//Make chunk if needed
+
+	newPos := pos
+	chunk := util.GetChunk(&newPos)
+	if chunk == nil {
+		cpos := util.PosToChunkPos(&newPos)
+		//fmt.Println("Made chunk:", cpos)
+
+		glob.WorldMapLock.Lock()
+		chunk = &glob.MapChunk{}
+		glob.WorldMap[cpos] = chunk
+		chunk.WObject = make(map[glob.XY]*glob.WObject)
+		chunk.Height = make(map[glob.XY]uint8, consts.ChunkSize*consts.ChunkSize)
+
+		glob.CameraDirty = true
+
+		for i := 0; i < consts.ChunkSize; i++ {
+			for j := 0; j < consts.ChunkSize; j++ {
+				pos := glob.XY{X: i, Y: j}
+				chunk.Height[pos] = noise.HeightMap(float64(i), float64(j))
+			}
+		}
+
+		glob.WorldMapLock.Unlock()
+	}
+}
+
 func ExploreMap(input int) {
 	/* Explore some map */
 
@@ -257,21 +286,9 @@ func ExploreMap(input int) {
 	offs := int(consts.XYCenter)
 	for x := -area; x < area; x += consts.ChunkSize {
 		for y := -area; y < area; y += consts.ChunkSize {
-			pos := &glob.XY{X: offs - x, Y: offs - y}
+			pos := glob.XY{X: offs - x, Y: offs - y}
 
-			//Make chunk if needed
-			chunk := util.GetChunk(pos)
-			if chunk == nil {
-				cpos := util.PosToChunkPos(pos)
-				//fmt.Println("Made chunk:", cpos)
-
-				glob.WorldMapLock.Lock()
-				chunk = &glob.MapChunk{}
-				glob.WorldMap[cpos] = chunk
-				chunk.WObject = make(map[glob.XY]*glob.WObject)
-				glob.CameraDirty = true
-				glob.WorldMapLock.Unlock()
-			}
+			MakeChunk(pos)
 		}
 	}
 }
@@ -279,18 +296,8 @@ func ExploreMap(input int) {
 func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	//Make chunk if needed
+	MakeChunk(pos)
 	chunk := util.GetChunk(&pos)
-	if chunk == nil {
-		cpos := util.PosToChunkPos(&pos)
-		//fmt.Println("Made chunk:", cpos)
-
-		glob.WorldMapLock.Lock()
-		chunk = &glob.MapChunk{}
-		glob.WorldMap[cpos] = chunk
-		chunk.WObject = make(map[glob.XY]*glob.WObject)
-		glob.CameraDirty = true
-		glob.WorldMapLock.Unlock()
-	}
 
 	obj := chunk.WObject[pos]
 

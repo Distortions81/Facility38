@@ -51,6 +51,9 @@ func GetChunk(pos *glob.XY) *glob.MapChunk {
 func PosToChunkPos(pos *glob.XY) glob.XY {
 	return glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}
 }
+func ChunkPosToPos(pos *glob.XY) glob.XY {
+	return glob.XY{X: pos.X * consts.ChunkSize, Y: pos.Y * consts.ChunkSize}
+}
 
 func FloatXYToPosition(x float64, y float64) glob.XY {
 
