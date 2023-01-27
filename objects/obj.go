@@ -270,8 +270,9 @@ func MakeChunk(pos glob.XY) {
 
 		for i := 0; i < consts.ChunkSize; i++ {
 			for j := 0; j < consts.ChunkSize; j++ {
+
 				pos := glob.XY{X: i, Y: j}
-				chunk.Height[pos] = noise.HeightMap(float64(i), float64(j))
+				chunk.Height[pos] = noise.HeightMap(float64(i+(cpos.X*consts.ChunkSize)), float64(j+(cpos.Y*consts.ChunkSize)))
 			}
 		}
 
