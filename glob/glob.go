@@ -50,6 +50,10 @@ type XY struct {
 	X, Y int
 }
 
+type XYF64 struct {
+	X, Y float64
+}
+
 type ObjType struct {
 	Name string
 
