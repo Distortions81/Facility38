@@ -3,6 +3,7 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/noise"
 	"GameTest/util"
 	"fmt"
 	"sync"
@@ -80,29 +81,31 @@ func CacheCleanup() {
 		glob.WorldMapLock.Unlock()
 
 		/* If we zoom out, decallocate everything */
-		if glob.ZoomScale < consts.SpriteScale {
+		if glob.ZoomScale < consts.MiniMapLevel {
 			for _, chunk := range tmpWorld {
 				chunk.GroundImg = nil
 			}
 			continue
 		}
 
-		for _, chunk := range tmpWorld {
+		for cpos, chunk := range tmpWorld {
 			wg.Add()
-			go func(chunk *glob.MapChunk) {
+			go func(chunk *glob.MapChunk, cpos glob.XY) {
 				glob.WorldMapLock.Lock()
 				if chunk.GroundImg != nil && !chunk.Visible {
 					if time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
+						chunk.NeedsRender = false
 						chunk.GroundImg = nil
 					}
 				} else {
-					if chunk.GroundImg == nil && chunk.Visible {
-						RenderChunkGround(chunk)
+					if chunk.NeedsRender && chunk.Visible {
+						chunk.NeedsRender = false
+						RenderChunkGround(chunk, true, cpos)
 					}
 				}
 				glob.WorldMapLock.Unlock()
 				wg.Done()
-			}(chunk)
+			}(chunk, cpos)
 		}
 		wg.Wait()
 		time.Sleep(time.Millisecond * 100)
@@ -311,7 +314,7 @@ func MakeChunk(pos glob.XY) {
 	}
 }
 
-func RenderChunkGround(chunk *glob.MapChunk) {
+func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	/* Make optimized background */
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
@@ -320,20 +323,26 @@ func RenderChunkGround(chunk *glob.MapChunk) {
 	bg := TerrainTypes[0].Image
 	sx := int(float64(bg.Bounds().Size().X))
 	sy := int(float64(bg.Bounds().Size().Y))
-
 	var tImg *ebiten.Image
 
 	if sx > 0 && sy > 0 {
 
 		tImg = ebiten.NewImage(chunkPix, chunkPix)
-		if tImg == nil {
-			panic("Failed to allocate ground cache")
-		}
 
-		for i := 0; i <= chunkPix; i += sx {
-			for j := 0; j <= chunkPix; j += sy {
+		for i := 0; i <= consts.ChunkSize; i++ {
+			for j := 0; j <= consts.ChunkSize; j++ {
 				op.GeoM.Reset()
-				op.GeoM.Translate(float64(i), float64(j))
+				op.GeoM.Translate(float64(i*sx), float64(j*sy))
+
+				if doDetail {
+					x := (float64(i) + float64(cpos.X*consts.ChunkSize))
+					y := (float64(j) + float64(cpos.Y*consts.ChunkSize))
+					h := noise.NoiseMap(x, y)
+
+					fmt.Printf("%.2f,%.2f: %.2f\n", x, y, h)
+					op.ColorM.Scale(h*2, 1, 1, 1)
+				}
+
 				tImg.DrawImage(bg, op)
 			}
 		}
@@ -341,17 +350,6 @@ func RenderChunkGround(chunk *glob.MapChunk) {
 	} else {
 		panic("No valid bg texture.")
 	}
-
-	/*
-		for i := 0; i < consts.ChunkSize; i++ {
-			for j := 0; j < consts.ChunkSize; j++ {
-
-				pos := glob.XY{X: i, Y: j}
-				height := noise.HeightMap(float64(i+(cpos.X*consts.ChunkSize)), float64(j+(cpos.Y*consts.ChunkSize)))
-			}
-		}
-	*/
-
 	chunk.GroundImg = tImg
 }
 

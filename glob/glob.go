@@ -22,9 +22,12 @@ type MapChunk struct {
 	WObject      map[XY]*WObject
 	LargeWObject map[XY]*WObject
 
-	GroundLock sync.Mutex
-	GroundImg  *ebiten.Image
-	Visible    bool
+	GroundLock  sync.Mutex
+	GroundImg   *ebiten.Image
+	NeedsRender bool
+	NeedsDetail bool
+
+	Visible bool
 
 	LastSaw time.Time
 }
@@ -131,8 +134,9 @@ var (
 	ZoomMouse float64 = 0.0                //Zoom mouse
 	ZoomScale float64 = consts.DefaultZoom //Current zoom
 
-	BootImage   *ebiten.Image //Boot imag
-	MiniMapTile *ebiten.Image
+	BootImage      *ebiten.Image //Boot imag
+	MiniMapTile    *ebiten.Image
+	TempChunkImage *ebiten.Image
 
 	BootFont    font.Face
 	ToolTipFont font.Face

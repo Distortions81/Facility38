@@ -35,7 +35,7 @@ const (
 	MaxUint  = ^uint32(0)
 	XYCenter = float64(uint32(MaxUint>>1) / 2)
 
-	ChunkGroundCacheTime = time.Second * 10
+	ChunkGroundCacheTime = time.Second * 15
 
 	//Subtypes
 	ObjSubUI   = 0
@@ -85,8 +85,9 @@ const (
 	ToolBarOffsetY = 0
 
 	//Draw settings
-	ChunkSize   = 32
-	DefaultZoom = SpriteScale * 2
+	ChunkSize    = 32
+	DefaultZoom  = SpriteScale * 2
+	MiniMapLevel = (SpriteScale / 2)
 
 	//Overlays
 	DIR_NORTH = 0

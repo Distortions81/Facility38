@@ -153,6 +153,11 @@ func NewGame() *Game {
 	glob.MiniMapTile = ebiten.NewImage(consts.SpriteScale-4, consts.SpriteScale-4)
 	glob.MiniMapTile.Fill(color.White)
 
+	/* Temp tile to use when rendering a new chunk */
+	tChunk := glob.MapChunk{}
+	objects.RenderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
+	glob.TempChunkImage = tChunk.GroundImg
+
 	toolBG = ebiten.NewImage(64, 64)
 	toolBG.Fill(glob.ColorVeryDarkGray)
 

@@ -1,7 +1,6 @@
 package noise
 
 import (
-	"GameTest/consts"
 	"math/rand"
 	"time"
 
@@ -19,11 +18,10 @@ var (
 )
 
 func InitPerlin() {
-	source := rand.NewSource(time.Now().UnixMicro())
+	source := rand.NewSource(time.Now().Unix())
 	per = perlin.NewPerlinRandSource(alpha, beta, n, source)
 }
 
-func HeightMap(x, y float64) uint8 {
-	noise := per.Noise2D(float64(x/consts.ChunkSize), float64(y/consts.ChunkSize))
-	return uint8(((noise + 1.0) / 2.0) * 255)
+func NoiseMap(x, y float64) float64 {
+	return ((per.Noise2D(x/1000.0, y/1000.0) + 1) / 2.0)
 }
