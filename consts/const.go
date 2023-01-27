@@ -19,6 +19,8 @@ const (
 	LoadTest    = true
 	TestObjects = 100 //Make (approx) this number items
 
+	NoiseScale = 100.0
+
 	NinetyDeg = math.Pi / 2
 
 	BlockedIndicatorOffset = 0
