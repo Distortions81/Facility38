@@ -3,24 +3,24 @@ package noise
 import (
 	"GameTest/consts"
 	"math/rand"
+	"time"
 
 	"github.com/aquilax/go-perlin"
 )
 
 const (
-	alpha = 2.
-	beta  = 2.
+	alpha = 2.0
+	beta  = 2.0
 	n     = 3
 )
 
 var (
-	per  *perlin.Perlin
-	seed int64 = 100
+	per *perlin.Perlin
 )
 
 func InitPerlin() {
-	seed = rand.Int63()
-	per = perlin.NewPerlin(alpha, beta, n, seed)
+	source := rand.NewSource(time.Now().UnixMicro())
+	per = perlin.NewPerlinRandSource(alpha, beta, n, source)
 }
 
 func HeightMap(x, y float64) uint8 {

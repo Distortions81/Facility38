@@ -91,7 +91,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					(camXPos+float64(chunkPos.X*consts.ChunkSize)+float64(nx))*glob.ZoomScale,
 					(camYPos+float64(chunkPos.Y*consts.ChunkSize)+float64(ny))*glob.ZoomScale)
 				val := glob.CameraList[i].Height[glob.XY{X: nx, Y: ny}]
-				block.Fill(color.NRGBA{0, 0, 0, val})
+				block.Fill(color.NRGBA{0, 0, 0, val / 2})
 				screen.DrawImage(block, op)
 			}
 		}
