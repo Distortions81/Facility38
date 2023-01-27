@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"GameTest/noise"
 	"GameTest/util"
-	"fmt"
 	"sync"
 	"time"
 
@@ -313,7 +312,7 @@ func MakeChunk(pos glob.XY) {
 	chunk := util.GetChunk(&newPos)
 	if chunk == nil {
 		cpos := util.PosToChunkPos(&newPos)
-		fmt.Println("Made chunk:", cpos)
+		//fmt.Println("Made chunk:", cpos)
 
 		glob.WorldMapLock.Lock()
 
@@ -355,7 +354,7 @@ func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 					y := (float64(cpos.Y*consts.ChunkSize) + float64(j))
 					h := noise.NoiseMap(x, y)
 
-					fmt.Printf("%.2f,%.2f: %.2f\n", x, y, h)
+					//fmt.Printf("%.2f,%.2f: %.2f\n", x, y, h)
 					op.ColorM.Reset()
 					op.ColorM.Scale(h*2, 1, 1, 1)
 				}

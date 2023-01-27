@@ -53,12 +53,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		for chunkPos, chunk := range glob.WorldMap {
 
 			/* Is this chunk on the screen? */
-			if chunkPos.X < screenStartX || chunkPos.X > screenEndX || chunkPos.Y < screenStartY || chunkPos.Y > screenEndY {
+			if chunkPos.X+1 < screenStartX || chunkPos.X-1 > screenEndX || chunkPos.Y+1 < screenStartY || chunkPos.Y-1 > screenEndY {
 				chunk.Visible = false
 				continue
 			}
 			chunk.Visible = true
 			chunk.LastSaw = time.Now()
+
+			/* Is this chunk on the screen? */
+			if chunkPos.X < screenStartX || chunkPos.X > screenEndX || chunkPos.Y < screenStartY || chunkPos.Y > screenEndY {
+				//chunk.Visible = false
+				continue
+			}
 
 			if glob.ListTop < consts.MAX_DRAW_CHUNKS {
 				glob.CameraList[glob.ListTop] = chunk
