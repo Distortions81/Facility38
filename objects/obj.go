@@ -99,6 +99,9 @@ func CacheCleanup() {
 		}
 
 		for cpos, chunk := range tmpWorld {
+			if chunk.GroundImg == nil {
+				continue
+			}
 			wg.Add()
 			go func(chunk *glob.MapChunk, cpos glob.XY) {
 				glob.WorldMapLock.Lock()
@@ -110,7 +113,7 @@ func CacheCleanup() {
 				} else {
 					if glob.NumChunkImage > consts.CacheMax &&
 						time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
-						//KillChunkGround(chunk)
+						KillChunkGround(chunk)
 					}
 				}
 
@@ -119,7 +122,7 @@ func CacheCleanup() {
 			}(chunk, cpos)
 		}
 		wg.Wait()
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Millisecond * 10)
 	}
 }
 
