@@ -38,6 +38,7 @@ const (
 	XYCenter = float64(uint32(MaxUint>>1) / 2)
 
 	ChunkGroundCacheTime = time.Second * 15
+	CacheMax             = 100
 
 	//Subtypes
 	ObjSubUI   = 0

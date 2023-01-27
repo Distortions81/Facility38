@@ -22,10 +22,9 @@ type MapChunk struct {
 	WObject      map[XY]*WObject
 	LargeWObject map[XY]*WObject
 
-	GroundLock  sync.Mutex
-	GroundImg   *ebiten.Image
-	NeedsRender bool
-	NeedsDetail bool
+	GroundLock     sync.Mutex
+	GroundImg      *ebiten.Image
+	UsingTemporary bool
 
 	Visible bool
 
@@ -137,6 +136,7 @@ var (
 	BootImage      *ebiten.Image //Boot imag
 	MiniMapTile    *ebiten.Image
 	TempChunkImage *ebiten.Image
+	NumChunkImage  int
 
 	BootFont    font.Face
 	ToolTipFont font.Face

@@ -113,7 +113,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk.GroundLock.Lock()
 			if chunk.GroundImg == nil {
 				chunk.GroundImg = glob.TempChunkImage
-				chunk.NeedsRender = true
+				chunk.UsingTemporary = true
 			}
 			iSize := chunk.GroundImg.Bounds().Size()
 			op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))

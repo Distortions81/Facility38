@@ -71,6 +71,17 @@ func TickTockLoop() {
 
 }
 
+func KillChunkGround(chunk *glob.MapChunk) {
+	if chunk.UsingTemporary || chunk.GroundImg == nil {
+		return
+	}
+	chunk.GroundLock.Lock()
+	chunk.GroundImg.Dispose()
+	chunk.GroundImg = nil
+	glob.NumChunkImage--
+	chunk.GroundLock.Unlock()
+}
+
 func CacheCleanup() {
 	time.Sleep(time.Second)
 	wg := sizedwaitgroup.New(NumWorkers)
@@ -83,7 +94,7 @@ func CacheCleanup() {
 		/* If we zoom out, decallocate everything */
 		if glob.ZoomScale < consts.MiniMapLevel {
 			for _, chunk := range tmpWorld {
-				chunk.GroundImg = nil
+				KillChunkGround(chunk)
 			}
 			continue
 		}
@@ -92,17 +103,18 @@ func CacheCleanup() {
 			wg.Add()
 			go func(chunk *glob.MapChunk, cpos glob.XY) {
 				glob.WorldMapLock.Lock()
-				if chunk.GroundImg != nil && !chunk.Visible {
-					if time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
-						chunk.NeedsRender = false
-						chunk.GroundImg = nil
-					}
-				} else {
-					if chunk.NeedsRender && chunk.Visible {
-						chunk.NeedsRender = false
+
+				if chunk.Visible || chunk.GroundImg == nil {
+					if chunk.UsingTemporary {
 						RenderChunkGround(chunk, true, cpos)
 					}
+				} else {
+					if glob.NumChunkImage > consts.CacheMax &&
+						time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
+						//KillChunkGround(chunk)
+					}
 				}
+
 				glob.WorldMapLock.Unlock()
 				wg.Done()
 			}(chunk, cpos)
@@ -327,7 +339,11 @@ func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 	if sx > 0 && sy > 0 {
 
+		chunk.GroundLock.Lock()
 		tImg = ebiten.NewImage(chunkPix, chunkPix)
+		glob.NumChunkImage++
+		chunk.UsingTemporary = false
+		chunk.GroundLock.Unlock()
 
 		for i := 0; i < consts.ChunkSize; i++ {
 			for j := 0; j < consts.ChunkSize; j++ {
@@ -351,7 +367,9 @@ func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	} else {
 		panic("No valid bg texture.")
 	}
+	chunk.GroundLock.Lock()
 	chunk.GroundImg = tImg
+	chunk.GroundLock.Unlock()
 }
 
 func ExploreMap(input int) {
