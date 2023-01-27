@@ -3,10 +3,13 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/noise"
 	"GameTest/util"
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/remeh/sizedwaitgroup"
 )
 
@@ -68,14 +71,56 @@ func TickTockLoop() {
 
 }
 
+func CacheCleanup() {
+	time.Sleep(time.Second)
+	wg := sizedwaitgroup.New(NumWorkers)
+
+	for {
+		glob.WorldMapLock.Lock()
+		tmpWorld := glob.WorldMap
+		glob.WorldMapLock.Unlock()
+
+		/* If we zoom out, decallocate everything */
+		if glob.ZoomScale < consts.MiniMapLevel {
+			for _, chunk := range tmpWorld {
+				chunk.GroundImg = nil
+			}
+			continue
+		}
+
+		for cpos, chunk := range tmpWorld {
+			wg.Add()
+			go func(chunk *glob.MapChunk, cpos glob.XY) {
+				glob.WorldMapLock.Lock()
+				if chunk.GroundImg != nil && !chunk.Visible {
+					if time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
+						chunk.NeedsRender = false
+						chunk.GroundImg = nil
+					}
+				} else {
+					if chunk.NeedsRender && chunk.Visible {
+						chunk.NeedsRender = false
+						RenderChunkGround(chunk, true, cpos)
+					}
+				}
+				glob.WorldMapLock.Unlock()
+				wg.Done()
+			}(chunk, cpos)
+		}
+		wg.Wait()
+		time.Sleep(time.Millisecond * 100)
+	}
+}
+
 func TickObj(o *glob.WObject) {
 
-	if o.OutputObj != nil && o.OutputObj.Valid {
-		if o.OutputObj.InputBuffer[o].Amount == 0 &&
+	if o.OutputObj != nil {
+		revDir := util.ReverseDirection(o.Direction)
+		if o.OutputObj.InputBuffer[revDir] != nil && o.OutputObj.InputBuffer[revDir].Amount == 0 &&
 			o.OutputBuffer.Amount > 0 {
 
-			o.OutputObj.InputBuffer[o].Amount = o.OutputBuffer.Amount
-			o.OutputObj.InputBuffer[o].TypeP = o.OutputBuffer.TypeP
+			o.OutputObj.InputBuffer[revDir].Amount = o.OutputBuffer.Amount
+			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
 
 			o.OutputBuffer.Amount = 0
 		}
@@ -204,55 +249,130 @@ func tocklistRemove(obj *glob.WObject) {
 	TockCount--
 }
 
-func LinkObj(pos glob.Position, obj *glob.WObject) {
+func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
+	destObj := util.GetNeighborObj(obj, pos, dir)
 
-	//Link output
-	if obj.TypeP.HasMatOutput {
-		//fmt.Println("pos", pos, "output dir: ", util.DirToName(obj.OutputDir))
-		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
-
-		if destObj != nil {
-			obj.OutputObj = destObj
-			destObj.InputBuffer[obj] = &glob.MatData{}
-			//fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
-		}
+	if destObj != nil {
+		obj.OutputObj = destObj
+		destObj.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
 	}
+}
+
+func LinkObj(pos glob.XY, obj *glob.WObject) {
 
 	//Link inputs
 	var i int
 
-	obj.BeltStart = true
-	for i = consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
+	for i = consts.DIR_NORTH; i <= consts.DIR_NONE; i++ {
 		neigh := util.GetNeighborObj(obj, pos, i)
 
 		if neigh != nil {
-			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.OutputDir) == i {
+			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.Direction) == i {
 				neigh.OutputObj = obj
-				obj.InputBuffer[neigh] = &glob.MatData{}
-				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
-				if neigh.TypeI == consts.ObjTypeBasicBelt || neigh.TypeI == consts.ObjTypeBasicBeltVert {
-					obj.BeltStart = false
-				}
+				obj.InputBuffer[i] = &glob.MatData{}
 			}
+		}
+	}
+
+	//Link output
+	if obj.TypeP.HasMatOutput {
+		linkOut(pos, obj, obj.Direction)
+
+		//Link up additonal outputs for splitters
+		if obj.TypeI == consts.ObjTypeBasicSplit {
+			dir := util.RotCW(obj.Direction)
+			linkOut(pos, obj, dir)
+
+			dir = util.RotCW(dir)
+			linkOut(pos, obj, dir)
+
+			dir = util.RotCW(dir)
+			linkOut(pos, obj, dir)
+
 		}
 	}
 
 }
 
-func CreateObj(pos glob.Position, mtype int) *glob.WObject {
-
+func MakeChunk(pos glob.XY) {
 	//Make chunk if needed
-	chunk := util.GetChunk(&pos)
+
+	newPos := pos
+	chunk := util.GetChunk(&newPos)
 	if chunk == nil {
-		cpos := util.PosToChunkPos(&pos)
-		//fmt.Println("Made chunk:", cpos)
+		cpos := util.PosToChunkPos(&newPos)
+		fmt.Println("Made chunk:", cpos)
 
 		glob.WorldMapLock.Lock()
+
 		chunk = &glob.MapChunk{}
 		glob.WorldMap[cpos] = chunk
-		chunk.WObject = make(map[glob.Position]*glob.WObject)
+		chunk.WObject = make(map[glob.XY]*glob.WObject)
+		glob.CameraDirty = true
+
 		glob.WorldMapLock.Unlock()
 	}
+}
+
+func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
+	/* Make optimized background */
+	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+
+	chunkPix := (consts.SpriteScale * consts.ChunkSize)
+
+	bg := TerrainTypes[0].Image
+	sx := int(float64(bg.Bounds().Size().X))
+	sy := int(float64(bg.Bounds().Size().Y))
+	var tImg *ebiten.Image
+
+	if sx > 0 && sy > 0 {
+
+		tImg = ebiten.NewImage(chunkPix, chunkPix)
+
+		for i := 0; i < consts.ChunkSize; i++ {
+			for j := 0; j < consts.ChunkSize; j++ {
+				op.GeoM.Reset()
+				op.GeoM.Translate(float64(i*sx), float64(j*sy))
+
+				if doDetail {
+					x := (float64(cpos.X*consts.ChunkSize) + float64(i))
+					y := (float64(cpos.Y*consts.ChunkSize) + float64(j))
+					h := noise.NoiseMap(x, y)
+
+					fmt.Printf("%.2f,%.2f: %.2f\n", x, y, h)
+					op.ColorM.Reset()
+					op.ColorM.Scale(h*2, 1, 1, 1)
+				}
+
+				tImg.DrawImage(bg, op)
+			}
+		}
+
+	} else {
+		panic("No valid bg texture.")
+	}
+	chunk.GroundImg = tImg
+}
+
+func ExploreMap(input int) {
+	/* Explore some map */
+
+	area := input * consts.ChunkSize
+	offs := int(consts.XYCenter)
+	for x := -area; x < area; x += consts.ChunkSize {
+		for y := -area; y < area; y += consts.ChunkSize {
+			pos := glob.XY{X: offs - x, Y: offs - y}
+
+			MakeChunk(pos)
+		}
+	}
+}
+
+func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
+
+	//Make chunk if needed
+	MakeChunk(pos)
+	chunk := util.GetChunk(&pos)
 
 	obj := chunk.WObject[pos]
 
@@ -269,14 +389,16 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	obj.OutputObj = nil
 
 	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
-	obj.InputBuffer = make(map[*glob.WObject]*glob.MatData)
 	obj.OutputBuffer = &glob.MatData{}
+	obj.Direction = dir
 
-	obj.OutputDir = consts.DIR_EAST
-	obj.Valid = true
-
-	EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
-	EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+	if obj.TypeP.HasMatOutput {
+		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+	}
+	/* Only add to list if the object calls an update function */
+	if obj.TypeP.UpdateObj != nil {
+		EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+	}
 
 	//Put in chunk map
 	glob.WorldMap[util.PosToChunkPos(&pos)].WObject[pos] = obj
@@ -286,8 +408,8 @@ func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 	return obj
 }
 
-func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.Position, delete bool) {
-	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
+func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.XY, delete bool, dir int) {
+	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 }
 
 func runEventHitlist() {
@@ -315,9 +437,6 @@ func runObjectHitlist() {
 
 	for _, item := range ObjectHitlist {
 		if item.Delete {
-			if item.Obj != nil {
-				item.Obj.Valid = false
-			}
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 
@@ -327,7 +446,7 @@ func runObjectHitlist() {
 
 		} else {
 			//Add
-			CreateObj(*item.Pos, item.OType)
+			CreateObj(*item.Pos, item.OType, item.Dir)
 		}
 	}
 	ObjectHitlist = []*glob.ObjectHitlistData{}

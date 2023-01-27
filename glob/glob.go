@@ -6,7 +6,6 @@ import (
 	"compress/zlib"
 	"encoding/json"
 	"fmt"
-	"image"
 	"image/color"
 	"io/ioutil"
 	"log"
@@ -14,21 +13,30 @@ import (
 	"sync"
 	"time"
 
-	"code.cloudfoundry.org/bytefmt"
+	"github.com/dustin/go-humanize"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )
 
 type MapChunk struct {
-	WObject map[Position]*WObject
-	CObj    map[Position]*WObject //Map for multi-tile objects
+	WObject      map[XY]*WObject
+	LargeWObject map[XY]*WObject
+
+	GroundLock  sync.Mutex
+	GroundImg   *ebiten.Image
+	NeedsRender bool
+	NeedsDetail bool
+
+	Visible bool
+
+	LastSaw time.Time
 }
 
 type WObject struct {
 	TypeP *ObjType `json:"-"`
 	TypeI int      `json:"t"`
 
-	OutputDir int      `json:"d,omitempty"`
+	Direction int      `json:"d,omitempty"`
 	OutputObj *WObject `json:"-"`
 
 	//Internal useW
@@ -36,10 +44,8 @@ type WObject struct {
 	KGHeld   uint64                   `json:"k,omitempty"`
 
 	//Input/Output
-	InputBuffer  map[*WObject]*MatData `json:"i,omitempty"`
-	OutputBuffer *MatData              `json:"o,omitempty"`
-	BeltStart    bool
-	Blocked      bool
+	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
+	OutputBuffer *MatData                 `json:"o,omitempty"`
 
 	Valid bool `json:"v,omitempty"`
 }
@@ -49,8 +55,12 @@ type MatData struct {
 	Amount uint64  `json:"a,omitempty"`
 }
 
-type Position struct {
+type XY struct {
 	X, Y int
+}
+
+type XYF64 struct {
+	X, Y float64
 }
 
 type ObjType struct {
@@ -60,22 +70,21 @@ type ObjType struct {
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
-	Size        Position
-	Bounds      image.Rectangle
+	Size        XY
+	Rotatable   bool
+	Direction   int
 
 	ImagePath string
 	Image     *ebiten.Image
-	HasDirImg bool
-	DirImage  [consts.DIR_WEST]*ebiten.Image
 
 	MinerKGTock float64
 	CapacityKG  uint64
 
 	HasMatOutput bool
-	HasMapInput  bool
+	HasMatInput  bool
 
-	ToolbarAction func()
-	UpdateObj     func(Obj *WObject)
+	ToolbarAction func()             `json:"-"`
+	UpdateObj     func(Obj *WObject) `json:"-"`
 }
 
 type ToolbarItem struct {
@@ -89,14 +98,15 @@ type TickEvent struct {
 
 type SaveMObj struct {
 	O *WObject
-	P Position
+	P XY
 }
 
 type ObjectHitlistData struct {
 	Delete bool
 	Obj    *WObject
 	OType  int
-	Pos    *Position
+	Pos    *XY
+	Dir    int
 }
 
 type EventHitlistData struct {
@@ -106,11 +116,10 @@ type EventHitlistData struct {
 }
 
 var (
-	WorldMap     map[Position]*MapChunk
+	WorldMap     map[XY]*MapChunk
 	WorldMapLock sync.Mutex
-	UpdateTook   time.Duration
 
-	XYEmpty = Position{X: 0, Y: 0}
+	XYEmpty = XY{X: 0, Y: 0}
 
 	//eBiten settings
 	ScreenWidth  int = 1280 //Screen width default
@@ -122,10 +131,12 @@ var (
 	MeasuredObjectUPS_ns = ObjectUPS_ns
 
 	//eBiten variables
-	ZoomMouse float64 = 0.0   //Zoom mouse
-	ZoomScale float64 = 256.0 //Current zoom
+	ZoomMouse float64 = 0.0                //Zoom mouse
+	ZoomScale float64 = consts.DefaultZoom //Current zoom
 
-	BootImage *ebiten.Image //Boot image
+	BootImage      *ebiten.Image //Boot imag
+	MiniMapTile    *ebiten.Image
+	TempChunkImage *ebiten.Image
 
 	BootFont    font.Face
 	ToolTipFont font.Face
@@ -133,6 +144,8 @@ var (
 
 	CameraX float64 = 0
 	CameraY float64 = 0
+
+	CameraDirty bool = true
 
 	//Mouse vars
 	MouseX     float64 = 0
@@ -142,10 +155,10 @@ var (
 
 	//Last object we performed an action on
 	//Used for click-drag
-	LastActionPosition Position
+	LastActionPosition XY
 	LastActionTime     time.Time
-	BuildActionDelay   time.Duration = time.Millisecond * 125
-	RemoveActionDelay  time.Duration = time.Millisecond * 500
+	BuildActionDelay   time.Duration = 0
+	RemoveActionDelay  time.Duration = 0
 	LastActionType     int           = 0
 
 	//Touch vars
@@ -159,6 +172,7 @@ var (
 	InitMouse  = false
 	InitCamera = false
 
+	//UI state
 	MousePressed      bool = false
 	MouseRightPressed bool = false
 	TouchPressed      bool = false
@@ -169,7 +183,12 @@ var (
 	DrewMap       bool = false
 
 	DetectedOS string
-	StatusStr  string = "Starting: " + consts.Version + "-" + consts.Build
+	StatusStr  string
+
+	/* Visible Chunk Cache */
+	CameraList [consts.MAX_DRAW_CHUNKS]*MapChunk
+	XYList     [consts.MAX_DRAW_CHUNKS]XY
+	ListTop    int
 )
 
 func SaveGame() {
@@ -241,7 +260,7 @@ func uncompressZip(data []byte) []byte {
 
 	b := bytes.NewReader(data)
 
-	log.Println("Uncompressing: ", bytefmt.ByteSize(uint64(len(data))))
+	log.Println("Uncompressing: ", humanize.Bytes(uint64(len(data))))
 	z, err := zlib.NewReader(b)
 	if err != nil {
 		log.Println("Error: ", err)
@@ -254,7 +273,7 @@ func uncompressZip(data []byte) []byte {
 		log.Println("Error: ", err)
 		return nil
 	}
-	log.Print("Uncompressed: ", bytefmt.ByteSize(uint64(len(p))))
+	log.Print("Uncompressed: ", humanize.Bytes(uint64(len(p))))
 	return p
 }
 

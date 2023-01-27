@@ -4,14 +4,20 @@ import (
 	"GameTest/consts"
 	"GameTest/data"
 	"GameTest/glob"
+	"GameTest/noise"
 	"GameTest/objects"
 	"fmt"
+	"image/color"
 	"log"
+	"os"
 	"runtime"
+	"runtime/debug"
 
+	"github.com/dustin/go-humanize"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/shirou/gopsutil/cpu"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -20,17 +26,35 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	debug.SetMemoryLimit(1024 * 1024 * 1024 * 20)
+
+	noise.InitPerlin()
+	objects.DumpItems()
 
 	/* Detect logical CPUs, failing that use numcpu */
 	var lCPUs int = runtime.NumCPU()
 	if lCPUs <= 1 {
 		lCPUs = 1
+	} else if lCPUs > 2 {
+		{
+			lCPUs--
+		}
 	}
 	fmt.Println("Virtual CPUs:", lCPUs)
-	objects.NumWorkers = lCPUs
 
 	//Logical CPUs
-	//cdat, cerr := cpu.Counts(false)
+	cdat, cerr := cpu.Counts(false)
+
+	if cerr == nil {
+		if cdat > 1 {
+			lCPUs = (cdat - 1)
+		} else {
+			lCPUs = 1
+		}
+		fmt.Println("Logical CPUs:", cdat)
+	}
+
+	objects.NumWorkers = lCPUs
 
 	/* Set up ebiten */
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
@@ -66,12 +90,12 @@ func NewGame() *Game {
 	}
 	/*
 	 * Font DPI
-	 * Not important. This just changes how large the font is for a given point value
+	 * Changes how large the font is for a given point value
 	 */
 	const dpi = 96
 	/* Boot screen font */
 	glob.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    24,
+		Size:    15,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
@@ -81,7 +105,7 @@ func NewGame() *Game {
 
 	/* Missing texture font */
 	glob.ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    56,
+		Size:    5,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
@@ -91,7 +115,7 @@ func NewGame() *Game {
 
 	/* Tooltip font */
 	glob.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    8,
+		Size:    9,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
@@ -114,18 +138,25 @@ func NewGame() *Game {
 				}
 			}
 
-			/* If not found, fill texture with a letter */
+			/* If not found, fill texture with text */
 			if !found {
 				timg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
 				timg.Fill(icon.ItemColor)
-				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, 64-consts.SymbOffY, icon.SymbolColor)
+				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, consts.SymbOffY, icon.SymbolColor)
 			}
 
 			icon.Image = timg
-			icon.Bounds = timg.Bounds()
 			otype[key] = icon
 		}
 	}
+
+	glob.MiniMapTile = ebiten.NewImage(consts.SpriteScale-4, consts.SpriteScale-4)
+	glob.MiniMapTile.Fill(color.White)
+
+	/* Temp tile to use when rendering a new chunk */
+	tChunk := glob.MapChunk{}
+	objects.RenderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
+	glob.TempChunkImage = tChunk.GroundImg
 
 	toolBG = ebiten.NewImage(64, 64)
 	toolBG.Fill(glob.ColorVeryDarkGray)
@@ -152,52 +183,59 @@ func NewGame() *Game {
 
 	str := "Starting up..."
 	tRect := text.BoundString(glob.BootFont, str)
-	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)+int(tRect.Max.Y/2), glob.ColorWhite)
+	text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
 
 	/* Make gomap for world */
-	glob.WorldMap = make(map[glob.Position]*glob.MapChunk)
+	glob.WorldMap = make(map[glob.XY]*glob.MapChunk)
 
 	objects.TockList = []glob.TickEvent{}
 	objects.TickList = []glob.TickEvent{}
+
+	objects.ExploreMap(64)
 
 	/* Test load map generator parameters */
 	total := 0
 	rows := 0
 	columns := 0
-	hSpace := 3
-	beltLength := 10
+	hSpace := 4
+	vSpace := 4
+	bLen := 2
+	beltLength := hSpace + bLen
 	for i := 0; total < consts.TestObjects; i++ {
-		rows = 16 * i
-		columns = 3 * i
+		if i%2 == 0 {
+			rows++
+		} else {
+			columns++
+		}
 
-		total = rows * columns * beltLength
+		total = (rows * columns) * (bLen + 2)
 	}
 
 	/* Load Test Mode */
 	go func() {
 		if consts.LoadTest {
 
-			fmt.Println("Test items", rows*columns*beltLength/1000, "K")
+			fmt.Printf("Test items: Rows: %v,  Cols: %v,  Total: %v\n", rows, columns, humanize.SIWithDigits(float64(total), 2, ""))
 			//time.Sleep(time.Second * 3)
 
-			ty := int(glob.CameraY) - (rows)
+			ty := int(consts.XYCenter) - (rows)
 			cols := 0
 			for j := 0; j < rows*columns; j++ {
 				cols++
 
-				tx := int(glob.CameraX) - (columns*(beltLength+hSpace))/2
-				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner)
+				tx := int(consts.XYCenter) - (columns*(beltLength+hSpace))/2
+				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
-					objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt)
+					objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
 
 				}
 				tx++
-				objects.CreateObj(glob.Position{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox)
+				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
 
 				if cols%columns == 0 {
-					ty += 2
+					ty += vSpace
 					cols = 0
 				}
 			}
@@ -205,57 +243,65 @@ func NewGame() *Game {
 			/* Default map generator */
 			tx := int(consts.XYCenter - 5)
 			ty := int(consts.XYCenter)
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
 			}
 			tx++
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 2)
-			o := objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
-			o.OutputDir = consts.DIR_WEST
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
-				o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBelt)
-				o.OutputDir = consts.DIR_WEST
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
 			}
 			tx--
-			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
-			o.OutputDir = consts.DIR_WEST
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter + 2)
-			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
-			o.OutputDir = consts.DIR_SOUTH
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
-				o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBeltVert)
-				o.OutputDir = consts.DIR_SOUTH
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
 			}
 			ty++
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 4)
-			o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicMiner)
-			o.OutputDir = consts.DIR_NORTH
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
-				o = objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBeltVert)
-				o.OutputDir = consts.DIR_NORTH
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
 			}
 			ty--
-			objects.CreateObj(glob.Position{X: tx, Y: ty}, consts.ObjTypeBasicBox)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
 
 		}
 
-		glob.DrewMap = true
+		str := "Press enter to continue..."
+		txt, err := os.ReadFile("intro.txt")
+		if err == nil {
+			str = string(txt)
+		}
+		tRect := text.BoundString(glob.BootFont, str)
+		glob.BootImage.Fill(glob.ColorCharcol)
+		text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
 
-		objects.TickTockLoop()
+		//Skip help for benchmark
+		if consts.NoInterface {
+			glob.DrewMap = true
+			glob.BootImage.Dispose()
+		}
+
+		go objects.TickTockLoop()
 	}()
+
+	go objects.CacheCleanup()
 
 	/* Initialize the game */
 	return &Game{}
@@ -270,6 +316,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight
 		glob.InitMouse = false
+		glob.CameraDirty = true
 	}
 
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build + " " + fmt.Sprintf("%vx%v", glob.ScreenWidth, glob.ScreenHeight)))

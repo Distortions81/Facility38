@@ -3,8 +3,11 @@ package glob
 import "image/color"
 
 var (
-	BootColor = color.NRGBA{0, 32, 32, 255}
-	BGColor   = color.NRGBA{32, 32, 32, 255}
+	BootColor       = color.NRGBA{0, 32, 32, 255}
+	BGColor         = color.NRGBA{32, 32, 32, 255}
+	ColorToolTipBG  = color.NRGBA{32, 32, 32, 170}
+	ColorTBSelected = color.NRGBA{0, 255, 255, 255}
+	GroundColor     = color.NRGBA{51, 78, 38, 255}
 
 	ColorRed         = color.NRGBA{203, 67, 53, 255}
 	ColorGreen       = color.NRGBA{40, 180, 99, 255}
@@ -51,6 +54,7 @@ var (
 	ColorDarkYellow   = color.NRGBA{139, 146, 22, 255}
 	ColorDarkGray     = color.NRGBA{111, 111, 111, 255}
 	ColorVeryDarkGray = color.NRGBA{64, 64, 64, 255}
+	ColorCharcol      = color.NRGBA{16, 16, 16, 255}
 	ColorDarkOrange   = color.NRGBA{175, 117, 32, 255}
 	ColorDarkPink     = color.NRGBA{128, 64, 64, 255}
 	ColorDarkPurple   = color.NRGBA{137, 32, 175, 255}
@@ -62,6 +66,4 @@ var (
 	ColorDarkLime     = color.NRGBA{122, 154, 45, 255}
 	ColorDarkFuchsia  = color.NRGBA{154, 45, 141, 255}
 	ColorDarkAqua     = color.NRGBA{45, 154, 154, 255}
-	ColorToolTipBG    = color.NRGBA{32, 32, 32, 170}
-	ColorTBSelected   = color.NRGBA{0, 255, 255, 255}
 )

@@ -1,40 +1,43 @@
 package consts
 
+import (
+	"math"
+	"time"
+)
+
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
-	Version = "009"             //increment
-	Build   = "01.24.2023-0937" //mmddyyyy-hhmm(p)
-	Wasm    = "js"              //Detect wasm/js
+	Version = "009"              //increment
+	Build   = "01.26.2023-0204p" //mmddyyyy-hhmm(p)
+	Wasm    = "js"               //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
+	NoInterface = false
 	UPSBench    = false
-	LoadTest    = false
-	TestObjects = 1000000 //Make (approx) this number items
+	LoadTest    = true
+	TestObjects = 100 //Make (approx) this number items
 
-	WorkChunksPerThread = 8
+	NoiseScale = 100.0
 
-	HBeltOffsetX       = 0.0
-	HBeltOffsetY       = 0.0
-	HReverseBeltOffset = 1.0
+	NinetyDeg = math.Pi / 2
 
-	VBeltOffsetX       = 0.0
-	VBeltOffsetY       = -0.25
-	VReverseBeltOffset = -1.0
-
-	HBeltLimitEnd          = 0.1
-	BlockedIndicatorOffset = 12
+	BlockedIndicatorOffset = 0
 
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
 	DragActionTypeDelete = 2
 
-	/* FPS limiter */
-	MAX_RENDER_NS = 1000000000 / 240
+	MAX_DRAW_CHUNKS = 10000
+
+	/* FPS limiter, 360fps */
+	MAX_RENDER_NS = 1000000000 / 360
 
 	MaxUint  = ^uint32(0)
 	XYCenter = float64(uint32(MaxUint>>1) / 2)
+
+	ChunkGroundCacheTime = time.Second * 15
 
 	//Subtypes
 	ObjSubUI   = 0
@@ -48,32 +51,13 @@ const (
 
 	//Buildings
 	ObjTypeBasicMiner      = 0
-	ObjTypeBasicBox        = 1
-	ObjTypeBasicSmelter    = 2
-	ObjTypeBasicIronCaster = 3
-	ObjTypeBasicBelt       = 4
-	ObjTypeBasicBeltVert   = 5
+	ObjTypeBasicBelt       = 1
+	ObjTypeBasicSplit      = 2
+	ObjTypeBasicBox        = 3
+	ObjTypeBasicSmelter    = 4
+	ObjTypeBasicIronCaster = 5
 	ObjTypeBasicBoiler     = 6
 	ObjTypeSteamEngine     = 7
-
-	/*Materials
-	MAT_NONE     = 0
-	MAT_GOLD     = 1
-	MAT_SILVER   = 2
-	MAT_COPPER   = 3
-	MAT_LEAD     = 4
-	MAT_TIN      = 5
-	MAT_IRON     = 6
-	MAT_MERCURY  = 7
-	MAT_URANIUM  = 8
-	MAT_PLATINUM = 9
-	MAT_TUNGSTEN = 10
-	MAT_NICKEL   = 11
-	MAT_TITANIUM = 12
-	MAT_LITHIUM  = 13
-	MAT_STEEL    = 14
-	MAT_ALUMINUM = 15
-	MAT_MAX      = 99 */
 
 	//Materials
 	MAT_NONE       = 0
@@ -92,36 +76,44 @@ const (
 	MAT_MAX = 11
 
 	//Item Symbol
-	SymbOffX = 7
-	SymbOffY = 4
+	SymbOffX = 0
+	SymbOffY = 10
 
 	//Toolbar settings
 	ToolBarScale   = 64
-	SpriteScale    = 256
+	SpriteScale    = 16
 	TBThick        = 2
 	ToolBarOffsetX = 0
 	ToolBarOffsetY = 0
 
 	//Draw settings
-	ChunkSize = 32
+	ChunkSize    = 32
+	DefaultZoom  = SpriteScale * 2
+	MiniMapLevel = (SpriteScale / 2)
 
 	//Overlays
-	DIR_NORTH      = 0
-	DIR_EAST       = 1
-	DIR_SOUTH      = 2
-	DIR_WEST       = 3
-	ObjTypeBlocked = 4
-	DIR_UP         = 5
-	DIR_DOWN       = 6
-	DIR_NONE       = 7
+	DIR_NORTH = 0
+	DIR_EAST  = 1
+	DIR_SOUTH = 2
+	DIR_WEST  = 3
+	DIR_UP    = 4
+	DIR_DOWN  = 5
+	DIR_NONE  = 6
+	DIR_MAX   = 7
 
+	//Overlay Types
+	ObjOverlayNorth   = 0
+	ObjOverlayEast    = 1
+	ObjOverlaySouth   = 2
+	ObjOverlayWest    = 3
+	ObjOverlayBlocked = 4
+
+	//World Values
 	COAL_KWH_KG        = 8
 	BOILER_EFFICIENCY  = 0.4
 	TURBINE_EFFICIENCY = 0.9
-
-	COAL_KWH_MTON = 1927
-
-	TIMESCALE = 60 //1 Day passes in 24 minutes
+	COAL_KWH_MTON      = 1927
+	TIMESCALE          = 60 //1 Day passes in 24 minutes
 
 	QUEUE_TYPE_NONE = 0
 	QUEUE_TYPE_TOCK = 1

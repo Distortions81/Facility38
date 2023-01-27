@@ -17,20 +17,10 @@ func MinerUpdate(o *glob.WObject) {
 	}
 }
 
-func SmelterUpdate(o *glob.WObject) {
-	//oData := glob.GameObjTypes[Obj.Type]
-
-}
-
-func IronCasterUpdate(o *glob.WObject) {
-	//oData := glob.GameObjTypes[Obj.Type]
-
-}
-
 func BeltUpdate(o *glob.WObject) {
 	if o.OutputBuffer.Amount == 0 {
 		for src, mat := range o.InputBuffer {
-			if mat.Amount > 0 {
+			if mat != nil && mat.Amount > 0 {
 				o.OutputBuffer.Amount = mat.Amount
 				o.OutputBuffer.TypeP = mat.TypeP
 				o.InputBuffer[src].Amount = 0
@@ -41,13 +31,22 @@ func BeltUpdate(o *glob.WObject) {
 
 }
 
-func SteamEngineUpdate(o *glob.WObject) {
+func SplitterUpdate(o *glob.WObject) {
+	if o.OutputBuffer.Amount == 0 {
+		for src, mat := range o.InputBuffer {
+			if mat != nil && mat.Amount > 0 {
+				o.OutputBuffer.Amount = mat.Amount
+				o.OutputBuffer.TypeP = mat.TypeP
+				o.InputBuffer[src].Amount = 0
+			}
+		}
+	}
 }
 
 func BoxUpdate(o *glob.WObject) {
 
 	for src, mat := range o.InputBuffer {
-		if mat.Amount > 0 {
+		if mat != nil && mat.Amount > 0 {
 			if o.KGHeld+mat.Amount <= o.TypeP.CapacityKG {
 				if o.Contents[mat.TypeP.TypeI] == nil {
 					o.Contents[mat.TypeP.TypeI] = &glob.MatData{}
@@ -60,4 +59,17 @@ func BoxUpdate(o *glob.WObject) {
 			}
 		}
 	}
+}
+
+func SmelterUpdate(o *glob.WObject) {
+	//oData := glob.GameObjTypes[Obj.Type]
+
+}
+
+func IronCasterUpdate(o *glob.WObject) {
+	//oData := glob.GameObjTypes[Obj.Type]
+
+}
+
+func SteamEngineUpdate(o *glob.WObject) {
 }

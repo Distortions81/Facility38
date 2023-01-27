@@ -3,6 +3,10 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"os"
 )
 
 var (
@@ -26,82 +30,91 @@ var (
 		{ImagePath: "world-obj/basic-miner.png",
 			Name:        "Basic miner",
 			TypeI:       consts.ObjTypeBasicMiner,
-			Size:        glob.Position{X: 1, Y: 1},
+			Size:        glob.XY{X: 1, Y: 1},
 			UpdateObj:   MinerUpdate,
 			MinerKGTock: 1,
 			CapacityKG:  500,
-			Symbol:      "MINER", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:      "MINE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			HasMatOutput: true,
+		},
+
+		{ImagePath: "world-obj/basic-belt.png",
+			Name:       "Basic belt",
+			TypeI:      consts.ObjTypeBasicBelt,
+			Size:       glob.XY{X: 1, Y: 1},
+			CapacityKG: 20,
+			Rotatable:  true,
+			UpdateObj:  BeltUpdate,
+			Symbol:     "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			HasMatInput:  true,
+			HasMatOutput: true},
+
+		{ImagePath: "world-obj/basic-splitter.png",
+			Name:      "Basic Splitter",
+			TypeI:     consts.ObjTypeBasicSplit,
+			Size:      glob.XY{X: 1, Y: 1},
+			Rotatable: true,
+			UpdateObj: SplitterUpdate,
+			Symbol:    "SPLIT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			HasMatInput:  true,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-box.png",
 			Name:       "Basic box",
 			TypeI:      consts.ObjTypeBasicBox,
-			Size:       glob.Position{X: 1, Y: 1},
+			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 5000,
 			Symbol:     "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj: BoxUpdate},
+			UpdateObj:   BoxUpdate,
+			HasMatInput: true},
 
-		{ImagePath: "world-obj/basic-smelter.png",
+		{ImagePath: "world-obj/basic-smelter-1.png",
 			Name:       "Basic smelter",
 			TypeI:      consts.ObjTypeBasicSmelter,
-			Size:       glob.Position{X: 1, Y: 1},
+			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 50,
 			Symbol:     "SMELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj: SmelterUpdate},
+			UpdateObj:    SmelterUpdate,
+			HasMatInput:  true,
+			HasMatOutput: true},
 
 		{ImagePath: "world-obj/iron-rod-caster.png",
 			Name:   "Iron rod caster",
 			TypeI:  consts.ObjTypeBasicIronCaster,
-			Size:   glob.Position{X: 1, Y: 1},
+			Size:   glob.XY{X: 1, Y: 1},
 			Symbol: "CAST", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj: IronCasterUpdate},
-
-		{ImagePath: "world-obj/basic-belt.png",
-			Name:       "Basic belt",
-			TypeI:      consts.ObjTypeBasicBelt,
-			Size:       glob.Position{X: 1, Y: 1},
-			CapacityKG: 20,
-			UpdateObj:  BeltUpdate,
-			Symbol:     "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			HasMatOutput: true},
-
-		{ImagePath: "world-obj/basic-belt-vert.png",
-			Name:       "Basic vbelt",
-			TypeI:      consts.ObjTypeBasicBeltVert,
-			Size:       glob.Position{X: 1, Y: 1},
-			CapacityKG: 20,
-			UpdateObj:  BeltUpdate,
-			Symbol:     "VBELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			UpdateObj:    IronCasterUpdate,
+			HasMatInput:  true,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-boiler.png",
 			Name:       "Basic boiler",
 			TypeI:      consts.ObjTypeBasicBoiler,
-			Size:       glob.Position{X: 1, Y: 1},
+			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 500,
 			Symbol:     "BOIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj: SteamEngineUpdate},
+			UpdateObj:    SteamEngineUpdate,
+			HasMatInput:  true,
+			HasMatOutput: true},
 
 		{ImagePath: "world-obj/steam-engine.png",
 			Name:       "Steam engine",
 			TypeI:      consts.ObjTypeSteamEngine,
-			Size:       glob.Position{X: 1, Y: 1},
+			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 500,
 			Symbol:     "STEAM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj: SteamEngineUpdate},
+			UpdateObj:   SteamEngineUpdate,
+			HasMatInput: true},
 	}
 
 	TerrainTypes = []*glob.ObjType{
 		//Overlays
-		{ImagePath: "terrain/grass1.png", Name: "grass",
-			Size:   glob.Position{X: 16, Y: 16},
+		{ImagePath: "terrain/grass-1.png", Name: "grass",
+			Size:   glob.XY{X: 1, Y: 1},
 			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorGreen},
-		{ImagePath: "terrain/gravel1.png", Name: "grass",
-			Size:   glob.Position{X: 16, Y: 16},
-			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorGreen},
-		{ImagePath: "terrain/grass2.png", Name: "grass2",
-			Size:   glob.Position{X: 16, Y: 16},
-			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorGreen},
+		{ImagePath: "terrain/dirt-1.png", Name: "dirt",
+			Size:   glob.XY{X: 1, Y: 1},
+			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown},
 	}
 
 	ObjOverlayTypes = []*glob.ObjType{
@@ -122,7 +135,7 @@ var (
 		//Materials
 		{Symbol: "?", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed, Name: "Error"},
 		{Symbol: "WOOD", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown, Name: "Wood"},
-		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal-ore2.png", Name: "Coal Ore"},
+		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal.png", Name: "Coal Ore"},
 		{Symbol: "COPPER", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorAqua, Name: "Copper Ore"},
 	}
 
@@ -134,3 +147,31 @@ var (
 		TerrainTypes,
 	}
 )
+
+func DumpItems() bool {
+
+	outbuf := new(bytes.Buffer)
+	enc := json.NewEncoder(outbuf)
+	enc.SetIndent("", "\t")
+
+	if err := enc.Encode(GameObjTypes); err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	_, err := os.Create("items.json")
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	err = os.WriteFile("items.json", outbuf.Bytes(), 0644)
+
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	return true
+}

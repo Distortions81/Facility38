@@ -11,10 +11,55 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
+func handleToolbar(rotate bool) bool {
+	//Toolbar
+	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
+	if glob.MouseX <= uipix+consts.ToolBarOffsetX {
+		if glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
+			ipos := int((glob.MouseX - consts.ToolBarOffsetX) / consts.ToolBarScale)
+			item := objects.ToolbarItems[ipos].OType
+
+			//Actions
+			if item.ToolbarAction != nil {
+				item.ToolbarAction()
+			} else {
+				if rotate && objects.GameObjTypes[objects.SelectedItemType] != nil {
+					dir := objects.GameObjTypes[objects.SelectedItemType].Direction
+					if glob.ShiftPressed {
+						dir = dir - 1
+						if dir < consts.DIR_NORTH {
+							dir = consts.DIR_WEST
+						}
+					} else {
+						dir = dir + 1
+						if dir > consts.DIR_WEST {
+							dir = consts.DIR_NORTH
+						}
+					}
+					objects.GameObjTypes[objects.SelectedItemType].Direction = dir
+				} else if objects.SelectedItemType == objects.ToolbarItems[ipos].OType.TypeI {
+					objects.SelectedItemType = 0
+				} else {
+					objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
+				}
+			}
+			glob.MousePressed = false
+			return true
+		}
+	}
+	return false
+}
+
 // Ebiten main loop
 func (g *Game) Update() error {
 
-	if consts.UPSBench {
+	if !glob.DrewMap &&
+		(inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyKPEnter)) {
+		glob.DrewMap = true
+		glob.BootImage.Dispose()
+	}
+
+	if consts.NoInterface {
 		return nil
 	}
 
@@ -90,11 +135,13 @@ func (g *Game) Update() error {
 			glob.CameraX = glob.CameraX + (float64(glob.PrevTouchA-nx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(glob.PrevTouchB-ny) / glob.ZoomScale)
 			glob.PrevTouchA, glob.PrevTouchB = util.MidPoint(tx, ty, ta, tb)
+			glob.CameraDirty = true
 		} else {
 			glob.CameraX = glob.CameraX + (float64(glob.PrevTouchX-tx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(glob.PrevTouchY-ty) / glob.ZoomScale)
 			glob.PrevTouchX = tx
 			glob.PrevTouchY = ty
+			glob.CameraDirty = true
 		}
 	} else {
 		glob.TouchPressed = false
@@ -104,17 +151,21 @@ func (g *Game) Update() error {
 	//Scroll zoom
 	_, fsy := ebiten.Wheel()
 
-	if fsy > 0 {
+	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
 		glob.ZoomScale = glob.ZoomScale * 2
-	} else if fsy < 0 {
+		glob.CameraDirty = true
+	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) {
 		glob.ZoomScale = glob.ZoomScale / 2
+		glob.CameraDirty = true
 	}
 	glob.ZoomMouse = 0
 
-	if glob.ZoomScale < 8 {
-		glob.ZoomScale = 8
-	} else if glob.ZoomScale > 1024 {
-		glob.ZoomScale = 1024
+	if glob.ZoomScale < 1 {
+		glob.ZoomScale = 1
+		glob.CameraDirty = true
+	} else if glob.ZoomScale > 256 {
+		glob.ZoomScale = 256
+		glob.CameraDirty = true
 	}
 
 	/* Mouse position */
@@ -133,31 +184,9 @@ func (g *Game) Update() error {
 		glob.LastActionPosition = glob.XYEmpty
 		glob.LastActionType = consts.DragActionTypeNone
 
-		//Toolbar
-		uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
-		if glob.MouseX <= uipix+consts.ToolBarOffsetX {
-			if glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
-				ipos := int((glob.MouseX - consts.ToolBarOffsetX) / consts.ToolBarScale)
-				item := objects.ToolbarItems[ipos].OType
-
-				//Actions
-				if item.ToolbarAction != nil {
-					item.ToolbarAction()
-
-					//fmt.Println("UI Action:", item.Name)
-				} else {
-					if objects.SelectedItemType == objects.ToolbarItems[ipos].OType.TypeI {
-						objects.SelectedItemType = 0
-						//fmt.Println("Deselected")
-					} else {
-						objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
-						//fmt.Println("Selected:", item.Name)
-					}
-				}
-				captured = true
-				glob.MousePressed = false
-			}
-		}
+		captured = handleToolbar(false)
+	} else if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		captured = handleToolbar(true)
 	}
 
 	if glob.MousePressed {
@@ -182,23 +211,26 @@ func (g *Game) Update() error {
 						//Prevent flopping between delete and create when dragging
 						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
 
-							size := objects.GameObjTypes[objects.SelectedItemType].Size
-							if size.X > 1 || size.Y > 1 {
-								var tx, ty int
-								for tx = 0; tx < size.X; tx++ {
-									for ty = 0; ty < size.Y; ty++ {
-										if chunk.CObj[glob.Position{X: pos.X + tx, Y: pos.Y + ty}] != nil {
-											//fmt.Println("ERROR: Occupied.")
-											bypass = true
+							/*
+								size := objects.GameObjTypes[objects.SelectedItemType].Size
+								if size.X > 1 || size.Y > 1 {
+									var tx, ty int
+									for tx = 0; tx < size.X; tx++ {
+										for ty = 0; ty < size.Y; ty++ {
+											if chunk.LargeWObject[glob.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
+												//fmt.Println("ERROR: Occupied.")
+												bypass = true
+											}
 										}
 									}
 								}
-							}
+							*/
 
 							if !bypass {
-								go func(o *glob.WObject, pos glob.Position) {
+								go func(o *glob.WObject, pos glob.XY) {
 									objects.ListLock.Lock()
-									objects.ObjectHitlistAdd(o, objects.SelectedItemType, &pos, false)
+									dir := objects.GameObjTypes[objects.SelectedItemType].Direction
+									objects.ObjectHitlistAdd(o, objects.SelectedItemType, &pos, false, dir)
 									objects.ListLock.Unlock()
 								}(o, pos)
 
@@ -211,15 +243,14 @@ func (g *Game) Update() error {
 							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
 
 								if o != nil {
-									go func(o *glob.WObject, pos glob.Position) {
+									go func(o *glob.WObject, pos glob.XY) {
 										objects.ListLock.Lock()
-										objects.ObjectHitlistAdd(o, o.TypeI, &pos, true)
+										objects.ObjectHitlistAdd(o, o.TypeI, &pos, true, 0)
 										objects.ListLock.Unlock()
 									}(o, pos)
 									//Action completed, save position and time
 									glob.LastActionPosition = pos
 									glob.LastActionType = consts.DragActionTypeDelete
-									//glob.LastActionTime = time.Now()
 								}
 							}
 						}
@@ -246,6 +277,7 @@ func (g *Game) Update() error {
 
 		glob.CameraX = glob.CameraX + (float64(glob.PrevMouseX-mx) / glob.ZoomScale)
 		glob.CameraY = glob.CameraY + (float64(glob.PrevMouseY-my) / glob.ZoomScale)
+		glob.CameraDirty = true
 
 		//Max of 0 to 4,294,967,295
 		if glob.CameraX > float64(consts.MaxUint) {
@@ -277,7 +309,7 @@ func (g *Game) Update() error {
 	}
 
 	//Rotate object
-	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+	if !captured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		//Get mouse position on world
 		worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 		worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
@@ -290,17 +322,11 @@ func (g *Game) Update() error {
 		if o != nil {
 
 			if glob.ShiftPressed {
-				o.OutputDir = o.OutputDir - 1
-				if o.OutputDir < consts.DIR_NORTH {
-					o.OutputDir = consts.DIR_WEST
-				}
+				o.Direction = util.RotCW(o.Direction)
 			} else {
-				o.OutputDir = o.OutputDir + 1
-				if o.OutputDir > consts.DIR_WEST {
-					o.OutputDir = consts.DIR_NORTH
-				}
+				o.Direction = util.RotCCW(o.Direction)
 			}
-			//fmt.Println("Rotated output:", pos, o.TypeP.Name, util.DirToName(o.OutputDir))
+
 			o.OutputObj = nil
 			objects.LinkObj(pos, o)
 		}
