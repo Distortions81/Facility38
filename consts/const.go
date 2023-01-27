@@ -14,7 +14,7 @@ const (
 	NoInterface = false
 	UPSBench    = false
 	LoadTest    = true
-	TestObjects = 10 //Make (approx) this number items
+	TestObjects = 1000000 //Make (approx) this number items
 
 	NinetyDeg = math.Pi / 2
 	BGTilePix = 1024
