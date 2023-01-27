@@ -307,6 +307,7 @@ func NewGame() *Game {
 		//Skip help for benchmark
 		if consts.NoInterface {
 			glob.DrewMap = true
+			glob.BootImage.Dispose()
 		}
 
 		objects.TickTockLoop()

@@ -56,6 +56,7 @@ func (g *Game) Update() error {
 	if !glob.DrewMap &&
 		(inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyKPEnter)) {
 		glob.DrewMap = true
+		glob.BootImage.Dispose()
 	}
 
 	if consts.NoInterface {

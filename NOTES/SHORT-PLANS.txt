@@ -1,3 +1,6 @@
+-tags=ebitenginedebug and EBITENGINE_INTERNAL_IMAGES_KEY env?
+export EBITENGINE_INTERNAL_IMAGES_KEY=Q
+
 DETECT WINDOWS, DISABLE VSYNC
 
 Optimize: Make uninterrupted sections of belt one entity.
