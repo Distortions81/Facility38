@@ -131,8 +131,8 @@ var (
 	ZoomMouse float64 = 0.0                //Zoom mouse
 	ZoomScale float64 = consts.DefaultZoom //Current zoom
 
-	BootImage  *ebiten.Image //Boot imag
-	NumTilesBG int
+	BootImage   *ebiten.Image //Boot imag
+	MiniMapTile *ebiten.Image
 
 	BootFont    font.Face
 	ToolTipFont font.Face

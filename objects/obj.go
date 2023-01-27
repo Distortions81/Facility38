@@ -72,25 +72,39 @@ func TickTockLoop() {
 
 func CacheCleanup() {
 	time.Sleep(time.Second)
+	wg := sizedwaitgroup.New(NumWorkers)
 
 	for {
 		glob.WorldMapLock.Lock()
 		tmpWorld := glob.WorldMap
 		glob.WorldMapLock.Unlock()
 
-		for _, chunk := range tmpWorld {
-			if chunk.GroundImg != nil && !chunk.Visible {
-				if time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
-					chunk.GroundLock.Lock()
-					chunk.GroundImg = nil
-					chunk.GroundLock.Unlock()
-				}
-			} else {
-				if chunk.GroundImg == nil && chunk.Visible {
-					RenderChunkGround(chunk)
-				}
+		/* If we zoom out, decallocate everything */
+		if glob.ZoomScale < consts.SpriteScale {
+			for _, chunk := range tmpWorld {
+				chunk.GroundImg = nil
 			}
+			continue
 		}
+
+		for _, chunk := range tmpWorld {
+			wg.Add()
+			go func(chunk *glob.MapChunk) {
+				glob.WorldMapLock.Lock()
+				if chunk.GroundImg != nil && !chunk.Visible {
+					if time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
+						chunk.GroundImg = nil
+					}
+				} else {
+					if chunk.GroundImg == nil && chunk.Visible {
+						RenderChunkGround(chunk)
+					}
+				}
+				glob.WorldMapLock.Unlock()
+				wg.Done()
+			}(chunk)
+		}
+		wg.Wait()
 		time.Sleep(time.Millisecond * 100)
 	}
 }
@@ -301,16 +315,20 @@ func RenderChunkGround(chunk *glob.MapChunk) {
 	/* Make optimized background */
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-	bg := TerrainTypes[0].Image
-	sx := bg.Bounds().Size().X
-	sy := bg.Bounds().Size().Y
+	chunkPix := (consts.SpriteScale * consts.ChunkSize)
 
-	chunkPix := consts.SpriteScale * consts.ChunkSize
+	bg := TerrainTypes[0].Image
+	sx := int(float64(bg.Bounds().Size().X))
+	sy := int(float64(bg.Bounds().Size().Y))
+
 	var tImg *ebiten.Image
 
 	if sx > 0 && sy > 0 {
 
 		tImg = ebiten.NewImage(chunkPix, chunkPix)
+		if tImg == nil {
+			panic("Failed to allocate ground cache")
+		}
 
 		for i := 0; i <= chunkPix; i += sx {
 			for j := 0; j <= chunkPix; j += sy {
@@ -334,9 +352,7 @@ func RenderChunkGround(chunk *glob.MapChunk) {
 		}
 	*/
 
-	chunk.GroundLock.Lock()
 	chunk.GroundImg = tImg
-	chunk.GroundLock.Unlock()
 }
 
 func ExploreMap(input int) {

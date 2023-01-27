@@ -27,7 +27,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw start */
-	//screen.Fill(glob.ColorRed)
 
 	/* Adjust cam position for zoom */
 	camXPos := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
@@ -72,122 +71,153 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw world */
-	screen.Fill(glob.GroundColor)
-	for i := 0; i < glob.ListTop; i++ {
-		chunkPos := glob.XYList[i]
-		chunk := glob.CameraList[i]
+	if glob.ZoomScale < consts.SpriteScale {
+		//Pixel Mode
+		screen.Fill(glob.ColorCharcol)
 
-		/* Draw ground */
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+		for i := 0; i < glob.ListTop; i++ {
+			chunk := glob.CameraList[i]
 
-		op.GeoM.Reset()
-		chunk.GroundLock.Lock()
-		if chunk.GroundImg != nil {
-			iSize := chunk.GroundImg.Bounds().Size()
-			op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
-			op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
-			screen.DrawImage(chunk.GroundImg, op)
-		}
-		chunk.GroundLock.Unlock()
+			/* Draw objects in chunk */
+			for objPos, obj := range chunk.WObject {
 
-		/* Draw objects in chunk */
-		for objPos, obj := range chunk.WObject {
-
-			/* Is this object on the screen? */
-			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
-				continue
-			}
-
-			/* camera + object */
-			objOffX := camXPos + (float64(objPos.X))
-			objOffY := camYPos + (float64(objPos.Y))
-
-			/* camera zoom */
-			objCamPosX := objOffX * glob.ZoomScale
-			objCamPosY := objOffY * glob.ZoomScale
-
-			/* Time to draw it */
-			DrawObject(screen, objCamPosX, objCamPosY, obj)
-		}
-	}
-
-	/* Draw overlays */
-	for i := 0; i < glob.ListTop; i++ {
-
-		for objPos, obj := range glob.CameraList[i].WObject {
-
-			/* Is this object on the screen? */
-			if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
-				continue
-			}
-
-			/* camera + object */
-			objOffX := camXPos + (float64(objPos.X))
-			objOffY := camYPos + (float64(objPos.Y))
-
-			/* camera zoom */
-			objCamPosX := objOffX * glob.ZoomScale
-			objCamPosY := objOffY * glob.ZoomScale
-
-			/* Overlays */
-			/* Draw belt overlays */
-			if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
-
-				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-				op.GeoM.Reset()
-				iSize := obj.TypeP.Image.Bounds()
-				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
-				op.GeoM.Translate(objCamPosX, objCamPosY)
-
-				/* Draw Input Materials */
-				if obj.OutputBuffer.Amount > 0 {
-					matTween(obj.OutputBuffer, obj, op, screen)
-				} else {
-					for _, m := range obj.InputBuffer {
-						if m != nil && m.Amount > 0 {
-							matTween(m, obj, op, screen)
-							break
-						}
-					}
+				/* Is this object on the screen? */
+				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
+					continue
 				}
 
-			} else if glob.ShowInfoLayer {
-				/* Info Overlays, such as arrows and blocked indicator */
-				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-				op.GeoM.Reset()
-				iSize := obj.TypeP.Image.Bounds()
-				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
-				op.GeoM.Translate(objCamPosX, objCamPosY)
+				/* camera + object */
+				objOffX := camXPos + (float64(objPos.X))
+				objOffY := camYPos + (float64(objPos.Y))
 
-				if obj.TypeP.HasMatOutput {
+				/* camera zoom */
+				objCamPosX := objOffX * glob.ZoomScale
+				objCamPosY := objOffY * glob.ZoomScale
+
+				/* Time to draw it */
+				DrawObject(screen, objCamPosX, objCamPosY, obj, true)
+			}
+		}
+
+	} else {
+		screen.Fill(glob.ColorBlack)
+		for i := 0; i < glob.ListTop; i++ {
+			chunkPos := glob.XYList[i]
+			chunk := glob.CameraList[i]
+
+			/* Draw ground */
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
+			op.GeoM.Reset()
+			chunk.GroundLock.Lock()
+			if chunk.GroundImg != nil {
+				iSize := chunk.GroundImg.Bounds().Size()
+				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
+				op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
+				screen.DrawImage(chunk.GroundImg, op)
+			}
+			chunk.GroundLock.Unlock()
+
+			/* Draw objects in chunk */
+			for objPos, obj := range chunk.WObject {
+
+				/* Is this object on the screen? */
+				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
+					continue
+				}
+
+				/* camera + object */
+				objOffX := camXPos + (float64(objPos.X))
+				objOffY := camYPos + (float64(objPos.Y))
+
+				/* camera zoom */
+				objCamPosX := objOffX * glob.ZoomScale
+				objCamPosY := objOffY * glob.ZoomScale
+
+				/* Time to draw it */
+				DrawObject(screen, objCamPosX, objCamPosY, obj, false)
+			}
+		}
+
+		/* Draw overlays */
+		for i := 0; i < glob.ListTop; i++ {
+
+			for objPos, obj := range glob.CameraList[i].WObject {
+
+				/* Is this object on the screen? */
+				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
+					continue
+				}
+
+				/* camera + object */
+				objOffX := camXPos + (float64(objPos.X))
+				objOffY := camYPos + (float64(objPos.Y))
+
+				/* camera zoom */
+				objCamPosX := objOffX * glob.ZoomScale
+				objCamPosY := objOffY * glob.ZoomScale
+
+				/* Overlays */
+				/* Draw belt overlays */
+				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
+
+					var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 					op.GeoM.Reset()
 					iSize := obj.TypeP.Image.Bounds()
 					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 					op.GeoM.Translate(objCamPosX, objCamPosY)
-					/* Draw Arrow */
-					img := objects.ObjOverlayTypes[obj.Direction].Image
-					if img != nil {
-						screen.DrawImage(img, op)
+
+					/* Draw Input Materials */
+					if obj.OutputBuffer.Amount > 0 {
+						matTween(obj.OutputBuffer, obj, op, screen)
+					} else {
+						for _, m := range obj.InputBuffer {
+							if m != nil && m.Amount > 0 {
+								matTween(m, obj, op, screen)
+								break
+							}
+						}
 					}
-					/* Show blocked outputs */
-					img = objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image
-					revDir := util.ReverseDirection(obj.Direction)
-					if obj.OutputObj != nil && obj.OutputBuffer.Amount > 0 &&
-						obj.OutputObj.InputBuffer[revDir] != nil && obj.OutputObj.InputBuffer[revDir].Amount > 0 {
 
-						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+				} else if glob.ShowInfoLayer {
+					/* Info Overlays, such as arrows and blocked indicator */
+					var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+					op.GeoM.Reset()
+					iSize := obj.TypeP.Image.Bounds()
+					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+					op.GeoM.Translate(objCamPosX, objCamPosY)
+
+					if obj.TypeP.HasMatOutput {
 						op.GeoM.Reset()
-
 						iSize := obj.TypeP.Image.Bounds()
-						op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-consts.BlockedIndicatorOffset, consts.BlockedIndicatorOffset)
 						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
-						screen.DrawImage(img, op)
+						/* Draw Arrow */
+						img := objects.ObjOverlayTypes[obj.Direction].Image
+						if img != nil {
+							screen.DrawImage(img, op)
+						}
+						/* Show blocked outputs */
+						img = objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image
+						revDir := util.ReverseDirection(obj.Direction)
+						if obj.OutputObj != nil && obj.OutputBuffer.Amount > 0 &&
+							obj.OutputObj.InputBuffer[revDir] != nil && obj.OutputObj.InputBuffer[revDir].Amount > 0 {
+
+							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+							op.GeoM.Reset()
+
+							iSize := obj.TypeP.Image.Bounds()
+							op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-consts.BlockedIndicatorOffset, consts.BlockedIndicatorOffset)
+							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+							op.GeoM.Translate(objCamPosX, objCamPosY)
+							screen.DrawImage(img, op)
+						}
 					}
 				}
 			}
 		}
 	}
+
 	glob.WorldMapLock.Unlock()
 
 	/* Get mouse position on world */
@@ -283,29 +313,35 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 	}
 }
 
-func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject) {
+func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject, miniMap bool) {
 
 	/* Draw sprite */
 	if obj.TypeP.Image == nil {
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-		op.GeoM.Reset()
+		if miniMap {
+			iSize := obj.TypeP.Image.Bounds()
+			op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
+			op.GeoM.Translate(math.Floor(x), math.Floor(y))
+			screen.DrawImage(glob.MiniMapTile, op)
+		} else {
 
-		iSize := obj.TypeP.Image.Bounds()
+			iSize := obj.TypeP.Image.Bounds()
 
-		if obj.TypeP.Rotatable && obj.Direction > 0 {
-			x := float64(iSize.Size().X / 2)
-			y := float64(iSize.Size().Y / 2)
-			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(consts.NinetyDeg * float64(obj.Direction))
-			op.GeoM.Translate(x, y)
+			if obj.TypeP.Rotatable && obj.Direction > 0 {
+				x := float64(iSize.Size().X / 2)
+				y := float64(iSize.Size().Y / 2)
+				op.GeoM.Translate(-x, -y)
+				op.GeoM.Rotate(consts.NinetyDeg * float64(obj.Direction))
+				op.GeoM.Translate(x, y)
+			}
+
+			op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
+
+			op.GeoM.Translate(math.Floor(x), math.Floor(y))
+			screen.DrawImage(obj.TypeP.Image, op)
 		}
-
-		op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
-
-		op.GeoM.Translate(math.Floor(x), math.Floor(y))
-		screen.DrawImage(obj.TypeP.Image, op)
 	}
 
 }

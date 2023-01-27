@@ -7,6 +7,7 @@ import (
 	"GameTest/noise"
 	"GameTest/objects"
 	"fmt"
+	"image/color"
 	"log"
 	"os"
 	"runtime"
@@ -148,6 +149,9 @@ func NewGame() *Game {
 			otype[key] = icon
 		}
 	}
+
+	glob.MiniMapTile = ebiten.NewImage(consts.SpriteScale-4, consts.SpriteScale-4)
+	glob.MiniMapTile.Fill(color.White)
 
 	toolBG = ebiten.NewImage(64, 64)
 	toolBG.Fill(glob.ColorVeryDarkGray)
