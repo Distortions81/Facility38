@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"image/color"
 	"math"
-	"runtime"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -270,10 +269,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw debug info */
 	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("FPS: %.2f,UPS: %.2f Work: Workers: %v, Job-size: %v, Active Objects: %v, Chunks-Drawn: %v (v%v-%v-%v)",
+		fmt.Sprintf("FPS: %.2f,UPS: %.2f Work: Workers: %v, Job-size: %v, Active Objects: %v, Chunks-Drawn: %v",
 			ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), gVisChunkTop,
-			consts.Version, consts.Build, runtime.GOOS),
+			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), gVisChunkTop),
 		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
