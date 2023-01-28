@@ -17,6 +17,7 @@ import (
 )
 
 var bootText string = "Loading..."
+var buildTime string = "Dev Build"
 
 type Game struct {
 }
@@ -182,5 +183,5 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func windowTitle() {
-	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + consts.Build + " " + fmt.Sprintf("%vx%v", glob.ScreenWidth, glob.ScreenHeight)))
+	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + buildTime + "-" + runtime.GOOS + "-" + runtime.GOARCH + fmt.Sprintf(" %vx%v", glob.ScreenWidth, glob.ScreenHeight)))
 }

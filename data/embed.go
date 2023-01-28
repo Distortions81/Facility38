@@ -12,11 +12,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-/*go:embed gfx*/
+const cLoadEmbedSprites = true
 
-const cLoadEmbedSprites = false
-
-//go:embed txt
+//go:embed txt gfx
 
 var f embed.FS
 
