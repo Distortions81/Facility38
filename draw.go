@@ -51,7 +51,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	} else {
 		bootScreen(screen)
-		time.Sleep(time.Millisecond * 67) //15 fps
+		time.Sleep(time.Millisecond * 125) //8 fps
 		return
 	}
 
