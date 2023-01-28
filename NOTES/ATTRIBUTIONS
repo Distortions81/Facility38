@@ -6,21 +6,59 @@ MADE WITH:
 2D program used: Aseprite
 IDE: Microsoft Visual Studio Code
 Language/Compiler: Go: https://go.dev/
-Run on: Ubuntu 21.10
+Run on: Ubuntu 22.04
 
-Attributions:
-Coal photo: https://www.flickr.com/photos/47445767@N05/50504571422/
-Creative Commons 2.0. Modifcations: Added alpha channel and resized to 128x128
-Orignal photo by James St. John
-Image title: Peacock coal 5
-https://creativecommons.org/licenses/by/2.0/
 
+## Used directly:
 SizedWaitGroup library: https://github.com/remeh/sizedwaitgroup
 License: MIT, Copyright: Rémy Mathieu © 2016
 
-Ebiten 2D game library: https://ebiten.org/
+Ebitengine: https://ebitengine.org/
 License: Apache 2.0
 
-WASM decompressor: pako
-https://github.com/nodeca/pako
+WASM decompressor: pakohttps://github.com/nodeca/pako
 License: MIT, Andrey Tupitsin @anrd83, Vitaly Puzrin @puzrin
+
+Go Humans: github.com/dustin/go-humanize
+License: MIT
+
+GO Perlin Noise generator: https://github.com/aquilax/go-perlin
+License: MIT
+
+gopsutil: https://github.com/shirou/gopsutil
+License: BSD
+
+
+## Used indirectly:
+purego: github.com/ebitengine/purego
+License: Apache 2.0
+
+GLFW: github.com/go-gl/glfw/v3.3/glfw
+License: BSD-3-Clause
+
+Go OLE: github.com/go-ole/go-ole
+License: MIT
+
+Flock: github.com/gofrs/flock
+License: BSD-3-Clause
+
+file2byteslice: github.com/hajimehoshi/file2byteslice
+License: Apache 2.0
+
+XGB: github.com/jezek/xgb
+License: https://github.com/jezek/xgb/blob/master/LICENSE
+
+plan9stats: github.com/lufia/plan9stats
+License: BSD-3-Clause
+
+Perfstat: https://github.com/power-devops/perfstat
+License: MIT
+
+go-sysconf: github.com/tklauser/go-sysconf
+License: BSD-3-Clause
+
+numcpus: github.com/tklauser/numcpus
+License: Apache 2.0
+
+wmi: github.com/yusufpapurcu/wmi
+License: MIT
