@@ -30,6 +30,19 @@ var (
 	gVisChunks   [consts.MAX_DRAW_CHUNKS]*glob.MapChunk
 	gVisChunkPos [consts.MAX_DRAW_CHUNKS]glob.XY
 	gVisChunkTop int
+
+	camXPos float64
+	camYPos float64
+
+	camStartX int
+	camStartY int
+	camEndX   int
+	camEndY   int
+
+	screenStartX int
+	screenStartY int
+	screenEndX   int
+	screenEndY   int
 )
 
 func init() {
@@ -40,41 +53,25 @@ func init() {
 	glob.ToolBG.Fill(glob.ColorCharcol)
 }
 
-func (g *Game) Draw(screen *ebiten.Image) {
-	if glob.MapGenerated &&
-		glob.SpritesLoaded &&
-		glob.PlayerReady {
-
-		/* Everything is good to go, continue */
-		glob.AllowUI = true
-		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	} else {
-		bootScreen(screen)
-		time.Sleep(time.Millisecond * 125) //8 fps
-		return
-	}
-
-	/* Draw start */
-	drawStart := time.Now()
-
+func calcScreenCamera() {
 	/* Adjust cam position for zoom */
-	camXPos := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
-	camYPos := float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
+	camXPos = float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
+	camYPos = float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
 
 	/* Get camera bounds */
-	camStartX := int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
-	camStarty := int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
-	camEndX := int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
-	camEndY := int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
+	camStartX = int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
+	camStartY = int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
+	camEndX = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
+	camEndY = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
 
 	/* Pre-calc camera chunk position */
-	screenStartX := camStartX / consts.ChunkSize
-	screenStartY := camStarty / consts.ChunkSize
-	screenEndX := camEndX / consts.ChunkSize
-	screenEndY := camEndY / consts.ChunkSize
+	screenStartX = camStartX / consts.ChunkSize
+	screenStartY = camStartY / consts.ChunkSize
+	screenEndX = camEndX / consts.ChunkSize
+	screenEndY = camEndY / consts.ChunkSize
+}
 
-	glob.WorldMapLock.Lock()
-
+func makeVisList() {
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
 		gVisChunkTop = 0
@@ -110,10 +107,36 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			glob.CameraDirty = false
 		}
 	}
+}
 
-	/* Draw world */
-	if glob.ZoomScale < consts.MiniMapLevel {
-		/* Pixel Mode */
+func (g *Game) Draw(screen *ebiten.Image) {
+
+	if glob.MapGenerated &&
+		glob.SpritesLoaded &&
+		glob.PlayerReady {
+
+		/* Everything is good to go, continue */
+		glob.AllowUI = true
+		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	} else {
+		bootScreen(screen)
+		time.Sleep(time.Millisecond * 125) //8 fps
+		return
+	}
+
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
+	/* Draw start */
+	drawStart := time.Now()
+
+	calcScreenCamera()
+
+	glob.WorldMapLock.Lock()
+
+	makeVisList()
+
+	/* Draw icon mode */
+	if glob.ZoomScale < consts.MapPixelThreshold {
 		screen.Fill(glob.ColorCharcol)
 
 		for i := 0; i < gVisChunkTop; i++ {
@@ -123,37 +146,32 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			for objPos, obj := range chunk.WObject {
 
 				/* Is this object on the screen? */
-				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
+				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
 					continue
 				}
 
-				/* camera + object */
-				objOffX := camXPos + (float64(objPos.X))
-				objOffY := camYPos + (float64(objPos.Y))
-
-				/* camera zoom */
-				objCamPosX := objOffX * glob.ZoomScale
-				objCamPosY := objOffY * glob.ZoomScale
-
-				/* Time to draw it */
-				drawObject(screen, objCamPosX, objCamPosY, obj, true)
+				/* Time to draw it, icon mode true */
+				drawObject(screen, objPos, obj, true)
 			}
 		}
 
-	} else {
+	} else { /* Draw pixel mode */
 		for i := 0; i < gVisChunkTop; i++ {
 			chunkPos := gVisChunkPos[i]
 			chunk := gVisChunks[i]
 
 			/* Draw ground */
-			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 			op.GeoM.Reset()
 			chunk.GroundLock.Lock()
+
+			/* No cache, use a temporary texture while it draws */
 			if chunk.GroundImg == nil {
 				chunk.GroundImg = glob.TempChunkImage
 				chunk.UsingTemporary = true
 			}
+
+			/* Draw texture */
 			iSize := chunk.GroundImg.Bounds().Size()
 			op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
 			op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
@@ -165,20 +183,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			for objPos, obj := range chunk.WObject {
 
 				/* Is this object on the screen? */
-				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
+				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
 					continue
 				}
 
-				/* camera + object */
-				objOffX := camXPos + (float64(objPos.X))
-				objOffY := camYPos + (float64(objPos.Y))
-
-				/* camera zoom */
-				objCamPosX := objOffX * glob.ZoomScale
-				objCamPosY := objOffY * glob.ZoomScale
-
-				/* Time to draw it */
-				drawObject(screen, objCamPosX, objCamPosY, obj, false)
+				/* Time to draw it, icon mode false */
+				drawObject(screen, objPos, obj, false)
 			}
 		}
 
@@ -188,23 +198,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			for objPos, obj := range gVisChunks[i].WObject {
 
 				/* Is this object on the screen? */
-				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
+				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
 					continue
 				}
-
-				/* camera + object */
-				objOffX := camXPos + (float64(objPos.X))
-				objOffY := camYPos + (float64(objPos.Y))
-
-				/* camera zoom */
-				objCamPosX := objOffX * glob.ZoomScale
-				objCamPosY := objOffY * glob.ZoomScale
 
 				/* Overlays */
 				/* Draw belt overlays */
 				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
 
-					var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+					/* camera + object */
+					objOffX := camXPos + (float64(objPos.X))
+					objOffY := camYPos + (float64(objPos.Y))
+
+					/* camera zoom */
+					objCamPosX := objOffX * glob.ZoomScale
+					objCamPosY := objOffY * glob.ZoomScale
+
 					op.GeoM.Reset()
 					iSize := obj.TypeP.Image.Bounds()
 					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
@@ -212,11 +221,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 					/* Draw Input Materials */
 					if obj.OutputBuffer.Amount > 0 {
-						matTween(obj.OutputBuffer, obj, op, screen)
+						drawMaterials(obj.OutputBuffer, obj, op, screen)
 					} else {
 						for _, m := range obj.InputBuffer {
 							if m != nil && m.Amount > 0 {
-								matTween(m, obj, op, screen)
+								drawMaterials(m, obj, op, screen)
 								break
 							}
 						}
@@ -224,7 +233,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 				} else if glob.ShowInfoLayer {
 					/* Info Overlays, such as arrows and blocked indicator */
-					var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
+					/* camera + object */
+					objOffX := camXPos + (float64(objPos.X))
+					objOffY := camYPos + (float64(objPos.Y))
+
+					/* camera zoom */
+					objCamPosX := objOffX * glob.ZoomScale
+					objCamPosY := objOffY * glob.ZoomScale
+
 					op.GeoM.Reset()
 					iSize := obj.TypeP.Image.Bounds()
 					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
@@ -271,13 +288,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen,
 		fmt.Sprintf("FPS: %.2f,UPS: %.2f Work: Workers: %v, Job-size: %v, Active Objects: %v, Chunks-Drawn: %v",
 			ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), gVisChunkTop),
+			objects.NumWorkers,
+			humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""),
+			humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
+			gVisChunkTop),
 		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
-	for i := 0; i < objects.ToolbarMax; i++ {
-		drawToolItem(screen, i)
-	}
+	drawToolItems(screen)
 
 	/* Toolbar tool tip */
 	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
@@ -345,7 +363,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 }
 
-func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
+func drawMaterials(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
 
 	if m.Amount > 0 {
 		img := m.TypeP.Image
@@ -355,7 +373,15 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 	}
 }
 
-func drawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject, miniMap bool) {
+func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject, miniMap bool) {
+
+	/* camera + object */
+	objOffX := camXPos + (float64(objPos.X))
+	objOffY := camYPos + (float64(objPos.Y))
+
+	/* camera zoom */
+	x := objOffX * glob.ZoomScale
+	y := objOffY * glob.ZoomScale
 
 	/* Draw sprite */
 	if obj.TypeP.Image == nil {
@@ -386,48 +412,4 @@ func drawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject, m
 		}
 	}
 
-}
-
-func drawToolItem(screen *ebiten.Image, pos int) {
-	item := objects.ToolbarItems[pos]
-
-	x := float64(consts.ToolBarScale * int(pos))
-
-	if item.OType.Image == nil {
-		return
-	} else {
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-
-		op.GeoM.Reset()
-		op.GeoM.Translate(x, 0)
-		screen.DrawImage(glob.ToolBG, op)
-
-		op.GeoM.Reset()
-		iSize := item.OType.Image.Bounds()
-
-		if item.OType.Rotatable && item.OType.Direction > 0 {
-			x := float64(iSize.Size().X / 2)
-			y := float64(iSize.Size().Y / 2)
-			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(cNinetyDeg * float64(item.OType.Direction))
-			op.GeoM.Translate(x, y)
-		}
-
-		if item.OType.Image.Bounds().Max.X != consts.ToolBarScale {
-			op.GeoM.Scale(1.0/(float64(iSize.Max.X)/consts.ToolBarScale), 1.0/(float64(iSize.Max.Y)/consts.ToolBarScale))
-		}
-		op.GeoM.Translate(x, 0)
-
-		screen.DrawImage(item.OType.Image, op)
-	}
-
-	if item.SType == consts.ObjSubGame {
-		if item.OType.TypeI == objects.SelectedItemType {
-			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale, consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
-			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale, consts.ToolBarOffsetY, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
-
-			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale, consts.ToolBarOffsetY+consts.ToolBarScale-consts.TBThick, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
-			ebitenutil.DrawRect(screen, consts.ToolBarOffsetX+(float64(pos)*consts.ToolBarScale)+consts.ToolBarScale-consts.TBThick, consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
-		}
-	}
 }
