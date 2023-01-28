@@ -9,10 +9,10 @@ import (
 
 const (
 	//Perlin noise physical scale
-	NoiseScale = 100.0
-	alpha      = 2.0
-	beta       = 2.0
-	n          = 3
+	cNoiseScale = 100.0
+	cAlpha      = 2.0
+	cBeta       = 2.0
+	cN          = 3
 )
 
 var (
@@ -21,9 +21,9 @@ var (
 
 func InitPerlin() {
 	source := rand.NewSource(time.Now().Unix())
-	per = perlin.NewPerlinRandSource(alpha, beta, n, source)
+	per = perlin.NewPerlinRandSource(cAlpha, cBeta, cN, source)
 }
 
 func NoiseMap(x, y float64) float64 {
-	return ((per.Noise2D(x/NoiseScale, y/NoiseScale) + 1) / 2.0)
+	return ((per.Noise2D(x/cNoiseScale, y/cNoiseScale) + 1) / 2.0)
 }

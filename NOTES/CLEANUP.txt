@@ -5,3 +5,9 @@ Attempt to move more out of const and glob
 Auto-versioning
 
 Make multi-language support for all text
+Make all local-global vars non-capital and prefix all consts/gvars
+
+move a lot out of main.go
+move camera world calculations to a function
+
+Move any structs in glob out if possible

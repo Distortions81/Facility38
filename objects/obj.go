@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	WorldTick uint64 = 0
+	gWorldTick uint64 = 0
 
 	ListLock sync.Mutex
 	TickList []glob.TickEvent
@@ -22,20 +22,20 @@ var (
 	ObjectHitlist []*glob.ObjectHitlistData
 	EventHitlist  []*glob.EventHitlistData
 
-	TickCount    int
-	TockCount    int
-	TickWorkSize int
+	gTickCount     int
+	gTockCount     int
+	gTickWorkSize  int
+	gNumChunkImage int
+
 	TockWorkSize int
 	NumWorkers   int
-
-	NumChunkImage int
 
 	wg sizedwaitgroup.SizedWaitGroup
 )
 
 const (
-	ChunkGroundCacheTime = time.Second * 15
-	CacheMax             = 100
+	cChunkGroundCacheTime = time.Second * 15
+	cCacheMax             = 100
 )
 
 func TickTockDaemon() {
@@ -55,9 +55,9 @@ func TickTockDaemon() {
 	for {
 		start = time.Now()
 
-		WorldTick++
-		TickWorkSize = TickCount / NumWorkers
-		TockWorkSize = TockCount / NumWorkers
+		gWorldTick++
+		gTickWorkSize = gTickCount / NumWorkers
+		TockWorkSize = gTockCount / NumWorkers
 
 		ListLock.Lock()
 		runTocks()         //Process objects
@@ -84,7 +84,7 @@ func killTerrainCache(chunk *glob.MapChunk) {
 	chunk.GroundLock.Lock()
 	chunk.GroundImg.Dispose()
 	chunk.GroundImg = nil
-	NumChunkImage--
+	gNumChunkImage--
 	chunk.GroundLock.Unlock()
 }
 
@@ -118,8 +118,8 @@ func TerrainCacheDaemon() {
 						RenderChunkGround(chunk, true, cpos)
 					}
 				} else {
-					if NumChunkImage > CacheMax &&
-						time.Since(chunk.LastSaw) > ChunkGroundCacheTime {
+					if gNumChunkImage > cCacheMax &&
+						time.Since(chunk.LastSaw) > cChunkGroundCacheTime {
 						killTerrainCache(chunk)
 					}
 				}
@@ -151,12 +151,12 @@ func tickObj(o *glob.WObject) {
 // Move materials from one object to another
 func runTicks() {
 
-	l := TickCount - 1
+	l := gTickCount - 1
 	if l < 1 {
 		return
 	}
 
-	numWorkers := l / TickWorkSize
+	numWorkers := l / gTickWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -190,7 +190,7 @@ func runTicks() {
 // Process objects
 func runTocks() {
 
-	l := TockCount - 1
+	l := gTockCount - 1
 	if l < 1 {
 		return
 	}
@@ -228,12 +228,12 @@ func runTocks() {
 
 func ticklistAdd(target *glob.WObject) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
-	TickCount++
+	gTickCount++
 }
 
 func tockListAdd(target *glob.WObject) {
 	TockList = append(TockList, glob.TickEvent{Target: target})
-	TockCount++
+	gTockCount++
 }
 
 func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
@@ -252,7 +252,7 @@ func ticklistRemove(obj *glob.WObject) {
 			break
 		}
 	}
-	TickCount--
+	gTickCount--
 }
 
 func tocklistRemove(obj *glob.WObject) {
@@ -267,7 +267,7 @@ func tocklistRemove(obj *glob.WObject) {
 			break
 		}
 	}
-	TockCount--
+	gTockCount--
 }
 
 func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
@@ -350,7 +350,7 @@ func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 		chunk.GroundLock.Lock()
 		tImg = ebiten.NewImage(chunkPix, chunkPix)
-		NumChunkImage++
+		gNumChunkImage++
 		chunk.UsingTemporary = false
 		chunk.GroundLock.Unlock()
 

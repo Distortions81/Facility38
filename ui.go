@@ -13,36 +13,36 @@ import (
 
 var (
 	/* Touch vars */
-	PrevTouchX int     = 0
-	PrevTouchY int     = 0
-	PrevTouchA int     = 0
-	PrevTouchB int     = 0
-	PrevPinch  float64 = 0
+	gPrevTouchX int     = 0
+	gPrevTouchY int     = 0
+	gPrevTouchA int     = 0
+	gPrevTouchB int     = 0
+	gPrevPinch  float64 = 0
 
 	/* UI state */
-	MousePressed      bool = false
-	MouseRightPressed bool = false
-	TouchPressed      bool = false
-	PinchPressed      bool = false
-	ShiftPressed      bool = false
+	gMousePressed      bool = false
+	gMouseRightPressed bool = false
+	gTouchPressed      bool = false
+	gPinchPressed      bool = false
+	gShiftPressed      bool = false
 
 	/* Mouse vars */
-	PrevMouseX float64 = 0
-	PrevMouseY float64 = 0
-	ZoomMouse  float64 = 0.0
+	gPrevMouseX float64 = 0
+	gPrevMouseY float64 = 0
+	gZoomMouse  float64 = 0.0
 
 	/* Last object we performed an action on */
-	LastActionPosition glob.XY
-	LastActionTime     time.Time
-	BuildActionDelay   time.Duration = 0
-	RemoveActionDelay  time.Duration = 0
-	LastActionType     int           = 0
+	gLastActionPosition glob.XY
+	gLastActionTime     time.Time
+	gBuildActionDelay   time.Duration = 0
+	gRemoveActionDelay  time.Duration = 0
+	gLastActionType     int           = 0
 )
 
 const (
-	DragActionTypeNone   = 0
-	DragActionTypeBuild  = 1
-	DragActionTypeDelete = 2
+	cDragActionTypeNone   = 0
+	cDragActionTypeBuild  = 1
+	cDragActionTypeDelete = 2
 )
 
 func handleToolbar(rotate bool) bool {
@@ -58,7 +58,7 @@ func handleToolbar(rotate bool) bool {
 			} else {
 				if rotate && objects.GameObjTypes[objects.SelectedItemType] != nil {
 					dir := objects.GameObjTypes[objects.SelectedItemType].Direction
-					if ShiftPressed {
+					if gShiftPressed {
 						dir = dir - 1
 						if dir < consts.DIR_NORTH {
 							dir = consts.DIR_WEST
@@ -76,7 +76,7 @@ func handleToolbar(rotate bool) bool {
 					objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
 				}
 			}
-			MousePressed = false
+			gMousePressed = false
 			return true
 		}
 	}
@@ -101,9 +101,9 @@ func (g *Game) Update() error {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
-		ShiftPressed = true
+		gShiftPressed = true
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyShift) {
-		ShiftPressed = false
+		gShiftPressed = false
 	}
 
 	/* Touchscreen input */
@@ -137,47 +137,47 @@ func (g *Game) Update() error {
 	/* Touch zoom-pinch */
 	if foundPinch {
 		dist := util.Distance((ta), (tb), (tx), (ty))
-		if !PinchPressed {
-			PrevPinch = dist
+		if !gPinchPressed {
+			gPrevPinch = dist
 		}
-		PinchPressed = true
-		ZoomMouse = (ZoomMouse + ((dist - PrevPinch) / 75))
-		PrevPinch = dist
+		gPinchPressed = true
+		gZoomMouse = (gZoomMouse + ((dist - gPrevPinch) / 75))
+		gPrevPinch = dist
 	} else {
-		if PinchPressed {
-			TouchPressed = false
+		if gPinchPressed {
+			gTouchPressed = false
 			foundTouch = false
 		}
-		PinchPressed = false
+		gPinchPressed = false
 	}
 	/* Touch pan */
 	if foundTouch {
-		if !TouchPressed {
-			if PinchPressed {
-				PrevTouchA, PrevTouchB = util.MidPoint(tx, ty, ta, tb)
+		if !gTouchPressed {
+			if gPinchPressed {
+				gPrevTouchA, gPrevTouchB = util.MidPoint(tx, ty, ta, tb)
 
 			} else {
-				PrevTouchX = tx
-				PrevTouchY = ty
+				gPrevTouchX = tx
+				gPrevTouchY = ty
 			}
 		}
-		TouchPressed = true
+		gTouchPressed = true
 
-		if PinchPressed {
+		if gPinchPressed {
 			nx, ny := util.MidPoint(tx, ty, ta, tb)
-			glob.CameraX = glob.CameraX + (float64(PrevTouchA-nx) / glob.ZoomScale)
-			glob.CameraY = glob.CameraY + (float64(PrevTouchB-ny) / glob.ZoomScale)
-			PrevTouchA, PrevTouchB = util.MidPoint(tx, ty, ta, tb)
+			glob.CameraX = glob.CameraX + (float64(gPrevTouchA-nx) / glob.ZoomScale)
+			glob.CameraY = glob.CameraY + (float64(gPrevTouchB-ny) / glob.ZoomScale)
+			gPrevTouchA, gPrevTouchB = util.MidPoint(tx, ty, ta, tb)
 			glob.CameraDirty = true
 		} else {
-			glob.CameraX = glob.CameraX + (float64(PrevTouchX-tx) / glob.ZoomScale)
-			glob.CameraY = glob.CameraY + (float64(PrevTouchY-ty) / glob.ZoomScale)
-			PrevTouchX = tx
-			PrevTouchY = ty
+			glob.CameraX = glob.CameraX + (float64(gPrevTouchX-tx) / glob.ZoomScale)
+			glob.CameraY = glob.CameraY + (float64(gPrevTouchY-ty) / glob.ZoomScale)
+			gPrevTouchX = tx
+			gPrevTouchY = ty
 			glob.CameraDirty = true
 		}
 	} else {
-		TouchPressed = false
+		gTouchPressed = false
 	}
 
 	/* Mouse scroll zoom */
@@ -190,7 +190,7 @@ func (g *Game) Update() error {
 		glob.ZoomScale = glob.ZoomScale / 2
 		glob.CameraDirty = true
 	}
-	ZoomMouse = 0
+	gZoomMouse = 0
 
 	if glob.ZoomScale < 1 {
 		glob.ZoomScale = 1
@@ -210,19 +210,19 @@ func (g *Game) Update() error {
 
 	/* Mouse clicks */
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		MousePressed = false
+		gMousePressed = false
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		MousePressed = true
-		LastActionPosition.X = 0
-		LastActionPosition.Y = 0
-		LastActionType = DragActionTypeNone
+		gMousePressed = true
+		gLastActionPosition.X = 0
+		gLastActionPosition.Y = 0
+		gLastActionType = cDragActionTypeNone
 
 		captured = handleToolbar(false)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		captured = handleToolbar(true)
 	}
 
-	if MousePressed {
+	if gMousePressed {
 
 		/* UI area */
 		if !captured {
@@ -232,8 +232,8 @@ func (g *Game) Update() error {
 
 			pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
-			if pos != LastActionPosition {
-				if time.Since(LastActionTime) > BuildActionDelay {
+			if pos != gLastActionPosition {
+				if time.Since(gLastActionTime) > gBuildActionDelay {
 
 					bypass := false
 					chunk := util.GetChunk(&pos)
@@ -242,7 +242,7 @@ func (g *Game) Update() error {
 					if o == nil {
 
 						/* Prevent flopping between delete and create when dragging */
-						if LastActionType == DragActionTypeBuild || LastActionType == DragActionTypeNone {
+						if gLastActionType == cDragActionTypeBuild || gLastActionType == cDragActionTypeNone {
 
 							/*
 								size := objects.GameObjTypes[objects.SelectedItemType].Size
@@ -267,13 +267,13 @@ func (g *Game) Update() error {
 									objects.ListLock.Unlock()
 								}(o, pos)
 
-								LastActionPosition = pos
-								LastActionType = DragActionTypeBuild
+								gLastActionPosition = pos
+								gLastActionType = cDragActionTypeBuild
 							}
 						}
 					} else {
-						if time.Since(LastActionTime) > RemoveActionDelay {
-							if LastActionType == DragActionTypeDelete || LastActionType == DragActionTypeNone {
+						if time.Since(gLastActionTime) > gRemoveActionDelay {
+							if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
 								if o != nil {
 									go func(o *glob.WObject, pos glob.XY) {
@@ -282,8 +282,8 @@ func (g *Game) Update() error {
 										objects.ListLock.Unlock()
 									}(o, pos)
 									//Action completed, save position and time
-									LastActionPosition = pos
-									LastActionType = DragActionTypeDelete
+									gLastActionPosition = pos
+									gLastActionType = cDragActionTypeDelete
 								}
 							}
 						}
@@ -295,21 +295,21 @@ func (g *Game) Update() error {
 	}
 
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
-		MouseRightPressed = false
+		gMouseRightPressed = false
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
-		MouseRightPressed = true
+		gMouseRightPressed = true
 	}
 
 	/* Mouse pan */
-	if MouseRightPressed {
+	if gMouseRightPressed {
 		if !glob.InitMouse {
-			PrevMouseX = mx
-			PrevMouseY = my
+			gPrevMouseX = mx
+			gPrevMouseY = my
 			glob.InitMouse = true
 		}
 
-		glob.CameraX = glob.CameraX + (float64(PrevMouseX-mx) / glob.ZoomScale)
-		glob.CameraY = glob.CameraY + (float64(PrevMouseY-my) / glob.ZoomScale)
+		glob.CameraX = glob.CameraX + (float64(gPrevMouseX-mx) / glob.ZoomScale)
+		glob.CameraY = glob.CameraY + (float64(gPrevMouseY-my) / glob.ZoomScale)
 		glob.CameraDirty = true
 
 		/* Don't let camera go beyond a reasonable point */
@@ -324,8 +324,8 @@ func (g *Game) Update() error {
 			glob.CameraY = consts.XYMin
 		}
 
-		PrevMouseX = mx
-		PrevMouseY = my
+		gPrevMouseX = mx
+		gPrevMouseY = my
 	} else {
 		glob.InitMouse = false
 	}
@@ -352,7 +352,7 @@ func (g *Game) Update() error {
 
 		if o != nil {
 
-			if ShiftPressed {
+			if gShiftPressed {
 				o.Direction = util.RotCW(o.Direction)
 			} else {
 				o.Direction = util.RotCCW(o.Direction)

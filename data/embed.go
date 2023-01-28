@@ -14,7 +14,7 @@ import (
 
 /*go:embed gfx*/
 
-const LoadEmbedSprites = false
+const cLoadEmbedSprites = false
 
 //go:embed txt
 
@@ -22,7 +22,7 @@ var f embed.FS
 
 func GetSpriteImage(name string) (*ebiten.Image, error) {
 
-	if LoadEmbedSprites {
+	if cLoadEmbedSprites {
 		gpng, err := f.Open(consts.GfxDir + name)
 		if err != nil {
 			fmt.Println("GetSpriteImage: Embeded:", err)

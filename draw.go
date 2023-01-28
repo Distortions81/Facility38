@@ -16,18 +16,18 @@ import (
 )
 
 const (
-	NinetyDeg              = math.Pi / 2
-	BlockedIndicatorOffset = 0
-	MAX_RENDER_NS          = 1000000000 / 360
+	cNinetyDeg              = math.Pi / 2
+	cBlockedIndicatorOffset = 0
+	cMAX_RENDER_NS          = 1000000000 / 360
 )
 
 var (
-	toolBG *ebiten.Image
+	gToolBG *ebiten.Image
 
 	/* Visible Chunk Cache */
-	CameraList [consts.MAX_DRAW_CHUNKS]*glob.MapChunk
-	XYList     [consts.MAX_DRAW_CHUNKS]glob.XY
-	ListTop    int
+	gVisChunks   [consts.MAX_DRAW_CHUNKS]*glob.MapChunk
+	gVisChunkPos [consts.MAX_DRAW_CHUNKS]glob.XY
+	gVisChunkTop int
 )
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -61,7 +61,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
-		ListTop = 0
+		gVisChunkTop = 0
 
 		for chunkPos, chunk := range glob.WorldMap {
 
@@ -84,10 +84,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				continue
 			}
 
-			if ListTop < consts.MAX_DRAW_CHUNKS {
-				CameraList[ListTop] = chunk
-				XYList[ListTop] = chunkPos
-				ListTop++
+			if gVisChunkTop < consts.MAX_DRAW_CHUNKS {
+				gVisChunks[gVisChunkTop] = chunk
+				gVisChunkPos[gVisChunkTop] = chunkPos
+				gVisChunkTop++
 			} else {
 				break
 			}
@@ -100,8 +100,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		/* Pixel Mode */
 		screen.Fill(glob.ColorCharcol)
 
-		for i := 0; i < ListTop; i++ {
-			chunk := CameraList[i]
+		for i := 0; i < gVisChunkTop; i++ {
+			chunk := gVisChunks[i]
 
 			/* Draw objects in chunk */
 			for objPos, obj := range chunk.WObject {
@@ -125,9 +125,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 
 	} else {
-		for i := 0; i < ListTop; i++ {
-			chunkPos := XYList[i]
-			chunk := CameraList[i]
+		for i := 0; i < gVisChunkTop; i++ {
+			chunkPos := gVisChunkPos[i]
+			chunk := gVisChunks[i]
 
 			/* Draw ground */
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
@@ -167,9 +167,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 
 		/* Draw overlays */
-		for i := 0; i < ListTop; i++ {
+		for i := 0; i < gVisChunkTop; i++ {
 
-			for objPos, obj := range CameraList[i].WObject {
+			for objPos, obj := range gVisChunks[i].WObject {
 
 				/* Is this object on the screen? */
 				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
@@ -234,7 +234,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							op.GeoM.Reset()
 
 							iSize := obj.TypeP.Image.Bounds()
-							op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-BlockedIndicatorOffset, BlockedIndicatorOffset)
+							op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset, cBlockedIndicatorOffset)
 							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
 							screen.DrawImage(img, op)
@@ -255,7 +255,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen,
 		fmt.Sprintf("FPS: %.2f,UPS: %.2f Work: Workers: %v, Job-size: %v, Active Objects: %v, Chunks-Drawn: %v (v%v-%v-%v)",
 			ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), ListTop,
+			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), gVisChunkTop,
 			consts.Version, consts.Build, glob.DetectedOS),
 		0, glob.ScreenHeight-20)
 
@@ -323,7 +323,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Limit frame rate */
-	sleepFor := MAX_RENDER_NS - time.Since(drawStart)
+	sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
 	if sleepFor > time.Millisecond {
 		time.Sleep(sleepFor)
 	}
@@ -360,7 +360,7 @@ func drawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject, m
 				x := float64(iSize.Size().X / 2)
 				y := float64(iSize.Size().Y / 2)
 				op.GeoM.Translate(-x, -y)
-				op.GeoM.Rotate(NinetyDeg * float64(obj.Direction))
+				op.GeoM.Rotate(cNinetyDeg * float64(obj.Direction))
 				op.GeoM.Translate(x, y)
 			}
 
@@ -385,7 +385,7 @@ func drawToolItem(screen *ebiten.Image, pos int) {
 
 		op.GeoM.Reset()
 		op.GeoM.Translate(x, 0)
-		screen.DrawImage(toolBG, op)
+		screen.DrawImage(gToolBG, op)
 
 		op.GeoM.Reset()
 		iSize := item.OType.Image.Bounds()
@@ -394,7 +394,7 @@ func drawToolItem(screen *ebiten.Image, pos int) {
 			x := float64(iSize.Size().X / 2)
 			y := float64(iSize.Size().Y / 2)
 			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(NinetyDeg * float64(item.OType.Direction))
+			op.GeoM.Rotate(cNinetyDeg * float64(item.OType.Direction))
 			op.GeoM.Translate(x, y)
 		}
 

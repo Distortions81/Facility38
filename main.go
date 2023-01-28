@@ -156,8 +156,8 @@ func NewGame() *Game {
 	objects.RenderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
 	glob.TempChunkImage = tChunk.GroundImg
 
-	toolBG = ebiten.NewImage(consts.ToolBarScale, consts.ToolBarScale)
-	toolBG.Fill(glob.ColorVeryDarkGray)
+	gToolBG = ebiten.NewImage(consts.ToolBarScale, consts.ToolBarScale)
+	gToolBG.Fill(glob.ColorVeryDarkGray)
 
 	/* Make default toolbar */
 	objects.ToolbarMax = 0
