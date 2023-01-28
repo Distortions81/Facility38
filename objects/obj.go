@@ -290,7 +290,7 @@ func ExploreMap(input int) {
 	/* Explore some map */
 
 	area := input * consts.ChunkSize
-	offs := int(consts.XYCenter)
+	offs := int(consts.XYCenter) - (area / 2)
 	for x := -area; x < area; x += consts.ChunkSize {
 		for y := -area; y < area; y += consts.ChunkSize {
 			pos := glob.XY{X: offs - x, Y: offs - y}
@@ -335,6 +335,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	//Put in chunk map
 	glob.WorldMap[util.PosToChunkPos(&pos)].WObject[pos] = obj
 	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
+	chunk.NumObjects++
 	LinkObj(pos, obj)
 
 	return obj
@@ -373,6 +374,7 @@ func runObjectHitlist() {
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 
 			glob.WorldMapLock.Lock()
+			glob.WorldMap[util.PosToChunkPos(item.Pos)].NumObjects--
 			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].WObject, *item.Pos)
 			glob.WorldMapLock.Unlock()
 
