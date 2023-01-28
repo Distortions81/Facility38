@@ -67,6 +67,7 @@ func init() {
 type MapChunk struct {
 	WObject      map[XY]*WObject
 	LargeWObject map[XY]*WObject
+	NumObjects   uint64
 
 	GroundLock     sync.Mutex
 	GroundImg      *ebiten.Image
