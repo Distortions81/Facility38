@@ -201,13 +201,19 @@ func touchScreenHandle() {
 	}
 }
 
+/* WASM wierdness kludge */
+var lastScroll time.Time
+
 func zoomHandle() {
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
-	if glob.FixWASM {
-		fsy = fsy / 100000.0
+	if glob.FixWASM && fsy != 0 {
+		if time.Since(lastScroll) < time.Millisecond*200 {
+			return
+		}
 	}
+	lastScroll = time.Now()
 
 	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
 		glob.ZoomScale = glob.ZoomScale * 2
