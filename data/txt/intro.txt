@@ -1,5 +1,4 @@
 CONTROLS:
-
 RIGHT-CLICK AND DRAG:
 Move camera
 
@@ -13,5 +12,6 @@ Create or destroy buildings
 LEFT-CLICK AND DRAG:
 Create / destroy buildings continuously
 
-SCROLL-WHEEL or + -:
-ZOOM IN AND OUT
+SCROLL-WHEEL or + -: ZOOM IN AND OUT
+
+ALT KEY: Toggle overlays
