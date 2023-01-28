@@ -29,7 +29,7 @@ func NewGame() *Game {
 	debug.SetMemoryLimit(1024 * 1024 * 1024 * 20)
 
 	noise.InitPerlin()
-	objects.DumpItems()
+	//objects.DumpItems()
 
 	/* Detect logical CPUs, failing that use numcpu */
 	var lCPUs int = runtime.NumCPU()
@@ -131,7 +131,7 @@ func NewGame() *Game {
 
 			/* If there is a image name, attempt to fetch it */
 			if icon.ImagePath != "" {
-				img, err := data.GetSpriteImage(false, consts.GfxDir+icon.ImagePath)
+				img, err := data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
 				if err == nil {
 					timg = img
 					found = true
