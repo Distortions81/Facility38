@@ -29,7 +29,6 @@ var (
 	ShowInfoLayer bool
 
 	/* Boot images */
-	BootImage   *ebiten.Image
 	MiniMapTile *ebiten.Image
 	ToolBG      *ebiten.Image
 

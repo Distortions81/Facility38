@@ -44,15 +44,14 @@ func init() {
 func (g *Game) Draw(screen *ebiten.Image) {
 	if glob.MapGenerated &&
 		glob.SpritesLoaded &&
-		glob.PlayerReady &&
-		glob.BootImage != nil {
+		glob.PlayerReady {
 
 		/* Everything is good to go, continue */
-		glob.BootImage.Dispose()
-		glob.BootImage = nil
 		glob.AllowUI = true
-	} else if glob.BootImage != nil {
-		screen.DrawImage(glob.BootImage, nil)
+		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	} else {
+		bootScreen(screen)
+		time.Sleep(time.Millisecond * 67) //15 fps
 		return
 	}
 
