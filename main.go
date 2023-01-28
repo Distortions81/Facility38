@@ -24,6 +24,11 @@ type Game struct {
 
 /* Main function */
 func main() {
+
+	if runtime.GOARCH == "wasm" {
+		glob.FixWASM = true
+	}
+
 	debug.SetMemoryLimit(consts.MemoryLimit)
 	str, err := data.GetText("intro")
 	if err != nil {
@@ -85,7 +90,10 @@ func loadSprites() {
 	DrawToolbar()
 
 	glob.SpritesLoaded = true
-	go terrain.TerrainCacheDaemon()
+
+	if !glob.FixWASM {
+		go terrain.TerrainCacheDaemon()
+	}
 }
 
 func bootScreen(screen *ebiten.Image) {

@@ -73,6 +73,36 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	chunk.GroundLock.Unlock()
 }
 
+func STCacheUpdate() {
+	tmpWorld := glob.WorldMap
+
+	/* If we zoom out, decallocate everything */
+	if glob.ZoomScale < consts.MapPixelThreshold {
+		for _, chunk := range tmpWorld {
+			killTerrainCache(chunk)
+		}
+		return
+	}
+
+	for cpos, chunk := range tmpWorld {
+		if chunk.GroundImg == nil {
+			continue
+		}
+		if chunk.Visible || chunk.GroundImg == nil {
+			if chunk.UsingTemporary {
+				renderChunkGround(chunk, true, cpos)
+				continue
+			}
+		} else {
+			if gNumChunkImage > cCacheMax &&
+				time.Since(chunk.LastSaw) > cChunkGroundCacheTime {
+				killTerrainCache(chunk)
+				continue
+			}
+		}
+	}
+}
+
 func TerrainCacheDaemon() {
 	time.Sleep(time.Second)
 	wg := sizedwaitgroup.New(objects.NumWorkers)

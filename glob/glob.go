@@ -58,6 +58,7 @@ var (
 
 	/* Used for startup screen */
 	TempChunkImage *ebiten.Image
+	FixWASM        bool
 )
 
 func init() {

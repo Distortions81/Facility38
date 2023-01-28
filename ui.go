@@ -205,6 +205,10 @@ func zoomHandle() {
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
+	if glob.FixWASM {
+		fsy = fsy / 100000.0
+	}
+
 	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
 		glob.ZoomScale = glob.ZoomScale * 2
 		glob.CameraDirty = true
