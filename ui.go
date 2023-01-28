@@ -158,7 +158,7 @@ func touchScreenHandle() {
 			gPrevPinch = dist
 		}
 		gPinchPressed = true
-		gZoomMouse = (gZoomMouse + ((dist - gPrevPinch) / 75))
+		gTouchZoom = (gTouchZoom + ((dist - gPrevPinch) / 75))
 		gPrevPinch = dist
 	} else {
 		if gPinchPressed {
@@ -209,7 +209,7 @@ func zoomHandle() {
 		glob.ZoomScale = glob.ZoomScale / 2
 		glob.CameraDirty = true
 	}
-	gZoomMouse = 0
+	gTouchZoom = 0
 
 	if glob.ZoomScale < 1 {
 		glob.ZoomScale = 1
