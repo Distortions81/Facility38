@@ -150,7 +150,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					continue
 				}
 
-				/* Time to draw it, icon mode true */
+				/* Time to draw it, pixel mode true */
 				drawObject(screen, objPos, obj, true)
 			}
 		}
@@ -161,8 +161,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk := gVisChunks[i]
 
 			/* Draw ground */
-
-			op.GeoM.Reset()
 			chunk.GroundLock.Lock()
 
 			/* No cache, use a temporary texture while it draws */
@@ -173,6 +171,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			/* Draw texture */
 			iSize := chunk.GroundImg.Bounds().Size()
+			op.GeoM.Reset()
 			op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
 			op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
 			screen.DrawImage(chunk.GroundImg, op)
@@ -187,20 +186,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					continue
 				}
 
-				/* Time to draw it, icon mode false */
+				/* Time to draw it, pixel mode false */
 				drawObject(screen, objPos, obj, false)
-			}
-		}
-
-		/* Draw overlays */
-		for i := 0; i < gVisChunkTop; i++ {
-
-			for objPos, obj := range gVisChunks[i].WObject {
-
-				/* Is this object on the screen? */
-				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
-					continue
-				}
 
 				/* Overlays */
 				/* Draw belt overlays */
@@ -373,7 +360,7 @@ func drawMaterials(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptio
 	}
 }
 
-func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject, miniMap bool) {
+func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject, pixMode bool) {
 
 	/* camera + object */
 	objOffX := camXPos + (float64(objPos.X))
@@ -388,7 +375,7 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject, miniMap
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-		if miniMap {
+		if pixMode {
 			iSize := obj.TypeP.Image.Bounds()
 			op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
 			op.GeoM.Translate(math.Floor(x), math.Floor(y))
