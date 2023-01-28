@@ -1,17 +1,16 @@
-Everything contained here is copyright Carl Frank Otto III 2022, unless otherwise stated below.
-All rights reserved.
+## Everything contained here is copyright Carl Frank Otto III 2022, unless otherwise stated below. All rights reserved.
 
-MADE WITH:
+## MADE WITH:
 3D program used: Blender
 2D program used: Aseprite
 IDE: Microsoft Visual Studio Code
 Language/Compiler: Go: https://go.dev/
-Run on: Ubuntu 22.04
+Developed on: Kbuntu 22.04
 
 
 ## Used directly:
 SizedWaitGroup library: https://github.com/remeh/sizedwaitgroup
-License: MIT, Copyright: Rémy Mathieu © 2016
+License: MIT
 
 Ebitengine: https://ebitengine.org/
 License: Apache 2.0
