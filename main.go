@@ -22,6 +22,51 @@ var bootText string = "Loading..."
 type Game struct {
 }
 
+/* Main function */
+func main() {
+	debug.SetMemoryLimit(consts.MemoryLimit)
+	str, err := data.GetText("intro")
+	if err != nil {
+		panic(err)
+	}
+	bootText = str
+	detectCPUs()
+
+	if err := ebiten.RunGame(NewGame()); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func NewGame() *Game {
+	/* Set up ebiten and window */
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
+	ebiten.SetScreenFilterEnabled(true)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	setupWindowSize()
+	windowTitle()
+
+	bootScreen()
+	/* Auto update boot screen */
+	go func() {
+		time.Sleep(time.Millisecond * 500)
+
+		for glob.BootImage != nil {
+			/* Approx 15 fps */
+			time.Sleep(time.Millisecond * 67)
+			bootScreen()
+		}
+	}()
+
+	go loadSprites()
+
+	go makeTestMap()
+
+	go objects.ObjUpdateDaemon()
+
+	/* Initialize the game */
+	return &Game{}
+}
+
 func loadSprites() {
 
 	/* Load Sprites */
@@ -55,6 +100,31 @@ func loadSprites() {
 	terrain.SetupTerrainCache()
 	glob.SpritesLoaded = true
 	go terrain.TerrainCacheDaemon()
+}
+
+func bootScreen() {
+	tmp := ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
+	tmp.Fill(glob.ColorCharcol)
+
+	status := ""
+	if !glob.SpritesLoaded {
+		status = "Loading Sprites"
+	}
+	if !glob.MapGenerated {
+		if status != "" {
+			status = status + ", "
+		}
+		status = status + "Generating map"
+	}
+	if status == "" {
+		status = "Loading complete!\n(Click mouse to continue)"
+	}
+
+	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)
+
+	tRect := text.BoundString(glob.BootFont, output)
+	text.Draw(tmp, output, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
+	glob.BootImage = tmp
 }
 
 func detectCPUs() {
@@ -104,58 +174,6 @@ func setupWindowSize() {
 	ebiten.SetWindowSize(glob.ScreenWidth, glob.ScreenHeight)
 }
 
-func bootScreen() {
-	tmp := ebiten.NewImage(glob.ScreenWidth, glob.ScreenHeight)
-	tmp.Fill(glob.ColorCharcol)
-
-	status := ""
-	if !glob.SpritesLoaded {
-		status = "Loading Sprites"
-	}
-	if !glob.MapGenerated {
-		if status != "" {
-			status = status + ", "
-		}
-		status = status + "Generating map"
-	}
-	if status == "" {
-		status = "Loading complete!\n(Click mouse to continue)"
-	}
-
-	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)
-
-	tRect := text.BoundString(glob.BootFont, output)
-	text.Draw(tmp, output, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
-	glob.BootImage = tmp
-}
-
-func NewGame() *Game {
-	/* Set up ebiten and window */
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
-	ebiten.SetScreenFilterEnabled(true)
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	setupWindowSize()
-	windowTitle()
-
-	bootScreen()
-	/* Auto update boot screen */
-	go func() {
-		for glob.BootImage != nil {
-			time.Sleep(time.Millisecond * 250)
-			bootScreen()
-		}
-	}()
-
-	go loadSprites()
-
-	go makeTestMap()
-
-	go objects.ObjUpdateDaemon()
-
-	/* Initialize the game */
-	return &Game{}
-}
-
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	if consts.UPSBench {
@@ -170,21 +188,6 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 	windowTitle()
 	return glob.ScreenWidth, glob.ScreenHeight
-}
-
-/* Main function */
-func main() {
-	debug.SetMemoryLimit(consts.MemoryLimit)
-	str, err := data.GetText("intro")
-	if err != nil {
-		panic(err)
-	}
-	bootText = str
-	detectCPUs()
-
-	if err := ebiten.RunGame(NewGame()); err != nil {
-		log.Fatal(err)
-	}
 }
 
 func windowTitle() {
