@@ -86,17 +86,10 @@ func handleToolbar(rotate bool) bool {
 /* Ebiten main loop */
 func (g *Game) Update() error {
 
-	if !glob.DrewMap &&
-		(inpututil.IsKeyJustPressed(ebiten.KeyEnter) || inpututil.IsKeyJustPressed(ebiten.KeyKPEnter)) {
-		glob.DrewMap = true
-		glob.BootImage.Dispose()
+	if !glob.PlayerReady && inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		glob.PlayerReady = true
 	}
-
-	if consts.NoInterface {
-		return nil
-	}
-
-	if !glob.DrewMap {
+	if !glob.AllowUI {
 		return nil
 	}
 

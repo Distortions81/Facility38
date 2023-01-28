@@ -29,10 +29,15 @@ var (
 	ShowInfoLayer bool
 
 	/* Boot images */
-	BootImage *ebiten.Image
-
-	/* Minimap mode */
+	BootImage   *ebiten.Image
 	MiniMapTile *ebiten.Image
+	ToolBG      *ebiten.Image
+
+	/* Boot status */
+	SpritesLoaded bool
+	PlayerReady   bool
+	AllowUI       bool
+	MapGenerated  bool
 
 	/* Fonts */
 	BootFont    font.Face
@@ -40,8 +45,8 @@ var (
 	ObjectFont  font.Face
 
 	/* Camera position */
-	CameraX float64 = 0
-	CameraY float64 = 0
+	CameraX float64 = float64(consts.XYCenter)
+	CameraY float64 = float64(consts.XYCenter)
 	/* If position/zoom changed */
 	CameraDirty bool = true
 
@@ -53,11 +58,12 @@ var (
 	InitMouse = false
 
 	/* Used for startup screen */
-	DrewMap    bool = false
-	DetectedOS string
-
 	TempChunkImage *ebiten.Image
 )
+
+func init() {
+	WorldMap = make(map[XY]*MapChunk)
+}
 
 type MapChunk struct {
 	WObject      map[XY]*WObject

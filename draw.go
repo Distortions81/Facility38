@@ -6,7 +6,9 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"fmt"
+	"image/color"
 	"math"
+	"runtime"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -19,27 +21,43 @@ const (
 	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360
+
+	CPreCache = 2 /* Precache radius */
+
 )
 
 var (
-	gToolBG *ebiten.Image
-
 	/* Visible Chunk Cache */
 	gVisChunks   [consts.MAX_DRAW_CHUNKS]*glob.MapChunk
 	gVisChunkPos [consts.MAX_DRAW_CHUNKS]glob.XY
 	gVisChunkTop int
 )
 
+func init() {
+	glob.MiniMapTile = ebiten.NewImage(consts.SpriteScale-4, consts.SpriteScale-4)
+	glob.MiniMapTile.Fill(color.White)
+
+	glob.ToolBG = ebiten.NewImage(consts.ToolBarScale, consts.ToolBarScale)
+	glob.ToolBG.Fill(glob.ColorCharcol)
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
+	if glob.MapGenerated &&
+		glob.SpritesLoaded &&
+		glob.PlayerReady &&
+		glob.BootImage != nil {
 
-	drawStart := time.Now()
-
-	if !glob.DrewMap {
+		/* Everything is good to go, continue */
+		glob.BootImage.Dispose()
+		glob.BootImage = nil
+		glob.AllowUI = true
+	} else if glob.BootImage != nil {
 		screen.DrawImage(glob.BootImage, nil)
 		return
 	}
 
 	/* Draw start */
+	drawStart := time.Now()
 
 	/* Adjust cam position for zoom */
 	camXPos := float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
@@ -66,10 +84,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		for chunkPos, chunk := range glob.WorldMap {
 
 			/* Is this chunk on the screen? */
-			if chunkPos.X+consts.CPreCache < screenStartX ||
-				chunkPos.X-consts.CPreCache > screenEndX ||
-				chunkPos.Y+consts.CPreCache < screenStartY ||
-				chunkPos.Y-consts.CPreCache > screenEndY {
+			if chunkPos.X+CPreCache < screenStartX ||
+				chunkPos.X-CPreCache > screenEndX ||
+				chunkPos.Y+CPreCache < screenStartY ||
+				chunkPos.Y-CPreCache > screenEndY {
 				chunk.Visible = false
 				continue
 			}
@@ -256,7 +274,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		fmt.Sprintf("FPS: %.2f,UPS: %.2f Work: Workers: %v, Job-size: %v, Active Objects: %v, Chunks-Drawn: %v (v%v-%v-%v)",
 			ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
 			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), gVisChunkTop,
-			consts.Version, consts.Build, glob.DetectedOS),
+			consts.Version, consts.Build, runtime.GOOS),
 		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
@@ -385,7 +403,7 @@ func drawToolItem(screen *ebiten.Image, pos int) {
 
 		op.GeoM.Reset()
 		op.GeoM.Translate(x, 0)
-		screen.DrawImage(gToolBG, op)
+		screen.DrawImage(glob.ToolBG, op)
 
 		op.GeoM.Reset()
 		iSize := item.OType.Image.Bounds()

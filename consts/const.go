@@ -12,9 +12,8 @@ const (
 
 	/* Debug */
 	MemoryLimit = 1024 * 1024 * 1024 * 20
-	NoInterface = false
 	UPSBench    = false
-	LoadTest    = true
+	LoadTest    = false
 	TestObjects = 100 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
@@ -25,9 +24,6 @@ const (
 	XYCenter = 5000000
 	XYMax    = XYCenter * 2
 	XYMin    = 1
-
-	/* Chunk ground texture caching */
-	CPreCache = 2 /* Precache radius */
 
 	/* Game datastrures */
 	/* Subtypes */

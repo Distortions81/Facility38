@@ -23,4 +23,5 @@ divide up work for every nth tick loads ---------
 
 Game objects need folders and JSON files with links to the sprites and other data.
 We also need to support multi-size objects off the bat
+cleanup ui.go
 

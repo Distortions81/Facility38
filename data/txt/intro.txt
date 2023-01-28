@@ -15,5 +15,3 @@ Create / destroy buildings continuously
 
 SCROLL-WHEEL or + -:
 ZOOM IN AND OUT
-
-Press enter to continue...

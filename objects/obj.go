@@ -3,12 +3,10 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"GameTest/noise"
 	"GameTest/util"
 	"sync"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/remeh/sizedwaitgroup"
 )
 
@@ -16,16 +14,15 @@ var (
 	gWorldTick uint64 = 0
 
 	ListLock sync.Mutex
-	TickList []glob.TickEvent
-	TockList []glob.TickEvent
+	TickList []glob.TickEvent = []glob.TickEvent{}
+	TockList []glob.TickEvent = []glob.TickEvent{}
 
 	ObjectHitlist []*glob.ObjectHitlistData
 	EventHitlist  []*glob.EventHitlistData
 
-	gTickCount     int
-	gTockCount     int
-	gTickWorkSize  int
-	gNumChunkImage int
+	gTickCount    int
+	gTockCount    int
+	gTickWorkSize int
 
 	TockWorkSize int
 	NumWorkers   int
@@ -33,12 +30,22 @@ var (
 	wg sizedwaitgroup.SizedWaitGroup
 )
 
-const (
-	cChunkGroundCacheTime = time.Second * 15
-	cCacheMax             = 100
-)
+func init() {
 
-func TickTockDaemon() {
+	/* Make default toolbar */
+	ToolbarMax = 0
+	for spos, stype := range SubTypes {
+		if spos == consts.ObjSubUI || spos == consts.ObjSubGame {
+			for _, otype := range stype {
+				ToolbarMax++
+				ToolbarItems = append(ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
+
+			}
+		}
+	}
+}
+
+func ObjUpdateDaemon() {
 	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)
 
@@ -75,62 +82,6 @@ func TickTockDaemon() {
 
 	//pprof.StopCPUProfile()
 
-}
-
-func killTerrainCache(chunk *glob.MapChunk) {
-	if chunk.UsingTemporary || chunk.GroundImg == nil {
-		return
-	}
-	chunk.GroundLock.Lock()
-	chunk.GroundImg.Dispose()
-	chunk.GroundImg = nil
-	gNumChunkImage--
-	chunk.GroundLock.Unlock()
-}
-
-func TerrainCacheDaemon() {
-	time.Sleep(time.Second)
-	wg := sizedwaitgroup.New(NumWorkers)
-
-	for {
-		glob.WorldMapLock.Lock()
-		tmpWorld := glob.WorldMap
-		glob.WorldMapLock.Unlock()
-
-		/* If we zoom out, decallocate everything */
-		if glob.ZoomScale < consts.MiniMapLevel {
-			for _, chunk := range tmpWorld {
-				killTerrainCache(chunk)
-			}
-			continue
-		}
-
-		for cpos, chunk := range tmpWorld {
-			if chunk.GroundImg == nil {
-				continue
-			}
-			wg.Add()
-			go func(chunk *glob.MapChunk, cpos glob.XY) {
-				glob.WorldMapLock.Lock()
-
-				if chunk.Visible || chunk.GroundImg == nil {
-					if chunk.UsingTemporary {
-						RenderChunkGround(chunk, true, cpos)
-					}
-				} else {
-					if gNumChunkImage > cCacheMax &&
-						time.Since(chunk.LastSaw) > cChunkGroundCacheTime {
-						killTerrainCache(chunk)
-					}
-				}
-
-				glob.WorldMapLock.Unlock()
-				wg.Done()
-			}(chunk, cpos)
-		}
-		wg.Wait()
-		time.Sleep(time.Millisecond * 100)
-	}
 }
 
 func tickObj(o *glob.WObject) {
@@ -333,52 +284,6 @@ func MakeChunk(pos glob.XY) {
 
 		glob.WorldMapLock.Unlock()
 	}
-}
-
-func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
-	/* Make optimized background */
-	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-
-	chunkPix := (consts.SpriteScale * consts.ChunkSize)
-
-	bg := TerrainTypes[0].Image
-	sx := int(float64(bg.Bounds().Size().X))
-	sy := int(float64(bg.Bounds().Size().Y))
-	var tImg *ebiten.Image
-
-	if sx > 0 && sy > 0 {
-
-		chunk.GroundLock.Lock()
-		tImg = ebiten.NewImage(chunkPix, chunkPix)
-		gNumChunkImage++
-		chunk.UsingTemporary = false
-		chunk.GroundLock.Unlock()
-
-		for i := 0; i < consts.ChunkSize; i++ {
-			for j := 0; j < consts.ChunkSize; j++ {
-				op.GeoM.Reset()
-				op.GeoM.Translate(float64(i*sx), float64(j*sy))
-
-				if doDetail {
-					x := (float64(cpos.X*consts.ChunkSize) + float64(i))
-					y := (float64(cpos.Y*consts.ChunkSize) + float64(j))
-					h := noise.NoiseMap(x, y)
-
-					//fmt.Printf("%.2f,%.2f: %.2f\n", x, y, h)
-					op.ColorM.Reset()
-					op.ColorM.Scale(h*2, 1, 1, 1)
-				}
-
-				tImg.DrawImage(bg, op)
-			}
-		}
-
-	} else {
-		panic("No valid bg texture.")
-	}
-	chunk.GroundLock.Lock()
-	chunk.GroundImg = tImg
-	chunk.GroundLock.Unlock()
 }
 
 func ExploreMap(input int) {

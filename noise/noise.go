@@ -19,7 +19,7 @@ var (
 	per *perlin.Perlin
 )
 
-func InitPerlin() {
+func init() {
 	source := rand.NewSource(time.Now().Unix())
 	per = perlin.NewPerlinRandSource(cAlpha, cBeta, cN, source)
 }
