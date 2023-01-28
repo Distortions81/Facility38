@@ -87,7 +87,6 @@ func loadSprites() {
 }
 
 func bootScreen(screen *ebiten.Image) {
-	screen.Fill(glob.ColorCharcol)
 
 	status := ""
 	if !glob.SpritesLoaded {
@@ -95,12 +94,15 @@ func bootScreen(screen *ebiten.Image) {
 	}
 	if !glob.MapGenerated {
 		if status != "" {
-			status = status + ", "
+			status = status + " and "
 		}
 		status = status + "Generating map"
 	}
 	if status == "" {
+		screen.Fill(glob.ColorCharcol)
 		status = "Loading complete!\n(Click mouse to continue)"
+	} else {
+		screen.Fill(glob.ColorBlack)
 	}
 
 	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)

@@ -22,7 +22,7 @@ const (
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360
 
-	CPreCache = 2 /* Precache radius */
+	cPreCache = 2 /* Precache radius */
 
 )
 
@@ -83,10 +83,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		for chunkPos, chunk := range glob.WorldMap {
 
 			/* Is this chunk on the screen? */
-			if chunkPos.X+CPreCache < screenStartX ||
-				chunkPos.X-CPreCache > screenEndX ||
-				chunkPos.Y+CPreCache < screenStartY ||
-				chunkPos.Y-CPreCache > screenEndY {
+			if chunkPos.X+cPreCache < screenStartX ||
+				chunkPos.X-cPreCache > screenEndX ||
+				chunkPos.Y+cPreCache < screenStartY ||
+				chunkPos.Y-cPreCache > screenEndY {
 				chunk.Visible = false
 				continue
 			}
