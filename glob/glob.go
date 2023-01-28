@@ -18,6 +18,92 @@ import (
 	"golang.org/x/image/font"
 )
 
+var (
+	/* World map */
+	WorldMap     map[XY]*MapChunk
+	WorldMapLock sync.Mutex
+
+	//Used for empty coords
+	XYEmpty = XY{X: 0, Y: 0}
+
+	//eBiten start settings
+	ScreenWidth  int = 1280 //Screen width default
+	ScreenHeight int = 720  //Screen height default
+
+	//Game UPS rate
+	ObjectUPS            = 4.0
+	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
+	MeasuredObjectUPS_ns = ObjectUPS_ns
+
+	//eBiten variables
+	ZoomMouse float64 = 0.0                //Zoom mouse
+	ZoomScale float64 = consts.DefaultZoom //Current zoom
+
+	//Boot images
+	BootImage *ebiten.Image
+
+	//Minimap mode
+	MiniMapTile *ebiten.Image
+
+	/* Fonts */
+	BootFont    font.Face
+	ToolTipFont font.Face
+	ObjectFont  font.Face
+
+	/* Camera position */
+	CameraX float64 = 0
+	CameraY float64 = 0
+	/* If position/zoom changed */
+	CameraDirty bool = true
+
+	//Mouse vars
+	MouseX     float64 = 0
+	MouseY     float64 = 0
+	PrevMouseX float64 = 0
+	PrevMouseY float64 = 0
+
+	//Last object we performed an action on
+	//Used for click-drag
+	LastActionPosition XY
+	LastActionTime     time.Time
+	BuildActionDelay   time.Duration = 0
+	RemoveActionDelay  time.Duration = 0
+	LastActionType     int           = 0
+
+	//Touch vars
+	PrevTouchX int     = 0
+	PrevTouchY int     = 0
+	PrevTouchA int     = 0
+	PrevTouchB int     = 0
+	PrevPinch  float64 = 0
+
+	//Setup latches
+	InitMouse  = false
+	InitCamera = false
+
+	//UI state
+	MousePressed      bool = false
+	MouseRightPressed bool = false
+	TouchPressed      bool = false
+	PinchPressed      bool = false
+	ShiftPressed      bool = false
+
+	/* Show info overlays */
+	ShowInfoLayer bool = true
+	/* Used for startup screen */
+	DrewMap    bool = false
+	DetectedOS string
+	StatusStr  string
+
+	/* Visible Chunk Cache */
+	CameraList [consts.MAX_DRAW_CHUNKS]*MapChunk
+	XYList     [consts.MAX_DRAW_CHUNKS]XY
+	ListTop    int
+
+	TempChunkImage *ebiten.Image
+	NumChunkImage  int
+)
+
 type MapChunk struct {
 	WObject      map[XY]*WObject
 	LargeWObject map[XY]*WObject
@@ -113,83 +199,6 @@ type EventHitlistData struct {
 	Obj    *WObject
 	QType  int
 }
-
-var (
-	WorldMap     map[XY]*MapChunk
-	WorldMapLock sync.Mutex
-
-	XYEmpty = XY{X: 0, Y: 0}
-
-	//eBiten settings
-	ScreenWidth  int = 1280 //Screen width default
-	ScreenHeight int = 720  //Screen height default
-
-	//Game UPS rate
-	ObjectUPS            = 4.0
-	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
-	MeasuredObjectUPS_ns = ObjectUPS_ns
-
-	//eBiten variables
-	ZoomMouse float64 = 0.0                //Zoom mouse
-	ZoomScale float64 = consts.DefaultZoom //Current zoom
-
-	BootImage      *ebiten.Image //Boot imag
-	MiniMapTile    *ebiten.Image
-	TempChunkImage *ebiten.Image
-	NumChunkImage  int
-
-	BootFont    font.Face
-	ToolTipFont font.Face
-	ObjectFont  font.Face
-
-	CameraX float64 = 0
-	CameraY float64 = 0
-
-	CameraDirty bool = true
-
-	//Mouse vars
-	MouseX     float64 = 0
-	MouseY     float64 = 0
-	PrevMouseX float64 = 0
-	PrevMouseY float64 = 0
-
-	//Last object we performed an action on
-	//Used for click-drag
-	LastActionPosition XY
-	LastActionTime     time.Time
-	BuildActionDelay   time.Duration = 0
-	RemoveActionDelay  time.Duration = 0
-	LastActionType     int           = 0
-
-	//Touch vars
-	PrevTouchX int     = 0
-	PrevTouchY int     = 0
-	PrevTouchA int     = 0
-	PrevTouchB int     = 0
-	PrevPinch  float64 = 0
-
-	//Setup latches
-	InitMouse  = false
-	InitCamera = false
-
-	//UI state
-	MousePressed      bool = false
-	MouseRightPressed bool = false
-	TouchPressed      bool = false
-	PinchPressed      bool = false
-	ShiftPressed      bool = false
-
-	ShowInfoLayer bool = true
-	DrewMap       bool = false
-
-	DetectedOS string
-	StatusStr  string
-
-	/* Visible Chunk Cache */
-	CameraList [consts.MAX_DRAW_CHUNKS]*MapChunk
-	XYList     [consts.MAX_DRAW_CHUNKS]XY
-	ListTop    int
-)
 
 func SaveGame() {
 
