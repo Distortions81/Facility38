@@ -28,6 +28,8 @@ var (
 	TockWorkSize int
 	NumWorkers   int
 
+	NumChunkImage int
+
 	wg sizedwaitgroup.SizedWaitGroup
 )
 
@@ -82,7 +84,7 @@ func KillChunkGround(chunk *glob.MapChunk) {
 	chunk.GroundLock.Lock()
 	chunk.GroundImg.Dispose()
 	chunk.GroundImg = nil
-	glob.NumChunkImage--
+	NumChunkImage--
 	chunk.GroundLock.Unlock()
 }
 
@@ -116,7 +118,7 @@ func CacheCleanup() {
 						RenderChunkGround(chunk, true, cpos)
 					}
 				} else {
-					if glob.NumChunkImage > CacheMax &&
+					if NumChunkImage > CacheMax &&
 						time.Since(chunk.LastSaw) > ChunkGroundCacheTime {
 						KillChunkGround(chunk)
 					}
@@ -348,7 +350,7 @@ func RenderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 		chunk.GroundLock.Lock()
 		tImg = ebiten.NewImage(chunkPix, chunkPix)
-		glob.NumChunkImage++
+		NumChunkImage++
 		chunk.UsingTemporary = false
 		chunk.GroundLock.Unlock()
 

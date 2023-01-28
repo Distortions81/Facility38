@@ -3,7 +3,14 @@ package util
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"bytes"
+	"compress/zlib"
+	"fmt"
+	"io/ioutil"
+	"log"
 	"math"
+
+	"github.com/dustin/go-humanize"
 )
 
 func RotCW(dir int) int {
@@ -110,4 +117,36 @@ func ReverseDirection(dir int) int {
 	}
 
 	return consts.DIR_NONE
+}
+
+func UncompressZip(data []byte) []byte {
+
+	b := bytes.NewReader(data)
+
+	log.Println("Uncompressing: ", humanize.Bytes(uint64(len(data))))
+	z, err := zlib.NewReader(b)
+	if err != nil {
+		log.Println("Error: ", err)
+		return nil
+	}
+	defer z.Close()
+
+	p, err := ioutil.ReadAll(z)
+	if err != nil {
+		log.Println("Error: ", err)
+		return nil
+	}
+	log.Print("Uncompressed: ", humanize.Bytes(uint64(len(p))))
+	return p
+}
+
+func CompressZip(data []byte) []byte {
+	var b bytes.Buffer
+	w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
+	if err != nil {
+		fmt.Println("ERROR: gz failure:", err)
+	}
+	w.Write(data)
+	w.Close()
+	return b.Bytes()
 }

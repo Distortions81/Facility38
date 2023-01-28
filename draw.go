@@ -21,7 +21,14 @@ const (
 	MAX_RENDER_NS          = 1000000000 / 360
 )
 
-var toolBG *ebiten.Image
+var (
+	toolBG *ebiten.Image
+
+	/* Visible Chunk Cache */
+	CameraList [consts.MAX_DRAW_CHUNKS]*glob.MapChunk
+	XYList     [consts.MAX_DRAW_CHUNKS]glob.XY
+	ListTop    int
+)
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
@@ -54,7 +61,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
-		glob.ListTop = 0
+		ListTop = 0
 
 		for chunkPos, chunk := range glob.WorldMap {
 
@@ -70,15 +77,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk.LastSaw = time.Now()
 
 			/* Is this chunk on the screen? */
-			if chunkPos.X < screenStartX || chunkPos.X > screenEndX || chunkPos.Y < screenStartY || chunkPos.Y > screenEndY {
-				//chunk.Visible = false
+			if chunkPos.X < screenStartX ||
+				chunkPos.X > screenEndX ||
+				chunkPos.Y < screenStartY ||
+				chunkPos.Y > screenEndY {
 				continue
 			}
 
-			if glob.ListTop < consts.MAX_DRAW_CHUNKS {
-				glob.CameraList[glob.ListTop] = chunk
-				glob.XYList[glob.ListTop] = chunkPos
-				glob.ListTop++
+			if ListTop < consts.MAX_DRAW_CHUNKS {
+				CameraList[ListTop] = chunk
+				XYList[ListTop] = chunkPos
+				ListTop++
 			} else {
 				break
 			}
@@ -88,11 +97,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw world */
 	if glob.ZoomScale < consts.MiniMapLevel {
-		//Pixel Mode
+		/* Pixel Mode */
 		screen.Fill(glob.ColorCharcol)
 
-		for i := 0; i < glob.ListTop; i++ {
-			chunk := glob.CameraList[i]
+		for i := 0; i < ListTop; i++ {
+			chunk := CameraList[i]
 
 			/* Draw objects in chunk */
 			for objPos, obj := range chunk.WObject {
@@ -116,10 +125,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 
 	} else {
-		//screen.Fill(glob.ColorBlack)
-		for i := 0; i < glob.ListTop; i++ {
-			chunkPos := glob.XYList[i]
-			chunk := glob.CameraList[i]
+		for i := 0; i < ListTop; i++ {
+			chunkPos := XYList[i]
+			chunk := CameraList[i]
 
 			/* Draw ground */
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
@@ -159,9 +167,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 
 		/* Draw overlays */
-		for i := 0; i < glob.ListTop; i++ {
+		for i := 0; i < ListTop; i++ {
 
-			for objPos, obj := range glob.CameraList[i].WObject {
+			for objPos, obj := range CameraList[i].WObject {
 
 				/* Is this object on the screen? */
 				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStarty || objPos.Y > camEndY {
@@ -247,7 +255,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen,
 		fmt.Sprintf("FPS: %.2f,UPS: %.2f Work: Workers: %v, Job-size: %v, Active Objects: %v, Chunks-Drawn: %v (v%v-%v-%v)",
 			ebiten.ActualFPS(), 1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), glob.ListTop,
+			objects.NumWorkers, humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""), humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""), ListTop,
 			consts.Version, consts.Build, glob.DetectedOS),
 		0, glob.ScreenHeight-20)
 

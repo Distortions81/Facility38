@@ -3,6 +3,7 @@ package objects
 import (
 	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/save"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -19,9 +20,9 @@ var (
 
 	UIObjsTypes = []*glob.ObjType{
 		//Ui Only
-		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: glob.SaveGame,
+		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: save.SaveGame,
 			Symbol: "SAVE", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorWhite},
-		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: glob.LoadGame,
+		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: save.LoadGame,
 			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite},
 	}
 

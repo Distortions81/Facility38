@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"image/color"
 	"log"
-	"os"
 	"runtime"
 	"runtime/debug"
 
@@ -29,7 +28,6 @@ func NewGame() *Game {
 	debug.SetMemoryLimit(consts.MemoryLimit)
 
 	noise.InitPerlin()
-	//objects.DumpItems()
 
 	/* Detect logical CPUs, failing that use numcpu */
 	var lCPUs int = runtime.NumCPU()
@@ -42,7 +40,7 @@ func NewGame() *Game {
 	}
 	fmt.Println("Virtual CPUs:", lCPUs)
 
-	//Logical CPUs
+	/* Logical CPUs */
 	cdat, cerr := cpu.Counts(false)
 
 	if cerr == nil {
@@ -131,7 +129,7 @@ func NewGame() *Game {
 
 			/* If there is a image name, attempt to fetch it */
 			if icon.ImagePath != "" {
-				img, err := data.GetSpriteImage(true, consts.GfxDir+icon.ImagePath)
+				img, err := data.GetSpriteImage(icon.ImagePath)
 				if err == nil {
 					timg = img
 					found = true
@@ -158,7 +156,7 @@ func NewGame() *Game {
 	objects.RenderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
 	glob.TempChunkImage = tChunk.GroundImg
 
-	toolBG = ebiten.NewImage(64, 64)
+	toolBG = ebiten.NewImage(consts.ToolBarScale, consts.ToolBarScale)
 	toolBG.Fill(glob.ColorVeryDarkGray)
 
 	/* Make default toolbar */
@@ -216,7 +214,6 @@ func NewGame() *Game {
 		if consts.LoadTest {
 
 			fmt.Printf("Test items: Rows: %v,  Cols: %v,  Total: %v\n", rows, columns, humanize.SIWithDigits(float64(total), 2, ""))
-			//time.Sleep(time.Second * 3)
 
 			ty := int(consts.XYCenter) - (rows)
 			cols := 0
@@ -284,15 +281,15 @@ func NewGame() *Game {
 		}
 
 		str := "Press enter to continue..."
-		txt, err := os.ReadFile("intro.txt")
-		if err == nil {
-			str = string(txt)
+		str, err = data.GetText("intro")
+		if err != nil {
+			panic(err)
 		}
 		tRect := text.BoundString(glob.BootFont, str)
 		glob.BootImage.Fill(glob.ColorCharcol)
 		text.Draw(glob.BootImage, str, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
 
-		//Skip help for benchmark
+		/* Skip help for benchmark */
 		if consts.NoInterface {
 			glob.DrewMap = true
 			glob.BootImage.Dispose()
