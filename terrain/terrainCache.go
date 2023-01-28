@@ -83,7 +83,7 @@ func TerrainCacheDaemon() {
 		glob.WorldMapLock.Unlock()
 
 		/* If we zoom out, decallocate everything */
-		if glob.ZoomScale < consts.MiniMapLevel {
+		if glob.ZoomScale < consts.MapPixelThreshold {
 			for _, chunk := range tmpWorld {
 				killTerrainCache(chunk)
 			}
