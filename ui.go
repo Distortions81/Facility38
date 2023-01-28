@@ -85,18 +85,18 @@ func getShiftToggle() {
 }
 
 func handleToolbar(rotate bool) bool {
-	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
+	uipix := float64(ToolbarMax * int(consts.ToolBarScale))
 	if glob.MouseX <= uipix+consts.ToolBarOffsetX {
 		if glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
 			ipos := int((glob.MouseX - consts.ToolBarOffsetX) / consts.ToolBarScale)
-			item := objects.ToolbarItems[ipos].OType
+			item := ToolbarItems[ipos].OType
 
 			/* Actions */
 			if item.ToolbarAction != nil {
 				item.ToolbarAction()
 			} else {
-				if rotate && objects.GameObjTypes[objects.SelectedItemType] != nil {
-					dir := objects.GameObjTypes[objects.SelectedItemType].Direction
+				if rotate && objects.GameObjTypes[SelectedItemType] != nil {
+					dir := objects.GameObjTypes[SelectedItemType].Direction
 					if gShiftPressed {
 						dir = dir - 1
 						if dir < consts.DIR_NORTH {
@@ -108,11 +108,14 @@ func handleToolbar(rotate bool) bool {
 							dir = consts.DIR_NORTH
 						}
 					}
-					objects.GameObjTypes[objects.SelectedItemType].Direction = dir
-				} else if objects.SelectedItemType == objects.ToolbarItems[ipos].OType.TypeI {
-					objects.SelectedItemType = 0
+					objects.GameObjTypes[SelectedItemType].Direction = dir
+					DrawToolbar()
+				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI {
+					SelectedItemType = 0
+					DrawToolbar()
 				} else {
-					objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
+					SelectedItemType = ToolbarItems[ipos].OType.TypeI
+					DrawToolbar()
 				}
 			}
 			gMouseHeld = false
@@ -289,8 +292,9 @@ func createWorldObjects() {
 							if !bypass {
 								go func(o *glob.WObject, pos glob.XY) {
 									objects.ListLock.Lock()
-									dir := objects.GameObjTypes[objects.SelectedItemType].Direction
-									objects.ObjectHitlistAdd(o, objects.SelectedItemType, &pos, false, dir)
+									dir := objects.GameObjTypes[SelectedItemType].Direction
+									objects.ObjectHitlistAdd(o, SelectedItemType, &pos, false, dir)
+									DrawToolbar()
 									objects.ListLock.Unlock()
 								}(o, pos)
 

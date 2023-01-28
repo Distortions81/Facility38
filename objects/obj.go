@@ -30,21 +30,6 @@ var (
 	wg sizedwaitgroup.SizedWaitGroup
 )
 
-func init() {
-
-	/* Make default toolbar */
-	ToolbarMax = 0
-	for spos, stype := range SubTypes {
-		if spos == consts.ObjSubUI || spos == consts.ObjSubGame {
-			for _, otype := range stype {
-				ToolbarMax++
-				ToolbarItems = append(ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
-
-			}
-		}
-	}
-}
-
 func ObjUpdateDaemon() {
 	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)

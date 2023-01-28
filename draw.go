@@ -282,15 +282,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
-	drawToolItems(screen)
+	screen.DrawImage(toolbarCache, nil)
 
 	/* Toolbar tool tip */
-	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
+	uipix := float64(ToolbarMax * int(consts.ToolBarScale))
 	if glob.MouseX <= uipix+consts.ToolBarOffsetX && glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
 		val := int(glob.MouseX / consts.ToolBarScale)
-		if val >= 0 && val < objects.ToolbarMax {
+		if val >= 0 && val < ToolbarMax {
 
-			item := objects.ToolbarItems[int(glob.MouseX/consts.ToolBarScale)]
+			item := ToolbarItems[int(glob.MouseX/consts.ToolBarScale)]
 
 			toolTip := fmt.Sprintf("%v", item.OType.Name)
 			tRect := text.BoundString(glob.ToolTipFont, toolTip)

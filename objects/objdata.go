@@ -11,13 +11,6 @@ import (
 )
 
 var (
-
-	//Automatically set
-	ToolbarMax int = 0
-
-	SelectedItemType int = 0
-	ToolbarItems         = []glob.ToolbarItem{}
-
 	UIObjsTypes = []*glob.ObjType{
 		//Ui Only
 		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: save.SaveGame,

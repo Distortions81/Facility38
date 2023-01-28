@@ -82,6 +82,8 @@ func loadSprites() {
 	}
 
 	terrain.SetupTerrainCache()
+	DrawToolbar()
+
 	glob.SpritesLoaded = true
 	go terrain.TerrainCacheDaemon()
 }
