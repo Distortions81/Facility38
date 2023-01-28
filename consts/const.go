@@ -12,6 +12,7 @@ const (
 	GfxDir  = "gfx/"
 
 	//Debug
+	MemoryLimit = 1024 * 1024 * 1024 * 20
 	NoInterface = false
 	UPSBench    = false
 	LoadTest    = true

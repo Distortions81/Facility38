@@ -26,7 +26,7 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	debug.SetMemoryLimit(1024 * 1024 * 1024 * 20)
+	debug.SetMemoryLimit(consts.MemoryLimit)
 
 	noise.InitPerlin()
 	//objects.DumpItems()
@@ -56,7 +56,7 @@ func NewGame() *Game {
 
 	objects.NumWorkers = lCPUs
 
-	/* Set up ebiten */
+	/* Set up ebiten and window */
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 	ebiten.SetScreenFilterEnabled(true)
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()

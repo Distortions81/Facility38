@@ -93,7 +93,6 @@ var (
 	/* Used for startup screen */
 	DrewMap    bool = false
 	DetectedOS string
-	StatusStr  string
 
 	/* Visible Chunk Cache */
 	CameraList [consts.MAX_DRAW_CHUNKS]*MapChunk
