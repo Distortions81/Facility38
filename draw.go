@@ -135,12 +135,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	makeVisList()
 
-	/* Draw icon mode */
+	chunksDrawn := 0
+
+	/* Draw pixel mode */
 	if glob.ZoomScale < consts.MapPixelThreshold {
 		screen.Fill(glob.ColorCharcol)
 
 		for i := 0; i < gVisChunkTop; i++ {
 			chunk := gVisChunks[i]
+			if chunk.NumObjects <= 0 {
+				continue
+			}
+			chunksDrawn++
 
 			/* Draw objects in chunk */
 			for objPos, obj := range chunk.WObject {
@@ -155,10 +161,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}
 		}
 
-	} else { /* Draw pixel mode */
+	} else { /* Draw icon mode */
 		for i := 0; i < gVisChunkTop; i++ {
 			chunkPos := gVisChunkPos[i]
 			chunk := gVisChunks[i]
+			chunksDrawn++
 
 			/* Draw ground */
 			chunk.GroundLock.Lock()
@@ -278,7 +285,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			objects.NumWorkers,
 			humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""),
 			humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
-			gVisChunkTop),
+			chunksDrawn),
 		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
