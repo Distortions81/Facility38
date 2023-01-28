@@ -38,7 +38,7 @@ const (
 	CacheMax             = 100
 )
 
-func TickTockLoop() {
+func TickTockDaemon() {
 	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)
 
@@ -60,10 +60,10 @@ func TickTockLoop() {
 		TockWorkSize = TockCount / NumWorkers
 
 		ListLock.Lock()
-		runTocks() //Process objects
-		runTicks() //Move external
-		runEventHitlist()
-		runObjectHitlist()
+		runTocks()         //Process objects
+		runTicks()         //Move external
+		runEventHitlist()  //Queue to add/remove events
+		runObjectHitlist() //Queue to add/remove objects
 		ListLock.Unlock()
 
 		if !consts.UPSBench {
@@ -77,7 +77,7 @@ func TickTockLoop() {
 
 }
 
-func KillChunkGround(chunk *glob.MapChunk) {
+func killTerrainCache(chunk *glob.MapChunk) {
 	if chunk.UsingTemporary || chunk.GroundImg == nil {
 		return
 	}
@@ -88,7 +88,7 @@ func KillChunkGround(chunk *glob.MapChunk) {
 	chunk.GroundLock.Unlock()
 }
 
-func CacheCleanup() {
+func TerrainCacheDaemon() {
 	time.Sleep(time.Second)
 	wg := sizedwaitgroup.New(NumWorkers)
 
@@ -100,7 +100,7 @@ func CacheCleanup() {
 		/* If we zoom out, decallocate everything */
 		if glob.ZoomScale < consts.MiniMapLevel {
 			for _, chunk := range tmpWorld {
-				KillChunkGround(chunk)
+				killTerrainCache(chunk)
 			}
 			continue
 		}
@@ -120,7 +120,7 @@ func CacheCleanup() {
 				} else {
 					if NumChunkImage > CacheMax &&
 						time.Since(chunk.LastSaw) > ChunkGroundCacheTime {
-						KillChunkGround(chunk)
+						killTerrainCache(chunk)
 					}
 				}
 
@@ -133,7 +133,7 @@ func CacheCleanup() {
 	}
 }
 
-func TickObj(o *glob.WObject) {
+func tickObj(o *glob.WObject) {
 
 	if o.OutputObj != nil {
 		revDir := util.ReverseDirection(o.Direction)
@@ -177,7 +177,7 @@ func runTicks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				TickObj(TickList[i].Target)
+				tickObj(TickList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)

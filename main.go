@@ -295,10 +295,10 @@ func NewGame() *Game {
 			glob.BootImage.Dispose()
 		}
 
-		go objects.TickTockLoop()
+		go objects.TickTockDaemon()
 	}()
 
-	go objects.CacheCleanup()
+	go objects.TerrainCacheDaemon()
 
 	/* Initialize the game */
 	return &Game{}

@@ -120,7 +120,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				objCamPosY := objOffY * glob.ZoomScale
 
 				/* Time to draw it */
-				DrawObject(screen, objCamPosX, objCamPosY, obj, true)
+				drawObject(screen, objCamPosX, objCamPosY, obj, true)
 			}
 		}
 
@@ -162,7 +162,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				objCamPosY := objOffY * glob.ZoomScale
 
 				/* Time to draw it */
-				DrawObject(screen, objCamPosX, objCamPosY, obj, false)
+				drawObject(screen, objCamPosX, objCamPosY, obj, false)
 			}
 		}
 
@@ -261,7 +261,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw toolbar */
 	for i := 0; i < objects.ToolbarMax; i++ {
-		DrawToolItem(screen, i)
+		drawToolItem(screen, i)
 	}
 
 	/* Toolbar tool tip */
@@ -340,7 +340,7 @@ func matTween(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, s
 	}
 }
 
-func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject, miniMap bool) {
+func drawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject, miniMap bool) {
 
 	/* Draw sprite */
 	if obj.TypeP.Image == nil {
@@ -373,7 +373,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject, m
 
 }
 
-func DrawToolItem(screen *ebiten.Image, pos int) {
+func drawToolItem(screen *ebiten.Image, pos int) {
 	item := objects.ToolbarItems[pos]
 
 	x := float64(consts.ToolBarScale * int(pos))

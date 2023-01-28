@@ -32,7 +32,7 @@ var (
 			Name:        "Basic miner",
 			TypeI:       consts.ObjTypeBasicMiner,
 			Size:        glob.XY{X: 1, Y: 1},
-			UpdateObj:   MinerUpdate,
+			UpdateObj:   minerUpdate,
 			MinerKGTock: 1,
 			CapacityKG:  500,
 			Symbol:      "MINE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
@@ -45,7 +45,7 @@ var (
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 20,
 			Rotatable:  true,
-			UpdateObj:  BeltUpdate,
+			UpdateObj:  beltUpdate,
 			Symbol:     "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			HasMatInput:  true,
 			HasMatOutput: true},
@@ -55,7 +55,7 @@ var (
 			TypeI:     consts.ObjTypeBasicSplit,
 			Size:      glob.XY{X: 1, Y: 1},
 			Rotatable: true,
-			UpdateObj: SplitterUpdate,
+			UpdateObj: splitterUpdate,
 			Symbol:    "SPLIT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			HasMatInput:  true,
 			HasMatOutput: true},
@@ -66,7 +66,7 @@ var (
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 5000,
 			Symbol:     "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:   BoxUpdate,
+			UpdateObj:   boxUpdate,
 			HasMatInput: true},
 
 		{ImagePath: "world-obj/basic-smelter-1.png",
@@ -75,7 +75,7 @@ var (
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 50,
 			Symbol:     "SMELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:    SmelterUpdate,
+			UpdateObj:    smelterUpdate,
 			HasMatInput:  true,
 			HasMatOutput: true},
 
@@ -84,7 +84,7 @@ var (
 			TypeI:  consts.ObjTypeBasicIronCaster,
 			Size:   glob.XY{X: 1, Y: 1},
 			Symbol: "CAST", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:    IronCasterUpdate,
+			UpdateObj:    ironCasterUpdate,
 			HasMatInput:  true,
 			HasMatOutput: true},
 
@@ -94,7 +94,7 @@ var (
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 500,
 			Symbol:     "BOIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:    SteamEngineUpdate,
+			UpdateObj:    steamEngineUpdate,
 			HasMatInput:  true,
 			HasMatOutput: true},
 
@@ -104,7 +104,7 @@ var (
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 500,
 			Symbol:     "STEAM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:   SteamEngineUpdate,
+			UpdateObj:   steamEngineUpdate,
 			HasMatInput: true},
 	}
 

@@ -1,0 +1,7 @@
+Put all object create/delete/event create/delete into obj.go
+Possibly put chunk create into obj.go
+Replace object data with json embed
+Attempt to move more out of const and glob
+Auto-versioning
+
+Make multi-language support for all text
