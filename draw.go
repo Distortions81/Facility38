@@ -201,8 +201,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					objCamPosX := objOffX * glob.ZoomScale
 					objCamPosY := objOffY * glob.ZoomScale
 
-					op.GeoM.Reset()
 					iSize := obj.TypeP.Image.Bounds()
+					op.GeoM.Reset()
 					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 					op.GeoM.Translate(objCamPosX, objCamPosY)
 
@@ -229,14 +229,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					objCamPosX := objOffX * glob.ZoomScale
 					objCamPosY := objOffY * glob.ZoomScale
 
-					op.GeoM.Reset()
 					iSize := obj.TypeP.Image.Bounds()
+					op.GeoM.Reset()
 					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 					op.GeoM.Translate(objCamPosX, objCamPosY)
 
 					if obj.TypeP.HasMatOutput {
-						op.GeoM.Reset()
 						iSize := obj.TypeP.Image.Bounds()
+						op.GeoM.Reset()
 						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 						/* Draw Arrow */
@@ -251,9 +251,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							obj.OutputObj.InputBuffer[revDir] != nil && obj.OutputObj.InputBuffer[revDir].Amount > 0 {
 
 							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-							op.GeoM.Reset()
 
 							iSize := obj.TypeP.Image.Bounds()
+							op.GeoM.Reset()
 							op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset, cBlockedIndicatorOffset)
 							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
