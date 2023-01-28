@@ -13,26 +13,26 @@ import (
 
 var (
 	/* Touch vars */
-	gPrevTouchX int
-	gPrevTouchY int
-	gPrevTouchA int
-	gPrevTouchB int
-	gPrevPinch  float64
+	gPrevTouchX   int
+	gPrevTouchY   int
+	gPrevTouchA   int
+	gPrevTouchB   int
+	gPrevPinch    float64
+	gTouchPressed bool
+	gPinchPressed bool
+	gTouchZoom    float64
 
 	/* UI state */
-	gMouseHeld         bool
-	gMouseRightPressed bool
-	gTouchPressed      bool
-	gPinchPressed      bool
-	gShiftPressed      bool
-	gClickCaptured     bool
+	gMouseHeld      bool
+	gRightMouseHeld bool
+	gShiftPressed   bool
+	gClickCaptured  bool
 
 	/* Mouse vars */
-	gPrevMouseX float64
-	gPrevMouseY float64
-	gZoomMouse  float64
 	gMouseX     float64
 	gMouseY     float64
+	gPrevMouseX float64
+	gPrevMouseY float64
 
 	/* Last object we performed an action on */
 	gLastActionPosition glob.XY
@@ -324,7 +324,7 @@ func createWorldObjects() {
 
 func moveCamera() {
 	/* Mouse pan */
-	if gMouseRightPressed {
+	if gRightMouseHeld {
 		if !glob.InitMouse {
 			gPrevMouseX = gMouseX
 			gPrevMouseY = gMouseY
@@ -356,9 +356,9 @@ func moveCamera() {
 
 func getRightMouseClicks() {
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
-		gMouseRightPressed = false
+		gRightMouseHeld = false
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
-		gMouseRightPressed = true
+		gRightMouseHeld = true
 	}
 }
 
