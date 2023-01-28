@@ -13,30 +13,33 @@ import (
 
 var (
 	/* Touch vars */
-	gPrevTouchX int     = 0
-	gPrevTouchY int     = 0
-	gPrevTouchA int     = 0
-	gPrevTouchB int     = 0
-	gPrevPinch  float64 = 0
+	gPrevTouchX int
+	gPrevTouchY int
+	gPrevTouchA int
+	gPrevTouchB int
+	gPrevPinch  float64
 
 	/* UI state */
-	gMousePressed      bool = false
-	gMouseRightPressed bool = false
-	gTouchPressed      bool = false
-	gPinchPressed      bool = false
-	gShiftPressed      bool = false
+	gMouseHeld         bool
+	gMouseRightPressed bool
+	gTouchPressed      bool
+	gPinchPressed      bool
+	gShiftPressed      bool
+	gClickCaptured     bool
 
 	/* Mouse vars */
-	gPrevMouseX float64 = 0
-	gPrevMouseY float64 = 0
-	gZoomMouse  float64 = 0.0
+	gPrevMouseX float64
+	gPrevMouseY float64
+	gZoomMouse  float64
+	gMouseX     float64
+	gMouseY     float64
 
 	/* Last object we performed an action on */
 	gLastActionPosition glob.XY
 	gLastActionTime     time.Time
-	gBuildActionDelay   time.Duration = 0
-	gRemoveActionDelay  time.Duration = 0
-	gLastActionType     int           = 0
+	gBuildActionDelay   time.Duration
+	gRemoveActionDelay  time.Duration
+	gLastActionType     int
 )
 
 const (
@@ -44,6 +47,42 @@ const (
 	cDragActionTypeBuild  = 1
 	cDragActionTypeDelete = 2
 )
+
+/* Input handler */
+func (g *Game) Update() error {
+
+	/* Game start screen */
+	if !glob.PlayerReady && inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		glob.PlayerReady = true
+	}
+	if !glob.AllowUI {
+		return nil
+	}
+	gClickCaptured = false
+
+	getMouseClicks()
+	getRightMouseClicks()
+	getShiftToggle()
+	getMousePos()
+
+	//touchScreenHandle()
+	zoomHandle()
+
+	createWorldObjects()
+	moveCamera()
+	toggleOverlays()
+	rotateWorldObjects()
+
+	return nil
+}
+
+func getShiftToggle() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
+		gShiftPressed = true
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyShift) {
+		gShiftPressed = false
+	}
+}
 
 func handleToolbar(rotate bool) bool {
 	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
@@ -76,29 +115,14 @@ func handleToolbar(rotate bool) bool {
 					objects.SelectedItemType = objects.ToolbarItems[ipos].OType.TypeI
 				}
 			}
-			gMousePressed = false
+			gMouseHeld = false
 			return true
 		}
 	}
 	return false
 }
 
-/* Ebiten main loop */
-func (g *Game) Update() error {
-
-	if !glob.PlayerReady && inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		glob.PlayerReady = true
-	}
-	if !glob.AllowUI {
-		return nil
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
-		gShiftPressed = true
-	} else if inpututil.IsKeyJustReleased(ebiten.KeyShift) {
-		gShiftPressed = false
-	}
-
+func touchScreenHandle() {
 	/* Touchscreen input */
 	tids := ebiten.TouchIDs()
 
@@ -172,7 +196,9 @@ func (g *Game) Update() error {
 	} else {
 		gTouchPressed = false
 	}
+}
 
+func zoomHandle() {
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
@@ -193,32 +219,40 @@ func (g *Game) Update() error {
 		glob.CameraDirty = true
 	}
 
+}
+
+func getMousePos() {
 	/* Mouse position */
 	intx, inty := ebiten.CursorPosition()
-	mx := float64(intx)
-	my := float64(inty)
-	glob.MouseX = mx
-	glob.MouseY = my
-	var captured bool = false
+	gMouseX = float64(intx)
+	gMouseY = float64(inty)
+	glob.MouseX = gMouseX
+	glob.MouseY = gMouseY
+	gClickCaptured = false
 
+}
+
+func getMouseClicks() {
 	/* Mouse clicks */
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		gMousePressed = false
+		gMouseHeld = false
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		gMousePressed = true
+		gMouseHeld = true
 		gLastActionPosition.X = 0
 		gLastActionPosition.Y = 0
 		gLastActionType = cDragActionTypeNone
 
-		captured = handleToolbar(false)
+		gClickCaptured = handleToolbar(false)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-		captured = handleToolbar(true)
+		gClickCaptured = handleToolbar(true)
 	}
+}
 
-	if gMousePressed {
+func createWorldObjects() {
+	if gMouseHeld {
 
 		/* UI area */
-		if !captured {
+		if !gClickCaptured {
 			/* Get mouse position on world */
 			worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 			worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
@@ -286,23 +320,19 @@ func (g *Game) Update() error {
 			}
 		}
 	}
+}
 
-	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
-		gMouseRightPressed = false
-	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
-		gMouseRightPressed = true
-	}
-
+func moveCamera() {
 	/* Mouse pan */
 	if gMouseRightPressed {
 		if !glob.InitMouse {
-			gPrevMouseX = mx
-			gPrevMouseY = my
+			gPrevMouseX = gMouseX
+			gPrevMouseY = gMouseY
 			glob.InitMouse = true
 		}
 
-		glob.CameraX = glob.CameraX + (float64(gPrevMouseX-mx) / glob.ZoomScale)
-		glob.CameraY = glob.CameraY + (float64(gPrevMouseY-my) / glob.ZoomScale)
+		glob.CameraX = glob.CameraX + (float64(gPrevMouseX-gMouseX) / glob.ZoomScale)
+		glob.CameraY = glob.CameraY + (float64(gPrevMouseY-gMouseY) / glob.ZoomScale)
 		glob.CameraDirty = true
 
 		/* Don't let camera go beyond a reasonable point */
@@ -317,12 +347,22 @@ func (g *Game) Update() error {
 			glob.CameraY = consts.XYMin
 		}
 
-		gPrevMouseX = mx
-		gPrevMouseY = my
+		gPrevMouseX = gMouseX
+		gPrevMouseY = gMouseY
 	} else {
 		glob.InitMouse = false
 	}
+}
 
+func getRightMouseClicks() {
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
+		gMouseRightPressed = false
+	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
+		gMouseRightPressed = true
+	}
+}
+
+func toggleOverlays() {
 	/* Toggle info overlay */
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
 		if glob.ShowInfoLayer {
@@ -331,9 +371,11 @@ func (g *Game) Update() error {
 			glob.ShowInfoLayer = true
 		}
 	}
+}
 
+func rotateWorldObjects() {
 	/* Rotate object */
-	if !captured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
+	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		/* Get mouse position on world */
 		worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
 		worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
@@ -355,6 +397,4 @@ func (g *Game) Update() error {
 			objects.LinkObj(pos, o)
 		}
 	}
-
-	return nil
 }
