@@ -10,36 +10,48 @@ const (
 	//MPL-2.0 License
 	Version = "009"              //increment
 	Build   = "01.27.2023-0459p" //mmddyyyy-hhmm(p)
-	Wasm    = "js"               //Detect wasm/js
+
+	//Files and directories
+	Wasm    = "js" //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 
+	//Debug
 	NoInterface = false
 	UPSBench    = false
 	LoadTest    = true
 	TestObjects = 100 //Make (approx) this number items
 
+	//Perlin noise physical scale
 	NoiseScale = 100.0
 
+	//For graphics rotation
 	NinetyDeg = math.Pi / 2
 
+	//Sprite offsets
 	BlockedIndicatorOffset = 0
 
+	//UI action modes
 	DragActionTypeNone   = 0
 	DragActionTypeBuild  = 1
 	DragActionTypeDelete = 2
 
+	//Limit numbers of chunks that can be drawn
+	//Pre-allocated
 	MAX_DRAW_CHUNKS = 10000
 
 	/* FPS limiter, 360fps */
 	MAX_RENDER_NS = 1000000000 / 360
 
+	//Define world center
 	MaxUint  = ^uint32(0)
 	XYCenter = float64(uint32(MaxUint>>1) / 2)
 
+	//Chunk ground texture caching
 	ChunkGroundCacheTime = time.Second * 15
 	CacheMax             = 100
 
+	/* Game datastrures */
 	//Subtypes
 	ObjSubUI   = 0
 	ObjSubGame = 1
@@ -76,7 +88,7 @@ const (
 
 	MAT_MAX = 11
 
-	//Item Symbol
+	//Placeholder texture words render offset
 	SymbOffX = 0
 	SymbOffY = 10
 
@@ -116,6 +128,7 @@ const (
 	COAL_KWH_MTON      = 1927
 	TIMESCALE          = 60 //1 Day passes in 24 minutes
 
+	//Event queue types
 	QUEUE_TYPE_NONE = 0
 	QUEUE_TYPE_TOCK = 1
 	QUEUE_TYPE_TICK = 2
