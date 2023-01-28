@@ -11,6 +11,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
+const (
+	DragActionTypeNone   = 0
+	DragActionTypeBuild  = 1
+	DragActionTypeDelete = 2
+)
+
 func handleToolbar(rotate bool) bool {
 	//Toolbar
 	uipix := float64(objects.ToolbarMax * int(consts.ToolBarScale))
@@ -182,7 +188,7 @@ func (g *Game) Update() error {
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		glob.MousePressed = true
 		glob.LastActionPosition = glob.XYEmpty
-		glob.LastActionType = consts.DragActionTypeNone
+		glob.LastActionType = DragActionTypeNone
 
 		captured = handleToolbar(false)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyR) {
@@ -209,7 +215,7 @@ func (g *Game) Update() error {
 					if o == nil {
 
 						//Prevent flopping between delete and create when dragging
-						if glob.LastActionType == consts.DragActionTypeBuild || glob.LastActionType == consts.DragActionTypeNone {
+						if glob.LastActionType == DragActionTypeBuild || glob.LastActionType == DragActionTypeNone {
 
 							/*
 								size := objects.GameObjTypes[objects.SelectedItemType].Size
@@ -235,12 +241,12 @@ func (g *Game) Update() error {
 								}(o, pos)
 
 								glob.LastActionPosition = pos
-								glob.LastActionType = consts.DragActionTypeBuild
+								glob.LastActionType = DragActionTypeBuild
 							}
 						}
 					} else {
 						if time.Since(glob.LastActionTime) > glob.RemoveActionDelay {
-							if glob.LastActionType == consts.DragActionTypeDelete || glob.LastActionType == consts.DragActionTypeNone {
+							if glob.LastActionType == DragActionTypeDelete || glob.LastActionType == DragActionTypeNone {
 
 								if o != nil {
 									go func(o *glob.WObject, pos glob.XY) {
@@ -250,7 +256,7 @@ func (g *Game) Update() error {
 									}(o, pos)
 									//Action completed, save position and time
 									glob.LastActionPosition = pos
-									glob.LastActionType = consts.DragActionTypeDelete
+									glob.LastActionType = DragActionTypeDelete
 								}
 							}
 						}
@@ -280,15 +286,15 @@ func (g *Game) Update() error {
 		glob.CameraDirty = true
 
 		//Max of 0 to 4,294,967,295
-		if glob.CameraX > float64(consts.MaxUint) {
-			glob.CameraX = float64(consts.MaxUint)
-		} else if glob.CameraX < 0 {
-			glob.CameraX = 0
+		if glob.CameraX > float64(consts.XYMax) {
+			glob.CameraX = float64(consts.XYMax)
+		} else if glob.CameraX < 1 {
+			glob.CameraX = 1
 		}
-		if glob.CameraY > float64(consts.MaxUint) {
-			glob.CameraY = float64(consts.MaxUint)
-		} else if glob.CameraY < 0 {
-			glob.CameraY = 0
+		if glob.CameraY > float64(consts.XYMax) {
+			glob.CameraY = float64(consts.XYMax)
+		} else if glob.CameraY < 1 {
+			glob.CameraY = 1
 		}
 
 		glob.PrevMouseX = mx

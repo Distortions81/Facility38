@@ -1,10 +1,5 @@
 package consts
 
-import (
-	"math"
-	"time"
-)
-
 const (
 	//Code written by CarlOtto81@gmail.com
 	//MPL-2.0 License
@@ -22,35 +17,17 @@ const (
 	LoadTest    = true
 	TestObjects = 100 //Make (approx) this number items
 
-	//Perlin noise physical scale
-	NoiseScale = 100.0
-
-	//For graphics rotation
-	NinetyDeg = math.Pi / 2
-
-	//Sprite offsets
-	BlockedIndicatorOffset = 0
-
-	//UI action modes
-	DragActionTypeNone   = 0
-	DragActionTypeBuild  = 1
-	DragActionTypeDelete = 2
-
 	//Limit numbers of chunks that can be drawn
 	//Pre-allocated
 	MAX_DRAW_CHUNKS = 10000
 
-	/* FPS limiter, 360fps */
-	MAX_RENDER_NS = 1000000000 / 360
-
 	//Define world center
-	MaxUint  = ^uint32(0)
-	XYCenter = float64(uint32(MaxUint>>1) / 2)
+	XYCenter = 5000000
+	XYMax    = XYCenter * 2
+	XYMin    = 1
 
 	//Chunk ground texture caching
-	ChunkGroundCacheTime = time.Second * 15
-	CacheMax             = 100
-	CPreCache            = 2 //Precache radius
+	CPreCache = 2 //Precache radius
 
 	/* Game datastrures */
 	//Subtypes

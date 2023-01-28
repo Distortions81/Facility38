@@ -1,7 +1,6 @@
 package noise
 
 import (
-	"GameTest/consts"
 	"math/rand"
 	"time"
 
@@ -9,9 +8,11 @@ import (
 )
 
 const (
-	alpha = 2.0
-	beta  = 2.0
-	n     = 3
+	//Perlin noise physical scale
+	NoiseScale = 100.0
+	alpha      = 2.0
+	beta       = 2.0
+	n          = 3
 )
 
 var (
@@ -24,5 +25,5 @@ func InitPerlin() {
 }
 
 func NoiseMap(x, y float64) float64 {
-	return ((per.Noise2D(x/consts.NoiseScale, y/consts.NoiseScale) + 1) / 2.0)
+	return ((per.Noise2D(x/NoiseScale, y/NoiseScale) + 1) / 2.0)
 }

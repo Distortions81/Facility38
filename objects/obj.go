@@ -31,6 +31,11 @@ var (
 	wg sizedwaitgroup.SizedWaitGroup
 )
 
+const (
+	ChunkGroundCacheTime = time.Second * 15
+	CacheMax             = 100
+)
+
 func TickTockLoop() {
 	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)
@@ -111,8 +116,8 @@ func CacheCleanup() {
 						RenderChunkGround(chunk, true, cpos)
 					}
 				} else {
-					if glob.NumChunkImage > consts.CacheMax &&
-						time.Since(chunk.LastSaw) > consts.ChunkGroundCacheTime {
+					if glob.NumChunkImage > CacheMax &&
+						time.Since(chunk.LastSaw) > ChunkGroundCacheTime {
 						KillChunkGround(chunk)
 					}
 				}

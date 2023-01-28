@@ -15,6 +15,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
+const (
+	NinetyDeg              = math.Pi / 2
+	BlockedIndicatorOffset = 0
+	MAX_RENDER_NS          = 1000000000 / 360
+)
+
 var toolBG *ebiten.Image
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -220,7 +226,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							op.GeoM.Reset()
 
 							iSize := obj.TypeP.Image.Bounds()
-							op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-consts.BlockedIndicatorOffset, consts.BlockedIndicatorOffset)
+							op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-BlockedIndicatorOffset, BlockedIndicatorOffset)
 							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
 							screen.DrawImage(img, op)
@@ -309,7 +315,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Limit frame rate */
-	sleepFor := consts.MAX_RENDER_NS - time.Since(drawStart)
+	sleepFor := MAX_RENDER_NS - time.Since(drawStart)
 	if sleepFor > time.Millisecond {
 		time.Sleep(sleepFor)
 	}
@@ -346,7 +352,7 @@ func DrawObject(screen *ebiten.Image, x float64, y float64, obj *glob.WObject, m
 				x := float64(iSize.Size().X / 2)
 				y := float64(iSize.Size().Y / 2)
 				op.GeoM.Translate(-x, -y)
-				op.GeoM.Rotate(consts.NinetyDeg * float64(obj.Direction))
+				op.GeoM.Rotate(NinetyDeg * float64(obj.Direction))
 				op.GeoM.Translate(x, y)
 			}
 
@@ -380,7 +386,7 @@ func DrawToolItem(screen *ebiten.Image, pos int) {
 			x := float64(iSize.Size().X / 2)
 			y := float64(iSize.Size().Y / 2)
 			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(consts.NinetyDeg * float64(item.OType.Direction))
+			op.GeoM.Rotate(NinetyDeg * float64(item.OType.Direction))
 			op.GeoM.Translate(x, y)
 		}
 
