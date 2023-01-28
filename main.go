@@ -115,7 +115,7 @@ func bootScreen(screen *ebiten.Image) {
 
 func detectCPUs() {
 	/* Detect logical CPUs, failing that use numcpu */
-	var lCPUs int = runtime.NumCPU()
+	var lCPUs int = runtime.NumCPU() + 1
 	if lCPUs <= 1 {
 		lCPUs = 1
 	} else if lCPUs > 2 {
