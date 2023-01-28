@@ -9,18 +9,11 @@ Cache toolbar UI, overlay for button press or selection.
 
 https://github.com/Distortions81/GameTest/issues/1
 
-Check on belt blinking when miner replaced
-
 ** Draw a ghost for pending delete/add object **
 make belt juctions
 
-1:
 make occupied map
-
-2:
 instead of maps, use 32 line blocks
-
-3:
 divide up work for every nth tick loads ---------
 
 Game objects need folders and JSON files with links to the sprites and other data.
