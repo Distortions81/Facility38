@@ -2,7 +2,7 @@ package consts
 
 const (
 	Version = "009"
-	Build   = "01.27.2023-0459p" /* mm.dd.yyyy-hhmm(p) */
+	Build   = "01.28.2023-0919" /* mm.dd.yyyy-hhmm(p) */
 
 	/* Files and directories */
 	Wasm    = "js" //Detect wasm/js
