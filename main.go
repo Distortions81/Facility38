@@ -25,6 +25,10 @@ type Game struct {
 /* Main function */
 func main() {
 
+	if consts.UPSBench || consts.LoadTest {
+		glob.PlayerReady = true
+	}
+
 	if runtime.GOARCH == "wasm" {
 		glob.FixWASM = true
 	}

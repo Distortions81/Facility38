@@ -2,6 +2,6 @@
 *.zip
 GameTest
 save.json
-html/main.wasm.gz
+html/*.gz
 internalimages_*/
 out

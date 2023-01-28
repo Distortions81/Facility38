@@ -4,7 +4,7 @@ const (
 	Version = "010"
 
 	/* Files and directories */
-	Wasm    = "js" //Detect wasm/js
+	Wasm    = "js" //Detect wasm/jstrue
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
@@ -12,8 +12,8 @@ const (
 	/* Debug */
 	MemoryLimit = 1024 * 1024 * 1024 * 20
 	UPSBench    = false
-	LoadTest    = false
-	TestObjects = 100 //Make (approx) this number items
+	LoadTest    = true
+	TestObjects = 100000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated */
