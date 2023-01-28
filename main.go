@@ -78,7 +78,6 @@ func loadSprites() {
 
 			icon.Image = timg
 			otype[key] = icon
-			//time.Sleep(time.Millisecond * 100)
 		}
 	}
 
