@@ -50,6 +50,7 @@ const (
 	//Chunk ground texture caching
 	ChunkGroundCacheTime = time.Second * 15
 	CacheMax             = 100
+	CPreCache            = 2 //Precache radius
 
 	/* Game datastrures */
 	//Subtypes

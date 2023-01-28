@@ -53,7 +53,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		for chunkPos, chunk := range glob.WorldMap {
 
 			/* Is this chunk on the screen? */
-			if chunkPos.X+1 < screenStartX || chunkPos.X-1 > screenEndX || chunkPos.Y+1 < screenStartY || chunkPos.Y-1 > screenEndY {
+			if chunkPos.X+consts.CPreCache < screenStartX ||
+				chunkPos.X-consts.CPreCache > screenEndX ||
+				chunkPos.Y+consts.CPreCache < screenStartY ||
+				chunkPos.Y-consts.CPreCache > screenEndY {
 				chunk.Visible = false
 				continue
 			}
