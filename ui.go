@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"GameTest/objects"
 	"GameTest/util"
+	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -68,6 +69,8 @@ func (g *Game) Update() error {
 	getShiftToggle()
 	getMousePos()
 
+	handleQuit()
+
 	//touchScreenHandle()
 	zoomHandle()
 
@@ -77,6 +80,13 @@ func (g *Game) Update() error {
 	rotateWorldObjects()
 
 	return nil
+}
+
+func handleQuit() {
+	if (inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt)) ||
+		inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		os.Exit(0)
+	}
 }
 
 func getShiftToggle() {
@@ -341,21 +351,31 @@ func createWorldObjects() {
 
 func moveCamera() {
 
-	speed := consts.WALKSPEED
+	base := consts.WALKSPEED
 	if gShiftPressed {
-		speed = consts.RUNSPEED
+		base = consts.RUNSPEED
 	}
+	speed := base / (glob.ZoomScale / 4.0)
+
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		glob.CameraY -= speed
+		glob.CameraDirty = true
+
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
 		glob.CameraX -= speed
+		glob.CameraDirty = true
+
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
 		glob.CameraY += speed
+		glob.CameraDirty = true
+
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		glob.CameraX += speed
+		glob.CameraDirty = true
+
 	}
 
 	/* Mouse pan */

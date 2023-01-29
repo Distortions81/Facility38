@@ -7,3 +7,4 @@ Zoom: +/- or scroll-wheel
 Arrows/Overlay toggle: Alt
 Rotate item/toolbar selection: R
 Reverse Rotate: Shift-R
+Quit: ESC or alt-F4
