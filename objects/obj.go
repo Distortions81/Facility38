@@ -257,7 +257,7 @@ func MakeSuperChunk(pos glob.XY) {
 	newPos := pos
 	sChunk := util.GetSuperChunk(&newPos)
 	if sChunk == nil {
-		cpos := util.PosToChunkPos(&newPos)
+		cpos := util.PosToSuperChunkPos(&newPos)
 		//fmt.Println("Made chunk:", cpos)
 
 		glob.SuperChunkMapLock.Lock()
@@ -288,6 +288,13 @@ func MakeChunk(pos glob.XY) {
 		glob.CameraDirty = true
 
 		glob.ChunkMapLock.Unlock()
+
+		MakeSuperChunk(pos)
+		sChunk := util.GetSuperChunk(&newPos)
+		if sChunk == nil {
+			MakeSuperChunk(pos)
+
+		}
 	}
 }
 

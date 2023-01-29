@@ -70,6 +70,20 @@ func ChunkPosToPos(pos *glob.XY) glob.XY {
 	return glob.XY{X: pos.X * consts.ChunkSize, Y: pos.Y * consts.ChunkSize}
 }
 
+func PosToSuperChunkPos(pos *glob.XY) glob.XY {
+	return glob.XY{X: pos.X / consts.SuperChunkPixels, Y: pos.Y / consts.SuperChunkPixels}
+}
+func SuperChunkPosToPos(pos *glob.XY) glob.XY {
+	return glob.XY{X: pos.X * consts.SuperChunkPixels, Y: pos.Y * consts.SuperChunkPixels}
+}
+
+func ChunkPosToSuperChunkPos(pos *glob.XY) glob.XY {
+	return glob.XY{X: pos.X / consts.SuperChunkSize, Y: pos.Y / consts.SuperChunkSize}
+}
+func SuperChunkPosToChunkPos(pos *glob.XY) glob.XY {
+	return glob.XY{X: pos.X * consts.SuperChunkSize, Y: pos.Y * consts.SuperChunkSize}
+}
+
 func FloatXYToPosition(x float64, y float64) glob.XY {
 
 	return glob.XY{X: int(x), Y: int(y)}

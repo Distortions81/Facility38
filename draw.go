@@ -78,7 +78,7 @@ func makeVisList() {
 	if glob.CameraDirty {
 		gVisChunkTop = 0
 
-		for chunkPos, chunk := range glob.WorldMap {
+		for chunkPos, chunk := range glob.ChunkMap {
 
 			/* Is this chunk on the screen? */
 			if chunkPos.X+cPreCache < screenStartX ||
@@ -133,7 +133,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	calcScreenCamera()
 
-	glob.WorldMapLock.Lock()
+	glob.ChunkMapLock.Lock()
 
 	makeVisList()
 
@@ -274,7 +274,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	glob.WorldMapLock.Unlock()
+	glob.ChunkMapLock.Unlock()
 
 	/* Get mouse position on world */
 	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))

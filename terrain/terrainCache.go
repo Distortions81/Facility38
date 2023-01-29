@@ -75,7 +75,7 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 /* Wasm single-thread version, one tile per frame */
 func STCacheUpdate() {
-	tmpWorld := glob.WorldMap
+	tmpWorld := glob.ChunkMap
 
 	/* If we zoom out, decallocate everything */
 	if glob.ZoomScale < consts.MapPixelThreshold {
@@ -109,9 +109,9 @@ func TerrainCacheDaemon() {
 	wg := sizedwaitgroup.New(objects.NumWorkers)
 
 	for {
-		glob.WorldMapLock.Lock()
-		tmpWorld := glob.WorldMap
-		glob.WorldMapLock.Unlock()
+		glob.ChunkMapLock.Lock()
+		tmpWorld := glob.ChunkMap
+		glob.ChunkMapLock.Unlock()
 
 		/* If we zoom out, decallocate everything */
 		if glob.ZoomScale < consts.MapPixelThreshold {
@@ -127,7 +127,7 @@ func TerrainCacheDaemon() {
 			}
 			wg.Add()
 			go func(chunk *glob.MapChunk, cpos glob.XY) {
-				glob.WorldMapLock.Lock()
+				glob.ChunkMapLock.Lock()
 
 				if chunk.Visible || chunk.GroundImg == nil {
 					if chunk.UsingTemporary {
@@ -140,7 +140,7 @@ func TerrainCacheDaemon() {
 					}
 				}
 
-				glob.WorldMapLock.Unlock()
+				glob.ChunkMapLock.Unlock()
 				wg.Done()
 			}(chunk, cpos)
 		}
