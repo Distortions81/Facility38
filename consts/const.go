@@ -13,7 +13,7 @@ const (
 	MemoryLimit = 1024 * 1024 * 1024 * 20
 	UPSBench    = false
 	LoadTest    = true
-	TestObjects = 10000000 //Make (approx) this number items
+	TestObjects = 1000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated */
@@ -73,8 +73,8 @@ const (
 	ToolBarOffsetY = 0
 
 	/* Draw settings */
-	ChunkSize         = 16
-	SuperChunkSize    = 16
+	ChunkSize         = 32
+	SuperChunkSize    = 32
 	SuperChunkPixels  = ChunkSize * SuperChunkSize
 	DefaultZoom       = SpriteScale * 2
 	MapPixelThreshold = (SpriteScale / 2)
