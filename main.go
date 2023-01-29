@@ -111,7 +111,7 @@ func bootScreen(screen *ebiten.Image) {
 	}
 	if status == "" {
 		screen.Fill(glob.ColorCharcol)
-		status = "Loading complete!\n(Any key or click to continue...)"
+		status = "Loading complete!\n(Any key or click to continue)"
 	} else {
 		screen.Fill(glob.ColorBlack)
 	}
