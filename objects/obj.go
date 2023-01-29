@@ -285,9 +285,10 @@ func MakeChunk(pos glob.XY) {
 	cpos := util.PosToChunkPos(&newPos)
 	scpos := util.PosToSuperChunkPos(&newPos)
 
+	glob.SuperChunkMap[scpos].NumChunks++
+
 	glob.SuperChunkMapLock.Lock()
 	if glob.SuperChunkMap[scpos].Chunks[cpos] == nil {
-
 		glob.SuperChunkMap[scpos].Chunks[cpos] = &glob.MapChunk{}
 		glob.SuperChunkMap[scpos].Chunks[cpos].WObject = make(map[glob.XY]*glob.WObject)
 	}

@@ -21,10 +21,7 @@ import (
 const (
 	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
-	cMAX_RENDER_NS          = 1000000000 / 360
-
-	cPreCache = 2 /* Precache radius */
-
+	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
 )
 
 var (
@@ -88,30 +85,33 @@ func makeVisList() {
 				scPos.X > screenEndX/consts.SuperChunkSize ||
 				scPos.Y < screenStartY/consts.SuperChunkSize ||
 				scPos.Y > screenEndY/consts.SuperChunkSize {
+				sChunk.Visible = false
 				continue
 			}
 
 			superChunksDrawn++
+			sChunk.Visible = true
 
 			for chunkPos, chunk := range sChunk.Chunks {
 
-				/* Is this chunk on the screen? */
+				/* Is this chunk in the prerender area?
 				if chunkPos.X+cPreCache < screenStartX ||
 					chunkPos.X-cPreCache > screenEndX ||
 					chunkPos.Y+cPreCache < screenStartY ||
 					chunkPos.Y-cPreCache > screenEndY {
 					chunk.Visible = false
 					continue
-				}
-				chunk.Visible = true
+				} */
 
 				/* Is this chunk on the screen? */
 				if chunkPos.X < screenStartX ||
 					chunkPos.X > screenEndX ||
 					chunkPos.Y < screenStartY ||
 					chunkPos.Y > screenEndY {
+					chunk.Visible = false
 					continue
 				}
+				chunk.Visible = true
 
 				if gVisChunkTop < consts.MAX_DRAW_CHUNKS {
 					gVisChunks[gVisChunkTop] = chunk

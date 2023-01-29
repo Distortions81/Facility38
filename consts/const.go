@@ -10,14 +10,13 @@ const (
 	TxtDir  = "txt/"
 
 	/* Debug */
-	MemoryLimit = 1024 * 1024 * 1024 * 20
 	UPSBench    = false
 	LoadTest    = false
 	TestObjects = 100000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
-	/* Pre-allocated */
-	MAX_DRAW_CHUNKS = 30000
+	/* Pre-allocated  array */
+	MAX_DRAW_CHUNKS = 32768
 
 	/* Define world center */
 	XYCenter = 5000000

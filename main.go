@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"runtime/debug"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -33,7 +32,6 @@ func main() {
 		glob.FixWASM = true
 	}
 
-	debug.SetMemoryLimit(consts.MemoryLimit)
 	str, err := data.GetText("intro")
 	if err != nil {
 		panic(err)

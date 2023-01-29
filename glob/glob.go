@@ -74,9 +74,8 @@ type MapSuperChunk struct {
 }
 
 type MapChunk struct {
-	WObject      map[XY]*WObject
-	LargeWObject map[XY]*WObject
-	NumObjects   uint64
+	WObject    map[XY]*WObject
+	NumObjects uint64
 
 	TerrainImg     *ebiten.Image
 	UsingTemporary bool
@@ -98,8 +97,6 @@ type WObject struct {
 	//Input/Output
 	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
 	OutputBuffer *MatData                 `json:"o,omitempty"`
-
-	Valid bool `json:"v,omitempty"`
 }
 
 type MatData struct {
