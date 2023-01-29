@@ -24,10 +24,6 @@ type Game struct {
 /* Main function */
 func main() {
 
-	if consts.UPSBench || consts.LoadTest {
-		glob.PlayerReady = true
-	}
-
 	if runtime.GOARCH == "wasm" {
 		glob.FixWASM = true
 	}
@@ -45,10 +41,12 @@ func main() {
 }
 
 func NewGame() *Game {
+
 	/* Set up ebiten and window */
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 	ebiten.SetScreenFilterEnabled(true)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
+
 	setupWindowSize()
 	windowTitle()
 	go loadSprites()
