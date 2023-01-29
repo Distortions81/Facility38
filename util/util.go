@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math"
 
@@ -162,7 +162,7 @@ func UncompressZip(data []byte) []byte {
 	}
 	defer z.Close()
 
-	p, err := ioutil.ReadAll(z)
+	p, err := io.ReadAll(z)
 	if err != nil {
 		log.Println("Error: ", err)
 		return nil
