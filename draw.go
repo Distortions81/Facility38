@@ -104,7 +104,6 @@ func makeVisList() {
 					continue
 				}
 				chunk.Visible = true
-				chunk.LastSaw = time.Now()
 
 				/* Is this chunk on the screen? */
 				if chunkPos.X < screenStartX ||
@@ -183,22 +182,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunksDrawn++
 
 			/* Draw ground */
-			chunk.GroundLock.Lock()
-
-			/* No cache, use a temporary texture while it draws */
-			if chunk.GroundImg == nil {
-				chunk.GroundImg = glob.TempChunkImage
+			/* No image, use a temporary texture while it draws */
+			if chunk.TerrainImg == nil {
+				chunk.TerrainImg = glob.TempChunkImage
 				chunk.UsingTemporary = true
 			}
 
 			/* Draw texture */
-			iSize := chunk.GroundImg.Bounds().Size()
+			iSize := chunk.TerrainImg.Bounds().Size()
 			op.GeoM.Reset()
 			op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
 			op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
-			screen.DrawImage(chunk.GroundImg, op)
-
-			chunk.GroundLock.Unlock()
+			screen.DrawImage(chunk.TerrainImg, op)
 
 			/* Draw objects in chunk */
 			for objPos, obj := range chunk.WObject {
@@ -368,9 +363,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Limit frame rate */
-	if glob.FixWASM {
-		terrain.STCacheUpdate()
-	}
+	terrain.RenderTerrain()
 	sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
 	time.Sleep(sleepFor)
 

@@ -5,26 +5,15 @@ import (
 	"GameTest/glob"
 	"GameTest/noise"
 	"GameTest/objects"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/remeh/sizedwaitgroup"
-)
-
-const (
-	cChunkGroundCacheTime = time.Second * 15
-	cCacheMax             = 100
-)
-
-var (
-	gNumChunkImage int
 )
 
 func SetupTerrainCache() {
 	/* Temp tile to use when rendering a new chunk */
 	tChunk := glob.MapChunk{}
 	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
-	glob.TempChunkImage = tChunk.GroundImg
+	glob.TempChunkImage = tChunk.TerrainImg
 }
 
 func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
@@ -40,11 +29,8 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 	if sx > 0 && sy > 0 {
 
-		chunk.GroundLock.Lock()
 		tImg = ebiten.NewImage(chunkPix, chunkPix)
-		gNumChunkImage++
 		chunk.UsingTemporary = false
-		chunk.GroundLock.Unlock()
 
 		for i := 0; i < consts.ChunkSize; i++ {
 			for j := 0; j < consts.ChunkSize; j++ {
@@ -68,13 +54,11 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	} else {
 		panic("No valid bg texture.")
 	}
-	chunk.GroundLock.Lock()
-	chunk.GroundImg = tImg
-	chunk.GroundLock.Unlock()
+	chunk.TerrainImg = tImg
 }
 
 /* Wasm single-thread version, one tile per frame */
-func STCacheUpdate() {
+func RenderTerrain() {
 	tmpWorld := glob.SuperChunkMap
 
 	/* If we zoom out, decallocate everything */
@@ -89,80 +73,25 @@ func STCacheUpdate() {
 
 	for _, sChunk := range tmpWorld {
 		for cpos, chunk := range sChunk.Chunks {
-			if chunk.GroundImg == nil {
+			if chunk.TerrainImg == nil {
 				continue
 			}
-			if chunk.Visible || chunk.GroundImg == nil {
+			if chunk.Visible {
 				if chunk.UsingTemporary {
 					renderChunkGround(chunk, true, cpos)
 					continue
 				}
 			} else {
-				if gNumChunkImage > cCacheMax &&
-					time.Since(chunk.LastSaw) > cChunkGroundCacheTime {
-					killTerrainCache(chunk)
-					continue
-				}
+				killTerrainCache(chunk)
 			}
 		}
-	}
-}
-
-func TerrainCacheDaemon() {
-	time.Sleep(time.Second)
-	wg := sizedwaitgroup.New(objects.NumWorkers)
-
-	for {
-
-		/* If we zoom out, decallocate everything */
-		if glob.ZoomScale < consts.MapPixelThreshold {
-			glob.SuperChunkMapLock.Lock()
-			for _, sChunk := range glob.SuperChunkMap {
-				for _, chunk := range sChunk.Chunks {
-					killTerrainCache(chunk)
-				}
-			}
-			glob.SuperChunkMapLock.Unlock()
-
-			continue
-		}
-
-		glob.SuperChunkMapLock.Lock()
-		for _, sChunk := range glob.SuperChunkMap {
-			for cpos, chunk := range sChunk.Chunks {
-				if chunk.GroundImg == nil {
-					continue
-				}
-
-				if chunk.Visible || chunk.GroundImg == nil {
-					if chunk.UsingTemporary {
-						wg.Add()
-						go func(chunk *glob.MapChunk, cpos glob.XY) {
-							renderChunkGround(chunk, true, cpos)
-							wg.Done()
-						}(chunk, cpos)
-					}
-				} else {
-					if gNumChunkImage > cCacheMax &&
-						time.Since(chunk.LastSaw) > cChunkGroundCacheTime {
-						killTerrainCache(chunk)
-					}
-				}
-			}
-		}
-		wg.Wait()
-		glob.SuperChunkMapLock.Unlock()
-		time.Sleep(time.Millisecond * 100)
 	}
 }
 
 func killTerrainCache(chunk *glob.MapChunk) {
-	if chunk.UsingTemporary || chunk.GroundImg == nil {
+	if chunk.UsingTemporary || chunk.TerrainImg == nil {
 		return
 	}
-	chunk.GroundLock.Lock()
-	chunk.GroundImg.Dispose()
-	chunk.GroundImg = nil
-	gNumChunkImage--
-	chunk.GroundLock.Unlock()
+	chunk.TerrainImg.Dispose()
+	chunk.TerrainImg = nil
 }

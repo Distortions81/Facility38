@@ -69,12 +69,8 @@ type MapSuperChunk struct {
 	Chunks    map[XY]*MapChunk
 	NumChunks uint64
 
-	CacheLock sync.Mutex
-	CacheImg  *ebiten.Image
-
-	Visible bool
-
-	LastSaw time.Time
+	CacheImg *ebiten.Image
+	Visible  bool
 }
 
 type MapChunk struct {
@@ -82,13 +78,10 @@ type MapChunk struct {
 	LargeWObject map[XY]*WObject
 	NumObjects   uint64
 
-	GroundLock     sync.Mutex
-	GroundImg      *ebiten.Image
+	TerrainImg     *ebiten.Image
 	UsingTemporary bool
 
 	Visible bool
-
-	LastSaw time.Time
 }
 
 type WObject struct {

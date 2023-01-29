@@ -55,6 +55,9 @@ func (g *Game) Update() error {
 	if !glob.PlayerReady &&
 		inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		glob.PlayerReady = true
+		glob.AllowUI = true
+		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+		return nil
 	}
 	gClickCaptured = false
 

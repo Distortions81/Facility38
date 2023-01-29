@@ -94,10 +94,6 @@ func loadSprites() {
 	DrawToolbar()
 
 	glob.SpritesLoaded = true
-
-	if !glob.FixWASM {
-		go terrain.TerrainCacheDaemon()
-	}
 }
 
 func bootScreen(screen *ebiten.Image) {
