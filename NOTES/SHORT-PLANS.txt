@@ -3,21 +3,13 @@
 export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
 
-Optimize: Make uninterrupted sections of belt one entity.
-
-https://github.com/Distortions81/GameTest/issues/1
-
 ** Draw a ghost for pending delete/add object **
-make belt juctions
 
-make occupied map
-instead of maps, use 32 line blocks
-divide up work for every nth tick loads ---------
+support larger items, use pointers?
+tickinterval lists, so items can run every Nth tick
 
 Game objects need folders and JSON files with links to the sprites and other data.
-We also need to support multi-size objects off the bat
-cleanup ui.go
-
 
 ### WASM try to patch mouse lost when going off-screen stupidity
+Add close button
 
