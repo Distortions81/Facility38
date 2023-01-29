@@ -304,6 +304,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	//Make chunk if needed
 	MakeChunk(pos)
 	chunk := util.GetChunk(&pos)
+	glob.CameraDirty = true
 	obj := chunk.WObject[pos]
 
 	if obj != nil {
