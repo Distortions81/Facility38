@@ -66,6 +66,10 @@ func ObjUpdateDaemon() {
 		if !consts.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
+		} else {
+			if glob.FixWASM {
+				time.Sleep(time.Millisecond)
+			}
 		}
 		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
