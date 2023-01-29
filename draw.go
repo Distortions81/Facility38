@@ -139,7 +139,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	chunksDrawn := 0
 
-	/* Draw pixel mode */
+	/* Draw pixel mode: TODO: caching */
 	if glob.ZoomScale < consts.MapPixelThreshold {
 		screen.Fill(glob.ColorCharcol)
 

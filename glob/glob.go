@@ -12,8 +12,11 @@ import (
 
 var (
 	/* World map */
-	WorldMap     map[XY]*MapChunk
-	WorldMapLock sync.Mutex
+	SuperChunkMap     map[XY]*MapSuperChunk
+	SuperChunkMapLock sync.Mutex
+
+	ChunkMap     map[XY]*MapChunk
+	ChunkMapLock sync.Mutex
 
 	/* eBiten start settings */
 	ScreenWidth  int = 1280 //Screen width default
@@ -62,7 +65,20 @@ var (
 )
 
 func init() {
-	WorldMap = make(map[XY]*MapChunk)
+	SuperChunkMap = make(map[XY]*MapSuperChunk)
+	ChunkMap = make(map[XY]*MapChunk)
+}
+
+type MapSuperChunk struct {
+	Chunks    map[XY]*MapChunk
+	NumChunks uint64
+
+	CacheLock sync.Mutex
+	CacheImg  *ebiten.Image
+
+	Visible bool
+
+	LastSaw time.Time
 }
 
 type MapChunk struct {

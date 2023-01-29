@@ -74,6 +74,8 @@ const (
 
 	/* Draw settings */
 	ChunkSize         = 32
+	SuperChunkSize    = 16
+	SuperChunkPixels  = 512
 	DefaultZoom       = SpriteScale * 2
 	MapPixelThreshold = (SpriteScale / 2)
 

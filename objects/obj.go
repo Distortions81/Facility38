@@ -251,6 +251,26 @@ func LinkObj(pos glob.XY, obj *glob.WObject) {
 
 }
 
+func MakeSuperChunk(pos glob.XY) {
+	//Make chunk if needed
+
+	newPos := pos
+	sChunk := util.GetSuperChunk(&newPos)
+	if sChunk == nil {
+		cpos := util.PosToChunkPos(&newPos)
+		//fmt.Println("Made chunk:", cpos)
+
+		glob.SuperChunkMapLock.Lock()
+
+		sChunk = &glob.MapSuperChunk{}
+		glob.SuperChunkMap[cpos] = sChunk
+		sChunk.Chunks = make(map[glob.XY]*glob.MapChunk)
+		glob.CameraDirty = true
+
+		glob.ChunkMapLock.Unlock()
+	}
+}
+
 func MakeChunk(pos glob.XY) {
 	//Make chunk if needed
 
@@ -260,14 +280,14 @@ func MakeChunk(pos glob.XY) {
 		cpos := util.PosToChunkPos(&newPos)
 		//fmt.Println("Made chunk:", cpos)
 
-		glob.WorldMapLock.Lock()
+		glob.ChunkMapLock.Lock()
 
 		chunk = &glob.MapChunk{}
-		glob.WorldMap[cpos] = chunk
+		glob.ChunkMap[cpos] = chunk
 		chunk.WObject = make(map[glob.XY]*glob.WObject)
 		glob.CameraDirty = true
 
-		glob.WorldMapLock.Unlock()
+		glob.ChunkMapLock.Unlock()
 	}
 }
 
@@ -318,7 +338,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	}
 
 	//Put in chunk map
-	glob.WorldMap[util.PosToChunkPos(&pos)].WObject[pos] = obj
+	glob.ChunkMap[util.PosToChunkPos(&pos)].WObject[pos] = obj
 	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
 	chunk.NumObjects++
 	LinkObj(pos, obj)
@@ -358,10 +378,10 @@ func runObjectHitlist() {
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 
-			glob.WorldMapLock.Lock()
-			glob.WorldMap[util.PosToChunkPos(item.Pos)].NumObjects--
-			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].WObject, *item.Pos)
-			glob.WorldMapLock.Unlock()
+			glob.ChunkMapLock.Lock()
+			glob.ChunkMap[util.PosToChunkPos(item.Pos)].NumObjects--
+			delete(glob.ChunkMap[util.PosToChunkPos(item.Pos)].WObject, *item.Pos)
+			glob.ChunkMapLock.Unlock()
 
 		} else {
 			//Add

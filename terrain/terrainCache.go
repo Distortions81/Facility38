@@ -73,6 +73,7 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	chunk.GroundLock.Unlock()
 }
 
+/* Wasm single-thread version, one tile per frame */
 func STCacheUpdate() {
 	tmpWorld := glob.WorldMap
 
