@@ -1,8 +1,9 @@
 CONTROLS:
-Camera: WASD or right-click dragging
+
+Camera: WASD or right-click drag
 WASD Run: Hold-Shift
-Create/destroy objects mouse-click or mouse-drag
-Zoom: +- or scroll-wheel
-Arrows/Overlay: Alt
-Rotate item/toolbar R
+Create/destroy objects: mouse-click or mouse-drag
+Zoom: +/- or scroll-wheel
+Arrows/Overlay toggle: Alt
+Rotate item/toolbar selection: R
 Reverse Rotate: Shift-R

@@ -51,9 +51,11 @@ const (
 /* Input handler */
 func (g *Game) Update() error {
 
+	var keys []ebiten.Key
 	/* Game start screen */
 	if !glob.PlayerReady &&
-		inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
+			inpututil.AppendPressedKeys(keys) != nil) {
 		glob.PlayerReady = true
 		glob.AllowUI = true
 		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
