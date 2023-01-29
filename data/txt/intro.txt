@@ -1,17 +1,8 @@
 CONTROLS:
-RIGHT-CLICK AND DRAG:
-Move camera
-
-R-KEY:
-Rotate building
-Rotate toolbar selection
-
-LEFT-CLICK:
-Create or destroy buildings
-
-LEFT-CLICK AND DRAG:
-Create / destroy buildings continuously
-
-SCROLL-WHEEL or + -: ZOOM IN AND OUT
-
-ALT KEY: Toggle overlays
+Camera: WASD or right-click dragging
+WASD Run: Hold-Shift
+Create/destroy objects mouse-click or mouse-drag
+Zoom: +- or scroll-wheel
+Arrows/Overlay: Alt
+Rotate item/toolbar R
+Reverse Rotate: Shift-R

@@ -339,17 +339,21 @@ func createWorldObjects() {
 
 func moveCamera() {
 
+	speed := consts.WALKSPEED
+	if gShiftPressed {
+		speed = consts.RUNSPEED
+	}
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
-		glob.CameraY -= consts.WALKSPEED
+		glob.CameraY -= speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		glob.CameraX -= consts.WALKSPEED
+		glob.CameraX -= speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
-		glob.CameraY += consts.WALKSPEED
+		glob.CameraY += speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
-		glob.CameraX += consts.WALKSPEED
+		glob.CameraX += speed
 	}
 
 	/* Mouse pan */

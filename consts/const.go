@@ -18,7 +18,8 @@ const (
 	/* Pre-allocated  array */
 	MAX_DRAW_CHUNKS = 32768
 
-	WALKSPEED = 0.75
+	WALKSPEED = 0.67
+	RUNSPEED  = 1.34
 
 	/* Define world center */
 	XYCenter = 5000000
