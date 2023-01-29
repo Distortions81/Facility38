@@ -45,6 +45,11 @@ func ObjUpdateDaemon() {
 	} */
 
 	for {
+
+		if !glob.MapGenerated {
+			time.Sleep(time.Millisecond * 100)
+			continue
+		}
 		start = time.Now()
 
 		gWorldTick++
@@ -92,6 +97,10 @@ func runTicks() {
 		return
 	}
 
+	if gTickWorkSize == 0 {
+		return
+	}
+
 	numWorkers := l / gTickWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
@@ -128,6 +137,10 @@ func runTocks() {
 
 	l := gTockCount - 1
 	if l < 1 {
+		return
+	}
+
+	if TockWorkSize == 0 {
 		return
 	}
 
