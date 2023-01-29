@@ -58,9 +58,9 @@ func GetChunk(pos *glob.XY) *glob.MapChunk {
 // Automatically converts position to superChunk format
 func GetSuperChunk(pos *glob.XY) *glob.MapSuperChunk {
 	glob.SuperChunkMapLock.Lock()
-	chunk := glob.SuperChunkMap[glob.XY{X: pos.X / consts.SuperChunkSize, Y: pos.Y / consts.SuperChunkSize}]
+	sChunk := glob.SuperChunkMap[glob.XY{X: pos.X / consts.SuperChunkPixels, Y: pos.Y / consts.SuperChunkPixels}]
 	glob.SuperChunkMapLock.Unlock()
-	return chunk
+	return sChunk
 }
 
 func PosToChunkPos(pos *glob.XY) glob.XY {

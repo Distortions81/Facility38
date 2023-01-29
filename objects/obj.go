@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"fmt"
 	"sync"
 	"time"
 
@@ -252,22 +253,21 @@ func LinkObj(pos glob.XY, obj *glob.WObject) {
 }
 
 func MakeSuperChunk(pos glob.XY) {
-	//Make chunk if needed
+	//Make super chunk if needed
 
 	newPos := pos
 	sChunk := util.GetSuperChunk(&newPos)
 	if sChunk == nil {
 		cpos := util.PosToSuperChunkPos(&newPos)
-		//fmt.Println("Made chunk:", cpos)
+		fmt.Println("Made super-chunk:", cpos)
 
 		glob.SuperChunkMapLock.Lock()
 
 		sChunk = &glob.MapSuperChunk{}
 		glob.SuperChunkMap[cpos] = sChunk
 		sChunk.Chunks = make(map[glob.XY]*glob.MapChunk)
-		glob.CameraDirty = true
 
-		glob.ChunkMapLock.Unlock()
+		glob.SuperChunkMapLock.Unlock()
 	}
 }
 
@@ -289,7 +289,7 @@ func MakeChunk(pos glob.XY) {
 
 		glob.ChunkMapLock.Unlock()
 
-		MakeSuperChunk(pos)
+		util.GetSuperChunk(&pos)
 		sChunk := util.GetSuperChunk(&newPos)
 		if sChunk == nil {
 			MakeSuperChunk(pos)
