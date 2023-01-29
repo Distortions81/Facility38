@@ -49,16 +49,25 @@ func GetObj(pos *glob.XY, chunk *glob.MapChunk) *glob.WObject {
 
 // Automatically converts position to chunk format
 func GetChunk(pos *glob.XY) *glob.MapChunk {
-	glob.ChunkMapLock.Lock()
-	chunk := glob.ChunkMap[glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}]
-	glob.ChunkMapLock.Unlock()
+	scpos := PosToSuperChunkPos(pos)
+	cpos := PosToChunkPos(pos)
+
+	glob.SuperChunkMapLock.Lock()
+	sChunk := glob.SuperChunkMap[scpos]
+	if sChunk == nil {
+		return nil
+	}
+	chunk := sChunk.Chunks[cpos]
+	glob.SuperChunkMapLock.Unlock()
 	return chunk
 }
 
 // Automatically converts position to superChunk format
 func GetSuperChunk(pos *glob.XY) *glob.MapSuperChunk {
+
+	scpos := PosToChunkPos(pos)
 	glob.SuperChunkMapLock.Lock()
-	sChunk := glob.SuperChunkMap[glob.XY{X: pos.X / consts.SuperChunkPixels, Y: pos.Y / consts.SuperChunkPixels}]
+	sChunk := glob.SuperChunkMap[scpos]
 	glob.SuperChunkMapLock.Unlock()
 	return sChunk
 }

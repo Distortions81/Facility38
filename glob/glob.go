@@ -15,9 +15,6 @@ var (
 	SuperChunkMap     map[XY]*MapSuperChunk
 	SuperChunkMapLock sync.Mutex
 
-	ChunkMap     map[XY]*MapChunk
-	ChunkMapLock sync.Mutex
-
 	/* eBiten start settings */
 	ScreenWidth  int = 1280 //Screen width default
 	ScreenHeight int = 720  //Screen height default
@@ -66,7 +63,6 @@ var (
 
 func init() {
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
-	ChunkMap = make(map[XY]*MapChunk)
 }
 
 type MapSuperChunk struct {

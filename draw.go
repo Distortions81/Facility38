@@ -149,7 +149,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	calcScreenCamera()
 
-	glob.ChunkMapLock.Lock()
+	glob.SuperChunkMapLock.Lock()
 
 	makeVisList()
 
@@ -290,7 +290,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	glob.ChunkMapLock.Unlock()
+	glob.SuperChunkMapLock.Unlock()
 
 	/* Get mouse position on world */
 	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))

@@ -15,13 +15,15 @@ func SaveGame() {
 	finalPath := "save.dat"
 
 	tempList := []*glob.SaveMObj{}
-	glob.ChunkMapLock.Lock()
-	for _, chunk := range glob.ChunkMap {
-		for pos, mObj := range chunk.WObject {
-			tempList = append(tempList, &glob.SaveMObj{O: mObj, P: pos})
+	glob.SuperChunkMapLock.Lock()
+	for _, sChunk := range glob.SuperChunkMap {
+		for _, chunk := range sChunk.Chunks {
+			for pos, mObj := range chunk.WObject {
+				tempList = append(tempList, &glob.SaveMObj{O: mObj, P: pos})
+			}
 		}
 	}
-	glob.ChunkMapLock.Unlock()
+	glob.SuperChunkMapLock.Unlock()
 
 	b, err := json.MarshalIndent(tempList, "", "\t")
 
@@ -60,7 +62,7 @@ func LoadGame() {
 	dbuf := bytes.NewBuffer(data)
 
 	dec := json.NewDecoder(dbuf)
-	err := dec.Decode(&glob.ChunkMap)
+	err := dec.Decode(&glob.SuperChunkMap)
 	if err != nil {
 		//fmt.Println("LoadGame: dec.Decode failure")
 		return
