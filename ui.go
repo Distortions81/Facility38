@@ -52,11 +52,9 @@ const (
 func (g *Game) Update() error {
 
 	/* Game start screen */
-	if !glob.PlayerReady && inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+	if !glob.PlayerReady &&
+		inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		glob.PlayerReady = true
-	}
-	if !glob.AllowUI {
-		return nil
 	}
 	gClickCaptured = false
 

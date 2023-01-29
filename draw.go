@@ -127,16 +127,13 @@ func makeVisList() {
 	}
 }
 
+var ready bool = false
+
 func (g *Game) Draw(screen *ebiten.Image) {
 
-	if glob.MapGenerated &&
-		glob.SpritesLoaded &&
-		glob.PlayerReady {
-
-		/* Everything is good to go, continue */
-		glob.AllowUI = true
-		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	} else {
+	if !glob.MapGenerated ||
+		!glob.SpritesLoaded ||
+		!glob.PlayerReady {
 		bootScreen(screen)
 		time.Sleep(time.Millisecond * 125) //8 fps
 		return
