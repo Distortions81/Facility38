@@ -95,9 +95,7 @@ func runTicks() {
 	l := gTickCount - 1
 	if l < 1 {
 		return
-	}
-
-	if gTickWorkSize == 0 {
+	} else if gTickWorkSize == 0 {
 		return
 	}
 
@@ -138,9 +136,7 @@ func runTocks() {
 	l := gTockCount - 1
 	if l < 1 {
 		return
-	}
-
-	if TockWorkSize == 0 {
+	} else if TockWorkSize == 0 {
 		return
 	}
 
