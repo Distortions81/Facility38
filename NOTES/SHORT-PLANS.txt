@@ -10,3 +10,5 @@ Game objects need folders and JSON files with links to the sprites and other dat
 Eventually multi-thread terrain render, and pre-render (again) caching mode if memory available
 
 ### WASM try to patch mouse lost when going off-screen stupidity, also spread ticks
+
+check item add/remove queue and locks/threads
