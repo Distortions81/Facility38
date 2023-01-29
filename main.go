@@ -47,6 +47,11 @@ func NewGame() *Game {
 	ebiten.SetScreenFilterEnabled(true)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 
+	if glob.FixWASM && (consts.LoadTest || consts.UPSBench) {
+		glob.PlayerReady = true
+		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	}
+
 	setupWindowSize()
 	windowTitle()
 	go loadSprites()
