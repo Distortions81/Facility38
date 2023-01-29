@@ -11,12 +11,14 @@ const (
 
 	/* Debug */
 	UPSBench    = false
-	LoadTest    = true
+	LoadTest    = false
 	TestObjects = 1000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated  array */
 	MAX_DRAW_CHUNKS = 32768
+
+	WALKSPEED = 0.75
 
 	/* Define world center */
 	XYCenter = 5000000

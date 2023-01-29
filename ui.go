@@ -216,10 +216,10 @@ func zoomHandle() {
 	}
 	lastScroll = time.Now()
 
-	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
+	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		glob.ZoomScale = glob.ZoomScale * 2
 		glob.CameraDirty = true
-	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) {
+	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		glob.ZoomScale = glob.ZoomScale / 2
 		glob.CameraDirty = true
 	}
@@ -338,6 +338,20 @@ func createWorldObjects() {
 }
 
 func moveCamera() {
+
+	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		glob.CameraY -= consts.WALKSPEED
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyA) {
+		glob.CameraX -= consts.WALKSPEED
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyS) {
+		glob.CameraY += consts.WALKSPEED
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyD) {
+		glob.CameraX += consts.WALKSPEED
+	}
+
 	/* Mouse pan */
 	if gRightMouseHeld {
 		if !glob.InitMouse {
