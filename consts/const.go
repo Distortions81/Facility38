@@ -13,11 +13,11 @@ const (
 	MemoryLimit = 1024 * 1024 * 1024 * 20
 	UPSBench    = false
 	LoadTest    = true
-	TestObjects = 1000000 //Make (approx) this number items
+	TestObjects = 10000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated */
-	MAX_DRAW_CHUNKS = 10000
+	MAX_DRAW_CHUNKS = 30000
 
 	/* Define world center */
 	XYCenter = 5000000

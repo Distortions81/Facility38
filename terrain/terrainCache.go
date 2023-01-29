@@ -113,46 +113,45 @@ func TerrainCacheDaemon() {
 	wg := sizedwaitgroup.New(objects.NumWorkers)
 
 	for {
-		glob.SuperChunkMapLock.Lock()
-		tmpWorld := glob.SuperChunkMap
-		glob.SuperChunkMapLock.Unlock()
 
 		/* If we zoom out, decallocate everything */
 		if glob.ZoomScale < consts.MapPixelThreshold {
-			for _, sChunk := range tmpWorld {
+			glob.SuperChunkMapLock.Lock()
+			for _, sChunk := range glob.SuperChunkMap {
 				for _, chunk := range sChunk.Chunks {
 					killTerrainCache(chunk)
 				}
 			}
+			glob.SuperChunkMapLock.Unlock()
+
 			continue
 		}
 
-		for _, sChunk := range tmpWorld {
+		glob.SuperChunkMapLock.Lock()
+		for _, sChunk := range glob.SuperChunkMap {
 			for cpos, chunk := range sChunk.Chunks {
 				if chunk.GroundImg == nil {
 					continue
 				}
-				wg.Add()
-				go func(chunk *glob.MapChunk, cpos glob.XY) {
-					glob.SuperChunkMapLock.Lock()
 
-					if chunk.Visible || chunk.GroundImg == nil {
-						if chunk.UsingTemporary {
+				if chunk.Visible || chunk.GroundImg == nil {
+					if chunk.UsingTemporary {
+						wg.Add()
+						go func(chunk *glob.MapChunk, cpos glob.XY) {
 							renderChunkGround(chunk, true, cpos)
-						}
-					} else {
-						if gNumChunkImage > cCacheMax &&
-							time.Since(chunk.LastSaw) > cChunkGroundCacheTime {
-							killTerrainCache(chunk)
-						}
+							wg.Done()
+						}(chunk, cpos)
 					}
-
-					glob.SuperChunkMapLock.Unlock()
-					wg.Done()
-				}(chunk, cpos)
+				} else {
+					if gNumChunkImage > cCacheMax &&
+						time.Since(chunk.LastSaw) > cChunkGroundCacheTime {
+						killTerrainCache(chunk)
+					}
+				}
 			}
 		}
 		wg.Wait()
+		glob.SuperChunkMapLock.Unlock()
 		time.Sleep(time.Millisecond * 100)
 	}
 }

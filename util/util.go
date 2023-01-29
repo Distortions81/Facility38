@@ -55,6 +55,7 @@ func GetChunk(pos *glob.XY) *glob.MapChunk {
 	glob.SuperChunkMapLock.Lock()
 	sChunk := glob.SuperChunkMap[scpos]
 	if sChunk == nil {
+		glob.SuperChunkMapLock.Unlock()
 		return nil
 	}
 	chunk := sChunk.Chunks[cpos]
