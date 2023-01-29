@@ -289,12 +289,12 @@ func MakeChunk(pos glob.XY) {
 
 		glob.ChunkMapLock.Unlock()
 
-		util.GetSuperChunk(&pos)
 		sChunk := util.GetSuperChunk(&newPos)
 		if sChunk == nil {
 			MakeSuperChunk(pos)
-
 		}
+		scpos := util.ChunkPosToSuperChunkPos(&cpos)
+		glob.SuperChunkMap[scpos].Chunks[cpos] = chunk
 	}
 }
 

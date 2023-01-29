@@ -45,6 +45,8 @@ var (
 	screenStartY int
 	screenEndX   int
 	screenEndY   int
+
+	superChunksDrawn int
 )
 
 func init() {
@@ -78,35 +80,49 @@ func makeVisList() {
 	if glob.CameraDirty {
 		gVisChunkTop = 0
 
-		for chunkPos, chunk := range glob.ChunkMap {
+		superChunksDrawn = 0
+		for scPos, sChunk := range glob.SuperChunkMap {
 
-			/* Is this chunk on the screen? */
-			if chunkPos.X+cPreCache < screenStartX ||
-				chunkPos.X-cPreCache > screenEndX ||
-				chunkPos.Y+cPreCache < screenStartY ||
-				chunkPos.Y-cPreCache > screenEndY {
-				chunk.Visible = false
-				continue
-			}
-			chunk.Visible = true
-			chunk.LastSaw = time.Now()
-
-			/* Is this chunk on the screen? */
-			if chunkPos.X < screenStartX ||
-				chunkPos.X > screenEndX ||
-				chunkPos.Y < screenStartY ||
-				chunkPos.Y > screenEndY {
+			/* Is this super chunk on the screen? */
+			if scPos.X < screenStartX/consts.SuperChunkSize ||
+				scPos.X > screenEndX/consts.SuperChunkSize ||
+				scPos.Y < screenStartY/consts.SuperChunkSize ||
+				scPos.Y > screenEndY/consts.SuperChunkSize {
 				continue
 			}
 
-			if gVisChunkTop < consts.MAX_DRAW_CHUNKS {
-				gVisChunks[gVisChunkTop] = chunk
-				gVisChunkPos[gVisChunkTop] = chunkPos
-				gVisChunkTop++
-			} else {
-				break
+			superChunksDrawn++
+
+			for chunkPos, chunk := range sChunk.Chunks {
+
+				/* Is this chunk on the screen? */
+				if chunkPos.X+cPreCache < screenStartX ||
+					chunkPos.X-cPreCache > screenEndX ||
+					chunkPos.Y+cPreCache < screenStartY ||
+					chunkPos.Y-cPreCache > screenEndY {
+					chunk.Visible = false
+					continue
+				}
+				chunk.Visible = true
+				chunk.LastSaw = time.Now()
+
+				/* Is this chunk on the screen? */
+				if chunkPos.X < screenStartX ||
+					chunkPos.X > screenEndX ||
+					chunkPos.Y < screenStartY ||
+					chunkPos.Y > screenEndY {
+					continue
+				}
+
+				if gVisChunkTop < consts.MAX_DRAW_CHUNKS {
+					gVisChunks[gVisChunkTop] = chunk
+					gVisChunkPos[gVisChunkTop] = chunkPos
+					gVisChunkTop++
+				} else {
+					break
+				}
+				glob.CameraDirty = false
 			}
-			glob.CameraDirty = false
 		}
 	}
 }
@@ -282,13 +298,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw debug info */
 	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("FPS: %.2f,UPS: %.2f Work: Workers: %v, Job-size: %v, Active Objects: %v, Chunks-Drawn: %v Arch: %v Build: %v",
+		fmt.Sprintf("FPS: %.2f UPS: %.2f Workers: %v Job-size: %v Active Objects: %v CDraw: %v SCDraw: %v Arch: %v Build: %v",
 			ebiten.ActualFPS(),
 			1000000000.0/float64(glob.MeasuredObjectUPS_ns),
 			objects.NumWorkers,
 			humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""),
 			humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
 			chunksDrawn,
+			superChunksDrawn,
 			runtime.GOARCH, buildTime),
 		0, glob.ScreenHeight-20)
 
