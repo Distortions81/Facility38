@@ -3,30 +3,8 @@ package util
 import (
 	"GameTest/consts"
 	"GameTest/glob"
-	"bytes"
-	"compress/zlib"
-	"fmt"
-	"io"
-	"log"
 	"math"
-
-	"github.com/dustin/go-humanize"
 )
-
-func RotCW(dir int) int {
-	dir = dir - 1
-	if dir < consts.DIR_NORTH {
-		dir = consts.DIR_WEST
-	}
-	return dir
-}
-func RotCCW(dir int) int {
-	dir = dir + 1
-	if dir > consts.DIR_WEST {
-		dir = consts.DIR_NORTH
-	}
-	return dir
-}
 
 func Distance(xa, ya, xb, yb int) float64 {
 	x := math.Abs(float64(xa - xb))
@@ -38,7 +16,7 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 	return (x1 + x2) / 2, (y1 + y2) / 2
 }
 
-func GetObj(pos *glob.XY, chunk *glob.MapChunk) *glob.WObject {
+func GetObj(pos *glob.Position, chunk *glob.MapChunk) *glob.WObject {
 	if chunk != nil {
 		o := chunk.WObject[*pos]
 		return o
@@ -48,58 +26,21 @@ func GetObj(pos *glob.XY, chunk *glob.MapChunk) *glob.WObject {
 }
 
 // Automatically converts position to chunk format
-func GetChunk(pos *glob.XY) *glob.MapChunk {
-	scpos := PosToSuperChunkPos(pos)
-	cpos := PosToChunkPos(pos)
-
-	glob.SuperChunkMapLock.Lock()
-	defer glob.SuperChunkMapLock.Unlock()
-
-	sChunk := glob.SuperChunkMap[scpos]
-	if sChunk == nil {
-		return nil
-	}
-	chunk := sChunk.Chunks[cpos]
+func GetChunk(pos *glob.Position) *glob.MapChunk {
+	chunk := glob.WorldMap[glob.Position{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}]
 	return chunk
 }
 
-// Automatically converts position to superChunk format
-func GetSuperChunk(pos *glob.XY) *glob.MapSuperChunk {
-
-	scpos := PosToChunkPos(pos)
-	glob.SuperChunkMapLock.Lock()
-	sChunk := glob.SuperChunkMap[scpos]
-	glob.SuperChunkMapLock.Unlock()
-	return sChunk
+func PosToChunkPos(pos *glob.Position) glob.Position {
+	return glob.Position{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}
 }
 
-func PosToChunkPos(pos *glob.XY) glob.XY {
-	return glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}
-}
-func ChunkPosToPos(pos *glob.XY) glob.XY {
-	return glob.XY{X: pos.X * consts.ChunkSize, Y: pos.Y * consts.ChunkSize}
+func FloatXYToPosition(x float64, y float64) glob.Position {
+
+	return glob.Position{X: int(x), Y: int(y)}
 }
 
-func PosToSuperChunkPos(pos *glob.XY) glob.XY {
-	return glob.XY{X: pos.X / consts.SuperChunkPixels, Y: pos.Y / consts.SuperChunkPixels}
-}
-func SuperChunkPosToPos(pos *glob.XY) glob.XY {
-	return glob.XY{X: pos.X * consts.SuperChunkPixels, Y: pos.Y * consts.SuperChunkPixels}
-}
-
-func ChunkPosToSuperChunkPos(pos *glob.XY) glob.XY {
-	return glob.XY{X: pos.X / consts.SuperChunkSize, Y: pos.Y / consts.SuperChunkSize}
-}
-func SuperChunkPosToChunkPos(pos *glob.XY) glob.XY {
-	return glob.XY{X: pos.X * consts.SuperChunkSize, Y: pos.Y * consts.SuperChunkSize}
-}
-
-func FloatXYToPosition(x float64, y float64) glob.XY {
-
-	return glob.XY{X: int(x), Y: int(y)}
-}
-
-func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
+func GetNeighborObj(src *glob.WObject, pos glob.Position, dir int) *glob.WObject {
 
 	switch dir {
 	case consts.DIR_NORTH:
@@ -111,6 +52,8 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
 	case consts.DIR_WEST:
 		pos.X--
 	}
+
+	////fmt.Println("Finding neighbor:", pos, DirToName(dir))
 
 	chunk := GetChunk(&pos)
 	obj := GetObj(&pos, chunk)
@@ -142,43 +85,7 @@ func ReverseDirection(dir int) int {
 		return consts.DIR_NORTH
 	case consts.DIR_WEST:
 		return consts.DIR_EAST
-	case consts.DIR_UP:
-		return consts.DIR_DOWN
-	case consts.DIR_DOWN:
-		return consts.DIR_UP
 	}
 
 	return consts.DIR_NONE
-}
-
-func UncompressZip(data []byte) []byte {
-
-	b := bytes.NewReader(data)
-
-	log.Println("Uncompressing: ", humanize.Bytes(uint64(len(data))))
-	z, err := zlib.NewReader(b)
-	if err != nil {
-		log.Println("Error: ", err)
-		return nil
-	}
-	defer z.Close()
-
-	p, err := io.ReadAll(z)
-	if err != nil {
-		log.Println("Error: ", err)
-		return nil
-	}
-	log.Print("Uncompressed: ", humanize.Bytes(uint64(len(p))))
-	return p
-}
-
-func CompressZip(data []byte) []byte {
-	var b bytes.Buffer
-	w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
-	if err != nil {
-		fmt.Println("ERROR: gz failure:", err)
-	}
-	w.Write(data)
-	w.Close()
-	return b.Bytes()
 }

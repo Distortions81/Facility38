@@ -11,26 +11,25 @@ import (
 )
 
 var (
-	gWorldTick uint64 = 0
+	WorldTick uint64 = 0
 
 	ListLock sync.Mutex
-	TickList []glob.TickEvent = []glob.TickEvent{}
-	TockList []glob.TickEvent = []glob.TickEvent{}
+	TickList []glob.TickEvent
+	TockList []glob.TickEvent
 
 	ObjectHitlist []*glob.ObjectHitlistData
 	EventHitlist  []*glob.EventHitlistData
 
-	gTickCount    int
-	gTockCount    int
-	gTickWorkSize int
-
+	TickCount    int
+	TockCount    int
+	TickWorkSize int
 	TockWorkSize int
 	NumWorkers   int
 
 	wg sizedwaitgroup.SizedWaitGroup
 )
 
-func ObjUpdateDaemon() {
+func TickTockLoop() {
 	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)
 
@@ -45,31 +44,22 @@ func ObjUpdateDaemon() {
 	} */
 
 	for {
-
-		if !glob.MapGenerated {
-			time.Sleep(time.Millisecond * 100)
-			continue
-		}
 		start = time.Now()
 
-		gWorldTick++
-		gTickWorkSize = gTickCount / NumWorkers
-		TockWorkSize = gTockCount / NumWorkers
+		WorldTick++
+		TickWorkSize = TickCount / NumWorkers
+		TockWorkSize = TockCount / NumWorkers
 
 		ListLock.Lock()
-		runTocks()         //Process objects
-		runTicks()         //Move external
-		runEventHitlist()  //Queue to add/remove events
-		runObjectHitlist() //Queue to add/remove objects
+		runTocks() //Process objects
+		runTicks() //Move external
+		runEventHitlist()
+		runObjectHitlist()
 		ListLock.Unlock()
 
 		if !consts.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
-		} else {
-			if glob.FixWASM {
-				time.Sleep(time.Millisecond)
-			}
 		}
 		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
@@ -78,15 +68,16 @@ func ObjUpdateDaemon() {
 
 }
 
-func tickObj(o *glob.WObject) {
+func TickObj(o *glob.WObject) {
 
-	if o.OutputObj != nil {
-		revDir := util.ReverseDirection(o.Direction)
-		if o.OutputObj.InputBuffer[revDir] != nil && o.OutputObj.InputBuffer[revDir].Amount == 0 &&
+	if o.OutputObj != nil && o.OutputObj.Valid {
+		if o.OutputObj.InputBuffer[o].Amount == 0 &&
 			o.OutputBuffer.Amount > 0 {
 
-			o.OutputObj.InputBuffer[revDir].Amount = o.OutputBuffer.Amount
-			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
+			o.OutputObj.InputBuffer[o].Amount = o.OutputBuffer.Amount
+			o.OutputObj.InputBuffer[o].TypeI = o.OutputBuffer.TypeI
+			o.OutputObj.InputBuffer[o].TypeP = o.OutputBuffer.TypeP
+			o.OutputObj.InputBuffer[o].TweenStamp = o.OutputBuffer.TweenStamp
 
 			o.OutputBuffer.Amount = 0
 		}
@@ -96,14 +87,12 @@ func tickObj(o *glob.WObject) {
 // Move materials from one object to another
 func runTicks() {
 
-	l := gTickCount - 1
+	l := TickCount - 1
 	if l < 1 {
-		return
-	} else if gTickWorkSize == 0 {
 		return
 	}
 
-	numWorkers := l / gTickWorkSize
+	numWorkers := l / TickWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -124,7 +113,7 @@ func runTicks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				tickObj(TickList[i].Target)
+				TickObj(TickList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)
@@ -137,10 +126,8 @@ func runTicks() {
 // Process objects
 func runTocks() {
 
-	l := gTockCount - 1
+	l := TockCount - 1
 	if l < 1 {
-		return
-	} else if TockWorkSize == 0 {
 		return
 	}
 
@@ -165,7 +152,7 @@ func runTocks() {
 		wg.Add()
 		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
-				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target, tickNow)
 			}
 			wg.Done()
 		}(p, p+each, tickNow)
@@ -177,12 +164,12 @@ func runTocks() {
 
 func ticklistAdd(target *glob.WObject) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
-	gTickCount++
+	TickCount++
 }
 
 func tockListAdd(target *glob.WObject) {
 	TockList = append(TockList, glob.TickEvent{Target: target})
-	gTockCount++
+	TockCount++
 }
 
 func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
@@ -201,7 +188,7 @@ func ticklistRemove(obj *glob.WObject) {
 			break
 		}
 	}
-	gTickCount--
+	TickCount--
 }
 
 func tocklistRemove(obj *glob.WObject) {
@@ -216,109 +203,57 @@ func tocklistRemove(obj *glob.WObject) {
 			break
 		}
 	}
-	gTockCount--
+	TockCount--
 }
 
-func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
-	destObj := util.GetNeighborObj(obj, pos, dir)
+func LinkObj(pos glob.Position, obj *glob.WObject) {
 
-	if destObj != nil {
-		obj.OutputObj = destObj
-		destObj.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
+	//Link output
+	if obj.TypeP.HasMatOutput {
+		//fmt.Println("pos", pos, "output dir: ", util.DirToName(obj.OutputDir))
+		destObj := util.GetNeighborObj(obj, pos, obj.OutputDir)
+
+		if destObj != nil {
+			obj.OutputObj = destObj
+			destObj.InputBuffer[obj] = &glob.MatData{}
+			//fmt.Println("Linked object output: ", obj.TypeP.Name, " to: ", destObj.TypeP.Name)
+		}
 	}
-}
-
-func LinkObj(pos glob.XY, obj *glob.WObject) {
 
 	//Link inputs
 	var i int
 
-	for i = consts.DIR_NORTH; i <= consts.DIR_NONE; i++ {
+	obj.BeltStart = true
+	for i = consts.DIR_NORTH; i <= consts.DIR_WEST; i++ {
 		neigh := util.GetNeighborObj(obj, pos, i)
 
 		if neigh != nil {
-			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.Direction) == i {
+			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.OutputDir) == i {
 				neigh.OutputObj = obj
-				obj.InputBuffer[i] = &glob.MatData{}
+				obj.InputBuffer[neigh] = &glob.MatData{}
+				//fmt.Println("Linked object output: ", neigh.TypeP.Name, " to: ", obj.TypeP.Name)
+				if neigh.TypeI == consts.ObjTypeBasicBelt || neigh.TypeI == consts.ObjTypeBasicBeltVert {
+					obj.BeltStart = false
+				}
 			}
 		}
 	}
 
-	//Link output
-	if obj.TypeP.HasMatOutput {
-		linkOut(pos, obj, obj.Direction)
-
-		//Link up additonal outputs for splitters
-		if obj.TypeI == consts.ObjTypeBasicSplit {
-			dir := util.RotCW(obj.Direction)
-			linkOut(pos, obj, dir)
-
-			dir = util.RotCW(dir)
-			linkOut(pos, obj, dir)
-
-			dir = util.RotCW(dir)
-			linkOut(pos, obj, dir)
-
-		}
-	}
-
 }
 
-func makeSuperChunk(pos glob.XY) {
-	//Make super chunk if needed
-
-	newPos := pos
-	scpos := util.PosToSuperChunkPos(&newPos)
-
-	glob.SuperChunkMapLock.Lock()
-	if glob.SuperChunkMap[scpos] == nil {
-		glob.SuperChunkMap[scpos] = &glob.MapSuperChunk{}
-		glob.SuperChunkMap[scpos].Chunks = make(map[glob.XY]*glob.MapChunk)
-	}
-	glob.SuperChunkMapLock.Unlock()
-
-}
-
-func MakeChunk(pos glob.XY) {
-	//Make chunk if needed
-
-	newPos := pos
-
-	makeSuperChunk(pos)
-
-	cpos := util.PosToChunkPos(&newPos)
-	scpos := util.PosToSuperChunkPos(&newPos)
-
-	glob.SuperChunkMap[scpos].NumChunks++
-
-	glob.SuperChunkMapLock.Lock()
-	if glob.SuperChunkMap[scpos].Chunks[cpos] == nil {
-		glob.SuperChunkMap[scpos].Chunks[cpos] = &glob.MapChunk{}
-		glob.SuperChunkMap[scpos].Chunks[cpos].WObject = make(map[glob.XY]*glob.WObject)
-	}
-	glob.SuperChunkMapLock.Unlock()
-}
-
-func ExploreMap(input int) {
-	/* Explore some map */
-
-	area := input * consts.ChunkSize
-	offs := int(consts.XYCenter) - (area / 2)
-	for x := -area; x < area; x += consts.ChunkSize {
-		for y := -area; y < area; y += consts.ChunkSize {
-			pos := glob.XY{X: offs - x, Y: offs - y}
-
-			MakeChunk(pos)
-		}
-	}
-}
-
-func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
+func CreateObj(pos glob.Position, mtype int) *glob.WObject {
 
 	//Make chunk if needed
-	MakeChunk(pos)
 	chunk := util.GetChunk(&pos)
-	glob.CameraDirty = true
+	if chunk == nil {
+		cpos := util.PosToChunkPos(&pos)
+		//fmt.Println("Made chunk:", cpos)
+
+		chunk = &glob.MapChunk{}
+		glob.WorldMap[cpos] = chunk
+		chunk.WObject = make(map[glob.Position]*glob.WObject)
+	}
+
 	obj := chunk.WObject[pos]
 
 	if obj != nil {
@@ -334,31 +269,25 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	obj.OutputObj = nil
 
 	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
+	obj.InputBuffer = make(map[*glob.WObject]*glob.MatData)
 	obj.OutputBuffer = &glob.MatData{}
-	obj.Direction = dir
 
-	if obj.TypeP.HasMatOutput {
-		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
-	}
-	/* Only add to list if the object calls an update function */
-	if obj.TypeP.UpdateObj != nil {
-		EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
-	}
+	obj.OutputDir = consts.DIR_EAST
+	obj.Valid = true
 
-	cpos := util.PosToChunkPos(&pos)
-	scpos := util.PosToSuperChunkPos(&pos)
+	EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+	EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
 
-	glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
+	//Put in chunk map
+	glob.WorldMap[util.PosToChunkPos(&pos)].WObject[pos] = obj
 	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
-
-	chunk.NumObjects++
 	LinkObj(pos, obj)
 
 	return obj
 }
 
-func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.XY, delete bool, dir int) {
-	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
+func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.Position, delete bool) {
+	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete})
 }
 
 func runEventHitlist() {
@@ -386,20 +315,17 @@ func runObjectHitlist() {
 
 	for _, item := range ObjectHitlist {
 		if item.Delete {
+			if item.Obj != nil {
+				item.Obj.Valid = false
+			}
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 
-			cpos := util.PosToChunkPos(item.Pos)
-			scpos := util.PosToSuperChunkPos(item.Pos)
-
-			glob.SuperChunkMapLock.Lock()
-			glob.SuperChunkMap[scpos].Chunks[cpos].NumObjects--
-			delete(glob.SuperChunkMap[scpos].Chunks[cpos].WObject, *item.Pos)
-			glob.SuperChunkMapLock.Unlock()
+			delete(glob.WorldMap[util.PosToChunkPos(item.Pos)].WObject, *item.Pos)
 
 		} else {
 			//Add
-			CreateObj(*item.Pos, item.OType, item.Dir)
+			CreateObj(*item.Pos, item.OType)
 		}
 	}
 	ObjectHitlist = []*glob.ObjectHitlistData{}

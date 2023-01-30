@@ -1,53 +1,74 @@
 package consts
 
 const (
-	Version = "010"
-
-	/* Files and directories */
-	Wasm    = "js" //Detect wasm/jstrue
+	//Code written by CarlOtto81@gmail.com
+	//MPL-2.0 License
+	Version = "009"             //increment
+	Build   = "01.24.2023-0937" //mmddyyyy-hhmm(p)
+	Wasm    = "js"              //Detect wasm/js
 	DataDir = "data/"
 	GfxDir  = "gfx/"
-	TxtDir  = "txt/"
 
-	/* Debug */
 	UPSBench    = false
-	LoadTest    = true
+	LoadTest    = false
 	TestObjects = 1000000 //Make (approx) this number items
 
-	/* Limit numbers of chunks that can be drawn */
-	/* Pre-allocated  array */
-	MAX_DRAW_CHUNKS = 32768
+	WorkChunksPerThread = 8
 
-	WALKSPEED = 4.0
-	RUNSPEED  = 16.0
+	HBeltVertOffset        = 0.6
+	VBeltVertOffset        = 0.38
+	ReverseBeltOffset      = 0.0
+	HBeltLimitEnd          = 0.1
+	BlockedIndicatorOffset = 12
 
-	/* Define world center */
-	XYCenter = 10000000.0
-	XYMax    = XYCenter * 2.0
-	XYMin    = 1.0
+	DragActionTypeNone   = 0
+	DragActionTypeBuild  = 1
+	DragActionTypeDelete = 2
+	MAX_RENDER_NS        = 1000000000 / 240
 
-	/* Game datastrures */
-	/* Subtypes */
+	MaxUint  = ^uint32(0)
+	XYCenter = float64(uint32(MaxUint>>1) / 2)
+
+	//Subtypes
 	ObjSubUI   = 0
 	ObjSubGame = 1
 	ObjSubMat  = 2
 	ObjOverlay = 3
 
-	/* UI Only */
+	//UI Only
 	ObjTypeSave = 0
 	ObjTypeLoad = 1
 
-	/* Buildings */
+	//Buildings
 	ObjTypeBasicMiner      = 0
-	ObjTypeBasicBelt       = 1
-	ObjTypeBasicSplit      = 2
-	ObjTypeBasicBox        = 3
-	ObjTypeBasicSmelter    = 4
-	ObjTypeBasicIronCaster = 5
+	ObjTypeBasicBox        = 1
+	ObjTypeBasicSmelter    = 2
+	ObjTypeBasicIronCaster = 3
+	ObjTypeBasicBelt       = 4
+	ObjTypeBasicBeltVert   = 5
 	ObjTypeBasicBoiler     = 6
 	ObjTypeSteamEngine     = 7
 
-	/* Materials */
+	/*Materials
+	MAT_NONE     = 0
+	MAT_GOLD     = 1
+	MAT_SILVER   = 2
+	MAT_COPPER   = 3
+	MAT_LEAD     = 4
+	MAT_TIN      = 5
+	MAT_IRON     = 6
+	MAT_MERCURY  = 7
+	MAT_URANIUM  = 8
+	MAT_PLATINUM = 9
+	MAT_TUNGSTEN = 10
+	MAT_NICKEL   = 11
+	MAT_TITANIUM = 12
+	MAT_LITHIUM  = 13
+	MAT_STEEL    = 14
+	MAT_ALUMINUM = 15
+	MAT_MAX      = 99 */
+
+	//Materials
 	MAT_NONE       = 0
 	MAT_WOOD       = 1
 	MAT_COAL       = 2 //black with color sheen
@@ -63,49 +84,38 @@ const (
 
 	MAT_MAX = 11
 
-	/* Placeholder texture words render offset */
-	SymbOffX = 0
-	SymbOffY = 10
+	//Item Symbol
+	SymbOffX = 7
+	SymbOffY = 4
 
-	/* Toolbar settings */
+	//Toolbar settings
 	ToolBarScale   = 64
-	SpriteScale    = 16
+	SpriteScale    = 256
 	TBThick        = 2
 	ToolBarOffsetX = 0
 	ToolBarOffsetY = 0
 
-	/* Draw settings */
-	ChunkSize         = 32
-	SuperChunkSize    = 32
-	SuperChunkPixels  = ChunkSize * SuperChunkSize
-	DefaultZoom       = SpriteScale * 2
-	MapPixelThreshold = (SpriteScale / 2)
+	//Draw settings
+	ChunkSize = 32
 
-	/* Overlays */
-	DIR_NORTH = 0
-	DIR_EAST  = 1
-	DIR_SOUTH = 2
-	DIR_WEST  = 3
-	DIR_UP    = 4
-	DIR_DOWN  = 5
-	DIR_NONE  = 6
-	DIR_MAX   = 7
+	//Overlays
+	DIR_NORTH      = 0
+	DIR_EAST       = 1
+	DIR_SOUTH      = 2
+	DIR_WEST       = 3
+	ObjTypeBlocked = 4
+	DIR_UP         = 5
+	DIR_DOWN       = 6
+	DIR_NONE       = 7
 
-	/* Overlay Types */
-	ObjOverlayNorth   = 0
-	ObjOverlayEast    = 1
-	ObjOverlaySouth   = 2
-	ObjOverlayWest    = 3
-	ObjOverlayBlocked = 4
-
-	/* World Values */
 	COAL_KWH_KG        = 8
 	BOILER_EFFICIENCY  = 0.4
 	TURBINE_EFFICIENCY = 0.9
-	COAL_KWH_MTON      = 1927
-	TIMESCALE          = 60 //1 Day passes in 24 minutes
 
-	/* Event queue types */
+	COAL_KWH_MTON = 1927
+
+	TIMESCALE = 60 //1 Day passes in 24 minutes
+
 	QUEUE_TYPE_NONE = 0
 	QUEUE_TYPE_TOCK = 1
 	QUEUE_TYPE_TICK = 2

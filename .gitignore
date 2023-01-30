@@ -1,8 +1,5 @@
 *.exe
 *.zip
-*.gz
-*.wasm
 GameTest
 save.json
-internalimages_*/
-out
+html/main.wasm.gz
