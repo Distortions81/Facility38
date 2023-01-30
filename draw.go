@@ -88,12 +88,12 @@ func makeVisList() {
 		for scPos, sChunk := range glob.SuperChunkMap {
 
 			/* Is this super chunk on the screen? */
-			if scPos.X < screenStartX ||
-				scPos.X > screenEndX ||
-				scPos.Y < screenStartY ||
-				scPos.Y > screenEndY {
+			if scPos.X < screenStartX/consts.SuperChunkSize ||
+				scPos.X > screenEndX/consts.SuperChunkSize ||
+				scPos.Y < screenStartY/consts.SuperChunkSize ||
+				scPos.Y > screenEndY/consts.SuperChunkSize {
 				sChunk.Visible = false
-				//continue
+				continue
 			}
 
 			superChunksDrawn++
