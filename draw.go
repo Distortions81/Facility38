@@ -109,8 +109,10 @@ func makeVisList() {
 
 					/* Draw objects in chunk */
 					for objPos, _ := range ctmp.WObject {
-						x := float64((objPos.X - consts.XYCenter) + ((cpos.X * consts.ChunkSize) - consts.XYCenter))
-						y := float64((objPos.Y - consts.XYCenter) + ((cpos.Y * consts.ChunkSize) - consts.XYCenter))
+						scX := ((scPos.X * consts.SuperChunkPixels) - consts.XYCenter)
+						scY := ((scPos.Y * consts.SuperChunkPixels) - consts.XYCenter)
+						x := float64((objPos.X - consts.XYCenter) + (((cpos.X * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scX)
+						y := float64((objPos.Y - consts.XYCenter) + (((cpos.Y * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scY)
 						op.GeoM.Reset()
 						op.GeoM.Translate(x, y)
 

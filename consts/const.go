@@ -22,9 +22,9 @@ const (
 	RUNSPEED  = 16.0
 
 	/* Define world center */
-	XYCenter = 10000
-	XYMax    = XYCenter * 2
-	XYMin    = 1
+	XYCenter = 10000000.0
+	XYMax    = XYCenter * 2.0
+	XYMin    = 1.0
 
 	/* Game datastrures */
 	/* Subtypes */
