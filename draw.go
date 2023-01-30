@@ -22,6 +22,7 @@ const (
 	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
+	cPreCache               = 2
 )
 
 var (
@@ -109,6 +110,7 @@ func makeVisList() {
 			superChunksDrawn++
 			sChunk.Visible = true
 
+			/* Make Pixelmap images */
 			if sChunk.MapImg == nil {
 				sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
 				sChunk.MapImg.Fill(glob.ColorCharcol)
@@ -121,12 +123,18 @@ func makeVisList() {
 					for objPos, _ := range ctmp.WObject {
 						scX := ((scPos.X * consts.SuperChunkPixels) - consts.XYCenter)
 						scY := ((scPos.Y * consts.SuperChunkPixels) - consts.XYCenter)
-						x := float64(-(objPos.X - consts.XYCenter) + (((cpos.X * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scX)
-						y := float64(-(objPos.Y - consts.XYCenter) + (((cpos.Y * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scY)
+						x := float64((objPos.X - consts.XYCenter) + (((cpos.X * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scX)
+						y := float64((objPos.Y - consts.XYCenter) + (((cpos.Y * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scY)
 						op.GeoM.Reset()
 						op.GeoM.Translate(x, y)
 						sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
 					}
+
+					ebitenutil.DrawRect(sChunk.MapImg, 0, 0, 1, consts.SuperChunkPixels, glob.ColorRed)
+					ebitenutil.DrawRect(sChunk.MapImg, 0, 0, consts.SuperChunkPixels, 1, glob.ColorRed)
+
+					ebitenutil.DrawRect(sChunk.MapImg, consts.SuperChunkPixels-1, 0, 1, consts.SuperChunkPixels, glob.ColorAqua)
+					ebitenutil.DrawRect(sChunk.MapImg, 0, consts.SuperChunkPixels-1, consts.SuperChunkPixels, 1, glob.ColorAqua)
 				}
 			}
 			if gVisSChunkTop < consts.MAX_DRAW_CHUNKS {
@@ -146,7 +154,8 @@ func makeVisList() {
 					chunkPos.Y-cPreCache > screenEndY {
 					chunk.Visible = false
 					continue
-				} */
+				}
+				chunk.Visible = true */
 
 				/* Is this chunk on the screen? */
 				if chunkPos.X < screenStartX ||
@@ -312,8 +321,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				(consts.SuperChunkPixels*glob.ZoomScale)/float64(consts.SuperChunkPixels))
 
 			op.GeoM.Translate(
-				(camXPos+float64((cPos.X)*consts.SuperChunkPixels))*glob.ZoomScale,
-				(camYPos+float64((cPos.Y)*consts.SuperChunkPixels))*glob.ZoomScale)
+				((camXPos+float64((cPos.X))*consts.SuperChunkPixels)*glob.ZoomScale)-1,
+				((camYPos+float64((cPos.Y))*consts.SuperChunkPixels)*glob.ZoomScale)-1)
 
 			screen.DrawImage(sChunk.MapImg, op)
 		}
@@ -339,7 +348,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
-	//screen.DrawImage(toolbarCache, nil)
+	screen.DrawImage(toolbarCache, nil)
 
 	/* Toolbar tool tip */
 	uipix := float64(ToolbarMax * int(consts.ToolBarScale))

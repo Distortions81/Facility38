@@ -71,11 +71,19 @@ func DrawToolbar() {
 
 		if item.SType == consts.ObjSubGame {
 			if item.OType.TypeI == SelectedItemType {
-				ebitenutil.DrawRect(toolbarCache, consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale, consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
-				ebitenutil.DrawRect(toolbarCache, consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale, consts.ToolBarOffsetY, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
+				ebitenutil.DrawRect(toolbarCache,
+					consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale,
+					consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
+				ebitenutil.DrawRect(toolbarCache,
+					consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale,
+					consts.ToolBarOffsetY, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
 
-				ebitenutil.DrawRect(toolbarCache, consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale, consts.ToolBarOffsetY+consts.ToolBarScale-consts.TBThick, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
-				ebitenutil.DrawRect(toolbarCache, consts.ToolBarOffsetX+(float64(pos)*consts.ToolBarScale)+consts.ToolBarScale-consts.TBThick, consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
+				ebitenutil.DrawRect(toolbarCache,
+					consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale,
+					consts.ToolBarOffsetY+consts.ToolBarScale-consts.TBThick, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
+				ebitenutil.DrawRect(toolbarCache,
+					consts.ToolBarOffsetX+(float64(pos)*consts.ToolBarScale)+consts.ToolBarScale-consts.TBThick,
+					consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
 			}
 		}
 	}

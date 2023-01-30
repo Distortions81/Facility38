@@ -66,6 +66,7 @@ func RenderTerrain() {
 		for _, sChunk := range tmpWorld {
 			for _, chunk := range sChunk.Chunks {
 				killTerrainCache(chunk)
+				continue
 			}
 		}
 		return
@@ -83,6 +84,7 @@ func RenderTerrain() {
 				}
 			} else {
 				killTerrainCache(chunk)
+				continue
 			}
 		}
 	}
