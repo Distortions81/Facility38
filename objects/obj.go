@@ -229,11 +229,13 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 }
 
 func LinkObj(pos glob.XY, obj *glob.WObject) {
-
-	//Link inputs
 	var i int
 
+	//Link inputs
 	for i = consts.DIR_NORTH; i <= consts.DIR_NONE; i++ {
+		if i == obj.Direction {
+			continue
+		}
 		neigh := util.GetNeighborObj(obj, pos, i)
 
 		if neigh != nil {

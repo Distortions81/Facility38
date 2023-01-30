@@ -12,7 +12,7 @@ import (
 )
 
 func EUI() *ebitenui.UI {
-	//return nil
+	return nil
 
 	// load images for button states: idle, hover, and pressed
 	buttonImage, _ := loadButtonImage()
@@ -24,7 +24,7 @@ func EUI() *ebitenui.UI {
 	// construct a new container that serves as the root of the UI hierarchy
 	rootContainer := widget.NewContainer(
 		// the container will use a plain color as its background
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.RGBA{0x13, 0x1a, 0x22, 0xff})),
+		//widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.RGBA{0x13, 0x1a, 0x22, 0xff})),
 
 		// the container will use an anchor layout to layout its single child widget
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

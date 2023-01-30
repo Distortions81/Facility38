@@ -52,6 +52,8 @@ const (
 /* Input handler */
 func (g *Game) Update() error {
 
+	g.ui.Update()
+
 	var keys []ebiten.Key
 	/* Game start screen */
 	if !glob.PlayerReady &&
@@ -313,13 +315,13 @@ func createWorldObjects() {
 							*/
 
 							if !bypass {
-								go func(o *glob.WObject, pos glob.XY) {
+								go func(o *glob.WObject, pos *glob.XY) {
 									objects.ListLock.Lock()
 									dir := objects.GameObjTypes[SelectedItemType].Direction
-									objects.ObjectHitlistAdd(o, SelectedItemType, &pos, false, dir)
+									objects.ObjectHitlistAdd(o, SelectedItemType, pos, false, dir)
 									DrawToolbar()
 									objects.ListLock.Unlock()
-								}(o, pos)
+								}(o, &pos)
 
 								gLastActionPosition = pos
 								gLastActionType = cDragActionTypeBuild
@@ -330,11 +332,11 @@ func createWorldObjects() {
 							if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
 								if o != nil {
-									go func(o *glob.WObject, pos glob.XY) {
+									go func(o *glob.WObject, pos *glob.XY) {
 										objects.ListLock.Lock()
-										objects.ObjectHitlistAdd(o, o.TypeI, &pos, true, 0)
+										objects.ObjectHitlistAdd(o, o.TypeI, pos, true, 0)
 										objects.ListLock.Unlock()
-									}(o, pos)
+									}(o, &pos)
 									//Action completed, save position and time
 									gLastActionPosition = pos
 									gLastActionType = cDragActionTypeDelete

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"runtime/debug"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -26,6 +27,7 @@ type Game struct {
 /* Main function */
 func main() {
 
+	debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
 	if runtime.GOARCH == "wasm" {
 		glob.FixWASM = true
 	}
