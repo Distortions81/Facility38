@@ -111,11 +111,10 @@ func makeVisList() {
 					for objPos, _ := range ctmp.WObject {
 						scX := ((scPos.X * consts.SuperChunkPixels) - consts.XYCenter)
 						scY := ((scPos.Y * consts.SuperChunkPixels) - consts.XYCenter)
-						x := float64((objPos.X - consts.XYCenter) + (((cpos.X * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scX)
-						y := float64((objPos.Y - consts.XYCenter) + (((cpos.Y * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scY)
+						x := float64(-(objPos.X - consts.XYCenter) + (((cpos.X * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scX)
+						y := float64(-(objPos.Y - consts.XYCenter) + (((cpos.Y * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scY)
 						op.GeoM.Reset()
 						op.GeoM.Translate(x, y)
-
 						sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
 					}
 				}
@@ -297,10 +296,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			sChunk := gVisSChunks[z]
 			cPos := gVisSChunkPos[z]
 
-			iSize := sChunk.MapImg.Bounds().Size()
 			op.GeoM.Reset()
-			op.GeoM.Scale((consts.SuperChunkPixels*glob.ZoomScale)/float64(iSize.X), (consts.SuperChunkPixels*glob.ZoomScale)/float64(iSize.Y))
-			op.GeoM.Translate((camXPos+float64(cPos.X*consts.SuperChunkPixels))*glob.ZoomScale, (camYPos+float64(cPos.Y*consts.SuperChunkPixels))*glob.ZoomScale)
+			op.GeoM.Scale(
+				(consts.SuperChunkPixels*glob.ZoomScale)/float64(consts.SuperChunkPixels),
+				(consts.SuperChunkPixels*glob.ZoomScale)/float64(consts.SuperChunkPixels))
+
+			op.GeoM.Translate(
+				(camXPos+float64((cPos.X)*consts.SuperChunkPixels))*glob.ZoomScale,
+				(camYPos+float64((cPos.Y)*consts.SuperChunkPixels))*glob.ZoomScale)
+
 			screen.DrawImage(sChunk.MapImg, op)
 		}
 	}
