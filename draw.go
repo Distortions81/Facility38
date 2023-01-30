@@ -92,6 +92,10 @@ func makeVisList() {
 				scPos.X > screenEndX/consts.SuperChunkSize ||
 				scPos.Y < screenStartY/consts.SuperChunkSize ||
 				scPos.Y > screenEndY/consts.SuperChunkSize {
+				if sChunk.MapImg != nil {
+					sChunk.MapImg.Dispose()
+					sChunk.MapImg = nil
+				}
 				sChunk.Visible = false
 				continue
 			}
