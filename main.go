@@ -10,6 +10,7 @@ import (
 	"log"
 	"runtime"
 
+	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/shirou/gopsutil/cpu"
@@ -19,6 +20,7 @@ var bootText string = "Loading..."
 var buildTime string = "Dev Build"
 
 type Game struct {
+	ui *ebitenui.UI
 }
 
 /* Main function */
@@ -59,7 +61,7 @@ func NewGame() *Game {
 	go objects.ObjUpdateDaemon()
 
 	/* Initialize the game */
-	return &Game{}
+	return &Game{ui: EUI()}
 }
 
 func loadSprites() {
