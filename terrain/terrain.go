@@ -76,7 +76,7 @@ func RenderTerrain() {
 			if chunk.TerrainImg == nil {
 				continue
 			}
-			if chunk.Visible {
+			if chunk.Visible && glob.ZoomScale > consts.MapPixelThreshold {
 				if chunk.UsingTemporary {
 					renderChunkGround(chunk, true, cpos)
 					continue

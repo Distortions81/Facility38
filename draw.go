@@ -87,6 +87,12 @@ func makeVisList() {
 		superChunksDrawn = 0
 		for scPos, sChunk := range glob.SuperChunkMap {
 
+			if glob.ZoomScale > consts.MapPixelThreshold {
+				if sChunk.MapImg != nil {
+					sChunk.MapImg.Dispose()
+					sChunk.MapImg = nil
+				}
+			}
 			/* Is this super chunk on the screen? */
 			if scPos.X < screenStartX/consts.SuperChunkSize ||
 				scPos.X > screenEndX/consts.SuperChunkSize ||
