@@ -22,7 +22,7 @@ const (
 	RUNSPEED  = 16.0
 
 	/* Define world center */
-	XYCenter = 1000000000
+	XYCenter = 10000
 	XYMax    = XYCenter * 2
 	XYMin    = 1
 
