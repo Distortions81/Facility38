@@ -101,7 +101,7 @@ func makeVisList() {
 
 			if sChunk.MapImg == nil {
 				sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
-				sChunk.MapImg.Fill(glob.ColorDarkBlue)
+				sChunk.MapImg.Fill(glob.ColorCharcol)
 				for cpos, ctmp := range sChunk.Chunks {
 					if ctmp.NumObjects <= 0 {
 						continue
