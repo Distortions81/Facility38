@@ -30,6 +30,10 @@ var (
 	gVisChunkPos [consts.MAX_DRAW_CHUNKS]glob.XY
 	gVisChunkTop int
 
+	gVisSChunks   [consts.MAX_DRAW_CHUNKS]*glob.MapSuperChunk
+	gVisSChunkPos [consts.MAX_DRAW_CHUNKS]glob.XY
+	gVisSChunkTop int
+
 	camXPos float64
 	camYPos float64
 
@@ -47,7 +51,7 @@ var (
 )
 
 func init() {
-	glob.MiniMapTile = ebiten.NewImage(consts.SpriteScale-4, consts.SpriteScale-4)
+	glob.MiniMapTile = ebiten.NewImage(1, 1)
 	glob.MiniMapTile.Fill(color.White)
 
 	glob.ToolBG = ebiten.NewImage(consts.ToolBarScale, consts.ToolBarScale)
@@ -72,10 +76,13 @@ func calcScreenCamera() {
 	screenEndY = camEndY / consts.ChunkSize
 }
 
-func makeVisList() {
+func makeVisList(screen *ebiten.Image) {
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
 		gVisChunkTop = 0
+		gVisSChunkTop = 0
 
 		superChunksDrawn = 0
 		for scPos, sChunk := range glob.SuperChunkMap {
@@ -91,6 +98,36 @@ func makeVisList() {
 
 			superChunksDrawn++
 			sChunk.Visible = true
+
+			if sChunk.MapImg == nil {
+				sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
+				sChunk.MapImg.Fill(glob.ColorCharcol)
+				for cpos, ctmp := range sChunk.Chunks {
+					if ctmp.NumObjects <= 0 {
+						continue
+					}
+
+					/* Draw objects in chunk */
+					for objPos, _ := range ctmp.WObject {
+						/* Time to draw it, pixel mode true */
+
+						x := float64((objPos.X - consts.XYCenter) + ((cpos.X * consts.ChunkSize) - consts.XYCenter))
+						y := float64((objPos.X - consts.XYCenter) + ((cpos.Y * consts.ChunkSize) - consts.XYCenter))
+						//fmt.Printf("%v,%v: %v\n", x, y, obj.TypeI)
+						op.GeoM.Reset()
+						op.GeoM.Translate(x, y)
+
+						sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
+					}
+				}
+			}
+			if gVisSChunkTop < consts.MAX_DRAW_CHUNKS {
+				gVisSChunks[gVisSChunkTop] = sChunk
+				gVisSChunkPos[gVisSChunkTop] = scPos
+				gVisSChunkTop++
+			} else {
+				break
+			}
 
 			for chunkPos, chunk := range sChunk.Chunks {
 
@@ -147,35 +184,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	glob.SuperChunkMapLock.Lock()
 
-	makeVisList()
+	makeVisList(screen)
 
 	chunksDrawn := 0
 
-	/* Draw pixel mode: TODO: caching */
-	if glob.ZoomScale < consts.MapPixelThreshold {
-		screen.Fill(glob.ColorCharcol)
-
-		for i := 0; i < gVisChunkTop; i++ {
-			chunk := gVisChunks[i]
-			if chunk.NumObjects <= 0 {
-				continue
-			}
-			chunksDrawn++
-
-			/* Draw objects in chunk */
-			for objPos, obj := range chunk.WObject {
-
-				/* Is this object on the screen? */
-				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
-					continue
-				}
-
-				/* Time to draw it, pixel mode true */
-				drawObject(screen, objPos, obj, true)
-			}
-		}
-
-	} else { /* Draw icon mode */
+	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
 		for i := 0; i < gVisChunkTop; i++ {
 			chunkPos := gVisChunkPos[i]
 			chunk := gVisChunks[i]
@@ -204,7 +217,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 
 				/* Time to draw it, pixel mode false */
-				drawObject(screen, objPos, obj, false)
+				drawObject(screen, objPos, obj)
 
 				/* Overlays */
 				/* Draw belt overlays */
@@ -280,6 +293,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 			}
 		}
+	} else {
+		for z := 0; z < gVisSChunkTop; z++ {
+			sChunk := gVisSChunks[z]
+			cPos := gVisSChunkPos[z]
+
+			op.GeoM.Reset()
+			x := float64(cPos.X*consts.SuperChunkSize) * glob.ZoomScale
+			y := float64(cPos.Y*consts.SuperChunkSize) * glob.ZoomScale
+
+			scale := (float64(consts.SuperChunkSize) * glob.ZoomScale) / float64(consts.SuperChunkPixels)
+			op.GeoM.Scale(scale, scale)
+			op.GeoM.Translate(x, y)
+
+			fmt.Printf("(%v/%v) %.2f,%.2f (%v)\n", glob.CameraX, camXPos, x, y, scale)
+			screen.DrawImage(sChunk.MapImg, op)
+		}
 	}
 
 	glob.SuperChunkMapLock.Unlock()
@@ -302,7 +331,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		0, glob.ScreenHeight-20)
 
 	/* Draw toolbar */
-	screen.DrawImage(toolbarCache, nil)
+	//screen.DrawImage(toolbarCache, nil)
 
 	/* Toolbar tool tip */
 	uipix := float64(ToolbarMax * int(consts.ToolBarScale))
@@ -379,7 +408,7 @@ func drawMaterials(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptio
 	}
 }
 
-func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject, pixMode bool) {
+func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 
 	/* camera + object */
 	objOffX := camXPos + (float64(objPos.X))
@@ -394,28 +423,26 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject, pixMode
 		return
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-		if pixMode {
-			iSize := obj.TypeP.Image.Bounds()
-			op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
-			op.GeoM.Translate(math.Floor(x), math.Floor(y))
-			screen.DrawImage(glob.MiniMapTile, op)
-		} else {
 
-			iSize := obj.TypeP.Image.Bounds()
+		iSize := obj.TypeP.Image.Bounds()
 
-			if obj.TypeP.Rotatable && obj.Direction > 0 {
-				x := float64(iSize.Size().X / 2)
-				y := float64(iSize.Size().Y / 2)
-				op.GeoM.Translate(-x, -y)
-				op.GeoM.Rotate(cNinetyDeg * float64(obj.Direction))
-				op.GeoM.Translate(x, y)
-			}
-
-			op.GeoM.Scale((float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X), (float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
-
-			op.GeoM.Translate(math.Floor(x), math.Floor(y))
-			screen.DrawImage(obj.TypeP.Image, op)
+		if obj.TypeP.Rotatable && obj.Direction > 0 {
+			x := float64(iSize.Size().X / 2)
+			y := float64(iSize.Size().Y / 2)
+			op.GeoM.Translate(-x, -y)
+			op.GeoM.Rotate(cNinetyDeg * float64(obj.Direction))
+			op.GeoM.Translate(x, y)
 		}
+
+		op.GeoM.Scale(
+			(float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X),
+			(float64(obj.TypeP.Size.Y)*glob.ZoomScale)/float64(iSize.Max.Y))
+
+		op.GeoM.Translate(math.Floor(x), math.Floor(y))
+
+		//fmt.Printf("%v,%v (%v)\n", x, y, (float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X))
+		screen.DrawImage(obj.TypeP.Image, op)
+
 	}
 
 }

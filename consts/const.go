@@ -11,7 +11,7 @@ const (
 
 	/* Debug */
 	UPSBench    = false
-	LoadTest    = false
+	LoadTest    = true
 	TestObjects = 1000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
@@ -22,7 +22,7 @@ const (
 	RUNSPEED  = 16.0
 
 	/* Define world center */
-	XYCenter = 5000000
+	XYCenter = 1000000000
 	XYMax    = XYCenter * 2
 	XYMin    = 1
 
