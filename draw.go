@@ -114,27 +114,22 @@ func makeVisList() {
 			if sChunk.MapImg == nil {
 				sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
 				sChunk.MapImg.Fill(glob.ColorCharcol)
-				for cpos, ctmp := range sChunk.Chunks {
+				for _, ctmp := range sChunk.Chunks {
 					if ctmp.NumObjects <= 0 {
 						continue
 					}
 
 					/* Draw objects in chunk */
 					for objPos, _ := range ctmp.WObject {
-						scX := ((scPos.X * consts.SuperChunkPixels) - consts.XYCenter)
-						scY := ((scPos.Y * consts.SuperChunkPixels) - consts.XYCenter)
-						x := float64((objPos.X - consts.XYCenter) + (((cpos.X * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scX)
-						y := float64((objPos.Y - consts.XYCenter) + (((cpos.Y * consts.ChunkSize) - consts.XYCenter) / consts.ChunkSize) - scY)
+						scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
+						scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
+
+						x := float64((objPos.X - consts.XYCenter) - scX)
+						y := float64((objPos.Y - consts.XYCenter) - scY)
 						op.GeoM.Reset()
 						op.GeoM.Translate(x, y)
 						sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
 					}
-
-					ebitenutil.DrawRect(sChunk.MapImg, 0, 0, 1, consts.SuperChunkPixels, glob.ColorRed)
-					ebitenutil.DrawRect(sChunk.MapImg, 0, 0, consts.SuperChunkPixels, 1, glob.ColorRed)
-
-					ebitenutil.DrawRect(sChunk.MapImg, consts.SuperChunkPixels-1, 0, 1, consts.SuperChunkPixels, glob.ColorAqua)
-					ebitenutil.DrawRect(sChunk.MapImg, 0, consts.SuperChunkPixels-1, consts.SuperChunkPixels, 1, glob.ColorAqua)
 				}
 			}
 			if gVisSChunkTop < consts.MAX_DRAW_CHUNKS {
