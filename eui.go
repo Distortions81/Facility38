@@ -12,6 +12,8 @@ import (
 )
 
 func EUI() *ebitenui.UI {
+	//return nil
+
 	// load images for button states: idle, hover, and pressed
 	buttonImage, _ := loadButtonImage()
 

@@ -405,7 +405,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Limit frame rate */
 	terrain.RenderTerrain()
-	g.ui.Draw(screen)
+	if g.ui != nil {
+		g.ui.Draw(screen)
+	}
 
 	sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
 	time.Sleep(sleepFor)
