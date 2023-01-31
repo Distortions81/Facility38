@@ -440,6 +440,9 @@ func rotateWorldObjects() {
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
 		chunk := util.GetChunk(&pos)
+		if chunk == nil {
+			return
+		}
 		o := chunk.WObject[pos]
 
 		if o != nil {

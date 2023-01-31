@@ -4,7 +4,6 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
-	"fmt"
 	"sync"
 	"time"
 
@@ -56,7 +55,13 @@ func ObjUpdateDaemon() {
 		ListLock.Lock()
 		gWorldTick++
 		gTickWorkSize = gTickCount / NumWorkers
+		if gTickWorkSize < 1 {
+			gTickWorkSize = 1
+		}
 		TockWorkSize = gTockCount / NumWorkers
+		if TockWorkSize < 1 {
+			TockWorkSize = 1
+		}
 
 		runTocks()         //Process objects
 		runTicks()         //Move external
@@ -139,8 +144,6 @@ func runTicks() {
 // Process objects
 func runTocks() {
 
-	fmt.Println(TockList)
-
 	l := gTockCount - 1
 	if l < 1 {
 		return
@@ -159,6 +162,7 @@ func runTocks() {
 		each = l + 1
 		numWorkers = 1
 	}
+
 	tickNow := time.Now()
 	for n := 0; n < numWorkers; n++ {
 		//Handle remainder on last worker
@@ -170,7 +174,6 @@ func runTocks() {
 		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
 				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
-				fmt.Println(TockList[i].Target.TypeP.Name)
 			}
 			wg.Done()
 		}(p, p+each, tickNow)
