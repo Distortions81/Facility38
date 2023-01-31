@@ -306,7 +306,7 @@ func createWorldObjects() {
 									for tx = 0; tx < size.X; tx++ {
 										for ty = 0; ty < size.Y; ty++ {
 											if chunk.LargeWObject[glob.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
-												fmt.Println("ERROR: Occupied.")
+												cwlog.DoLog("ERROR: Occupied.")
 												bypass = true
 											}
 										}

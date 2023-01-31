@@ -21,7 +21,6 @@ func beltUpdate(o *glob.WObject) {
 				o.OutputBuffer.Amount = mat.Amount
 				o.OutputBuffer.TypeP = mat.TypeP
 				o.InputBuffer[src].Amount = 0
-				//fmt.Println(obj.TypeP.Name, " moved: ", mat.Amount)
 			}
 		}
 	}

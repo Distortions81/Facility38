@@ -2,11 +2,11 @@ package objects
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/save"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -149,21 +149,21 @@ func DumpItems() bool {
 	enc.SetIndent("", "\t")
 
 	if err := enc.Encode(GameObjTypes); err != nil {
-		fmt.Println(err)
+		cwlog.DoLog("DumpItems: %v", err)
 		return false
 	}
 
 	_, err := os.Create("items.json")
 
 	if err != nil {
-		fmt.Println(err)
+		cwlog.DoLog("DumpItems: %v", err)
 		return false
 	}
 
 	err = os.WriteFile("items.json", outbuf.Bytes(), 0644)
 
 	if err != nil {
-		fmt.Println(err)
+		cwlog.DoLog("DumpItems: %v", err)
 		return false
 	}
 

@@ -2,6 +2,7 @@ package terrain
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/noise"
 	"GameTest/objects"
@@ -42,7 +43,9 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 					y := (float64(cpos.Y*consts.ChunkSize) + float64(j))
 					h := noise.NoiseMap(x, y)
 
-					//fmt.Printf("%.2f,%.2f: %.2f\n", x, y, h)
+					if consts.Verbose {
+						cwlog.DoLog("%.2f,%.2f: %.2f\n", x, y, h)
+					}
 					op.ColorM.Reset()
 					op.ColorM.Scale(h*2, 1, 1, 1)
 				}

@@ -2,8 +2,8 @@ package data
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"embed"
-	"fmt"
 	"image"
 	_ "image/png"
 	"io"
@@ -23,13 +23,13 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 	if cLoadEmbedSprites {
 		gpng, err := f.Open(consts.GfxDir + name)
 		if err != nil {
-			fmt.Println("GetSpriteImage: Embeded:", err)
+			cwlog.DoLog("GetSpriteImage: Embeded: %v", err)
 			return nil, err
 		}
 
 		m, _, err := image.Decode(gpng)
 		if err != nil {
-			fmt.Println("GetSpriteImage: Embeded:", err)
+			cwlog.DoLog("GetSpriteImage: Embeded: %v", err)
 			return nil, err
 		}
 		img := ebiten.NewImageFromImage(m)
@@ -38,7 +38,7 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 	} else {
 		img, _, err := ebitenutil.NewImageFromFile(consts.DataDir + consts.GfxDir + name)
 		if err != nil {
-			fmt.Println("GetSpriteImage: File:", err)
+			cwlog.DoLog("GetSpriteImage: File: %v", err)
 		}
 		return img, err
 	}
@@ -47,18 +47,18 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 func GetText(name string) (string, error) {
 	file, err := f.Open(consts.TxtDir + name + ".txt")
 	if err != nil {
-		fmt.Println("embed:", err)
+		cwlog.DoLog("GetText: %v", err)
 		return "GetText: File: " + name + " not found in embed.", err
 	}
 
 	txt, err := io.ReadAll(file)
 	if err != nil {
-		fmt.Println("embed:", err)
+		cwlog.DoLog("GetText: %v", err)
 		return "Error: Failed read: " + name, err
 	}
 
 	if len(txt) > 0 {
-		fmt.Println("Loaded text:", name)
+		cwlog.DoLog("GetText: %v", name)
 		return string(txt), nil
 	} else {
 		return "Error: length 0!", err

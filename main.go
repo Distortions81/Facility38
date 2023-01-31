@@ -2,6 +2,7 @@ package main
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"GameTest/data"
 	"GameTest/glob"
 	"GameTest/objects"
@@ -139,7 +140,7 @@ func detectCPUs() {
 			lCPUs--
 		}
 	}
-	fmt.Println("Virtual CPUs:", lCPUs)
+	cwlog.DoLog("Virtual CPUs: %v", lCPUs)
 
 	/* Logical CPUs */
 	cdat, cerr := cpu.Counts(false)
@@ -150,7 +151,7 @@ func detectCPUs() {
 		} else {
 			lCPUs = 1
 		}
-		fmt.Println("Logical CPUs:", cdat)
+		cwlog.DoLog("Logical CPUs: %v", cdat)
 	}
 
 	objects.NumWorkers = lCPUs

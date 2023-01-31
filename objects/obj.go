@@ -2,9 +2,9 @@ package objects
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/util"
-	"fmt"
 	"sync"
 	"time"
 
@@ -224,18 +224,18 @@ func runTocksST() {
 func ticklistAdd(target *glob.WObject) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
 	gTickCount++
-	fmt.Println("Added:", target.TypeP.Name, "to ticklist.")
+	cwlog.DoLog("Added: %v to ticklist.", target.TypeP.Name)
 }
 
 func tockListAdd(target *glob.WObject) {
 	TockList = append(TockList, glob.TickEvent{Target: target})
 	gTockCount++
-	fmt.Println("Added:", target.TypeP.Name, "to tocklist.")
+	cwlog.DoLog("Added: %v to tocklist.", target.TypeP.Name)
 }
 
 func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
 	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
-	fmt.Println("Added:", obj.TypeP.Name, "to event type:", qtype, "hitlist. Delete:", delete)
+	cwlog.DoLog("Added: %v to the event type: %v hitlist. Delete: %v", obj.TypeP.Name, qtype, delete)
 }
 
 func ticklistRemove(obj *glob.WObject) {
@@ -246,7 +246,7 @@ func ticklistRemove(obj *glob.WObject) {
 			} else {
 				TickList = []glob.TickEvent{}
 			}
-			fmt.Println("Removed:", obj.TypeP.Name, "from ticklist.")
+			cwlog.DoLog("Removed: %v from the ticklist.", obj.TypeP.Name)
 			break
 		}
 	}
@@ -262,7 +262,7 @@ func tocklistRemove(obj *glob.WObject) {
 			} else {
 				TockList = []glob.TickEvent{}
 			}
-			fmt.Println("Removed:", obj.TypeP.Name, "from tocklist.")
+			cwlog.DoLog("Removed %v from the tocklist.", obj.TypeP.Name)
 			break
 		}
 	}
@@ -294,7 +294,7 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 
 	/* Don't bother if we don't have outputs */
 	if !obj.TypeP.HasMatOutput {
-		fmt.Println(ppos, "linkOut: we do not have an output")
+		cwlog.DoLog("(%v: %v, %v) linkOut: we do not have any outputs", obj.TypeP.Name, ppos.X, ppos.Y)
 		return
 	}
 
@@ -303,19 +303,19 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 
 	/* Did we find and obj? */
 	if neigh == nil {
-		fmt.Println(ppos, "linkOut: Rejected: nil neighbor:", util.DirToName(dir))
+		cwlog.DoLog("(%v: %v, %v) linkOut: Rejected nil neighbor: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 		return
 	}
 	/* Does it have inputs? */
 	if neigh.TypeP.HasMatInput == 0 {
-		fmt.Println(ppos, "linkOut: Rejected: neighbor no inputs:", util.DirToName(dir))
+		cwlog.DoLog("(%v: %v, %v) linkOut: Rejected: neighbor has no inputs: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 		return
 	}
 	/* Do they have an output? */
 	if neigh.TypeP.HasMatOutput {
 		/* Are we trying to connect from that direction? */
 		if neigh.TypeP.Direction == util.ReverseDirection(dir) {
-			fmt.Println(ppos, "linkOut: Rejected: neighbor outputs this direction")
+			cwlog.DoLog("(%v: %v, %v) linkOut: Rejected: neighbor outputs this direction: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(util.ReverseDirection(dir)))
 			return
 		}
 	}
@@ -324,19 +324,19 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 	if obj.OutputObj != nil {
 		/* Unlink OLD output specifically */
 		unlinkOut(obj.OutputObj)
-		fmt.Println(ppos, "linkOut: removing out output")
+		cwlog.DoLog("(%v: %v, %v) linkOut: removing our output: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(obj.Direction))
 	}
 
 	/* Make sure the object has an input initialized */
 	if neigh.InputBuffer[util.ReverseDirection(dir)] != nil {
 		neigh.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
-		fmt.Println(ppos, "linkOut: init neighbor input")
+		cwlog.DoLog("(%v: %v, %v) linkOut: init neighbor input: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 	}
 
 	/* Make sure our output is initalized */
 	if obj.OutputBuffer == nil {
 		obj.OutputBuffer = &glob.MatData{}
-		fmt.Println(ppos, "linkOut: init our output")
+		cwlog.DoLog("(%v: %v, %v) linkOut: init our output.", obj.TypeP.Name, ppos.X, ppos.Y)
 	}
 
 	/* Mark target as our output */
@@ -346,7 +346,7 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 	/* Put ourself in target's input list */
 	neigh.InputObjs[util.ReverseDirection(dir)] = obj
 
-	fmt.Println(ppos, "linkOut: linked:", util.DirToName(dir))
+	cwlog.DoLog("(%v: %v, %v) linkOut: Linked: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 
 }
 
@@ -355,7 +355,7 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 
 	/* Don't bother if we don't have inputs */
 	if obj.TypeP.HasMatInput == 0 {
-		fmt.Println(ppos, "linkIn: we have no inputs")
+		cwlog.DoLog("(%v: %v, %v) linkIn: we have no inputs.", obj.TypeP.Name, ppos.X, ppos.Y)
 		return
 	}
 
@@ -365,7 +365,7 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 		/* If there is an input there, remove it */
 		if obj.TypeP.HasMatOutput && dir == newdir {
 			unlinkInput(obj, dir)
-			fmt.Println(ppos, "linkIn: unlinking input that is in direction of our new output:", util.DirToName(dir))
+			cwlog.DoLog("(%v: %v, %v) linkIn: unlinking input that is in direction of our new output: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 			continue
 		}
 
@@ -374,13 +374,13 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 
 		/* Did we find an object? */
 		if neigh == nil {
-			fmt.Println(ppos, "linkIn: nil neighbor", util.DirToName(dir))
+			cwlog.DoLog("(%v: %v, %v) linkIn: nil neighbor: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 			continue
 		}
 
 		/* Does it have an output? */
 		if !neigh.TypeP.HasMatOutput {
-			fmt.Println(ppos, "linkIn: neighbor has no outputs:", util.DirToName(dir))
+			cwlog.DoLog("(%v: %v, %v) linkIn: neighbor has no outputs: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 			continue
 		}
 
@@ -388,14 +388,14 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 		if neigh.OutputObj != nil {
 			/* Is it us? */
 			if neigh.OutputObj != obj {
-				fmt.Println(ppos, "linkIn: neighbor output is occupied:", util.DirToName(dir))
+				cwlog.DoLog("(%v: %v, %v) linkIn: neigbor output is occupied: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 				continue
 			}
 		}
 
 		/* Is the output in our direction? */
 		if neigh.Direction != util.ReverseDirection(dir) {
-			fmt.Println(ppos, "linkIn: neighbor output is not our direction:", util.DirToName(dir))
+			cwlog.DoLog("(%v: %v, %v) linkIn: neighbor output is not in our direction: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 			continue
 		}
 
@@ -405,19 +405,19 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 		/* Make sure they have an output initalized */
 		if neigh.OutputBuffer == nil {
 			neigh.OutputBuffer = &glob.MatData{}
-			fmt.Println(ppos, "linkIn: Initializing neighbor output: ", util.DirToName(dir))
+			cwlog.DoLog("(%v: %v, %v) linkIn: initializing neighbor output: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 		}
 
 		/* Make sure we have a input initalized */
 		if obj.InputBuffer[dir] == nil {
 			obj.InputBuffer[dir] = &glob.MatData{}
-			fmt.Println(ppos, "linkIn: Initializing our input:", util.DirToName(dir))
+			cwlog.DoLog("(%v: %v, %v) linkIn: initializing our input : %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 		}
 
 		/* Set ourself as their output */
 		chunk := util.GetChunk(&pos)
 		if chunk == nil {
-			fmt.Println(ppos, "linkIn: Failed to find ourself?")
+			cwlog.DoLog("(%v: %v, %v) linkIn: failed to find ourself?", obj.TypeP.Name, ppos.X, ppos.Y)
 			continue
 		}
 		neigh.OutputObj = chunk.WObject[pos]
@@ -425,8 +425,7 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 		/* Record who is on this input */
 		obj.InputObjs[util.ReverseDirection(dir)] = neigh
 
-		fmt.Println(ppos, "linkIn: linked :", util.DirToName(dir))
-
+		cwlog.DoLog("(%v: %v, %v) linkIn: linked: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 	}
 
 }
@@ -494,7 +493,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	obj := chunk.WObject[pos]
 
 	if obj != nil {
-		//fmt.Println("Object already exists at:", pos)
+		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", pos.X, pos.Y)
 		return nil
 	}
 
@@ -522,7 +521,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	scpos := util.PosToSuperChunkPos(&pos)
 
 	glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
-	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
+	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, pos.X, pos.Y)
 
 	chunk.NumObjects++
 	LinkObj(pos, obj, dir)
@@ -532,7 +531,9 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.XY, delete bool, dir int) {
 	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
-	fmt.Println("Added:", GameObjTypes[otype].Name, "to obj hitlist: Delete:", delete)
+
+	ppos := util.CenterXY(pos)
+	cwlog.DoLog("Added: %v: %v,%v to the object hitlist. Delete: %v", obj.TypeP.Name, ppos.X, ppos.Y, delete)
 }
 
 func runEventHitlist() {

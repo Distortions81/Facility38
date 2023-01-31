@@ -2,6 +2,7 @@ package main
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/objects"
 	"GameTest/terrain"
@@ -455,14 +456,16 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 
 		iSize := obj.TypeP.Image.Bounds()
 
-		op.ColorM.Reset()
-		if obj.BlinkRed > 0 {
-			op.ColorM.Scale(1, 0, 0, 1)
-			obj.BlinkRed--
-		}
-		if obj.BlinkGreen > 0 {
-			op.ColorM.Scale(0, 1, 0, 1)
-			obj.BlinkGreen--
+		if consts.Debug {
+			op.ColorM.Reset()
+			if obj.BlinkRed > 0 {
+				op.ColorM.Scale(1, 0, 0, 1)
+				obj.BlinkRed--
+			}
+			if obj.BlinkGreen > 0 {
+				op.ColorM.Scale(0, 1, 0, 1)
+				obj.BlinkGreen--
+			}
 		}
 
 		if obj.TypeP.Rotatable && obj.Direction > 0 {
@@ -479,7 +482,9 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
-		//fmt.Printf("%v,%v (%v)\n", x, y, (float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X))
+		if consts.Verbose {
+			cwlog.DoLog("%v,%v (%v)\n", x, y, (float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X))
+		}
 		screen.DrawImage(obj.TypeP.Image, op)
 
 	}

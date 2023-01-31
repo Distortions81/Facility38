@@ -2,10 +2,10 @@ package util
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"bytes"
 	"compress/zlib"
-	"fmt"
 	"io"
 	"log"
 	"math"
@@ -192,7 +192,7 @@ func CompressZip(data []byte) []byte {
 	var b bytes.Buffer
 	w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
 	if err != nil {
-		fmt.Println("ERROR: gz failure:", err)
+		cwlog.DoLog("CompressZip: %v", err)
 	}
 	w.Write(data)
 	w.Close()
