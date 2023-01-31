@@ -12,8 +12,6 @@ func minerUpdate(o *glob.WObject) {
 
 		o.OutputBuffer.Amount = input
 		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
-
-		//fmt.Println("Miner: ", o.TypeP.Name, " output: ", input)
 	}
 }
 

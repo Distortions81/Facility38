@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"fmt"
 	"sync"
 	"time"
 
@@ -52,11 +53,11 @@ func ObjUpdateDaemon() {
 		}
 		start = time.Now()
 
+		ListLock.Lock()
 		gWorldTick++
 		gTickWorkSize = gTickCount / NumWorkers
 		TockWorkSize = gTockCount / NumWorkers
 
-		ListLock.Lock()
 		runTocks()         //Process objects
 		runTicks()         //Move external
 		runEventHitlist()  //Queue to add/remove events
@@ -138,6 +139,8 @@ func runTicks() {
 // Process objects
 func runTocks() {
 
+	fmt.Println(TockList)
+
 	l := gTockCount - 1
 	if l < 1 {
 		return
@@ -167,6 +170,7 @@ func runTocks() {
 		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
 				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				fmt.Println(TockList[i].Target.TypeP.Name)
 			}
 			wg.Done()
 		}(p, p+each, tickNow)
@@ -329,12 +333,13 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	obj.OutputBuffer = &glob.MatData{}
 	obj.Direction = dir
 
-	if obj.TypeP.HasMatOutput {
-		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
-	}
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
 		EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+	}
+
+	if obj.TypeP.HasMatOutput {
+		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
 	}
 
 	cpos := util.PosToChunkPos(&pos)
