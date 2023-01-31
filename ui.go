@@ -446,15 +446,16 @@ func rotateWorldObjects() {
 		o := chunk.WObject[pos]
 
 		if o != nil {
-
-			if gShiftPressed {
-				o.Direction = util.RotCW(o.Direction)
-			} else {
-				o.Direction = util.RotCCW(o.Direction)
+			if !o.TypeP.HasMatOutput {
+				return
 			}
-
-			o.OutputObj = nil
-			objects.LinkObj(pos, o)
+			var newdir int
+			if gShiftPressed {
+				newdir = util.RotCW(o.Direction)
+			} else {
+				newdir = util.RotCCW(o.Direction)
+			}
+			objects.LinkObj(pos, o, newdir)
 		}
 	}
 }

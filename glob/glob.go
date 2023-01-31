@@ -98,6 +98,8 @@ type WObject struct {
 	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
 	InputObjs    [consts.DIR_MAX]*WObject
 	OutputBuffer *MatData `json:"o,omitempty"`
+
+	Invalid bool
 }
 
 type MatData struct {

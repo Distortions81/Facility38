@@ -114,16 +114,16 @@ func ObjUpdateDaemonST() {
 	}
 }
 
+/* Output to another object */
 func tickObj(o *glob.WObject) {
 
 	if o.OutputObj != nil {
-		revDir := util.ReverseDirection(o.Direction)
-		if o.OutputObj.InputBuffer[revDir] != nil &&
-			o.OutputObj.InputBuffer[revDir].Amount == 0 &&
+		if o.OutputObj.InputBuffer[o.Direction] != nil &&
+			o.OutputObj.InputBuffer[o.Direction].Amount == 0 &&
 			o.OutputBuffer.Amount > 0 {
 
-			o.OutputObj.InputBuffer[revDir].Amount = o.OutputBuffer.Amount
-			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
+			o.OutputObj.InputBuffer[o.Direction].Amount = o.OutputBuffer.Amount
+			o.OutputObj.InputBuffer[o.Direction].TypeP = o.OutputBuffer.TypeP
 
 			o.OutputBuffer.Amount = 0
 		}
@@ -271,45 +271,110 @@ func tocklistRemove(obj *glob.WObject) {
 	gTockCount--
 }
 
-func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
-	destObj := util.GetNeighborObj(obj, pos, dir)
-
-	if destObj != nil {
-		if destObj != obj.OutputObj {
-			obj.OutputObj = destObj
-			destObj.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
-			obj.OutputBuffer = &glob.MatData{}
+func unlinkInput(obj *glob.WObject, dir int) {
+	if obj.TypeP.HasMatInput > 0 {
+		if obj.InputObjs[dir] != nil {
+			obj.OutputObj = nil
 		}
 	}
 }
 
-func LinkObj(pos glob.XY, obj *glob.WObject) {
-	var i int
+func unlinkOut(obj *glob.WObject) {
+	if obj.TypeP.HasMatOutput {
+		if obj.OutputObj != nil {
+			/* Remove ourself from input list */
+			obj.OutputObj.InputObjs[obj.Direction] = nil
 
-	//Link inputs
-	numInputs := obj.TypeP.HasMatInput
-	if numInputs > 0 {
-		for i = consts.DIR_NORTH; i <= consts.DIR_NONE && numInputs > 0; i++ {
-			neigh := util.GetNeighborObj(obj, pos, i)
-
-			if neigh != nil {
-				if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.Direction) == i {
-					neigh.OutputObj = obj
-					obj.InputBuffer[i] = &glob.MatData{}
-					obj.InputObjs[i] = neigh
-					numInputs--
-				}
-			} else {
-				obj.InputBuffer[i] = nil
-			}
+			/* Erase output pointer */
+			obj.OutputObj = nil
 		}
 	}
+}
+func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 
-	//Link output
-	if obj.TypeP.HasMatOutput {
-		linkOut(pos, obj, obj.Direction)
+	/* Don't bother if we don't have outputs */
+	if !obj.TypeP.HasMatOutput {
+		return
 	}
 
+	destObj := util.GetNeighborObj(obj, pos, dir)
+
+	/* Did we find and obj? */
+	if destObj == nil {
+		return
+	}
+	/* Does it have inputs? */
+	if destObj.TypeP.HasMatInput > 0 {
+		return
+	}
+	/* If we have an output already, unlink it */
+	if obj.OutputObj != nil {
+		unlinkOut(obj)
+	}
+
+	/* Mark target as our output */
+	obj.OutputObj = destObj
+
+	/* Make sure the object has an input initialized */
+	if destObj.InputBuffer[dir] != nil {
+		destObj.InputBuffer[dir] = &glob.MatData{}
+	}
+
+	/* Make sure our output is initalized */
+	if obj.OutputBuffer == nil {
+		obj.OutputBuffer = &glob.MatData{}
+	}
+
+	/* Put ourself in target's input list */
+	destObj.InputObjs[dir] = obj
+
+}
+
+func linkIn(pos glob.XY, obj *glob.WObject) {
+
+	/* Don't bother if we don't have inputs */
+	numInputs := obj.TypeP.HasMatInput
+	if numInputs <= 0 {
+		return
+	}
+	for dir := consts.DIR_NORTH; dir < consts.DIR_MAX && numInputs > 0; dir++ {
+
+		/* Don't try to connect an input the same direction as our output */
+		if obj.TypeP.HasMatOutput && dir == obj.Direction {
+			continue
+		}
+		neigh := util.GetNeighborObj(obj, pos, dir)
+
+		/* Did we find an object? */
+		if neigh != nil {
+			/* Does it have an output? */
+			if neigh.TypeP.HasMatOutput {
+				/* Is the output unoccupied? */
+				if neigh.OutputObj == nil {
+					/* Don't leave other obj's outputs dangling */
+					unlinkInput(obj, dir)
+
+					/* Set ourself as the output */
+					neigh.OutputObj = obj
+
+					/* Make sure we have a input */
+					if obj.InputBuffer[dir] == nil {
+						obj.InputBuffer[dir] = &glob.MatData{}
+					}
+
+					/* Record who is on this input */
+					obj.InputObjs[dir] = neigh
+				}
+			}
+		}
+
+	}
+
+}
+
+func LinkObj(pos glob.XY, obj *glob.WObject, newdir int) {
+	linkIn(pos, obj)
+	linkOut(pos, obj, newdir)
 }
 
 func makeSuperChunk(pos glob.XY) {
@@ -379,11 +444,10 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	obj.TypeP = GameObjTypes[mtype]
 	obj.TypeI = mtype
 
-	obj.OutputObj = nil
-
 	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
-	obj.OutputBuffer = &glob.MatData{}
-	obj.Direction = dir
+	if obj.TypeP.HasMatOutput {
+		obj.Direction = dir
+	}
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
@@ -401,7 +465,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	//fmt.Println("Made obj:", pos, obj.TypeP.Name)
 
 	chunk.NumObjects++
-	LinkObj(pos, obj)
+	LinkObj(pos, obj, dir)
 
 	return obj
 }
@@ -435,12 +499,23 @@ func runObjectHitlist() {
 
 	for _, item := range ObjectHitlist {
 		if item.Delete {
+
+			/* Invalidate object, and disconnect any connections to us */
+			item.Obj.Invalid = true
+			for _, inputObj := range item.Obj.InputObjs {
+				if inputObj != nil {
+					inputObj.OutputObj = nil
+				}
+			}
+
+			/* Remove tick and tock events */
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
 			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 
 			cpos := util.PosToChunkPos(item.Pos)
 			scpos := util.PosToSuperChunkPos(item.Pos)
 
+			/* Remove from chunk */
 			glob.SuperChunkMapLock.Lock()
 			glob.SuperChunkMap[scpos].Chunks[cpos].NumObjects--
 			delete(glob.SuperChunkMap[scpos].Chunks[cpos].WObject, *item.Pos)

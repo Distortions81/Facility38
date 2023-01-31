@@ -288,9 +288,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						}
 						/* Show blocked outputs */
 						img = objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image
-						revDir := util.ReverseDirection(obj.Direction)
-						if obj.OutputObj != nil && obj.OutputBuffer.Amount > 0 &&
-							obj.OutputObj.InputBuffer[revDir] != nil && obj.OutputObj.InputBuffer[revDir].Amount > 0 {
+						if obj.OutputBuffer.Amount > 0 {
 
 							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
@@ -377,11 +375,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					o.OutputBuffer.TypeP.Name,
 					o.OutputBuffer.Amount)
 				if o.OutputObj != nil {
-					rev := util.ReverseDirection(o.Direction)
 					toolTip = toolTip + fmt.Sprintf(" (OutputObj: %v, Contains: %v-%v, Dir: %v)",
 						o.OutputObj.TypeP.Name,
-						o.OutputObj.InputBuffer[rev].Amount,
-						o.OutputObj.InputBuffer[rev].TypeP.Name,
+						o.OutputObj.InputBuffer[o.Direction].Amount,
+						o.OutputObj.InputBuffer[o.Direction].TypeP.Name,
 						util.DirToName(o.Direction))
 				}
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
@@ -389,7 +386,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					if o.InputBuffer[z] != nil && o.InputObjs[z] != nil {
 						zPos := util.FindObj(o.InputObjs[z])
 						zX := zPos.X
-						zY := zPos.Y
+						zY := zPos.Y - 1
 						toolTip = toolTip + fmt.Sprintf(" (InputBuf: %v: %v (%v,%v)), Contains: %v-%v)",
 							o.InputObjs[z].TypeP.Name,
 							util.DirToName(z),

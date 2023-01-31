@@ -3,12 +3,14 @@
 export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
 
-** Draw a ghost for pending delete/add object **
+Draw a ghost for pending delete/add object... maybe add timer for construct/deconstruct.
 support larger items, use pointers?
 tickinterval lists, so items can run every Nth tick
 Game objects need folders and JSON files with links to the sprites and other data.
-Eventually multi-thread terrain render, and pre-render (again) caching mode if memory available
+WASM try to patch mouse lost when going off-screen stupidity, also spread ticks
 
-### WASM try to patch mouse lost when going off-screen stupidity, also spread ticks
+rewrite everything for multi-input and multi-output (eventually)
+&&& Make a counter for inputs to limit number correctly &&&
+Write a deadline tick/tock for wasm
 
-check item add/remove queue and locks/threads
+Use idle render thread for work
