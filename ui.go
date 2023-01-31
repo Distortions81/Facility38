@@ -456,6 +456,7 @@ func rotateWorldObjects() {
 				newdir = util.RotCCW(o.Direction)
 			}
 			objects.LinkObj(pos, o, newdir)
+			o.Direction = newdir
 		}
 	}
 }

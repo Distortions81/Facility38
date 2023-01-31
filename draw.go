@@ -372,11 +372,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				found = true
 				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(worldMouseX-consts.XYCenter)), humanize.Comma(int64(worldMouseY-consts.XYCenter)), o.TypeP.Name)
 				if o.OutputBuffer != nil {
-					toolTip = toolTip + fmt.Sprintf(" (OutputBuf: %v: %v)",
+					toolTip = toolTip + fmt.Sprintf(" (OutputBuf: %v: %v: %v)",
+						util.DirToName(o.Direction),
 						o.OutputBuffer.TypeP.Name,
 						o.OutputBuffer.Amount)
 				}
-				if o.OutputObj != nil && o.OutputObj.InputBuffer[o.Direction] != nil {
+				if o.OutputObj != nil && o.OutputObj.InputBuffer[util.ReverseDirection(o.Direction)] != nil {
 					toolTip = toolTip + fmt.Sprintf(" (OutputObj: %v: %v)",
 						util.DirToName(o.Direction), o.OutputObj.TypeP.Name)
 				}
@@ -384,7 +385,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 					if o.InputBuffer[z] != nil {
 						toolTip = toolTip + fmt.Sprintf(" (InputBuf: %v: %v: %v)",
-							util.DirToName(util.ReverseDirection(z)),
+							util.DirToName(z),
 							o.InputBuffer[z].TypeP.Name,
 							o.InputBuffer[z].Amount)
 					}

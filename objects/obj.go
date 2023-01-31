@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/util"
+	"fmt"
 	"sync"
 	"time"
 
@@ -33,16 +34,6 @@ var (
 func ObjUpdateDaemon() {
 	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)
-
-	/*var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-	flag.Parse()
-	if *cpuprofile != "" {
-		f, err := os.Create(*cpuprofile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		pprof.StartCPUProfile(f)
-	} */
 
 	for {
 
@@ -80,8 +71,6 @@ func ObjUpdateDaemon() {
 		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
 
-	//pprof.StopCPUProfile()
-
 }
 
 func ObjUpdateDaemonST() {
@@ -117,16 +106,16 @@ func ObjUpdateDaemonST() {
 /* Output to another object */
 func tickObj(o *glob.WObject) {
 
-	if o.OutputObj != nil {
-		if o.OutputObj.InputBuffer[o.Direction] != nil &&
-			o.OutputObj.InputBuffer[o.Direction].Amount == 0 &&
-			o.OutputBuffer.Amount > 0 {
+	if o.OutputObj != nil &&
+		o.OutputBuffer.Amount > 0 &&
+		o.OutputObj.InputBuffer[o.Direction] != nil &&
+		o.OutputObj.InputBuffer[o.Direction].Amount == 0 {
 
-			o.OutputObj.InputBuffer[o.Direction].Amount = o.OutputBuffer.Amount
-			o.OutputObj.InputBuffer[o.Direction].TypeP = o.OutputBuffer.TypeP
+		o.OutputObj.InputBuffer[o.Direction].Amount = o.OutputBuffer.Amount
+		o.OutputObj.InputBuffer[o.Direction].TypeP = o.OutputBuffer.TypeP
 
-			o.OutputBuffer.Amount = 0
-		}
+		o.OutputBuffer.Amount = 0
+
 	}
 }
 
@@ -273,7 +262,7 @@ func tocklistRemove(obj *glob.WObject) {
 
 func unlinkInput(obj *glob.WObject, dir int) {
 	if obj.TypeP.HasMatInput > 0 {
-		if obj.InputObjs[dir] != nil {
+		if obj.InputObjs[util.ReverseDirection(dir)] != nil {
 			obj.OutputObj = nil
 		}
 	}
@@ -283,7 +272,7 @@ func unlinkOut(obj *glob.WObject) {
 	if obj.TypeP.HasMatOutput {
 		if obj.OutputObj != nil {
 			/* Remove ourself from input list */
-			obj.OutputObj.InputObjs[obj.Direction] = nil
+			obj.OutputObj.InputObjs[util.ReverseDirection(obj.Direction)] = nil
 
 			/* Erase output pointer */
 			obj.OutputObj = nil
@@ -292,54 +281,72 @@ func unlinkOut(obj *glob.WObject) {
 }
 func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 
+	ppos := util.CenterXY(&pos)
+
 	/* Don't bother if we don't have outputs */
 	if !obj.TypeP.HasMatOutput {
+		fmt.Println(ppos, "linkOut: we do not have an output")
 		return
 	}
 
 	/* Look for object in output direction */
-	neigh := util.GetNeighborObj(obj, pos, dir)
+	neigh, npos := util.GetNeighborObj(obj, pos, dir)
 
 	/* Did we find and obj? */
 	if neigh == nil {
+		fmt.Println(ppos, "linkOut: Rejected: nil neighbor:", util.DirToName(dir))
 		return
 	}
 	/* Does it have inputs? */
-	if neigh.TypeP.HasMatInput > 0 {
+	if neigh.TypeP.HasMatInput == 0 {
+		fmt.Println(ppos, "linkOut: Rejected: neighbor no inputs:", util.DirToName(dir))
 		return
+	}
+	/* Do they have an output? */
+	if neigh.TypeP.HasMatOutput {
+		/* Are we trying to connect from that direction? */
+		if neigh.TypeP.Direction == util.ReverseDirection(dir) {
+			fmt.Println(ppos, "linkOut: Rejected: neighbor outputs this direction")
+			return
+		}
 	}
 
 	/* If we have an output already, unlink it */
 	if obj.OutputObj != nil {
 		/* Unlink OLD output specifically */
 		unlinkOut(obj.OutputObj)
+		fmt.Println(ppos, "linkOut: removing out output")
 	}
 
-	/* Mark target as our output */
-	obj.OutputObj = neigh
-
-	/* Put ourself in target's input list */
-	neigh.InputObjs[dir] = obj
-
 	/* Make sure the object has an input initialized */
-	if neigh.InputBuffer[dir] != nil {
-		neigh.InputBuffer[dir] = &glob.MatData{}
+	if neigh.InputBuffer[util.ReverseDirection(dir)] != nil {
+		neigh.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
+		fmt.Println(ppos, "linkOut: init neighbor input")
 	}
 
 	/* Make sure our output is initalized */
 	if obj.OutputBuffer == nil {
 		obj.OutputBuffer = &glob.MatData{}
+		fmt.Println(ppos, "linkOut: init our output")
 	}
 
-	/* Change our out direction last, so we can unlink old outputs */
-	obj.Direction = dir
+	/* Mark target as our output */
+	chunk := util.GetChunk(&npos)
+	obj.OutputObj = chunk.WObject[npos]
+
+	/* Put ourself in target's input list */
+	neigh.InputObjs[util.ReverseDirection(dir)] = obj
+
+	fmt.Println(ppos, "linkOut: linked:", util.DirToName(dir))
 
 }
 
 func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
+	ppos := util.CenterXY(&pos)
 
 	/* Don't bother if we don't have inputs */
 	if obj.TypeP.HasMatInput == 0 {
+		fmt.Println(ppos, "linkIn: we have no inputs")
 		return
 	}
 
@@ -349,50 +356,63 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 		/* If there is an input there, remove it */
 		if obj.TypeP.HasMatOutput && dir == newdir {
 			unlinkInput(obj, dir)
+			fmt.Println(ppos, "linkIn: unlinking input that is in direction of our new output:", util.DirToName(dir))
 			continue
 		}
 
 		/* Look for neighbor object */
-		neigh := util.GetNeighborObj(obj, pos, dir)
+		neigh, _ := util.GetNeighborObj(obj, pos, dir)
 
 		/* Did we find an object? */
 		if neigh == nil {
+			fmt.Println(ppos, "linkIn: nil neighbor", util.DirToName(dir))
 			continue
 		}
 
 		/* Does it have an output? */
 		if !neigh.TypeP.HasMatOutput {
+			fmt.Println(ppos, "linkIn: neighbor has no outputs:", util.DirToName(dir))
 			continue
 		}
 
 		/* Is the output unoccupied? */
 		if neigh.OutputObj != nil {
-			continue
+			/* Is it us? */
+			if neigh.OutputObj != obj {
+				fmt.Println(ppos, "linkIn: neighbor output is occupied:", util.DirToName(dir))
+				continue
+			}
 		}
 
 		/* Is the output in our direction? */
 		if neigh.Direction != util.ReverseDirection(dir) {
+			fmt.Println(ppos, "linkIn: neighbor output is not our direction:", util.DirToName(dir))
 			continue
 		}
 
 		/* Unlink old input from this direction if it exists */
 		unlinkInput(obj, dir)
 
-		/* Set ourself as their output */
-		neigh.OutputObj = obj
-
-		/* Record who is on this input */
-		obj.InputObjs[dir] = neigh
-
 		/* Make sure they have an output initalized */
 		if neigh.OutputBuffer == nil {
 			neigh.OutputBuffer = &glob.MatData{}
+			fmt.Println(ppos, "linkIn: Initializing neighbor output: ", util.DirToName(dir))
 		}
 
 		/* Make sure we have a input initalized */
 		if obj.InputBuffer[dir] == nil {
 			obj.InputBuffer[dir] = &glob.MatData{}
+			fmt.Println(ppos, "linkIn: Initializing our input:", util.DirToName(dir))
 		}
+
+		/* Set ourself as their output */
+		chunk := util.GetChunk(&pos)
+		neigh.OutputObj = chunk.WObject[pos]
+
+		/* Record who is on this input */
+		obj.InputObjs[util.ReverseDirection(dir)] = neigh
+
+		fmt.Println(ppos, "linkIn: linked :", util.DirToName(dir))
 
 	}
 

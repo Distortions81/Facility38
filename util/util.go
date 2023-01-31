@@ -13,18 +13,8 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func FindObj(src *glob.WObject) glob.XY {
-	for _, sChunk := range glob.SuperChunkMap {
-		for _, chunk := range sChunk.Chunks {
-			for pos, _ := range chunk.WObject {
-				if chunk.WObject[pos] == src {
-					return glob.XY{X: pos.X - consts.XYCenter + 1, Y: pos.Y - consts.XYCenter + 1}
-				}
-			}
-		}
-	}
-
-	return glob.XY{X: 0, Y: 0}
+func CenterXY(pos *glob.XY) glob.XY {
+	return glob.XY{X: pos.X - consts.XYCenter + 1, Y: pos.Y - consts.XYCenter}
 }
 
 func RotCW(dir int) int {
@@ -113,7 +103,7 @@ func FloatXYToPosition(x float64, y float64) glob.XY {
 	return glob.XY{X: int(x), Y: int(y)}
 }
 
-func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
+func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) (*glob.WObject, glob.XY) {
 
 	switch dir {
 	case consts.DIR_NORTH:
@@ -125,15 +115,15 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
 	case consts.DIR_WEST:
 		pos.X--
 	default:
-		return nil
+		return nil, glob.XY{}
 	}
 
 	chunk := GetChunk(&pos)
 	obj := GetObj(&pos, chunk)
-	if obj == src || obj == src.OutputObj {
-		return nil
+	if src == chunk.WObject[pos] {
+		return nil, glob.XY{}
 	}
-	return obj
+	return obj, pos
 }
 
 func DirToName(dir int) string {

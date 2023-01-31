@@ -60,7 +60,7 @@ var (
 			CapacityKG: 5000,
 			Symbol:     "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj:   boxUpdate,
-			HasMatInput: 5},
+			HasMatInput: consts.DIR_MAX},
 
 		{ImagePath: "world-obj/basic-smelter-1.png",
 			Name:       "Basic smelter",

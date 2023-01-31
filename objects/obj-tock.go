@@ -6,7 +6,6 @@ import (
 )
 
 func minerUpdate(o *glob.WObject) {
-
 	if o.OutputBuffer.Amount == 0 {
 		input := uint64((o.TypeP.MinerKGTock))
 
