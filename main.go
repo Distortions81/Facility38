@@ -61,7 +61,7 @@ func NewGame() *Game {
 	go loadSprites()
 	//go makeTestMap()
 	glob.MapGenerated = true
-	go objects.ObjUpdateDaemon()
+	go objects.ObjUpdateDaemonST()
 
 	/* Initialize the game */
 	return &Game{ui: EUI()}

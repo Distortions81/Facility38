@@ -386,7 +386,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 					glob.SuperChunkMapLock.Lock()
-					if o.InputBuffer[z] != nil {
+					if o.InputBuffer[z] != nil && o.InputObjs[z] != nil {
 						zPos := util.FindObj(o.InputObjs[z])
 						zX := zPos.X
 						zY := zPos.Y

@@ -84,6 +84,36 @@ func ObjUpdateDaemon() {
 
 }
 
+func ObjUpdateDaemonST() {
+	var start time.Time
+
+	for {
+
+		if !glob.MapGenerated {
+			time.Sleep(time.Millisecond * 100)
+			continue
+		}
+		start = time.Now()
+
+		ListLock.Lock()
+		runTocksST()       //Process objects
+		runTicksST()       //Move external
+		runEventHitlist()  //Queue to add/remove events
+		runObjectHitlist() //Queue to add/remove objects
+		ListLock.Unlock()
+
+		if !consts.UPSBench {
+			sleepFor := glob.ObjectUPS_ns - time.Since(start)
+			time.Sleep(sleepFor)
+		} else {
+			if glob.FixWASM {
+				time.Sleep(time.Millisecond)
+			}
+		}
+		glob.MeasuredObjectUPS_ns = time.Since(start)
+	}
+}
+
 func tickObj(o *glob.WObject) {
 
 	if o.OutputObj != nil {
@@ -97,6 +127,13 @@ func tickObj(o *glob.WObject) {
 
 			o.OutputBuffer.Amount = 0
 		}
+	}
+}
+
+// Move materials from one object to another
+func runTicksST() {
+	for i := 0; i < gTickCount; i++ {
+		tickObj(TickList[i].Target)
 	}
 }
 
@@ -181,6 +218,13 @@ func runTocks() {
 
 	}
 	wg.Wait()
+}
+
+// Process objects
+func runTocksST() {
+	for i := 0; i < gTockCount; i++ {
+		TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+	}
 }
 
 func ticklistAdd(target *glob.WObject) {
