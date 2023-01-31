@@ -492,8 +492,9 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	glob.CameraDirty = true
 	obj := chunk.WObject[pos]
 
+	ppos := util.CenterXY(&pos)
 	if obj != nil {
-		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", pos.X, pos.Y)
+		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", ppos.X, ppos.Y)
 		return nil
 	}
 
@@ -521,7 +522,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	scpos := util.PosToSuperChunkPos(&pos)
 
 	glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
-	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, pos.X, pos.Y)
+	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
 
 	chunk.NumObjects++
 	LinkObj(pos, obj, dir)
@@ -533,7 +534,7 @@ func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.XY, delete bool, d
 	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 
 	ppos := util.CenterXY(pos)
-	cwlog.DoLog("Added: %v: %v,%v to the object hitlist. Delete: %v", obj.TypeP.Name, ppos.X, ppos.Y, delete)
+	cwlog.DoLog("Added: %v,%v to the object hitlist. Delete: %v", ppos.X, ppos.Y, delete)
 }
 
 func runEventHitlist() {

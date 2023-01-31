@@ -483,7 +483,7 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
 		if consts.Verbose {
-			cwlog.DoLog("%v,%v (%v)\n", x, y, (float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X))
+			cwlog.DoLog("%v,%v (%v)", x, y, (float64(obj.TypeP.Size.X)*glob.ZoomScale)/float64(iSize.Max.X))
 		}
 		screen.DrawImage(obj.TypeP.Image, op)
 

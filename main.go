@@ -27,6 +27,7 @@ type Game struct {
 
 /* Main function */
 func main() {
+	cwlog.StartLog()
 
 	debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
 	if runtime.GOARCH == "wasm" {

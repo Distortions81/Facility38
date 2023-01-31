@@ -44,7 +44,7 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 					h := noise.NoiseMap(x, y)
 
 					if consts.Verbose {
-						cwlog.DoLog("%.2f,%.2f: %.2f\n", x, y, h)
+						cwlog.DoLog("%.2f,%.2f: %.2f", x, y, h)
 					}
 					op.ColorM.Reset()
 					op.ColorM.Scale(h*2, 1, 1, 1)

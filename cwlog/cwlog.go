@@ -20,17 +20,22 @@ func DoLog(format string, args ...interface{}) {
 	ctime := time.Now()
 	_, filename, line, _ := runtime.Caller(1)
 
-	text := fmt.Sprintf(format+"\n", args...)
+	text := fmt.Sprintf(format, args...)
 
 	date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
 	buf := fmt.Sprintf("%v: %15v:%5v: %v\n", date, filepath.Base(filename), line, text)
 	_, err := LogDesc.WriteString(buf)
+
+	if consts.LogStdOut {
+		fmt.Print(buf)
+	}
 	if err != nil {
 		fmt.Println("DoLog: WriteString failure")
 		LogDesc.Close()
 		LogDesc = nil
 		return
 	}
+
 }
 
 /* Prep everything for the cw log */
