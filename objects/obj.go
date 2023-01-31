@@ -82,7 +82,8 @@ func tickObj(o *glob.WObject) {
 
 	if o.OutputObj != nil {
 		revDir := util.ReverseDirection(o.Direction)
-		if o.OutputObj.InputBuffer[revDir] != nil && o.OutputObj.InputBuffer[revDir].Amount == 0 &&
+		if o.OutputObj.InputBuffer[revDir] != nil &&
+			o.OutputObj.InputBuffer[revDir].Amount == 0 &&
 			o.OutputBuffer.Amount > 0 {
 
 			o.OutputObj.InputBuffer[revDir].Amount = o.OutputBuffer.Amount
@@ -225,6 +226,7 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 	if destObj != nil {
 		obj.OutputObj = destObj
 		destObj.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
+		obj.OutputBuffer = &glob.MatData{}
 	}
 }
 
@@ -232,16 +234,18 @@ func LinkObj(pos glob.XY, obj *glob.WObject) {
 	var i int
 
 	//Link inputs
-	for i = consts.DIR_NORTH; i <= consts.DIR_NONE; i++ {
-		neigh := util.GetNeighborObj(obj, pos, i)
+	if obj.TypeP.HasMatInput {
+		for i = consts.DIR_NORTH; i <= consts.DIR_NONE; i++ {
+			neigh := util.GetNeighborObj(obj, pos, i)
 
-		if neigh != nil {
-			if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.Direction) == i {
-				neigh.OutputObj = obj
-				obj.InputBuffer[i] = &glob.MatData{}
+			if neigh != nil {
+				if neigh.TypeP.HasMatOutput && util.ReverseDirection(neigh.Direction) == i {
+					neigh.OutputObj = obj
+					obj.InputBuffer[i] = &glob.MatData{}
+				}
+			} else {
+				obj.InputBuffer[i] = nil
 			}
-		} else {
-			obj.InputBuffer[i] = nil
 		}
 	}
 

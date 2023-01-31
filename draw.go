@@ -259,7 +259,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						}
 					}
 
-				} else if glob.ShowInfoLayer {
+				}
+				if glob.ShowInfoLayer {
 					/* Info Overlays, such as arrows and blocked indicator */
 
 					/* camera + object */
@@ -401,7 +402,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				if !found {
 					for _, t := range o.InputBuffer {
 						if t != nil && t.Amount > 0 {
-							toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SIWithDigits(float64(t.Amount), 2, ""))
+							//toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SIWithDigits(float64(t.Amount), 2, ""))
 						}
 					}
 				}

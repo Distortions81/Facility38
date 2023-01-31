@@ -45,7 +45,7 @@ func splitterUpdate(o *glob.WObject) {
 
 func boxUpdate(o *glob.WObject) {
 
-	for src, mat := range o.InputBuffer {
+	for _, mat := range o.InputBuffer {
 		if mat != nil && mat.Amount > 0 {
 			if o.KGHeld+mat.Amount <= o.TypeP.CapacityKG {
 				if o.Contents[mat.TypeP.TypeI] == nil {
@@ -55,7 +55,7 @@ func boxUpdate(o *glob.WObject) {
 				o.KGHeld += mat.Amount
 				o.Contents[mat.TypeP.TypeI].TypeP = mat.TypeP
 
-				o.InputBuffer[src].Amount = 0
+				mat.Amount = 0
 			}
 		}
 	}
