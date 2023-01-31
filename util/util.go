@@ -114,6 +114,9 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
 
 	chunk := GetChunk(&pos)
 	obj := GetObj(&pos, chunk)
+	if obj == src || obj == src.OutputObj {
+		return nil
+	}
 	return obj
 }
 

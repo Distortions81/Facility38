@@ -233,9 +233,6 @@ func LinkObj(pos glob.XY, obj *glob.WObject) {
 
 	//Link inputs
 	for i = consts.DIR_NORTH; i <= consts.DIR_NONE; i++ {
-		if i == obj.Direction {
-			continue
-		}
 		neigh := util.GetNeighborObj(obj, pos, i)
 
 		if neigh != nil {
@@ -243,25 +240,14 @@ func LinkObj(pos glob.XY, obj *glob.WObject) {
 				neigh.OutputObj = obj
 				obj.InputBuffer[i] = &glob.MatData{}
 			}
+		} else {
+			obj.InputBuffer[i] = nil
 		}
 	}
 
 	//Link output
 	if obj.TypeP.HasMatOutput {
 		linkOut(pos, obj, obj.Direction)
-
-		//Link up additonal outputs for splitters
-		if obj.TypeI == consts.ObjTypeBasicSplit {
-			dir := util.RotCW(obj.Direction)
-			linkOut(pos, obj, dir)
-
-			dir = util.RotCW(dir)
-			linkOut(pos, obj, dir)
-
-			dir = util.RotCW(dir)
-			linkOut(pos, obj, dir)
-
-		}
 	}
 
 }

@@ -374,12 +374,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(worldMouseX-consts.XYCenter)), humanize.Comma(int64(worldMouseY-consts.XYCenter)), o.TypeP.Name)
 				if o.OutputObj != nil {
 					rev := util.ReverseDirection(o.Direction)
-					toolTip = toolTip + fmt.Sprintf(" (Output: %v, Contains: %v)", o.OutputObj.TypeP.Name, o.OutputObj.InputBuffer[rev].TypeP.Name)
+					toolTip = toolTip + fmt.Sprintf(" (Output: %v, Contains: %v-%v, Dir: %v)",
+						o.OutputObj.TypeP.Name,
+						o.OutputObj.InputBuffer[rev].Amount,
+						o.OutputObj.InputBuffer[rev].TypeP.Name,
+						util.DirToName(o.Direction))
 				}
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 					glob.SuperChunkMapLock.Lock()
 					if o.InputBuffer[z] != nil {
-						toolTip = toolTip + fmt.Sprintf(" (Input: %v, Contains: %v)", util.DirToName(z), o.InputBuffer[z].TypeP.Name)
+						toolTip = toolTip + fmt.Sprintf(" (Input: %v, Contains: %v-%v)",
+							util.DirToName(z),
+							o.InputBuffer[z].Amount,
+							o.InputBuffer[z].TypeP.Name)
 					}
 					glob.SuperChunkMapLock.Unlock()
 				}
