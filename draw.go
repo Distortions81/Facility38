@@ -62,14 +62,14 @@ func init() {
 
 func calcScreenCamera() {
 	/* Adjust cam position for zoom */
-	camXPos = float64(-glob.CameraX) + (float64(glob.ScreenWidth/2) / glob.ZoomScale)
-	camYPos = float64(-glob.CameraY) + (float64(glob.ScreenHeight/2) / glob.ZoomScale)
+	camXPos = float64(-glob.CameraX) + ((float64(glob.ScreenWidth) / 2.0) / glob.ZoomScale)
+	camYPos = float64(-glob.CameraY) + ((float64(glob.ScreenHeight) / 2.0) / glob.ZoomScale)
 
 	/* Get camera bounds */
-	camStartX = int((1/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
-	camStartY = int((1/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
-	camEndX = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale)))
-	camEndY = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale)))
+	camStartX = int((1/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale)))
+	camStartY = int((1/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale)))
+	camEndX = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale)))
+	camEndY = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale)))
 
 	/* Pre-calc camera chunk position */
 	screenStartX = camStartX / consts.ChunkSize
@@ -326,8 +326,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	glob.SuperChunkMapLock.Unlock()
 
 	/* Get mouse position on world */
-	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-	worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale))
+	worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale))
 
 	/* Draw debug info */
 	ebitenutil.DebugPrintAt(screen,
@@ -371,7 +371,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			o := chunk.WObject[pos]
 			if o != nil {
 				found = true
-				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(worldMouseX-consts.XYCenter)), humanize.Comma(int64(worldMouseY-consts.XYCenter)), o.TypeP.Name)
+				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 					if o.Contents[z] != nil {
 						toolTip = toolTip + fmt.Sprintf(" (Contents: %v: %v)",
@@ -407,7 +407,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		/* No object contents found */
 		if !found {
-			toolTip = fmt.Sprintf("(%v, %v)", humanize.Comma(int64(worldMouseX-consts.XYCenter)), humanize.Comma(int64(worldMouseY-consts.XYCenter)))
+			toolTip = fmt.Sprintf("(%v, %v)", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))))
 		}
 
 		tRect := text.BoundString(glob.ToolTipFont, toolTip)

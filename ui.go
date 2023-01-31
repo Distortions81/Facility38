@@ -30,10 +30,10 @@ var (
 	gClickCaptured  bool
 
 	/* Mouse vars */
-	gMouseX     float64
-	gMouseY     float64
-	gPrevMouseX float64
-	gPrevMouseY float64
+	gMouseX     float64 = 1
+	gMouseY     float64 = 1
+	gPrevMouseX float64 = 1
+	gPrevMouseY float64 = 1
 
 	/* Last object we performed an action on */
 	gLastActionPosition glob.XY
@@ -282,8 +282,8 @@ func createWorldObjects() {
 		/* UI area */
 		if !gClickCaptured {
 			/* Get mouse position on world */
-			worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-			worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+			worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale))
+			worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale))
 
 			pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
@@ -433,8 +433,8 @@ func rotateWorldObjects() {
 	/* Rotate object */
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		/* Get mouse position on world */
-		worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-		worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+		worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth/2.0) / glob.ZoomScale)))
+		worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight/2.0))/glob.ZoomScale))
 
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 

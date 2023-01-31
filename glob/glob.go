@@ -50,8 +50,8 @@ var (
 	CameraDirty bool = true
 
 	/* Mouse vars */
-	MouseX float64 = 0
-	MouseY float64 = 0
+	MouseX float64 = float64(consts.XYCenter)
+	MouseY float64 = float64(consts.XYCenter)
 
 	/* Setup latches */
 	InitMouse = false
