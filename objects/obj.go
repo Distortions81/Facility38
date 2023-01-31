@@ -106,16 +106,21 @@ func ObjUpdateDaemonST() {
 /* Output to another object */
 func tickObj(o *glob.WObject) {
 
-	if o.OutputObj != nil &&
-		o.OutputBuffer.Amount > 0 &&
-		o.OutputObj.InputBuffer[o.Direction] != nil &&
-		o.OutputObj.InputBuffer[o.Direction].Amount == 0 {
+	if o.OutputObj != nil {
+		revDir := util.ReverseDirection(o.Direction)
+		if o.OutputBuffer.Amount > 0 &&
+			o.OutputObj.InputBuffer[revDir] != nil &&
+			o.OutputObj.InputBuffer[revDir].Amount == 0 {
 
-		o.OutputObj.InputBuffer[o.Direction].Amount = o.OutputBuffer.Amount
-		o.OutputObj.InputBuffer[o.Direction].TypeP = o.OutputBuffer.TypeP
+			o.OutputObj.InputBuffer[revDir].Amount = o.OutputBuffer.Amount
+			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
 
-		o.OutputBuffer.Amount = 0
+			o.OutputBuffer.Amount = 0
 
+			o.BlinkGreen = 2
+		}
+	} else {
+		o.BlinkRed = 4
 	}
 }
 
@@ -219,26 +224,29 @@ func runTocksST() {
 func ticklistAdd(target *glob.WObject) {
 	TickList = append(TickList, glob.TickEvent{Target: target})
 	gTickCount++
+	fmt.Println("Added:", target.TypeP.Name, "to ticklist.")
 }
 
 func tockListAdd(target *glob.WObject) {
 	TockList = append(TockList, glob.TickEvent{Target: target})
 	gTockCount++
+	fmt.Println("Added:", target.TypeP.Name, "to tocklist.")
 }
 
 func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
 	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
+	fmt.Println("Added:", obj.TypeP.Name, "to event type:", qtype, "hitlist. Delete:", delete)
 }
 
 func ticklistRemove(obj *glob.WObject) {
 	for i, e := range TickList {
 		if e.Target == obj {
-
 			if len(TickList) > 1 {
 				TickList = append(TickList[:i], TickList[i+1:]...)
 			} else {
 				TickList = []glob.TickEvent{}
 			}
+			fmt.Println("Removed:", obj.TypeP.Name, "from ticklist.")
 			break
 		}
 	}
@@ -254,6 +262,7 @@ func tocklistRemove(obj *glob.WObject) {
 			} else {
 				TockList = []glob.TickEvent{}
 			}
+			fmt.Println("Removed:", obj.TypeP.Name, "from tocklist.")
 			break
 		}
 	}
@@ -407,6 +416,10 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 
 		/* Set ourself as their output */
 		chunk := util.GetChunk(&pos)
+		if chunk == nil {
+			fmt.Println(ppos, "linkIn: Failed to find ourself?")
+			continue
+		}
 		neigh.OutputObj = chunk.WObject[pos]
 
 		/* Record who is on this input */
@@ -519,6 +532,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.XY, delete bool, dir int) {
 	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
+	fmt.Println("Added:", GameObjTypes[otype].Name, "to obj hitlist: Delete:", delete)
 }
 
 func runEventHitlist() {

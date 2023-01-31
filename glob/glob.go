@@ -99,6 +99,10 @@ type WObject struct {
 	InputObjs    [consts.DIR_MAX]*WObject
 	OutputBuffer *MatData `json:"o,omitempty"`
 
+	BlinkRed   int
+	BlinkGreen int
+	BlinkBlue  int
+
 	Invalid bool
 }
 

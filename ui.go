@@ -319,7 +319,6 @@ func createWorldObjects() {
 									objects.ListLock.Lock()
 									dir := objects.GameObjTypes[SelectedItemType].Direction
 									objects.ObjectHitlistAdd(o, SelectedItemType, pos, false, dir)
-									DrawToolbar()
 									objects.ListLock.Unlock()
 								}(o, &pos)
 
@@ -446,9 +445,6 @@ func rotateWorldObjects() {
 		o := chunk.WObject[pos]
 
 		if o != nil {
-			if !o.TypeP.HasMatOutput {
-				return
-			}
 			var newdir int
 			if gShiftPressed {
 				newdir = util.RotCW(o.Direction)

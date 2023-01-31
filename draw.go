@@ -371,6 +371,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(worldMouseX-consts.XYCenter)), humanize.Comma(int64(worldMouseY-consts.XYCenter)), o.TypeP.Name)
+				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
+					if o.Contents[z] != nil {
+						toolTip = toolTip + fmt.Sprintf(" (Contents: %v: %v)",
+							o.Contents[z].TypeP.Name, o.Contents[z].Amount)
+					}
+				}
 				if o.OutputBuffer != nil {
 					toolTip = toolTip + fmt.Sprintf(" (OutputBuf: %v: %v: %v)",
 						util.DirToName(o.Direction),
@@ -390,9 +396,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							o.InputBuffer[z].Amount)
 					}
 					if o.InputObjs[z] != nil {
-						toolTip = toolTip + fmt.Sprintf(" InputObj: %v: %v)",
+						toolTip = toolTip + fmt.Sprintf(" (InputObj: %v: %v)",
 							o.InputObjs[z].TypeP.Name,
-							util.DirToName(util.ReverseDirection(o.InputObjs[z].Direction)))
+							util.DirToName(util.ReverseDirection(z)))
 					}
 				}
 			}
@@ -448,6 +454,16 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 		iSize := obj.TypeP.Image.Bounds()
+
+		op.ColorM.Reset()
+		if obj.BlinkRed > 0 {
+			op.ColorM.Scale(1, 0, 0, 1)
+			obj.BlinkRed--
+		}
+		if obj.BlinkGreen > 0 {
+			op.ColorM.Scale(0, 1, 0, 1)
+			obj.BlinkGreen--
+		}
 
 		if obj.TypeP.Rotatable && obj.Direction > 0 {
 			x := float64(iSize.Size().X / 2)

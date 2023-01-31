@@ -59,6 +59,7 @@ func NewGame() *Game {
 	setupWindowSize()
 	windowTitle()
 	go loadSprites()
+	objects.ExploreMap(8)
 	//go makeTestMap()
 	glob.MapGenerated = true
 	go objects.ObjUpdateDaemonST()

@@ -14,7 +14,7 @@ import (
 )
 
 func CenterXY(pos *glob.XY) glob.XY {
-	return glob.XY{X: pos.X - consts.XYCenter + 1, Y: pos.Y - consts.XYCenter}
+	return glob.XY{X: pos.X - consts.XYCenter, Y: pos.Y - consts.XYCenter}
 }
 
 func RotCW(dir int) int {
@@ -119,7 +119,14 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) (*glob.WObject, glo
 	}
 
 	chunk := GetChunk(&pos)
+	if chunk == nil {
+		return nil, glob.XY{}
+	}
 	obj := GetObj(&pos, chunk)
+	if obj == nil {
+		return nil, glob.XY{}
+	}
+	/* We are not our own neighbor */
 	if src == chunk.WObject[pos] {
 		return nil, glob.XY{}
 	}
