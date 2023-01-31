@@ -275,9 +275,11 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 	destObj := util.GetNeighborObj(obj, pos, dir)
 
 	if destObj != nil {
-		obj.OutputObj = destObj
-		destObj.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
-		obj.OutputBuffer = &glob.MatData{}
+		if destObj != obj.OutputObj {
+			obj.OutputObj = destObj
+			destObj.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
+			obj.OutputBuffer = &glob.MatData{}
+		}
 	}
 }
 
