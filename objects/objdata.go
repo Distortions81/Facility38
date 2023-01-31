@@ -40,7 +40,7 @@ var (
 			Rotatable:  true,
 			UpdateObj:  beltUpdate,
 			Symbol:     "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			HasMatInput:  true,
+			HasMatInput:  1,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-splitter.png",
@@ -50,7 +50,7 @@ var (
 			Rotatable: true,
 			UpdateObj: splitterUpdate,
 			Symbol:    "SPLIT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			HasMatInput:  true,
+			HasMatInput:  2,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-box.png",
@@ -60,7 +60,7 @@ var (
 			CapacityKG: 5000,
 			Symbol:     "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj:   boxUpdate,
-			HasMatInput: true},
+			HasMatInput: 5},
 
 		{ImagePath: "world-obj/basic-smelter-1.png",
 			Name:       "Basic smelter",
@@ -69,7 +69,7 @@ var (
 			CapacityKG: 50,
 			Symbol:     "SMELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj:    smelterUpdate,
-			HasMatInput:  true,
+			HasMatInput:  2,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/iron-rod-caster.png",
@@ -78,7 +78,7 @@ var (
 			Size:   glob.XY{X: 1, Y: 1},
 			Symbol: "CAST", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj:    ironCasterUpdate,
-			HasMatInput:  true,
+			HasMatInput:  2,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/basic-boiler.png",
@@ -88,7 +88,7 @@ var (
 			CapacityKG: 500,
 			Symbol:     "BOIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj:    steamEngineUpdate,
-			HasMatInput:  true,
+			HasMatInput:  1,
 			HasMatOutput: true},
 
 		{ImagePath: "world-obj/steam-engine.png",
@@ -98,7 +98,7 @@ var (
 			CapacityKG: 500,
 			Symbol:     "STEAM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj:   steamEngineUpdate,
-			HasMatInput: true},
+			HasMatInput: 1},
 	}
 
 	TerrainTypes = []*glob.ObjType{

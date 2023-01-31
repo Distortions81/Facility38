@@ -13,6 +13,20 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
+func FindObj(src *glob.WObject) glob.XY {
+	for _, sChunk := range glob.SuperChunkMap {
+		for _, chunk := range sChunk.Chunks {
+			for pos, _ := range chunk.WObject {
+				if chunk.WObject[pos] == src {
+					return glob.XY{X: pos.X - consts.XYCenter + 1, Y: pos.Y - consts.XYCenter + 1}
+				}
+			}
+		}
+	}
+
+	return glob.XY{X: 0, Y: 0}
+}
+
 func RotCW(dir int) int {
 	dir = dir - 1
 	if dir < consts.DIR_NORTH {
@@ -110,6 +124,8 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
 		pos.Y++
 	case consts.DIR_WEST:
 		pos.X--
+	default:
+		return nil
 	}
 
 	chunk := GetChunk(&pos)

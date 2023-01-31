@@ -96,7 +96,8 @@ type WObject struct {
 
 	//Input/Output
 	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
-	OutputBuffer *MatData                 `json:"o,omitempty"`
+	InputObjs    [consts.DIR_MAX]*WObject
+	OutputBuffer *MatData `json:"o,omitempty"`
 }
 
 type MatData struct {
@@ -130,7 +131,7 @@ type ObjType struct {
 	CapacityKG  uint64
 
 	HasMatOutput bool
-	HasMatInput  bool
+	HasMatInput  int
 
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *WObject) `json:"-"`
