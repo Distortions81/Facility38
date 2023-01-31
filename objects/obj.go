@@ -297,27 +297,33 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 		return
 	}
 
-	destObj := util.GetNeighborObj(obj, pos, dir)
+	/* Look for object in output direction */
+	neigh := util.GetNeighborObj(obj, pos, dir)
 
 	/* Did we find and obj? */
-	if destObj == nil {
+	if neigh == nil {
 		return
 	}
 	/* Does it have inputs? */
-	if destObj.TypeP.HasMatInput > 0 {
+	if neigh.TypeP.HasMatInput > 0 {
 		return
 	}
+
 	/* If we have an output already, unlink it */
 	if obj.OutputObj != nil {
-		unlinkOut(obj)
+		/* Unlink OLD output specifically */
+		unlinkOut(obj.OutputObj)
 	}
 
 	/* Mark target as our output */
-	obj.OutputObj = destObj
+	obj.OutputObj = neigh
+
+	/* Put ourself in target's input list */
+	neigh.InputObjs[dir] = obj
 
 	/* Make sure the object has an input initialized */
-	if destObj.InputBuffer[dir] != nil {
-		destObj.InputBuffer[dir] = &glob.MatData{}
+	if neigh.InputBuffer[dir] != nil {
+		neigh.InputBuffer[dir] = &glob.MatData{}
 	}
 
 	/* Make sure our output is initalized */
@@ -325,47 +331,67 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 		obj.OutputBuffer = &glob.MatData{}
 	}
 
-	/* Put ourself in target's input list */
-	destObj.InputObjs[dir] = obj
+	/* Change our out direction last, so we can unlink old outputs */
+	obj.Direction = dir
 
 }
 
-func linkIn(pos glob.XY, obj *glob.WObject) {
+func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 
 	/* Don't bother if we don't have inputs */
-	numInputs := obj.TypeP.HasMatInput
-	if numInputs <= 0 {
+	if obj.TypeP.HasMatInput == 0 {
 		return
 	}
-	for dir := consts.DIR_NORTH; dir < consts.DIR_MAX && numInputs > 0; dir++ {
 
-		/* Don't try to connect an input the same direction as our output */
-		if obj.TypeP.HasMatOutput && dir == obj.Direction {
+	for dir := consts.DIR_NORTH; dir < consts.DIR_MAX; dir++ {
+
+		/* Don't try to connect an input the same direction as our future output */
+		/* If there is an input there, remove it */
+		if obj.TypeP.HasMatOutput && dir == newdir {
+			unlinkInput(obj, dir)
 			continue
 		}
+
+		/* Look for neighbor object */
 		neigh := util.GetNeighborObj(obj, pos, dir)
 
 		/* Did we find an object? */
-		if neigh != nil {
-			/* Does it have an output? */
-			if neigh.TypeP.HasMatOutput {
-				/* Is the output unoccupied? */
-				if neigh.OutputObj == nil {
-					/* Don't leave other obj's outputs dangling */
-					unlinkInput(obj, dir)
+		if neigh == nil {
+			continue
+		}
 
-					/* Set ourself as the output */
-					neigh.OutputObj = obj
+		/* Does it have an output? */
+		if !neigh.TypeP.HasMatOutput {
+			continue
+		}
 
-					/* Make sure we have a input */
-					if obj.InputBuffer[dir] == nil {
-						obj.InputBuffer[dir] = &glob.MatData{}
-					}
+		/* Is the output unoccupied? */
+		if neigh.OutputObj != nil {
+			continue
+		}
 
-					/* Record who is on this input */
-					obj.InputObjs[dir] = neigh
-				}
-			}
+		/* Is the output in our direction? */
+		if neigh.Direction != util.ReverseDirection(dir) {
+			continue
+		}
+
+		/* Unlink old input from this direction if it exists */
+		unlinkInput(obj, dir)
+
+		/* Set ourself as their output */
+		neigh.OutputObj = obj
+
+		/* Record who is on this input */
+		obj.InputObjs[dir] = neigh
+
+		/* Make sure they have an output initalized */
+		if neigh.OutputBuffer == nil {
+			neigh.OutputBuffer = &glob.MatData{}
+		}
+
+		/* Make sure we have a input initalized */
+		if obj.InputBuffer[dir] == nil {
+			obj.InputBuffer[dir] = &glob.MatData{}
 		}
 
 	}
@@ -373,7 +399,7 @@ func linkIn(pos glob.XY, obj *glob.WObject) {
 }
 
 func LinkObj(pos glob.XY, obj *glob.WObject, newdir int) {
-	linkIn(pos, obj)
+	linkIn(pos, obj, newdir)
 	linkOut(pos, obj, newdir)
 }
 
@@ -456,6 +482,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	if obj.TypeP.HasMatOutput {
 		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+		obj.OutputBuffer = &glob.MatData{}
 	}
 
 	cpos := util.PosToChunkPos(&pos)

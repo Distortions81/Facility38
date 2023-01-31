@@ -371,47 +371,29 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(worldMouseX-consts.XYCenter)), humanize.Comma(int64(worldMouseY-consts.XYCenter)), o.TypeP.Name)
-				toolTip = toolTip + fmt.Sprintf(" (OutputBuf: %v-%v)",
-					o.OutputBuffer.TypeP.Name,
-					o.OutputBuffer.Amount)
-				if o.OutputObj != nil {
-					toolTip = toolTip + fmt.Sprintf(" (OutputObj: %v, Contains: %v-%v, Dir: %v)",
-						o.OutputObj.TypeP.Name,
-						o.OutputObj.InputBuffer[o.Direction].Amount,
-						o.OutputObj.InputBuffer[o.Direction].TypeP.Name,
-						util.DirToName(o.Direction))
+				if o.OutputBuffer != nil {
+					toolTip = toolTip + fmt.Sprintf(" (OutputBuf: %v: %v)",
+						o.OutputBuffer.TypeP.Name,
+						o.OutputBuffer.Amount)
 				}
+				if o.OutputObj != nil && o.OutputObj.InputBuffer[o.Direction] != nil {
+					toolTip = toolTip + fmt.Sprintf(" (OutputObj: %v: %v)",
+						util.DirToName(o.Direction), o.OutputObj.TypeP.Name)
+				}
+
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
-					glob.SuperChunkMapLock.Lock()
-					if o.InputBuffer[z] != nil && o.InputObjs[z] != nil {
-						zPos := util.FindObj(o.InputObjs[z])
-						zX := zPos.X
-						zY := zPos.Y - 1
-						toolTip = toolTip + fmt.Sprintf(" (InputBuf: %v: %v (%v,%v)), Contains: %v-%v)",
+					if o.InputBuffer[z] != nil {
+						toolTip = toolTip + fmt.Sprintf(" (InputBuf: %v: %v: %v)",
+							util.DirToName(util.ReverseDirection(z)),
+							o.InputBuffer[z].TypeP.Name,
+							o.InputBuffer[z].Amount)
+					}
+					if o.InputObjs[z] != nil {
+						toolTip = toolTip + fmt.Sprintf(" InputObj: %v: %v)",
 							o.InputObjs[z].TypeP.Name,
-							util.DirToName(z),
-							zX, zY,
-							o.InputBuffer[z].Amount,
-							o.InputBuffer[z].TypeP.Name)
-					}
-					glob.SuperChunkMapLock.Unlock()
-				}
-
-				found := false
-				for _, t := range o.Contents {
-					if t != nil && t.Amount > 0 {
-						found = true
-						toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SIWithDigits(float64(t.Amount), 2, ""))
+							util.DirToName(util.ReverseDirection(o.InputObjs[z].Direction)))
 					}
 				}
-				if !found {
-					for _, t := range o.InputBuffer {
-						if t != nil && t.Amount > 0 {
-							//toolTip += fmt.Sprintf(" Contents: %v: %v", t.TypeP.Name, humanize.SIWithDigits(float64(t.Amount), 2, ""))
-						}
-					}
-				}
-
 			}
 		}
 
