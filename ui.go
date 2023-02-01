@@ -49,6 +49,10 @@ const (
 	cDragActionTypeDelete = 2
 )
 
+func init() {
+	lastScroll = time.Now()
+}
+
 /* Input handler */
 func (g *Game) Update() error {
 
@@ -223,8 +227,8 @@ func zoomHandle() {
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
-	if glob.FixWASM && fsy != 0 {
-		if time.Since(lastScroll) < time.Millisecond*200 {
+	if glob.FixWASM && fsy != 0.0 {
+		if time.Since(lastScroll) < (time.Millisecond * 200) {
 			return
 		}
 	}

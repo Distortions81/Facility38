@@ -13,7 +13,8 @@ import (
 
 const (
 	maxTerrainCache = 50
-	renderRest      = time.Millisecond * 10
+	renderRest      = time.Millisecond
+	renderLoop      = time.Millisecond * 10
 )
 
 var (
@@ -25,7 +26,7 @@ func SetupTerrainCache() {
 	tChunk := glob.MapChunk{}
 	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
 	glob.TempChunkImage = tChunk.TerrainImg
-	glob.TempChunkImage.Fill(glob.ColorDarkRed)
+	//glob.TempChunkImage.Fill(glob.ColorDarkRed)
 }
 
 func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
@@ -74,42 +75,42 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 /* Wasm single-thread version, one tile per frame */
 func RenderTerrainST() {
-	tmpWorld := glob.SuperChunkMap
 
 	/* If we zoom out, decallocate everything */
 	if glob.ZoomScale <= consts.MapPixelThreshold {
-		for _, sChunk := range tmpWorld {
-			for _, chunk := range sChunk.Chunks {
+		if !clearedCache {
+			for i := 0; i < glob.VisChunkTop; i++ {
+				chunk := glob.VisChunks[i]
 				killTerrainCache(chunk, true)
-				continue
 			}
+			clearedCache = true
 		}
-		return
-	}
+	} else {
+		clearedCache = false
+		for i := 0; i < glob.VisChunkTop; i++ {
 
-	for _, sChunk := range tmpWorld {
-		for cpos, chunk := range sChunk.Chunks {
+			cpos := glob.VisChunkPos[i]
+			chunk := glob.VisChunks[i]
+
 			if chunk.TerrainImg == nil {
 				continue
 			}
-			if chunk.Visible && glob.ZoomScale > consts.MapPixelThreshold {
-				if chunk.UsingTemporary {
-					renderChunkGround(chunk, true, cpos)
-					continue
-				}
-			} else {
+			if chunk.Visible && chunk.UsingTemporary {
+				renderChunkGround(chunk, true, cpos)
+				break
+			} else if !chunk.Visible {
 				killTerrainCache(chunk, false)
-				continue
 			}
 		}
 	}
+
 }
 
 var clearedCache bool
 
 func RenderTerrainDaemon() {
 	for {
-		time.Sleep(renderRest)
+		time.Sleep(renderLoop)
 
 		/* If we zoom out, decallocate everything */
 		if glob.ZoomScale <= consts.MapPixelThreshold {
