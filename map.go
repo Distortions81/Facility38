@@ -7,7 +7,6 @@ import (
 )
 
 func makeTestMap() {
-	objects.ExploreMap(8)
 
 	/* Test load map generator parameters */
 	total := 0

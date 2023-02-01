@@ -3,17 +3,17 @@ package glob
 import (
 	"GameTest/consts"
 	"image/color"
-	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/sasha-s/go-deadlock"
 	"golang.org/x/image/font"
 )
 
 var (
 	/* World map */
-	WorldMap     map[XY]*MapChunk
-	WorldMapLock sync.Mutex
+	SuperChunkMap     map[XY]*MapSuperChunk
+	SuperChunkMapLock deadlock.Mutex
 
 	/* eBiten start settings */
 	ScreenWidth  int = 1280 //Screen width default
@@ -50,8 +50,8 @@ var (
 	CameraDirty bool = true
 
 	/* Mouse vars */
-	MouseX float64 = 0
-	MouseY float64 = 0
+	MouseX float64 = float64(consts.XYCenter)
+	MouseY float64 = float64(consts.XYCenter)
 
 	/* Setup latches */
 	InitMouse = false
@@ -62,21 +62,25 @@ var (
 )
 
 func init() {
-	WorldMap = make(map[XY]*MapChunk)
+	SuperChunkMap = make(map[XY]*MapSuperChunk)
+}
+
+type MapSuperChunk struct {
+	Chunks    map[XY]*MapChunk
+	NumChunks uint64
+
+	MapImg  *ebiten.Image
+	Visible bool
 }
 
 type MapChunk struct {
-	WObject      map[XY]*WObject
-	LargeWObject map[XY]*WObject
-	NumObjects   uint64
+	WObject    map[XY]*WObject
+	NumObjects uint64
 
-	GroundLock     sync.Mutex
-	GroundImg      *ebiten.Image
+	TerrainImg     *ebiten.Image
 	UsingTemporary bool
 
 	Visible bool
-
-	LastSaw time.Time
 }
 
 type WObject struct {
@@ -92,9 +96,14 @@ type WObject struct {
 
 	//Input/Output
 	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
-	OutputBuffer *MatData                 `json:"o,omitempty"`
+	InputObjs    [consts.DIR_MAX]*WObject
+	OutputBuffer *MatData `json:"o,omitempty"`
 
-	Valid bool `json:"v,omitempty"`
+	BlinkRed   int
+	BlinkGreen int
+	BlinkBlue  int
+
+	Invalid bool
 }
 
 type MatData struct {
@@ -128,7 +137,7 @@ type ObjType struct {
 	CapacityKG  uint64
 
 	HasMatOutput bool
-	HasMatInput  bool
+	HasMatInput  int
 
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *WObject) `json:"-"`
@@ -152,7 +161,7 @@ type ObjectHitlistData struct {
 	Delete bool
 	Obj    *WObject
 	OType  int
-	Pos    *XY
+	Pos    XY
 	Dir    int
 }
 

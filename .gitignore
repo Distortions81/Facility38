@@ -1,7 +1,9 @@
 *.exe
 *.zip
+*.gz
+*.wasm
 GameTest
 save.json
-html/*.gz
 internalimages_*/
 out
+log

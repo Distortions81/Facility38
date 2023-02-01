@@ -10,19 +10,24 @@ const (
 	TxtDir  = "txt/"
 
 	/* Debug */
-	MemoryLimit = 1024 * 1024 * 1024 * 20
 	UPSBench    = false
-	LoadTest    = true
-	TestObjects = 100000 //Make (approx) this number items
+	LoadTest    = false
+	Debug       = true
+	Verbose     = false
+	LogStdOut   = true
+	TestObjects = 1000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
-	/* Pre-allocated */
-	MAX_DRAW_CHUNKS = 10000
+	/* Pre-allocated  array */
+	MAX_DRAW_CHUNKS = 32768
+
+	WALKSPEED = 4.0
+	RUNSPEED  = 16.0
 
 	/* Define world center */
-	XYCenter = 5000000
-	XYMax    = XYCenter * 2
-	XYMin    = 1
+	XYCenter = 10000000.0
+	XYMax    = XYCenter * 2.0
+	XYMin    = 1.0
 
 	/* Game datastrures */
 	/* Subtypes */
@@ -74,6 +79,8 @@ const (
 
 	/* Draw settings */
 	ChunkSize         = 32
+	SuperChunkSize    = 32
+	SuperChunkPixels  = ChunkSize * SuperChunkSize
 	DefaultZoom       = SpriteScale * 2
 	MapPixelThreshold = (SpriteScale / 2)
 

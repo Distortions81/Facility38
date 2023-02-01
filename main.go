@@ -2,6 +2,7 @@ package main
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"GameTest/data"
 	"GameTest/glob"
 	"GameTest/objects"
@@ -11,6 +12,7 @@ import (
 	"runtime"
 	"runtime/debug"
 
+	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/shirou/gopsutil/cpu"
@@ -20,20 +22,18 @@ var bootText string = "Loading..."
 var buildTime string = "Dev Build"
 
 type Game struct {
+	ui *ebitenui.UI
 }
 
 /* Main function */
 func main() {
+	cwlog.StartLog()
 
-	if consts.UPSBench || consts.LoadTest {
-		glob.PlayerReady = true
-	}
-
+	debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
 	if runtime.GOARCH == "wasm" {
 		glob.FixWASM = true
 	}
 
-	debug.SetMemoryLimit(consts.MemoryLimit)
 	str, err := data.GetText("intro")
 	if err != nil {
 		panic(err)
@@ -47,18 +47,27 @@ func main() {
 }
 
 func NewGame() *Game {
+
 	/* Set up ebiten and window */
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 	ebiten.SetScreenFilterEnabled(true)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
+
+	if glob.FixWASM && (consts.LoadTest || consts.UPSBench) {
+		glob.PlayerReady = true
+		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	}
+
 	setupWindowSize()
 	windowTitle()
 	go loadSprites()
-	go makeTestMap()
-	go objects.ObjUpdateDaemon()
+	objects.ExploreMap(8)
+	//go makeTestMap()
+	glob.MapGenerated = true
+	go objects.ObjUpdateDaemonST()
 
 	/* Initialize the game */
-	return &Game{}
+	return &Game{ui: EUI()}
 }
 
 func loadSprites() {
@@ -94,10 +103,6 @@ func loadSprites() {
 	DrawToolbar()
 
 	glob.SpritesLoaded = true
-
-	if !glob.FixWASM {
-		go terrain.TerrainCacheDaemon()
-	}
 }
 
 func bootScreen(screen *ebiten.Image) {
@@ -114,7 +119,7 @@ func bootScreen(screen *ebiten.Image) {
 	}
 	if status == "" {
 		screen.Fill(glob.ColorCharcol)
-		status = "Loading complete!\n(Click mouse to continue)"
+		status = "Loading complete!\n(Any key or click to continue)"
 	} else {
 		screen.Fill(glob.ColorBlack)
 	}
@@ -122,7 +127,7 @@ func bootScreen(screen *ebiten.Image) {
 	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)
 
 	tRect := text.BoundString(glob.BootFont, output)
-	text.Draw(screen, output, glob.BootFont, (glob.ScreenWidth/2)-int(tRect.Max.X/2), (glob.ScreenHeight/2)-int(tRect.Max.Y/2), glob.ColorWhite)
+	text.Draw(screen, output, glob.BootFont, ((glob.ScreenWidth)/2.0)-int(tRect.Max.X/2), ((glob.ScreenHeight)/2.0)-int(tRect.Max.Y/2), glob.ColorWhite)
 
 }
 
@@ -136,7 +141,7 @@ func detectCPUs() {
 			lCPUs--
 		}
 	}
-	fmt.Println("Virtual CPUs:", lCPUs)
+	cwlog.DoLog("Virtual CPUs: %v", lCPUs)
 
 	/* Logical CPUs */
 	cdat, cerr := cpu.Counts(false)
@@ -147,7 +152,7 @@ func detectCPUs() {
 		} else {
 			lCPUs = 1
 		}
-		fmt.Println("Logical CPUs:", cdat)
+		cwlog.DoLog("Logical CPUs: %v", cdat)
 	}
 
 	objects.NumWorkers = lCPUs

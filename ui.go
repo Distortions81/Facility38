@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"GameTest/objects"
 	"GameTest/util"
+	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,10 +30,10 @@ var (
 	gClickCaptured  bool
 
 	/* Mouse vars */
-	gMouseX     float64
-	gMouseY     float64
-	gPrevMouseX float64
-	gPrevMouseY float64
+	gMouseX     float64 = 1
+	gMouseY     float64 = 1
+	gPrevMouseX float64 = 1
+	gPrevMouseY float64 = 1
 
 	/* Last object we performed an action on */
 	gLastActionPosition glob.XY
@@ -51,11 +52,16 @@ const (
 /* Input handler */
 func (g *Game) Update() error {
 
+	g.ui.Update()
+
+	var keys []ebiten.Key
 	/* Game start screen */
-	if !glob.PlayerReady && inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+	if !glob.PlayerReady &&
+		(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
+			inpututil.AppendPressedKeys(keys) != nil) {
 		glob.PlayerReady = true
-	}
-	if !glob.AllowUI {
+		glob.AllowUI = true
+		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 		return nil
 	}
 	gClickCaptured = false
@@ -64,6 +70,8 @@ func (g *Game) Update() error {
 	getRightMouseClicks()
 	getShiftToggle()
 	getMousePos()
+
+	handleQuit()
 
 	//touchScreenHandle()
 	zoomHandle()
@@ -74,6 +82,13 @@ func (g *Game) Update() error {
 	rotateWorldObjects()
 
 	return nil
+}
+
+func handleQuit() {
+	if (inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt)) ||
+		inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		os.Exit(0)
+	}
 }
 
 func getShiftToggle() {
@@ -215,10 +230,10 @@ func zoomHandle() {
 	}
 	lastScroll = time.Now()
 
-	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
+	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		glob.ZoomScale = glob.ZoomScale * 2
 		glob.CameraDirty = true
-	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) {
+	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		glob.ZoomScale = glob.ZoomScale / 2
 		glob.CameraDirty = true
 	}
@@ -267,8 +282,8 @@ func createWorldObjects() {
 		/* UI area */
 		if !gClickCaptured {
 			/* Get mouse position on world */
-			worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-			worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+			worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale))
+			worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale))
 
 			pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
@@ -276,8 +291,10 @@ func createWorldObjects() {
 				if time.Since(gLastActionTime) > gBuildActionDelay {
 
 					bypass := false
-					chunk := util.GetChunk(&pos)
-					o := util.GetObj(&pos, chunk)
+					glob.SuperChunkMapLock.Lock()
+					chunk := util.GetChunk(pos)
+					o := util.GetObj(pos, chunk)
+					glob.SuperChunkMapLock.Unlock()
 
 					if o == nil {
 
@@ -291,7 +308,7 @@ func createWorldObjects() {
 									for tx = 0; tx < size.X; tx++ {
 										for ty = 0; ty < size.Y; ty++ {
 											if chunk.LargeWObject[glob.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
-												fmt.Println("ERROR: Occupied.")
+												cwlog.DoLog("ERROR: Occupied.")
 												bypass = true
 											}
 										}
@@ -300,13 +317,8 @@ func createWorldObjects() {
 							*/
 
 							if !bypass {
-								go func(o *glob.WObject, pos glob.XY) {
-									objects.ListLock.Lock()
-									dir := objects.GameObjTypes[SelectedItemType].Direction
-									objects.ObjectHitlistAdd(o, SelectedItemType, &pos, false, dir)
-									DrawToolbar()
-									objects.ListLock.Unlock()
-								}(o, pos)
+								dir := objects.GameObjTypes[SelectedItemType].Direction
+								go objects.ObjectHitlistAdd(o, SelectedItemType, pos, false, dir)
 
 								gLastActionPosition = pos
 								gLastActionType = cDragActionTypeBuild
@@ -317,11 +329,7 @@ func createWorldObjects() {
 							if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
 								if o != nil {
-									go func(o *glob.WObject, pos glob.XY) {
-										objects.ListLock.Lock()
-										objects.ObjectHitlistAdd(o, o.TypeI, &pos, true, 0)
-										objects.ListLock.Unlock()
-									}(o, pos)
+									go objects.ObjectHitlistAdd(o, o.TypeI, pos, true, 0)
 									//Action completed, save position and time
 									gLastActionPosition = pos
 									gLastActionType = cDragActionTypeDelete
@@ -337,6 +345,34 @@ func createWorldObjects() {
 }
 
 func moveCamera() {
+
+	base := consts.WALKSPEED
+	if gShiftPressed {
+		base = consts.RUNSPEED
+	}
+	speed := base / (glob.ZoomScale / 4.0)
+
+	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		glob.CameraY -= speed
+		glob.CameraDirty = true
+
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyA) {
+		glob.CameraX -= speed
+		glob.CameraDirty = true
+
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyS) {
+		glob.CameraY += speed
+		glob.CameraDirty = true
+
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyD) {
+		glob.CameraX += speed
+		glob.CameraDirty = true
+
+	}
+
 	/* Mouse pan */
 	if gRightMouseHeld {
 		if !glob.InitMouse {
@@ -391,24 +427,26 @@ func rotateWorldObjects() {
 	/* Rotate object */
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		/* Get mouse position on world */
-		worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - float64(glob.ScreenWidth/2)/glob.ZoomScale))
-		worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - float64(glob.ScreenHeight/2)/glob.ZoomScale))
+		worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth/2.0) / glob.ZoomScale)))
+		worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight/2.0))/glob.ZoomScale))
 
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
-		chunk := util.GetChunk(&pos)
+		chunk := util.GetChunk(pos)
+		if chunk == nil {
+			return
+		}
 		o := chunk.WObject[pos]
 
 		if o != nil {
-
+			var newdir int
 			if gShiftPressed {
-				o.Direction = util.RotCW(o.Direction)
+				newdir = util.RotCW(o.Direction)
 			} else {
-				o.Direction = util.RotCCW(o.Direction)
+				newdir = util.RotCCW(o.Direction)
 			}
-
-			o.OutputObj = nil
-			objects.LinkObj(pos, o)
+			objects.LinkObj(pos, o, newdir)
+			o.Direction = newdir
 		}
 	}
 }

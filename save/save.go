@@ -1,11 +1,11 @@
 package save
 
 import (
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/util"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -15,26 +15,27 @@ func SaveGame() {
 	finalPath := "save.dat"
 
 	tempList := []*glob.SaveMObj{}
-	glob.WorldMapLock.Lock()
-	for _, chunk := range glob.WorldMap {
-		for pos, mObj := range chunk.WObject {
-			tempList = append(tempList, &glob.SaveMObj{O: mObj, P: pos})
+	glob.SuperChunkMapLock.Lock()
+	for _, sChunk := range glob.SuperChunkMap {
+		for _, chunk := range sChunk.Chunks {
+			for pos, mObj := range chunk.WObject {
+				tempList = append(tempList, &glob.SaveMObj{O: mObj, P: pos})
+			}
 		}
 	}
-	glob.WorldMapLock.Unlock()
+	glob.SuperChunkMapLock.Unlock()
 
 	b, err := json.MarshalIndent(tempList, "", "\t")
 
 	if err != nil {
-		fmt.Println("SaveGame: enc.Encode failure")
-		fmt.Println(err)
+		cwlog.DoLog("SaveGame: JSON encode error: %v", err)
 		return
 	}
 
 	_, err = os.Create(tempPath)
 
 	if err != nil {
-		fmt.Println("SaveGame: os.Create failure")
+		cwlog.DoLog("SaveGame: os.Create error: %v", err)
 		return
 	}
 
@@ -43,26 +44,31 @@ func SaveGame() {
 	err = os.WriteFile(tempPath, zip, 0644)
 
 	if err != nil {
-		fmt.Println("SaveGame: WriteFile failure")
+		cwlog.DoLog("SaveGame: os.WriteFile error: %v", err)
 	}
 
 	err = os.Rename(tempPath, finalPath)
 
 	if err != nil {
-		fmt.Println("Couldn't rename SaveGame file.")
+		cwlog.DoLog("SaveGame: couldn't rename save file: %v", err)
 		return
 	}
 }
 
 func LoadGame() {
-	b, _ := os.ReadFile("save.dat")
+	b, err := os.ReadFile("save.dat")
+	if err != nil {
+		cwlog.DoLog("LoadGame: file not found: %v", err)
+		return
+	}
 	data := util.UncompressZip(b)
 	dbuf := bytes.NewBuffer(data)
 
 	dec := json.NewDecoder(dbuf)
-	err := dec.Decode(&glob.WorldMap)
+	err = dec.Decode(&glob.SuperChunkMap)
 	if err != nil {
-		//fmt.Println("LoadGame: dec.Decode failure")
+		cwlog.DoLog("LoadGame: JSON decode error: %v", err)
 		return
 	}
+
 }

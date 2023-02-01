@@ -2,16 +2,20 @@ package util
 
 import (
 	"GameTest/consts"
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"bytes"
 	"compress/zlib"
-	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math"
 
 	"github.com/dustin/go-humanize"
 )
+
+func CenterXY(pos glob.XY) glob.XY {
+	return glob.XY{X: pos.X - consts.XYCenter, Y: pos.Y - consts.XYCenter}
+}
 
 func RotCW(dir int) int {
 	dir = dir - 1
@@ -38,9 +42,9 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 	return (x1 + x2) / 2, (y1 + y2) / 2
 }
 
-func GetObj(pos *glob.XY, chunk *glob.MapChunk) *glob.WObject {
+func GetObj(pos glob.XY, chunk *glob.MapChunk) *glob.WObject {
 	if chunk != nil {
-		o := chunk.WObject[*pos]
+		o := chunk.WObject[pos]
 		return o
 	} else {
 		return nil
@@ -48,18 +52,44 @@ func GetObj(pos *glob.XY, chunk *glob.MapChunk) *glob.WObject {
 }
 
 // Automatically converts position to chunk format
-func GetChunk(pos *glob.XY) *glob.MapChunk {
-	glob.WorldMapLock.Lock()
-	chunk := glob.WorldMap[glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}]
-	glob.WorldMapLock.Unlock()
+func GetChunk(pos glob.XY) *glob.MapChunk {
+	scpos := PosToSuperChunkPos(pos)
+	cpos := PosToChunkPos(pos)
+
+	sChunk := glob.SuperChunkMap[scpos]
+	if sChunk == nil {
+		return nil
+	}
+	chunk := sChunk.Chunks[cpos]
 	return chunk
 }
 
-func PosToChunkPos(pos *glob.XY) glob.XY {
+// Automatically converts position to superChunk format
+func GetSuperChunk(pos glob.XY) *glob.MapSuperChunk {
+	scpos := PosToChunkPos(pos)
+	sChunk := glob.SuperChunkMap[scpos]
+	return sChunk
+}
+
+func PosToChunkPos(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}
 }
-func ChunkPosToPos(pos *glob.XY) glob.XY {
+func ChunkPosToPos(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X * consts.ChunkSize, Y: pos.Y * consts.ChunkSize}
+}
+
+func PosToSuperChunkPos(pos glob.XY) glob.XY {
+	return glob.XY{X: pos.X / consts.SuperChunkPixels, Y: pos.Y / consts.SuperChunkPixels}
+}
+func SuperChunkPosToPos(pos glob.XY) glob.XY {
+	return glob.XY{X: pos.X * consts.SuperChunkPixels, Y: pos.Y * consts.SuperChunkPixels}
+}
+
+func ChunkPosToSuperChunkPos(pos glob.XY) glob.XY {
+	return glob.XY{X: pos.X / consts.SuperChunkSize, Y: pos.Y / consts.SuperChunkSize}
+}
+func SuperChunkPosToChunkPos(pos glob.XY) glob.XY {
+	return glob.XY{X: pos.X * consts.SuperChunkSize, Y: pos.Y * consts.SuperChunkSize}
 }
 
 func FloatXYToPosition(x float64, y float64) glob.XY {
@@ -67,7 +97,7 @@ func FloatXYToPosition(x float64, y float64) glob.XY {
 	return glob.XY{X: int(x), Y: int(y)}
 }
 
-func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
+func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) (*glob.WObject, glob.XY) {
 
 	switch dir {
 	case consts.DIR_NORTH:
@@ -78,11 +108,23 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) *glob.WObject {
 		pos.Y++
 	case consts.DIR_WEST:
 		pos.X--
+	default:
+		return nil, glob.XY{}
 	}
 
-	chunk := GetChunk(&pos)
-	obj := GetObj(&pos, chunk)
-	return obj
+	chunk := GetChunk(pos)
+	if chunk == nil {
+		return nil, glob.XY{}
+	}
+	obj := GetObj(pos, chunk)
+	if obj == nil {
+		return nil, glob.XY{}
+	}
+	/* We are not our own neighbor */
+	if src == chunk.WObject[pos] {
+		return nil, glob.XY{}
+	}
+	return obj, pos
 }
 
 func DirToName(dir int) string {
@@ -131,7 +173,7 @@ func UncompressZip(data []byte) []byte {
 	}
 	defer z.Close()
 
-	p, err := ioutil.ReadAll(z)
+	p, err := io.ReadAll(z)
 	if err != nil {
 		log.Println("Error: ", err)
 		return nil
@@ -144,7 +186,7 @@ func CompressZip(data []byte) []byte {
 	var b bytes.Buffer
 	w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
 	if err != nil {
-		fmt.Println("ERROR: gz failure:", err)
+		cwlog.DoLog("CompressZip: %v", err)
 	}
 	w.Write(data)
 	w.Close()
