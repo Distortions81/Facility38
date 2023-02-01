@@ -200,7 +200,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	chunksDrawn := 0
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
-		glob.SuperChunkMapLock.Lock()
 		for i := 0; i < gVisChunkTop; i++ {
 			chunkPos := gVisChunkPos[i]
 			chunk := gVisChunks[i]
@@ -303,9 +302,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 			}
 		}
-		glob.SuperChunkMapLock.Unlock()
 	} else {
-		glob.SuperChunkMapLock.Lock()
 
 		/* Draw superchunk images */
 		for z := 0; z < gVisSChunkTop; z++ {
@@ -323,7 +320,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			screen.DrawImage(sChunk.MapImg, op)
 		}
-		glob.SuperChunkMapLock.Unlock()
 	}
 
 	/* Get mouse position on world */
@@ -366,6 +362,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 		glob.SuperChunkMapLock.Lock()
 		chunk := util.GetChunk(pos)
+		glob.SuperChunkMapLock.Unlock()
 
 		toolTip := ""
 		found := false
@@ -420,7 +417,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 
-		glob.SuperChunkMapLock.Unlock()
 	}
 
 	/* Limit frame rate */
