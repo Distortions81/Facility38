@@ -14,3 +14,6 @@ rewrite everything for multi-input and multi-output (eventually)
 Write a deadline tick/tock for wasm
 
 Use idle render thread for work
+At some point, I am going to make an alternate tick handler that runs in whatever time is left between frames.
+Specifically for WASM.
+I can re-use it to use and left over processing in the render thread for the other versions.

@@ -291,8 +291,8 @@ func createWorldObjects() {
 				if time.Since(gLastActionTime) > gBuildActionDelay {
 
 					bypass := false
-					chunk := util.GetChunk(&pos)
-					o := util.GetObj(&pos, chunk)
+					chunk := util.GetChunk(pos)
+					o := util.GetObj(pos, chunk)
 
 					if o == nil {
 
@@ -315,12 +315,8 @@ func createWorldObjects() {
 							*/
 
 							if !bypass {
-								go func(o *glob.WObject, pos *glob.XY) {
-									objects.ListLock.Lock()
-									dir := objects.GameObjTypes[SelectedItemType].Direction
-									objects.ObjectHitlistAdd(o, SelectedItemType, pos, false, dir)
-									objects.ListLock.Unlock()
-								}(o, &pos)
+								dir := objects.GameObjTypes[SelectedItemType].Direction
+								go objects.ObjectHitlistAdd(o, SelectedItemType, pos, false, dir)
 
 								gLastActionPosition = pos
 								gLastActionType = cDragActionTypeBuild
@@ -331,11 +327,7 @@ func createWorldObjects() {
 							if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
 								if o != nil {
-									go func(o *glob.WObject, pos *glob.XY) {
-										objects.ListLock.Lock()
-										objects.ObjectHitlistAdd(o, o.TypeI, pos, true, 0)
-										objects.ListLock.Unlock()
-									}(o, &pos)
+									go objects.ObjectHitlistAdd(o, o.TypeI, pos, true, 0)
 									//Action completed, save position and time
 									gLastActionPosition = pos
 									gLastActionType = cDragActionTypeDelete
@@ -438,7 +430,7 @@ func rotateWorldObjects() {
 
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
-		chunk := util.GetChunk(&pos)
+		chunk := util.GetChunk(pos)
 		if chunk == nil {
 			return
 		}

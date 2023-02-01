@@ -13,7 +13,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func CenterXY(pos *glob.XY) glob.XY {
+func CenterXY(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X - consts.XYCenter, Y: pos.Y - consts.XYCenter}
 }
 
@@ -42,9 +42,9 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 	return (x1 + x2) / 2, (y1 + y2) / 2
 }
 
-func GetObj(pos *glob.XY, chunk *glob.MapChunk) *glob.WObject {
+func GetObj(pos glob.XY, chunk *glob.MapChunk) *glob.WObject {
 	if chunk != nil {
-		o := chunk.WObject[*pos]
+		o := chunk.WObject[pos]
 		return o
 	} else {
 		return nil
@@ -52,7 +52,7 @@ func GetObj(pos *glob.XY, chunk *glob.MapChunk) *glob.WObject {
 }
 
 // Automatically converts position to chunk format
-func GetChunk(pos *glob.XY) *glob.MapChunk {
+func GetChunk(pos glob.XY) *glob.MapChunk {
 	scpos := PosToSuperChunkPos(pos)
 	cpos := PosToChunkPos(pos)
 
@@ -68,8 +68,7 @@ func GetChunk(pos *glob.XY) *glob.MapChunk {
 }
 
 // Automatically converts position to superChunk format
-func GetSuperChunk(pos *glob.XY) *glob.MapSuperChunk {
-
+func GetSuperChunk(pos glob.XY) *glob.MapSuperChunk {
 	scpos := PosToChunkPos(pos)
 	glob.SuperChunkMapLock.Lock()
 	sChunk := glob.SuperChunkMap[scpos]
@@ -77,24 +76,24 @@ func GetSuperChunk(pos *glob.XY) *glob.MapSuperChunk {
 	return sChunk
 }
 
-func PosToChunkPos(pos *glob.XY) glob.XY {
+func PosToChunkPos(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}
 }
-func ChunkPosToPos(pos *glob.XY) glob.XY {
+func ChunkPosToPos(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X * consts.ChunkSize, Y: pos.Y * consts.ChunkSize}
 }
 
-func PosToSuperChunkPos(pos *glob.XY) glob.XY {
+func PosToSuperChunkPos(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X / consts.SuperChunkPixels, Y: pos.Y / consts.SuperChunkPixels}
 }
-func SuperChunkPosToPos(pos *glob.XY) glob.XY {
+func SuperChunkPosToPos(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X * consts.SuperChunkPixels, Y: pos.Y * consts.SuperChunkPixels}
 }
 
-func ChunkPosToSuperChunkPos(pos *glob.XY) glob.XY {
+func ChunkPosToSuperChunkPos(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X / consts.SuperChunkSize, Y: pos.Y / consts.SuperChunkSize}
 }
-func SuperChunkPosToChunkPos(pos *glob.XY) glob.XY {
+func SuperChunkPosToChunkPos(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X * consts.SuperChunkSize, Y: pos.Y * consts.SuperChunkSize}
 }
 
@@ -118,11 +117,11 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) (*glob.WObject, glo
 		return nil, glob.XY{}
 	}
 
-	chunk := GetChunk(&pos)
+	chunk := GetChunk(pos)
 	if chunk == nil {
 		return nil, glob.XY{}
 	}
-	obj := GetObj(&pos, chunk)
+	obj := GetObj(pos, chunk)
 	if obj == nil {
 		return nil, glob.XY{}
 	}

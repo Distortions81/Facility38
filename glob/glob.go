@@ -161,7 +161,7 @@ type ObjectHitlistData struct {
 	Delete bool
 	Obj    *WObject
 	OType  int
-	Pos    *XY
+	Pos    XY
 	Dir    int
 }
 

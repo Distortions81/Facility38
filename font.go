@@ -42,7 +42,7 @@ func init() {
 
 	/* Tooltip font */
 	glob.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    9,
+		Size:    11,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})

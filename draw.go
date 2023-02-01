@@ -87,6 +87,7 @@ func makeVisList() {
 		gVisSChunkTop = 0
 
 		superChunksDrawn = 0
+		glob.SuperChunkMapLock.Lock()
 		for scPos, sChunk := range glob.SuperChunkMap {
 
 			if glob.ZoomScale > consts.MapPixelThreshold {
@@ -173,6 +174,7 @@ func makeVisList() {
 				glob.CameraDirty = false
 			}
 		}
+		glob.SuperChunkMapLock.Unlock()
 	}
 }
 
@@ -192,16 +194,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw start */
 	drawStart := time.Now()
-
 	calcScreenCamera()
-
-	glob.SuperChunkMapLock.Lock()
-
 	makeVisList()
 
 	chunksDrawn := 0
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
+		glob.SuperChunkMapLock.Lock()
 		for i := 0; i < gVisChunkTop; i++ {
 			chunkPos := gVisChunkPos[i]
 			chunk := gVisChunks[i]
@@ -304,7 +303,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 			}
 		}
+		glob.SuperChunkMapLock.Unlock()
 	} else {
+		glob.SuperChunkMapLock.Lock()
+
 		/* Draw superchunk images */
 		for z := 0; z < gVisSChunkTop; z++ {
 			sChunk := gVisSChunks[z]
@@ -321,26 +323,25 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			screen.DrawImage(sChunk.MapImg, op)
 		}
+		glob.SuperChunkMapLock.Unlock()
 	}
-
-	glob.SuperChunkMapLock.Unlock()
 
 	/* Get mouse position on world */
 	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale))
 	worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale))
 
 	/* Draw debug info */
-	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("FPS: %.2f UPS: %.2f Workers: %v Job-size: %v Active Objects: %v CDraw: %v SCDraw: %v Arch: %v Build: %v",
-			ebiten.ActualFPS(),
-			1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-			objects.NumWorkers,
-			humanize.SIWithDigits(float64(objects.TockWorkSize), 2, ""),
-			humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
-			chunksDrawn,
-			superChunksDrawn,
-			runtime.GOARCH, buildTime),
-		0, glob.ScreenHeight-20)
+	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
+		ebiten.ActualFPS(),
+		1000000000.0/float64(glob.MeasuredObjectUPS_ns),
+		humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
+		runtime.GOARCH, buildTime)
+
+	tRect := text.BoundString(glob.ToolTipFont, dbuf)
+	mx := 0.0
+	my := float64(glob.ScreenHeight) - 4.0
+	ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
+	text.Draw(screen, dbuf, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 
 	/* Draw toolbar */
 	screen.DrawImage(toolbarCache, nil)
@@ -363,7 +364,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		/* World Obj tool tip */
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
-		chunk := util.GetChunk(&pos)
+		chunk := util.GetChunk(pos)
+
+		glob.SuperChunkMapLock.Lock()
 
 		toolTip := ""
 		found := false
@@ -415,6 +418,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		my := glob.MouseY + 20
 		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
+
+		glob.SuperChunkMapLock.Unlock()
 	}
 
 	/* Limit frame rate */

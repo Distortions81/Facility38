@@ -234,39 +234,32 @@ func tockListAdd(target *glob.WObject) {
 }
 
 func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
+	ListLock.Lock()
 	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
 	cwlog.DoLog("Added: %v to the event type: %v hitlist. Delete: %v", obj.TypeP.Name, qtype, delete)
+	ListLock.Unlock()
 }
 
 func ticklistRemove(obj *glob.WObject) {
 	for i, e := range TickList {
 		if e.Target == obj {
-			if len(TickList) > 1 {
-				TickList = append(TickList[:i], TickList[i+1:]...)
-			} else {
-				TickList = []glob.TickEvent{}
-			}
+			TickList = append(TickList[:i], TickList[i+1:]...)
 			cwlog.DoLog("Removed: %v from the ticklist.", obj.TypeP.Name)
+			gTickCount--
 			break
 		}
 	}
-	gTickCount--
 }
 
 func tocklistRemove(obj *glob.WObject) {
 	for i, e := range TockList {
 		if e.Target == obj {
-
-			if len(TockList) > 1 {
-				TockList = append(TockList[:i], TockList[i+1:]...)
-			} else {
-				TockList = []glob.TickEvent{}
-			}
+			TockList = append(TockList[:i], TockList[i+1:]...)
 			cwlog.DoLog("Removed %v from the tocklist.", obj.TypeP.Name)
+			gTockCount--
 			break
 		}
 	}
-	gTockCount--
 }
 
 func unlinkInput(obj *glob.WObject, dir int) {
@@ -290,7 +283,7 @@ func unlinkOut(obj *glob.WObject) {
 }
 func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 
-	ppos := util.CenterXY(&pos)
+	ppos := util.CenterXY(pos)
 
 	/* Don't bother if we don't have outputs */
 	if !obj.TypeP.HasMatOutput {
@@ -340,7 +333,7 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 	}
 
 	/* Mark target as our output */
-	chunk := util.GetChunk(&npos)
+	chunk := util.GetChunk(npos)
 	obj.OutputObj = chunk.WObject[npos]
 
 	/* Put ourself in target's input list */
@@ -351,7 +344,7 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 }
 
 func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
-	ppos := util.CenterXY(&pos)
+	ppos := util.CenterXY(pos)
 
 	/* Don't bother if we don't have inputs */
 	if obj.TypeP.HasMatInput == 0 {
@@ -415,7 +408,7 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 		}
 
 		/* Set ourself as their output */
-		chunk := util.GetChunk(&pos)
+		chunk := util.GetChunk(pos)
 		if chunk == nil {
 			cwlog.DoLog("(%v: %v, %v) linkIn: failed to find ourself?", obj.TypeP.Name, ppos.X, ppos.Y)
 			continue
@@ -439,7 +432,7 @@ func makeSuperChunk(pos glob.XY) {
 	//Make super chunk if needed
 
 	newPos := pos
-	scpos := util.PosToSuperChunkPos(&newPos)
+	scpos := util.PosToSuperChunkPos(newPos)
 
 	glob.SuperChunkMapLock.Lock()
 	if glob.SuperChunkMap[scpos] == nil {
@@ -457,12 +450,11 @@ func MakeChunk(pos glob.XY) {
 
 	makeSuperChunk(pos)
 
-	cpos := util.PosToChunkPos(&newPos)
-	scpos := util.PosToSuperChunkPos(&newPos)
-
-	glob.SuperChunkMap[scpos].NumChunks++
+	cpos := util.PosToChunkPos(newPos)
+	scpos := util.PosToSuperChunkPos(newPos)
 
 	glob.SuperChunkMapLock.Lock()
+	glob.SuperChunkMap[scpos].NumChunks++
 	if glob.SuperChunkMap[scpos].Chunks[cpos] == nil {
 		glob.SuperChunkMap[scpos].Chunks[cpos] = &glob.MapChunk{}
 		glob.SuperChunkMap[scpos].Chunks[cpos].WObject = make(map[glob.XY]*glob.WObject)
@@ -488,11 +480,11 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	//Make chunk if needed
 	MakeChunk(pos)
-	chunk := util.GetChunk(&pos)
+	chunk := util.GetChunk(pos)
 	glob.CameraDirty = true
 	obj := chunk.WObject[pos]
 
-	ppos := util.CenterXY(&pos)
+	ppos := util.CenterXY(pos)
 	if obj != nil {
 		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", ppos.X, ppos.Y)
 		return nil
@@ -510,18 +502,22 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
-		EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+		go EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
 	}
 
 	if obj.TypeP.HasMatOutput {
-		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+		go EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
 		obj.OutputBuffer = &glob.MatData{}
 	}
 
-	cpos := util.PosToChunkPos(&pos)
-	scpos := util.PosToSuperChunkPos(&pos)
+	go func(pos glob.XY) {
+		cpos := util.PosToChunkPos(pos)
+		scpos := util.PosToSuperChunkPos(pos)
+		glob.SuperChunkMapLock.Lock()
+		glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
+		glob.SuperChunkMapLock.Unlock()
+	}(pos)
 
-	glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
 	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
 
 	chunk.NumObjects++
@@ -530,8 +526,10 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	return obj
 }
 
-func ObjectHitlistAdd(obj *glob.WObject, otype int, pos *glob.XY, delete bool, dir int) {
+func ObjectHitlistAdd(obj *glob.WObject, otype int, pos glob.XY, delete bool, dir int) {
+	ListLock.Lock()
 	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
+	ListLock.Unlock()
 
 	ppos := util.CenterXY(pos)
 	cwlog.DoLog("Added: %v,%v to the object hitlist. Delete: %v", ppos.X, ppos.Y, delete)
@@ -572,22 +570,28 @@ func runObjectHitlist() {
 			}
 
 			/* Remove tick and tock events */
-			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
-			EventHitlistAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
+			go func(temp glob.ObjectHitlistData) {
+				EventHitlistAdd(temp.Obj, consts.QUEUE_TYPE_TICK, true)
+				EventHitlistAdd(temp.Obj, consts.QUEUE_TYPE_TOCK, true)
 
-			cpos := util.PosToChunkPos(item.Pos)
-			scpos := util.PosToSuperChunkPos(item.Pos)
-
-			/* Remove from chunk */
-			glob.SuperChunkMapLock.Lock()
-			glob.SuperChunkMap[scpos].Chunks[cpos].NumObjects--
-			delete(glob.SuperChunkMap[scpos].Chunks[cpos].WObject, *item.Pos)
-			glob.SuperChunkMapLock.Unlock()
+				removeObj(temp.Pos)
+			}(*item)
 
 		} else {
 			//Add
-			CreateObj(*item.Pos, item.OType, item.Dir)
+			CreateObj(item.Pos, item.OType, item.Dir)
 		}
 	}
 	ObjectHitlist = []*glob.ObjectHitlistData{}
+}
+
+func removeObj(pos glob.XY) {
+	cpos := util.PosToChunkPos(pos)
+	scpos := util.PosToSuperChunkPos(pos)
+
+	/* Remove from chunk */
+	glob.SuperChunkMapLock.Lock()
+	glob.SuperChunkMap[scpos].Chunks[cpos].NumObjects--
+	delete(glob.SuperChunkMap[scpos].Chunks[cpos].WObject, pos)
+	glob.SuperChunkMapLock.Unlock()
 }
