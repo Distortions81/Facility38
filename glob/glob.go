@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/sasha-s/go-deadlock"
 	"golang.org/x/image/font"
 )
 
@@ -23,7 +22,7 @@ var (
 
 	/* World map */
 	SuperChunkMap     map[XY]*MapSuperChunk
-	SuperChunkMapLock deadlock.Mutex
+	SuperChunkMapLock sync.Mutex
 
 	/* eBiten start settings */
 	ScreenWidth  int = 1280 //Screen width default
