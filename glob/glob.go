@@ -3,6 +3,7 @@ package glob
 import (
 	"GameTest/consts"
 	"image/color"
+	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -87,6 +88,7 @@ type MapChunk struct {
 	WObject    map[XY]*WObject
 	NumObjects uint64
 
+	TerrainLock    sync.Mutex
 	TerrainImg     *ebiten.Image
 	UsingTemporary bool
 

@@ -69,8 +69,10 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	} else {
 		panic("No valid bg texture.")
 	}
+	chunk.TerrainLock.Lock()
 	numTerrainCache++
 	chunk.TerrainImg = tImg
+	chunk.TerrainLock.Unlock()
 }
 
 /* Wasm single-thread version, one tile per frame */
@@ -148,8 +150,10 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 		return
 	}
 	if force || numTerrainCache > maxTerrainCache {
+		chunk.TerrainLock.Lock()
 		chunk.TerrainImg.Dispose()
 		chunk.TerrainImg = nil
 		numTerrainCache--
+		chunk.TerrainLock.Unlock()
 	}
 }

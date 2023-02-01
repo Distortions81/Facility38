@@ -24,6 +24,7 @@ const (
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
 	cPreCache               = 3
+	WASMTerrtainDiv         = 4
 )
 
 var (
@@ -41,6 +42,7 @@ var (
 	screenEndY   int
 
 	superChunksDrawn int
+	frameCount       uint64
 )
 
 func init() {
@@ -193,6 +195,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
+	frameCount++
+
 	/* Draw start */
 	drawStart := time.Now()
 	calcScreenCamera()
@@ -213,11 +217,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				chunk.UsingTemporary = true
 			}
 
+			chunk.TerrainLock.Lock()
 			iSize := chunk.TerrainImg.Bounds().Size()
 			op.GeoM.Reset()
 			op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
 			op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
 			screen.DrawImage(chunk.TerrainImg, op)
+			chunk.TerrainLock.Unlock()
 
 			/* Draw objects in chunk */
 			for objPos, obj := range chunk.WObject {
@@ -424,7 +430,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Limit frame rate */
-	if glob.FixWASM {
+	if glob.FixWASM && frameCount%WASMTerrtainDiv == 0 {
 		terrain.RenderTerrainST()
 	}
 	if g.ui != nil {
