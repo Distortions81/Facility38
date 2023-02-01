@@ -364,9 +364,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		/* World Obj tool tip */
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
-		chunk := util.GetChunk(pos)
-
 		glob.SuperChunkMapLock.Lock()
+		chunk := util.GetChunk(pos)
 
 		toolTip := ""
 		found := false

@@ -291,8 +291,10 @@ func createWorldObjects() {
 				if time.Since(gLastActionTime) > gBuildActionDelay {
 
 					bypass := false
+					glob.SuperChunkMapLock.Lock()
 					chunk := util.GetChunk(pos)
 					o := util.GetObj(pos, chunk)
+					glob.SuperChunkMapLock.Unlock()
 
 					if o == nil {
 

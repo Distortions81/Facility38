@@ -56,9 +56,6 @@ func GetChunk(pos glob.XY) *glob.MapChunk {
 	scpos := PosToSuperChunkPos(pos)
 	cpos := PosToChunkPos(pos)
 
-	glob.SuperChunkMapLock.Lock()
-	defer glob.SuperChunkMapLock.Unlock()
-
 	sChunk := glob.SuperChunkMap[scpos]
 	if sChunk == nil {
 		return nil
@@ -70,9 +67,7 @@ func GetChunk(pos glob.XY) *glob.MapChunk {
 // Automatically converts position to superChunk format
 func GetSuperChunk(pos glob.XY) *glob.MapSuperChunk {
 	scpos := PosToChunkPos(pos)
-	glob.SuperChunkMapLock.Lock()
 	sChunk := glob.SuperChunkMap[scpos]
-	glob.SuperChunkMapLock.Unlock()
 	return sChunk
 }
 

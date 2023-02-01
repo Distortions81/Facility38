@@ -234,10 +234,8 @@ func tockListAdd(target *glob.WObject) {
 }
 
 func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
-	ListLock.Lock()
 	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
 	cwlog.DoLog("Added: %v to the event type: %v hitlist. Delete: %v", obj.TypeP.Name, qtype, delete)
-	ListLock.Unlock()
 }
 
 func ticklistRemove(obj *glob.WObject) {
@@ -434,12 +432,10 @@ func makeSuperChunk(pos glob.XY) {
 	newPos := pos
 	scpos := util.PosToSuperChunkPos(newPos)
 
-	glob.SuperChunkMapLock.Lock()
 	if glob.SuperChunkMap[scpos] == nil {
 		glob.SuperChunkMap[scpos] = &glob.MapSuperChunk{}
 		glob.SuperChunkMap[scpos].Chunks = make(map[glob.XY]*glob.MapChunk)
 	}
-	glob.SuperChunkMapLock.Unlock()
 
 }
 
@@ -453,17 +449,18 @@ func MakeChunk(pos glob.XY) {
 	cpos := util.PosToChunkPos(newPos)
 	scpos := util.PosToSuperChunkPos(newPos)
 
-	glob.SuperChunkMapLock.Lock()
 	glob.SuperChunkMap[scpos].NumChunks++
 	if glob.SuperChunkMap[scpos].Chunks[cpos] == nil {
 		glob.SuperChunkMap[scpos].Chunks[cpos] = &glob.MapChunk{}
 		glob.SuperChunkMap[scpos].Chunks[cpos].WObject = make(map[glob.XY]*glob.WObject)
 	}
-	glob.SuperChunkMapLock.Unlock()
 }
 
 func ExploreMap(input int) {
 	/* Explore some map */
+
+	glob.SuperChunkMapLock.Lock()
+	defer glob.SuperChunkMapLock.Unlock()
 
 	area := input * consts.ChunkSize
 	offs := int(consts.XYCenter) - (area / 2)
@@ -478,11 +475,14 @@ func ExploreMap(input int) {
 
 func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
+	glob.SuperChunkMapLock.Lock()
 	//Make chunk if needed
 	MakeChunk(pos)
 	chunk := util.GetChunk(pos)
+
 	glob.CameraDirty = true
 	obj := chunk.WObject[pos]
+	glob.SuperChunkMapLock.Unlock()
 
 	ppos := util.CenterXY(pos)
 	if obj != nil {
@@ -502,34 +502,31 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
-		go EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+		EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
 	}
 
 	if obj.TypeP.HasMatOutput {
-		go EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
 		obj.OutputBuffer = &glob.MatData{}
 	}
-
-	go func(pos glob.XY) {
-		cpos := util.PosToChunkPos(pos)
-		scpos := util.PosToSuperChunkPos(pos)
-		glob.SuperChunkMapLock.Lock()
-		glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
-		glob.SuperChunkMapLock.Unlock()
-	}(pos)
+	cpos := util.PosToChunkPos(pos)
+	scpos := util.PosToSuperChunkPos(pos)
+	glob.SuperChunkMapLock.Lock()
+	glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
+	glob.SuperChunkMapLock.Unlock()
 
 	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
 
 	chunk.NumObjects++
+	glob.SuperChunkMapLock.Lock()
 	LinkObj(pos, obj, dir)
+	glob.SuperChunkMapLock.Unlock()
 
 	return obj
 }
 
 func ObjectHitlistAdd(obj *glob.WObject, otype int, pos glob.XY, delete bool, dir int) {
-	ListLock.Lock()
 	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
-	ListLock.Unlock()
 
 	ppos := util.CenterXY(pos)
 	cwlog.DoLog("Added: %v,%v to the object hitlist. Delete: %v", ppos.X, ppos.Y, delete)
@@ -570,12 +567,11 @@ func runObjectHitlist() {
 			}
 
 			/* Remove tick and tock events */
-			go func(temp glob.ObjectHitlistData) {
-				EventHitlistAdd(temp.Obj, consts.QUEUE_TYPE_TICK, true)
-				EventHitlistAdd(temp.Obj, consts.QUEUE_TYPE_TOCK, true)
+			temp := *item
+			EventHitlistAdd(temp.Obj, consts.QUEUE_TYPE_TICK, true)
+			EventHitlistAdd(temp.Obj, consts.QUEUE_TYPE_TOCK, true)
 
-				removeObj(temp.Pos)
-			}(*item)
+			removeObj(temp.Pos)
 
 		} else {
 			//Add
