@@ -27,15 +27,6 @@ const (
 )
 
 var (
-	/* Visible Chunk Cache */
-	gVisChunks   [consts.MAX_DRAW_CHUNKS]*glob.MapChunk
-	gVisChunkPos [consts.MAX_DRAW_CHUNKS]glob.XY
-	gVisChunkTop int
-
-	gVisSChunks   [consts.MAX_DRAW_CHUNKS]*glob.MapSuperChunk
-	gVisSChunkPos [consts.MAX_DRAW_CHUNKS]glob.XY
-	gVisSChunkTop int
-
 	camXPos float64
 	camYPos float64
 
@@ -111,8 +102,8 @@ func makeVisList() {
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
 
-		gVisChunkTop = 0
-		gVisSChunkTop = 0
+		glob.VisChunkTop = 0
+		glob.VisSChunkTop = 0
 
 		superChunksDrawn = 0
 		glob.SuperChunkMapLock.Lock()
@@ -137,17 +128,17 @@ func makeVisList() {
 			superChunksDrawn++
 			sChunk.Visible = true
 
-			if gVisSChunkTop < consts.MAX_DRAW_CHUNKS {
-				gVisSChunks[gVisSChunkTop] = sChunk
-				gVisSChunkPos[gVisSChunkTop] = scPos
-				gVisSChunkTop++
+			if glob.VisSChunkTop < consts.MAX_DRAW_CHUNKS {
+				glob.VisSChunks[glob.VisSChunkTop] = sChunk
+				glob.VisSChunkPos[glob.VisSChunkTop] = scPos
+				glob.VisSChunkTop++
 			} else {
 				break
 			}
 
 			for chunkPos, chunk := range sChunk.Chunks {
 
-				/* Is this chunk in the prerender area?
+				/* Is this chunk in the prerender area? */
 				if chunkPos.X+cPreCache < screenStartX ||
 					chunkPos.X-cPreCache > screenEndX ||
 					chunkPos.Y+cPreCache < screenStartY ||
@@ -155,22 +146,22 @@ func makeVisList() {
 					chunk.Visible = false
 					continue
 				}
-				chunk.Visible = true */
+				chunk.Visible = true
 
 				/* Is this chunk on the screen? */
 				if chunkPos.X < screenStartX ||
 					chunkPos.X > screenEndX ||
 					chunkPos.Y < screenStartY ||
 					chunkPos.Y > screenEndY {
-					chunk.Visible = false
+					//chunk.Visible = false
 					continue
 				}
-				chunk.Visible = true
+				//chunk.Visible = true
 
-				if gVisChunkTop < consts.MAX_DRAW_CHUNKS {
-					gVisChunks[gVisChunkTop] = chunk
-					gVisChunkPos[gVisChunkTop] = chunkPos
-					gVisChunkTop++
+				if glob.VisChunkTop < consts.MAX_DRAW_CHUNKS {
+					glob.VisChunks[glob.VisChunkTop] = chunk
+					glob.VisChunkPos[glob.VisChunkTop] = chunkPos
+					glob.VisChunkTop++
 				} else {
 					break
 				}
@@ -210,9 +201,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	chunksDrawn := 0
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
-		for i := 0; i < gVisChunkTop; i++ {
-			chunkPos := gVisChunkPos[i]
-			chunk := gVisChunks[i]
+		for i := 0; i < glob.VisChunkTop; i++ {
+			chunkPos := glob.VisChunkPos[i]
+			chunk := glob.VisChunks[i]
 			chunksDrawn++
 
 			/* Draw ground */
@@ -315,12 +306,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 
 		/* Draw superchunk images */
-		for z := 0; z < gVisSChunkTop; z++ {
-			sChunk := gVisSChunks[z]
+		for z := 0; z < glob.VisSChunkTop; z++ {
+			sChunk := glob.VisSChunks[z]
 			if !sChunk.Visible || sChunk.MapImg == nil {
 				continue
 			}
-			cPos := gVisSChunkPos[z]
+			cPos := glob.VisSChunkPos[z]
 
 			op.GeoM.Reset()
 			op.GeoM.Scale(
@@ -433,7 +424,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Limit frame rate */
-	terrain.RenderTerrain()
+	if glob.FixWASM {
+		terrain.RenderTerrainST()
+	}
 	if g.ui != nil {
 		g.ui.Draw(screen)
 	}

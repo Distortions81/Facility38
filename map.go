@@ -4,94 +4,97 @@ import (
 	"GameTest/consts"
 	"GameTest/glob"
 	"GameTest/objects"
+	"GameTest/terrain"
 )
 
-func makeTestMap() {
+func makeTestMap(skip bool) {
 
-	/* Test load map generator parameters */
-	total := 0
-	rows := 0
-	columns := 0
-	hSpace := 4
-	vSpace := 4
-	bLen := 2
-	beltLength := hSpace + bLen
-	for i := 0; total < consts.TestObjects; i++ {
-		if i%2 == 0 {
-			rows++
-		} else {
-			columns++
+	if !skip {
+		/* Test load map generator parameters */
+		total := 0
+		rows := 0
+		columns := 0
+		hSpace := 4
+		vSpace := 4
+		bLen := 2
+		beltLength := hSpace + bLen
+		for i := 0; total < consts.TestObjects; i++ {
+			if i%2 == 0 {
+				rows++
+			} else {
+				columns++
+			}
+
+			total = (rows * columns) * (bLen + 2)
 		}
 
-		total = (rows * columns) * (bLen + 2)
-	}
+		if consts.LoadTest {
 
-	if consts.LoadTest {
+			ty := int(consts.XYCenter) - (rows)
+			cols := 0
+			for j := 0; j < rows*columns; j++ {
+				cols++
 
-		ty := int(consts.XYCenter) - (rows)
-		cols := 0
-		for j := 0; j < rows*columns; j++ {
-			cols++
+				tx := int(consts.XYCenter) - (columns*(beltLength+hSpace))/2
+				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 
-			tx := int(consts.XYCenter) - (columns*(beltLength+hSpace))/2
-			objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+				for i := 0; i < beltLength-hSpace; i++ {
+					tx++
+					objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
 
+				}
+				tx++
+				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+
+				if cols%columns == 0 {
+					ty += vSpace
+					cols = 0
+				}
+			}
+		} else {
+			/* Default map generator */
+			tx := int(consts.XYCenter - 5)
+			ty := int(consts.XYCenter)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
-
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
 			}
 			tx++
-			objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
 
-			if cols%columns == 0 {
-				ty += vSpace
-				cols = 0
+			tx = int(consts.XYCenter - 5)
+			ty = int(consts.XYCenter - 2)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
+			for i := 0; i < beltLength-hSpace; i++ {
+				tx--
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
 			}
-		}
-	} else {
-		/* Default map generator */
-		tx := int(consts.XYCenter - 5)
-		ty := int(consts.XYCenter)
-		objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
-		for i := 0; i < beltLength-hSpace; i++ {
-			tx++
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
-		}
-		tx++
-		objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
-
-		tx = int(consts.XYCenter - 5)
-		ty = int(consts.XYCenter - 2)
-		objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
-		for i := 0; i < beltLength-hSpace; i++ {
 			tx--
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
-		}
-		tx--
-		objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
 
-		tx = int(consts.XYCenter - 5)
-		ty = int(consts.XYCenter + 2)
-		objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
-		for i := 0; i < beltLength-hSpace; i++ {
+			tx = int(consts.XYCenter - 5)
+			ty = int(consts.XYCenter + 2)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
+			for i := 0; i < beltLength-hSpace; i++ {
+				ty++
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
+			}
 			ty++
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
-		}
-		ty++
-		objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
 
-		tx = int(consts.XYCenter - 5)
-		ty = int(consts.XYCenter - 4)
-		objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
-		for i := 0; i < beltLength-hSpace; i++ {
+			tx = int(consts.XYCenter - 5)
+			ty = int(consts.XYCenter - 4)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
+			for i := 0; i < beltLength-hSpace; i++ {
+				ty--
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
+			}
 			ty--
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
+
 		}
-		ty--
-		objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
-
 	}
-
+	go terrain.RenderTerrainDaemon()
 	glob.MapGenerated = true
 }

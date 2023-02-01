@@ -11,6 +11,15 @@ import (
 )
 
 var (
+	/* Visible Chunk Cache */
+	VisChunks   [consts.MAX_DRAW_CHUNKS]*MapChunk
+	VisChunkPos [consts.MAX_DRAW_CHUNKS]XY
+	VisChunkTop int
+
+	VisSChunks   [consts.MAX_DRAW_CHUNKS]*MapSuperChunk
+	VisSChunkPos [consts.MAX_DRAW_CHUNKS]XY
+	VisSChunkTop int
+
 	/* World map */
 	SuperChunkMap     map[XY]*MapSuperChunk
 	SuperChunkMapLock deadlock.Mutex

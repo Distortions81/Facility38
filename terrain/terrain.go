@@ -6,8 +6,18 @@ import (
 	"GameTest/glob"
 	"GameTest/noise"
 	"GameTest/objects"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+)
+
+const (
+	maxTerrainCache = 50
+	renderRest      = time.Millisecond * 10
+)
+
+var (
+	numTerrainCache int
 )
 
 func SetupTerrainCache() {
@@ -15,6 +25,7 @@ func SetupTerrainCache() {
 	tChunk := glob.MapChunk{}
 	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
 	glob.TempChunkImage = tChunk.TerrainImg
+	glob.TempChunkImage.Fill(glob.ColorDarkRed)
 }
 
 func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
@@ -57,18 +68,19 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	} else {
 		panic("No valid bg texture.")
 	}
+	numTerrainCache++
 	chunk.TerrainImg = tImg
 }
 
 /* Wasm single-thread version, one tile per frame */
-func RenderTerrain() {
+func RenderTerrainST() {
 	tmpWorld := glob.SuperChunkMap
 
 	/* If we zoom out, decallocate everything */
-	if glob.ZoomScale < consts.MapPixelThreshold {
+	if glob.ZoomScale <= consts.MapPixelThreshold {
 		for _, sChunk := range tmpWorld {
 			for _, chunk := range sChunk.Chunks {
-				killTerrainCache(chunk)
+				killTerrainCache(chunk, true)
 				continue
 			}
 		}
@@ -86,17 +98,57 @@ func RenderTerrain() {
 					continue
 				}
 			} else {
-				killTerrainCache(chunk)
+				killTerrainCache(chunk, false)
 				continue
 			}
 		}
 	}
 }
 
-func killTerrainCache(chunk *glob.MapChunk) {
+var clearedCache bool
+
+func RenderTerrainDaemon() {
+	for {
+		time.Sleep(renderRest)
+
+		/* If we zoom out, decallocate everything */
+		if glob.ZoomScale <= consts.MapPixelThreshold {
+			if !clearedCache {
+				for i := 0; i < glob.VisChunkTop; i++ {
+					time.Sleep(renderRest)
+					chunk := glob.VisChunks[i]
+					killTerrainCache(chunk, true)
+				}
+				clearedCache = true
+			}
+		} else {
+			clearedCache = false
+			for i := 0; i < glob.VisChunkTop; i++ {
+
+				cpos := glob.VisChunkPos[i]
+				chunk := glob.VisChunks[i]
+
+				if chunk.TerrainImg == nil {
+					continue
+				}
+				time.Sleep(renderRest)
+				if chunk.Visible && chunk.UsingTemporary {
+					renderChunkGround(chunk, true, cpos)
+				} else if !chunk.Visible {
+					killTerrainCache(chunk, false)
+				}
+			}
+		}
+	}
+}
+
+func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	if chunk.UsingTemporary || chunk.TerrainImg == nil {
 		return
 	}
-	chunk.TerrainImg.Dispose()
-	chunk.TerrainImg = nil
+	if force || numTerrainCache > maxTerrainCache {
+		chunk.TerrainImg.Dispose()
+		chunk.TerrainImg = nil
+		numTerrainCache--
+	}
 }
