@@ -12,7 +12,7 @@ const (
 	/* Debug */
 	UPSBench    = false
 	LoadTest    = false
-	Debug       = true
+	Debug       = false
 	Verbose     = false
 	LogStdOut   = true
 	TestObjects = 1000000 //Make (approx) this number items

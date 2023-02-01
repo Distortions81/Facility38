@@ -381,28 +381,30 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							o.Contents[z].TypeP.Name, o.Contents[z].Amount)
 					}
 				}
-				if o.OutputBuffer != nil {
+				if o.OutputBuffer != nil && consts.Debug {
 					toolTip = toolTip + fmt.Sprintf(" (OutputBuf: %v: %v: %v)",
 						util.DirToName(o.Direction),
 						o.OutputBuffer.TypeP.Name,
 						o.OutputBuffer.Amount)
 				}
-				if o.OutputObj != nil && o.OutputObj.InputBuffer[util.ReverseDirection(o.Direction)] != nil {
+				if o.OutputObj != nil && o.OutputObj.InputBuffer[util.ReverseDirection(o.Direction)] != nil && consts.Debug {
 					toolTip = toolTip + fmt.Sprintf(" (OutputObj: %v: %v)",
 						util.DirToName(o.Direction), o.OutputObj.TypeP.Name)
 				}
 
-				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
-					if o.InputBuffer[z] != nil {
-						toolTip = toolTip + fmt.Sprintf(" (InputBuf: %v: %v: %v)",
-							util.DirToName(z),
-							o.InputBuffer[z].TypeP.Name,
-							o.InputBuffer[z].Amount)
-					}
-					if o.InputObjs[z] != nil {
-						toolTip = toolTip + fmt.Sprintf(" (InputObj: %v: %v)",
-							o.InputObjs[z].TypeP.Name,
-							util.DirToName(util.ReverseDirection(z)))
+				if consts.Debug {
+					for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
+						if o.InputBuffer[z] != nil {
+							toolTip = toolTip + fmt.Sprintf(" (InputBuf: %v: %v: %v)",
+								util.DirToName(z),
+								o.InputBuffer[z].TypeP.Name,
+								o.InputBuffer[z].Amount)
+						}
+						if o.InputObjs[z] != nil {
+							toolTip = toolTip + fmt.Sprintf(" (InputObj: %v: %v)",
+								o.InputObjs[z].TypeP.Name,
+								util.DirToName(util.ReverseDirection(z)))
+						}
 					}
 				}
 			}
