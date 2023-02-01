@@ -145,20 +145,20 @@ func makeVisList() {
 					chunkPos.X-cPreCache > screenEndX ||
 					chunkPos.Y+cPreCache < screenStartY ||
 					chunkPos.Y-cPreCache > screenEndY {
-					chunk.Visible = false
+					chunk.Precache = false
 					continue
 				}
-				chunk.Visible = true
+				chunk.Precache = true
 
 				/* Is this chunk on the screen? */
 				if chunkPos.X < screenStartX ||
 					chunkPos.X > screenEndX ||
 					chunkPos.Y < screenStartY ||
 					chunkPos.Y > screenEndY {
-					//chunk.Visible = false
+					chunk.Visible = false
 					continue
 				}
-				//chunk.Visible = true
+				chunk.Visible = true
 
 				if glob.VisChunkTop < consts.MAX_DRAW_CHUNKS {
 					glob.VisChunks[glob.VisChunkTop] = chunk

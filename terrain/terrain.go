@@ -102,10 +102,10 @@ func RenderTerrainST() {
 			if chunk.TerrainImg == nil {
 				continue
 			}
-			if chunk.Visible && chunk.UsingTemporary {
+			if chunk.Precache && chunk.UsingTemporary {
 				renderChunkGround(chunk, true, cpos)
 				break
-			} else if !chunk.Visible {
+			} else if !chunk.Precache {
 				killTerrainCache(chunk, false)
 			}
 		}
@@ -140,9 +140,9 @@ func RenderTerrainDaemon() {
 					continue
 				}
 				time.Sleep(renderRest)
-				if chunk.Visible && chunk.UsingTemporary {
+				if chunk.Precache && chunk.UsingTemporary {
 					renderChunkGround(chunk, true, cpos)
-				} else if !chunk.Visible {
+				} else if !chunk.Precache {
 					killTerrainCache(chunk, false)
 				}
 			}

@@ -92,7 +92,8 @@ type MapChunk struct {
 	TerrainImg     *ebiten.Image
 	UsingTemporary bool
 
-	Visible bool
+	Precache bool
+	Visible  bool
 }
 
 type WObject struct {
