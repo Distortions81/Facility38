@@ -23,7 +23,7 @@ const (
 	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
-	cPreCache               = 3
+	cPreCache               = 2
 	WASMTerrtainDiv         = 4
 )
 

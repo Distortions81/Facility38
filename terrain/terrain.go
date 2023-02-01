@@ -15,6 +15,8 @@ const (
 	maxTerrainCache = 50
 	renderRest      = time.Millisecond
 	renderLoop      = time.Millisecond * 10
+	zoomCachePurge  = false //Always purges on WASM
+	debugVisualize  = false
 )
 
 var (
@@ -26,7 +28,10 @@ func SetupTerrainCache() {
 	tChunk := glob.MapChunk{}
 	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
 	glob.TempChunkImage = tChunk.TerrainImg
-	//glob.TempChunkImage.Fill(glob.ColorDarkRed)
+
+	if debugVisualize {
+		glob.TempChunkImage.Fill(glob.ColorDarkRed)
+	}
 }
 
 func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
@@ -116,7 +121,7 @@ func RenderTerrainDaemon() {
 
 		/* If we zoom out, decallocate everything */
 		if glob.ZoomScale <= consts.MapPixelThreshold {
-			if !clearedCache {
+			if !clearedCache && zoomCachePurge {
 				for i := 0; i < glob.VisChunkTop; i++ {
 					time.Sleep(renderRest)
 					chunk := glob.VisChunks[i]
