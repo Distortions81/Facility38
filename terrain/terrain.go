@@ -167,19 +167,23 @@ func PixmapRenderST() {
 		scPos := glob.VisSChunkPos[i]
 		sChunk := glob.VisSChunks[i]
 
-		sChunk.PixLock.Lock()
-
-		sChunk.PixLock.Lock()
-		if sChunk.PixMap != nil {
-			sChunk.PixMap.Dispose()
-			sChunk.PixMap = nil
+		if glob.ZoomScale > consts.MapPixelThreshold {
+			sChunk.PixLock.Lock()
+			if sChunk.PixMap != nil {
+				time.Sleep(renderRest)
+				sChunk.PixMap.Dispose()
+				sChunk.PixMap = nil
+				sChunk.PixLock.Unlock()
+				continue
+			}
 			sChunk.PixLock.Unlock()
-			continue
 		}
-		sChunk.PixLock.Unlock()
 
+		sChunk.PixLock.Lock()
 		if sChunk.PixMap == nil || sChunk.PixmapDirty {
+			time.Sleep(renderRest)
 			drawPixmap(sChunk, scPos)
+			sChunk.PixLock.Unlock()
 			break
 		}
 		sChunk.PixLock.Unlock()

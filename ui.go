@@ -41,6 +41,9 @@ var (
 	gBuildActionDelay   time.Duration
 	gRemoveActionDelay  time.Duration
 	gLastActionType     int
+
+	/* WASM wierdness kludge */
+	lastScroll time.Time
 )
 
 const (
@@ -220,14 +223,12 @@ func touchScreenHandle() {
 	}
 }
 
-/* WASM wierdness kludge */
-var lastScroll time.Time
-
 func zoomHandle() {
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
-	if glob.FixWASM && fsy != 0.0 {
+	/* WASM kludge */
+	if glob.FixWASM && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
 			return
 		}
