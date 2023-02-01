@@ -53,53 +53,6 @@ func init() {
 	glob.ToolBG.Fill(glob.ColorCharcol)
 }
 
-func calcScreenCamera() {
-	/* Adjust cam position for zoom */
-	camXPos = float64(-glob.CameraX) + ((float64(glob.ScreenWidth) / 2.0) / glob.ZoomScale)
-	camYPos = float64(-glob.CameraY) + ((float64(glob.ScreenHeight) / 2.0) / glob.ZoomScale)
-
-	/* Get camera bounds */
-	camStartX = int((1/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale)))
-	camStartY = int((1/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale)))
-	camEndX = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale)))
-	camEndY = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale)))
-
-	/* Pre-calc camera chunk position */
-	screenStartX = camStartX / consts.ChunkSize
-	screenStartY = camStartY / consts.ChunkSize
-	screenEndX = camEndX / consts.ChunkSize
-	screenEndY = camEndY / consts.ChunkSize
-}
-
-func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
-	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-
-	/* Make Pixelmap images */
-	if sChunk.MapImg == nil {
-		sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
-	}
-
-	sChunk.MapImg.Fill(glob.ColorCharcol)
-	for _, ctmp := range sChunk.Chunks {
-		if ctmp.NumObjects <= 0 {
-			continue
-		}
-
-		/* Draw objects in chunk */
-		for objPos, _ := range ctmp.WObject {
-			scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
-			scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
-
-			x := float64((objPos.X - consts.XYCenter) - scX)
-			y := float64((objPos.Y - consts.XYCenter) - scY)
-			op.GeoM.Reset()
-			op.GeoM.Translate(x, y)
-			sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
-		}
-		sChunk.PixmapDirty = false
-	}
-}
-
 func makeVisList() {
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
@@ -110,7 +63,9 @@ func makeVisList() {
 		superChunksDrawn = 0
 		glob.SuperChunkMapLock.Lock()
 		for scPos, sChunk := range glob.SuperChunkMap {
-
+			if sChunk.NumChunks == 0 {
+				continue
+			}
 			if glob.ZoomScale > consts.MapPixelThreshold {
 				if sChunk.MapImg != nil {
 					sChunk.MapImg.Dispose()
@@ -139,6 +94,9 @@ func makeVisList() {
 			}
 
 			for chunkPos, chunk := range sChunk.Chunks {
+				if sChunk.NumChunks == 0 {
+					continue
+				}
 
 				/* Is this chunk in the prerender area? */
 				if chunkPos.X+cPreCache < screenStartX ||
@@ -171,13 +129,6 @@ func makeVisList() {
 			}
 		}
 		glob.SuperChunkMapLock.Unlock()
-
-		for scPos, sChunk := range glob.SuperChunkMap {
-			if sChunk.Visible && (sChunk.MapImg == nil || sChunk.PixmapDirty) {
-				drawPixmap(sChunk, scPos)
-				break
-			}
-		}
 	}
 }
 
@@ -206,8 +157,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
 		for i := 0; i < glob.VisChunkTop; i++ {
-			chunkPos := glob.VisChunkPos[i]
 			chunk := glob.VisChunks[i]
+			if chunk.Precache && !chunk.Visible {
+				continue
+			}
+
+			chunkPos := glob.VisChunkPos[i]
 			chunksDrawn++
 
 			/* Draw ground */
@@ -442,16 +397,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 }
 
-func drawMaterials(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
-
-	if m.Amount > 0 {
-		img := m.TypeP.Image
-		if img != nil {
-			screen.DrawImage(img, op)
-		}
-	}
-}
-
 func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 
 	/* camera + object */
@@ -503,4 +448,32 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 
 	}
 
+}
+
+func calcScreenCamera() {
+	/* Adjust cam position for zoom */
+	camXPos = float64(-glob.CameraX) + ((float64(glob.ScreenWidth) / 2.0) / glob.ZoomScale)
+	camYPos = float64(-glob.CameraY) + ((float64(glob.ScreenHeight) / 2.0) / glob.ZoomScale)
+
+	/* Get camera bounds */
+	camStartX = int((1/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale)))
+	camStartY = int((1/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale)))
+	camEndX = int((float64(glob.ScreenWidth)/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale)))
+	camEndY = int((float64(glob.ScreenHeight)/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale)))
+
+	/* Pre-calc camera chunk position */
+	screenStartX = camStartX / consts.ChunkSize
+	screenStartY = camStartY / consts.ChunkSize
+	screenEndX = camEndX / consts.ChunkSize
+	screenEndY = camEndY / consts.ChunkSize
+}
+
+func drawMaterials(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
+
+	if m.Amount > 0 {
+		img := m.TypeP.Image
+		if img != nil {
+			screen.DrawImage(img, op)
+		}
+	}
 }

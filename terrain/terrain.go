@@ -132,7 +132,6 @@ func RenderTerrainDaemon() {
 		} else {
 			clearedCache = false
 			for i := 0; i < glob.VisChunkTop; i++ {
-
 				cpos := glob.VisChunkPos[i]
 				chunk := glob.VisChunks[i]
 
@@ -160,5 +159,43 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 		chunk.TerrainImg = nil
 		numTerrainCache--
 		chunk.TerrainLock.Unlock()
+	}
+}
+
+func pixmapRender() {
+	for scPos, sChunk := range glob.SuperChunkMap {
+		if sChunk.Visible && (sChunk.MapImg == nil || sChunk.PixmapDirty) {
+			drawPixmap(sChunk, scPos)
+			break
+		}
+	}
+}
+
+func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
+	/* Make Pixelmap images */
+	if sChunk.MapImg == nil {
+		sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
+	}
+
+	sChunk.MapImg.Fill(glob.ColorCharcol)
+	for _, ctmp := range sChunk.Chunks {
+		if ctmp.NumObjects <= 0 {
+			continue
+		}
+
+		/* Draw objects in chunk */
+		for objPos, _ := range ctmp.WObject {
+			scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
+			scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
+
+			x := float64((objPos.X - consts.XYCenter) - scX)
+			y := float64((objPos.Y - consts.XYCenter) - scY)
+			op.GeoM.Reset()
+			op.GeoM.Translate(x, y)
+			sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
+		}
+		sChunk.PixmapDirty = false
 	}
 }
