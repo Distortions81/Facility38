@@ -97,6 +97,7 @@ func makeTestMap(skip bool) {
 	}
 	if !glob.FixWASM {
 		go terrain.RenderTerrainDaemon()
+		go terrain.PixmapRenderDaemon()
 	}
 	glob.MapGenerated = true
 }

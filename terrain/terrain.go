@@ -162,11 +162,56 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	}
 }
 
-func pixmapRender() {
-	for scPos, sChunk := range glob.SuperChunkMap {
-		if sChunk.Visible && (sChunk.MapImg == nil || sChunk.PixmapDirty) {
+func PixmapRenderST() {
+	for i := 0; i < glob.VisSChunkTop; i++ {
+		scPos := glob.VisSChunkPos[i]
+		sChunk := glob.VisSChunks[i]
+
+		sChunk.PixLock.Lock()
+
+		sChunk.PixLock.Lock()
+		if sChunk.PixMap != nil {
+			sChunk.PixMap.Dispose()
+			sChunk.PixMap = nil
+			sChunk.PixLock.Unlock()
+			continue
+		}
+		sChunk.PixLock.Unlock()
+
+		if sChunk.PixMap == nil || sChunk.PixmapDirty {
 			drawPixmap(sChunk, scPos)
 			break
+		}
+		sChunk.PixLock.Unlock()
+	}
+}
+
+func PixmapRenderDaemon() {
+	for {
+		time.Sleep(renderLoop)
+
+		for i := 0; i < glob.VisSChunkTop; i++ {
+			scPos := glob.VisSChunkPos[i]
+			sChunk := glob.VisSChunks[i]
+
+			if glob.ZoomScale > consts.MapPixelThreshold {
+				sChunk.PixLock.Lock()
+				if sChunk.PixMap != nil {
+					time.Sleep(renderRest)
+					sChunk.PixMap.Dispose()
+					sChunk.PixMap = nil
+					sChunk.PixLock.Unlock()
+					continue
+				}
+				sChunk.PixLock.Unlock()
+			}
+
+			sChunk.PixLock.Lock()
+			if sChunk.PixMap == nil || sChunk.PixmapDirty {
+				time.Sleep(renderRest)
+				drawPixmap(sChunk, scPos)
+			}
+			sChunk.PixLock.Unlock()
 		}
 	}
 }
@@ -175,11 +220,11 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 	/* Make Pixelmap images */
-	if sChunk.MapImg == nil {
-		sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
+	if sChunk.PixMap == nil {
+		sChunk.PixMap = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
 	}
 
-	sChunk.MapImg.Fill(glob.ColorCharcol)
+	sChunk.PixMap.Fill(glob.ColorCharcol)
 	for _, ctmp := range sChunk.Chunks {
 		if ctmp.NumObjects <= 0 {
 			continue
@@ -194,7 +239,7 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 			y := float64((objPos.Y - consts.XYCenter) - scY)
 			op.GeoM.Reset()
 			op.GeoM.Translate(x, y)
-			sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
+			sChunk.PixMap.DrawImage(glob.MiniMapTile, op)
 		}
 		sChunk.PixmapDirty = false
 	}

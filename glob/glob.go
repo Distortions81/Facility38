@@ -79,9 +79,11 @@ type MapSuperChunk struct {
 	Chunks    map[XY]*MapChunk
 	NumChunks uint64
 
-	MapImg      *ebiten.Image
-	Visible     bool
+	PixMap      *ebiten.Image
 	PixmapDirty bool
+	PixLock     sync.Mutex
+
+	Visible bool
 }
 
 type MapChunk struct {

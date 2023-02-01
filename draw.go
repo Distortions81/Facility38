@@ -66,12 +66,6 @@ func makeVisList() {
 			if sChunk.NumChunks == 0 {
 				continue
 			}
-			if glob.ZoomScale > consts.MapPixelThreshold {
-				if sChunk.MapImg != nil {
-					sChunk.MapImg.Dispose()
-					sChunk.MapImg = nil
-				}
-			}
 
 			/* Is this super chunk on the screen? */
 			if scPos.X < screenStartX/consts.SuperChunkSize ||
@@ -266,10 +260,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	} else {
 
+		if glob.FixWASM {
+			terrain.PixmapRenderST()
+		}
+
 		/* Draw superchunk images */
 		for z := 0; z < glob.VisSChunkTop; z++ {
 			sChunk := glob.VisSChunks[z]
-			if !sChunk.Visible || sChunk.MapImg == nil {
+			sChunk.PixLock.Lock()
+			if !sChunk.Visible || sChunk.PixMap == nil {
+				sChunk.PixLock.Unlock()
 				continue
 			}
 			cPos := glob.VisSChunkPos[z]
@@ -283,7 +283,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				((camXPos+float64((cPos.X))*consts.SuperChunkPixels)*glob.ZoomScale)-1,
 				((camYPos+float64((cPos.Y))*consts.SuperChunkPixels)*glob.ZoomScale)-1)
 
-			screen.DrawImage(sChunk.MapImg, op)
+			screen.DrawImage(sChunk.PixMap, op)
+			sChunk.PixLock.Unlock()
 		}
 	}
 
