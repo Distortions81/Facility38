@@ -10,12 +10,12 @@ const (
 	TxtDir  = "txt/"
 
 	/* Debug */
-	UPSBench    = true
-	LoadTest    = true
+	UPSBench    = false
+	LoadTest    = false
 	Debug       = false
 	Verbose     = false
 	LogStdOut   = true
-	TestObjects = 10000000 //Make (approx) this number items
+	TestObjects = 1000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated  array */

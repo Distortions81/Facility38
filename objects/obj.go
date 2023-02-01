@@ -480,7 +480,6 @@ func ExploreMap(input int) {
 func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	glob.SuperChunkMapLock.Lock()
-	defer glob.SuperChunkMapLock.Unlock()
 
 	//Make chunk if needed
 	MakeChunk(pos)
@@ -492,10 +491,12 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	ppos := util.CenterXY(pos)
 	if obj != nil {
 		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", ppos.X, ppos.Y)
+		glob.SuperChunkMapLock.Unlock()
 		return nil
 	}
 
 	obj = &glob.WObject{}
+	glob.SuperChunkMapLock.Unlock()
 
 	obj.TypeP = GameObjTypes[mtype]
 	obj.TypeI = mtype
@@ -516,7 +517,11 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	}
 	cpos := util.PosToChunkPos(pos)
 	scpos := util.PosToSuperChunkPos(pos)
+
+	glob.SuperChunkMapLock.Lock()
 	glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
+	glob.SuperChunkMap[scpos].PixmapDirty = true
+	glob.SuperChunkMapLock.Unlock()
 
 	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
 
@@ -593,5 +598,7 @@ func removeObj(pos glob.XY) {
 	glob.SuperChunkMapLock.Lock()
 	glob.SuperChunkMap[scpos].Chunks[cpos].NumObjects--
 	delete(glob.SuperChunkMap[scpos].Chunks[cpos].WObject, pos)
+
+	glob.SuperChunkMap[scpos].PixmapDirty = true
 	glob.SuperChunkMapLock.Unlock()
 }

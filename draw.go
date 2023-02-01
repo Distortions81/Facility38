@@ -78,10 +78,38 @@ func calcScreenCamera() {
 	screenEndY = camEndY / consts.ChunkSize
 }
 
+func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
+	/* Make Pixelmap images */
+	if sChunk.MapImg == nil {
+		sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
+	}
+
+	sChunk.MapImg.Fill(glob.ColorCharcol)
+	for _, ctmp := range sChunk.Chunks {
+		if ctmp.NumObjects <= 0 {
+			continue
+		}
+
+		/* Draw objects in chunk */
+		for objPos, _ := range ctmp.WObject {
+			scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
+			scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
+
+			x := float64((objPos.X - consts.XYCenter) - scX)
+			y := float64((objPos.Y - consts.XYCenter) - scY)
+			op.GeoM.Reset()
+			op.GeoM.Translate(x, y)
+			sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
+		}
+		sChunk.PixmapDirty = false
+	}
+}
+
 func makeVisList() {
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 		gVisChunkTop = 0
 		gVisSChunkTop = 0
@@ -96,15 +124,12 @@ func makeVisList() {
 					sChunk.MapImg = nil
 				}
 			}
+
 			/* Is this super chunk on the screen? */
 			if scPos.X < screenStartX/consts.SuperChunkSize ||
 				scPos.X > screenEndX/consts.SuperChunkSize ||
 				scPos.Y < screenStartY/consts.SuperChunkSize ||
 				scPos.Y > screenEndY/consts.SuperChunkSize {
-				if sChunk.MapImg != nil {
-					sChunk.MapImg.Dispose()
-					sChunk.MapImg = nil
-				}
 				sChunk.Visible = false
 				continue
 			}
@@ -112,28 +137,6 @@ func makeVisList() {
 			superChunksDrawn++
 			sChunk.Visible = true
 
-			/* Make Pixelmap images */
-			if sChunk.MapImg == nil {
-				sChunk.MapImg = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
-				sChunk.MapImg.Fill(glob.ColorCharcol)
-				for _, ctmp := range sChunk.Chunks {
-					if ctmp.NumObjects <= 0 {
-						continue
-					}
-
-					/* Draw objects in chunk */
-					for objPos, _ := range ctmp.WObject {
-						scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
-						scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
-
-						x := float64((objPos.X - consts.XYCenter) - scX)
-						y := float64((objPos.Y - consts.XYCenter) - scY)
-						op.GeoM.Reset()
-						op.GeoM.Translate(x, y)
-						sChunk.MapImg.DrawImage(glob.MiniMapTile, op)
-					}
-				}
-			}
 			if gVisSChunkTop < consts.MAX_DRAW_CHUNKS {
 				gVisSChunks[gVisSChunkTop] = sChunk
 				gVisSChunkPos[gVisSChunkTop] = scPos
@@ -175,6 +178,13 @@ func makeVisList() {
 			}
 		}
 		glob.SuperChunkMapLock.Unlock()
+
+		for scPos, sChunk := range glob.SuperChunkMap {
+			if sChunk.Visible && (sChunk.MapImg == nil || sChunk.PixmapDirty) {
+				drawPixmap(sChunk, scPos)
+				break
+			}
+		}
 	}
 }
 
@@ -307,6 +317,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		/* Draw superchunk images */
 		for z := 0; z < gVisSChunkTop; z++ {
 			sChunk := gVisSChunks[z]
+			if !sChunk.Visible || sChunk.MapImg == nil {
+				continue
+			}
 			cPos := gVisSChunkPos[z]
 
 			op.GeoM.Reset()
