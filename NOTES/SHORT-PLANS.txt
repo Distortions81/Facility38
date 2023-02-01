@@ -11,4 +11,6 @@ WASM try to patch mouse lost when going off-screen stupidity, also spread ticks
 
 rewrite everything for multi-input and multi-output (eventually)
 &&& Make a counter for inputs to limit number correctly &&&
-Write a deadline tick/tock for wasm, use idle render for work normally
+Write a deadline tick/tock for wasm, use idle render for work normally\
+
+fix multi-linking and race condition when creating items fast (added async)
