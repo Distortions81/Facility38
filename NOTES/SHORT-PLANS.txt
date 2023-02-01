@@ -13,3 +13,8 @@ rewrite everything for multi-input and multi-output (eventually)
 &&& Make a counter for inputs to limit number correctly &&&
 Write a deadline tick/tock for wasm, use idle render for work normally
 Make item/belt dragging work in fast mode.
+
+concurrent map access:
+https://medium.com/@luanrubensf/concurrent-map-access-in-go-a6a733c5ffd1
+
+https://gist.github.com/debnath/e11de2e10ec36055eda9e446b536874e
