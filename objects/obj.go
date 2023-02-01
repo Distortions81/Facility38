@@ -5,16 +5,16 @@ import (
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/util"
-	"sync"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
+	"github.com/sasha-s/go-deadlock"
 )
 
 var (
 	gWorldTick uint64 = 0
 
-	ListLock sync.Mutex
+	ListLock deadlock.Mutex
 	TickList []glob.TickEvent = []glob.TickEvent{}
 	TockList []glob.TickEvent = []glob.TickEvent{}
 
@@ -408,6 +408,10 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 		/* Set ourself as their output */
 		chunk := util.GetChunk(pos)
 		if chunk == nil {
+			cwlog.DoLog("(%v: %v, %v) linkIn: failed to find our chunk?", obj.TypeP.Name, ppos.X, ppos.Y)
+			continue
+		}
+		if chunk.WObject[pos] == nil {
 			cwlog.DoLog("(%v: %v, %v) linkIn: failed to find ourself?", obj.TypeP.Name, ppos.X, ppos.Y)
 			continue
 		}
@@ -476,13 +480,14 @@ func ExploreMap(input int) {
 func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	glob.SuperChunkMapLock.Lock()
+	defer glob.SuperChunkMapLock.Unlock()
+
 	//Make chunk if needed
 	MakeChunk(pos)
 	chunk := util.GetChunk(pos)
 
 	glob.CameraDirty = true
 	obj := chunk.WObject[pos]
-	glob.SuperChunkMapLock.Unlock()
 
 	ppos := util.CenterXY(pos)
 	if obj != nil {
@@ -511,16 +516,12 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 	}
 	cpos := util.PosToChunkPos(pos)
 	scpos := util.PosToSuperChunkPos(pos)
-	glob.SuperChunkMapLock.Lock()
 	glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
-	glob.SuperChunkMapLock.Unlock()
 
 	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
 
 	chunk.NumObjects++
-	glob.SuperChunkMapLock.Lock()
 	LinkObj(pos, obj, dir)
-	glob.SuperChunkMapLock.Unlock()
 
 	return obj
 }
@@ -567,11 +568,14 @@ func runObjectHitlist() {
 			}
 
 			/* Remove tick and tock events */
-			temp := *item
-			EventHitlistAdd(temp.Obj, consts.QUEUE_TYPE_TICK, true)
-			EventHitlistAdd(temp.Obj, consts.QUEUE_TYPE_TOCK, true)
+			go func(obj glob.WObject, pos glob.XY) {
+				ListLock.Lock()
+				EventHitlistAdd(&obj, consts.QUEUE_TYPE_TICK, true)
+				EventHitlistAdd(&obj, consts.QUEUE_TYPE_TOCK, true)
 
-			removeObj(temp.Pos)
+				removeObj(pos)
+				ListLock.Unlock()
+			}(*item.Obj, item.Pos)
 
 		} else {
 			//Add

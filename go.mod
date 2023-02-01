@@ -9,6 +9,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/ebiten/v2 v2.4.16
 	github.com/remeh/sizedwaitgroup v1.0.0
+	github.com/sasha-s/go-deadlock v0.3.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/shirou/gopsutil/v3 v3.22.12
 	golang.org/x/image v0.3.0
@@ -22,6 +23,7 @@ require (
 	github.com/hajimehoshi/file2byteslice v1.0.0 // indirect
 	github.com/jezek/xgb v1.1.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230110061619-bbe2e5e100de // indirect
+	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/power-devops/perfstat v0.0.0-20221212215047-62379fc7944b // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
