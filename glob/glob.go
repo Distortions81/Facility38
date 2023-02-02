@@ -23,7 +23,7 @@ var (
 	/* World map */
 	SuperChunkList    []*MapSuperChunk
 	SuperChunkMap     map[XY]*MapSuperChunk
-	SuperChunkMapLock sync.Mutex
+	SuperChunkMapLock sync.RWMutex
 
 	/* eBiten start settings */
 	ScreenWidth  int = 1280 //Screen width default
@@ -87,6 +87,7 @@ type MapSuperChunk struct {
 	PixLock     sync.Mutex
 
 	Visible bool
+	Lock    sync.RWMutex
 }
 
 type MapChunk struct {
@@ -103,6 +104,7 @@ type MapChunk struct {
 
 	Precache bool
 	Visible  bool
+	Lock     sync.RWMutex
 }
 
 type ObjData struct {

@@ -44,7 +44,9 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 
 func GetObj(pos glob.XY, chunk *glob.MapChunk) *glob.ObjData {
 	if chunk != nil {
+		chunk.Lock.RLock()
 		o := chunk.ObjMap[pos]
+		chunk.Lock.RUnlock()
 		return o
 	} else {
 		return nil
@@ -56,18 +58,28 @@ func GetChunk(pos glob.XY) *glob.MapChunk {
 	scpos := PosToSuperChunkPos(pos)
 	cpos := PosToChunkPos(pos)
 
+	glob.SuperChunkMapLock.RLock()
 	sChunk := glob.SuperChunkMap[scpos]
+	glob.SuperChunkMapLock.RUnlock()
+
 	if sChunk == nil {
 		return nil
 	}
+	sChunk.Lock.RLock()
 	chunk := sChunk.ChunkMap[cpos]
+	sChunk.Lock.RUnlock()
+
 	return chunk
 }
 
 // Automatically converts position to superChunk format
 func GetSuperChunk(pos glob.XY) *glob.MapSuperChunk {
 	scpos := PosToChunkPos(pos)
+
+	glob.SuperChunkMapLock.RLock()
 	sChunk := glob.SuperChunkMap[scpos]
+	glob.SuperChunkMapLock.RUnlock()
+
 	return sChunk
 }
 
@@ -118,10 +130,6 @@ func GetNeighborObj(src *glob.ObjData, pos glob.XY, dir int) (*glob.ObjData, glo
 	}
 	obj := GetObj(pos, chunk)
 	if obj == nil {
-		return nil, glob.XY{}
-	}
-	/* We are not our own neighbor */
-	if src == chunk.ObjMap[pos] {
 		return nil, glob.XY{}
 	}
 	return obj, pos
