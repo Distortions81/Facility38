@@ -163,7 +163,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		glob.VisChunkLock.RUnlock()
 
 		for index, chunk := range VisChunkTmp {
-			if chunk.Precache && !chunk.Visible {
+			if chunk == nil || (chunk.Precache && !chunk.Visible) {
 				continue
 			}
 
@@ -287,6 +287,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		glob.VisSChunkLock.RUnlock()
 
 		for index, sChunk := range VisSChunkTmp {
+			if sChunk == nil {
+				continue
+			}
 
 			sChunk.PixLock.Lock()
 			if !sChunk.Visible || sChunk.PixMap == nil {

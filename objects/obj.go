@@ -127,8 +127,13 @@ func tickObj(o *glob.ObjData) {
 
 // Move materials from one object to another
 func runTicksST() {
-	for i := 0; i < gTickCount; i++ {
-		tickObj(TickList[i].Target)
+
+	TickListLock.RLock()
+	TickListTemp := TickList
+	TickListLock.RUnlock()
+
+	for _, item := range TickListTemp {
+		tickObj(item.Target)
 	}
 }
 
@@ -136,7 +141,8 @@ func runTicksST() {
 func runTicks() {
 
 	TickListLock.RLock()
-	defer TickListLock.RUnlock()
+	TickListTmp := TickList
+	TickListLock.RUnlock()
 
 	l := gTickCount - 1
 	if l < 1 {
@@ -166,7 +172,7 @@ func runTicks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				tickObj(TickList[i].Target)
+				tickObj(TickListTmp[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)
@@ -180,7 +186,8 @@ func runTicks() {
 func runTocks() {
 
 	TockListLock.RLock()
-	defer TockListLock.RUnlock()
+	TockListTmp := TockList
+	TockListLock.RUnlock()
 
 	l := gTockCount - 1
 	if l < 1 {
@@ -211,7 +218,7 @@ func runTocks() {
 		wg.Add()
 		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
-				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				TockListTmp[i].Target.TypeP.UpdateObj(TockList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each, tickNow)
@@ -223,8 +230,12 @@ func runTocks() {
 
 // Process objects
 func runTocksST() {
-	for i := 0; i < gTockCount; i++ {
-		TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+	TockListLock.RLock()
+	TockListTmp := TockList
+	TockListLock.RUnlock()
+
+	for _, item := range TockListTmp {
+		item.Target.TypeP.UpdateObj(item.Target)
 	}
 }
 
@@ -454,14 +465,20 @@ func makeSuperChunk(pos glob.XY) {
 	if glob.SuperChunkMap[scpos] == nil {
 		/* Make new superchunk in map at pos */
 		glob.SuperChunkMap[scpos] = &glob.MapSuperChunk{}
+		glob.SuperChunkMap[scpos].Lock.Lock()
 
 		/* Append to superchunk list */
+		glob.SuperChunkListLock.Lock()
 		glob.SuperChunkList =
 			append(glob.SuperChunkList, glob.SuperChunkMap[scpos])
+		glob.SuperChunkListLock.Unlock()
+
 		glob.SuperChunkMap[scpos].ChunkMap = make(map[glob.XY]*glob.MapChunk)
 
 		/* Save position */
 		glob.SuperChunkMap[scpos].Pos = scpos
+
+		glob.SuperChunkMap[scpos].Lock.Unlock()
 	}
 
 }
@@ -476,22 +493,19 @@ func MakeChunk(pos glob.XY) {
 	cpos := util.PosToChunkPos(newPos)
 	scpos := util.PosToSuperChunkPos(newPos)
 
-	glob.SuperChunkMapLock.Lock()
-	defer glob.SuperChunkMapLock.Unlock()
-
-	glob.SuperChunkMap[scpos].Lock.Lock()
-	defer glob.SuperChunkMap[scpos].Lock.Unlock()
-
 	if glob.SuperChunkMap[scpos].ChunkMap[cpos] == nil {
+
 		/* Increase chunk count */
 		glob.SuperChunkMap[scpos].NumChunks++
 
 		/* Make a new empty chunk in the map at pos */
 		glob.SuperChunkMap[scpos].ChunkMap[cpos] = &glob.MapChunk{}
+		glob.SuperChunkMap[scpos].Lock.Lock()
 
 		/* Append to chunk list */
 		glob.SuperChunkMap[scpos].ChunkList =
 			append(glob.SuperChunkMap[scpos].ChunkList, glob.SuperChunkMap[scpos].ChunkMap[cpos])
+
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap = make(map[glob.XY]*glob.ObjData)
 
 		/* Save position */
@@ -499,6 +513,8 @@ func MakeChunk(pos glob.XY) {
 
 		/* Save parent */
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].Parent = glob.SuperChunkMap[scpos]
+
+		glob.SuperChunkMap[scpos].Lock.Unlock()
 	}
 }
 
@@ -561,8 +577,10 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 	chunk.Lock.Lock()
 
 	glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap[pos] = obj
+
 	glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList =
 		append(glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList, obj)
+
 	glob.SuperChunkMap[scpos].PixmapDirty = true
 
 	chunk.NumObjects++
@@ -588,10 +606,11 @@ func ObjectHitlistAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, di
 
 func runEventHitlist() {
 
-	EventQueueLock.Lock()
-	defer EventQueueLock.Unlock()
+	EventQueueLock.RLock()
+	EventQueueTmp := EventQueue
+	EventQueueLock.RUnlock()
 
-	for _, e := range EventQueue {
+	for _, e := range EventQueueTmp {
 		if e.Delete {
 			switch e.QType {
 			case consts.QUEUE_TYPE_TICK:
@@ -608,7 +627,10 @@ func runEventHitlist() {
 			}
 		}
 	}
+
+	EventQueueLock.Lock()
 	EventQueue = []*glob.EventHitlistData{}
+	EventQueueLock.Unlock()
 }
 
 func runObjectHitlist() {
