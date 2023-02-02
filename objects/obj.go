@@ -632,7 +632,6 @@ func runObjectHitlist() {
 		if item.Delete {
 
 			/* Invalidate object, and disconnect any connections to us */
-			item.Obj.Invalid = true
 			for _, inputObj := range item.Obj.InputObjs {
 				if inputObj != nil {
 					inputObj.OutputObj = nil

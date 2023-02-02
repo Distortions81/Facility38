@@ -133,8 +133,6 @@ type ObjData struct {
 	BlinkRed   int
 	BlinkGreen int
 	BlinkBlue  int
-
-	Invalid bool
 }
 
 type MatData struct {
