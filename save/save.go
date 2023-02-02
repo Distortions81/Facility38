@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+/* WIP */
 func SaveGame() {
 
 	tempPath := "save.dat.tmp"
@@ -61,6 +62,7 @@ func SaveGame() {
 	}
 }
 
+/* WIP */
 func LoadGame() {
 	b, err := os.ReadFile("save.dat")
 	if err != nil {
