@@ -135,6 +135,9 @@ func runTicksST() {
 // Move materials from one object to another
 func runTicks() {
 
+	TickListLock.RLock()
+	defer TickListLock.RUnlock()
+
 	l := gTickCount - 1
 	if l < 1 {
 		return

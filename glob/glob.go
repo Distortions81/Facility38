@@ -23,7 +23,9 @@ var (
 	VisSChunkLock sync.RWMutex
 
 	/* World map */
-	SuperChunkList    []*MapSuperChunk
+	SuperChunkList     []*MapSuperChunk
+	SuperChunkListLock sync.RWMutex
+
 	SuperChunkMap     map[XY]*MapSuperChunk
 	SuperChunkMapLock sync.RWMutex
 

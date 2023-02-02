@@ -54,14 +54,22 @@ func init() {
 }
 
 func makeVisList() {
+
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty {
+
+		glob.VisChunkLock.Lock()
+		glob.VisSChunkLock.Lock()
+		glob.SuperChunkListLock.RLock()
+
+		defer glob.VisSChunkLock.Unlock()
+		defer glob.VisChunkLock.Unlock()
+		defer glob.SuperChunkListLock.RUnlock()
 
 		glob.VisChunkTop = 0
 		glob.VisSChunkTop = 0
 
 		superChunksDrawn = 0
-		glob.SuperChunkMapLock.Lock()
 		for _, sChunk := range glob.SuperChunkList {
 			scPos := sChunk.Pos
 
@@ -124,11 +132,8 @@ func makeVisList() {
 				glob.CameraDirty = false
 			}
 		}
-		glob.SuperChunkMapLock.Unlock()
 	}
 }
-
-var ready bool = false
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
@@ -153,7 +158,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
 		for i := 0; i < glob.VisChunkTop; i++ {
+
+			glob.VisChunkLock.RLock()
 			chunk := glob.VisChunks[i]
+			glob.VisChunkLock.RUnlock()
+
 			if chunk.Precache && !chunk.Visible {
 				continue
 			}
@@ -164,8 +173,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			/* Draw ground */
 			/* No image, use a temporary texture while it draws */
 			if chunk.TerrainImg == nil {
+				chunk.TerrainLock.Lock()
 				chunk.TerrainImg = glob.TempChunkImage
 				chunk.UsingTemporary = true
+				chunk.TerrainLock.Unlock()
 			}
 
 			chunk.TerrainLock.Lock()
@@ -177,7 +188,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk.TerrainLock.Unlock()
 
 			/* Draw objects in chunk */
-			for objPos, obj := range chunk.ObjMap {
+			objList := chunk.ObjList
+			for _, obj := range objList {
+				objPos := obj.Pos
 
 				/* Is this object on the screen? */
 				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
@@ -268,13 +281,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		/* Draw superchunk images */
 		for z := 0; z < glob.VisSChunkTop; z++ {
+			glob.VisSChunkLock.RLock()
 			sChunk := glob.VisSChunks[z]
+			glob.VisSChunkLock.RUnlock()
+
 			sChunk.PixLock.Lock()
 			if !sChunk.Visible || sChunk.PixMap == nil {
 				sChunk.PixLock.Unlock()
 				continue
 			}
+			sChunk.PixLock.Unlock()
+
+			glob.VisSChunkLock.RLock()
 			cPos := glob.VisSChunkPos[z]
+			glob.VisSChunkLock.RUnlock()
 
 			op.GeoM.Reset()
 			op.GeoM.Scale(
@@ -285,6 +305,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				((camXPos+float64((cPos.X))*consts.SuperChunkPixels)*glob.ZoomScale)-1,
 				((camYPos+float64((cPos.Y))*consts.SuperChunkPixels)*glob.ZoomScale)-1)
 
+			sChunk.PixLock.Lock()
 			screen.DrawImage(sChunk.PixMap, op)
 			sChunk.PixLock.Unlock()
 		}
@@ -328,14 +349,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		/* World Obj tool tip */
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
-		glob.SuperChunkMapLock.Lock()
 		chunk := util.GetChunk(pos)
-		glob.SuperChunkMapLock.Unlock()
 
 		toolTip := ""
 		found := false
 		if chunk != nil {
-			o := chunk.ObjMap[pos]
+			o := util.GetObj(pos, chunk)
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
