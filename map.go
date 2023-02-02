@@ -99,11 +99,16 @@ func makeTestMap(skip bool) {
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
 
 		}
+		objects.UnsafeMakeObjLists()
+		objects.UnsafeMakeEventLists()
 		fmt.Println("Map generate took:", time.Since(start))
 	}
 	if !glob.WASMMode {
 		go terrain.RenderTerrainDaemon()
 		go terrain.PixmapRenderDaemon()
+		go objects.ObjUpdateDaemon()
+	} else {
+		go objects.ObjUpdateDaemonST()
 	}
 	glob.MapGenerated.Store(true)
 }

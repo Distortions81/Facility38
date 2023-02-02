@@ -61,13 +61,14 @@ func NewGame() *Game {
 
 	setupWindowSize()
 	windowTitle()
-	go loadSprites()
+	loadSprites()
 	objects.ExploreMap(8)
 	go makeTestMap(false)
-	go objects.ObjUpdateDaemon()
 
 	/* Initialize the game */
-	return &Game{ui: EUI()}
+	return &Game{
+		//ui: EUI()
+	}
 }
 
 /* Load all sprites, sub missing ones */

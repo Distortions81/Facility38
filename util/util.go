@@ -90,20 +90,6 @@ func GetChunk(pos glob.XY) *glob.MapChunk {
 	return chunk
 }
 
-/* UNSAFE, NO LOCKS: Get a chunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
-func UnsafeGetChunk(pos glob.XY) *glob.MapChunk {
-	scpos := PosToSuperChunkPos(pos)
-	cpos := PosToChunkPos(pos)
-
-	sChunk := glob.SuperChunkMap[scpos]
-	if sChunk == nil {
-		return nil
-	}
-	chunk := sChunk.ChunkMap[cpos]
-
-	return chunk
-}
-
 /* Get a superchunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
 func GetSuperChunk(pos glob.XY) *glob.MapSuperChunk {
 	scpos := PosToChunkPos(pos)

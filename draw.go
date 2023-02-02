@@ -71,6 +71,9 @@ func makeVisList() {
 		superChunksDrawn = 0
 		SChunkTmp := glob.SuperChunkList
 		for _, sChunk := range SChunkTmp {
+			if sChunk == nil {
+				continue
+			}
 			scPos := sChunk.Pos
 
 			if sChunk.NumChunks == 0 {

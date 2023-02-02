@@ -5,27 +5,27 @@ import (
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/util"
+	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
-	"github.com/sasha-s/go-deadlock"
 )
 
 var (
 	gWorldTick uint64 = 0
 
 	TickList     []glob.TickEvent = []glob.TickEvent{}
-	TickListLock deadlock.RWMutex
+	TickListLock sync.RWMutex
 
 	TockList     []glob.TickEvent = []glob.TickEvent{}
-	TockListLock deadlock.RWMutex
+	TockListLock sync.RWMutex
 
 	ObjQueue     []*glob.ObjectQueuetData
-	ObjQueueLock deadlock.RWMutex
+	ObjQueueLock sync.RWMutex
 
 	EventQueue     []*glob.EventQueueData
-	EventQueueLock deadlock.RWMutex
+	EventQueueLock sync.RWMutex
 
 	gTickCount    int
 	gTockCount    int
