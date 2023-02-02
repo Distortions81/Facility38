@@ -8,12 +8,14 @@ import (
 	"GameTest/objects"
 	"GameTest/terrain"
 	"fmt"
+	"image/color"
 	"log"
 	"runtime"
 	"runtime/debug"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/shirou/gopsutil/cpu"
 )
@@ -132,6 +134,13 @@ func bootScreen(screen *ebiten.Image) {
 	tRect := text.BoundString(glob.BootFont, output)
 	text.Draw(screen, output, glob.BootFont, ((glob.ScreenWidth)/2.0)-int(tRect.Max.X/2), ((glob.ScreenHeight)/2.0)-int(tRect.Max.Y/2), glob.ColorWhite)
 
+	multi := 5.0
+	pw := 100.0 * multi
+	tall := 16.0
+	x := (float64(glob.ScreenWidth) / 2.0) - (pw / 2.0)
+	y := (float64(glob.ScreenHeight) / 3.0) * 2.3
+	ebitenutil.DrawRect(screen, x, y, pw, tall, glob.ColorVeryDarkGray)
+	ebitenutil.DrawRect(screen, x, y, glob.MapLoadPercent*multi, tall, color.White)
 }
 
 /* Detect logical and virtual CPUs, set number of workers */
