@@ -73,6 +73,8 @@ var (
 	/* Used for startup screen */
 	TempChunkImage *ebiten.Image
 	WASMMode       bool = false
+
+	LoadPercent float64
 )
 
 func init() {

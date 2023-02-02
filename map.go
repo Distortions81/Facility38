@@ -32,6 +32,7 @@ func makeTestMap(skip bool) {
 
 			total = (rows * columns) * (bLen + 2)
 		}
+		Loaded := 0
 
 		if consts.LoadTest {
 
@@ -42,62 +43,79 @@ func makeTestMap(skip bool) {
 
 				tx := int(consts.XYCenter) - (columns*(beltLength+hSpace))/2
 				objects.UnsafeCreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
 					objects.UnsafeCreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
-
+					Loaded++
 				}
 				tx++
 				objects.UnsafeCreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+				Loaded++
 
 				if cols%columns == 0 {
 					ty += vSpace
 					cols = 0
 				}
+
+				glob.LoadPercent = (float64(Loaded) / float64(total) * 100.0)
 			}
 		} else {
 			/* Default map generator */
 			tx := int(consts.XYCenter - 5)
 			ty := int(consts.XYCenter)
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
 				objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
+				Loaded++
 			}
 			tx++
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+			Loaded++
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 2)
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
+			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
 				objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
+				Loaded++
 			}
 			tx--
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
+			Loaded++
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter + 2)
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
+			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
 				objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
+				Loaded++
 			}
 			ty++
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
+			Loaded++
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 4)
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
+			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
 				objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
+				Loaded++
 			}
 			ty--
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
+			Loaded++
 
+			glob.LoadPercent = (float64(Loaded) / float64(total) * 100.0)
 		}
 		objects.UnsafeMakeObjLists()
 		objects.UnsafeMakeEventLists()

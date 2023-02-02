@@ -127,7 +127,7 @@ func bootScreen(screen *ebiten.Image) {
 		screen.Fill(glob.ColorBlack)
 	}
 
-	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)
+	output := fmt.Sprintf("%v\n\nStatus: %v... (%.2f%%)", bootText, status, glob.LoadPercent)
 
 	tRect := text.BoundString(glob.BootFont, output)
 	text.Draw(screen, output, glob.BootFont, ((glob.ScreenWidth)/2.0)-int(tRect.Max.X/2), ((glob.ScreenHeight)/2.0)-int(tRect.Max.Y/2), glob.ColorWhite)
