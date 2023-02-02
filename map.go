@@ -11,9 +11,9 @@ import (
 
 /* Make a test map, or skip and still start daemons */
 func makeTestMap(skip bool) {
+	time.Sleep(time.Second)
 
 	if !skip {
-		time.Sleep(time.Second)
 		start := time.Now()
 
 		/* Test load map generator parameters */
