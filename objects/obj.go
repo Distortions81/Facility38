@@ -70,7 +70,7 @@ func ObjUpdateDaemon() {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		} else {
-			if glob.FixWASM {
+			if glob.WASMMode {
 				time.Sleep(time.Millisecond)
 			}
 		}
@@ -99,7 +99,7 @@ func ObjUpdateDaemonST() {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		} else {
-			if glob.FixWASM {
+			if glob.WASMMode {
 				time.Sleep(time.Millisecond)
 			}
 		}
@@ -565,18 +565,13 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 		obj.OutputBuffer = &glob.MatData{}
 	}
 
-	glob.SuperChunkMapLock.Lock()
-	chunk.Lock.Lock()
-
+	obj.Parent.Lock.Lock()
 	obj.Parent.ObjMap[pos] = obj
 	obj.Parent.ObjList =
 		append(obj.Parent.ObjList, obj)
-
 	obj.Parent.Parent.PixmapDirty = true
 	obj.Parent.NumObjects++
-
-	chunk.Lock.Unlock()
-	glob.SuperChunkMapLock.Unlock()
+	obj.Parent.Lock.Unlock()
 
 	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
 

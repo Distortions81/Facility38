@@ -31,7 +31,7 @@ func main() {
 
 	debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
 	if runtime.GOARCH == "wasm" {
-		glob.FixWASM = true
+		glob.WASMMode = true
 	}
 
 	str, err := data.GetText("intro")
@@ -53,7 +53,7 @@ func NewGame() *Game {
 	ebiten.SetScreenFilterEnabled(true)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 
-	if glob.FixWASM && (consts.LoadTest || consts.UPSBench) {
+	if glob.WASMMode && (consts.LoadTest || consts.UPSBench) {
 		glob.PlayerReady.Store(true)
 		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	}

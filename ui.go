@@ -227,7 +227,7 @@ func zoomHandle() {
 	_, fsy := ebiten.Wheel()
 
 	/* WASM kludge */
-	if glob.FixWASM && (fsy > 0 && fsy < 0) {
+	if glob.WASMMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
 			return
 		}

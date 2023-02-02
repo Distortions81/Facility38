@@ -95,7 +95,7 @@ func makeTestMap(skip bool) {
 
 		}
 	}
-	if !glob.FixWASM {
+	if !glob.WASMMode {
 		go terrain.RenderTerrainDaemon()
 		go terrain.PixmapRenderDaemon()
 	}

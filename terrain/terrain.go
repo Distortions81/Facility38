@@ -236,14 +236,18 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 	}
 
 	sChunk.PixMap.Fill(glob.ColorCharcol)
+
 	tmpChunk := sChunk.ChunkList
 	for _, chunk := range tmpChunk {
-		if chunk.NumObjects <= 0 {
+		if chunk == nil || chunk.NumObjects <= 0 {
 			continue
 		}
 
+		ObjTmp := chunk.ObjList
+
 		/* Draw objects in chunk */
-		for objPos := range chunk.ObjMap {
+		for index := range ObjTmp {
+			objPos := ObjTmp[index].Pos
 			scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
 			scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
 

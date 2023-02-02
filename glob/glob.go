@@ -72,7 +72,7 @@ var (
 
 	/* Used for startup screen */
 	TempChunkImage *ebiten.Image
-	FixWASM        bool = false
+	WASMMode       bool = false
 )
 
 func init() {

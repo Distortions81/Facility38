@@ -278,7 +278,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	} else {
 
-		if glob.FixWASM {
+		if glob.WASMMode {
 			terrain.PixmapRenderST()
 		}
 
@@ -416,7 +416,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Limit frame rate */
-	if glob.FixWASM && frameCount%WASMTerrtainDiv == 0 {
+	if glob.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 		terrain.RenderTerrainST()
 	}
 	if g.ui != nil {
