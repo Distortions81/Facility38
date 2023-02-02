@@ -132,8 +132,10 @@ func RenderTerrainDaemon() {
 		} else {
 			clearedCache = false
 			for i := 0; i < glob.VisChunkTop; i++ {
+				glob.VisChunkLock.RLock()
 				cpos := glob.VisChunkPos[i]
 				chunk := glob.VisChunks[i]
+				glob.VisChunkLock.RUnlock()
 
 				if chunk.TerrainImg == nil {
 					continue

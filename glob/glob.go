@@ -3,10 +3,10 @@ package glob
 import (
 	"GameTest/consts"
 	"image/color"
-	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/sasha-s/go-deadlock"
 	"golang.org/x/image/font"
 )
 
@@ -15,19 +15,19 @@ var (
 	VisChunks    [consts.MAX_DRAW_CHUNKS]*MapChunk
 	VisChunkPos  [consts.MAX_DRAW_CHUNKS]XY
 	VisChunkTop  int
-	VisChunkLock sync.RWMutex
+	VisChunkLock deadlock.RWMutex
 
 	VisSChunks    [consts.MAX_DRAW_CHUNKS]*MapSuperChunk
 	VisSChunkPos  [consts.MAX_DRAW_CHUNKS]XY
 	VisSChunkTop  int
-	VisSChunkLock sync.RWMutex
+	VisSChunkLock deadlock.RWMutex
 
 	/* World map */
 	SuperChunkList     []*MapSuperChunk
-	SuperChunkListLock sync.RWMutex
+	SuperChunkListLock deadlock.RWMutex
 
 	SuperChunkMap     map[XY]*MapSuperChunk
-	SuperChunkMapLock sync.RWMutex
+	SuperChunkMapLock deadlock.RWMutex
 
 	/* eBiten start settings */
 	ScreenWidth  int = 1280 //Screen width default
@@ -88,10 +88,10 @@ type MapSuperChunk struct {
 
 	PixMap      *ebiten.Image
 	PixmapDirty bool
-	PixLock     sync.Mutex
+	PixLock     deadlock.Mutex
 
 	Visible bool
-	Lock    sync.RWMutex
+	Lock    deadlock.RWMutex
 }
 
 type MapChunk struct {
@@ -102,13 +102,13 @@ type MapChunk struct {
 
 	Parent *MapSuperChunk
 
-	TerrainLock    sync.Mutex
+	TerrainLock    deadlock.Mutex
 	TerrainImg     *ebiten.Image
 	UsingTemporary bool
 
 	Precache bool
 	Visible  bool
-	Lock     sync.RWMutex
+	Lock     deadlock.RWMutex
 }
 
 type ObjData struct {
