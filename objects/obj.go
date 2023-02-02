@@ -61,10 +61,18 @@ func ObjUpdateDaemon() {
 			TockWorkSize.Store(1)
 		}
 
-		runTocks()         //Process objects
-		runTicks()         //Move external
-		runEventHitlist()  //Queue to add/remove events
-		runObjectHitlist() //Queue to add/remove objects
+		TockListLock.Lock()
+		runTocks() //Process objects
+		TockListLock.Unlock()
+		TickListLock.Lock()
+		runTicks() //Move external
+		TickListLock.Unlock()
+		EventQueueLock.Lock()
+		runEventQueue() //Queue to add/remove events
+		EventQueueLock.Unlock()
+		ObjQueueLock.Lock()
+		runObjQueue() //Queue to add/remove objects
+		ObjQueueLock.Unlock()
 
 		if !consts.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
@@ -90,10 +98,10 @@ func ObjUpdateDaemonST() {
 		}
 		start = time.Now()
 
-		runTocksST()       //Process objects
-		runTicksST()       //Move external
-		runEventHitlist()  //Queue to add/remove events
-		runObjectHitlist() //Queue to add/remove objects
+		runTocksST()    //Process objects
+		runTicksST()    //Move external
+		runEventQueue() //Queue to add/remove events
+		runObjQueue()   //Queue to add/remove objects
 
 		if !consts.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
@@ -589,7 +597,7 @@ func ObjectHitlistAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, di
 	cwlog.DoLog("Added: %v,%v to the object hitlist. Delete: %v", ppos.X, ppos.Y, delete)
 }
 
-func runEventHitlist() {
+func runEventQueue() {
 
 	EventQueueTmp := EventQueue
 
@@ -614,7 +622,7 @@ func runEventHitlist() {
 	EventQueue = []*glob.EventHitlistData{}
 }
 
-func runObjectHitlist() {
+func runObjQueue() {
 
 	ObjQueueTmp := ObjQueue
 

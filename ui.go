@@ -440,15 +440,23 @@ func rotateWorldObjects() {
 		}
 		o := chunk.ObjMap[pos]
 
-		if o != nil {
-			var newdir int
-			if gShiftPressed {
-				newdir = util.RotCW(o.Direction)
-			} else {
-				newdir = util.RotCCW(o.Direction)
+		go func(o *glob.ObjData, pos glob.XY) {
+			objects.TockListLock.Lock()
+			objects.TickListLock.Lock()
+
+			defer objects.TockListLock.Unlock()
+			defer objects.TickListLock.Unlock()
+
+			if o != nil {
+				var newdir int
+				if gShiftPressed {
+					newdir = util.RotCW(o.Direction)
+				} else {
+					newdir = util.RotCCW(o.Direction)
+				}
+				objects.LinkObj(pos, o, newdir)
+				o.Direction = newdir
 			}
-			objects.LinkObj(pos, o, newdir)
-			o.Direction = newdir
-		}
+		}(o, pos)
 	}
 }
