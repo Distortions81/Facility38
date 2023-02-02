@@ -46,6 +46,7 @@ func main() {
 	}
 }
 
+/* Ebiten game init */
 func NewGame() *Game {
 
 	/* Set up ebiten and window */
@@ -69,6 +70,7 @@ func NewGame() *Game {
 	return &Game{ui: EUI()}
 }
 
+/* Load all sprites, sub missing ones */
 func loadSprites() {
 
 	/* Load Sprites */
@@ -104,6 +106,7 @@ func loadSprites() {
 	glob.SpritesLoaded.Store(true)
 }
 
+/* Render boot info to screen */
 func bootScreen(screen *ebiten.Image) {
 
 	status := ""
@@ -130,8 +133,10 @@ func bootScreen(screen *ebiten.Image) {
 
 }
 
+/* Detect logical and virtual CPUs, set number of workers */
 func detectCPUs() {
-	/* Detect logical CPUs, failing that use numcpu */
+
+	/* Detect logical CPUs, failing that... use numcpu */
 	var lCPUs int = runtime.NumCPU() + 1
 	if lCPUs <= 1 {
 		lCPUs = 1
@@ -157,6 +162,7 @@ func detectCPUs() {
 	objects.NumWorkers = lCPUs
 }
 
+/* Sets up a reasonable sized window depending on diplay resolution */
 func setupWindowSize() {
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
@@ -198,6 +204,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return glob.ScreenWidth, glob.ScreenHeight
 }
 
+/* Automatic window title update */
 func windowTitle() {
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + buildTime + "-" + runtime.GOOS + "-" + runtime.GOARCH + fmt.Sprintf(" %vx%v", glob.ScreenWidth, glob.ScreenHeight)))
 }

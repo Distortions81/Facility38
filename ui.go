@@ -56,7 +56,7 @@ func init() {
 	lastScroll = time.Now()
 }
 
-/* Input handler */
+/* Input interface handler */
 func (g *Game) Update() error {
 
 	g.ui.Update()
@@ -90,6 +90,7 @@ func (g *Game) Update() error {
 	return nil
 }
 
+/* Quit if alt-f4 or ESC are pressed */
 func handleQuit() {
 	if (inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt)) ||
 		inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
@@ -97,6 +98,7 @@ func handleQuit() {
 	}
 }
 
+/* Record shift state */
 func getShiftToggle() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
 		gShiftPressed = true
@@ -105,6 +107,7 @@ func getShiftToggle() {
 	}
 }
 
+/* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
 	uipix := float64(ToolbarMax * int(consts.ToolBarScale))
 	if glob.MouseX <= uipix+consts.ToolBarOffsetX {
@@ -146,6 +149,7 @@ func handleToolbar(rotate bool) bool {
 	return false
 }
 
+/* Touchscreen input, incompelte */
 func touchScreenHandle() {
 	/* Touchscreen input */
 	tids := ebiten.TouchIDs()
@@ -222,6 +226,7 @@ func touchScreenHandle() {
 	}
 }
 
+/* Handle scroll wheel and +- keys */
 func zoomHandle() {
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
@@ -253,6 +258,7 @@ func zoomHandle() {
 
 }
 
+/* Get mos position and record it to glob.MouseX/Y */
 func getMousePos() {
 	/* Mouse position */
 	intx, inty := ebiten.CursorPosition()
@@ -264,6 +270,7 @@ func getMousePos() {
 
 }
 
+/* Record mouse clicks, send clicks to toolbar */
 func getMouseClicks() {
 	/* Mouse clicks */
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
@@ -280,6 +287,7 @@ func getMouseClicks() {
 	}
 }
 
+/* Look for clicks in window, create or destroy objects */
 func createWorldObjects() {
 	if gMouseHeld {
 
@@ -346,6 +354,7 @@ func createWorldObjects() {
 	}
 }
 
+/* Right-click drag or WASD movement, shift run */
 func moveCamera() {
 
 	base := consts.WALKSPEED
@@ -406,6 +415,7 @@ func moveCamera() {
 	}
 }
 
+/* Detect and record right click state */
 func getRightMouseClicks() {
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
 		gRightMouseHeld = false
@@ -414,6 +424,7 @@ func getRightMouseClicks() {
 	}
 }
 
+/* Toggle overylays when ALT is pressed */
 func toggleOverlays() {
 	/* Toggle info overlay */
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
@@ -425,6 +436,7 @@ func toggleOverlays() {
 	}
 }
 
+/* Rotate objects when R or SHIFT-R are pressed */
 func rotateWorldObjects() {
 	/* Rotate object */
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {

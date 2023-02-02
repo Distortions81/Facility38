@@ -531,44 +531,6 @@ func ExploreMap(input int) {
 	}
 }
 
-func FastCreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
-
-	//Make chunk if needed
-	MakeChunk(pos)
-	chunk := util.GetChunk(pos)
-
-	obj := &glob.ObjData{}
-
-	obj.Pos = pos
-	obj.Parent = chunk
-
-	obj.TypeP = GameObjTypes[mtype]
-
-	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
-	if obj.TypeP.HasMatOutput {
-		obj.Direction = dir
-	}
-
-	/* Only add to list if the object calls an update function */
-	if obj.TypeP.UpdateObj != nil {
-		tockListAdd(obj)
-	}
-
-	if obj.TypeP.HasMatOutput {
-		ticklistAdd(obj)
-		obj.OutputBuffer = &glob.MatData{}
-	}
-
-	obj.Parent.ObjMap[pos] = obj
-	obj.Parent.ObjList =
-		append(obj.Parent.ObjList, obj)
-	obj.Parent.Parent.PixmapDirty = true
-	obj.Parent.NumObjects++
-	LinkObj(pos, obj, dir)
-
-	return obj
-}
-
 func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 
 	//Make chunk if needed

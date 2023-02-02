@@ -14,7 +14,8 @@ const (
 	LoadTest    = true
 	Debug       = false
 	Verbose     = false
-	LogStdOut   = true
+	LogStdOut   = false
+	LogFileOut  = false
 	TestObjects = 10000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */

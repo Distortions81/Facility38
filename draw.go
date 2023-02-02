@@ -45,6 +45,7 @@ var (
 	frameCount       uint64
 )
 
+/* Setup a few images for later use */
 func init() {
 	glob.MiniMapTile = ebiten.NewImage(1, 1)
 	glob.MiniMapTile.Fill(color.White)
@@ -53,6 +54,7 @@ func init() {
 	glob.ToolBG.Fill(glob.ColorCharcol)
 }
 
+/* Look at camera position, make a list of visible superchunks and chunks. Saves to VisChunks, checks glob.CameraDirty */
 func makeVisList() {
 
 	/* When needed, make a list of chunks to draw */
@@ -136,6 +138,7 @@ func makeVisList() {
 	}
 }
 
+/* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	if !glob.MapGenerated.Load() ||
@@ -278,12 +281,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	} else {
 
+		/* Single thread render terrain for WASM */
 		if glob.WASMMode {
 			terrain.PixmapRenderST()
 		}
 
-		/* Draw superchunk images */
-
+		/* Draw superchunk images (pixmap mode)*/
 		glob.VisSChunkLock.RLock()
 		VisSChunkTmp := glob.VisSChunks
 		visSChunkPosTmp := glob.VisSChunkPos
@@ -402,7 +405,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}
 		}
 
-		/* No object contents found */
+		/* No object contents found, just show x/y */
 		if !found {
 			toolTip = fmt.Sprintf("(%v, %v)", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))))
 		}
@@ -419,15 +422,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if glob.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 		terrain.RenderTerrainST()
 	}
+
+	/* UI: WIP */
 	if g.ui != nil {
 		g.ui.Draw(screen)
 	}
 
+	/* Throttle if needed */
 	sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
 	time.Sleep(sleepFor)
 
 }
 
+/* Draw world objects */
 func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.ObjData) {
 
 	/* camera + object */
@@ -482,6 +489,7 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.ObjData) {
 
 }
 
+/* Update local vars with camera position calculations */
 func calcScreenCamera() {
 	/* Adjust cam position for zoom */
 	camXPos = float64(-glob.CameraX) + ((float64(glob.ScreenWidth) / 2.0) / glob.ZoomScale)
@@ -500,6 +508,7 @@ func calcScreenCamera() {
 	screenEndY = camEndY / consts.ChunkSize
 }
 
+/* Draw materials on belts */
 func drawMaterials(m *glob.MatData, obj *glob.ObjData, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
 
 	if m.Amount > 0 {

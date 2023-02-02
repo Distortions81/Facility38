@@ -16,9 +16,9 @@ var (
 	ToolbarItems         = []glob.ToolbarItem{}
 )
 
+/* Make default toolbar list */
 func init() {
 
-	/* Make default toolbar */
 	ToolbarMax = 0
 	for spos, stype := range objects.SubTypes {
 		if spos == consts.ObjSubUI || spos == consts.ObjSubGame {
@@ -31,6 +31,7 @@ func init() {
 	}
 }
 
+/* Draw toolbar to an image */
 func DrawToolbar() {
 	if toolbarCache == nil {
 		toolbarCache = ebiten.NewImage(consts.ToolBarScale*ToolbarMax, consts.ToolBarScale)
