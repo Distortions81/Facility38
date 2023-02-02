@@ -59,18 +59,14 @@ func makeVisList() {
 	if glob.CameraDirty {
 
 		glob.VisChunkLock.Lock()
-		glob.VisSChunkLock.Lock()
-		glob.SuperChunkListLock.RLock()
-
-		defer glob.VisSChunkLock.Unlock()
 		defer glob.VisChunkLock.Unlock()
-		defer glob.SuperChunkListLock.RUnlock()
 
 		glob.VisChunkTop = 0
 		glob.VisSChunkTop = 0
 
 		superChunksDrawn = 0
-		for _, sChunk := range glob.SuperChunkList {
+		SChunkTmp := glob.SuperChunkList
+		for _, sChunk := range SChunkTmp {
 			scPos := sChunk.Pos
 
 			if sChunk.NumChunks == 0 {
@@ -97,7 +93,10 @@ func makeVisList() {
 				break
 			}
 
-			for chunkPos, chunk := range sChunk.ChunkMap {
+			sChunkTmp := sChunk.ChunkList
+			for _, chunk := range sChunkTmp {
+				chunkPos := chunk.Pos
+
 				if sChunk.NumChunks == 0 {
 					continue
 				}
@@ -157,17 +156,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	chunksDrawn := 0
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
-		for i := 0; i < glob.VisChunkTop; i++ {
 
-			glob.VisChunkLock.RLock()
-			chunk := glob.VisChunks[i]
-			glob.VisChunkLock.RUnlock()
+		glob.VisChunkLock.RLock()
+		VisChunkTmp := glob.VisChunks
+		VisChunkPosTmp := glob.VisChunkPos
+		glob.VisChunkLock.RUnlock()
 
+		for index, chunk := range VisChunkTmp {
 			if chunk.Precache && !chunk.Visible {
 				continue
 			}
 
-			chunkPos := glob.VisChunkPos[i]
+			chunkPos := VisChunkPosTmp[index]
 			chunksDrawn++
 
 			/* Draw ground */
@@ -188,8 +188,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk.TerrainLock.Unlock()
 
 			/* Draw objects in chunk */
-			objList := chunk.ObjList
-			for _, obj := range objList {
+			ObjListTmp := chunk.ObjList
+			for _, obj := range ObjListTmp {
 				objPos := obj.Pos
 
 				/* Is this object on the screen? */
@@ -280,10 +280,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 
 		/* Draw superchunk images */
-		for z := 0; z < glob.VisSChunkTop; z++ {
-			glob.VisSChunkLock.RLock()
-			sChunk := glob.VisSChunks[z]
-			glob.VisSChunkLock.RUnlock()
+
+		glob.VisSChunkLock.RLock()
+		VisSChunkTmp := glob.VisSChunks
+		visSChunkPosTmp := glob.VisSChunkPos
+		glob.VisSChunkLock.RUnlock()
+
+		for index, sChunk := range VisSChunkTmp {
 
 			sChunk.PixLock.Lock()
 			if !sChunk.Visible || sChunk.PixMap == nil {
@@ -292,9 +295,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}
 			sChunk.PixLock.Unlock()
 
-			glob.VisSChunkLock.RLock()
-			cPos := glob.VisSChunkPos[z]
-			glob.VisSChunkLock.RUnlock()
+			cPos := visSChunkPosTmp[index]
 
 			op.GeoM.Reset()
 			op.GeoM.Scale(

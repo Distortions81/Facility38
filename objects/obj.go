@@ -613,10 +613,11 @@ func runEventHitlist() {
 
 func runObjectHitlist() {
 
-	ObjQueueLock.Lock()
-	defer ObjQueueLock.Unlock()
+	ObjQueueLock.RLock()
+	ObjQueueTmp := ObjQueue
+	ObjQueueLock.RUnlock()
 
-	for _, item := range ObjQueue {
+	for _, item := range ObjQueueTmp {
 		if item.Delete {
 
 			/* Invalidate object, and disconnect any connections to us */
@@ -638,7 +639,10 @@ func runObjectHitlist() {
 			CreateObj(item.Pos, item.OType, item.Dir)
 		}
 	}
+
+	ObjQueueLock.Lock()
 	ObjQueue = []*glob.ObjectHitlistData{}
+	ObjQueueLock.Unlock()
 }
 
 func removeObj(pos glob.XY) {
