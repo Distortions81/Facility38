@@ -532,9 +532,6 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 	//Make chunk if needed
 	MakeChunk(pos)
 	chunk := util.GetChunk(pos)
-
-	glob.CameraDirty.Store(true)
-
 	obj := util.GetObj(pos, chunk)
 
 	ppos := util.CenterXY(pos)
@@ -542,6 +539,8 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", ppos.X, ppos.Y)
 		return nil
 	}
+
+	glob.CameraDirty.Store(true)
 
 	obj = &glob.ObjData{}
 
@@ -565,20 +564,16 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 		EventQueueAdd(obj, consts.QUEUE_TYPE_TICK, false)
 		obj.OutputBuffer = &glob.MatData{}
 	}
-	cpos := util.PosToChunkPos(pos)
-	scpos := util.PosToSuperChunkPos(pos)
 
 	glob.SuperChunkMapLock.Lock()
 	chunk.Lock.Lock()
 
-	glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap[pos] = obj
+	obj.Parent.ObjMap[pos] = obj
+	obj.Parent.ObjList =
+		append(obj.Parent.ObjList, obj)
 
-	glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList =
-		append(glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList, obj)
-
-	glob.SuperChunkMap[scpos].PixmapDirty = true
-
-	chunk.NumObjects++
+	obj.Parent.Parent.PixmapDirty = true
+	obj.Parent.NumObjects++
 
 	chunk.Lock.Unlock()
 	glob.SuperChunkMapLock.Unlock()
