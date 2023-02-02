@@ -62,7 +62,7 @@ func makeTestMap(skip bool) {
 
 				glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
 				if glob.WASMMode {
-					time.Sleep(time.Microsecond)
+					time.Sleep(time.Nanosecond)
 				}
 			}
 		} else {
@@ -121,7 +121,7 @@ func makeTestMap(skip bool) {
 
 			glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
 			if glob.WASMMode {
-				time.Sleep(time.Microsecond)
+				time.Sleep(time.Nanosecond)
 			}
 		}
 		objects.UnsafeMakeObjLists()
