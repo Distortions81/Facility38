@@ -441,7 +441,7 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir int) {
 		}
 
 		/* Set ourself as their output */
-		neigh.OutputObj = neigh
+		neigh.OutputObj = obj
 
 		/* Record who is on this input */
 		obj.InputObjs[util.ReverseDirection(dir)] = neigh
