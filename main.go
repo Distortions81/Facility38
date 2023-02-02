@@ -119,12 +119,12 @@ func bootScreen(screen *ebiten.Image) {
 		if status != "" {
 			status = status + " and "
 		}
-		status = status + fmt.Sprintf("Generating map (%.2f%%)", glob.MapLoadPercent)
+		status = status + fmt.Sprintf("Generating map (%d%%)", int(glob.MapLoadPercent))
 	}
 	screen.Fill(glob.ColorCharcol)
 	if status == "" {
 		//screen.Fill(glob.ColorCharcol)
-		status = "Loading complete!\n(Any key or click to continue)"
+		status = "Loading complete!\n(Press any key or click to continue)"
 	} else {
 		//screen.Fill(glob.ColorBlack)
 	}
