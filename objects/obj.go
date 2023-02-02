@@ -128,11 +128,7 @@ func tickObj(o *glob.ObjData) {
 			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
 
 			o.OutputBuffer.Amount = 0
-
-			o.BlinkGreen = 2
 		}
-	} else {
-		o.BlinkRed = 4
 	}
 }
 
@@ -556,7 +552,6 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 	obj.Parent = chunk
 
 	obj.TypeP = GameObjTypes[mtype]
-	obj.TypeI = mtype
 
 	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
 	if obj.TypeP.HasMatOutput {
@@ -588,7 +583,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 	return obj
 }
 
-func ObjectHitlistAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, dir int) {
+func ObjQueueAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, dir int) {
 	ObjQueueLock.Lock()
 	ObjQueue = append(ObjQueue, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	ObjQueueLock.Unlock()

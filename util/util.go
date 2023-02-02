@@ -170,13 +170,9 @@ func ReverseDirection(dir int) int {
 		return consts.DIR_NORTH
 	case consts.DIR_WEST:
 		return consts.DIR_EAST
-	case consts.DIR_UP:
-		return consts.DIR_DOWN
-	case consts.DIR_DOWN:
-		return consts.DIR_UP
 	}
 
-	return consts.DIR_NONE
+	return consts.DIR_MAX
 }
 
 func UncompressZip(data []byte) []byte {
