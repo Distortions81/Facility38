@@ -80,6 +80,7 @@ func init() {
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
 }
 
+/* Objects that contain a map of chunks and PixMap */
 type MapSuperChunk struct {
 	Pos XY
 
@@ -95,6 +96,7 @@ type MapSuperChunk struct {
 	Lock deadlock.RWMutex
 }
 
+/* Objects that contain object map, object list and TerrainImg */
 type MapChunk struct {
 	Pos XY
 
@@ -113,6 +115,7 @@ type MapChunk struct {
 	Lock deadlock.RWMutex
 }
 
+/* Object data */
 type ObjData struct {
 	Pos    XY
 	Parent *MapChunk
@@ -131,19 +134,23 @@ type ObjData struct {
 	OutputBuffer *MatData `json:"o,omitempty"`
 }
 
+/* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
 	TypeP  ObjType `json:"-"`
 	Amount uint64  `json:"a,omitempty"`
 }
 
+/* Int x/y */
 type XY struct {
 	X, Y int
 }
 
+/* float64 x/y */
 type XYF64 struct {
 	X, Y float64
 }
 
+/* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
 	Name string
 
@@ -168,21 +175,25 @@ type ObjType struct {
 	UpdateObj     func(Obj *ObjData) `json:"-"`
 }
 
+/* Toolbar list item */
 type ToolbarItem struct {
 	SType int
 	OType *ObjType
 }
 
+/* Tick Event (target) */
 type TickEvent struct {
 	Target *ObjData
 }
 
+/* Used to munge data into a test save file */
 type SaveMObj struct {
 	O *ObjData
 	P XY
 }
 
-type ObjectHitlistData struct {
+/* ObjectQueue data */
+type ObjectQueuetData struct {
 	Delete bool
 	Obj    *ObjData
 	OType  int
@@ -190,7 +201,8 @@ type ObjectHitlistData struct {
 	Dir    int
 }
 
-type EventHitlistData struct {
+/* EventQueue data */
+type EventQueueData struct {
 	Delete bool
 	Obj    *ObjData
 	QType  int

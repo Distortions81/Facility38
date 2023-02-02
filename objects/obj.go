@@ -21,10 +21,10 @@ var (
 	TockList     []glob.TickEvent = []glob.TickEvent{}
 	TockListLock deadlock.RWMutex
 
-	ObjQueue     []*glob.ObjectHitlistData
+	ObjQueue     []*glob.ObjectQueuetData
 	ObjQueueLock deadlock.RWMutex
 
-	EventQueue     []*glob.EventHitlistData
+	EventQueue     []*glob.EventQueueData
 	EventQueueLock deadlock.RWMutex
 
 	gTickCount    int
@@ -265,7 +265,7 @@ func EventQueueAdd(obj *glob.ObjData, qtype int, delete bool) {
 	EventQueueLock.Lock()
 	defer EventQueueLock.Unlock()
 
-	EventQueue = append(EventQueue, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
+	EventQueue = append(EventQueue, &glob.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
 	cwlog.DoLog("Added: %v to the event type: %v hitlist. Delete: %v", obj.TypeP.Name, qtype, delete)
 }
 
@@ -603,7 +603,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 /* Add to ObjQueue (add/delete world object at end of tick) */
 func ObjQueueAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, dir int) {
 	ObjQueueLock.Lock()
-	ObjQueue = append(ObjQueue, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
+	ObjQueue = append(ObjQueue, &glob.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	ObjQueueLock.Unlock()
 
 	ppos := util.CenterXY(pos)
@@ -633,7 +633,7 @@ func runEventQueue() {
 		}
 	}
 
-	EventQueue = []*glob.EventHitlistData{}
+	EventQueue = []*glob.EventQueueData{}
 }
 
 /* Add/remove objects from game world at end of tick/tock cycle */
@@ -663,7 +663,7 @@ func runObjQueue() {
 		}
 	}
 
-	ObjQueue = []*glob.ObjectHitlistData{}
+	ObjQueue = []*glob.ObjectQueuetData{}
 }
 
 /* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */

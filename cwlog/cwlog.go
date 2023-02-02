@@ -12,7 +12,7 @@ import (
 var LogDesc *os.File
 var LogName string
 
-/* Normal CW log */
+/* Log this, can use printf arguments */
 func DoLog(format string, args ...interface{}) {
 	if !consts.Debug && !consts.LogStdOut {
 		return
@@ -39,7 +39,7 @@ func DoLog(format string, args ...interface{}) {
 
 }
 
-/* Prep everything for the cw log */
+/* Prep logger */
 func StartLog() {
 	t := time.Now()
 
