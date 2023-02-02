@@ -14,6 +14,16 @@ import (
  *
  */
 
+/* Update superchunk/chunk/onj lists */
+func unsafeMakeObjLists() {
+
+}
+
+/* Update event tick/tock lists */
+func unsafeMakeEventLists() {
+
+}
+
 /* Make a super chunk if it does not exist, unsafe map load version */
 func unsafeMakeSuperChunk(pos glob.XY) {
 
