@@ -12,13 +12,15 @@ import (
 
 var (
 	/* Visible Chunk Cache */
-	VisChunks   [consts.MAX_DRAW_CHUNKS]*MapChunk
-	VisChunkPos [consts.MAX_DRAW_CHUNKS]XY
-	VisChunkTop int
+	VisChunks    [consts.MAX_DRAW_CHUNKS]*MapChunk
+	VisChunkPos  [consts.MAX_DRAW_CHUNKS]XY
+	VisChunkTop  int
+	VisChunkLock sync.RWMutex
 
-	VisSChunks   [consts.MAX_DRAW_CHUNKS]*MapSuperChunk
-	VisSChunkPos [consts.MAX_DRAW_CHUNKS]XY
-	VisSChunkTop int
+	VisSChunks    [consts.MAX_DRAW_CHUNKS]*MapSuperChunk
+	VisSChunkPos  [consts.MAX_DRAW_CHUNKS]XY
+	VisSChunkTop  int
+	VisSChunkLock sync.RWMutex
 
 	/* World map */
 	SuperChunkList    []*MapSuperChunk

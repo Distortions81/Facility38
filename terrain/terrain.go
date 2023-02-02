@@ -168,25 +168,17 @@ func PixmapRenderST() {
 		sChunk := glob.VisSChunks[i]
 
 		if glob.ZoomScale > consts.MapPixelThreshold {
-			sChunk.PixLock.Lock()
 			if sChunk.PixMap != nil {
-				time.Sleep(renderRest)
 				sChunk.PixMap.Dispose()
 				sChunk.PixMap = nil
-				sChunk.PixLock.Unlock()
 				continue
 			}
-			sChunk.PixLock.Unlock()
 		}
 
-		sChunk.PixLock.Lock()
 		if sChunk.PixMap == nil || sChunk.PixmapDirty {
-			time.Sleep(renderRest)
 			drawPixmap(sChunk, scPos)
-			sChunk.PixLock.Unlock()
 			break
 		}
-		sChunk.PixLock.Unlock()
 	}
 }
 
@@ -195,15 +187,20 @@ func PixmapRenderDaemon() {
 		time.Sleep(renderLoop)
 
 		for i := 0; i < glob.VisSChunkTop; i++ {
+			glob.VisSChunkLock.RLock()
 			scPos := glob.VisSChunkPos[i]
 			sChunk := glob.VisSChunks[i]
+			glob.VisSChunkLock.RUnlock()
 
 			if glob.ZoomScale > consts.MapPixelThreshold {
+
 				sChunk.PixLock.Lock()
 				if sChunk.PixMap != nil {
+
 					time.Sleep(renderRest)
 					sChunk.PixMap.Dispose()
 					sChunk.PixMap = nil
+
 					sChunk.PixLock.Unlock()
 					continue
 				}
