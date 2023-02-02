@@ -102,6 +102,9 @@ func makeVisList() {
 
 			sChunkTmp := sChunk.ChunkList
 			for _, chunk := range sChunkTmp {
+				if chunk == nil {
+					continue
+				}
 				chunkPos := chunk.Pos
 
 				if sChunk.NumChunks == 0 {

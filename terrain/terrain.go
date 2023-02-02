@@ -251,6 +251,9 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 		}
 
 		ObjTmp := chunk.ObjList
+		if ObjTmp == nil {
+			return
+		}
 
 		/* Draw objects in chunk */
 		for index := range ObjTmp {

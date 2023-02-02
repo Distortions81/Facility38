@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"GameTest/objects"
 	"GameTest/terrain"
-	"fmt"
 	"time"
 )
 
@@ -14,7 +13,7 @@ func makeTestMap(skip bool) {
 	time.Sleep(time.Second)
 
 	if !skip {
-		start := time.Now()
+		//start := time.Now()
 
 		/* Test load map generator parameters */
 		total := 0
@@ -124,9 +123,11 @@ func makeTestMap(skip bool) {
 				time.Sleep(time.Nanosecond)
 			}
 		}
+		if glob.WASMMode {
+			time.Sleep(time.Millisecond * 100)
+		}
 		objects.UnsafeMakeObjLists()
 		objects.UnsafeMakeEventLists()
-		fmt.Println("Map generate took:", time.Since(start))
 	}
 	if !glob.WASMMode {
 		go terrain.RenderTerrainDaemon()
@@ -136,4 +137,7 @@ func makeTestMap(skip bool) {
 		go objects.ObjUpdateDaemonST()
 	}
 	glob.MapGenerated.Store(true)
+	if glob.WASMMode {
+		time.Sleep(time.Millisecond * 100)
+	}
 }

@@ -92,6 +92,7 @@ func ObjUpdateDaemon() {
 func ObjUpdateDaemonST() {
 	var start time.Time
 
+	time.Sleep(time.Second)
 	for {
 
 		if !glob.MapGenerated.Load() {
