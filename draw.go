@@ -62,7 +62,9 @@ func makeVisList() {
 
 		superChunksDrawn = 0
 		glob.SuperChunkMapLock.Lock()
-		for scPos, sChunk := range glob.SuperChunkMap {
+		for _, sChunk := range glob.SuperChunkList {
+			scPos := sChunk.Pos
+
 			if sChunk.NumChunks == 0 {
 				continue
 			}
@@ -87,7 +89,7 @@ func makeVisList() {
 				break
 			}
 
-			for chunkPos, chunk := range sChunk.Chunks {
+			for chunkPos, chunk := range sChunk.ChunkMap {
 				if sChunk.NumChunks == 0 {
 					continue
 				}
@@ -175,7 +177,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk.TerrainLock.Unlock()
 
 			/* Draw objects in chunk */
-			for objPos, obj := range chunk.WObject {
+			for objPos, obj := range chunk.ObjMap {
 
 				/* Is this object on the screen? */
 				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
@@ -333,7 +335,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		toolTip := ""
 		found := false
 		if chunk != nil {
-			o := chunk.WObject[pos]
+			o := chunk.ObjMap[pos]
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
@@ -398,7 +400,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 }
 
-func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
+func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.ObjData) {
 
 	/* camera + object */
 	objOffX := camXPos + (float64(objPos.X))
@@ -469,7 +471,7 @@ func calcScreenCamera() {
 	screenEndY = camEndY / consts.ChunkSize
 }
 
-func drawMaterials(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
+func drawMaterials(m *glob.MatData, obj *glob.ObjData, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
 
 	if m.Amount > 0 {
 		img := m.TypeP.Image

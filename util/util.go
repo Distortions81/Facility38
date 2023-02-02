@@ -42,9 +42,9 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 	return (x1 + x2) / 2, (y1 + y2) / 2
 }
 
-func GetObj(pos glob.XY, chunk *glob.MapChunk) *glob.WObject {
+func GetObj(pos glob.XY, chunk *glob.MapChunk) *glob.ObjData {
 	if chunk != nil {
-		o := chunk.WObject[pos]
+		o := chunk.ObjMap[pos]
 		return o
 	} else {
 		return nil
@@ -60,7 +60,7 @@ func GetChunk(pos glob.XY) *glob.MapChunk {
 	if sChunk == nil {
 		return nil
 	}
-	chunk := sChunk.Chunks[cpos]
+	chunk := sChunk.ChunkMap[cpos]
 	return chunk
 }
 
@@ -97,7 +97,7 @@ func FloatXYToPosition(x float64, y float64) glob.XY {
 	return glob.XY{X: int(x), Y: int(y)}
 }
 
-func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) (*glob.WObject, glob.XY) {
+func GetNeighborObj(src *glob.ObjData, pos glob.XY, dir int) (*glob.ObjData, glob.XY) {
 
 	switch dir {
 	case consts.DIR_NORTH:
@@ -121,7 +121,7 @@ func GetNeighborObj(src *glob.WObject, pos glob.XY, dir int) (*glob.WObject, glo
 		return nil, glob.XY{}
 	}
 	/* We are not our own neighbor */
-	if src == chunk.WObject[pos] {
+	if src == chunk.ObjMap[pos] {
 		return nil, glob.XY{}
 	}
 	return obj, pos

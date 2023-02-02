@@ -5,7 +5,7 @@ import (
 	"GameTest/glob"
 )
 
-func minerUpdate(o *glob.WObject) {
+func minerUpdate(o *glob.ObjData) {
 	if o.OutputBuffer.Amount == 0 {
 		input := uint64((o.TypeP.MinerKGTock))
 
@@ -14,7 +14,7 @@ func minerUpdate(o *glob.WObject) {
 	}
 }
 
-func beltUpdate(o *glob.WObject) {
+func beltUpdate(o *glob.ObjData) {
 	if o.OutputBuffer.Amount == 0 {
 		for src, mat := range o.InputBuffer {
 			if mat != nil && mat.Amount > 0 {
@@ -27,7 +27,7 @@ func beltUpdate(o *glob.WObject) {
 
 }
 
-func splitterUpdate(o *glob.WObject) {
+func splitterUpdate(o *glob.ObjData) {
 	if o.OutputBuffer.Amount == 0 {
 		for src, mat := range o.InputBuffer {
 			if mat != nil && mat.Amount > 0 {
@@ -39,7 +39,7 @@ func splitterUpdate(o *glob.WObject) {
 	}
 }
 
-func boxUpdate(o *glob.WObject) {
+func boxUpdate(o *glob.ObjData) {
 
 	for _, mat := range o.InputBuffer {
 		if mat != nil && mat.Amount > 0 {
@@ -57,15 +57,15 @@ func boxUpdate(o *glob.WObject) {
 	}
 }
 
-func smelterUpdate(o *glob.WObject) {
+func smelterUpdate(o *glob.ObjData) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func ironCasterUpdate(o *glob.WObject) {
+func ironCasterUpdate(o *glob.ObjData) {
 	//oData := glob.GameObjTypes[Obj.Type]
 
 }
 
-func steamEngineUpdate(o *glob.WObject) {
+func steamEngineUpdate(o *glob.ObjData) {
 }

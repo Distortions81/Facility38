@@ -17,8 +17,8 @@ func SaveGame() {
 	tempList := []*glob.SaveMObj{}
 	glob.SuperChunkMapLock.Lock()
 	for _, sChunk := range glob.SuperChunkMap {
-		for _, chunk := range sChunk.Chunks {
-			for pos, mObj := range chunk.WObject {
+		for _, chunk := range sChunk.ChunkMap {
+			for pos, mObj := range chunk.ObjMap {
 				tempList = append(tempList, &glob.SaveMObj{O: mObj, P: pos})
 			}
 		}

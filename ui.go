@@ -441,7 +441,7 @@ func rotateWorldObjects() {
 		if chunk == nil {
 			return
 		}
-		o := chunk.WObject[pos]
+		o := chunk.ObjMap[pos]
 
 		if o != nil {
 			var newdir int

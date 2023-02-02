@@ -21,6 +21,7 @@ var (
 	VisSChunkTop int
 
 	/* World map */
+	SuperChunkList    []*MapSuperChunk
 	SuperChunkMap     map[XY]*MapSuperChunk
 	SuperChunkMapLock sync.Mutex
 
@@ -75,7 +76,10 @@ func init() {
 }
 
 type MapSuperChunk struct {
-	Chunks    map[XY]*MapChunk
+	Pos       XY
+	ChunkMap  map[XY]*MapChunk
+	ChunkList []*MapChunk
+
 	NumChunks uint64
 
 	PixMap      *ebiten.Image
@@ -86,8 +90,12 @@ type MapSuperChunk struct {
 }
 
 type MapChunk struct {
-	WObject    map[XY]*WObject
+	Pos        XY
+	ObjMap     map[XY]*ObjData
+	ObjList    []*ObjData
 	NumObjects uint64
+
+	Parent *MapSuperChunk
 
 	TerrainLock    sync.Mutex
 	TerrainImg     *ebiten.Image
@@ -97,12 +105,14 @@ type MapChunk struct {
 	Visible  bool
 }
 
-type WObject struct {
-	TypeP *ObjType `json:"-"`
-	TypeI int      `json:"t"`
+type ObjData struct {
+	Pos    XY
+	Parent *MapChunk
+	TypeP  *ObjType `json:"-"`
+	TypeI  int      `json:"t"`
 
 	Direction int      `json:"d,omitempty"`
-	OutputObj *WObject `json:"-"`
+	OutputObj *ObjData `json:"-"`
 
 	//Internal useW
 	Contents [consts.MAT_MAX]*MatData `json:"c,omitempty"`
@@ -110,7 +120,7 @@ type WObject struct {
 
 	//Input/Output
 	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
-	InputObjs    [consts.DIR_MAX]*WObject
+	InputObjs    [consts.DIR_MAX]*ObjData
 	OutputBuffer *MatData `json:"o,omitempty"`
 
 	BlinkRed   int
@@ -154,7 +164,7 @@ type ObjType struct {
 	HasMatInput  int
 
 	ToolbarAction func()             `json:"-"`
-	UpdateObj     func(Obj *WObject) `json:"-"`
+	UpdateObj     func(Obj *ObjData) `json:"-"`
 }
 
 type ToolbarItem struct {
@@ -163,17 +173,17 @@ type ToolbarItem struct {
 }
 
 type TickEvent struct {
-	Target *WObject
+	Target *ObjData
 }
 
 type SaveMObj struct {
-	O *WObject
+	O *ObjData
 	P XY
 }
 
 type ObjectHitlistData struct {
 	Delete bool
-	Obj    *WObject
+	Obj    *ObjData
 	OType  int
 	Pos    XY
 	Dir    int
@@ -181,6 +191,6 @@ type ObjectHitlistData struct {
 
 type EventHitlistData struct {
 	Delete bool
-	Obj    *WObject
+	Obj    *ObjData
 	QType  int
 }
