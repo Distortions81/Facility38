@@ -23,8 +23,9 @@ var (
 	numTerrainCache int
 )
 
+/* Make a 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
-	/* Temp tile to use when rendering a new chunk */
+
 	tChunk := glob.MapChunk{}
 	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
 	glob.TempChunkImage = tChunk.TerrainImg
@@ -34,6 +35,7 @@ func SetupTerrainCache() {
 	}
 }
 
+/* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
 func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	/* Make optimized background */
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -80,7 +82,9 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	chunk.TerrainLock.Unlock()
 }
 
-/* Wasm single-thread version, one tile per frame */
+var clearedCache bool
+
+/* WASM single-thread version, one tile per call */
 func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
@@ -114,8 +118,7 @@ func RenderTerrainST() {
 
 }
 
-var clearedCache bool
-
+/* Loop to automatically render chunk terrain, will also dispose old tiles, uses glob.VisChunks */
 func RenderTerrainDaemon() {
 	for {
 		time.Sleep(renderLoop)
@@ -157,6 +160,7 @@ func RenderTerrainDaemon() {
 	}
 }
 
+/* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
 func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	if chunk.UsingTemporary || chunk.TerrainImg == nil {
 		return
@@ -170,6 +174,7 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	}
 }
 
+/* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
 	for i := 0; i < glob.VisSChunkTop; i++ {
 		scPos := glob.VisSChunkPos[i]
@@ -190,6 +195,7 @@ func PixmapRenderST() {
 	}
 }
 
+/* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
 	for {
 		time.Sleep(renderLoop)
@@ -227,6 +233,7 @@ func PixmapRenderDaemon() {
 	}
 }
 
+/* Draw a superchunk's pixmap, allocates image if needed. */
 func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
