@@ -131,9 +131,7 @@ func tickObj(o *glob.ObjData) {
 // Move materials from one object to another
 func runTicksST() {
 
-	TickListLock.RLock()
 	TickListTemp := TickList
-	TickListLock.RUnlock()
 
 	for _, item := range TickListTemp {
 		tickObj(item.Target)
@@ -143,9 +141,7 @@ func runTicksST() {
 // Move materials from one object to another
 func runTicks() {
 
-	TickListLock.RLock()
 	TickListTmp := TickList
-	TickListLock.RUnlock()
 
 	l := gTickCount - 1
 	if l < 1 {
@@ -188,9 +184,7 @@ func runTicks() {
 // Process objects
 func runTocks() {
 
-	TockListLock.RLock()
 	TockListTmp := TockList
-	TockListLock.RUnlock()
 
 	l := gTockCount - 1
 	if l < 1 {
@@ -233,9 +227,7 @@ func runTocks() {
 
 // Process objects
 func runTocksST() {
-	TockListLock.RLock()
 	TockListTmp := TockList
-	TockListLock.RUnlock()
 
 	for _, item := range TockListTmp {
 		item.Target.TypeP.UpdateObj(item.Target)
@@ -609,9 +601,7 @@ func ObjectHitlistAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, di
 
 func runEventHitlist() {
 
-	EventQueueLock.RLock()
 	EventQueueTmp := EventQueue
-	EventQueueLock.RUnlock()
 
 	for _, e := range EventQueueTmp {
 		if e.Delete {
@@ -631,16 +621,12 @@ func runEventHitlist() {
 		}
 	}
 
-	EventQueueLock.Lock()
 	EventQueue = []*glob.EventHitlistData{}
-	EventQueueLock.Unlock()
 }
 
 func runObjectHitlist() {
 
-	ObjQueueLock.RLock()
 	ObjQueueTmp := ObjQueue
-	ObjQueueLock.RUnlock()
 
 	for _, item := range ObjQueueTmp {
 		if item.Delete {
@@ -665,9 +651,7 @@ func runObjectHitlist() {
 		}
 	}
 
-	ObjQueueLock.Lock()
 	ObjQueue = []*glob.ObjectHitlistData{}
-	ObjQueueLock.Unlock()
 }
 
 func removeObj(pos glob.XY) {

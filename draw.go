@@ -190,9 +190,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk.TerrainLock.Unlock()
 
 			/* Draw objects in chunk */
-			chunk.Lock.RLock()
 			ObjListTmp := chunk.ObjList
-			chunk.Lock.RUnlock()
 
 			for _, obj := range ObjListTmp {
 				objPos := obj.Pos
@@ -296,12 +294,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				continue
 			}
 
+			if !sChunk.Visible {
+				continue
+			}
+
 			sChunk.PixLock.Lock()
-			if !sChunk.Visible || sChunk.PixMap == nil {
+			if sChunk.PixMap == nil {
 				sChunk.PixLock.Unlock()
 				continue
 			}
-			sChunk.PixLock.Unlock()
 
 			cPos := visSChunkPosTmp[index]
 
@@ -314,7 +315,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				((camXPos+float64((cPos.X))*consts.SuperChunkPixels)*glob.ZoomScale)-1,
 				((camYPos+float64((cPos.Y))*consts.SuperChunkPixels)*glob.ZoomScale)-1)
 
-			sChunk.PixLock.Lock()
 			screen.DrawImage(sChunk.PixMap, op)
 			sChunk.PixLock.Unlock()
 		}

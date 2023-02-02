@@ -88,9 +88,7 @@ func RenderTerrainST() {
 		if !clearedCache {
 
 			for i := 0; i < glob.VisChunkTop; i++ {
-				glob.VisChunkLock.RLock()
 				chunk := glob.VisChunks[i]
-				glob.VisChunkLock.RUnlock()
 				killTerrainCache(chunk, true)
 			}
 			clearedCache = true
@@ -99,10 +97,8 @@ func RenderTerrainST() {
 		clearedCache = false
 		for i := 0; i < glob.VisChunkTop; i++ {
 
-			glob.VisChunkLock.RLock()
 			cpos := glob.VisChunkPos[i]
 			chunk := glob.VisChunks[i]
-			glob.VisChunkLock.RUnlock()
 
 			if chunk.TerrainImg == nil {
 				continue
@@ -213,7 +209,6 @@ func PixmapRenderDaemon() {
 				sChunk.PixLock.Lock()
 				if sChunk.PixMap != nil {
 
-					time.Sleep(renderRest)
 					sChunk.PixMap.Dispose()
 					sChunk.PixMap = nil
 
@@ -225,7 +220,6 @@ func PixmapRenderDaemon() {
 
 			sChunk.PixLock.Lock()
 			if sChunk.PixMap == nil || sChunk.PixmapDirty {
-				time.Sleep(renderRest)
 				drawPixmap(sChunk, scPos)
 			}
 			sChunk.PixLock.Unlock()
