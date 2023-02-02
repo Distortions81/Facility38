@@ -16,7 +16,7 @@ const (
 	Verbose     = false
 	LogStdOut   = false
 	LogFileOut  = false
-	TestObjects = 10000000 //Make (approx) this number items
+	TestObjects = 1000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated  array */

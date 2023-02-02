@@ -61,6 +61,9 @@ func makeTestMap(skip bool) {
 				}
 
 				glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
+				if glob.WASMMode {
+					time.Sleep(time.Microsecond)
+				}
 			}
 		} else {
 			/* Default map generator */
@@ -117,6 +120,9 @@ func makeTestMap(skip bool) {
 			Loaded++
 
 			glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
+			if glob.WASMMode {
+				time.Sleep(time.Microsecond)
+			}
 		}
 		objects.UnsafeMakeObjLists()
 		objects.UnsafeMakeEventLists()

@@ -11,6 +11,7 @@ import (
 	"log"
 	"runtime"
 	"runtime/debug"
+	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -62,7 +63,8 @@ func NewGame() *Game {
 
 	setupWindowSize()
 	windowTitle()
-	loadSprites()
+
+	go loadSprites()
 	objects.ExploreMap(8)
 	go makeTestMap(false)
 
@@ -74,6 +76,7 @@ func NewGame() *Game {
 
 /* Load all sprites, sub missing ones */
 func loadSprites() {
+	time.Sleep(time.Second * 2)
 
 	/* Load Sprites */
 	var timg *ebiten.Image
@@ -95,6 +98,9 @@ func loadSprites() {
 				timg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
 				timg.Fill(icon.ItemColor)
 				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, consts.SymbOffY, icon.SymbolColor)
+				if glob.WASMMode {
+					time.Sleep(time.Millisecond * 10)
+				}
 			}
 
 			icon.Image = timg
@@ -119,7 +125,7 @@ func bootScreen(screen *ebiten.Image) {
 		if status != "" {
 			status = status + " and "
 		}
-		status = status + fmt.Sprintf("Generating map (%d%%)", int(glob.MapLoadPercent))
+		status = status + fmt.Sprintf("Generating map (%.2f%%)", glob.MapLoadPercent)
 	}
 	screen.Fill(glob.ColorCharcol)
 	if status == "" {
