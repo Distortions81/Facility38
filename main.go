@@ -8,7 +8,6 @@ import (
 	"GameTest/objects"
 	"GameTest/terrain"
 	"fmt"
-	"image/color"
 	"log"
 	"runtime"
 	"runtime/debug"
@@ -122,11 +121,12 @@ func bootScreen(screen *ebiten.Image) {
 		}
 		status = status + fmt.Sprintf("Generating map (%.2f%%)", glob.MapLoadPercent)
 	}
+	screen.Fill(glob.ColorCharcol)
 	if status == "" {
-		screen.Fill(glob.ColorCharcol)
+		//screen.Fill(glob.ColorCharcol)
 		status = "Loading complete!\n(Any key or click to continue)"
 	} else {
-		screen.Fill(glob.ColorBlack)
+		//screen.Fill(glob.ColorBlack)
 	}
 
 	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)
@@ -140,7 +140,11 @@ func bootScreen(screen *ebiten.Image) {
 	x := (float64(glob.ScreenWidth) / 2.0) - (pw / 2.0)
 	y := (float64(glob.ScreenHeight) / 3.0) * 2.3
 	ebitenutil.DrawRect(screen, x, y, pw, tall, glob.ColorVeryDarkGray)
-	ebitenutil.DrawRect(screen, x, y, glob.MapLoadPercent*multi, tall, color.White)
+	color := glob.ColorWhite
+	if glob.MapLoadPercent >= 100 {
+		color = glob.ColorGreen
+	}
+	ebitenutil.DrawRect(screen, x, y, glob.MapLoadPercent*multi, tall, color)
 }
 
 /* Detect logical and virtual CPUs, set number of workers */
