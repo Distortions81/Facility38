@@ -190,7 +190,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk.TerrainLock.Unlock()
 
 			/* Draw objects in chunk */
+			chunk.Lock.RLock()
 			ObjListTmp := chunk.ObjList
+			chunk.Lock.RUnlock()
+
 			for _, obj := range ObjListTmp {
 				objPos := obj.Pos
 
