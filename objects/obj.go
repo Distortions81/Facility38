@@ -5,6 +5,7 @@ import (
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/util"
+	"sync/atomic"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -30,7 +31,7 @@ var (
 	gTockCount    int
 	gTickWorkSize int
 
-	TockWorkSize int
+	TockWorkSize atomic.Uint32
 	NumWorkers   int
 
 	wg sizedwaitgroup.SizedWaitGroup
@@ -42,7 +43,9 @@ func ObjUpdateDaemon() {
 
 	for {
 
-		if !glob.MapGenerated {
+		gen := glob.MapGenerated.Load()
+
+		if !gen {
 			time.Sleep(time.Millisecond * 100)
 			continue
 		}
@@ -53,9 +56,9 @@ func ObjUpdateDaemon() {
 		if gTickWorkSize < 1 {
 			gTickWorkSize = 1
 		}
-		TockWorkSize = gTockCount / NumWorkers
-		if TockWorkSize < 1 {
-			TockWorkSize = 1
+		TockWorkSize.Store(uint32(gTockCount / NumWorkers))
+		if TockWorkSize.Load() < 1 {
+			TockWorkSize.Store(1)
 		}
 
 		runTocks()         //Process objects
@@ -81,7 +84,7 @@ func ObjUpdateDaemonST() {
 
 	for {
 
-		if !glob.MapGenerated {
+		if !glob.MapGenerated.Load() {
 			time.Sleep(time.Millisecond * 100)
 			continue
 		}
@@ -192,11 +195,11 @@ func runTocks() {
 	l := gTockCount - 1
 	if l < 1 {
 		return
-	} else if TockWorkSize == 0 {
+	} else if TockWorkSize.Load() == 0 {
 		return
 	}
 
-	numWorkers := l / TockWorkSize
+	numWorkers := l / int(TockWorkSize.Load())
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -538,7 +541,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 	MakeChunk(pos)
 	chunk := util.GetChunk(pos)
 
-	glob.CameraDirty = true
+	glob.CameraDirty.Store(true)
 
 	obj := util.GetObj(pos, chunk)
 

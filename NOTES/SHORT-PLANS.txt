@@ -20,3 +20,5 @@ https://medium.com/@luanrubensf/concurrent-map-access-in-go-a6a733c5ffd1
 https://gist.github.com/debnath/e11de2e10ec36055eda9e446b536874e
 
 Make seperate lists for non-map access of objects within a chunk, chunks and superchunks
+
+2D doom

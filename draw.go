@@ -56,10 +56,12 @@ func init() {
 func makeVisList() {
 
 	/* When needed, make a list of chunks to draw */
-	if glob.CameraDirty {
+	if glob.CameraDirty.Load() {
 
 		glob.VisChunkLock.Lock()
+		glob.VisSChunkLock.Lock()
 		defer glob.VisChunkLock.Unlock()
+		defer glob.VisSChunkLock.Unlock()
 
 		glob.VisChunkTop = 0
 		glob.VisSChunkTop = 0
@@ -128,7 +130,7 @@ func makeVisList() {
 				} else {
 					break
 				}
-				glob.CameraDirty = false
+				glob.CameraDirty.Store(false)
 			}
 		}
 	}
@@ -136,9 +138,9 @@ func makeVisList() {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
-	if !glob.MapGenerated ||
-		!glob.SpritesLoaded ||
-		!glob.PlayerReady {
+	if !glob.MapGenerated.Load() ||
+		!glob.SpritesLoaded.Load() ||
+		!glob.PlayerReady.Load() {
 		bootScreen(screen)
 		time.Sleep(time.Millisecond * 125) //8 fps
 		return
@@ -323,7 +325,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
 		ebiten.ActualFPS(),
 		1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-		humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
+		humanize.SIWithDigits(float64(int(objects.TockWorkSize.Load())*objects.NumWorkers), 2, ""),
 		runtime.GOARCH, buildTime)
 
 	tRect := text.BoundString(glob.ToolTipFont, dbuf)

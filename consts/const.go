@@ -10,9 +10,9 @@ const (
 	TxtDir  = "txt/"
 
 	/* Debug */
-	UPSBench    = true
-	LoadTest    = true
-	Debug       = false
+	UPSBench    = false
+	LoadTest    = false
+	Debug       = true
 	Verbose     = false
 	LogStdOut   = false
 	TestObjects = 100000 //Make (approx) this number items

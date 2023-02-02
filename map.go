@@ -99,5 +99,5 @@ func makeTestMap(skip bool) {
 		go terrain.RenderTerrainDaemon()
 		go terrain.PixmapRenderDaemon()
 	}
-	glob.MapGenerated = true
+	glob.MapGenerated.Store(true)
 }

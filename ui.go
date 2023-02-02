@@ -63,11 +63,10 @@ func (g *Game) Update() error {
 
 	var keys []ebiten.Key
 	/* Game start screen */
-	if !glob.PlayerReady &&
+	if !glob.PlayerReady.Load() &&
 		(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
 			inpututil.AppendPressedKeys(keys) != nil) {
-		glob.PlayerReady = true
-		glob.AllowUI = true
+		glob.PlayerReady.Store(true)
 		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 		return nil
 	}
@@ -210,13 +209,13 @@ func touchScreenHandle() {
 			glob.CameraX = glob.CameraX + (float64(gPrevTouchA-nx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(gPrevTouchB-ny) / glob.ZoomScale)
 			gPrevTouchA, gPrevTouchB = util.MidPoint(tx, ty, ta, tb)
-			glob.CameraDirty = true
+			glob.CameraDirty.Store(true)
 		} else {
 			glob.CameraX = glob.CameraX + (float64(gPrevTouchX-tx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(gPrevTouchY-ty) / glob.ZoomScale)
 			gPrevTouchX = tx
 			gPrevTouchY = ty
-			glob.CameraDirty = true
+			glob.CameraDirty.Store(true)
 		}
 	} else {
 		gTouchPressed = false
@@ -237,19 +236,19 @@ func zoomHandle() {
 
 	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		glob.ZoomScale = glob.ZoomScale * 2
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		glob.ZoomScale = glob.ZoomScale / 2
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	}
 	gTouchZoom = 0
 
 	if glob.ZoomScale < 1 {
 		glob.ZoomScale = 1
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	} else if glob.ZoomScale > 256 {
 		glob.ZoomScale = 256
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	}
 
 }
@@ -357,22 +356,22 @@ func moveCamera() {
 
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		glob.CameraY -= speed
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
 		glob.CameraX -= speed
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
 		glob.CameraY += speed
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		glob.CameraX += speed
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 	}
 
@@ -386,7 +385,7 @@ func moveCamera() {
 
 		glob.CameraX = glob.CameraX + (float64(gPrevMouseX-gMouseX) / glob.ZoomScale)
 		glob.CameraY = glob.CameraY + (float64(gPrevMouseY-gMouseY) / glob.ZoomScale)
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 		/* Don't let camera go beyond a reasonable point */
 		if glob.CameraX > float64(consts.XYMax) {

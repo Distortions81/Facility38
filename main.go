@@ -54,7 +54,7 @@ func NewGame() *Game {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 
 	if glob.FixWASM && (consts.LoadTest || consts.UPSBench) {
-		glob.PlayerReady = true
+		glob.PlayerReady.Store(true)
 		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	}
 
@@ -63,7 +63,6 @@ func NewGame() *Game {
 	go loadSprites()
 	objects.ExploreMap(8)
 	go makeTestMap(false)
-	//glob.MapGenerated = true
 	go objects.ObjUpdateDaemon()
 
 	/* Initialize the game */
@@ -102,16 +101,16 @@ func loadSprites() {
 	terrain.SetupTerrainCache()
 	DrawToolbar()
 
-	glob.SpritesLoaded = true
+	glob.SpritesLoaded.Store(true)
 }
 
 func bootScreen(screen *ebiten.Image) {
 
 	status := ""
-	if !glob.SpritesLoaded {
+	if !glob.SpritesLoaded.Load() {
 		status = "Loading Sprites"
 	}
-	if !glob.MapGenerated {
+	if !glob.MapGenerated.Load() {
 		if status != "" {
 			status = status + " and "
 		}
@@ -183,17 +182,16 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 	/* Don't resize until we are ready */
 	if consts.UPSBench ||
-		!glob.MapGenerated ||
-		!glob.SpritesLoaded ||
-		!glob.PlayerReady ||
-		!glob.AllowUI {
+		!glob.MapGenerated.Load() ||
+		!glob.SpritesLoaded.Load() ||
+		!glob.PlayerReady.Load() {
 		return glob.ScreenWidth, glob.ScreenHeight
 	}
 	if outsideWidth != glob.ScreenWidth || outsideHeight != glob.ScreenHeight {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight
 		glob.InitMouse = false
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	}
 
 	windowTitle()

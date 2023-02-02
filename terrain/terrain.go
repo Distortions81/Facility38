@@ -86,8 +86,11 @@ func RenderTerrainST() {
 	/* If we zoom out, decallocate everything */
 	if glob.ZoomScale <= consts.MapPixelThreshold {
 		if !clearedCache {
+
 			for i := 0; i < glob.VisChunkTop; i++ {
+				glob.VisChunkLock.RLock()
 				chunk := glob.VisChunks[i]
+				glob.VisChunkLock.RUnlock()
 				killTerrainCache(chunk, true)
 			}
 			clearedCache = true
@@ -96,8 +99,10 @@ func RenderTerrainST() {
 		clearedCache = false
 		for i := 0; i < glob.VisChunkTop; i++ {
 
+			glob.VisChunkLock.RLock()
 			cpos := glob.VisChunkPos[i]
 			chunk := glob.VisChunks[i]
+			glob.VisChunkLock.RUnlock()
 
 			if chunk.TerrainImg == nil {
 				continue
@@ -131,11 +136,16 @@ func RenderTerrainDaemon() {
 			}
 		} else {
 			clearedCache = false
-			for i := 0; i < glob.VisChunkTop; i++ {
-				glob.VisChunkLock.RLock()
-				cpos := glob.VisChunkPos[i]
-				chunk := glob.VisChunks[i]
-				glob.VisChunkLock.RUnlock()
+			glob.VisChunkLock.RLock()
+			VisChunksTmp := glob.VisChunks
+			VisChunksPosTmp := glob.VisChunkPos
+			glob.VisChunkLock.RUnlock()
+
+			for index, chunk := range VisChunksTmp {
+				if chunk == nil {
+					return
+				}
+				cpos := VisChunksPosTmp[index]
 
 				if chunk.TerrainImg == nil {
 					continue
@@ -187,12 +197,16 @@ func PixmapRenderST() {
 func PixmapRenderDaemon() {
 	for {
 		time.Sleep(renderLoop)
+		glob.VisChunkLock.RLock()
+		VisSChunksTmp := glob.VisSChunks
+		VisSChunksPosTmp := glob.VisSChunkPos
+		glob.VisChunkLock.RUnlock()
 
-		for i := 0; i < glob.VisSChunkTop; i++ {
-			glob.VisSChunkLock.RLock()
-			scPos := glob.VisSChunkPos[i]
-			sChunk := glob.VisSChunks[i]
-			glob.VisSChunkLock.RUnlock()
+		for index, sChunk := range VisSChunksTmp {
+			if sChunk == nil {
+				continue
+			}
+			scPos := VisSChunksPosTmp[index]
 
 			if glob.ZoomScale > consts.MapPixelThreshold {
 
@@ -235,7 +249,7 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 		}
 
 		/* Draw objects in chunk */
-		for objPos, _ := range chunk.ObjMap {
+		for objPos := range chunk.ObjMap {
 			scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
 			scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
 

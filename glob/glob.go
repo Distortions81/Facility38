@@ -3,6 +3,7 @@ package glob
 import (
 	"GameTest/consts"
 	"image/color"
+	"sync/atomic"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -47,10 +48,9 @@ var (
 	ToolBG      *ebiten.Image
 
 	/* Boot status */
-	SpritesLoaded bool
-	PlayerReady   bool
-	AllowUI       bool
-	MapGenerated  bool
+	SpritesLoaded atomic.Bool
+	PlayerReady   atomic.Bool
+	MapGenerated  atomic.Bool
 
 	/* Fonts */
 	BootFont    font.Face
@@ -61,7 +61,7 @@ var (
 	CameraX float64 = float64(consts.XYCenter)
 	CameraY float64 = float64(consts.XYCenter)
 	/* If position/zoom changed */
-	CameraDirty bool = true
+	CameraDirty atomic.Bool
 
 	/* Mouse vars */
 	MouseX float64 = float64(consts.XYCenter)
@@ -76,6 +76,7 @@ var (
 )
 
 func init() {
+	CameraDirty.Store(true)
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
 }
 
