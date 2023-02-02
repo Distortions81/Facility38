@@ -81,35 +81,36 @@ func init() {
 }
 
 type MapSuperChunk struct {
-	Pos       XY
+	Pos XY
+
 	ChunkMap  map[XY]*MapChunk
 	ChunkList []*MapChunk
-
-	NumChunks uint64
+	NumChunks uint16
 
 	PixMap      *ebiten.Image
 	PixmapDirty bool
 	PixLock     deadlock.Mutex
+	Visible     bool
 
-	Visible bool
-	Lock    deadlock.RWMutex
+	Lock deadlock.RWMutex
 }
 
 type MapChunk struct {
-	Pos        XY
+	Pos XY
+
 	ObjMap     map[XY]*ObjData
 	ObjList    []*ObjData
-	NumObjects uint64
+	NumObjects uint16
 
 	Parent *MapSuperChunk
 
 	TerrainLock    deadlock.Mutex
 	TerrainImg     *ebiten.Image
 	UsingTemporary bool
+	Precache       bool
+	Visible        bool
 
-	Precache bool
-	Visible  bool
-	Lock     deadlock.RWMutex
+	Lock deadlock.RWMutex
 }
 
 type ObjData struct {
