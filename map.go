@@ -13,6 +13,7 @@ import (
 func makeTestMap(skip bool) {
 
 	if !skip {
+		time.Sleep(time.Second)
 		start := time.Now()
 
 		/* Test load map generator parameters */
