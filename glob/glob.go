@@ -116,7 +116,6 @@ type ObjData struct {
 	Pos    XY
 	Parent *MapChunk
 	TypeP  *ObjType `json:"-"`
-	TypeI  int      `json:"t"`
 
 	Direction int      `json:"d,omitempty"`
 	OutputObj *ObjData `json:"-"`
@@ -129,10 +128,6 @@ type ObjData struct {
 	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
 	InputObjs    [consts.DIR_MAX]*ObjData
 	OutputBuffer *MatData `json:"o,omitempty"`
-
-	BlinkRed   int
-	BlinkGreen int
-	BlinkBlue  int
 }
 
 type MatData struct {
