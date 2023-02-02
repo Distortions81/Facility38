@@ -74,7 +74,7 @@ var (
 	TempChunkImage *ebiten.Image
 	WASMMode       bool = false
 
-	LoadPercent float64
+	MapLoadPercent float64
 )
 
 func init() {

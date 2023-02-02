@@ -59,7 +59,7 @@ func makeTestMap(skip bool) {
 					cols = 0
 				}
 
-				glob.LoadPercent = (float64(Loaded) / float64(total) * 100.0)
+				glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
 			}
 		} else {
 			/* Default map generator */
@@ -115,7 +115,7 @@ func makeTestMap(skip bool) {
 			objects.UnsafeCreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
 			Loaded++
 
-			glob.LoadPercent = (float64(Loaded) / float64(total) * 100.0)
+			glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
 		}
 		objects.UnsafeMakeObjLists()
 		objects.UnsafeMakeEventLists()
