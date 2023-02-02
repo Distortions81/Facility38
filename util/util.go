@@ -13,6 +13,16 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
+func ObjListDelete(obj *glob.ObjData) {
+	for index, item := range obj.Parent.ObjList {
+		if item.Pos == obj.Pos {
+			obj.Parent.ObjList[index] = obj.Parent.ObjList[len(obj.Parent.ObjList)-1]
+			obj.Parent.ObjList = obj.Parent.ObjList[:len(obj.Parent.ObjList)-1]
+			break
+		}
+	}
+}
+
 func CenterXY(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X - consts.XYCenter, Y: pos.Y - consts.XYCenter}
 }

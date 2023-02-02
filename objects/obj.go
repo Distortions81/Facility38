@@ -642,7 +642,7 @@ func runObjectHitlist() {
 			EventQueueAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
 			EventQueueAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 
-			removeObj(item.Pos)
+			removeObj(item.Obj)
 
 		} else {
 			//Add
@@ -653,28 +653,14 @@ func runObjectHitlist() {
 	ObjQueue = []*glob.ObjectHitlistData{}
 }
 
-func removeObj(pos glob.XY) {
-	cpos := util.PosToChunkPos(pos)
-	scpos := util.PosToSuperChunkPos(pos)
-
+func removeObj(obj *glob.ObjData) {
 	/* delete from map */
-	glob.SuperChunkMapLock.Lock()
-	glob.SuperChunkMap[scpos].Lock.Lock()
+	obj.Parent.Lock.Lock()
+	defer obj.Parent.Lock.Unlock()
 
-	glob.SuperChunkMap[scpos].ChunkMap[cpos].NumObjects--
-	delete(glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap, pos)
+	obj.Parent.NumObjects--
+	delete(obj.Parent.ObjMap, obj.Pos)
+	util.ObjListDelete(obj)
 
-	/* Remove from obj list */
-	for index, obj := range glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList {
-		if obj == glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap[pos] {
-			glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList =
-				append(glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList[:index],
-					glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList[index+1])
-		}
-	}
-
-	glob.SuperChunkMap[scpos].PixmapDirty = true
-
-	glob.SuperChunkMap[scpos].Lock.Unlock()
-	glob.SuperChunkMapLock.Unlock()
+	obj.Parent.Parent.PixmapDirty = true
 }
