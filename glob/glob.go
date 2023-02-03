@@ -4,6 +4,7 @@ import (
 	"GameTest/consts"
 	"image/color"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,17 +13,22 @@ import (
 
 var (
 	/* Visible Chunk Cache */
-	VisChunks   [consts.MAX_DRAW_CHUNKS]*MapChunk
-	VisChunkPos [consts.MAX_DRAW_CHUNKS]XY
-	VisChunkTop int
+	VisChunks    [consts.MAX_DRAW_CHUNKS]*MapChunk
+	VisChunkPos  [consts.MAX_DRAW_CHUNKS]XY
+	VisChunkTop  int
+	VisChunkLock sync.RWMutex
 
-	VisSChunks   [consts.MAX_DRAW_CHUNKS]*MapSuperChunk
-	VisSChunkPos [consts.MAX_DRAW_CHUNKS]XY
-	VisSChunkTop int
+	VisSChunks    [consts.MAX_DRAW_CHUNKS]*MapSuperChunk
+	VisSChunkPos  [consts.MAX_DRAW_CHUNKS]XY
+	VisSChunkTop  int
+	VisSChunkLock sync.RWMutex
 
 	/* World map */
+	SuperChunkList     []*MapSuperChunk
+	SuperChunkListLock sync.RWMutex
+
 	SuperChunkMap     map[XY]*MapSuperChunk
-	SuperChunkMapLock sync.Mutex
+	SuperChunkMapLock sync.RWMutex
 
 	/* eBiten start settings */
 	ScreenWidth  int = 1280 //Screen width default
@@ -42,10 +48,9 @@ var (
 	ToolBG      *ebiten.Image
 
 	/* Boot status */
-	SpritesLoaded bool
-	PlayerReady   bool
-	AllowUI       bool
-	MapGenerated  bool
+	SpritesLoaded atomic.Bool
+	PlayerReady   atomic.Bool
+	MapGenerated  atomic.Bool
 
 	/* Fonts */
 	BootFont    font.Face
@@ -56,7 +61,7 @@ var (
 	CameraX float64 = float64(consts.XYCenter)
 	CameraY float64 = float64(consts.XYCenter)
 	/* If position/zoom changed */
-	CameraDirty bool = true
+	CameraDirty atomic.Bool
 
 	/* Mouse vars */
 	MouseX float64 = float64(consts.XYCenter)
@@ -67,42 +72,59 @@ var (
 
 	/* Used for startup screen */
 	TempChunkImage *ebiten.Image
-	FixWASM        bool = false
+	WASMMode       bool = false
+
+	MapLoadPercent float64
 )
 
 func init() {
+	CameraDirty.Store(true)
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
 }
 
+/* Objects that contain a map of chunks and PixMap */
 type MapSuperChunk struct {
-	Chunks    map[XY]*MapChunk
-	NumChunks uint64
+	Pos XY
+
+	ChunkMap  map[XY]*MapChunk
+	ChunkList []*MapChunk
+	NumChunks uint16
 
 	PixMap      *ebiten.Image
 	PixmapDirty bool
 	PixLock     sync.Mutex
+	Visible     bool
 
-	Visible bool
+	Lock sync.RWMutex
 }
 
+/* Objects that contain object map, object list and TerrainImg */
 type MapChunk struct {
-	WObject    map[XY]*WObject
-	NumObjects uint64
+	Pos XY
+
+	ObjMap     map[XY]*ObjData
+	ObjList    []*ObjData
+	NumObjects uint16
+
+	Parent *MapSuperChunk
 
 	TerrainLock    sync.Mutex
 	TerrainImg     *ebiten.Image
 	UsingTemporary bool
+	Precache       bool
+	Visible        bool
 
-	Precache bool
-	Visible  bool
+	Lock sync.RWMutex
 }
 
-type WObject struct {
-	TypeP *ObjType `json:"-"`
-	TypeI int      `json:"t"`
+/* Object data */
+type ObjData struct {
+	Pos    XY
+	Parent *MapChunk
+	TypeP  *ObjType `json:"-"`
 
 	Direction int      `json:"d,omitempty"`
-	OutputObj *WObject `json:"-"`
+	OutputObj *ObjData `json:"-"`
 
 	//Internal useW
 	Contents [consts.MAT_MAX]*MatData `json:"c,omitempty"`
@@ -110,29 +132,27 @@ type WObject struct {
 
 	//Input/Output
 	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
-	InputObjs    [consts.DIR_MAX]*WObject
+	InputObjs    [consts.DIR_MAX]*ObjData
 	OutputBuffer *MatData `json:"o,omitempty"`
-
-	BlinkRed   int
-	BlinkGreen int
-	BlinkBlue  int
-
-	Invalid bool
 }
 
+/* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
 	TypeP  ObjType `json:"-"`
 	Amount uint64  `json:"a,omitempty"`
 }
 
+/* Int x/y */
 type XY struct {
 	X, Y int
 }
 
+/* float64 x/y */
 type XYF64 struct {
 	X, Y float64
 }
 
+/* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
 	Name string
 
@@ -154,33 +174,38 @@ type ObjType struct {
 	HasMatInput  int
 
 	ToolbarAction func()             `json:"-"`
-	UpdateObj     func(Obj *WObject) `json:"-"`
+	UpdateObj     func(Obj *ObjData) `json:"-"`
 }
 
+/* Toolbar list item */
 type ToolbarItem struct {
 	SType int
 	OType *ObjType
 }
 
+/* Tick Event (target) */
 type TickEvent struct {
-	Target *WObject
+	Target *ObjData
 }
 
+/* Used to munge data into a test save file */
 type SaveMObj struct {
-	O *WObject
+	O *ObjData
 	P XY
 }
 
-type ObjectHitlistData struct {
+/* ObjectQueue data */
+type ObjectQueuetData struct {
 	Delete bool
-	Obj    *WObject
+	Obj    *ObjData
 	OType  int
 	Pos    XY
 	Dir    int
 }
 
-type EventHitlistData struct {
+/* EventQueue data */
+type EventQueueData struct {
 	Delete bool
-	Obj    *WObject
+	Obj    *ObjData
 	QType  int
 }

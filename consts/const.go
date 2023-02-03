@@ -10,11 +10,12 @@ const (
 	TxtDir  = "txt/"
 
 	/* Debug */
-	UPSBench    = true
-	LoadTest    = true
+	UPSBench    = false
+	LoadTest    = false
 	Debug       = false
 	Verbose     = false
 	LogStdOut   = false
+	LogFileOut  = false
 	TestObjects = 100000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
@@ -51,9 +52,10 @@ const (
 	ObjTypeSteamEngine     = 7
 
 	/* Materials */
-	MAT_NONE       = 0
-	MAT_WOOD       = 1
-	MAT_COAL       = 2 //black with color sheen
+	MAT_NONE = 0
+	MAT_WOOD = 1
+	MAT_COAL = 2 //black with color sheen
+
 	MAT_COPPER_ORE = 3 //Copper blue + dark rust color
 	MAT_LEAD_ORE   = 4 //bright + soft metallic flecks
 	MAT_TIN_ORE    = 5 //Dark gray with light rust color
@@ -78,9 +80,13 @@ const (
 	ToolBarOffsetY = 0
 
 	/* Draw settings */
-	ChunkSize         = 32
-	SuperChunkSize    = 32
-	SuperChunkPixels  = ChunkSize * SuperChunkSize
+	MaxSuperChunk = SuperChunkSize * SuperChunkSize
+
+	ChunkSize       = 32
+	SuperChunkSize  = 32
+	SuperChunkTotal = SuperChunkSize * SuperChunkSize
+	ChunkTotal      = ChunkSize * ChunkSize
+
 	DefaultZoom       = SpriteScale * 2
 	MapPixelThreshold = (SpriteScale / 2)
 
@@ -89,10 +95,8 @@ const (
 	DIR_EAST  = 1
 	DIR_SOUTH = 2
 	DIR_WEST  = 3
-	DIR_UP    = 4
-	DIR_DOWN  = 5
-	DIR_NONE  = 6
-	DIR_MAX   = 7
+	DIR_NONE  = 4
+	DIR_MAX   = 5
 
 	/* Overlay Types */
 	ObjOverlayNorth   = 0

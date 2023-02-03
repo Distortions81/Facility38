@@ -11,6 +11,8 @@ import (
 )
 
 var (
+
+	/* Toolbar actions and images */
 	UIObjsTypes = []*glob.ObjType{
 		//Ui Only
 		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: save.SaveGame,
@@ -19,6 +21,7 @@ var (
 			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite},
 	}
 
+	/* World objects and images */
 	GameObjTypes = []*glob.ObjType{
 		//Game Objects
 		{ImagePath: "world-obj/basic-miner.png",
@@ -101,6 +104,7 @@ var (
 			HasMatInput: 1},
 	}
 
+	/* Terrain types and images */
 	TerrainTypes = []*glob.ObjType{
 		//Overlays
 		{ImagePath: "terrain/grass-1.png", Name: "grass",
@@ -111,6 +115,7 @@ var (
 			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown},
 	}
 
+	/* Overlay images */
 	ObjOverlayTypes = []*glob.ObjType{
 		//Overlays
 		{ImagePath: "overlays/arrow-north.png", Name: "Arrow North",
@@ -125,14 +130,15 @@ var (
 			Symbol: "*", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
 	}
 
+	/* Materials and images */
 	MatTypes = []*glob.ObjType{
 		//Materials
 		{Symbol: "?", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed, Name: "Error"},
 		{Symbol: "WOOD", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown, Name: "Wood"},
 		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal.png", Name: "Coal Ore"},
-		{Symbol: "COPPER", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorAqua, Name: "Copper Ore"},
 	}
 
+	/* Toolbar item types, array of array of ObjType */
 	SubTypes = [][]*glob.ObjType{
 		UIObjsTypes,
 		GameObjTypes,
@@ -142,6 +148,7 @@ var (
 	}
 )
 
+/* Debug quick dump GameObjTypes */
 func DumpItems() bool {
 
 	outbuf := new(bytes.Buffer)

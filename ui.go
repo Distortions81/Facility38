@@ -56,18 +56,17 @@ func init() {
 	lastScroll = time.Now()
 }
 
-/* Input handler */
+/* Input interface handler */
 func (g *Game) Update() error {
 
 	g.ui.Update()
 
 	var keys []ebiten.Key
 	/* Game start screen */
-	if !glob.PlayerReady &&
+	if !glob.PlayerReady.Load() &&
 		(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
 			inpututil.AppendPressedKeys(keys) != nil) {
-		glob.PlayerReady = true
-		glob.AllowUI = true
+		glob.PlayerReady.Store(true)
 		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 		return nil
 	}
@@ -91,6 +90,7 @@ func (g *Game) Update() error {
 	return nil
 }
 
+/* Quit if alt-f4 or ESC are pressed */
 func handleQuit() {
 	if (inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt)) ||
 		inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
@@ -98,6 +98,7 @@ func handleQuit() {
 	}
 }
 
+/* Record shift state */
 func getShiftToggle() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
 		gShiftPressed = true
@@ -106,6 +107,7 @@ func getShiftToggle() {
 	}
 }
 
+/* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
 	uipix := float64(ToolbarMax * int(consts.ToolBarScale))
 	if glob.MouseX <= uipix+consts.ToolBarOffsetX {
@@ -147,6 +149,7 @@ func handleToolbar(rotate bool) bool {
 	return false
 }
 
+/* Touchscreen input, incompelte */
 func touchScreenHandle() {
 	/* Touchscreen input */
 	tids := ebiten.TouchIDs()
@@ -210,25 +213,26 @@ func touchScreenHandle() {
 			glob.CameraX = glob.CameraX + (float64(gPrevTouchA-nx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(gPrevTouchB-ny) / glob.ZoomScale)
 			gPrevTouchA, gPrevTouchB = util.MidPoint(tx, ty, ta, tb)
-			glob.CameraDirty = true
+			glob.CameraDirty.Store(true)
 		} else {
 			glob.CameraX = glob.CameraX + (float64(gPrevTouchX-tx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(gPrevTouchY-ty) / glob.ZoomScale)
 			gPrevTouchX = tx
 			gPrevTouchY = ty
-			glob.CameraDirty = true
+			glob.CameraDirty.Store(true)
 		}
 	} else {
 		gTouchPressed = false
 	}
 }
 
+/* Handle scroll wheel and +- keys */
 func zoomHandle() {
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
 	/* WASM kludge */
-	if glob.FixWASM && (fsy > 0 && fsy < 0) {
+	if glob.WASMMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
 			return
 		}
@@ -237,23 +241,24 @@ func zoomHandle() {
 
 	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		glob.ZoomScale = glob.ZoomScale * 2
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		glob.ZoomScale = glob.ZoomScale / 2
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	}
 	gTouchZoom = 0
 
 	if glob.ZoomScale < 1 {
 		glob.ZoomScale = 1
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	} else if glob.ZoomScale > 256 {
 		glob.ZoomScale = 256
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	}
 
 }
 
+/* Get mos position and record it to glob.MouseX/Y */
 func getMousePos() {
 	/* Mouse position */
 	intx, inty := ebiten.CursorPosition()
@@ -265,6 +270,7 @@ func getMousePos() {
 
 }
 
+/* Record mouse clicks, send clicks to toolbar */
 func getMouseClicks() {
 	/* Mouse clicks */
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
@@ -281,6 +287,7 @@ func getMouseClicks() {
 	}
 }
 
+/* Look for clicks in window, create or destroy objects */
 func createWorldObjects() {
 	if gMouseHeld {
 
@@ -296,10 +303,8 @@ func createWorldObjects() {
 				if time.Since(gLastActionTime) > gBuildActionDelay {
 
 					bypass := false
-					glob.SuperChunkMapLock.Lock()
 					chunk := util.GetChunk(pos)
 					o := util.GetObj(pos, chunk)
-					glob.SuperChunkMapLock.Unlock()
 
 					if o == nil {
 
@@ -323,7 +328,7 @@ func createWorldObjects() {
 
 							if !bypass {
 								dir := objects.GameObjTypes[SelectedItemType].Direction
-								go objects.ObjectHitlistAdd(o, SelectedItemType, pos, false, dir)
+								go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
 
 								gLastActionPosition = pos
 								gLastActionType = cDragActionTypeBuild
@@ -334,7 +339,7 @@ func createWorldObjects() {
 							if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
 								if o != nil {
-									go objects.ObjectHitlistAdd(o, o.TypeI, pos, true, 0)
+									go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
 									//Action completed, save position and time
 									gLastActionPosition = pos
 									gLastActionType = cDragActionTypeDelete
@@ -349,6 +354,7 @@ func createWorldObjects() {
 	}
 }
 
+/* Right-click drag or WASD movement, shift run */
 func moveCamera() {
 
 	base := consts.WALKSPEED
@@ -359,22 +365,22 @@ func moveCamera() {
 
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		glob.CameraY -= speed
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
 		glob.CameraX -= speed
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
 		glob.CameraY += speed
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		glob.CameraX += speed
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 	}
 
@@ -388,7 +394,7 @@ func moveCamera() {
 
 		glob.CameraX = glob.CameraX + (float64(gPrevMouseX-gMouseX) / glob.ZoomScale)
 		glob.CameraY = glob.CameraY + (float64(gPrevMouseY-gMouseY) / glob.ZoomScale)
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 
 		/* Don't let camera go beyond a reasonable point */
 		if glob.CameraX > float64(consts.XYMax) {
@@ -409,6 +415,7 @@ func moveCamera() {
 	}
 }
 
+/* Detect and record right click state */
 func getRightMouseClicks() {
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
 		gRightMouseHeld = false
@@ -417,6 +424,7 @@ func getRightMouseClicks() {
 	}
 }
 
+/* Toggle overylays when ALT is pressed */
 func toggleOverlays() {
 	/* Toggle info overlay */
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
@@ -428,6 +436,7 @@ func toggleOverlays() {
 	}
 }
 
+/* Rotate objects when R or SHIFT-R are pressed */
 func rotateWorldObjects() {
 	/* Rotate object */
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
@@ -441,17 +450,25 @@ func rotateWorldObjects() {
 		if chunk == nil {
 			return
 		}
-		o := chunk.WObject[pos]
+		o := chunk.ObjMap[pos]
 
-		if o != nil {
-			var newdir int
-			if gShiftPressed {
-				newdir = util.RotCW(o.Direction)
-			} else {
-				newdir = util.RotCCW(o.Direction)
+		go func(o *glob.ObjData, pos glob.XY) {
+			objects.TockListLock.Lock()
+			objects.TickListLock.Lock()
+
+			defer objects.TockListLock.Unlock()
+			defer objects.TickListLock.Unlock()
+
+			if o != nil {
+				var newdir int
+				if gShiftPressed {
+					newdir = util.RotCW(o.Direction)
+				} else {
+					newdir = util.RotCCW(o.Direction)
+				}
+				objects.LinkObj(pos, o, newdir)
+				o.Direction = newdir
 			}
-			objects.LinkObj(pos, o, newdir)
-			o.Direction = newdir
-		}
+		}(o, pos)
 	}
 }

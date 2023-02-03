@@ -6,6 +6,7 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -14,57 +15,71 @@ import (
 var (
 	gWorldTick uint64 = 0
 
-	ListLock sync.Mutex
-	TickList []glob.TickEvent = []glob.TickEvent{}
-	TockList []glob.TickEvent = []glob.TickEvent{}
+	TickList     []glob.TickEvent = []glob.TickEvent{}
+	TickListLock sync.RWMutex
 
-	ObjectHitlist []*glob.ObjectHitlistData
-	EventHitlist  []*glob.EventHitlistData
+	TockList     []glob.TickEvent = []glob.TickEvent{}
+	TockListLock sync.RWMutex
+
+	ObjQueue     []*glob.ObjectQueuetData
+	ObjQueueLock sync.RWMutex
+
+	EventQueue     []*glob.EventQueueData
+	EventQueueLock sync.RWMutex
 
 	gTickCount    int
 	gTockCount    int
 	gTickWorkSize int
 
-	TockWorkSize int
+	TockWorkSize atomic.Uint32
 	NumWorkers   int
 
 	wg sizedwaitgroup.SizedWaitGroup
 )
 
+/* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
 	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)
 
 	for {
 
-		if !glob.MapGenerated {
+		gen := glob.MapGenerated.Load()
+
+		if !gen {
 			time.Sleep(time.Millisecond * 100)
 			continue
 		}
 		start = time.Now()
 
-		ListLock.Lock()
 		gWorldTick++
 		gTickWorkSize = gTickCount / NumWorkers
 		if gTickWorkSize < 1 {
 			gTickWorkSize = 1
 		}
-		TockWorkSize = gTockCount / NumWorkers
-		if TockWorkSize < 1 {
-			TockWorkSize = 1
+		TockWorkSize.Store(uint32(gTockCount / NumWorkers))
+		if TockWorkSize.Load() < 1 {
+			TockWorkSize.Store(1)
 		}
 
-		runTocks()         //Process objects
-		runTicks()         //Move external
-		runEventHitlist()  //Queue to add/remove events
-		runObjectHitlist() //Queue to add/remove objects
-		ListLock.Unlock()
+		TockListLock.Lock()
+		runTocks() //Process objects
+		TockListLock.Unlock()
+		TickListLock.Lock()
+		runTicks() //Move external
+		TickListLock.Unlock()
+		EventQueueLock.Lock()
+		runEventQueue() //Queue to add/remove events
+		EventQueueLock.Unlock()
+		ObjQueueLock.Lock()
+		runObjQueue() //Queue to add/remove objects
+		ObjQueueLock.Unlock()
 
 		if !consts.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		} else {
-			if glob.FixWASM {
+			if glob.WASMMode {
 				time.Sleep(time.Millisecond)
 			}
 		}
@@ -73,29 +88,29 @@ func ObjUpdateDaemon() {
 
 }
 
+/* WASM single-thread object update */
 func ObjUpdateDaemonST() {
 	var start time.Time
 
+	time.Sleep(time.Second)
 	for {
 
-		if !glob.MapGenerated {
+		if !glob.MapGenerated.Load() {
 			time.Sleep(time.Millisecond * 100)
 			continue
 		}
 		start = time.Now()
 
-		ListLock.Lock()
-		runTocksST()       //Process objects
-		runTicksST()       //Move external
-		runEventHitlist()  //Queue to add/remove events
-		runObjectHitlist() //Queue to add/remove objects
-		ListLock.Unlock()
+		runTocksST()    //Process objects
+		runTicksST()    //Move external
+		runEventQueue() //Queue to add/remove events
+		runObjQueue()   //Queue to add/remove objects
 
 		if !consts.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		} else {
-			if glob.FixWASM {
+			if glob.WASMMode {
 				time.Sleep(time.Millisecond)
 			}
 		}
@@ -103,8 +118,8 @@ func ObjUpdateDaemonST() {
 	}
 }
 
-/* Output to another object */
-func tickObj(o *glob.WObject) {
+/* Put our OutputBuffer to another object's InputBuffer (external)*/
+func tickObj(o *glob.ObjData) {
 
 	if o.OutputObj != nil {
 		revDir := util.ReverseDirection(o.Direction)
@@ -116,23 +131,24 @@ func tickObj(o *glob.WObject) {
 			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
 
 			o.OutputBuffer.Amount = 0
-
-			o.BlinkGreen = 2
 		}
-	} else {
-		o.BlinkRed = 4
 	}
 }
 
-// Move materials from one object to another
+/* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
 func runTicksST() {
-	for i := 0; i < gTickCount; i++ {
-		tickObj(TickList[i].Target)
+
+	TickListTemp := TickList
+
+	for _, item := range TickListTemp {
+		tickObj(item.Target)
 	}
 }
 
-// Move materials from one object to another
+/* Process internally in an object, multi-threaded*/
 func runTicks() {
+
+	TickListTmp := TickList
 
 	l := gTickCount - 1
 	if l < 1 {
@@ -162,7 +178,7 @@ func runTicks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				tickObj(TickList[i].Target)
+				tickObj(TickListTmp[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)
@@ -172,17 +188,19 @@ func runTicks() {
 	wg.Wait()
 }
 
-// Process objects
+/* Run all object tocks (interal) multi-threaded */
 func runTocks() {
+
+	TockListTmp := TockList
 
 	l := gTockCount - 1
 	if l < 1 {
 		return
-	} else if TockWorkSize == 0 {
+	} else if TockWorkSize.Load() == 0 {
 		return
 	}
 
-	numWorkers := l / TockWorkSize
+	numWorkers := l / int(TockWorkSize.Load())
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -204,7 +222,7 @@ func runTocks() {
 		wg.Add()
 		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
-				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				TockListTmp[i].Target.TypeP.UpdateObj(TockList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each, tickNow)
@@ -214,31 +232,49 @@ func runTocks() {
 	wg.Wait()
 }
 
-// Process objects
+/* WASM single-thread: Run all object tocks (interal) */
 func runTocksST() {
-	for i := 0; i < gTockCount; i++ {
-		TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
+	TockListTmp := TockList
+
+	for _, item := range TockListTmp {
+		item.Target.TypeP.UpdateObj(item.Target)
 	}
 }
 
-func ticklistAdd(target *glob.WObject) {
+/* Lock and append to TickList */
+func ticklistAdd(target *glob.ObjData) {
+	TickListLock.Lock()
+	defer TickListLock.Unlock()
+
 	TickList = append(TickList, glob.TickEvent{Target: target})
 	gTickCount++
 	cwlog.DoLog("Added: %v to ticklist.", target.TypeP.Name)
 }
 
-func tockListAdd(target *glob.WObject) {
+/* Lock and append to TockList */
+func tockListAdd(target *glob.ObjData) {
+	TockListLock.Lock()
+	defer TockListLock.Unlock()
+
 	TockList = append(TockList, glob.TickEvent{Target: target})
 	gTockCount++
 	cwlog.DoLog("Added: %v to tocklist.", target.TypeP.Name)
 }
 
-func EventHitlistAdd(obj *glob.WObject, qtype int, delete bool) {
-	EventHitlist = append(EventHitlist, &glob.EventHitlistData{Obj: obj, QType: qtype, Delete: delete})
+/* Lock and add it EventQueue */
+func EventQueueAdd(obj *glob.ObjData, qtype int, delete bool) {
+	EventQueueLock.Lock()
+	defer EventQueueLock.Unlock()
+
+	EventQueue = append(EventQueue, &glob.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
 	cwlog.DoLog("Added: %v to the event type: %v hitlist. Delete: %v", obj.TypeP.Name, qtype, delete)
 }
 
-func ticklistRemove(obj *glob.WObject) {
+/* Lock and remove tick event */
+func ticklistRemove(obj *glob.ObjData) {
+	TickListLock.Lock()
+	defer TickListLock.Unlock()
+
 	for i, e := range TickList {
 		if e.Target == obj {
 			TickList = append(TickList[:i], TickList[i+1:]...)
@@ -249,7 +285,11 @@ func ticklistRemove(obj *glob.WObject) {
 	}
 }
 
-func tocklistRemove(obj *glob.WObject) {
+/* lock and remove tock event */
+func tocklistRemove(obj *glob.ObjData) {
+	TockListLock.Lock()
+	defer TockListLock.Unlock()
+
 	for i, e := range TockList {
 		if e.Target == obj {
 			TockList = append(TockList[:i], TockList[i+1:]...)
@@ -260,7 +300,8 @@ func tocklistRemove(obj *glob.WObject) {
 	}
 }
 
-func unlinkInput(obj *glob.WObject, dir int) {
+/* Unlink and object's (dir) input */
+func unlinkInput(obj *glob.ObjData, dir int) {
 	if obj.TypeP.HasMatInput > 0 {
 		if obj.InputObjs[util.ReverseDirection(dir)] != nil {
 			obj.OutputObj = nil
@@ -268,7 +309,8 @@ func unlinkInput(obj *glob.WObject, dir int) {
 	}
 }
 
-func unlinkOut(obj *glob.WObject) {
+/* Unlink and object's output, also removes itself from OutputObj's inputs */
+func unlinkOut(obj *glob.ObjData) {
 	if obj.TypeP.HasMatOutput {
 		if obj.OutputObj != nil {
 			/* Remove ourself from input list */
@@ -279,7 +321,9 @@ func unlinkOut(obj *glob.WObject) {
 		}
 	}
 }
-func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
+
+/* Link to output in (dir) */
+func linkOut(pos glob.XY, obj *glob.ObjData, dir int) {
 
 	ppos := util.CenterXY(pos)
 
@@ -290,7 +334,7 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 	}
 
 	/* Look for object in output direction */
-	neigh, npos := util.GetNeighborObj(obj, pos, dir)
+	neigh, _ := util.GetNeighborObj(obj, pos, dir)
 
 	/* Did we find and obj? */
 	if neigh == nil {
@@ -331,8 +375,7 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 	}
 
 	/* Mark target as our output */
-	chunk := util.GetChunk(npos)
-	obj.OutputObj = chunk.WObject[npos]
+	obj.OutputObj = neigh
 
 	/* Put ourself in target's input list */
 	neigh.InputObjs[util.ReverseDirection(dir)] = obj
@@ -341,7 +384,8 @@ func linkOut(pos glob.XY, obj *glob.WObject, dir int) {
 
 }
 
-func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
+/* Find and link inputs, set ourself to OutputObj of found objects */
+func linkIn(pos glob.XY, obj *glob.ObjData, newdir int) {
 	ppos := util.CenterXY(pos)
 
 	/* Don't bother if we don't have inputs */
@@ -406,16 +450,7 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 		}
 
 		/* Set ourself as their output */
-		chunk := util.GetChunk(pos)
-		if chunk == nil {
-			cwlog.DoLog("(%v: %v, %v) linkIn: failed to find our chunk?", obj.TypeP.Name, ppos.X, ppos.Y)
-			continue
-		}
-		if chunk.WObject[pos] == nil {
-			cwlog.DoLog("(%v: %v, %v) linkIn: failed to find ourself?", obj.TypeP.Name, ppos.X, ppos.Y)
-			continue
-		}
-		neigh.OutputObj = chunk.WObject[pos]
+		neigh.OutputObj = obj
 
 		/* Record who is on this input */
 		obj.InputObjs[util.ReverseDirection(dir)] = neigh
@@ -425,24 +460,44 @@ func linkIn(pos glob.XY, obj *glob.WObject, newdir int) {
 
 }
 
-func LinkObj(pos glob.XY, obj *glob.WObject, newdir int) {
+/* Link inputs and outputs, with output direction (newdir) */
+func LinkObj(pos glob.XY, obj *glob.ObjData, newdir int) {
 	linkIn(pos, obj, newdir)
 	linkOut(pos, obj, newdir)
 }
 
+/* Make a superchunk */
 func makeSuperChunk(pos glob.XY) {
 	//Make super chunk if needed
 
 	newPos := pos
 	scpos := util.PosToSuperChunkPos(newPos)
 
+	glob.SuperChunkMapLock.Lock()
+	defer glob.SuperChunkMapLock.Unlock()
+
 	if glob.SuperChunkMap[scpos] == nil {
+		/* Make new superchunk in map at pos */
 		glob.SuperChunkMap[scpos] = &glob.MapSuperChunk{}
-		glob.SuperChunkMap[scpos].Chunks = make(map[glob.XY]*glob.MapChunk)
+		glob.SuperChunkMap[scpos].Lock.Lock()
+
+		/* Append to superchunk list */
+		glob.SuperChunkListLock.Lock()
+		glob.SuperChunkList =
+			append(glob.SuperChunkList, glob.SuperChunkMap[scpos])
+		glob.SuperChunkListLock.Unlock()
+
+		glob.SuperChunkMap[scpos].ChunkMap = make(map[glob.XY]*glob.MapChunk)
+
+		/* Save position */
+		glob.SuperChunkMap[scpos].Pos = scpos
+
+		glob.SuperChunkMap[scpos].Lock.Unlock()
 	}
 
 }
 
+/* Make a chunk, insert into superchunk */
 func MakeChunk(pos glob.XY) {
 	//Make chunk if needed
 
@@ -453,18 +508,34 @@ func MakeChunk(pos glob.XY) {
 	cpos := util.PosToChunkPos(newPos)
 	scpos := util.PosToSuperChunkPos(newPos)
 
-	glob.SuperChunkMap[scpos].NumChunks++
-	if glob.SuperChunkMap[scpos].Chunks[cpos] == nil {
-		glob.SuperChunkMap[scpos].Chunks[cpos] = &glob.MapChunk{}
-		glob.SuperChunkMap[scpos].Chunks[cpos].WObject = make(map[glob.XY]*glob.WObject)
+	if glob.SuperChunkMap[scpos].ChunkMap[cpos] == nil {
+
+		/* Increase chunk count */
+		glob.SuperChunkMap[scpos].NumChunks++
+
+		/* Make a new empty chunk in the map at pos */
+		glob.SuperChunkMap[scpos].ChunkMap[cpos] = &glob.MapChunk{}
+		glob.SuperChunkMap[scpos].Lock.Lock()
+
+		/* Append to chunk list */
+		glob.SuperChunkMap[scpos].ChunkList =
+			append(glob.SuperChunkMap[scpos].ChunkList, glob.SuperChunkMap[scpos].ChunkMap[cpos])
+
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap = make(map[glob.XY]*glob.ObjData)
+
+		/* Save position */
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].Pos = cpos
+
+		/* Save parent */
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].Parent = glob.SuperChunkMap[scpos]
+
+		glob.SuperChunkMap[scpos].Lock.Unlock()
 	}
 }
 
+/* Explore (input) chunks + and - */
 func ExploreMap(input int) {
 	/* Explore some map */
-
-	glob.SuperChunkMapLock.Lock()
-	defer glob.SuperChunkMapLock.Unlock()
 
 	area := input * consts.ChunkSize
 	offs := int(consts.XYCenter) - (area / 2)
@@ -477,29 +548,28 @@ func ExploreMap(input int) {
 	}
 }
 
-func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
-
-	glob.SuperChunkMapLock.Lock()
+/* Create an object, place self in superchunk, chunk and ObjMap, ObjList, add tick/tock events, link inputs/outputs */
+func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 
 	//Make chunk if needed
 	MakeChunk(pos)
 	chunk := util.GetChunk(pos)
-
-	glob.CameraDirty = true
-	obj := chunk.WObject[pos]
+	obj := util.GetObj(pos, chunk)
 
 	ppos := util.CenterXY(pos)
 	if obj != nil {
 		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", ppos.X, ppos.Y)
-		glob.SuperChunkMapLock.Unlock()
 		return nil
 	}
 
-	obj = &glob.WObject{}
-	glob.SuperChunkMapLock.Unlock()
+	glob.CameraDirty.Store(true)
+
+	obj = &glob.ObjData{}
+
+	obj.Pos = pos
+	obj.Parent = chunk
 
 	obj.TypeP = GameObjTypes[mtype]
-	obj.TypeI = mtype
 
 	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
 	if obj.TypeP.HasMatOutput {
@@ -508,38 +578,45 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.WObject {
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
-		EventHitlistAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, consts.QUEUE_TYPE_TOCK, false)
 	}
 
 	if obj.TypeP.HasMatOutput {
-		EventHitlistAdd(obj, consts.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, consts.QUEUE_TYPE_TICK, false)
 		obj.OutputBuffer = &glob.MatData{}
 	}
-	cpos := util.PosToChunkPos(pos)
-	scpos := util.PosToSuperChunkPos(pos)
 
-	glob.SuperChunkMapLock.Lock()
-	glob.SuperChunkMap[scpos].Chunks[cpos].WObject[pos] = obj
-	glob.SuperChunkMap[scpos].PixmapDirty = true
-	glob.SuperChunkMapLock.Unlock()
+	obj.Parent.Lock.Lock()
+	obj.Parent.ObjMap[pos] = obj
+	obj.Parent.ObjList =
+		append(obj.Parent.ObjList, obj)
+	obj.Parent.Parent.PixmapDirty = true
+	obj.Parent.NumObjects++
+	obj.Parent.Lock.Unlock()
 
 	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
 
-	chunk.NumObjects++
 	LinkObj(pos, obj, dir)
 
 	return obj
 }
 
-func ObjectHitlistAdd(obj *glob.WObject, otype int, pos glob.XY, delete bool, dir int) {
-	ObjectHitlist = append(ObjectHitlist, &glob.ObjectHitlistData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
+/* Add to ObjQueue (add/delete world object at end of tick) */
+func ObjQueueAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, dir int) {
+	ObjQueueLock.Lock()
+	ObjQueue = append(ObjQueue, &glob.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
+	ObjQueueLock.Unlock()
 
 	ppos := util.CenterXY(pos)
 	cwlog.DoLog("Added: %v,%v to the object hitlist. Delete: %v", ppos.X, ppos.Y, delete)
 }
 
-func runEventHitlist() {
-	for _, e := range EventHitlist {
+/* Add/remove tick/tock events from the lists */
+func runEventQueue() {
+
+	EventQueueTmp := EventQueue
+
+	for _, e := range EventQueueTmp {
 		if e.Delete {
 			switch e.QType {
 			case consts.QUEUE_TYPE_TICK:
@@ -556,16 +633,19 @@ func runEventHitlist() {
 			}
 		}
 	}
-	EventHitlist = []*glob.EventHitlistData{}
+
+	EventQueue = []*glob.EventQueueData{}
 }
 
-func runObjectHitlist() {
+/* Add/remove objects from game world at end of tick/tock cycle */
+func runObjQueue() {
 
-	for _, item := range ObjectHitlist {
+	ObjQueueTmp := ObjQueue
+
+	for _, item := range ObjQueueTmp {
 		if item.Delete {
 
 			/* Invalidate object, and disconnect any connections to us */
-			item.Obj.Invalid = true
 			for _, inputObj := range item.Obj.InputObjs {
 				if inputObj != nil {
 					inputObj.OutputObj = nil
@@ -573,32 +653,29 @@ func runObjectHitlist() {
 			}
 
 			/* Remove tick and tock events */
-			go func(obj glob.WObject, pos glob.XY) {
-				ListLock.Lock()
-				EventHitlistAdd(&obj, consts.QUEUE_TYPE_TICK, true)
-				EventHitlistAdd(&obj, consts.QUEUE_TYPE_TOCK, true)
+			EventQueueAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
+			EventQueueAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
 
-				removeObj(pos)
-				ListLock.Unlock()
-			}(*item.Obj, item.Pos)
+			removeObj(item.Obj)
 
 		} else {
 			//Add
 			CreateObj(item.Pos, item.OType, item.Dir)
 		}
 	}
-	ObjectHitlist = []*glob.ObjectHitlistData{}
+
+	ObjQueue = []*glob.ObjectQueuetData{}
 }
 
-func removeObj(pos glob.XY) {
-	cpos := util.PosToChunkPos(pos)
-	scpos := util.PosToSuperChunkPos(pos)
+/* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
+func removeObj(obj *glob.ObjData) {
+	/* delete from map */
+	obj.Parent.Lock.Lock()
+	defer obj.Parent.Lock.Unlock()
 
-	/* Remove from chunk */
-	glob.SuperChunkMapLock.Lock()
-	glob.SuperChunkMap[scpos].Chunks[cpos].NumObjects--
-	delete(glob.SuperChunkMap[scpos].Chunks[cpos].WObject, pos)
+	obj.Parent.NumObjects--
+	delete(obj.Parent.ObjMap, obj.Pos)
+	util.ObjListDelete(obj)
 
-	glob.SuperChunkMap[scpos].PixmapDirty = true
-	glob.SuperChunkMapLock.Unlock()
+	obj.Parent.Parent.PixmapDirty = true
 }

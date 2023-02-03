@@ -5,11 +5,16 @@ import (
 	"GameTest/glob"
 	"GameTest/objects"
 	"GameTest/terrain"
+	"time"
 )
 
+/* Make a test map, or skip and still start daemons */
 func makeTestMap(skip bool) {
+	time.Sleep(time.Second)
 
 	if !skip {
+		//start := time.Now()
+
 		/* Test load map generator parameters */
 		total := 0
 		rows := 0
@@ -27,6 +32,7 @@ func makeTestMap(skip bool) {
 
 			total = (rows * columns) * (bLen + 2)
 		}
+		Loaded := 0
 
 		if consts.LoadTest {
 
@@ -37,18 +43,25 @@ func makeTestMap(skip bool) {
 
 				tx := int(consts.XYCenter) - (columns*(beltLength+hSpace))/2
 				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
 					objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
-
+					Loaded++
 				}
 				tx++
 				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+				Loaded++
 
 				if cols%columns == 0 {
 					ty += vSpace
 					cols = 0
+				}
+
+				glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
+				if glob.WASMMode {
+					time.Sleep(time.Nanosecond)
 				}
 			}
 		} else {
@@ -56,48 +69,74 @@ func makeTestMap(skip bool) {
 			tx := int(consts.XYCenter - 5)
 			ty := int(consts.XYCenter)
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
 				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
+				Loaded++
 			}
 			tx++
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+			Loaded++
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 2)
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
+			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
 				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
+				Loaded++
 			}
 			tx--
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
+			Loaded++
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter + 2)
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
+			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
 				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
+				Loaded++
 			}
 			ty++
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
+			Loaded++
 
 			tx = int(consts.XYCenter - 5)
 			ty = int(consts.XYCenter - 4)
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
+			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
 				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
+				Loaded++
 			}
 			ty--
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
+			Loaded++
 
+			glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
+			if glob.WASMMode {
+				time.Sleep(time.Nanosecond)
+			}
 		}
+		if glob.WASMMode {
+			time.Sleep(time.Millisecond * 100)
+		}
+		objects.UnsafeMakeObjLists()
 	}
-	if !glob.FixWASM {
+	if !glob.WASMMode {
 		go terrain.RenderTerrainDaemon()
 		go terrain.PixmapRenderDaemon()
+		go objects.ObjUpdateDaemon()
+	} else {
+		go objects.ObjUpdateDaemonST()
 	}
-	glob.MapGenerated = true
+	glob.MapGenerated.Store(true)
+	if glob.WASMMode {
+		time.Sleep(time.Millisecond * 100)
+	}
 }

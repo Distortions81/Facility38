@@ -9,8 +9,8 @@ import (
 	"golang.org/x/image/font/opentype"
 )
 
+/* Font setup, eventually use ttf files */
 func init() {
-	/* Font setup, eventually use ttf files */
 	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	if err != nil {
 		log.Fatal(err)

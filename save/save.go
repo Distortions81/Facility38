@@ -9,21 +9,28 @@ import (
 	"os"
 )
 
+/* WIP */
 func SaveGame() {
 
 	tempPath := "save.dat.tmp"
 	finalPath := "save.dat"
 
+	glob.SuperChunkListLock.RLock()
+	SuperChuckListTmp := glob.SuperChunkList
+	glob.SuperChunkListLock.RUnlock()
+
 	tempList := []*glob.SaveMObj{}
-	glob.SuperChunkMapLock.Lock()
-	for _, sChunk := range glob.SuperChunkMap {
-		for _, chunk := range sChunk.Chunks {
-			for pos, mObj := range chunk.WObject {
-				tempList = append(tempList, &glob.SaveMObj{O: mObj, P: pos})
+	for _, sChunk := range SuperChuckListTmp {
+		sChunk.Lock.RLock()
+		for _, chunk := range sChunk.ChunkList {
+			chunk.Lock.RLock()
+			for _, mObj := range chunk.ObjList {
+				tempList = append(tempList, &glob.SaveMObj{O: mObj})
 			}
+			chunk.Lock.RUnlock()
 		}
+		sChunk.Lock.RUnlock()
 	}
-	glob.SuperChunkMapLock.Unlock()
 
 	b, err := json.MarshalIndent(tempList, "", "\t")
 
@@ -55,6 +62,7 @@ func SaveGame() {
 	}
 }
 
+/* WIP */
 func LoadGame() {
 	b, err := os.ReadFile("save.dat")
 	if err != nil {

@@ -12,9 +12,9 @@ import (
 var LogDesc *os.File
 var LogName string
 
-/* Normal CW log */
+/* Log this, can use printf arguments */
 func DoLog(format string, args ...interface{}) {
-	if !consts.Debug {
+	if !consts.Debug && !consts.LogStdOut {
 		return
 	}
 	ctime := time.Now()
@@ -24,21 +24,22 @@ func DoLog(format string, args ...interface{}) {
 
 	date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
 	buf := fmt.Sprintf("%v: %15v:%5v: %v\n", date, filepath.Base(filename), line, text)
-	_, err := LogDesc.WriteString(buf)
 
 	if consts.LogStdOut {
 		fmt.Print(buf)
 	}
-	if err != nil {
-		fmt.Println("DoLog: WriteString failure")
-		LogDesc.Close()
-		LogDesc = nil
-		return
+	if consts.LogStdOut {
+		_, err := LogDesc.WriteString(buf)
+		if err != nil {
+			fmt.Println("DoLog: WriteString failure")
+			LogDesc.Close()
+			LogDesc = nil
+		}
 	}
 
 }
 
-/* Prep everything for the cw log */
+/* Prep logger */
 func StartLog() {
 	t := time.Now()
 

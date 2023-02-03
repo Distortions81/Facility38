@@ -23,8 +23,9 @@ var (
 	numTerrainCache int
 )
 
+/* Make a 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
-	/* Temp tile to use when rendering a new chunk */
+
 	tChunk := glob.MapChunk{}
 	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
 	glob.TempChunkImage = tChunk.TerrainImg
@@ -34,6 +35,7 @@ func SetupTerrainCache() {
 	}
 }
 
+/* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
 func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	/* Make optimized background */
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -80,12 +82,15 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	chunk.TerrainLock.Unlock()
 }
 
-/* Wasm single-thread version, one tile per frame */
+var clearedCache bool
+
+/* WASM single-thread version, one tile per call */
 func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
 	if glob.ZoomScale <= consts.MapPixelThreshold {
 		if !clearedCache {
+
 			for i := 0; i < glob.VisChunkTop; i++ {
 				chunk := glob.VisChunks[i]
 				killTerrainCache(chunk, true)
@@ -113,8 +118,7 @@ func RenderTerrainST() {
 
 }
 
-var clearedCache bool
-
+/* Loop to automatically render chunk terrain, will also dispose old tiles, uses glob.VisChunks */
 func RenderTerrainDaemon() {
 	for {
 		time.Sleep(renderLoop)
@@ -131,9 +135,16 @@ func RenderTerrainDaemon() {
 			}
 		} else {
 			clearedCache = false
-			for i := 0; i < glob.VisChunkTop; i++ {
-				cpos := glob.VisChunkPos[i]
-				chunk := glob.VisChunks[i]
+			glob.VisChunkLock.RLock()
+			VisChunksTmp := glob.VisChunks
+			VisChunksPosTmp := glob.VisChunkPos
+			glob.VisChunkLock.RUnlock()
+
+			for index, chunk := range VisChunksTmp {
+				if chunk == nil {
+					return
+				}
+				cpos := VisChunksPosTmp[index]
 
 				if chunk.TerrainImg == nil {
 					continue
@@ -149,6 +160,7 @@ func RenderTerrainDaemon() {
 	}
 }
 
+/* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
 func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	if chunk.UsingTemporary || chunk.TerrainImg == nil {
 		return
@@ -162,48 +174,50 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	}
 }
 
+/* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
 	for i := 0; i < glob.VisSChunkTop; i++ {
 		scPos := glob.VisSChunkPos[i]
 		sChunk := glob.VisSChunks[i]
 
 		if glob.ZoomScale > consts.MapPixelThreshold {
-			sChunk.PixLock.Lock()
 			if sChunk.PixMap != nil {
-				time.Sleep(renderRest)
 				sChunk.PixMap.Dispose()
 				sChunk.PixMap = nil
-				sChunk.PixLock.Unlock()
 				continue
 			}
-			sChunk.PixLock.Unlock()
 		}
 
-		sChunk.PixLock.Lock()
 		if sChunk.PixMap == nil || sChunk.PixmapDirty {
-			time.Sleep(renderRest)
 			drawPixmap(sChunk, scPos)
-			sChunk.PixLock.Unlock()
 			break
 		}
-		sChunk.PixLock.Unlock()
 	}
 }
 
+/* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
 	for {
 		time.Sleep(renderLoop)
+		glob.VisChunkLock.RLock()
+		VisSChunksTmp := glob.VisSChunks
+		VisSChunksPosTmp := glob.VisSChunkPos
+		glob.VisChunkLock.RUnlock()
 
-		for i := 0; i < glob.VisSChunkTop; i++ {
-			scPos := glob.VisSChunkPos[i]
-			sChunk := glob.VisSChunks[i]
+		for index, sChunk := range VisSChunksTmp {
+			if sChunk == nil {
+				continue
+			}
+			scPos := VisSChunksPosTmp[index]
 
 			if glob.ZoomScale > consts.MapPixelThreshold {
+
 				sChunk.PixLock.Lock()
 				if sChunk.PixMap != nil {
-					time.Sleep(renderRest)
+
 					sChunk.PixMap.Dispose()
 					sChunk.PixMap = nil
+
 					sChunk.PixLock.Unlock()
 					continue
 				}
@@ -212,7 +226,6 @@ func PixmapRenderDaemon() {
 
 			sChunk.PixLock.Lock()
 			if sChunk.PixMap == nil || sChunk.PixmapDirty {
-				time.Sleep(renderRest)
 				drawPixmap(sChunk, scPos)
 			}
 			sChunk.PixLock.Unlock()
@@ -220,24 +233,36 @@ func PixmapRenderDaemon() {
 	}
 }
 
+/* Draw a superchunk's pixmap, allocates image if needed. */
 func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 	/* Make Pixelmap images */
 	if sChunk.PixMap == nil {
-		sChunk.PixMap = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
+		sChunk.PixMap = ebiten.NewImage(consts.MaxSuperChunk, consts.MaxSuperChunk)
 	}
 
 	sChunk.PixMap.Fill(glob.ColorCharcol)
-	for _, ctmp := range sChunk.Chunks {
-		if ctmp.NumObjects <= 0 {
+
+	tmpChunk := sChunk.ChunkList
+	for _, chunk := range tmpChunk {
+		if chunk == nil || chunk.NumObjects <= 0 {
 			continue
 		}
 
+		ObjTmp := chunk.ObjList
+		if ObjTmp == nil {
+			return
+		}
+
 		/* Draw objects in chunk */
-		for objPos, _ := range ctmp.WObject {
-			scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
-			scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
+		for index, obj := range ObjTmp {
+			if obj == nil {
+				continue
+			}
+			objPos := ObjTmp[index].Pos
+			scX := (((scPos.X) * (consts.MaxSuperChunk)) - consts.XYCenter)
+			scY := (((scPos.Y) * (consts.MaxSuperChunk)) - consts.XYCenter)
 
 			x := float64((objPos.X - consts.XYCenter) - scX)
 			y := float64((objPos.Y - consts.XYCenter) - scY)

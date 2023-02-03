@@ -11,9 +11,11 @@ import (
 	"log"
 	"runtime"
 	"runtime/debug"
+	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/shirou/gopsutil/cpu"
 )
@@ -31,7 +33,7 @@ func main() {
 
 	debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
 	if runtime.GOARCH == "wasm" {
-		glob.FixWASM = true
+		glob.WASMMode = true
 	}
 
 	str, err := data.GetText("intro")
@@ -46,6 +48,7 @@ func main() {
 	}
 }
 
+/* Ebiten game init */
 func NewGame() *Game {
 
 	/* Set up ebiten and window */
@@ -53,24 +56,27 @@ func NewGame() *Game {
 	ebiten.SetScreenFilterEnabled(true)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 
-	if glob.FixWASM && (consts.LoadTest || consts.UPSBench) {
-		glob.PlayerReady = true
+	if glob.WASMMode && (consts.LoadTest || consts.UPSBench) {
+		glob.PlayerReady.Store(true)
 		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	}
 
 	setupWindowSize()
 	windowTitle()
+
 	go loadSprites()
 	objects.ExploreMap(8)
 	go makeTestMap(false)
-	//glob.MapGenerated = true
-	go objects.ObjUpdateDaemon()
 
 	/* Initialize the game */
-	return &Game{ui: EUI()}
+	return &Game{
+		//ui: EUI()
+	}
 }
 
+/* Load all sprites, sub missing ones */
 func loadSprites() {
+	time.Sleep(time.Second * 2)
 
 	/* Load Sprites */
 	var timg *ebiten.Image
@@ -92,6 +98,9 @@ func loadSprites() {
 				timg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
 				timg.Fill(icon.ItemColor)
 				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, consts.SymbOffY, icon.SymbolColor)
+				if glob.WASMMode {
+					time.Sleep(time.Millisecond * 10)
+				}
 			}
 
 			icon.Image = timg
@@ -102,26 +111,28 @@ func loadSprites() {
 	terrain.SetupTerrainCache()
 	DrawToolbar()
 
-	glob.SpritesLoaded = true
+	glob.SpritesLoaded.Store(true)
 }
 
+/* Render boot info to screen */
 func bootScreen(screen *ebiten.Image) {
 
 	status := ""
-	if !glob.SpritesLoaded {
+	if !glob.SpritesLoaded.Load() {
 		status = "Loading Sprites"
 	}
-	if !glob.MapGenerated {
+	if !glob.MapGenerated.Load() {
 		if status != "" {
 			status = status + " and "
 		}
-		status = status + "Generating map"
+		status = status + fmt.Sprintf("Generating map (%.2f%%)", glob.MapLoadPercent)
 	}
+	screen.Fill(glob.ColorCharcol)
 	if status == "" {
-		screen.Fill(glob.ColorCharcol)
-		status = "Loading complete!\n(Any key or click to continue)"
+		//screen.Fill(glob.ColorCharcol)
+		status = "Loading complete!\n(Press any key or click to continue)"
 	} else {
-		screen.Fill(glob.ColorBlack)
+		//screen.Fill(glob.ColorBlack)
 	}
 
 	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)
@@ -129,10 +140,23 @@ func bootScreen(screen *ebiten.Image) {
 	tRect := text.BoundString(glob.BootFont, output)
 	text.Draw(screen, output, glob.BootFont, ((glob.ScreenWidth)/2.0)-int(tRect.Max.X/2), ((glob.ScreenHeight)/2.0)-int(tRect.Max.Y/2), glob.ColorWhite)
 
+	multi := 5.0
+	pw := 100.0 * multi
+	tall := 16.0
+	x := (float64(glob.ScreenWidth) / 2.0) - (pw / 2.0)
+	y := (float64(glob.ScreenHeight) / 3.0) * 2.3
+	ebitenutil.DrawRect(screen, x, y, pw, tall, glob.ColorVeryDarkGray)
+	color := glob.ColorWhite
+	if glob.MapLoadPercent >= 100 {
+		color = glob.ColorGreen
+	}
+	ebitenutil.DrawRect(screen, x, y, glob.MapLoadPercent*multi, tall, color)
 }
 
+/* Detect logical and virtual CPUs, set number of workers */
 func detectCPUs() {
-	/* Detect logical CPUs, failing that use numcpu */
+
+	/* Detect logical CPUs, failing that... use numcpu */
 	var lCPUs int = runtime.NumCPU() + 1
 	if lCPUs <= 1 {
 		lCPUs = 1
@@ -158,6 +182,7 @@ func detectCPUs() {
 	objects.NumWorkers = lCPUs
 }
 
+/* Sets up a reasonable sized window depending on diplay resolution */
 func setupWindowSize() {
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
@@ -183,23 +208,23 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 	/* Don't resize until we are ready */
 	if consts.UPSBench ||
-		!glob.MapGenerated ||
-		!glob.SpritesLoaded ||
-		!glob.PlayerReady ||
-		!glob.AllowUI {
+		!glob.MapGenerated.Load() ||
+		!glob.SpritesLoaded.Load() ||
+		!glob.PlayerReady.Load() {
 		return glob.ScreenWidth, glob.ScreenHeight
 	}
 	if outsideWidth != glob.ScreenWidth || outsideHeight != glob.ScreenHeight {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight
 		glob.InitMouse = false
-		glob.CameraDirty = true
+		glob.CameraDirty.Store(true)
 	}
 
 	windowTitle()
 	return glob.ScreenWidth, glob.ScreenHeight
 }
 
+/* Automatic window title update */
 func windowTitle() {
 	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + buildTime + "-" + runtime.GOOS + "-" + runtime.GOARCH + fmt.Sprintf(" %vx%v", glob.ScreenWidth, glob.ScreenHeight)))
 }

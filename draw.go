@@ -45,6 +45,7 @@ var (
 	frameCount       uint64
 )
 
+/* Setup a few images for later use */
 func init() {
 	glob.MiniMapTile = ebiten.NewImage(1, 1)
 	glob.MiniMapTile.Fill(color.White)
@@ -53,16 +54,28 @@ func init() {
 	glob.ToolBG.Fill(glob.ColorCharcol)
 }
 
+/* Look at camera position, make a list of visible superchunks and chunks. Saves to VisChunks, checks glob.CameraDirty */
 func makeVisList() {
+
 	/* When needed, make a list of chunks to draw */
-	if glob.CameraDirty {
+	if glob.CameraDirty.Load() {
+
+		glob.VisChunkLock.Lock()
+		glob.VisSChunkLock.Lock()
+		defer glob.VisChunkLock.Unlock()
+		defer glob.VisSChunkLock.Unlock()
 
 		glob.VisChunkTop = 0
 		glob.VisSChunkTop = 0
 
 		superChunksDrawn = 0
-		glob.SuperChunkMapLock.Lock()
-		for scPos, sChunk := range glob.SuperChunkMap {
+		SChunkTmp := glob.SuperChunkList
+		for _, sChunk := range SChunkTmp {
+			if sChunk == nil {
+				continue
+			}
+			scPos := sChunk.Pos
+
 			if sChunk.NumChunks == 0 {
 				continue
 			}
@@ -87,7 +100,13 @@ func makeVisList() {
 				break
 			}
 
-			for chunkPos, chunk := range sChunk.Chunks {
+			sChunkTmp := sChunk.ChunkList
+			for _, chunk := range sChunkTmp {
+				if chunk == nil {
+					continue
+				}
+				chunkPos := chunk.Pos
+
 				if sChunk.NumChunks == 0 {
 					continue
 				}
@@ -119,20 +138,18 @@ func makeVisList() {
 				} else {
 					break
 				}
-				glob.CameraDirty = false
+				glob.CameraDirty.Store(false)
 			}
 		}
-		glob.SuperChunkMapLock.Unlock()
 	}
 }
 
-var ready bool = false
-
+/* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
 
-	if !glob.MapGenerated ||
-		!glob.SpritesLoaded ||
-		!glob.PlayerReady {
+	if !glob.MapGenerated.Load() ||
+		!glob.SpritesLoaded.Load() ||
+		!glob.PlayerReady.Load() {
 		bootScreen(screen)
 		time.Sleep(time.Millisecond * 125) //8 fps
 		return
@@ -150,20 +167,27 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	chunksDrawn := 0
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
-		for i := 0; i < glob.VisChunkTop; i++ {
-			chunk := glob.VisChunks[i]
-			if chunk.Precache && !chunk.Visible {
+
+		glob.VisChunkLock.RLock()
+		VisChunkTmp := glob.VisChunks
+		VisChunkPosTmp := glob.VisChunkPos
+		glob.VisChunkLock.RUnlock()
+
+		for index, chunk := range VisChunkTmp {
+			if chunk == nil || (chunk.Precache && !chunk.Visible) {
 				continue
 			}
 
-			chunkPos := glob.VisChunkPos[i]
+			chunkPos := VisChunkPosTmp[index]
 			chunksDrawn++
 
 			/* Draw ground */
 			/* No image, use a temporary texture while it draws */
 			if chunk.TerrainImg == nil {
+				chunk.TerrainLock.Lock()
 				chunk.TerrainImg = glob.TempChunkImage
 				chunk.UsingTemporary = true
+				chunk.TerrainLock.Unlock()
 			}
 
 			chunk.TerrainLock.Lock()
@@ -175,7 +199,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			chunk.TerrainLock.Unlock()
 
 			/* Draw objects in chunk */
-			for objPos, obj := range chunk.WObject {
+			ObjListTmp := chunk.ObjList
+
+			for _, obj := range ObjListTmp {
+				if obj == nil {
+					continue
+				}
+				objPos := obj.Pos
 
 				/* Is this object on the screen? */
 				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
@@ -260,28 +290,42 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	} else {
 
-		if glob.FixWASM {
+		/* Single thread render terrain for WASM */
+		if glob.WASMMode {
 			terrain.PixmapRenderST()
 		}
 
-		/* Draw superchunk images */
-		for z := 0; z < glob.VisSChunkTop; z++ {
-			sChunk := glob.VisSChunks[z]
+		/* Draw superchunk images (pixmap mode)*/
+		glob.VisSChunkLock.RLock()
+		VisSChunkTmp := glob.VisSChunks
+		visSChunkPosTmp := glob.VisSChunkPos
+		glob.VisSChunkLock.RUnlock()
+
+		for index, sChunk := range VisSChunkTmp {
+			if sChunk == nil {
+				continue
+			}
+
+			if !sChunk.Visible {
+				continue
+			}
+
 			sChunk.PixLock.Lock()
-			if !sChunk.Visible || sChunk.PixMap == nil {
+			if sChunk.PixMap == nil {
 				sChunk.PixLock.Unlock()
 				continue
 			}
-			cPos := glob.VisSChunkPos[z]
+
+			cPos := visSChunkPosTmp[index]
 
 			op.GeoM.Reset()
 			op.GeoM.Scale(
-				(consts.SuperChunkPixels*glob.ZoomScale)/float64(consts.SuperChunkPixels),
-				(consts.SuperChunkPixels*glob.ZoomScale)/float64(consts.SuperChunkPixels))
+				(consts.MaxSuperChunk*glob.ZoomScale)/float64(consts.MaxSuperChunk),
+				(consts.MaxSuperChunk*glob.ZoomScale)/float64(consts.MaxSuperChunk))
 
 			op.GeoM.Translate(
-				((camXPos+float64((cPos.X))*consts.SuperChunkPixels)*glob.ZoomScale)-1,
-				((camYPos+float64((cPos.Y))*consts.SuperChunkPixels)*glob.ZoomScale)-1)
+				((camXPos+float64((cPos.X))*consts.MaxSuperChunk)*glob.ZoomScale)-1,
+				((camYPos+float64((cPos.Y))*consts.MaxSuperChunk)*glob.ZoomScale)-1)
 
 			screen.DrawImage(sChunk.PixMap, op)
 			sChunk.PixLock.Unlock()
@@ -296,7 +340,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
 		ebiten.ActualFPS(),
 		1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-		humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
+		humanize.SIWithDigits(float64(int(objects.TockWorkSize.Load())*objects.NumWorkers), 2, ""),
 		runtime.GOARCH, buildTime)
 
 	tRect := text.BoundString(glob.ToolTipFont, dbuf)
@@ -326,14 +370,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		/* World Obj tool tip */
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
-		glob.SuperChunkMapLock.Lock()
 		chunk := util.GetChunk(pos)
-		glob.SuperChunkMapLock.Unlock()
 
 		toolTip := ""
 		found := false
 		if chunk != nil {
-			o := chunk.WObject[pos]
+			o := util.GetObj(pos, chunk)
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
@@ -372,7 +414,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}
 		}
 
-		/* No object contents found */
+		/* No object contents found, just show x/y */
 		if !found {
 			toolTip = fmt.Sprintf("(%v, %v)", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))))
 		}
@@ -386,19 +428,23 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Limit frame rate */
-	if glob.FixWASM && frameCount%WASMTerrtainDiv == 0 {
+	if glob.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 		terrain.RenderTerrainST()
 	}
+
+	/* UI: WIP */
 	if g.ui != nil {
 		g.ui.Draw(screen)
 	}
 
+	/* Throttle if needed */
 	sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
 	time.Sleep(sleepFor)
 
 }
 
-func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
+/* Draw world objects */
+func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.ObjData) {
 
 	/* camera + object */
 	objOffX := camXPos + (float64(objPos.X))
@@ -416,17 +462,18 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 
 		iSize := obj.TypeP.Image.Bounds()
 
-		if consts.Debug {
-			op.ColorM.Reset()
-			if obj.BlinkRed > 0 {
-				op.ColorM.Scale(1, 0, 0, 1)
-				obj.BlinkRed--
-			}
-			if obj.BlinkGreen > 0 {
-				op.ColorM.Scale(0, 1, 0, 1)
-				obj.BlinkGreen--
-			}
-		}
+		/*
+			if consts.Debug {
+				op.ColorM.Reset()
+				if obj.BlinkRed > 0 {
+					op.ColorM.Scale(1, 0, 0, 1)
+					obj.BlinkRed--
+				}
+				if obj.BlinkGreen > 0 {
+					op.ColorM.Scale(0, 1, 0, 1)
+					obj.BlinkGreen--
+				}
+			} */
 
 		if obj.TypeP.Rotatable && obj.Direction > 0 {
 			x := float64(iSize.Size().X / 2)
@@ -451,6 +498,7 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.WObject) {
 
 }
 
+/* Update local vars with camera position calculations */
 func calcScreenCamera() {
 	/* Adjust cam position for zoom */
 	camXPos = float64(-glob.CameraX) + ((float64(glob.ScreenWidth) / 2.0) / glob.ZoomScale)
@@ -469,7 +517,8 @@ func calcScreenCamera() {
 	screenEndY = camEndY / consts.ChunkSize
 }
 
-func drawMaterials(m *glob.MatData, obj *glob.WObject, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
+/* Draw materials on belts */
+func drawMaterials(m *glob.MatData, obj *glob.ObjData, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
 
 	if m.Amount > 0 {
 		img := m.TypeP.Image
