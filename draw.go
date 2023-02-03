@@ -60,22 +60,23 @@ func makeVisList() {
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty.Load() {
 
-		superChunksDrawn = 0
 		glob.SuperChunkListLock.RLock()
-		defer glob.SuperChunkListLock.RUnlock()
+		superChunksDrawn = 0
+		var scTmp []*glob.MapSuperChunk
+		copy(scTmp, glob.SuperChunkList)
+		glob.SuperChunkListLock.RUnlock()
 
-		for _, sChunk := range glob.SuperChunkList {
-			scPos := sChunk.Pos
+		for _, sChunk := range scTmp {
 
 			if sChunk.NumChunks == 0 {
 				continue
 			}
 
 			/* Is this super chunk on the screen? */
-			if scPos.X < screenStartX/consts.SuperChunkSize ||
-				scPos.X > screenEndX/consts.SuperChunkSize ||
-				scPos.Y < screenStartY/consts.SuperChunkSize ||
-				scPos.Y > screenEndY/consts.SuperChunkSize {
+			if sChunk.Pos.X < screenStartX/consts.SuperChunkSize ||
+				sChunk.Pos.X > screenEndX/consts.SuperChunkSize ||
+				sChunk.Pos.Y < screenStartY/consts.SuperChunkSize ||
+				sChunk.Pos.Y > screenEndY/consts.SuperChunkSize {
 				sChunk.Visible = false
 				continue
 			}
@@ -83,29 +84,32 @@ func makeVisList() {
 			superChunksDrawn++
 			sChunk.Visible = true
 
-			sChunkTmp := sChunk.ChunkList
-			for _, chunk := range sChunkTmp {
-				chunkPos := chunk.Pos
+			sChunk.Lock.RLock()
+			var cTmp []*glob.MapChunk
+			copy(cTmp, sChunk.ChunkList)
+			sChunk.Lock.RUnlock()
+
+			for _, chunk := range cTmp {
 
 				if sChunk.NumChunks == 0 {
 					continue
 				}
 
 				/* Is this chunk in the prerender area? */
-				if chunkPos.X+cPreCache < screenStartX ||
-					chunkPos.X-cPreCache > screenEndX ||
-					chunkPos.Y+cPreCache < screenStartY ||
-					chunkPos.Y-cPreCache > screenEndY {
+				if chunk.Pos.X+cPreCache < screenStartX ||
+					chunk.Pos.X-cPreCache > screenEndX ||
+					chunk.Pos.Y+cPreCache < screenStartY ||
+					chunk.Pos.Y-cPreCache > screenEndY {
 					chunk.Precache = false
 					continue
 				}
 				chunk.Precache = true
 
 				/* Is this chunk on the screen? */
-				if chunkPos.X < screenStartX ||
-					chunkPos.X > screenEndX ||
-					chunkPos.Y < screenStartY ||
-					chunkPos.Y > screenEndY {
+				if chunk.Pos.X < screenStartX ||
+					chunk.Pos.X > screenEndX ||
+					chunk.Pos.Y < screenStartY ||
+					chunk.Pos.Y > screenEndY {
 					chunk.Visible = false
 					continue
 				}
@@ -118,8 +122,6 @@ func makeVisList() {
 }
 
 /* Ebiten: Draw everything */
-var ObjListTmp []*glob.ObjData
-
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	if !glob.MapGenerated.Load() ||
@@ -143,13 +145,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
 
-		for _, sChunk := range glob.SuperChunkList {
-			for _, chunk := range sChunk.ChunkList {
+		glob.SuperChunkListLock.RLock()
+		var scTmp []*glob.MapSuperChunk
+		copy(scTmp, glob.SuperChunkList)
+		glob.SuperChunkListLock.RUnlock()
+
+		for _, sChunk := range scTmp {
+
+			sChunk.Lock.RLock()
+			var cTmp []*glob.MapChunk
+			copy(cTmp, sChunk.ChunkList)
+			sChunk.Lock.RUnlock()
+
+			for _, chunk := range cTmp {
 				if !chunk.Visible {
 					continue
 				}
-
-				chunkPos := chunk.Pos
 				chunksDrawn++
 
 				/* Draw ground */
@@ -163,14 +174,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				iSize := chunk.TerrainImg.Bounds().Size()
 				op.GeoM.Reset()
 				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
-				op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
+				op.GeoM.Translate((camXPos+float64(chunk.Pos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunk.Pos.Y*consts.ChunkSize))*glob.ZoomScale)
 				screen.DrawImage(chunk.TerrainImg, op)
 				chunk.TerrainLock.Unlock()
 
 				/* Draw objects in chunk */
-				copy(ObjListTmp, chunk.ObjList)
-
-				for _, obj := range ObjListTmp {
+				for _, obj := range chunk.ObjList {
 					if obj == nil {
 						continue
 					}
@@ -265,8 +274,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			terrain.PixmapRenderST()
 		}
 
+		glob.SuperChunkListLock.RLock()
+		var scTmp []*glob.MapSuperChunk
+		copy(scTmp, glob.SuperChunkList)
+		glob.SuperChunkListLock.RUnlock()
+
 		/* Draw superchunk images (pixmap mode)*/
-		for _, sChunk := range glob.SuperChunkList {
+		for _, sChunk := range scTmp {
 			if !sChunk.Visible {
 				continue
 			}

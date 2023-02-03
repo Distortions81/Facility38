@@ -137,18 +137,13 @@ func tickObj(o *glob.ObjData) {
 
 /* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
 func runTicksST() {
-
-	TickListTemp := TickList
-
-	for _, item := range TickListTemp {
+	for _, item := range TickList {
 		tickObj(item.Target)
 	}
 }
 
 /* Process internally in an object, multi-threaded*/
 func runTicks() {
-
-	TickListTmp := TickList
 
 	l := gTickCount - 1
 	if l < 1 {
@@ -178,7 +173,7 @@ func runTicks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				tickObj(TickListTmp[i].Target)
+				tickObj(TickList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)
@@ -190,8 +185,6 @@ func runTicks() {
 
 /* Run all object tocks (interal) multi-threaded */
 func runTocks() {
-
-	TockListTmp := TockList
 
 	l := gTockCount - 1
 	if l < 1 {
@@ -222,7 +215,7 @@ func runTocks() {
 		wg.Add()
 		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
-				TockListTmp[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each, tickNow)
@@ -234,9 +227,8 @@ func runTocks() {
 
 /* WASM single-thread: Run all object tocks (interal) */
 func runTocksST() {
-	TockListTmp := TockList
 
-	for _, item := range TockListTmp {
+	for _, item := range TockList {
 		item.Target.TypeP.UpdateObj(item.Target)
 	}
 }
@@ -614,9 +606,7 @@ func ObjQueueAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, dir int
 /* Add/remove tick/tock events from the lists */
 func runEventQueue() {
 
-	EventQueueTmp := EventQueue
-
-	for _, e := range EventQueueTmp {
+	for _, e := range EventQueue {
 		if e.Delete {
 			switch e.QType {
 			case consts.QUEUE_TYPE_TICK:
@@ -640,9 +630,7 @@ func runEventQueue() {
 /* Add/remove objects from game world at end of tick/tock cycle */
 func runObjQueue() {
 
-	ObjQueueTmp := ObjQueue
-
-	for _, item := range ObjQueueTmp {
+	for _, item := range ObjQueue {
 		if item.Delete {
 
 			/* Invalidate object, and disconnect any connections to us */
