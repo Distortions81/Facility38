@@ -13,10 +13,10 @@ import (
 
 const (
 	maxTerrainCache = 50
-	renderRest      = time.Millisecond
+	renderRest      = time.Millisecond * 1
 	renderLoop      = time.Millisecond * 10
 	zoomCachePurge  = false //Always purges on WASM
-	debugVisualize  = false
+	debugVisualize  = true
 )
 
 var (
