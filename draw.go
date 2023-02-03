@@ -53,10 +53,10 @@ func init() {
 }
 
 /* Look at camera position, make a list of visible superchunks and chunks. Saves to VisChunks, checks glob.CameraDirty */
-func makeVisList() {
+func updateVisData() {
 
 	/* When needed, make a list of chunks to draw */
-	if glob.VisListDirty.Load() {
+	if glob.VisDataDirty.Load() {
 
 		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
@@ -105,7 +105,7 @@ func makeVisList() {
 				}
 				chunk.Visible = true
 
-				glob.VisListDirty.Store(false)
+				glob.VisDataDirty.Store(false)
 
 			}
 		}
@@ -131,7 +131,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw start */
 	drawStart := time.Now()
 	calcScreenCamera()
-	makeVisList()
+	updateVisData()
 
 	chunksDrawn := 0
 
@@ -293,7 +293,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
 		ebiten.ActualFPS(),
 		1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-		humanize.SIWithDigits(float64(int(objects.TockWorkSize.Load())*objects.NumWorkers), 2, ""),
+		humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
 		runtime.GOARCH, buildTime)
 
 	tRect := text.BoundString(glob.ToolTipFont, dbuf)

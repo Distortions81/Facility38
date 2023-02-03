@@ -3,21 +3,21 @@ package glob
 import (
 	"GameTest/consts"
 	"image/color"
-	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/sasha-s/go-deadlock"
 	"golang.org/x/image/font"
 )
 
 var (
 	/* World map */
 	SuperChunkList     []*MapSuperChunk
-	SuperChunkListLock sync.RWMutex
+	SuperChunkListLock deadlock.RWMutex
 
 	SuperChunkMap     map[XY]*MapSuperChunk
-	SuperChunkMapLock sync.RWMutex
+	SuperChunkMapLock deadlock.RWMutex
 
 	/* eBiten start settings */
 	ScreenWidth  int = 1280 //Screen width default
@@ -50,7 +50,7 @@ var (
 	CameraX float64 = float64(consts.XYCenter)
 	CameraY float64 = float64(consts.XYCenter)
 	/* If position/zoom changed */
-	VisListDirty atomic.Bool
+	VisDataDirty atomic.Bool
 
 	/* Mouse vars */
 	MouseX float64 = float64(consts.XYCenter)
@@ -67,7 +67,7 @@ var (
 )
 
 func init() {
-	VisListDirty.Store(true)
+	VisDataDirty.Store(true)
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
 }
 
@@ -81,11 +81,11 @@ type MapSuperChunk struct {
 
 	PixMap      *ebiten.Image
 	PixmapDirty bool
-	PixLock     sync.RWMutex
+	PixLock     deadlock.RWMutex
 	PixMapTime  time.Time
 	Visible     bool
 
-	Lock sync.RWMutex
+	Lock deadlock.RWMutex
 }
 
 /* Objects that contain object map, object list and TerrainImg */
@@ -98,7 +98,7 @@ type MapChunk struct {
 
 	Parent *MapSuperChunk
 
-	TerrainLock    sync.RWMutex
+	TerrainLock    deadlock.RWMutex
 	Rendering      bool
 	TerrainImg     *ebiten.Image
 	TerrainTime    time.Time
@@ -106,7 +106,7 @@ type MapChunk struct {
 	Precache       bool
 	Visible        bool
 
-	Lock sync.RWMutex
+	Lock deadlock.RWMutex
 }
 
 /* Object data */

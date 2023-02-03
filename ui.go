@@ -213,13 +213,13 @@ func touchScreenHandle() {
 			glob.CameraX = glob.CameraX + (float64(gPrevTouchA-nx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(gPrevTouchB-ny) / glob.ZoomScale)
 			gPrevTouchA, gPrevTouchB = util.MidPoint(tx, ty, ta, tb)
-			glob.VisListDirty.Store(true)
+			glob.VisDataDirty.Store(true)
 		} else {
 			glob.CameraX = glob.CameraX + (float64(gPrevTouchX-tx) / glob.ZoomScale)
 			glob.CameraY = glob.CameraY + (float64(gPrevTouchY-ty) / glob.ZoomScale)
 			gPrevTouchX = tx
 			gPrevTouchY = ty
-			glob.VisListDirty.Store(true)
+			glob.VisDataDirty.Store(true)
 		}
 	} else {
 		gTouchPressed = false
@@ -241,19 +241,19 @@ func zoomHandle() {
 
 	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		glob.ZoomScale = glob.ZoomScale * 2
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		glob.ZoomScale = glob.ZoomScale / 2
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 	}
 	gTouchZoom = 0
 
 	if glob.ZoomScale < 1 {
 		glob.ZoomScale = 1
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 	} else if glob.ZoomScale > 256 {
 		glob.ZoomScale = 256
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 	}
 
 }
@@ -365,22 +365,22 @@ func moveCamera() {
 
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		glob.CameraY -= speed
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
 		glob.CameraX -= speed
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
 		glob.CameraY += speed
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		glob.CameraX += speed
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 
 	}
 
@@ -394,7 +394,7 @@ func moveCamera() {
 
 		glob.CameraX = glob.CameraX + (float64(gPrevMouseX-gMouseX) / glob.ZoomScale)
 		glob.CameraY = glob.CameraY + (float64(gPrevMouseY-gMouseY) / glob.ZoomScale)
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 
 		/* Don't let camera go beyond a reasonable point */
 		if glob.CameraX > float64(consts.XYMax) {

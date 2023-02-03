@@ -134,46 +134,44 @@ func RenderTerrainST() {
 
 /* Loop to automatically render chunk terrain, will also dispose old tiles, uses glob.VisChunks */
 func RenderTerrainDaemon() {
-	go func() {
-		for {
-			time.Sleep(terrainRenderLoop)
+	for {
+		time.Sleep(terrainRenderLoop)
 
-			/* If we zoom out, decallocate everything */
-			if glob.ZoomScale <= consts.MapPixelThreshold {
-				if !clearedCache && zoomCachePurge {
-					glob.SuperChunkListLock.RLock()
-					for _, sChunk := range glob.SuperChunkList {
-						for _, chunk := range sChunk.ChunkList {
-							killTerrainCache(chunk, true)
-							time.Sleep(terrainRenderRest)
-						}
-					}
-					glob.SuperChunkListLock.RUnlock()
-					clearedCache = true
-				}
-			} else {
-				clearedCache = false
-
+		/* If we zoom out, decallocate everything */
+		if glob.ZoomScale <= consts.MapPixelThreshold {
+			if !clearedCache && zoomCachePurge {
 				glob.SuperChunkListLock.RLock()
 				for _, sChunk := range glob.SuperChunkList {
-					if !sChunk.Visible {
-						continue
-					}
 					for _, chunk := range sChunk.ChunkList {
-						if chunk.Precache && chunk.UsingTemporary {
-							renderChunkGround(chunk, true, chunk.Pos)
-							time.Sleep(terrainRenderRest)
-						} else if !chunk.Precache &&
-							numTerrainCache > maxTerrainCache {
-							killTerrainCache(chunk, false)
-							time.Sleep(terrainRenderRest)
-						}
+						killTerrainCache(chunk, true)
+						time.Sleep(terrainRenderRest)
 					}
 				}
 				glob.SuperChunkListLock.RUnlock()
+				clearedCache = true
 			}
+		} else {
+			clearedCache = false
+
+			glob.SuperChunkListLock.RLock()
+			for _, sChunk := range glob.SuperChunkList {
+				if !sChunk.Visible {
+					continue
+				}
+				for _, chunk := range sChunk.ChunkList {
+					if chunk.Precache && chunk.UsingTemporary {
+						renderChunkGround(chunk, true, chunk.Pos)
+						time.Sleep(terrainRenderRest)
+					} else if !chunk.Precache &&
+						numTerrainCache > maxTerrainCache {
+						killTerrainCache(chunk, false)
+						time.Sleep(terrainRenderRest)
+					}
+				}
+			}
+			glob.SuperChunkListLock.RUnlock()
 		}
-	}()
+	}
 }
 
 /* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
@@ -225,40 +223,39 @@ var pixmapCacheCleared bool
 
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
-	go func() {
-		for {
-			time.Sleep(pixmapRenderLoop)
 
-			glob.SuperChunkListLock.RLock()
-			for _, sChunk := range glob.SuperChunkList {
+	for {
+		time.Sleep(pixmapRenderLoop)
 
-				if glob.ZoomScale > consts.MapPixelThreshold && !pixmapCacheCleared {
+		glob.SuperChunkListLock.RLock()
+		for _, sChunk := range glob.SuperChunkList {
 
-					pixmapCacheCleared = true
-					sChunk.PixLock.Lock()
-					if sChunk.PixMap != nil && maxPixmapCache > numPixmapCache {
+			if glob.ZoomScale > consts.MapPixelThreshold && !pixmapCacheCleared {
 
-						sChunk.PixMap.Dispose()
-						sChunk.PixMap = nil
-						numPixmapCache--
-						time.Sleep(pixmapRenderRest)
+				pixmapCacheCleared = true
+				sChunk.PixLock.Lock()
+				if sChunk.PixMap != nil && maxPixmapCache > numPixmapCache {
 
-					}
-					sChunk.PixLock.Unlock()
-				} else if glob.ZoomScale <= consts.MapPixelThreshold {
-					pixmapCacheCleared = false
+					sChunk.PixMap.Dispose()
+					sChunk.PixMap = nil
+					numPixmapCache--
+					time.Sleep(pixmapRenderRest)
 
-					sChunk.PixLock.Lock()
-					if sChunk.PixMap == nil || sChunk.PixmapDirty {
-						drawPixmap(sChunk, sChunk.Pos)
-						time.Sleep(pixmapRenderRest)
-					}
-					sChunk.PixLock.Unlock()
 				}
+				sChunk.PixLock.Unlock()
+			} else if glob.ZoomScale <= consts.MapPixelThreshold {
+				pixmapCacheCleared = false
+
+				sChunk.PixLock.Lock()
+				if sChunk.PixMap == nil || sChunk.PixmapDirty {
+					drawPixmap(sChunk, sChunk.Pos)
+					time.Sleep(pixmapRenderRest)
+				}
+				sChunk.PixLock.Unlock()
 			}
-			glob.SuperChunkListLock.RUnlock()
 		}
-	}()
+		glob.SuperChunkListLock.RUnlock()
+	}
 }
 
 /* Draw a superchunk's pixmap, allocates image if needed. */

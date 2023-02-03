@@ -5,33 +5,33 @@ import (
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/util"
-	"sync"
-	"sync/atomic"
+	"fmt"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
+	"github.com/sasha-s/go-deadlock"
 )
 
 var (
 	gWorldTick uint64 = 0
 
 	TickList     []glob.TickEvent = []glob.TickEvent{}
-	TickListLock sync.RWMutex
+	TickListLock deadlock.RWMutex
 
 	TockList     []glob.TickEvent = []glob.TickEvent{}
-	TockListLock sync.RWMutex
+	TockListLock deadlock.RWMutex
 
 	ObjQueue     []*glob.ObjectQueuetData
-	ObjQueueLock sync.RWMutex
+	ObjQueueLock deadlock.RWMutex
 
 	EventQueue     []*glob.EventQueueData
-	EventQueueLock sync.RWMutex
+	EventQueueLock deadlock.RWMutex
 
 	gTickCount    int
 	gTockCount    int
 	gTickWorkSize int
 
-	TockWorkSize atomic.Uint32
+	TockWorkSize int
 	NumWorkers   int
 
 	wg sizedwaitgroup.SizedWaitGroup
@@ -40,47 +40,47 @@ var (
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
 	var start time.Time
-	wg = sizedwaitgroup.New(NumWorkers)
 
-	go func() {
-		for {
-			if glob.MapGenerated.Load() {
-				time.Sleep(time.Millisecond * 100)
-				continue
-			}
-			start = time.Now()
+	for glob.MapGenerated.Load() == false {
+		time.Sleep(time.Millisecond * 100)
+	}
 
-			gWorldTick++
-			gTickWorkSize = gTickCount / NumWorkers
-			if gTickWorkSize < 1 {
-				gTickWorkSize = 1
-			}
-			TockWorkSize.Store(uint32(gTockCount / NumWorkers))
-			if TockWorkSize.Load() < 1 {
-				TockWorkSize.Store(1)
-			}
+	for {
+		start = time.Now()
 
-			runTocks() //Process objects
-			runTicks() //Move external
-			EventQueueLock.Lock()
-			runEventQueue() //Queue to add/remove events
-			EventQueueLock.Unlock()
-			ObjQueueLock.Lock()
-			runObjQueue() //Queue to add/remove objects
-			ObjQueueLock.Unlock()
-
-			if !consts.UPSBench {
-				sleepFor := glob.ObjectUPS_ns - time.Since(start)
-				time.Sleep(sleepFor)
-			} else {
-				if glob.WASMMode {
-					time.Sleep(time.Millisecond)
-				}
-			}
-			glob.MeasuredObjectUPS_ns = time.Since(start)
+		gWorldTick++
+		gTickWorkSize = gTickCount / NumWorkers
+		if gTickWorkSize < 1 {
+			gTickWorkSize = 1
 		}
-	}()
+		TockWorkSize = (gTockCount / NumWorkers)
+		if TockWorkSize < 1 {
+			TockWorkSize = 1
+		}
 
+		fmt.Println("Tocks")
+		runTocks() //Process objects
+		fmt.Println("Ticks")
+		runTicks() //Move external
+		EventQueueLock.RLock()
+		fmt.Println("Run Events")
+		runEventQueue() //Queue to add/remove events
+		EventQueueLock.RUnlock()
+		ObjQueueLock.RLock()
+		fmt.Println("Obj Queue")
+		runObjQueue() //Queue to add/remove objects
+		ObjQueueLock.RUnlock()
+
+		if !consts.UPSBench {
+			sleepFor := glob.ObjectUPS_ns - time.Since(start)
+			time.Sleep(sleepFor)
+		} else {
+			if glob.WASMMode {
+				time.Sleep(time.Millisecond)
+			}
+		}
+		glob.MeasuredObjectUPS_ns = time.Since(start)
+	}
 }
 
 /* WASM single-thread object update */
@@ -88,12 +88,11 @@ func ObjUpdateDaemonST() {
 	var start time.Time
 
 	time.Sleep(time.Second)
-	for {
+	for glob.MapGenerated.Load() == false {
+		time.Sleep(time.Millisecond * 100)
+	}
 
-		if !glob.MapGenerated.Load() {
-			time.Sleep(time.Millisecond * 100)
-			continue
-		}
+	for {
 		start = time.Now()
 
 		runTocksST()    //Process objects
@@ -184,11 +183,11 @@ func runTocks() {
 	l := gTockCount - 1
 	if l < 1 {
 		return
-	} else if TockWorkSize.Load() == 0 {
+	} else if TockWorkSize == 0 {
 		return
 	}
 
-	numWorkers := l / int(TockWorkSize.Load())
+	numWorkers := l / TockWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -222,7 +221,6 @@ func runTocks() {
 
 /* WASM single-thread: Run all object tocks (interal) */
 func runTocksST() {
-
 	for _, item := range TockList {
 		item.Target.TypeP.UpdateObj(item.Target)
 	}
@@ -553,7 +551,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 		return nil
 	}
 
-	glob.VisListDirty.Store(true)
+	glob.VisDataDirty.Store(true)
 
 	obj = &glob.ObjData{}
 

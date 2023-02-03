@@ -216,7 +216,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight
 		glob.InitMouse = false
-		glob.VisListDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 	}
 
 	windowTitle()
