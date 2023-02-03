@@ -126,8 +126,7 @@ func makeTestMap(skip bool) {
 		if glob.WASMMode {
 			time.Sleep(time.Millisecond * 100)
 		}
-		//objects.UnsafeMakeObjLists()
-		//objects.UnsafeMakeEventLists()
+		objects.UnsafeMakeObjLists()
 	}
 	if !glob.WASMMode {
 		go terrain.RenderTerrainDaemon()

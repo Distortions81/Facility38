@@ -320,12 +320,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 			op.GeoM.Reset()
 			op.GeoM.Scale(
-				(consts.SuperChunkPixels*glob.ZoomScale)/float64(consts.SuperChunkPixels),
-				(consts.SuperChunkPixels*glob.ZoomScale)/float64(consts.SuperChunkPixels))
+				(consts.MaxSuperChunk*glob.ZoomScale)/float64(consts.MaxSuperChunk),
+				(consts.MaxSuperChunk*glob.ZoomScale)/float64(consts.MaxSuperChunk))
 
 			op.GeoM.Translate(
-				((camXPos+float64((cPos.X))*consts.SuperChunkPixels)*glob.ZoomScale)-1,
-				((camYPos+float64((cPos.Y))*consts.SuperChunkPixels)*glob.ZoomScale)-1)
+				((camXPos+float64((cPos.X))*consts.MaxSuperChunk)*glob.ZoomScale)-1,
+				((camYPos+float64((cPos.Y))*consts.MaxSuperChunk)*glob.ZoomScale)-1)
 
 			screen.DrawImage(sChunk.PixMap, op)
 			sChunk.PixLock.Unlock()

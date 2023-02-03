@@ -17,52 +17,33 @@ import (
 /* Update superchunk/chunk/onj lists */
 func UnsafeMakeObjLists() {
 
-	/* Make superchunk list */
-	index := 0
-	var schunkTemp [consts.SuperChunkSize * consts.SuperChunkSize]*glob.MapSuperChunk
-	for _, sChunk := range glob.SuperChunkMap {
-		if sChunk == nil {
-			continue
-		}
-		schunkTemp[index] = sChunk
-		index++
-	}
-	glob.SuperChunkList = schunkTemp[:index]
-
-	/* Make chunk lists in all SuperChunks */
-	var chunkTemp [consts.SuperChunkSize * consts.SuperChunkSize]*glob.MapChunk
-	for _, sChunk := range glob.SuperChunkMap {
-		index = 0
-		for _, chunk := range sChunk.ChunkMap {
-			if chunk == nil {
-				continue
-			}
-			chunkTemp[index] = chunk
-			index++
-		}
-		sChunk.ChunkList = chunkTemp[:index]
-	}
-
 	/* Make obj lists in all chunks */
-	var objTemp [consts.ChunkSize * consts.ChunkSize]*glob.ObjData
-	for _, sChunk := range glob.SuperChunkMap {
-		for _, chunk := range sChunk.ChunkMap {
-			index = 0
-			for _, obj := range chunk.ObjMap {
-				if obj == nil {
-					continue
-				}
-				objTemp[index] = obj
-				index++
+	var a, b, c int
+	var al [consts.MaxSuperChunk]*glob.MapSuperChunk
+	var bl [consts.SuperChunkTotal]*glob.MapChunk
+	var cl [consts.ChunkTotal]*glob.ObjData
+
+	a = 0
+	for scpos, _ := range glob.SuperChunkMap {
+		al[a] = glob.SuperChunkMap[scpos]
+		a++
+
+		b = 0
+		for cpos, _ := range glob.SuperChunkMap[scpos].ChunkMap {
+			bl[b] = glob.SuperChunkMap[scpos].ChunkMap[cpos]
+			b++
+
+			c = 0
+			for opos, _ := range glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap {
+				cl[c] = glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap[opos]
+				c++
 			}
-			chunk.ObjList = objTemp[:index]
+			copy(glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjList, cl[:c])
+
 		}
+		copy(glob.SuperChunkMap[scpos].ChunkList, bl[:b])
 	}
-}
-
-/* Update event tick/tock lists */
-func UnsafeMakeEventLists() {
-
+	copy(glob.SuperChunkList, al[:a])
 }
 
 /* Make a super chunk if it does not exist, unsafe map load version */
@@ -72,18 +53,15 @@ func unsafeMakeSuperChunk(pos glob.XY) {
 	scpos := util.PosToSuperChunkPos(newPos)
 
 	//Make super chunk if needed
-
-	SuperChunkTmp := glob.SuperChunkMap[scpos]
-
-	if SuperChunkTmp == nil {
+	if glob.SuperChunkMap[scpos] == nil {
 		/* Make new superchunk in map at pos */
 		glob.SuperChunkMap[scpos] = &glob.MapSuperChunk{}
-		SuperChunkTmp = glob.SuperChunkMap[scpos]
+		glob.SuperChunkMap[scpos] = glob.SuperChunkMap[scpos]
 
-		SuperChunkTmp.ChunkMap = make(map[glob.XY]*glob.MapChunk)
+		glob.SuperChunkMap[scpos].ChunkMap = make(map[glob.XY]*glob.MapChunk)
 
 		/* Save position */
-		SuperChunkTmp.Pos = scpos
+		glob.SuperChunkMap[scpos].Pos = scpos
 	}
 
 }
@@ -96,25 +74,24 @@ func unsafeMakeChunk(pos glob.XY) {
 	cpos := util.PosToChunkPos(pos)
 	scpos := util.PosToSuperChunkPos(pos)
 
-	SuperChunkTmp := glob.SuperChunkMap[scpos]
-	ChunkTmp := SuperChunkTmp.ChunkMap[cpos]
-
-	if ChunkTmp == nil {
+	if glob.SuperChunkMap[scpos].ChunkMap[cpos] == nil {
 
 		/* Increase chunk count */
-		SuperChunkTmp.NumChunks++
+		glob.SuperChunkMap[scpos].NumChunks++
 
 		/* Make a new empty chunk in the map at pos */
-		SuperChunkTmp.ChunkMap[cpos] = &glob.MapChunk{}
-		ChunkTmp = SuperChunkTmp.ChunkMap[cpos]
+		glob.SuperChunkMap[scpos].ChunkMap[cpos] = &glob.MapChunk{}
+		glob.SuperChunkMap[scpos].Lock.Lock()
 
-		ChunkTmp.ObjMap = make(map[glob.XY]*glob.ObjData)
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap = make(map[glob.XY]*glob.ObjData)
 
 		/* Save position */
-		ChunkTmp.Pos = cpos
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].Pos = cpos
 
 		/* Save parent */
-		ChunkTmp.Parent = SuperChunkTmp
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].Parent = glob.SuperChunkMap[scpos]
+
+		glob.SuperChunkMap[scpos].Lock.Unlock()
 	}
 }
 

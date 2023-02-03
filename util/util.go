@@ -113,12 +113,12 @@ func ChunkPosToPos(pos glob.XY) glob.XY {
 
 /* XY to SuperChunk XY */
 func PosToSuperChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X / consts.SuperChunkPixels, Y: pos.Y / consts.SuperChunkPixels}
+	return glob.XY{X: pos.X / consts.MaxSuperChunk, Y: pos.Y / consts.MaxSuperChunk}
 }
 
 /* SuperChunk XY to XY */
 func SuperChunkPosToPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X * consts.SuperChunkPixels, Y: pos.Y * consts.SuperChunkPixels}
+	return glob.XY{X: pos.X * consts.MaxSuperChunk, Y: pos.Y * consts.MaxSuperChunk}
 }
 
 /* Chunk XY to SuperChunk XY */

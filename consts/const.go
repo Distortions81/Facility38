@@ -80,9 +80,13 @@ const (
 	ToolBarOffsetY = 0
 
 	/* Draw settings */
-	ChunkSize         = 32
-	SuperChunkSize    = 32
-	SuperChunkPixels  = ChunkSize * SuperChunkSize
+	MaxSuperChunk = SuperChunkSize * SuperChunkSize
+
+	ChunkSize       = 32
+	SuperChunkSize  = 32
+	SuperChunkTotal = SuperChunkSize * SuperChunkSize
+	ChunkTotal      = ChunkSize * ChunkSize
+
 	DefaultZoom       = SpriteScale * 2
 	MapPixelThreshold = (SpriteScale / 2)
 

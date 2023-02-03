@@ -239,7 +239,7 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 
 	/* Make Pixelmap images */
 	if sChunk.PixMap == nil {
-		sChunk.PixMap = ebiten.NewImage(consts.SuperChunkPixels, consts.SuperChunkPixels)
+		sChunk.PixMap = ebiten.NewImage(consts.MaxSuperChunk, consts.MaxSuperChunk)
 	}
 
 	sChunk.PixMap.Fill(glob.ColorCharcol)
@@ -261,8 +261,8 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 				continue
 			}
 			objPos := ObjTmp[index].Pos
-			scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
-			scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)
+			scX := (((scPos.X) * (consts.MaxSuperChunk)) - consts.XYCenter)
+			scY := (((scPos.Y) * (consts.MaxSuperChunk)) - consts.XYCenter)
 
 			x := float64((objPos.X - consts.XYCenter) - scX)
 			y := float64((objPos.Y - consts.XYCenter) - scY)
