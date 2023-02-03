@@ -1,7 +1,7 @@
 package consts
 
 const (
-	Version = "010"
+	Version = "011"
 
 	/* Files and directories */
 	Wasm    = "js" //Detect wasm/jstrue
