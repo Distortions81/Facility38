@@ -19,7 +19,7 @@ func UnsafeMakeObjLists() {
 
 	/* Make superchunk list */
 	index := 0
-	var schunkTemp [10000]*glob.MapSuperChunk
+	var schunkTemp [consts.SuperChunkSize * consts.SuperChunkSize]*glob.MapSuperChunk
 	for _, sChunk := range glob.SuperChunkMap {
 		if sChunk == nil {
 			continue
@@ -30,7 +30,7 @@ func UnsafeMakeObjLists() {
 	glob.SuperChunkList = schunkTemp[:index]
 
 	/* Make chunk lists in all SuperChunks */
-	var chunkTemp [10000]*glob.MapChunk
+	var chunkTemp [consts.SuperChunkSize * consts.SuperChunkSize]*glob.MapChunk
 	for _, sChunk := range glob.SuperChunkMap {
 		index = 0
 		for _, chunk := range sChunk.ChunkMap {
@@ -44,7 +44,7 @@ func UnsafeMakeObjLists() {
 	}
 
 	/* Make obj lists in all chunks */
-	var objTemp [10000]*glob.ObjData
+	var objTemp [consts.ChunkSize * consts.ChunkSize]*glob.ObjData
 	for _, sChunk := range glob.SuperChunkMap {
 		for _, chunk := range sChunk.ChunkMap {
 			index = 0
