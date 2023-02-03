@@ -40,9 +40,7 @@ var (
 	screenStartY int
 	screenEndX   int
 	screenEndY   int
-
-	superChunksDrawn int
-	frameCount       uint64
+	frameCount   uint64
 )
 
 /* Setup a few images for later use */
@@ -61,12 +59,7 @@ func makeVisList() {
 	if glob.VisListDirty.Load() {
 
 		glob.SuperChunkListLock.RLock()
-		superChunksDrawn = 0
-		var scTmp []*glob.MapSuperChunk
-		copy(scTmp, glob.SuperChunkList)
-		glob.SuperChunkListLock.RUnlock()
-
-		for _, sChunk := range scTmp {
+		for _, sChunk := range glob.SuperChunkList {
 
 			if sChunk.NumChunks == 0 {
 				continue
@@ -81,15 +74,9 @@ func makeVisList() {
 				continue
 			}
 
-			superChunksDrawn++
 			sChunk.Visible = true
 
-			sChunk.Lock.RLock()
-			var cTmp []*glob.MapChunk
-			copy(cTmp, sChunk.ChunkList)
-			sChunk.Lock.RUnlock()
-
-			for _, chunk := range cTmp {
+			for _, chunk := range sChunk.ChunkList {
 
 				if sChunk.NumChunks == 0 {
 					continue
@@ -116,8 +103,10 @@ func makeVisList() {
 				chunk.Visible = true
 
 				glob.VisListDirty.Store(false)
+
 			}
 		}
+		glob.SuperChunkListLock.RUnlock()
 	}
 }
 
@@ -146,18 +135,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
 
 		glob.SuperChunkListLock.RLock()
-		var scTmp []*glob.MapSuperChunk
-		copy(scTmp, glob.SuperChunkList)
-		glob.SuperChunkListLock.RUnlock()
+		for _, sChunk := range glob.SuperChunkList {
 
-		for _, sChunk := range scTmp {
-
-			sChunk.Lock.RLock()
-			var cTmp []*glob.MapChunk
-			copy(cTmp, sChunk.ChunkList)
-			sChunk.Lock.RUnlock()
-
-			for _, chunk := range cTmp {
+			for _, chunk := range sChunk.ChunkList {
 				if !chunk.Visible {
 					continue
 				}
@@ -267,20 +247,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 			}
 		}
+		glob.SuperChunkListLock.RUnlock()
+
 	} else {
 
 		/* Single thread render terrain for WASM */
 		if glob.WASMMode {
 			terrain.PixmapRenderST()
 		}
-
-		glob.SuperChunkListLock.RLock()
-		var scTmp []*glob.MapSuperChunk
-		copy(scTmp, glob.SuperChunkList)
-		glob.SuperChunkListLock.RUnlock()
-
 		/* Draw superchunk images (pixmap mode)*/
-		for _, sChunk := range scTmp {
+		glob.SuperChunkListLock.RLock()
+		for _, sChunk := range glob.SuperChunkList {
 			if !sChunk.Visible {
 				continue
 			}
@@ -303,6 +280,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen.DrawImage(sChunk.PixMap, op)
 			sChunk.PixLock.Unlock()
 		}
+		glob.SuperChunkListLock.RUnlock()
 	}
 
 	/* Get mouse position on world */

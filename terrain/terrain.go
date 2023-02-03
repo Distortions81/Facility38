@@ -123,23 +123,12 @@ func RenderTerrainDaemon() {
 		for {
 			time.Sleep(renderLoop)
 
-			glob.SuperChunkListLock.RLock()
-			var scTmp []*glob.MapSuperChunk
-			copy(scTmp, glob.SuperChunkList)
-			glob.SuperChunkListLock.RUnlock()
-
 			/* If we zoom out, decallocate everything */
 			if glob.ZoomScale <= consts.MapPixelThreshold {
 				if !clearedCache && zoomCachePurge {
 					glob.SuperChunkListLock.RLock()
-					for _, sChunk := range scTmp {
-
-						sChunk.Lock.RLock()
-						var cTmp []*glob.MapChunk
-						copy(cTmp, sChunk.ChunkList)
-						sChunk.Lock.RUnlock()
-
-						for _, chunk := range cTmp {
+					for _, sChunk := range glob.SuperChunkList {
+						for _, chunk := range sChunk.ChunkList {
 							killTerrainCache(chunk, true)
 						}
 					}
@@ -149,14 +138,9 @@ func RenderTerrainDaemon() {
 			} else {
 				clearedCache = false
 
-				for _, sChunk := range scTmp {
-
-					sChunk.Lock.RLock()
-					var cTmp []*glob.MapChunk
-					copy(cTmp, sChunk.ChunkList)
-					sChunk.Lock.RUnlock()
-
-					for _, chunk := range cTmp {
+				glob.SuperChunkListLock.RLock()
+				for _, sChunk := range glob.SuperChunkList {
+					for _, chunk := range sChunk.ChunkList {
 						if chunk.Precache && chunk.UsingTemporary {
 							renderChunkGround(chunk, true, chunk.Pos)
 						} else if !chunk.Precache && numTerrainCache > maxTerrainCache {
@@ -164,6 +148,7 @@ func RenderTerrainDaemon() {
 						}
 					}
 				}
+				glob.SuperChunkListLock.RUnlock()
 			}
 		}
 	}()
