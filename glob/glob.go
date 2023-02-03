@@ -50,7 +50,7 @@ var (
 	CameraX float64 = float64(consts.XYCenter)
 	CameraY float64 = float64(consts.XYCenter)
 	/* If position/zoom changed */
-	CameraDirty atomic.Bool
+	VisListDirty atomic.Bool
 
 	/* Mouse vars */
 	MouseX float64 = float64(consts.XYCenter)
@@ -67,7 +67,7 @@ var (
 )
 
 func init() {
-	CameraDirty.Store(true)
+	VisListDirty.Store(true)
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
 }
 

@@ -58,7 +58,7 @@ func init() {
 func makeVisList() {
 
 	/* When needed, make a list of chunks to draw */
-	if glob.CameraDirty.Load() {
+	if glob.VisListDirty.Load() {
 
 		glob.SuperChunkListLock.RLock()
 		superChunksDrawn = 0
@@ -115,7 +115,7 @@ func makeVisList() {
 				}
 				chunk.Visible = true
 
-				glob.CameraDirty.Store(false)
+				glob.VisListDirty.Store(false)
 			}
 		}
 	}

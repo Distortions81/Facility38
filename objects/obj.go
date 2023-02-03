@@ -554,7 +554,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 		return nil
 	}
 
-	glob.CameraDirty.Store(true)
+	glob.VisListDirty.Store(true)
 
 	obj = &glob.ObjData{}
 
