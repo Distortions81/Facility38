@@ -136,7 +136,6 @@ var (
 		{Symbol: "?", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed, Name: "Error"},
 		{Symbol: "WOOD", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown, Name: "Wood"},
 		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal.png", Name: "Coal Ore"},
-		{Symbol: "COPPER", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorAqua, Name: "Copper Ore"},
 	}
 
 	/* Toolbar item types, array of array of ObjType */

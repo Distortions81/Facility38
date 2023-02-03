@@ -16,7 +16,7 @@ const (
 	Verbose     = false
 	LogStdOut   = false
 	LogFileOut  = false
-	TestObjects = 10000 //Make (approx) this number items
+	TestObjects = 1000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated  array */
@@ -52,19 +52,21 @@ const (
 	ObjTypeSteamEngine     = 7
 
 	/* Materials */
-	MAT_COAL = 0 //black with color sheen
+	MAT_NONE = 0
+	MAT_WOOD = 1
+	MAT_COAL = 2 //black with color sheen
 
-	MAT_COPPER_ORE = 1 //Copper blue + dark rust color
-	MAT_LEAD_ORE   = 2 //bright + soft metallic flecks
-	MAT_TIN_ORE    = 3 //Dark gray with light rust color
-	MAT_IRON_ORE   = 4 //fire red, with some gray
+	MAT_COPPER_ORE = 3 //Copper blue + dark rust color
+	MAT_LEAD_ORE   = 4 //bright + soft metallic flecks
+	MAT_TIN_ORE    = 5 //Dark gray with light rust color
+	MAT_IRON_ORE   = 6 //fire red, with some gray
 
-	MAT_COPPER = 5 //Copper red
-	MAT_LEAD   = 6 //Dull gray
-	MAT_TIN    = 7 //Solder
-	MAT_IRON   = 8 //Cast pan
+	MAT_COPPER = 7  //Copper red
+	MAT_LEAD   = 8  //Dull gray
+	MAT_TIN    = 9  //Solder
+	MAT_IRON   = 10 //Cast pan
 
-	MAT_MAX = 9
+	MAT_MAX = 11
 
 	/* Placeholder texture words render offset */
 	SymbOffX = 0
