@@ -42,49 +42,44 @@ func ObjUpdateDaemon() {
 	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)
 
-	for {
-
-		gen := glob.MapGenerated.Load()
-
-		if !gen {
-			time.Sleep(time.Millisecond * 100)
-			continue
-		}
-		start = time.Now()
-
-		gWorldTick++
-		gTickWorkSize = gTickCount / NumWorkers
-		if gTickWorkSize < 1 {
-			gTickWorkSize = 1
-		}
-		TockWorkSize.Store(uint32(gTockCount / NumWorkers))
-		if TockWorkSize.Load() < 1 {
-			TockWorkSize.Store(1)
-		}
-
-		TockListLock.Lock()
-		runTocks() //Process objects
-		TockListLock.Unlock()
-		TickListLock.Lock()
-		runTicks() //Move external
-		TickListLock.Unlock()
-		EventQueueLock.Lock()
-		runEventQueue() //Queue to add/remove events
-		EventQueueLock.Unlock()
-		ObjQueueLock.Lock()
-		runObjQueue() //Queue to add/remove objects
-		ObjQueueLock.Unlock()
-
-		if !consts.UPSBench {
-			sleepFor := glob.ObjectUPS_ns - time.Since(start)
-			time.Sleep(sleepFor)
-		} else {
-			if glob.WASMMode {
-				time.Sleep(time.Millisecond)
+	go func() {
+		for {
+			if glob.MapGenerated.Load() {
+				time.Sleep(time.Millisecond * 100)
+				continue
 			}
+			start = time.Now()
+
+			gWorldTick++
+			gTickWorkSize = gTickCount / NumWorkers
+			if gTickWorkSize < 1 {
+				gTickWorkSize = 1
+			}
+			TockWorkSize.Store(uint32(gTockCount / NumWorkers))
+			if TockWorkSize.Load() < 1 {
+				TockWorkSize.Store(1)
+			}
+
+			runTocks() //Process objects
+			runTicks() //Move external
+			EventQueueLock.Lock()
+			runEventQueue() //Queue to add/remove events
+			EventQueueLock.Unlock()
+			ObjQueueLock.Lock()
+			runObjQueue() //Queue to add/remove objects
+			ObjQueueLock.Unlock()
+
+			if !consts.UPSBench {
+				sleepFor := glob.ObjectUPS_ns - time.Since(start)
+				time.Sleep(sleepFor)
+			} else {
+				if glob.WASMMode {
+					time.Sleep(time.Millisecond)
+				}
+			}
+			glob.MeasuredObjectUPS_ns = time.Since(start)
 		}
-		glob.MeasuredObjectUPS_ns = time.Since(start)
-	}
+	}()
 
 }
 
@@ -514,6 +509,10 @@ func MakeChunk(pos glob.XY) {
 			append(glob.SuperChunkMap[scpos].ChunkList, glob.SuperChunkMap[scpos].ChunkMap[cpos])
 
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap = make(map[glob.XY]*glob.ObjData)
+
+		/* Terrain img */
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].TerrainImg = glob.TempChunkImage
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].UsingTemporary = true
 
 		/* Save position */
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].Pos = cpos

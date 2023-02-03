@@ -23,7 +23,7 @@ const (
 	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
-	cPreCache               = 2
+	cPreCache               = 4
 	WASMTerrtainDiv         = 5
 )
 
@@ -62,6 +62,7 @@ func makeVisList() {
 		for _, sChunk := range glob.SuperChunkList {
 
 			if sChunk.NumChunks == 0 {
+				sChunk.Visible = false
 				continue
 			}
 
@@ -78,7 +79,9 @@ func makeVisList() {
 
 			for _, chunk := range sChunk.ChunkList {
 
-				if sChunk.NumChunks == 0 {
+				if chunk.NumObjects == 0 {
+					chunk.Visible = false
+					chunk.Precache = false
 					continue
 				}
 
@@ -144,19 +147,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				chunksDrawn++
 
 				/* Draw ground */
-				/* No image, use a temporary texture while it draws */
-				chunk.TerrainLock.Lock()
+				chunk.TerrainLock.RLock()
+				cTmp := chunk.TerrainImg
 				if chunk.TerrainImg == nil {
-					chunk.TerrainImg = glob.TempChunkImage
-					chunk.UsingTemporary = true
+					cTmp = glob.TempChunkImage
 				}
 
-				iSize := chunk.TerrainImg.Bounds().Size()
+				iSize := cTmp.Bounds().Size()
 				op.GeoM.Reset()
 				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
 				op.GeoM.Translate((camXPos+float64(chunk.Pos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunk.Pos.Y*consts.ChunkSize))*glob.ZoomScale)
-				screen.DrawImage(chunk.TerrainImg, op)
-				chunk.TerrainLock.Unlock()
+				screen.DrawImage(cTmp, op)
+				chunk.TerrainLock.RUnlock()
 
 				/* Draw objects in chunk */
 				for _, obj := range chunk.ObjList {

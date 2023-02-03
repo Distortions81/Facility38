@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	maxTerrainCache = 50
+	maxTerrainCache = 500
 	renderRest      = time.Millisecond * 10
 	renderLoop      = time.Millisecond * 100
 	zoomCachePurge  = false //Always purges on WASM
@@ -37,6 +37,12 @@ func SetupTerrainCache() {
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
 func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
+
+	if chunk.Rendering {
+		return
+	}
+	chunk.Rendering = true
+
 	/* Make optimized background */
 	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
@@ -79,6 +85,7 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	numTerrainCache++
 	chunk.TerrainImg = tImg
 	chunk.UsingTemporary = false
+	chunk.Rendering = false
 	chunk.TerrainLock.Unlock()
 }
 
@@ -140,11 +147,17 @@ func RenderTerrainDaemon() {
 
 				glob.SuperChunkListLock.RLock()
 				for _, sChunk := range glob.SuperChunkList {
+					if !sChunk.Visible {
+						continue
+					}
 					for _, chunk := range sChunk.ChunkList {
 						if chunk.Precache && chunk.UsingTemporary {
 							renderChunkGround(chunk, true, chunk.Pos)
-						} else if !chunk.Precache && numTerrainCache > maxTerrainCache {
+							time.Sleep(renderRest)
+						} else if !chunk.Precache &&
+							numTerrainCache > maxTerrainCache {
 							killTerrainCache(chunk, false)
+							time.Sleep(renderRest)
 						}
 					}
 				}
@@ -162,8 +175,9 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	}
 	if force || numTerrainCache > maxTerrainCache {
 		chunk.TerrainLock.Lock()
-		chunk.TerrainImg.Dispose()
-		chunk.TerrainImg = nil
+		//chunk.TerrainImg.Dispose()
+		chunk.TerrainImg = glob.TempChunkImage
+		chunk.UsingTemporary = true
 		numTerrainCache--
 		chunk.TerrainLock.Unlock()
 	}
@@ -190,32 +204,34 @@ func PixmapRenderST() {
 
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
-	for {
-		time.Sleep(renderLoop)
+	go func() {
+		for {
+			time.Sleep(renderLoop)
 
-		for _, sChunk := range glob.SuperChunkList {
+			for _, sChunk := range glob.SuperChunkList {
 
-			if glob.ZoomScale > consts.MapPixelThreshold {
+				if glob.ZoomScale > consts.MapPixelThreshold {
+
+					sChunk.PixLock.Lock()
+					if sChunk.PixMap != nil {
+
+						sChunk.PixMap.Dispose()
+						sChunk.PixMap = nil
+
+						sChunk.PixLock.Unlock()
+						continue
+					}
+					sChunk.PixLock.Unlock()
+				}
 
 				sChunk.PixLock.Lock()
-				if sChunk.PixMap != nil {
-
-					sChunk.PixMap.Dispose()
-					sChunk.PixMap = nil
-
-					sChunk.PixLock.Unlock()
-					continue
+				if sChunk.PixMap == nil || sChunk.PixmapDirty {
+					drawPixmap(sChunk, sChunk.Pos)
 				}
 				sChunk.PixLock.Unlock()
 			}
-
-			sChunk.PixLock.Lock()
-			if sChunk.PixMap == nil || sChunk.PixmapDirty {
-				drawPixmap(sChunk, sChunk.Pos)
-			}
-			sChunk.PixLock.Unlock()
 		}
-	}
+	}()
 }
 
 /* Draw a superchunk's pixmap, allocates image if needed. */
