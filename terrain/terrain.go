@@ -6,22 +6,26 @@ import (
 	"GameTest/glob"
 	"GameTest/noise"
 	"GameTest/objects"
-	"fmt"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
-	maxTerrainCache = 1000
-	renderRest      = time.Millisecond * 10
-	renderLoop      = time.Millisecond * 100
-	zoomCachePurge  = false //Always purges on WASM
-	debugVisualize  = false
+	maxTerrainCache   = 500
+	terrainRenderRest = time.Millisecond * 10
+	terrainRenderLoop = time.Millisecond * 100
+	zoomCachePurge    = false //Always purges on WASM
+	debugVisualize    = false
+
+	maxPixmapCache   = 500
+	pixmapRenderRest = time.Millisecond * 10
+	pixmapRenderLoop = time.Millisecond * 100
 )
 
 var (
 	numTerrainCache int
+	numPixmapCache  int
 )
 
 /* Make a 'loading' temporary texture for chunk terrain */
@@ -129,7 +133,7 @@ func RenderTerrainST() {
 func RenderTerrainDaemon() {
 	go func() {
 		for {
-			time.Sleep(renderLoop)
+			time.Sleep(terrainRenderLoop)
 
 			/* If we zoom out, decallocate everything */
 			if glob.ZoomScale <= consts.MapPixelThreshold {
@@ -138,6 +142,7 @@ func RenderTerrainDaemon() {
 					for _, sChunk := range glob.SuperChunkList {
 						for _, chunk := range sChunk.ChunkList {
 							killTerrainCache(chunk, true)
+							time.Sleep(terrainRenderRest)
 						}
 					}
 					glob.SuperChunkListLock.RUnlock()
@@ -154,11 +159,11 @@ func RenderTerrainDaemon() {
 					for _, chunk := range sChunk.ChunkList {
 						if chunk.Precache && chunk.UsingTemporary {
 							renderChunkGround(chunk, true, chunk.Pos)
-							time.Sleep(renderRest)
+							time.Sleep(terrainRenderRest)
 						} else if !chunk.Precache &&
 							numTerrainCache > maxTerrainCache {
 							killTerrainCache(chunk, false)
-							time.Sleep(renderRest)
+							time.Sleep(terrainRenderRest)
 						}
 					}
 				}
@@ -176,8 +181,7 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	}
 	if force || numTerrainCache > maxTerrainCache {
 		chunk.TerrainLock.Lock()
-		chunk.TerrainImg.Dispose()
-		fmt.Println("DISPOSE")
+		//chunk.TerrainImg.Dispose()
 		chunk.TerrainImg = glob.TempChunkImage
 		chunk.UsingTemporary = true
 		numTerrainCache--
@@ -204,34 +208,40 @@ func PixmapRenderST() {
 	}
 }
 
+var pixmapCacheCleared bool
+
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
 	go func() {
 		for {
-			time.Sleep(renderLoop)
+			time.Sleep(pixmapRenderLoop)
 
 			glob.SuperChunkListLock.RLock()
 			for _, sChunk := range glob.SuperChunkList {
 
-				if glob.ZoomScale > consts.MapPixelThreshold {
+				if glob.ZoomScale > consts.MapPixelThreshold && !pixmapCacheCleared {
 
+					pixmapCacheCleared = true
 					sChunk.PixLock.Lock()
-					if sChunk.PixMap != nil {
+					if sChunk.PixMap != nil && maxPixmapCache > numPixmapCache {
 
 						sChunk.PixMap.Dispose()
 						sChunk.PixMap = nil
+						numPixmapCache--
+						time.Sleep(pixmapRenderRest)
 
-						sChunk.PixLock.Unlock()
-						continue
+					}
+					sChunk.PixLock.Unlock()
+				} else if glob.ZoomScale <= consts.MapPixelThreshold {
+					pixmapCacheCleared = false
+
+					sChunk.PixLock.Lock()
+					if sChunk.PixMap == nil || sChunk.PixmapDirty {
+						drawPixmap(sChunk, sChunk.Pos)
+						time.Sleep(pixmapRenderRest)
 					}
 					sChunk.PixLock.Unlock()
 				}
-
-				sChunk.PixLock.Lock()
-				if sChunk.PixMap == nil || sChunk.PixmapDirty {
-					drawPixmap(sChunk, sChunk.Pos)
-				}
-				sChunk.PixLock.Unlock()
 			}
 			glob.SuperChunkListLock.RUnlock()
 		}
@@ -267,5 +277,6 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 			sChunk.PixMap.DrawImage(glob.MiniMapTile, op)
 		}
 		sChunk.PixmapDirty = false
+		numPixmapCache++
 	}
 }
