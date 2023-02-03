@@ -6,13 +6,14 @@ import (
 	"GameTest/glob"
 	"GameTest/noise"
 	"GameTest/objects"
+	"fmt"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
-	maxTerrainCache = 500
+	maxTerrainCache = 1000
 	renderRest      = time.Millisecond * 10
 	renderLoop      = time.Millisecond * 100
 	zoomCachePurge  = false //Always purges on WASM
@@ -175,7 +176,8 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	}
 	if force || numTerrainCache > maxTerrainCache {
 		chunk.TerrainLock.Lock()
-		//chunk.TerrainImg.Dispose()
+		chunk.TerrainImg.Dispose()
+		fmt.Println("DISPOSE")
 		chunk.TerrainImg = glob.TempChunkImage
 		chunk.UsingTemporary = true
 		numTerrainCache--
@@ -208,6 +210,7 @@ func PixmapRenderDaemon() {
 		for {
 			time.Sleep(renderLoop)
 
+			glob.SuperChunkListLock.RLock()
 			for _, sChunk := range glob.SuperChunkList {
 
 				if glob.ZoomScale > consts.MapPixelThreshold {
@@ -230,6 +233,7 @@ func PixmapRenderDaemon() {
 				}
 				sChunk.PixLock.Unlock()
 			}
+			glob.SuperChunkListLock.RUnlock()
 		}
 	}()
 }
