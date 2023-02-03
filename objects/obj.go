@@ -5,27 +5,24 @@ import (
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/util"
-	"fmt"
+	"sync"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
-	"github.com/sasha-s/go-deadlock"
 )
 
 var (
-	gWorldTick uint64 = 0
-
 	TickList     []glob.TickEvent = []glob.TickEvent{}
-	TickListLock deadlock.RWMutex
+	TickListLock sync.Mutex
 
 	TockList     []glob.TickEvent = []glob.TickEvent{}
-	TockListLock deadlock.RWMutex
+	TockListLock sync.Mutex
 
 	ObjQueue     []*glob.ObjectQueuetData
-	ObjQueueLock deadlock.RWMutex
+	ObjQueueLock sync.Mutex
 
 	EventQueue     []*glob.EventQueueData
-	EventQueueLock deadlock.RWMutex
+	EventQueueLock sync.Mutex
 
 	gTickCount    int
 	gTockCount    int
@@ -39,16 +36,16 @@ var (
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
+	wg = sizedwaitgroup.New(NumWorkers)
 	var start time.Time
 
-	for glob.MapGenerated.Load() == false {
+	for !glob.MapGenerated.Load() {
 		time.Sleep(time.Millisecond * 100)
 	}
 
 	for {
 		start = time.Now()
 
-		gWorldTick++
 		gTickWorkSize = gTickCount / NumWorkers
 		if gTickWorkSize < 1 {
 			gTickWorkSize = 1
@@ -58,18 +55,14 @@ func ObjUpdateDaemon() {
 			TockWorkSize = 1
 		}
 
-		fmt.Println("Tocks")
 		runTocks() //Process objects
-		fmt.Println("Ticks")
 		runTicks() //Move external
-		EventQueueLock.RLock()
-		fmt.Println("Run Events")
+		EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
-		EventQueueLock.RUnlock()
-		ObjQueueLock.RLock()
-		fmt.Println("Obj Queue")
+		EventQueueLock.Unlock()
+		ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
-		ObjQueueLock.RUnlock()
+		ObjQueueLock.Unlock()
 
 		if !consts.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
@@ -79,6 +72,7 @@ func ObjUpdateDaemon() {
 				time.Sleep(time.Millisecond)
 			}
 		}
+
 		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
 }
@@ -88,7 +82,7 @@ func ObjUpdateDaemonST() {
 	var start time.Time
 
 	time.Sleep(time.Second)
-	for glob.MapGenerated.Load() == false {
+	for !glob.MapGenerated.Load() {
 		time.Sleep(time.Millisecond * 100)
 	}
 

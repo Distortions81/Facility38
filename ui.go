@@ -453,12 +453,6 @@ func rotateWorldObjects() {
 		o := chunk.ObjMap[pos]
 
 		go func(o *glob.ObjData, pos glob.XY) {
-			objects.TockListLock.Lock()
-			objects.TickListLock.Lock()
-
-			defer objects.TockListLock.Unlock()
-			defer objects.TickListLock.Unlock()
-
 			if o != nil {
 				var newdir int
 				if gShiftPressed {
