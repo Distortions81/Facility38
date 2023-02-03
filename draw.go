@@ -23,7 +23,7 @@ const (
 	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
-	cPreCache               = 2
+	cPreCache               = 4
 	WASMTerrtainDiv         = 5
 )
 
@@ -40,9 +40,7 @@ var (
 	screenStartY int
 	screenEndX   int
 	screenEndY   int
-
-	superChunksDrawn int
-	frameCount       uint64
+	frameCount   uint64
 )
 
 /* Setup a few images for later use */
@@ -55,71 +53,67 @@ func init() {
 }
 
 /* Look at camera position, make a list of visible superchunks and chunks. Saves to VisChunks, checks glob.CameraDirty */
-func makeVisList() {
+func updateVisData() {
 
 	/* When needed, make a list of chunks to draw */
-	if glob.CameraDirty.Load() {
+	if glob.VisDataDirty.Load() {
 
-		superChunksDrawn = 0
 		glob.SuperChunkListLock.RLock()
-		defer glob.SuperChunkListLock.RUnlock()
-
 		for _, sChunk := range glob.SuperChunkList {
-			scPos := sChunk.Pos
 
 			if sChunk.NumChunks == 0 {
-				continue
-			}
-
-			/* Is this super chunk on the screen? */
-			if scPos.X < screenStartX/consts.SuperChunkSize ||
-				scPos.X > screenEndX/consts.SuperChunkSize ||
-				scPos.Y < screenStartY/consts.SuperChunkSize ||
-				scPos.Y > screenEndY/consts.SuperChunkSize {
 				sChunk.Visible = false
 				continue
 			}
 
-			superChunksDrawn++
+			/* Is this super chunk on the screen? */
+			if sChunk.Pos.X < screenStartX/consts.SuperChunkSize ||
+				sChunk.Pos.X > screenEndX/consts.SuperChunkSize ||
+				sChunk.Pos.Y < screenStartY/consts.SuperChunkSize ||
+				sChunk.Pos.Y > screenEndY/consts.SuperChunkSize {
+				sChunk.Visible = false
+				continue
+			}
+
 			sChunk.Visible = true
 
-			sChunkTmp := sChunk.ChunkList
-			for _, chunk := range sChunkTmp {
-				chunkPos := chunk.Pos
+			for _, chunk := range sChunk.ChunkList {
 
-				if sChunk.NumChunks == 0 {
+				if chunk.NumObjects == 0 {
+					chunk.Visible = false
+					chunk.Precache = false
 					continue
 				}
 
 				/* Is this chunk in the prerender area? */
-				if chunkPos.X+cPreCache < screenStartX ||
-					chunkPos.X-cPreCache > screenEndX ||
-					chunkPos.Y+cPreCache < screenStartY ||
-					chunkPos.Y-cPreCache > screenEndY {
+				if chunk.Pos.X+cPreCache < screenStartX ||
+					chunk.Pos.X-cPreCache > screenEndX ||
+					chunk.Pos.Y+cPreCache < screenStartY ||
+					chunk.Pos.Y-cPreCache > screenEndY {
 					chunk.Precache = false
 					continue
 				}
 				chunk.Precache = true
 
 				/* Is this chunk on the screen? */
-				if chunkPos.X < screenStartX ||
-					chunkPos.X > screenEndX ||
-					chunkPos.Y < screenStartY ||
-					chunkPos.Y > screenEndY {
+				if chunk.Pos.X < screenStartX ||
+					chunk.Pos.X > screenEndX ||
+					chunk.Pos.Y < screenStartY ||
+					chunk.Pos.Y > screenEndY {
 					chunk.Visible = false
 					continue
 				}
 				chunk.Visible = true
 
-				glob.CameraDirty.Store(false)
+				glob.VisDataDirty.Store(false)
+
 			}
 		}
+		glob.SuperChunkListLock.RUnlock()
 	}
 }
 
 /* Ebiten: Draw everything */
-var ObjListTmp []*glob.ObjData
-
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	if !glob.MapGenerated.Load() ||
@@ -137,40 +131,37 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw start */
 	drawStart := time.Now()
 	calcScreenCamera()
-	makeVisList()
+	updateVisData()
 
 	chunksDrawn := 0
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
 
+		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
+
 			for _, chunk := range sChunk.ChunkList {
 				if !chunk.Visible {
 					continue
 				}
-
-				chunkPos := chunk.Pos
 				chunksDrawn++
 
 				/* Draw ground */
-				/* No image, use a temporary texture while it draws */
-				chunk.TerrainLock.Lock()
+				chunk.TerrainLock.RLock()
+				cTmp := chunk.TerrainImg
 				if chunk.TerrainImg == nil {
-					chunk.TerrainImg = glob.TempChunkImage
-					chunk.UsingTemporary = true
+					cTmp = glob.TempChunkImage
 				}
 
-				iSize := chunk.TerrainImg.Bounds().Size()
+				iSize := cTmp.Bounds().Size()
 				op.GeoM.Reset()
 				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
-				op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
-				screen.DrawImage(chunk.TerrainImg, op)
-				chunk.TerrainLock.Unlock()
+				op.GeoM.Translate((camXPos+float64(chunk.Pos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunk.Pos.Y*consts.ChunkSize))*glob.ZoomScale)
+				screen.DrawImage(cTmp, op)
+				chunk.TerrainLock.RUnlock()
 
 				/* Draw objects in chunk */
-				copy(ObjListTmp, chunk.ObjList)
-
-				for _, obj := range ObjListTmp {
+				for _, obj := range chunk.ObjList {
 					if obj == nil {
 						continue
 					}
@@ -258,14 +249,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 			}
 		}
+		glob.SuperChunkListLock.RUnlock()
+
 	} else {
 
 		/* Single thread render terrain for WASM */
 		if glob.WASMMode {
 			terrain.PixmapRenderST()
 		}
-
 		/* Draw superchunk images (pixmap mode)*/
+		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
 			if !sChunk.Visible {
 				continue
@@ -289,6 +282,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen.DrawImage(sChunk.PixMap, op)
 			sChunk.PixLock.Unlock()
 		}
+		glob.SuperChunkListLock.RUnlock()
 	}
 
 	/* Get mouse position on world */
@@ -299,7 +293,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
 		ebiten.ActualFPS(),
 		1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-		humanize.SIWithDigits(float64(int(objects.TockWorkSize.Load())*objects.NumWorkers), 2, ""),
+		humanize.SIWithDigits(float64(objects.TockWorkSize*objects.NumWorkers), 2, ""),
 		runtime.GOARCH, buildTime)
 
 	tRect := text.BoundString(glob.ToolTipFont, dbuf)

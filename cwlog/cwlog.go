@@ -41,6 +41,9 @@ func DoLog(format string, args ...interface{}) {
 
 /* Prep logger */
 func StartLog() {
+	if !consts.Debug && !consts.LogStdOut {
+		return
+	}
 	t := time.Now()
 
 	/* Create our log file names */

@@ -6,32 +6,29 @@ import (
 	"GameTest/glob"
 	"GameTest/util"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
 )
 
 var (
-	gWorldTick uint64 = 0
-
 	TickList     []glob.TickEvent = []glob.TickEvent{}
-	TickListLock sync.RWMutex
+	TickListLock sync.Mutex
 
 	TockList     []glob.TickEvent = []glob.TickEvent{}
-	TockListLock sync.RWMutex
+	TockListLock sync.Mutex
 
 	ObjQueue     []*glob.ObjectQueuetData
-	ObjQueueLock sync.RWMutex
+	ObjQueueLock sync.Mutex
 
 	EventQueue     []*glob.EventQueueData
-	EventQueueLock sync.RWMutex
+	EventQueueLock sync.Mutex
 
 	gTickCount    int
 	gTockCount    int
 	gTickWorkSize int
 
-	TockWorkSize atomic.Uint32
+	TockWorkSize int
 	NumWorkers   int
 
 	wg sizedwaitgroup.SizedWaitGroup
@@ -39,35 +36,27 @@ var (
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
-	var start time.Time
 	wg = sizedwaitgroup.New(NumWorkers)
+	var start time.Time
+
+	for !glob.MapGenerated.Load() {
+		time.Sleep(time.Millisecond * 100)
+	}
 
 	for {
-
-		gen := glob.MapGenerated.Load()
-
-		if !gen {
-			time.Sleep(time.Millisecond * 100)
-			continue
-		}
 		start = time.Now()
 
-		gWorldTick++
 		gTickWorkSize = gTickCount / NumWorkers
 		if gTickWorkSize < 1 {
 			gTickWorkSize = 1
 		}
-		TockWorkSize.Store(uint32(gTockCount / NumWorkers))
-		if TockWorkSize.Load() < 1 {
-			TockWorkSize.Store(1)
+		TockWorkSize = (gTockCount / NumWorkers)
+		if TockWorkSize < 1 {
+			TockWorkSize = 1
 		}
 
-		TockListLock.Lock()
 		runTocks() //Process objects
-		TockListLock.Unlock()
-		TickListLock.Lock()
 		runTicks() //Move external
-		TickListLock.Unlock()
 		EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
 		EventQueueLock.Unlock()
@@ -83,9 +72,9 @@ func ObjUpdateDaemon() {
 				time.Sleep(time.Millisecond)
 			}
 		}
+
 		glob.MeasuredObjectUPS_ns = time.Since(start)
 	}
-
 }
 
 /* WASM single-thread object update */
@@ -93,12 +82,11 @@ func ObjUpdateDaemonST() {
 	var start time.Time
 
 	time.Sleep(time.Second)
-	for {
+	for !glob.MapGenerated.Load() {
+		time.Sleep(time.Millisecond * 100)
+	}
 
-		if !glob.MapGenerated.Load() {
-			time.Sleep(time.Millisecond * 100)
-			continue
-		}
+	for {
 		start = time.Now()
 
 		runTocksST()    //Process objects
@@ -137,18 +125,13 @@ func tickObj(o *glob.ObjData) {
 
 /* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
 func runTicksST() {
-
-	TickListTemp := TickList
-
-	for _, item := range TickListTemp {
+	for _, item := range TickList {
 		tickObj(item.Target)
 	}
 }
 
 /* Process internally in an object, multi-threaded*/
 func runTicks() {
-
-	TickListTmp := TickList
 
 	l := gTickCount - 1
 	if l < 1 {
@@ -178,7 +161,7 @@ func runTicks() {
 		wg.Add()
 		go func(start int, end int) {
 			for i := start; i < end; i++ {
-				tickObj(TickListTmp[i].Target)
+				tickObj(TickList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each)
@@ -191,16 +174,14 @@ func runTicks() {
 /* Run all object tocks (interal) multi-threaded */
 func runTocks() {
 
-	TockListTmp := TockList
-
 	l := gTockCount - 1
 	if l < 1 {
 		return
-	} else if TockWorkSize.Load() == 0 {
+	} else if TockWorkSize == 0 {
 		return
 	}
 
-	numWorkers := l / int(TockWorkSize.Load())
+	numWorkers := l / TockWorkSize
 	if numWorkers < 1 {
 		numWorkers = 1
 	}
@@ -222,7 +203,7 @@ func runTocks() {
 		wg.Add()
 		go func(start int, end int, tickNow time.Time) {
 			for i := start; i < end; i++ {
-				TockListTmp[i].Target.TypeP.UpdateObj(TockList[i].Target)
+				TockList[i].Target.TypeP.UpdateObj(TockList[i].Target)
 			}
 			wg.Done()
 		}(p, p+each, tickNow)
@@ -234,9 +215,7 @@ func runTocks() {
 
 /* WASM single-thread: Run all object tocks (interal) */
 func runTocksST() {
-	TockListTmp := TockList
-
-	for _, item := range TockListTmp {
+	for _, item := range TockList {
 		item.Target.TypeP.UpdateObj(item.Target)
 	}
 }
@@ -523,6 +502,10 @@ func MakeChunk(pos glob.XY) {
 
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap = make(map[glob.XY]*glob.ObjData)
 
+		/* Terrain img */
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].TerrainImg = glob.TempChunkImage
+		glob.SuperChunkMap[scpos].ChunkMap[cpos].UsingTemporary = true
+
 		/* Save position */
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].Pos = cpos
 
@@ -562,7 +545,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 		return nil
 	}
 
-	glob.CameraDirty.Store(true)
+	glob.VisDataDirty.Store(true)
 
 	obj = &glob.ObjData{}
 
@@ -614,9 +597,7 @@ func ObjQueueAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, dir int
 /* Add/remove tick/tock events from the lists */
 func runEventQueue() {
 
-	EventQueueTmp := EventQueue
-
-	for _, e := range EventQueueTmp {
+	for _, e := range EventQueue {
 		if e.Delete {
 			switch e.QType {
 			case consts.QUEUE_TYPE_TICK:
@@ -640,9 +621,7 @@ func runEventQueue() {
 /* Add/remove objects from game world at end of tick/tock cycle */
 func runObjQueue() {
 
-	ObjQueueTmp := ObjQueue
-
-	for _, item := range ObjQueueTmp {
+	for _, item := range ObjQueue {
 		if item.Delete {
 
 			/* Invalidate object, and disconnect any connections to us */

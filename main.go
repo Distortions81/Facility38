@@ -76,7 +76,6 @@ func NewGame() *Game {
 
 /* Load all sprites, sub missing ones */
 func loadSprites() {
-	time.Sleep(time.Second * 2)
 
 	/* Load Sprites */
 	var timg *ebiten.Image
@@ -99,7 +98,7 @@ func loadSprites() {
 				timg.Fill(icon.ItemColor)
 				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, consts.SymbOffY, icon.SymbolColor)
 				if glob.WASMMode {
-					time.Sleep(time.Millisecond * 10)
+					time.Sleep(time.Millisecond)
 				}
 			}
 
@@ -217,7 +216,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight
 		glob.InitMouse = false
-		glob.CameraDirty.Store(true)
+		glob.VisDataDirty.Store(true)
 	}
 
 	windowTitle()

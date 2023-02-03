@@ -56,7 +56,6 @@ func unsafeMakeSuperChunk(pos glob.XY) {
 	if glob.SuperChunkMap[scpos] == nil {
 		/* Make new superchunk in map at pos */
 		glob.SuperChunkMap[scpos] = &glob.MapSuperChunk{}
-		glob.SuperChunkMap[scpos] = glob.SuperChunkMap[scpos]
 
 		glob.SuperChunkMap[scpos].ChunkMap = make(map[glob.XY]*glob.MapChunk)
 
