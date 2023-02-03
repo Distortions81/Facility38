@@ -82,6 +82,7 @@ type MapSuperChunk struct {
 	PixMap      *ebiten.Image
 	PixmapDirty bool
 	PixLock     sync.RWMutex
+	PixMapTime  time.Time
 	Visible     bool
 
 	Lock sync.RWMutex
@@ -100,6 +101,7 @@ type MapChunk struct {
 	TerrainLock    sync.RWMutex
 	Rendering      bool
 	TerrainImg     *ebiten.Image
+	TerrainTime    time.Time
 	UsingTemporary bool
 	Precache       bool
 	Visible        bool

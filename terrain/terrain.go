@@ -13,12 +13,14 @@ import (
 
 const (
 	maxTerrainCache   = 500
+	minTerrainTime    = time.Minute
 	terrainRenderRest = time.Millisecond * 10
 	terrainRenderLoop = time.Millisecond * 100
 	zoomCachePurge    = false //Always purges on WASM
 	debugVisualize    = false
 
 	maxPixmapCache   = 500
+	minPixmapTime    = time.Minute
 	pixmapRenderRest = time.Millisecond * 10
 	pixmapRenderLoop = time.Millisecond * 100
 )
@@ -91,6 +93,7 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	chunk.TerrainImg = tImg
 	chunk.UsingTemporary = false
 	chunk.Rendering = false
+	chunk.TerrainTime = time.Now()
 	chunk.TerrainLock.Unlock()
 }
 
@@ -179,9 +182,10 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	if chunk.UsingTemporary || chunk.TerrainImg == nil {
 		return
 	}
-	if force || numTerrainCache > maxTerrainCache {
+	if force || numTerrainCache > maxTerrainCache &&
+		time.Since(chunk.TerrainTime) > minTerrainTime {
 		chunk.TerrainLock.Lock()
-		//chunk.TerrainImg.Dispose()
+		chunk.TerrainImg.Dispose()
 		chunk.TerrainImg = glob.TempChunkImage
 		chunk.UsingTemporary = true
 		numTerrainCache--
@@ -193,17 +197,26 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 func PixmapRenderST() {
 	for _, sChunk := range glob.SuperChunkList {
 
-		if glob.ZoomScale > consts.MapPixelThreshold {
-			if sChunk.PixMap != nil {
+		if glob.ZoomScale > consts.MapPixelThreshold && !pixmapCacheCleared {
+
+			pixmapCacheCleared = true
+			if sChunk.PixMap != nil &&
+				maxPixmapCache > numPixmapCache &&
+				time.Since(sChunk.PixMapTime) > minPixmapTime {
+
 				sChunk.PixMap.Dispose()
 				sChunk.PixMap = nil
-				continue
-			}
-		}
+				numPixmapCache--
+				break
 
-		if sChunk.PixMap == nil || sChunk.PixmapDirty {
-			drawPixmap(sChunk, sChunk.Pos)
-			break
+			}
+		} else if glob.ZoomScale <= consts.MapPixelThreshold {
+			pixmapCacheCleared = false
+
+			if sChunk.PixMap == nil || sChunk.PixmapDirty {
+				drawPixmap(sChunk, sChunk.Pos)
+				break
+			}
 		}
 	}
 }
@@ -276,6 +289,7 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 			op.GeoM.Translate(x, y)
 			sChunk.PixMap.DrawImage(glob.MiniMapTile, op)
 		}
+		sChunk.PixMapTime = time.Now()
 		sChunk.PixmapDirty = false
 		numPixmapCache++
 	}
