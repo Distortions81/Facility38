@@ -256,7 +256,10 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 		}
 
 		/* Draw objects in chunk */
-		for index := range ObjTmp {
+		for index, obj := range ObjTmp {
+			if obj == nil {
+				continue
+			}
 			objPos := ObjTmp[index].Pos
 			scX := (((scPos.X) * (consts.SuperChunkPixels)) - consts.XYCenter)
 			scY := (((scPos.Y) * (consts.SuperChunkPixels)) - consts.XYCenter)

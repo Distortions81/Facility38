@@ -202,6 +202,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			ObjListTmp := chunk.ObjList
 
 			for _, obj := range ObjListTmp {
+				if obj == nil {
+					continue
+				}
 				objPos := obj.Pos
 
 				/* Is this object on the screen? */
