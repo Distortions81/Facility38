@@ -11,12 +11,12 @@ const (
 
 	/* Debug */
 	UPSBench    = false
-	LoadTest    = true
+	LoadTest    = false
 	Debug       = false
 	Verbose     = false
 	LogStdOut   = false
 	LogFileOut  = false
-	TestObjects = 1000000 //Make (approx) this number items
+	TestObjects = 100000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated  array */
