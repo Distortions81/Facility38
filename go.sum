@@ -10,6 +10,8 @@ github.com/ebitengine/purego v0.1.1 h1:HI8nW+LniW9Yb34k34jBs8nz+PNzsw68o7JF8jWFH
 github.com/ebitengine/purego v0.1.1/go.mod h1:Eh8I3yvknDYZeCuXH9kRNaPuHEwvXDCk378o9xszmHg=
 github.com/ebitenui/ebitenui v0.2.5 h1:fQmjpL7Yb1S62s3KDlbMLZcoEDZ/3NHPJO9uPfCYtms=
 github.com/ebitenui/ebitenui v0.2.5/go.mod h1:NW4pS+YQ8K2VhyjAK/OAr1F+/MJEs96JGAQKEE/TUaA=
+github.com/ebitenui/ebitenui v0.2.6 h1:pxJpS7nj5LH3MHuF8CdmA7sPJpsYyRsuYi9ZHwJaDT8=
+github.com/ebitenui/ebitenui v0.2.6/go.mod h1:NW4pS+YQ8K2VhyjAK/OAr1F+/MJEs96JGAQKEE/TUaA=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20220806181222-55e207c401ad/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b h1:GgabKamyOYguHqHjSkDACcgoPIz3w0Dis/zJ1wyHHHU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
@@ -77,6 +79,8 @@ golang.org/x/exp/shiny v0.0.0-20230129154200-a960b3787bd2 h1:xiw7QDza+jS0x7vU7fw
 golang.org/x/exp/shiny v0.0.0-20230129154200-a960b3787bd2/go.mod h1:UH99kUObWAZkDnWqppdQe5ZhPYESUw8I0zVV1uWBR+0=
 golang.org/x/exp/shiny v0.0.0-20230131160201-f062dba9d201 h1:Y5QA5ZjU4BIgfpTmSB+07A4sIMFk6nLx0Q0/mJlIduE=
 golang.org/x/exp/shiny v0.0.0-20230131160201-f062dba9d201/go.mod h1:UH99kUObWAZkDnWqppdQe5ZhPYESUw8I0zVV1uWBR+0=
+golang.org/x/exp/shiny v0.0.0-20230202163644-54bba9f4231b h1:hO0BDzn3L4XsQw54YlNo5PvDdvUMnSjI25jhx1nKG+0=
+golang.org/x/exp/shiny v0.0.0-20230202163644-54bba9f4231b/go.mod h1:UH99kUObWAZkDnWqppdQe5ZhPYESUw8I0zVV1uWBR+0=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/image v0.1.0/go.mod h1:iyPr49SD/G/TBxYVB/9RRtGUT5eNbo2u4NamWeQcD5c=

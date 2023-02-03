@@ -65,7 +65,7 @@ func NewGame() *Game {
 	windowTitle()
 
 	go loadSprites()
-	objects.ExploreMap(8)
+	objects.ExploreMap(4)
 	go makeTestMap(false)
 
 	/* Initialize the game */

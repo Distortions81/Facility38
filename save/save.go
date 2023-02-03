@@ -16,7 +16,8 @@ func SaveGame() {
 	finalPath := "save.dat"
 
 	glob.SuperChunkListLock.RLock()
-	SuperChuckListTmp := glob.SuperChunkList
+	var SuperChuckListTmp []*glob.MapSuperChunk
+	copy(SuperChuckListTmp, glob.SuperChunkList)
 	glob.SuperChunkListLock.RUnlock()
 
 	tempList := []*glob.SaveMObj{}

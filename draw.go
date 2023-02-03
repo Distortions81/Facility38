@@ -23,7 +23,7 @@ const (
 	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
-	cPreCache               = 3
+	cPreCache               = 2
 	WASMTerrtainDiv         = 5
 )
 
@@ -60,20 +60,11 @@ func makeVisList() {
 	/* When needed, make a list of chunks to draw */
 	if glob.CameraDirty.Load() {
 
-		glob.VisChunkLock.Lock()
-		glob.VisSChunkLock.Lock()
-		defer glob.VisChunkLock.Unlock()
-		defer glob.VisSChunkLock.Unlock()
-
-		glob.VisChunkTop = 0
-		glob.VisSChunkTop = 0
-
 		superChunksDrawn = 0
-		SChunkTmp := glob.SuperChunkList
-		for _, sChunk := range SChunkTmp {
-			if sChunk == nil {
-				continue
-			}
+		glob.SuperChunkListLock.RLock()
+		defer glob.SuperChunkListLock.RUnlock()
+
+		for _, sChunk := range glob.SuperChunkList {
 			scPos := sChunk.Pos
 
 			if sChunk.NumChunks == 0 {
@@ -92,19 +83,8 @@ func makeVisList() {
 			superChunksDrawn++
 			sChunk.Visible = true
 
-			if glob.VisSChunkTop < consts.MAX_DRAW_CHUNKS {
-				glob.VisSChunks[glob.VisSChunkTop] = sChunk
-				glob.VisSChunkPos[glob.VisSChunkTop] = scPos
-				glob.VisSChunkTop++
-			} else {
-				break
-			}
-
 			sChunkTmp := sChunk.ChunkList
 			for _, chunk := range sChunkTmp {
-				if chunk == nil {
-					continue
-				}
 				chunkPos := chunk.Pos
 
 				if sChunk.NumChunks == 0 {
@@ -131,13 +111,6 @@ func makeVisList() {
 				}
 				chunk.Visible = true
 
-				if glob.VisChunkTop < consts.MAX_DRAW_CHUNKS {
-					glob.VisChunks[glob.VisChunkTop] = chunk
-					glob.VisChunkPos[glob.VisChunkTop] = chunkPos
-					glob.VisChunkTop++
-				} else {
-					break
-				}
 				glob.CameraDirty.Store(false)
 			}
 		}
@@ -145,6 +118,8 @@ func makeVisList() {
 }
 
 /* Ebiten: Draw everything */
+var ObjListTmp []*glob.ObjData
+
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	if !glob.MapGenerated.Load() ||
@@ -168,121 +143,116 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if glob.ZoomScale > consts.MapPixelThreshold { /* Draw icon mode */
 
-		glob.VisChunkLock.RLock()
-		VisChunkTmp := glob.VisChunks
-		VisChunkPosTmp := glob.VisChunkPos
-		glob.VisChunkLock.RUnlock()
+		for _, sChunk := range glob.SuperChunkList {
+			for _, chunk := range sChunk.ChunkList {
+				if !chunk.Visible {
+					continue
+				}
 
-		for index, chunk := range VisChunkTmp {
-			if chunk == nil || (chunk.Precache && !chunk.Visible) {
-				continue
-			}
+				chunkPos := chunk.Pos
+				chunksDrawn++
 
-			chunkPos := VisChunkPosTmp[index]
-			chunksDrawn++
-
-			/* Draw ground */
-			/* No image, use a temporary texture while it draws */
-			if chunk.TerrainImg == nil {
+				/* Draw ground */
+				/* No image, use a temporary texture while it draws */
 				chunk.TerrainLock.Lock()
-				chunk.TerrainImg = glob.TempChunkImage
-				chunk.UsingTemporary = true
+				if chunk.TerrainImg == nil {
+					chunk.TerrainImg = glob.TempChunkImage
+					chunk.UsingTemporary = true
+				}
+
+				iSize := chunk.TerrainImg.Bounds().Size()
+				op.GeoM.Reset()
+				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
+				op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
+				screen.DrawImage(chunk.TerrainImg, op)
 				chunk.TerrainLock.Unlock()
-			}
 
-			chunk.TerrainLock.Lock()
-			iSize := chunk.TerrainImg.Bounds().Size()
-			op.GeoM.Reset()
-			op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
-			op.GeoM.Translate((camXPos+float64(chunkPos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunkPos.Y*consts.ChunkSize))*glob.ZoomScale)
-			screen.DrawImage(chunk.TerrainImg, op)
-			chunk.TerrainLock.Unlock()
+				/* Draw objects in chunk */
+				copy(ObjListTmp, chunk.ObjList)
 
-			/* Draw objects in chunk */
-			ObjListTmp := chunk.ObjList
+				for _, obj := range ObjListTmp {
+					if obj == nil {
+						continue
+					}
+					objPos := obj.Pos
 
-			for _, obj := range ObjListTmp {
-				if obj == nil {
-					continue
-				}
-				objPos := obj.Pos
-
-				/* Is this object on the screen? */
-				if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
-					continue
-				}
-
-				/* Time to draw it */
-				drawObject(screen, objPos, obj)
-
-				/* Overlays */
-				/* Draw belt overlays */
-				if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
-
-					/* camera + object */
-					objOffX := camXPos + (float64(objPos.X))
-					objOffY := camYPos + (float64(objPos.Y))
-
-					/* camera zoom */
-					objCamPosX := objOffX * glob.ZoomScale
-					objCamPosY := objOffY * glob.ZoomScale
-
-					iSize := obj.TypeP.Image.Bounds()
-					op.GeoM.Reset()
-					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
-					op.GeoM.Translate(objCamPosX, objCamPosY)
-
-					/* Draw Input Materials */
-					if obj.OutputBuffer.Amount > 0 {
-						drawMaterials(obj.OutputBuffer, obj, op, screen)
-					} else {
-						for _, m := range obj.InputBuffer {
-							if m != nil && m.Amount > 0 {
-								drawMaterials(m, obj, op, screen)
-								break
-							}
-						}
+					/* Is this object on the screen? */
+					if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
+						continue
 					}
 
-				}
-				if glob.ShowInfoLayer {
-					/* Info Overlays, such as arrows and blocked indicator */
+					/* Time to draw it */
+					drawObject(screen, objPos, obj)
 
-					/* camera + object */
-					objOffX := camXPos + (float64(objPos.X))
-					objOffY := camYPos + (float64(objPos.Y))
+					/* Overlays */
+					/* Draw belt overlays */
+					if obj.TypeP.TypeI == consts.ObjTypeBasicBelt {
 
-					/* camera zoom */
-					objCamPosX := objOffX * glob.ZoomScale
-					objCamPosY := objOffY * glob.ZoomScale
+						/* camera + object */
+						objOffX := camXPos + (float64(objPos.X))
+						objOffY := camYPos + (float64(objPos.Y))
 
-					iSize := obj.TypeP.Image.Bounds()
-					op.GeoM.Reset()
-					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
-					op.GeoM.Translate(objCamPosX, objCamPosY)
+						/* camera zoom */
+						objCamPosX := objOffX * glob.ZoomScale
+						objCamPosY := objOffY * glob.ZoomScale
 
-					if obj.TypeP.HasMatOutput {
 						iSize := obj.TypeP.Image.Bounds()
 						op.GeoM.Reset()
 						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
-						/* Draw Arrow */
-						img := objects.ObjOverlayTypes[obj.Direction].Image
-						if img != nil {
-							screen.DrawImage(img, op)
-						}
-						/* Show blocked outputs */
-						img = objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image
+
+						/* Draw Input Materials */
 						if obj.OutputBuffer.Amount > 0 {
+							drawMaterials(obj.OutputBuffer, obj, op, screen)
+						} else {
+							for _, m := range obj.InputBuffer {
+								if m != nil && m.Amount > 0 {
+									drawMaterials(m, obj, op, screen)
+									break
+								}
+							}
+						}
 
-							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+					}
+					if glob.ShowInfoLayer {
+						/* Info Overlays, such as arrows and blocked indicator */
 
+						/* camera + object */
+						objOffX := camXPos + (float64(objPos.X))
+						objOffY := camYPos + (float64(objPos.Y))
+
+						/* camera zoom */
+						objCamPosX := objOffX * glob.ZoomScale
+						objCamPosY := objOffY * glob.ZoomScale
+
+						iSize := obj.TypeP.Image.Bounds()
+						op.GeoM.Reset()
+						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+						op.GeoM.Translate(objCamPosX, objCamPosY)
+
+						if obj.TypeP.HasMatOutput {
 							iSize := obj.TypeP.Image.Bounds()
 							op.GeoM.Reset()
-							op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset, cBlockedIndicatorOffset)
 							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
-							screen.DrawImage(img, op)
+							/* Draw Arrow */
+							img := objects.ObjOverlayTypes[obj.Direction].Image
+							if img != nil {
+								screen.DrawImage(img, op)
+							}
+							/* Show blocked outputs */
+							img = objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image
+							if obj.OutputBuffer.Amount > 0 {
+
+								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
+								iSize := obj.TypeP.Image.Bounds()
+								op.GeoM.Reset()
+								op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset, cBlockedIndicatorOffset)
+								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+								op.GeoM.Translate(objCamPosX, objCamPosY)
+								screen.DrawImage(img, op)
+							}
 						}
 					}
 				}
@@ -296,16 +266,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 
 		/* Draw superchunk images (pixmap mode)*/
-		glob.VisSChunkLock.RLock()
-		VisSChunkTmp := glob.VisSChunks
-		visSChunkPosTmp := glob.VisSChunkPos
-		glob.VisSChunkLock.RUnlock()
-
-		for index, sChunk := range VisSChunkTmp {
-			if sChunk == nil {
-				continue
-			}
-
+		for _, sChunk := range glob.SuperChunkList {
 			if !sChunk.Visible {
 				continue
 			}
@@ -316,16 +277,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				continue
 			}
 
-			cPos := visSChunkPosTmp[index]
-
 			op.GeoM.Reset()
 			op.GeoM.Scale(
 				(consts.MaxSuperChunk*glob.ZoomScale)/float64(consts.MaxSuperChunk),
 				(consts.MaxSuperChunk*glob.ZoomScale)/float64(consts.MaxSuperChunk))
 
 			op.GeoM.Translate(
-				((camXPos+float64((cPos.X))*consts.MaxSuperChunk)*glob.ZoomScale)-1,
-				((camYPos+float64((cPos.Y))*consts.MaxSuperChunk)*glob.ZoomScale)-1)
+				((camXPos+float64((sChunk.Pos.X))*consts.MaxSuperChunk)*glob.ZoomScale)-1,
+				((camYPos+float64((sChunk.Pos.Y))*consts.MaxSuperChunk)*glob.ZoomScale)-1)
 
 			screen.DrawImage(sChunk.PixMap, op)
 			sChunk.PixLock.Unlock()
