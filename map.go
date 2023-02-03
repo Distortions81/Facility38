@@ -68,6 +68,8 @@ func makeTestMap(skip bool) {
 			/* Default map generator */
 			tx := int(consts.XYCenter - 5)
 			ty := int(consts.XYCenter)
+			total = 16
+
 			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {

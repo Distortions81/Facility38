@@ -142,7 +142,7 @@ func RenderTerrainDaemon() {
 
 			for index, chunk := range VisChunksTmp {
 				if chunk == nil {
-					return
+					continue
 				}
 				cpos := VisChunksPosTmp[index]
 
