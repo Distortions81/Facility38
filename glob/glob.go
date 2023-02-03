@@ -61,7 +61,8 @@ var (
 
 	/* Used for startup screen */
 	TempChunkImage *ebiten.Image
-	WASMMode       bool = false
+	WASMMode       bool
+	Windows        bool
 
 	MapLoadPercent float64
 )

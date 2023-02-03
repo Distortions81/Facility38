@@ -254,7 +254,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 
 		/* Single thread render terrain for WASM */
-		if glob.WASMMode {
+		if glob.WASMMode || glob.Windows {
 			terrain.PixmapRenderST()
 		}
 		/* Draw superchunk images (pixmap mode)*/
@@ -382,6 +382,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Limit frame rate */
 	if glob.WASMMode && frameCount%WASMTerrtainDiv == 0 {
+		terrain.RenderTerrainST()
+	}
+	if glob.Windows {
 		terrain.RenderTerrainST()
 	}
 
