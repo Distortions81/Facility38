@@ -9,7 +9,7 @@ import (
 
 const (
 	//Perlin noise physical scale
-	cNoiseScale = 100.0
+	cNoiseScale = 66.0
 	cAlpha      = 2.0
 	cBeta       = 2.0
 	cN          = 3

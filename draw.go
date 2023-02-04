@@ -120,7 +120,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		!glob.SpritesLoaded.Load() ||
 		!glob.PlayerReady.Load() {
 		bootScreen(screen)
-		time.Sleep(time.Millisecond * 125) //8 fps
+		if glob.WASMMode {
+			time.Sleep(time.Millisecond * 250) //4 fps
+		}
 		return
 	}
 
