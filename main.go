@@ -34,8 +34,6 @@ func main() {
 	debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
 	if runtime.GOARCH == "wasm" {
 		glob.WASMMode = true
-	} else if runtime.GOOS == "windows" {
-		glob.Windows = true
 	}
 
 	str, err := data.GetText("intro")

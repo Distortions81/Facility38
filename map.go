@@ -131,10 +131,8 @@ func makeTestMap(skip bool) {
 		//objects.UnsafeMakeObjLists()
 	}
 	if !glob.WASMMode {
-		if !glob.Windows {
-			go terrain.RenderTerrainDaemon()
-			go terrain.PixmapRenderDaemon()
-		}
+		go terrain.RenderTerrainDaemon()
+		go terrain.PixmapRenderDaemon()
 		go objects.ObjUpdateDaemon()
 	} else {
 		go objects.ObjUpdateDaemonST()
