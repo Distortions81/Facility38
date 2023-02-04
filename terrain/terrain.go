@@ -6,6 +6,7 @@ import (
 	"GameTest/glob"
 	"GameTest/noise"
 	"GameTest/objects"
+	"image"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -62,7 +63,12 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 	if sx > 0 && sy > 0 {
 
-		tImg = ebiten.NewImage(chunkPix, chunkPix)
+		rect := image.Rectangle{}
+
+		rect.Max.X = chunkPix
+		rect.Max.Y = chunkPix
+
+		tImg = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 
 		for i := 0; i < consts.ChunkSize; i++ {
 			for j := 0; j < consts.ChunkSize; j++ {
@@ -265,7 +271,12 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 
 	/* Make Pixelmap images */
 	if sChunk.PixMap == nil {
-		sChunk.PixMap = ebiten.NewImage(consts.MaxSuperChunk, consts.MaxSuperChunk)
+		rect := image.Rectangle{}
+
+		rect.Max.X = consts.MaxSuperChunk
+		rect.Max.Y = consts.MaxSuperChunk
+
+		sChunk.PixMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 	}
 
 	sChunk.PixMap.Fill(glob.ColorCharcol)

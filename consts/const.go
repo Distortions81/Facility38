@@ -26,7 +26,7 @@ const (
 	RUNSPEED  = 16.0
 
 	/* Define world center */
-	XYCenter = 10000000.0
+	XYCenter = 20000000.0
 	XYMax    = XYCenter * 2.0
 	XYMin    = 1.0
 
@@ -88,7 +88,7 @@ const (
 	ChunkTotal      = ChunkSize * ChunkSize
 
 	DefaultZoom       = SpriteScale * 2
-	MapPixelThreshold = (SpriteScale / 2)
+	MapPixelThreshold = (SpriteScale / 4)
 
 	/* Overlays */
 	DIR_NORTH = 0
