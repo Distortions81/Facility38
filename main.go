@@ -98,7 +98,7 @@ func loadSprites() {
 				timg.Fill(icon.ItemColor)
 				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, consts.SymbOffY, icon.SymbolColor)
 				if glob.WASMMode {
-					time.Sleep(time.Millisecond)
+					time.Sleep(time.Nanosecond)
 				}
 			}
 

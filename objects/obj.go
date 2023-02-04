@@ -69,7 +69,7 @@ func ObjUpdateDaemon() {
 			time.Sleep(sleepFor)
 		} else {
 			if glob.WASMMode {
-				time.Sleep(time.Millisecond)
+				time.Sleep(time.Nanosecond)
 			}
 		}
 
@@ -99,7 +99,7 @@ func ObjUpdateDaemonST() {
 			time.Sleep(sleepFor)
 		} else {
 			if glob.WASMMode {
-				time.Sleep(time.Millisecond)
+				time.Sleep(time.Nanosecond)
 			}
 		}
 		glob.MeasuredObjectUPS_ns = time.Since(start)

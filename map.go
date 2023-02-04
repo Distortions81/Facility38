@@ -126,7 +126,7 @@ func makeTestMap(skip bool) {
 			}
 		}
 		if glob.WASMMode {
-			time.Sleep(time.Millisecond * 100)
+			time.Sleep(time.Nanosecond)
 		}
 		//objects.UnsafeMakeObjLists()
 	}
@@ -139,6 +139,6 @@ func makeTestMap(skip bool) {
 	}
 	glob.MapGenerated.Store(true)
 	if glob.WASMMode {
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Nanosecond)
 	}
 }
