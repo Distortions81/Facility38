@@ -20,13 +20,13 @@ const (
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated  array */
-	MAX_DRAW_CHUNKS = 32768
+	MAX_DRAW_CHUNKS = 32767
 
 	WALKSPEED = 4.0
 	RUNSPEED  = 16.0
 
 	/* Define world center */
-	XYCenter = 20000000.0
+	XYCenter = 100000.0
 	XYMax    = XYCenter * 2.0
 	XYMin    = 1.0
 
@@ -88,7 +88,7 @@ const (
 	ChunkTotal      = ChunkSize * ChunkSize
 
 	DefaultZoom       = SpriteScale * 2
-	MapPixelThreshold = (SpriteScale / 4)
+	MapPixelThreshold = (SpriteScale / 2)
 
 	/* Overlays */
 	DIR_NORTH = 0

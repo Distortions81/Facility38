@@ -17,11 +17,17 @@ func minerUpdate(o *glob.ObjData) {
 func beltUpdate(o *glob.ObjData) {
 	if o.OutputBuffer.Amount == 0 {
 		for src, mat := range o.InputBuffer {
+			if src == int(o.Direction) {
+				continue
+			}
+			if o.InputCount > 1 && src == int(o.LastInput) {
+				continue
+			}
 			if mat != nil && mat.Amount > 0 {
 				o.OutputBuffer.Amount = mat.Amount
 				o.OutputBuffer.TypeP = mat.TypeP
 				o.InputBuffer[src].Amount = 0
-				break
+				o.LastInput = uint8(src)
 			}
 		}
 	}

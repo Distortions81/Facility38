@@ -123,8 +123,10 @@ type ObjData struct {
 	KGHeld   uint64                   `json:"k,omitempty"`
 
 	//Input/Output
-	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
-	InputObjs    [consts.DIR_MAX]*ObjData
+	InputBuffer [consts.DIR_MAX]*MatData `json:"i,omitempty"`
+	InputObjs   [consts.DIR_MAX]*ObjData
+	InputCount  uint8
+
 	LastInput    uint8
 	OutputBuffer *MatData `json:"o,omitempty"`
 }

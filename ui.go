@@ -251,8 +251,8 @@ func zoomHandle() {
 	if glob.ZoomScale < 1 {
 		glob.ZoomScale = 1
 		glob.VisDataDirty.Store(true)
-	} else if glob.ZoomScale > 256 {
-		glob.ZoomScale = 256
+	} else if glob.ZoomScale > 64 {
+		glob.ZoomScale = 64
 		glob.VisDataDirty.Store(true)
 	}
 

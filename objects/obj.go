@@ -279,11 +279,13 @@ func tocklistRemove(obj *glob.ObjData) {
 	}
 }
 
-/* Unlink and object's (dir) input */
+/* Unlink an object's (dir) input */
 func unlinkInput(obj *glob.ObjData, dir uint8) {
 	if obj.TypeP.HasMatInput > 0 {
 		if obj.InputObjs[util.ReverseDirection(dir)] != nil {
-			obj.OutputObj = nil
+			obj.InputObjs[util.ReverseDirection(dir)].OutputObj = nil
+			obj.InputObjs[util.ReverseDirection(dir)] = nil
+			obj.InputCount--
 		}
 	}
 }
@@ -294,6 +296,7 @@ func unlinkOut(obj *glob.ObjData) {
 		if obj.OutputObj != nil {
 			/* Remove ourself from input list */
 			obj.OutputObj.InputObjs[util.ReverseDirection(obj.Direction)] = nil
+			obj.OutputObj.InputCount--
 
 			/* Erase output pointer */
 			obj.OutputObj = nil
@@ -434,6 +437,7 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 
 		/* Record who is on this input */
 		obj.InputObjs[util.ReverseDirection(dir)] = neigh
+		obj.InputCount++
 
 		cwlog.DoLog("(%v: %v, %v) linkIn: linked: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 	}
