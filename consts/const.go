@@ -11,7 +11,7 @@ const (
 
 	/* Debug */
 	UPSBench    = false
-	LoadTest    = true
+	LoadTest    = false
 	Debug       = false
 	Verbose     = false
 	LogStdOut   = false

@@ -79,11 +79,11 @@ func updateVisData() {
 
 			for _, chunk := range sChunk.ChunkList {
 
-				if chunk.NumObjects == 0 {
+				/*if chunk.NumObjects == 0 {
 					chunk.Visible = false
 					chunk.Precache = false
 					continue
-				}
+				} */
 
 				/* Is this chunk in the prerender area? */
 				if chunk.Pos.X+cPreCache < screenStartX ||
@@ -126,7 +126,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		return
 	}
 
-	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	frameCount++
 
@@ -237,7 +237,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							img = objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image
 							if obj.OutputBuffer.Amount > 0 {
 
-								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 								iSize := obj.TypeP.Image.Bounds()
 								op.GeoM.Reset()
@@ -387,11 +387,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		terrain.RenderTerrainST()
 	}
 
-	/* UI: WIP */
-	if g.ui != nil {
-		g.ui.Draw(screen)
-	}
-
 	/* Throttle if needed */
 	sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
 	time.Sleep(sleepFor)
@@ -413,7 +408,7 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.ObjData) {
 	if obj.TypeP.Image == nil {
 		return
 	} else {
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 		iSize := obj.TypeP.Image.Bounds()
 

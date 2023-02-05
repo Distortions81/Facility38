@@ -53,7 +53,7 @@ func NewGame() *Game {
 
 	/* Set up ebiten and window */
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
-	ebiten.SetScreenFilterEnabled(true)
+	ebiten.SetScreenFilterEnabled(false)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 
 	if glob.WASMMode && (consts.LoadTest || consts.UPSBench) {

@@ -52,7 +52,7 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	chunk.Rendering = true
 
 	/* Make optimized background */
-	op := &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	chunkPix := (consts.SpriteScale * consts.ChunkSize)
 
@@ -267,7 +267,7 @@ func PixmapRenderDaemon() {
 /* Draw a superchunk's pixmap, allocates image if needed. */
 
 func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
-	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Make Pixelmap images */
 	if sChunk.PixMap == nil {

@@ -45,7 +45,7 @@ func DrawToolbar() {
 		if item.OType.Image == nil {
 			return
 		} else {
-			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 			op.GeoM.Reset()
 			op.GeoM.Translate(x, 0)
