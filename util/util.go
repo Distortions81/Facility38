@@ -30,7 +30,7 @@ func CenterXY(pos glob.XY) glob.XY {
 }
 
 /* Rotate consts.DIR value clockwise */
-func RotCW(dir int) int {
+func RotCW(dir uint8) uint8 {
 	dir = dir - 1
 	if dir < consts.DIR_NORTH {
 		dir = consts.DIR_WEST
@@ -39,7 +39,7 @@ func RotCW(dir int) int {
 }
 
 /* Rotate consts.DIR value counter-clockwise */
-func RotCCW(dir int) int {
+func RotCCW(dir uint8) uint8 {
 	dir = dir + 1
 	if dir > consts.DIR_WEST {
 		dir = consts.DIR_NORTH
@@ -138,7 +138,7 @@ func FloatXYToPosition(x float64, y float64) glob.XY {
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
-func GetNeighborObj(src *glob.ObjData, pos glob.XY, dir int) (*glob.ObjData, glob.XY) {
+func GetNeighborObj(src *glob.ObjData, pos glob.XY, dir uint8) (*glob.ObjData, glob.XY) {
 
 	switch dir {
 	case consts.DIR_NORTH:
@@ -165,7 +165,7 @@ func GetNeighborObj(src *glob.ObjData, pos glob.XY, dir int) (*glob.ObjData, glo
 }
 
 /* Convert consts.DIR to text */
-func DirToName(dir int) string {
+func DirToName(dir uint8) string {
 	switch dir {
 	case consts.DIR_NORTH:
 		return "North"
@@ -181,7 +181,7 @@ func DirToName(dir int) string {
 }
 
 /* Flop a consts.DIR */
-func ReverseDirection(dir int) int {
+func ReverseDirection(dir uint8) uint8 {
 	switch dir {
 	case consts.DIR_NORTH:
 		return consts.DIR_SOUTH

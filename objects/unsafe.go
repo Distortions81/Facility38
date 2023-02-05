@@ -95,7 +95,7 @@ func unsafeMakeChunk(pos glob.XY) {
 }
 
 /* Make a obj, unsafe map load version */
-func UnsafeCreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
+func UnsafeCreateObj(pos glob.XY, mtype int, dir uint8) *glob.ObjData {
 
 	//Make chunk if needed
 	unsafeMakeChunk(pos)
@@ -122,13 +122,13 @@ func UnsafeCreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 }
 
 /* Link inputs and outputs, with output direction (newdir) */
-func unsafeLinkObj(pos glob.XY, obj *glob.ObjData, newdir int) {
+func unsafeLinkObj(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 	unsafeLinkIn(pos, obj, newdir)
 	unsafeLinkOut(pos, obj, newdir)
 }
 
 /* Link to output in (dir) */
-func unsafeLinkOut(pos glob.XY, obj *glob.ObjData, dir int) {
+func unsafeLinkOut(pos glob.XY, obj *glob.ObjData, dir uint8) {
 
 	/* Don't bother if we don't have outputs */
 	if !obj.TypeP.HasMatOutput {
@@ -178,14 +178,15 @@ func unsafeLinkOut(pos glob.XY, obj *glob.ObjData, dir int) {
 }
 
 /* Find and link inputs, set ourself to OutputObj of found objects */
-func unsafeLinkIn(pos glob.XY, obj *glob.ObjData, newdir int) {
+func unsafeLinkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 
 	/* Don't bother if we don't have inputs */
 	if obj.TypeP.HasMatInput == 0 {
 		return
 	}
 
-	for dir := consts.DIR_NORTH; dir < consts.DIR_MAX; dir++ {
+	var dir uint8
+	for dir = consts.DIR_NORTH; dir < consts.DIR_MAX; dir++ {
 
 		/* Don't try to connect an input the same direction as our future output */
 		/* If there is an input there, remove it */
@@ -243,7 +244,7 @@ func unsafeLinkIn(pos glob.XY, obj *glob.ObjData, newdir int) {
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
-func UnsafeGetNeighborObj(src *glob.ObjData, pos glob.XY, dir int) (*glob.ObjData, glob.XY) {
+func UnsafeGetNeighborObj(src *glob.ObjData, pos glob.XY, dir uint8) (*glob.ObjData, glob.XY) {
 
 	switch dir {
 	case consts.DIR_NORTH:

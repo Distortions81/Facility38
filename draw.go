@@ -352,7 +352,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 
 				if consts.Debug {
-					for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
+					var z uint8
+					for z = consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 						if o.InputBuffer[z] != nil {
 							toolTip = toolTip + fmt.Sprintf(" (InputBuf: %v: %v: %v)",
 								util.DirToName(z),

@@ -12,8 +12,8 @@ import (
 var (
 	toolbarCache     *ebiten.Image
 	ToolbarMax       int
-	SelectedItemType int = 0
-	ToolbarItems         = []glob.ToolbarItem{}
+	SelectedItemType uint8 = 0
+	ToolbarItems           = []glob.ToolbarItem{}
 )
 
 /* Make default toolbar list */

@@ -241,7 +241,7 @@ func tockListAdd(target *glob.ObjData) {
 }
 
 /* Lock and add it EventQueue */
-func EventQueueAdd(obj *glob.ObjData, qtype int, delete bool) {
+func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
 	EventQueueLock.Lock()
 	defer EventQueueLock.Unlock()
 
@@ -280,7 +280,7 @@ func tocklistRemove(obj *glob.ObjData) {
 }
 
 /* Unlink and object's (dir) input */
-func unlinkInput(obj *glob.ObjData, dir int) {
+func unlinkInput(obj *glob.ObjData, dir uint8) {
 	if obj.TypeP.HasMatInput > 0 {
 		if obj.InputObjs[util.ReverseDirection(dir)] != nil {
 			obj.OutputObj = nil
@@ -302,7 +302,7 @@ func unlinkOut(obj *glob.ObjData) {
 }
 
 /* Link to output in (dir) */
-func linkOut(pos glob.XY, obj *glob.ObjData, dir int) {
+func linkOut(pos glob.XY, obj *glob.ObjData, dir uint8) {
 
 	ppos := util.CenterXY(pos)
 
@@ -364,7 +364,7 @@ func linkOut(pos glob.XY, obj *glob.ObjData, dir int) {
 }
 
 /* Find and link inputs, set ourself to OutputObj of found objects */
-func linkIn(pos glob.XY, obj *glob.ObjData, newdir int) {
+func linkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 	ppos := util.CenterXY(pos)
 
 	/* Don't bother if we don't have inputs */
@@ -373,7 +373,8 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir int) {
 		return
 	}
 
-	for dir := consts.DIR_NORTH; dir < consts.DIR_MAX; dir++ {
+	var dir uint8
+	for dir = consts.DIR_NORTH; dir < consts.DIR_MAX; dir++ {
 
 		/* Don't try to connect an input the same direction as our future output */
 		/* If there is an input there, remove it */
@@ -440,7 +441,7 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir int) {
 }
 
 /* Link inputs and outputs, with output direction (newdir) */
-func LinkObj(pos glob.XY, obj *glob.ObjData, newdir int) {
+func LinkObj(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 	linkIn(pos, obj, newdir)
 	linkOut(pos, obj, newdir)
 }
@@ -532,7 +533,7 @@ func ExploreMap(input int) {
 }
 
 /* Create an object, place self in superchunk, chunk and ObjMap, ObjList, add tick/tock events, link inputs/outputs */
-func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
+func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	//Make chunk if needed
 	MakeChunk(pos)
@@ -585,7 +586,7 @@ func CreateObj(pos glob.XY, mtype int, dir int) *glob.ObjData {
 }
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
-func ObjQueueAdd(obj *glob.ObjData, otype int, pos glob.XY, delete bool, dir int) {
+func ObjQueueAdd(obj *glob.ObjData, otype uint8, pos glob.XY, delete bool, dir uint8) {
 	ObjQueueLock.Lock()
 	ObjQueue = append(ObjQueue, &glob.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	ObjQueueLock.Unlock()

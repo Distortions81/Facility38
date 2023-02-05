@@ -454,7 +454,7 @@ func rotateWorldObjects() {
 
 		go func(o *glob.ObjData, pos glob.XY) {
 			if o != nil {
-				var newdir int
+				var newdir uint8
 				if gShiftPressed {
 					newdir = util.RotCW(o.Direction)
 				} else {

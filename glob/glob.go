@@ -115,7 +115,7 @@ type ObjData struct {
 	Parent *MapChunk
 	TypeP  *ObjType `json:"-"`
 
-	Direction int      `json:"d,omitempty"`
+	Direction uint8    `json:"d,omitempty"`
 	OutputObj *ObjData `json:"-"`
 
 	//Internal useW
@@ -125,6 +125,7 @@ type ObjData struct {
 	//Input/Output
 	InputBuffer  [consts.DIR_MAX]*MatData `json:"i,omitempty"`
 	InputObjs    [consts.DIR_MAX]*ObjData
+	LastInput    uint8
 	OutputBuffer *MatData `json:"o,omitempty"`
 }
 
@@ -148,13 +149,13 @@ type XYF64 struct {
 type ObjType struct {
 	Name string
 
-	TypeI       int
+	TypeI       uint8
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
 	Symbol      string
 	Size        XY
 	Rotatable   bool
-	Direction   int
+	Direction   uint8
 
 	ImagePath string
 	Image     *ebiten.Image
@@ -190,14 +191,14 @@ type SaveMObj struct {
 type ObjectQueuetData struct {
 	Delete bool
 	Obj    *ObjData
-	OType  int
+	OType  uint8
 	Pos    XY
-	Dir    int
+	Dir    uint8
 }
 
 /* EventQueue data */
 type EventQueueData struct {
 	Delete bool
 	Obj    *ObjData
-	QType  int
+	QType  uint8
 }

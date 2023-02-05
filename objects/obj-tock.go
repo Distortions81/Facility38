@@ -21,6 +21,7 @@ func beltUpdate(o *glob.ObjData) {
 				o.OutputBuffer.Amount = mat.Amount
 				o.OutputBuffer.TypeP = mat.TypeP
 				o.InputBuffer[src].Amount = 0
+				break
 			}
 		}
 	}
