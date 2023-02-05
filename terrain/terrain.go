@@ -110,8 +110,7 @@ func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
 	if glob.ZoomScale <= consts.MapPixelThreshold {
-		if !clearedCache {
-
+		if !clearedCache && (zoomCachePurge || glob.WASMMode) {
 			for _, sChunk := range glob.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
 					killTerrainCache(chunk, true)
@@ -121,21 +120,23 @@ func RenderTerrainST() {
 		}
 	} else {
 		clearedCache = false
+
+		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
+			if !sChunk.Visible {
+				continue
+			}
 			for _, chunk := range sChunk.ChunkList {
-				if chunk.TerrainImg == nil {
-					continue
-				}
 				if chunk.Precache && chunk.UsingTemporary {
 					renderChunkGround(chunk, true, chunk.Pos)
 					break
-				} else if !chunk.Precache {
+				} else if !chunk.Precache &&
+					numTerrainCache > maxTerrainCache {
 					killTerrainCache(chunk, false)
 				}
 			}
 		}
 	}
-
 }
 
 /* Loop to automatically render chunk terrain, will also dispose old tiles, uses glob.VisChunks */
@@ -199,28 +200,31 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 
 /* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
-	for _, sChunk := range glob.SuperChunkList {
 
-		if glob.ZoomScale > consts.MapPixelThreshold && !pixmapCacheCleared {
+	if glob.ZoomScale > consts.MapPixelThreshold {
 
-			pixmapCacheCleared = true
-			if sChunk.PixMap != nil &&
-				maxPixmapCache > numPixmapCache &&
-				time.Since(sChunk.PixMapTime) > minPixmapTime {
+		if !pixmapCacheCleared {
+			for _, sChunk := range glob.SuperChunkList {
+				if sChunk.PixMap != nil {
 
-				sChunk.PixMap.Dispose()
-				sChunk.PixMap = nil
-				numPixmapCache--
-				break
+					sChunk.PixMap.Dispose()
+					sChunk.PixMap = nil
+					numPixmapCache--
+					break
 
+				}
 			}
-		} else if glob.ZoomScale <= consts.MapPixelThreshold {
-			pixmapCacheCleared = false
+			pixmapCacheCleared = true
+		}
+	} else {
+		pixmapCacheCleared = false
 
+		for _, sChunk := range glob.SuperChunkList {
 			if sChunk.PixMap == nil || sChunk.PixmapDirty {
 				drawPixmap(sChunk, sChunk.Pos)
 				break
 			}
+
 		}
 	}
 }
