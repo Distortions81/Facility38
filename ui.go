@@ -1,8 +1,8 @@
 package main
 
 import (
-	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/util"
 	"os"
@@ -109,10 +109,10 @@ func getShiftToggle() {
 
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
-	uipix := float64(ToolbarMax * int(consts.ToolBarScale))
-	if glob.MouseX <= uipix+consts.ToolBarOffsetX {
-		if glob.MouseY <= consts.ToolBarScale+consts.ToolBarOffsetY {
-			ipos := int((glob.MouseX - consts.ToolBarOffsetX) / consts.ToolBarScale)
+	uipix := float64(ToolbarMax * int(gv.ToolBarScale))
+	if glob.MouseX <= uipix+gv.ToolBarOffsetX {
+		if glob.MouseY <= gv.ToolBarScale+gv.ToolBarOffsetY {
+			ipos := int((glob.MouseX - gv.ToolBarOffsetX) / gv.ToolBarScale)
 			item := ToolbarItems[ipos].OType
 
 			/* Actions */
@@ -123,13 +123,13 @@ func handleToolbar(rotate bool) bool {
 					dir := objects.GameObjTypes[SelectedItemType].Direction
 					if gShiftPressed {
 						dir = dir - 1
-						if dir < consts.DIR_NORTH {
-							dir = consts.DIR_WEST
+						if dir < gv.DIR_NORTH {
+							dir = gv.DIR_WEST
 						}
 					} else {
 						dir = dir + 1
-						if dir > consts.DIR_WEST {
-							dir = consts.DIR_NORTH
+						if dir > gv.DIR_WEST {
+							dir = gv.DIR_NORTH
 						}
 					}
 					objects.GameObjTypes[SelectedItemType].Direction = dir
@@ -357,9 +357,9 @@ func createWorldObjects() {
 /* Right-click drag or WASD movement, shift run */
 func moveCamera() {
 
-	base := consts.WALKSPEED
+	base := gv.WALKSPEED
 	if gShiftPressed {
-		base = consts.RUNSPEED
+		base = gv.RUNSPEED
 	}
 	speed := base / (glob.ZoomScale / 4.0)
 
@@ -397,15 +397,15 @@ func moveCamera() {
 		glob.VisDataDirty.Store(true)
 
 		/* Don't let camera go beyond a reasonable point */
-		if glob.CameraX > float64(consts.XYMax) {
-			glob.CameraX = float64(consts.XYMax)
-		} else if glob.CameraX < consts.XYMin {
-			glob.CameraX = consts.XYMin
+		if glob.CameraX > float64(gv.XYMax) {
+			glob.CameraX = float64(gv.XYMax)
+		} else if glob.CameraX < gv.XYMin {
+			glob.CameraX = gv.XYMin
 		}
-		if glob.CameraY > float64(consts.XYMax) {
-			glob.CameraY = float64(consts.XYMax)
-		} else if glob.CameraY < consts.XYMin {
-			glob.CameraY = consts.XYMin
+		if glob.CameraY > float64(gv.XYMax) {
+			glob.CameraY = float64(gv.XYMax)
+		} else if glob.CameraY < gv.XYMin {
+			glob.CameraY = gv.XYMin
 		}
 
 		gPrevMouseX = gMouseX

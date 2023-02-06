@@ -1,8 +1,8 @@
 package main
 
 import (
-	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/terrain"
 	"time"
@@ -23,7 +23,7 @@ func makeTestMap(skip bool) {
 		vSpace := 4
 		bLen := 2
 		beltLength := hSpace + bLen
-		for i := 0; total < consts.TestObjects; i++ {
+		for i := 0; total < gv.TestObjects; i++ {
 			if i%2 == 0 {
 				rows++
 			} else {
@@ -34,24 +34,24 @@ func makeTestMap(skip bool) {
 		}
 		Loaded := 0
 
-		if consts.LoadTest {
+		if gv.LoadTest {
 
-			ty := int(consts.XYCenter) - (rows)
+			ty := int(gv.XYCenter) - (rows)
 			cols := 0
 			for j := 0; j < rows*columns; j++ {
 				cols++
 
-				tx := int(consts.XYCenter) - (columns*(beltLength+hSpace))/2
-				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+				tx := int(gv.XYCenter) - (columns*(beltLength+hSpace))/2
+				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
-					objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
+					objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
 					Loaded++
 				}
 				tx++
-				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
 				Loaded++
 
 				if cols%columns == 0 {
@@ -66,58 +66,58 @@ func makeTestMap(skip bool) {
 			}
 		} else {
 			/* Default map generator */
-			tx := int(consts.XYCenter - 5)
-			ty := int(consts.XYCenter)
+			tx := int(gv.XYCenter - 5)
+			ty := int(gv.XYCenter)
 			total = 16
 
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_EAST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_EAST)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
 				Loaded++
 			}
 			tx++
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_EAST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
 			Loaded++
 
-			tx = int(consts.XYCenter - 5)
-			ty = int(consts.XYCenter - 2)
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_WEST)
+			tx = int(gv.XYCenter - 5)
+			ty = int(gv.XYCenter - 2)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_WEST)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
-				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_WEST)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_WEST)
 				Loaded++
 			}
 			tx--
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_WEST)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_WEST)
 			Loaded++
 
-			tx = int(consts.XYCenter - 5)
-			ty = int(consts.XYCenter + 2)
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_SOUTH)
+			tx = int(gv.XYCenter - 5)
+			ty = int(gv.XYCenter + 2)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_SOUTH)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
-				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_SOUTH)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_SOUTH)
 				Loaded++
 			}
 			ty++
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_SOUTH)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_SOUTH)
 			Loaded++
 
-			tx = int(consts.XYCenter - 5)
-			ty = int(consts.XYCenter - 4)
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicMiner, consts.DIR_NORTH)
+			tx = int(gv.XYCenter - 5)
+			ty = int(gv.XYCenter - 4)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_NORTH)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
-				objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBelt, consts.DIR_NORTH)
+				objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_NORTH)
 				Loaded++
 			}
 			ty--
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, consts.ObjTypeBasicBox, consts.DIR_NORTH)
+			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_NORTH)
 			Loaded++
 
 			glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)

@@ -1,9 +1,9 @@
 package terrain
 
 import (
-	"GameTest/consts"
 	"GameTest/cwlog"
 	"GameTest/glob"
+	"GameTest/gv"
 	"GameTest/noise"
 	"GameTest/objects"
 	"image"
@@ -54,7 +54,7 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	/* Make optimized background */
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-	chunkPix := (consts.SpriteScale * consts.ChunkSize)
+	chunkPix := (gv.SpriteScale * gv.ChunkSize)
 
 	bg := objects.TerrainTypes[0].Image
 	sx := int(float64(bg.Bounds().Size().X))
@@ -70,17 +70,17 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 		tImg = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 
-		for i := 0; i < consts.ChunkSize; i++ {
-			for j := 0; j < consts.ChunkSize; j++ {
+		for i := 0; i < gv.ChunkSize; i++ {
+			for j := 0; j < gv.ChunkSize; j++ {
 				op.GeoM.Reset()
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
 				if doDetail {
-					x := (float64(cpos.X*consts.ChunkSize) + float64(i))
-					y := (float64(cpos.Y*consts.ChunkSize) + float64(j))
+					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
+					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
 					h := noise.NoiseMap(x, y)
 
-					if consts.Verbose {
+					if gv.Verbose {
 						cwlog.DoLog("%.2f,%.2f: %.2f", x, y, h)
 					}
 					op.ColorM.Reset()
@@ -109,7 +109,7 @@ var clearedCache bool
 func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
-	if glob.ZoomScale <= consts.MapPixelThreshold {
+	if glob.ZoomScale <= gv.MapPixelThreshold {
 		if !clearedCache && (zoomCachePurge || glob.WASMMode) {
 			for _, sChunk := range glob.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
@@ -145,7 +145,7 @@ func RenderTerrainDaemon() {
 		time.Sleep(terrainRenderLoop)
 
 		/* If we zoom out, decallocate everything */
-		if glob.ZoomScale <= consts.MapPixelThreshold {
+		if glob.ZoomScale <= gv.MapPixelThreshold {
 			if !clearedCache && zoomCachePurge {
 				glob.SuperChunkListLock.RLock()
 				for _, sChunk := range glob.SuperChunkList {
@@ -201,7 +201,7 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 /* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
 
-	if glob.ZoomScale > consts.MapPixelThreshold {
+	if glob.ZoomScale > gv.MapPixelThreshold {
 
 		if !pixmapCacheCleared {
 			for _, sChunk := range glob.SuperChunkList {
@@ -240,7 +240,7 @@ func PixmapRenderDaemon() {
 		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
 
-			if glob.ZoomScale > consts.MapPixelThreshold && !pixmapCacheCleared {
+			if glob.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 
 				pixmapCacheCleared = true
 				sChunk.PixLock.Lock()
@@ -253,7 +253,7 @@ func PixmapRenderDaemon() {
 
 				}
 				sChunk.PixLock.Unlock()
-			} else if glob.ZoomScale <= consts.MapPixelThreshold {
+			} else if glob.ZoomScale <= gv.MapPixelThreshold {
 				pixmapCacheCleared = false
 
 				sChunk.PixLock.Lock()
@@ -276,8 +276,8 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 	if sChunk.PixMap == nil {
 		rect := image.Rectangle{}
 
-		rect.Max.X = consts.MaxSuperChunk
-		rect.Max.Y = consts.MaxSuperChunk
+		rect.Max.X = gv.MaxSuperChunk
+		rect.Max.Y = gv.MaxSuperChunk
 
 		sChunk.PixMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 	}
@@ -291,11 +291,11 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 
 		/* Draw objects in chunk */
 		for _, obj := range chunk.ObjList {
-			scX := (((scPos.X) * (consts.MaxSuperChunk)) - consts.XYCenter)
-			scY := (((scPos.Y) * (consts.MaxSuperChunk)) - consts.XYCenter)
+			scX := (((scPos.X) * (gv.MaxSuperChunk)) - gv.XYCenter)
+			scY := (((scPos.Y) * (gv.MaxSuperChunk)) - gv.XYCenter)
 
-			x := float64((obj.Pos.X - consts.XYCenter) - scX)
-			y := float64((obj.Pos.Y - consts.XYCenter) - scY)
+			x := float64((obj.Pos.X - gv.XYCenter) - scX)
+			y := float64((obj.Pos.Y - gv.XYCenter) - scY)
 			op.GeoM.Reset()
 			op.GeoM.Translate(x, y)
 			sChunk.PixMap.DrawImage(glob.MiniMapTile, op)

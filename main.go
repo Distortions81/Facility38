@@ -1,10 +1,10 @@
 package main
 
 import (
-	"GameTest/consts"
 	"GameTest/cwlog"
 	"GameTest/data"
 	"GameTest/glob"
+	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/terrain"
 	"fmt"
@@ -56,7 +56,7 @@ func NewGame() *Game {
 	ebiten.SetScreenFilterEnabled(false)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 
-	if glob.WASMMode && (consts.LoadTest || consts.UPSBench) {
+	if glob.WASMMode && (gv.LoadTest || gv.UPSBench) {
 		glob.PlayerReady.Store(true)
 		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	}
@@ -94,9 +94,9 @@ func loadSprites() {
 
 			/* If not found, fill texture with text */
 			if !found {
-				timg = ebiten.NewImage(int(consts.SpriteScale), int(consts.SpriteScale))
+				timg = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				timg.Fill(icon.ItemColor)
-				text.Draw(timg, icon.Symbol, glob.ObjectFont, consts.SymbOffX, consts.SymbOffY, icon.SymbolColor)
+				text.Draw(timg, icon.Symbol, glob.ObjectFont, gv.SymbOffX, gv.SymbOffY, icon.SymbolColor)
 				if glob.WASMMode {
 					time.Sleep(time.Nanosecond)
 				}
@@ -186,7 +186,7 @@ func setupWindowSize() {
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
 	/* Skip in benchmark mode */
-	if !consts.UPSBench {
+	if !gv.UPSBench {
 		/* Handle high res displays, 50% window */
 		if xSize > 2560 && ySize > 1600 {
 			glob.ScreenWidth = xSize / 2
@@ -206,7 +206,7 @@ func setupWindowSize() {
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 	/* Don't resize until we are ready */
-	if consts.UPSBench ||
+	if gv.UPSBench ||
 		!glob.MapGenerated.Load() ||
 		!glob.SpritesLoaded.Load() ||
 		!glob.PlayerReady.Load() {
@@ -225,5 +225,5 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 /* Automatic window title update */
 func windowTitle() {
-	ebiten.SetWindowTitle(("GameTest: " + "v" + consts.Version + "-" + buildTime + "-" + runtime.GOOS + "-" + runtime.GOARCH + fmt.Sprintf(" %vx%v", glob.ScreenWidth, glob.ScreenHeight)))
+	ebiten.SetWindowTitle(("GameTest: " + "v" + gv.Version + "-" + buildTime + "-" + runtime.GOOS + "-" + runtime.GOARCH + fmt.Sprintf(" %vx%v", glob.ScreenWidth, glob.ScreenHeight)))
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/gv"
 	"GameTest/objects"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -21,7 +21,7 @@ func init() {
 
 	ToolbarMax = 0
 	for spos, stype := range objects.SubTypes {
-		if spos == consts.ObjSubUI || spos == consts.ObjSubGame {
+		if spos == gv.ObjSubUI || spos == gv.ObjSubGame {
 			for _, otype := range stype {
 				ToolbarMax++
 				ToolbarItems = append(ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
@@ -34,13 +34,13 @@ func init() {
 /* Draw toolbar to an image */
 func DrawToolbar() {
 	if toolbarCache == nil {
-		toolbarCache = ebiten.NewImage(consts.ToolBarScale*ToolbarMax, consts.ToolBarScale)
+		toolbarCache = ebiten.NewImage(gv.ToolBarScale*ToolbarMax, gv.ToolBarScale)
 	}
 
 	for pos := 0; pos < ToolbarMax; pos++ {
 		item := ToolbarItems[pos]
 
-		x := float64(consts.ToolBarScale * int(pos))
+		x := float64(gv.ToolBarScale * int(pos))
 
 		if item.OType.Image == nil {
 			return
@@ -62,29 +62,29 @@ func DrawToolbar() {
 				op.GeoM.Translate(x, y)
 			}
 
-			if item.OType.Image.Bounds().Max.X != consts.ToolBarScale {
-				op.GeoM.Scale(1.0/(float64(iSize.Max.X)/consts.ToolBarScale), 1.0/(float64(iSize.Max.Y)/consts.ToolBarScale))
+			if item.OType.Image.Bounds().Max.X != gv.ToolBarScale {
+				op.GeoM.Scale(1.0/(float64(iSize.Max.X)/gv.ToolBarScale), 1.0/(float64(iSize.Max.Y)/gv.ToolBarScale))
 			}
 			op.GeoM.Translate(x, 0)
 
 			toolbarCache.DrawImage(item.OType.Image, op)
 		}
 
-		if item.SType == consts.ObjSubGame {
+		if item.SType == gv.ObjSubGame {
 			if item.OType.TypeI == SelectedItemType {
 				ebitenutil.DrawRect(toolbarCache,
-					consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale,
-					consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
+					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
+					gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, glob.ColorTBSelected)
 				ebitenutil.DrawRect(toolbarCache,
-					consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale,
-					consts.ToolBarOffsetY, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
+					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
+					gv.ToolBarOffsetY, gv.ToolBarScale, gv.TBThick, glob.ColorTBSelected)
 
 				ebitenutil.DrawRect(toolbarCache,
-					consts.ToolBarOffsetX+float64(pos)*consts.ToolBarScale,
-					consts.ToolBarOffsetY+consts.ToolBarScale-consts.TBThick, consts.ToolBarScale, consts.TBThick, glob.ColorTBSelected)
+					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
+					gv.ToolBarOffsetY+gv.ToolBarScale-gv.TBThick, gv.ToolBarScale, gv.TBThick, glob.ColorTBSelected)
 				ebitenutil.DrawRect(toolbarCache,
-					consts.ToolBarOffsetX+(float64(pos)*consts.ToolBarScale)+consts.ToolBarScale-consts.TBThick,
-					consts.ToolBarOffsetY, consts.TBThick, consts.ToolBarScale, glob.ColorTBSelected)
+					gv.ToolBarOffsetX+(float64(pos)*gv.ToolBarScale)+gv.ToolBarScale-gv.TBThick,
+					gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, glob.ColorTBSelected)
 			}
 		}
 	}

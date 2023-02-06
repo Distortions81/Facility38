@@ -1,9 +1,9 @@
 package objects
 
 import (
-	"GameTest/consts"
 	"GameTest/cwlog"
 	"GameTest/glob"
+	"GameTest/gv"
 	"GameTest/util"
 	"sync"
 	"time"
@@ -64,7 +64,7 @@ func ObjUpdateDaemon() {
 		runObjQueue() //Queue to add/remove objects
 		ObjQueueLock.Unlock()
 
-		if !consts.UPSBench {
+		if !gv.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		} else {
@@ -94,7 +94,7 @@ func ObjUpdateDaemonST() {
 		runEventQueue() //Queue to add/remove events
 		runObjQueue()   //Queue to add/remove objects
 
-		if !consts.UPSBench {
+		if !gv.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		} else {
@@ -107,18 +107,20 @@ func ObjUpdateDaemonST() {
 }
 
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
-func tickObj(o *glob.ObjData) {
-
-	if o.OutputObj != nil {
-		revDir := util.ReverseDirection(o.Direction)
-		if o.OutputBuffer.Amount > 0 &&
-			o.OutputObj.InputBuffer[revDir] != nil &&
-			o.OutputObj.InputBuffer[revDir].Amount == 0 {
-
-			o.OutputObj.InputBuffer[revDir].Amount = o.OutputBuffer.Amount
-			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
-
-			o.OutputBuffer.Amount = 0
+func tickObj(obj *glob.ObjData) {
+	if obj.NumOutputs > 0 {
+		for p, port := range obj.Ports {
+			if port.Obj != nil {
+				if port.PortDir == gv.PORT_OUTPUT {
+					if port.Buf.Amount > 0 {
+						if port.Obj.Ports[p].Buf.Amount == 0 {
+							port.Obj.Ports[p].Buf.Amount = port.Buf.Amount
+							port.Obj.Ports[p].Buf.TypeP = port.Buf.TypeP
+							port.Buf.Amount = 0
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -281,7 +283,7 @@ func tocklistRemove(obj *glob.ObjData) {
 
 /* Unlink an object's (dir) input */
 func unlinkInput(obj *glob.ObjData, dir uint8) {
-	if obj.TypeP.HasMatInput > 0 {
+	if obj.TypeP.HasInputs > 0 {
 		if obj.InputObjs[util.ReverseDirection(dir)] != nil {
 			obj.InputObjs[util.ReverseDirection(dir)].OutputObj = nil
 			obj.InputObjs[util.ReverseDirection(dir)] = nil
@@ -292,7 +294,7 @@ func unlinkInput(obj *glob.ObjData, dir uint8) {
 
 /* Unlink and object's output, also removes itself from OutputObj's inputs */
 func unlinkOut(obj *glob.ObjData) {
-	if obj.TypeP.HasMatOutput {
+	if obj.TypeP.HasOutputs {
 		if obj.OutputObj != nil {
 			/* Remove ourself from input list */
 			obj.OutputObj.InputObjs[util.ReverseDirection(obj.Direction)] = nil
@@ -379,10 +381,10 @@ func MakeChunk(pos glob.XY) {
 func ExploreMap(input int) {
 	/* Explore some map */
 
-	area := input * consts.ChunkSize
-	offs := int(consts.XYCenter) - (area / 2)
-	for x := -area; x < area; x += consts.ChunkSize {
-		for y := -area; y < area; y += consts.ChunkSize {
+	area := input * gv.ChunkSize
+	offs := int(gv.XYCenter) - (area / 2)
+	for x := -area; x < area; x += gv.ChunkSize {
+		for y := -area; y < area; y += gv.ChunkSize {
 			pos := glob.XY{X: offs - x, Y: offs - y}
 
 			MakeChunk(pos)
@@ -413,18 +415,18 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	obj.TypeP = GameObjTypes[mtype]
 
-	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
-	if obj.TypeP.HasMatOutput {
+	obj.Contents = [gv.MAT_MAX]*glob.MatData{}
+	if obj.TypeP.HasOutputs {
 		obj.Direction = dir
 	}
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
-		EventQueueAdd(obj, consts.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 	}
 
-	if obj.TypeP.HasMatOutput {
-		EventQueueAdd(obj, consts.QUEUE_TYPE_TICK, false)
+	if obj.TypeP.HasOutputs {
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 		obj.OutputBuffer = &glob.MatData{}
 	}
 
@@ -459,16 +461,16 @@ func runEventQueue() {
 	for _, e := range EventQueue {
 		if e.Delete {
 			switch e.QType {
-			case consts.QUEUE_TYPE_TICK:
+			case gv.QUEUE_TYPE_TICK:
 				ticklistRemove(e.Obj)
-			case consts.QUEUE_TYPE_TOCK:
+			case gv.QUEUE_TYPE_TOCK:
 				tocklistRemove(e.Obj)
 			}
 		} else {
 			switch e.QType {
-			case consts.QUEUE_TYPE_TICK:
+			case gv.QUEUE_TYPE_TICK:
 				ticklistAdd(e.Obj)
-			case consts.QUEUE_TYPE_TOCK:
+			case gv.QUEUE_TYPE_TOCK:
 				tockListAdd(e.Obj)
 			}
 		}
@@ -491,8 +493,8 @@ func runObjQueue() {
 			}
 
 			/* Remove tick and tock events */
-			EventQueueAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
-			EventQueueAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
+			EventQueueAdd(item.Obj, gv.QUEUE_TYPE_TICK, true)
+			EventQueueAdd(item.Obj, gv.QUEUE_TYPE_TOCK, true)
 
 			removeObj(item.Obj)
 

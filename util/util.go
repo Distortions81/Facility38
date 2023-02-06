@@ -1,9 +1,9 @@
 package util
 
 import (
-	"GameTest/consts"
 	"GameTest/cwlog"
 	"GameTest/glob"
+	"GameTest/gv"
 	"bytes"
 	"compress/zlib"
 	"io"
@@ -12,6 +12,39 @@ import (
 
 	"github.com/dustin/go-humanize"
 )
+
+func RotatePortsCW(obj *glob.ObjData) {
+	var newPorts [gv.DIR_MAX]glob.ObjPortData
+	for i := 0; i < gv.DIR_MAX; i++ {
+		//Copy to array, rotated with modulo
+		newPorts[(i+1)%gv.DIR_MAX] = obj.Ports[i]
+	}
+	for i := 0; i < gv.DIR_MAX; i++ {
+		//Copy back to object
+		obj.Ports[i] = newPorts[i]
+	}
+}
+
+func RotatePortsCCW(obj *glob.ObjData) {
+	var newPorts [gv.DIR_MAX]glob.ObjPortData
+	for i := 0; i < gv.DIR_MAX; i++ {
+		//Copy to array, rotated with modulo
+		newPorts[(i-1)%gv.DIR_MAX] = obj.Ports[i]
+	}
+	for i := 0; i < gv.DIR_MAX; i++ {
+		//Copy back to object
+		obj.Ports[i] = newPorts[i]
+	}
+}
+
+func ObjHasPort(obj *glob.ObjData, portDir uint8) bool {
+	for p, port := range obj.Ports {
+		if obj.TypeP.Ports[p] == portDir && port.Obj == nil {
+			return true
+		}
+	}
+	return false
+}
 
 /* Delete an object from a glob.ObjData list, does not retain order (fast) */
 func ObjListDelete(obj *glob.ObjData) {
@@ -26,13 +59,13 @@ func ObjListDelete(obj *glob.ObjData) {
 
 /* Convert an internal XY (unsigned) to a (0,0) center */
 func CenterXY(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X - consts.XYCenter, Y: pos.Y - consts.XYCenter}
+	return glob.XY{X: pos.X - gv.XYCenter, Y: pos.Y - gv.XYCenter}
 }
 
 /* Rotate consts.DIR value clockwise */
 func RotCW(dir uint8) uint8 {
-	if dir == consts.DIR_WEST {
-		dir = consts.DIR_NORTH
+	if dir == gv.DIR_WEST {
+		dir = gv.DIR_NORTH
 	} else {
 		dir += 1
 	}
@@ -41,8 +74,8 @@ func RotCW(dir uint8) uint8 {
 
 /* Rotate consts.DIR value counter-clockwise */
 func RotCCW(dir uint8) uint8 {
-	if dir == consts.DIR_NORTH {
-		dir = consts.DIR_WEST
+	if dir == gv.DIR_NORTH {
+		dir = gv.DIR_WEST
 	} else {
 		dir -= 1
 	}
@@ -105,32 +138,32 @@ func GetSuperChunk(pos glob.XY) *glob.MapSuperChunk {
 
 /* XY to Chunk XY */
 func PosToChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X / consts.ChunkSize, Y: pos.Y / consts.ChunkSize}
+	return glob.XY{X: pos.X / gv.ChunkSize, Y: pos.Y / gv.ChunkSize}
 }
 
 /* Chunk XY to XY */
 func ChunkPosToPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X * consts.ChunkSize, Y: pos.Y * consts.ChunkSize}
+	return glob.XY{X: pos.X * gv.ChunkSize, Y: pos.Y * gv.ChunkSize}
 }
 
 /* XY to SuperChunk XY */
 func PosToSuperChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X / consts.MaxSuperChunk, Y: pos.Y / consts.MaxSuperChunk}
+	return glob.XY{X: pos.X / gv.MaxSuperChunk, Y: pos.Y / gv.MaxSuperChunk}
 }
 
 /* SuperChunk XY to XY */
 func SuperChunkPosToPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X * consts.MaxSuperChunk, Y: pos.Y * consts.MaxSuperChunk}
+	return glob.XY{X: pos.X * gv.MaxSuperChunk, Y: pos.Y * gv.MaxSuperChunk}
 }
 
 /* Chunk XY to SuperChunk XY */
 func ChunkPosToSuperChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X / consts.SuperChunkSize, Y: pos.Y / consts.SuperChunkSize}
+	return glob.XY{X: pos.X / gv.SuperChunkSize, Y: pos.Y / gv.SuperChunkSize}
 }
 
 /* SuperChunk XY to Chunk XY */
 func SuperChunkPosToChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X * consts.SuperChunkSize, Y: pos.Y * consts.SuperChunkSize}
+	return glob.XY{X: pos.X * gv.SuperChunkSize, Y: pos.Y * gv.SuperChunkSize}
 }
 
 /* Float (X, Y) to glob.XY (int) */
@@ -140,42 +173,42 @@ func FloatXYToPosition(x float64, y float64) glob.XY {
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
-func GetNeighborObj(src *glob.ObjData, pos glob.XY, dir uint8) (*glob.ObjData, glob.XY) {
+func GetNeighborObj(src *glob.ObjData, dir uint8) *glob.ObjData {
 
 	switch dir {
-	case consts.DIR_NORTH:
-		pos.Y--
-	case consts.DIR_EAST:
-		pos.X++
-	case consts.DIR_SOUTH:
-		pos.Y++
-	case consts.DIR_WEST:
-		pos.X--
+	case gv.DIR_NORTH:
+		src.Pos.Y--
+	case gv.DIR_EAST:
+		src.Pos.X++
+	case gv.DIR_SOUTH:
+		src.Pos.Y++
+	case gv.DIR_WEST:
+		src.Pos.X--
 	default:
-		return nil, glob.XY{}
+		return nil
 	}
 
-	chunk := GetChunk(pos)
+	chunk := GetChunk(src.Pos)
 	if chunk == nil {
-		return nil, glob.XY{}
+		return nil
 	}
-	obj := GetObj(pos, chunk)
+	obj := GetObj(src.Pos, chunk)
 	if obj == nil {
-		return nil, glob.XY{}
+		return nil
 	}
-	return obj, pos
+	return obj
 }
 
 /* Convert consts.DIR to text */
 func DirToName(dir uint8) string {
 	switch dir {
-	case consts.DIR_NORTH:
+	case gv.DIR_NORTH:
 		return "North"
-	case consts.DIR_EAST:
+	case gv.DIR_EAST:
 		return "East"
-	case consts.DIR_SOUTH:
+	case gv.DIR_SOUTH:
 		return "South"
-	case consts.DIR_WEST:
+	case gv.DIR_WEST:
 		return "West"
 	}
 
@@ -185,17 +218,24 @@ func DirToName(dir uint8) string {
 /* Flop a consts.DIR */
 func ReverseDirection(dir uint8) uint8 {
 	switch dir {
-	case consts.DIR_NORTH:
-		return consts.DIR_SOUTH
-	case consts.DIR_EAST:
-		return consts.DIR_WEST
-	case consts.DIR_SOUTH:
-		return consts.DIR_NORTH
-	case consts.DIR_WEST:
-		return consts.DIR_EAST
+	case gv.DIR_NORTH:
+		return gv.DIR_SOUTH
+	case gv.DIR_EAST:
+		return gv.DIR_WEST
+	case gv.DIR_SOUTH:
+		return gv.DIR_NORTH
+	case gv.DIR_WEST:
+		return gv.DIR_EAST
 	}
 
-	return consts.DIR_MAX
+	return gv.DIR_MAX
+}
+
+func ReversePort(port uint8) uint8 {
+	if port == gv.PORT_INPUT {
+		return gv.PORT_OUTPUT
+	}
+	return gv.PORT_INPUT
 }
 
 /* Generic unzip []byte */

@@ -1,4 +1,4 @@
-package consts
+package gv
 
 const (
 	Version = "011"
@@ -90,13 +90,19 @@ const (
 	DefaultZoom       = SpriteScale * 2
 	MapPixelThreshold = (SpriteScale / 2)
 
-	/* Overlays */
+	/* Directions */
 	DIR_NORTH = 0
 	DIR_EAST  = 1
 	DIR_SOUTH = 2
 	DIR_WEST  = 3
 	DIR_NONE  = 4
 	DIR_MAX   = 5
+
+	/* Ports */
+	PORT_NONE   = 0
+	PORT_INPUT  = 1
+	PORT_OUTPUT = 2
+	PORT_BOTH   = 3
 
 	/* Overlay Types */
 	ObjOverlayNorth   = 0

@@ -1,7 +1,7 @@
 package cwlog
 
 import (
-	"GameTest/consts"
+	"GameTest/gv"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,7 +14,7 @@ var LogName string
 
 /* Log this, can use printf arguments */
 func DoLog(format string, args ...interface{}) {
-	if !consts.Debug && !consts.LogStdOut {
+	if !gv.Debug && !gv.LogStdOut {
 		return
 	}
 	ctime := time.Now()
@@ -25,10 +25,10 @@ func DoLog(format string, args ...interface{}) {
 	date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
 	buf := fmt.Sprintf("%v: %15v:%5v: %v\n", date, filepath.Base(filename), line, text)
 
-	if consts.LogStdOut {
+	if gv.LogStdOut {
 		fmt.Print(buf)
 	}
-	if consts.LogStdOut {
+	if gv.LogStdOut {
 		_, err := LogDesc.WriteString(buf)
 		if err != nil {
 			fmt.Println("DoLog: WriteString failure")
@@ -41,7 +41,7 @@ func DoLog(format string, args ...interface{}) {
 
 /* Prep logger */
 func StartLog() {
-	if !consts.Debug && !consts.LogStdOut {
+	if !gv.Debug && !gv.LogStdOut {
 		return
 	}
 	t := time.Now()

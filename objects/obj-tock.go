@@ -1,65 +1,86 @@
 package objects
 
 import (
-	"GameTest/consts"
 	"GameTest/glob"
+	"GameTest/gv"
 )
 
-func minerUpdate(o *glob.ObjData) {
-	if o.OutputBuffer.Amount == 0 {
-		input := uint64((o.TypeP.MinerKGTock))
+func minerUpdate(obj *glob.ObjData) {
+	/* Hard-coded for speed */
+	if obj.Ports[obj.Dir].Buf.Amount == 0 {
+		input := obj.TypeP.MinerKGTock
 
-		o.OutputBuffer.Amount = input
-		o.OutputBuffer.TypeP = *MatTypes[consts.MAT_COAL]
+		obj.Ports[obj.Dir].Buf.Amount = input
+		obj.Ports[obj.Dir].Buf.TypeP = *MatTypes[gv.MAT_COAL]
 	}
 }
 
-func beltUpdate(o *glob.ObjData) {
-	if o.OutputBuffer.Amount == 0 {
-		for src, mat := range o.InputBuffer {
-			if src == int(o.Direction) {
-				continue
-			}
-			if o.InputCount > 1 && src == int(o.LastInput) {
-				continue
-			}
-			if mat != nil && mat.Amount > 0 {
-				o.OutputBuffer.Amount = mat.Amount
-				o.OutputBuffer.TypeP = mat.TypeP
-				o.InputBuffer[src].Amount = 0
-				o.LastInput = uint8(src)
-			}
-		}
+func beltUpdate(obj *glob.ObjData) {
+	/* No outputs */
+	if obj.NumOutputs == 0 {
+		return
 	}
 
-}
-
-func splitterUpdate(o *glob.ObjData) {
-	if o.OutputBuffer.Amount == 0 {
-		for src, mat := range o.InputBuffer {
-			if mat != nil && mat.Amount > 0 {
-				o.OutputBuffer.Amount = mat.Amount
-				o.OutputBuffer.TypeP = mat.TypeP
-				o.InputBuffer[src].Amount = 0
-			}
-		}
+	/* Output is full, exit */
+	if obj.Ports[obj.Dir].Buf.Amount > 0 {
+		return
 	}
-}
 
-func boxUpdate(o *glob.ObjData) {
-
-	for _, mat := range o.InputBuffer {
-		if mat != nil && mat.Amount > 0 {
-			if o.KGHeld+mat.Amount <= o.TypeP.CapacityKG {
-				if o.Contents[mat.TypeP.TypeI] == nil {
-					o.Contents[mat.TypeP.TypeI] = &glob.MatData{}
+	/* Find all inputs, round-robin send to output */
+	for p, port := range obj.Ports {
+		if port.PortDir == gv.PORT_INPUT {
+			if obj.NumInputs > 1 {
+				if uint8(p) == obj.LastUsedInput {
+					continue
 				}
-				o.Contents[mat.TypeP.TypeI].Amount += mat.Amount
-				o.KGHeld += mat.Amount
-				o.Contents[mat.TypeP.TypeI].TypeP = mat.TypeP
-
-				mat.Amount = 0
+				obj.LastUsedInput = uint8(p)
 			}
+			if port.Buf.Amount > 0 {
+				obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
+				obj.Ports[obj.Dir].Buf.TypeP = port.Buf.TypeP
+				port.Buf.Amount = 0
+				break
+			}
+		}
+	}
+}
+
+func splitterUpdate(obj *glob.ObjData) {
+	if obj.NumOutputs <= 0 {
+		return
+	}
+
+	for _, port := range obj.Ports {
+		if port.PortDir == gv.PORT_INPUT {
+			if port.Buf.Amount > 0 {
+				for _, oport := range obj.Ports {
+					if oport.PortDir == gv.PORT_OUTPUT {
+						if oport.Buf.Amount <= 0 {
+							oport.Buf.Amount = port.Buf.Amount
+							oport.Buf.TypeP = port.Buf.TypeP
+							port.Buf.Amount = 0
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func boxUpdate(obj *glob.ObjData) {
+	if obj.NumInputs <= 0 {
+		return
+	}
+
+	for _, port := range obj.Ports {
+		if port.Buf.Amount > 0 {
+			if obj.KGHeld+port.Buf.Amount > obj.TypeP.CapacityKG {
+				continue
+			}
+			obj.Contents[port.Buf.TypeP.TypeI].Amount = port.Buf.Amount
+			obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
+			obj.KGHeld += port.Buf.Amount
+			port.Buf.Amount = 0
 		}
 	}
 }
