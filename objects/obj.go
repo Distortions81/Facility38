@@ -226,29 +226,38 @@ func runTocksST() {
 }
 
 /* Lock and append to TickList */
-func ticklistAdd(target *glob.ObjData) {
+func ticklistAdd(obj *glob.ObjData) {
 	TickListLock.Lock()
 	defer TickListLock.Unlock()
 
-	TickList = append(TickList, glob.TickEvent{Target: target})
+	oPos := util.CenterXY(obj.Pos)
+	cwlog.DoLog("Added %v to TICK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
+
+	TickList = append(TickList, glob.TickEvent{Target: obj})
 	gTickCount++
-	cwlog.DoLog("Added: %v to ticklist.", target.TypeP.Name)
 }
 
 /* Lock and append to TockList */
-func tockListAdd(target *glob.ObjData) {
+func tockListAdd(obj *glob.ObjData) {
 	TockListLock.Lock()
 	defer TockListLock.Unlock()
 
-	TockList = append(TockList, glob.TickEvent{Target: target})
+	oPos := util.CenterXY(obj.Pos)
+	cwlog.DoLog("Added %v to TOCK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
+
+	TockList = append(TockList, glob.TickEvent{Target: obj})
 	gTockCount++
-	cwlog.DoLog("Added: %v to tocklist.", target.TypeP.Name)
 }
 
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
 	EventQueueLock.Lock()
 	defer EventQueueLock.Unlock()
+
+	prefixStr := "Add"
+	if delete {
+		prefixStr = "Delete"
+	}
 
 	qtypeStr := "NONE"
 	if qtype == 1 {
@@ -258,7 +267,9 @@ func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
 	}
 
 	EventQueue = append(EventQueue, &glob.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
-	cwlog.DoLog("Added: %v, Event Type: %v, Delete: %v", obj.TypeP.Name, qtypeStr, delete)
+
+	oPos := util.CenterXY(obj.Pos)
+	cwlog.DoLog("EventQueue: %v %v for %v (%v,%v)", prefixStr, qtypeStr, obj.TypeP.Name, oPos.X, oPos.Y)
 }
 
 /* Lock and remove tick event */
@@ -268,8 +279,9 @@ func ticklistRemove(obj *glob.ObjData) {
 
 	for i, e := range TickList {
 		if e.Target == obj {
+			oPos := util.CenterXY(obj.Pos)
+			cwlog.DoLog("Removed %v from the TICK list. (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 			TickList = append(TickList[:i], TickList[i+1:]...)
-			cwlog.DoLog("Removed: %v from the ticklist.", obj.TypeP.Name)
 			gTickCount--
 			break
 		}
@@ -283,8 +295,9 @@ func tocklistRemove(obj *glob.ObjData) {
 
 	for i, e := range TockList {
 		if e.Target == obj {
+			oPos := util.CenterXY(obj.Pos)
+			cwlog.DoLog("Removed %v from the TOCK list. (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 			TockList = append(TockList[:i], TockList[i+1:]...)
-			cwlog.DoLog("Removed %v from the tocklist.", obj.TypeP.Name)
 			gTockCount--
 			break
 		}
@@ -410,7 +423,7 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	ppos := util.CenterXY(pos)
 	if obj != nil {
-		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", ppos.X, ppos.Y)
+		cwlog.DoLog("CreateObj: Object already exists at location: (%v,%v)", ppos.X, ppos.Y)
 		return nil
 	}
 
@@ -422,6 +435,17 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 	obj.Parent = chunk
 
 	obj.TypeP = GameObjTypes[mtype]
+
+	cwlog.DoLog("CreateObj: Make %v: (%v,%v)", obj.TypeP.Name, ppos.X, ppos.Y)
+
+	obj.Parent.Lock.Lock()
+	obj.Parent.ObjMap[pos] = obj
+	obj.Parent.ObjList =
+		append(obj.Parent.ObjList, obj)
+	obj.Parent.Parent.PixmapDirty = true
+	obj.Parent.NumObjects++
+	obj.Parent.Lock.Unlock()
+
 	for p, port := range obj.TypeP.Ports {
 		obj.Ports[p].PortDir = port
 	}
@@ -438,6 +462,8 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 		obj.Contents = [gv.MAT_MAX]*glob.MatData{}
 	}
 
+	LinkObj(obj)
+
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
@@ -450,18 +476,6 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 		}
 	}
 
-	obj.Parent.Lock.Lock()
-	obj.Parent.ObjMap[pos] = obj
-	obj.Parent.ObjList =
-		append(obj.Parent.ObjList, obj)
-	obj.Parent.Parent.PixmapDirty = true
-	obj.Parent.NumObjects++
-	obj.Parent.Lock.Unlock()
-
-	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
-
-	LinkObj(obj)
-
 	return obj
 }
 
@@ -471,8 +485,13 @@ func ObjQueueAdd(obj *glob.ObjData, otype uint8, pos glob.XY, delete bool, dir u
 	ObjQueue = append(ObjQueue, &glob.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	ObjQueueLock.Unlock()
 
-	ppos := util.CenterXY(pos)
-	cwlog.DoLog("Added: %v,%v to the object hitlist. Delete: %v", ppos.X, ppos.Y, delete)
+	prefixStr := "Add"
+	if delete {
+		prefixStr = "Delete"
+	}
+
+	oPos := util.CenterXY(pos)
+	cwlog.DoLog("ObjQueue: %v %v (%v,%v)\n", prefixStr, GameObjTypes[otype].Name, oPos.X, oPos.Y)
 }
 
 /* Add/remove tick/tock events from the lists */
