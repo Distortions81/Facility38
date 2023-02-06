@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/util"
+	"fmt"
 	"sync"
 	"time"
 
@@ -114,6 +115,8 @@ func tickObj(obj *glob.ObjData) {
 				if port.PortDir == gv.PORT_OUTPUT {
 					if port.Buf.Amount > 0 {
 						if port.Obj.Ports[p].Buf.Amount == 0 {
+							fmt.Printf("TICK: %v: %v: %v\n", port.Obj.TypeP.Name, port.Obj.Ports[p].Buf.TypeP.Name, port.Obj.Ports[p].Buf.Amount)
+
 							port.Obj.Ports[p].Buf.Amount = port.Buf.Amount
 							port.Obj.Ports[p].Buf.TypeP = port.Buf.TypeP
 							port.Buf.Amount = 0
