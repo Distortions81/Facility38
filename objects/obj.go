@@ -317,6 +317,7 @@ func linkOut(pos glob.XY, obj *glob.ObjData, dir uint8) {
 
 	/* Look for object in output direction */
 	neigh, _ := util.GetNeighborObj(obj, pos, dir)
+	npos := util.CenterXY(neigh.Pos)
 
 	/* Did we find and obj? */
 	if neigh == nil {
@@ -333,7 +334,7 @@ func linkOut(pos glob.XY, obj *glob.ObjData, dir uint8) {
 		/* Are we trying to connect from that direction? */
 		if neigh.TypeP.Direction == util.ReverseDirection(dir) {
 			cwlog.DoLog("(%v: %v, %v) linkOut: Rejected: neighbor outputs this direction: %v: %v: (%v,%v)",
-				obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(util.ReverseDirection(dir)), neigh.TypeP.Name, neigh.Pos.X, neigh.Pos.Y)
+				obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(util.ReverseDirection(dir)), neigh.TypeP.Name, npos.X, npos.Y)
 			return
 		}
 	}
@@ -352,7 +353,7 @@ func linkOut(pos glob.XY, obj *glob.ObjData, dir uint8) {
 	if neigh.InputBuffer[util.ReverseDirection(dir)] != nil {
 		neigh.InputBuffer[util.ReverseDirection(dir)] = &glob.MatData{}
 		cwlog.DoLog("(%v: %v, %v) linkOut: init neighbor input: %v: %v: (%v,%v)",
-			obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, neigh.Pos.X, neigh.Pos.Y)
+			obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, npos.X, npos.Y)
 	}
 
 	/* Mark target as our output */
@@ -389,6 +390,7 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 
 		/* Look for neighbor object */
 		neigh, _ := util.GetNeighborObj(obj, pos, dir)
+		npos := neigh.Pos
 
 		/* Did we find an object? */
 		if neigh == nil {
@@ -407,7 +409,7 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 			/* Is it us? */
 			if neigh.OutputObj != obj {
 				cwlog.DoLog("(%v: %v, %v) linkIn: neigbor output is occupied: %v: %v: (%v,%v)",
-					obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, neigh.Pos.X, neigh.Pos.Y)
+					obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, npos.X, npos.Y)
 				continue
 			}
 		}
@@ -415,7 +417,7 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 		/* Is the output in our direction? */
 		if neigh.Direction != util.ReverseDirection(dir) {
 			cwlog.DoLog("(%v: %v, %v) linkIn: neighbor output is not in our direction: %v: %v: (%v,%v)",
-				obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, neigh.Pos.X, neigh.Pos.Y)
+				obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, npos.X, npos.Y)
 			continue
 		}
 
@@ -426,7 +428,7 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 		if neigh.OutputBuffer == nil {
 			neigh.OutputBuffer = &glob.MatData{}
 			cwlog.DoLog("(%v: %v, %v) linkIn: initializing neighbor output: %v: %v: (%v,%v)",
-				obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, neigh.Pos.X, neigh.Pos.Y)
+				obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, npos.X, npos.Y)
 		}
 
 		/* Make sure we have a input initalized */
@@ -444,7 +446,7 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 		obj.InputCount++
 
 		cwlog.DoLog("(%v: %v, %v) linkIn: linked: %v: %v: (%v,%v)",
-			obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, neigh.Pos.X, neigh.Pos.Y)
+			obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), neigh.TypeP.Name, npos.X, npos.Y)
 	}
 
 }
