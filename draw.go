@@ -157,8 +157,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 				iSize := cTmp.Bounds().Size()
 				op.GeoM.Reset()
-				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X), (consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
-				op.GeoM.Translate((camXPos+float64(chunk.Pos.X*consts.ChunkSize))*glob.ZoomScale, (camYPos+float64(chunk.Pos.Y*consts.ChunkSize))*glob.ZoomScale)
+				op.GeoM.Scale((consts.ChunkSize*glob.ZoomScale)/float64(iSize.X),
+					(consts.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
+				op.GeoM.Translate((camXPos+float64(chunk.Pos.X*consts.ChunkSize))*glob.ZoomScale,
+					(camYPos+float64(chunk.Pos.Y*consts.ChunkSize))*glob.ZoomScale)
 				screen.DrawImage(cTmp, op)
 				chunk.TerrainLock.RUnlock()
 
@@ -191,7 +193,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 						iSize := obj.TypeP.Image.Bounds()
 						op.GeoM.Reset()
-						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+							((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 
 						/* Draw Input Materials */
@@ -220,13 +223,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 						iSize := obj.TypeP.Image.Bounds()
 						op.GeoM.Reset()
-						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+							((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 
 						if obj.TypeP.HasMatOutput {
 							iSize := obj.TypeP.Image.Bounds()
 							op.GeoM.Reset()
-							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+								((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
 							/* Draw Arrow */
 							img := objects.ObjOverlayTypes[obj.Direction].Image
@@ -241,8 +246,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 								iSize := obj.TypeP.Image.Bounds()
 								op.GeoM.Reset()
-								op.GeoM.Translate(float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset, cBlockedIndicatorOffset)
-								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X), ((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+								op.GeoM.Translate(
+									float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[consts.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset,
+									cBlockedIndicatorOffset)
+								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+									((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 								op.GeoM.Translate(objCamPosX, objCamPosY)
 								screen.DrawImage(img, op)
 							}
@@ -333,7 +341,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			o := util.GetObj(pos, chunk)
 			if o != nil {
 				found = true
-				toolTip = fmt.Sprintf("(%v,%v)\n%v", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
+				toolTip = fmt.Sprintf("(%v,%v)\n%v",
+					humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))),
+					humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 					if o.Contents[z] != nil {
 						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
@@ -372,7 +382,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		/* No object contents found, just show x/y */
 		if !found {
-			toolTip = fmt.Sprintf("(%v, %v)", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))))
+			toolTip = fmt.Sprintf("(%v, %v)",
+				humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))),
+				humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))))
 		}
 
 		tRect := text.BoundString(glob.ToolTipFont, toolTip)
