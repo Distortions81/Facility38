@@ -440,28 +440,25 @@ func rotateWorldObjects() {
 
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
+		glob.SuperChunkListLock.Lock()
 		chunk := util.GetChunk(pos)
 		if chunk == nil {
 			return
 		}
 		o := chunk.ObjMap[pos]
 
-		go func(o *glob.ObjData, pos glob.XY) {
-			glob.SuperChunkListLock.Lock()
-			if o != nil {
-				var newdir uint8
-				if gShiftPressed {
-					newdir = util.RotCCW(o.Dir)
-					util.RotatePortsCCW(o)
-				} else {
-					newdir = util.RotCW(o.Dir)
-					util.RotatePortsCW(o)
-				}
-				objects.LinkObj(o)
-				o.Dir = newdir
-
+		if o != nil && o.TypeP.Rotatable {
+			var newdir uint8
+			if gShiftPressed {
+				newdir = util.RotCCW(o.Dir)
+				util.RotatePortsCCW(o)
+			} else {
+				newdir = util.RotCW(o.Dir)
+				util.RotatePortsCW(o)
 			}
-			glob.SuperChunkListLock.Unlock()
-		}(o, pos)
+			o.Dir = newdir
+			objects.LinkObj(o)
+		}
+		glob.SuperChunkListLock.Unlock()
 	}
 }
