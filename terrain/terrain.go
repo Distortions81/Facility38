@@ -139,7 +139,7 @@ func RenderTerrainST() {
 	}
 }
 
-/* Loop to automatically render chunk terrain, will also dispose old tiles, uses glob.VisChunks */
+/* Loop to automatically render chunk terrain, will also dispose old tiles, useses SuperChunkList*/
 func RenderTerrainDaemon() {
 	for {
 		time.Sleep(terrainRenderLoop)
@@ -269,7 +269,6 @@ func PixmapRenderDaemon() {
 }
 
 /* Draw a superchunk's pixmap, allocates image if needed. */
-
 func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
