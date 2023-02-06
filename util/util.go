@@ -31,18 +31,20 @@ func CenterXY(pos glob.XY) glob.XY {
 
 /* Rotate consts.DIR value clockwise */
 func RotCW(dir uint8) uint8 {
-	dir = dir - 1
-	if dir < consts.DIR_NORTH {
+	if dir == 1 {
 		dir = consts.DIR_WEST
+	} else {
+		dir = dir - 1
 	}
 	return dir
 }
 
 /* Rotate consts.DIR value counter-clockwise */
 func RotCCW(dir uint8) uint8 {
-	dir = dir + 1
-	if dir > consts.DIR_WEST {
+	if dir == consts.DIR_WEST {
 		dir = consts.DIR_NORTH
+	} else {
+		dir = dir + 1
 	}
 	return dir
 }
