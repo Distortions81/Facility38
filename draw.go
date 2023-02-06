@@ -336,18 +336,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 					if o.Contents[z] != nil {
-						toolTip = toolTip + fmt.Sprintf(" (Contents: %v: %v)",
+						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
 							o.Contents[z].TypeP.Name, o.Contents[z].Amount)
 					}
 				}
 				if o.OutputBuffer != nil && consts.Debug {
-					toolTip = toolTip + fmt.Sprintf(" (OutputBuf: %v: %v: %v)",
+					toolTip = toolTip + fmt.Sprintf("(OutputBuf: %v: %v: %v)\n",
 						util.DirToName(o.Direction),
 						o.OutputBuffer.TypeP.Name,
 						o.OutputBuffer.Amount)
 				}
 				if o.OutputObj != nil && o.OutputObj.InputBuffer[util.ReverseDirection(o.Direction)] != nil && consts.Debug {
-					toolTip = toolTip + fmt.Sprintf(" (OutputObj: %v: %v)",
+					toolTip = toolTip + fmt.Sprintf("(OutputObj: %v: %v)\n",
 						util.DirToName(o.Direction), o.OutputObj.TypeP.Name)
 				}
 
@@ -355,13 +355,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					var z uint8
 					for z = consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 						if o.InputBuffer[z] != nil {
-							toolTip = toolTip + fmt.Sprintf(" (InputBuf: %v: %v: %v)",
+							toolTip = toolTip + fmt.Sprintf("(InputBuf: %v: %v: %v)\n",
 								util.DirToName(z),
 								o.InputBuffer[z].TypeP.Name,
 								o.InputBuffer[z].Amount)
 						}
 						if o.InputObjs[z] != nil {
-							toolTip = toolTip + fmt.Sprintf(" (InputObj: %v: %v)",
+							toolTip = toolTip + fmt.Sprintf("(InputObj: %v: %v)\n",
 								o.InputObjs[z].TypeP.Name,
 								util.DirToName(util.ReverseDirection(z)))
 						}
@@ -378,7 +378,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		tRect := text.BoundString(glob.ToolTipFont, toolTip)
 		mx := glob.MouseX + 20
 		my := glob.MouseY + 20
-		ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
+		ebitenutil.DrawRect(screen, mx-1, my-15, float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 
 	}

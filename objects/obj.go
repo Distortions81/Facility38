@@ -317,13 +317,14 @@ func linkOut(pos glob.XY, obj *glob.ObjData, dir uint8) {
 
 	/* Look for object in output direction */
 	neigh, _ := util.GetNeighborObj(obj, pos, dir)
-	npos := util.CenterXY(neigh.Pos)
 
 	/* Did we find and obj? */
 	if neigh == nil {
 		//cwlog.DoLog("(%v: %v, %v) linkOut: Rejected nil neighbor: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 		return
 	}
+	npos := util.CenterXY(neigh.Pos)
+
 	/* Does it have inputs? */
 	if neigh.TypeP.HasMatInput == 0 {
 		//cwlog.DoLog("(%v: %v, %v) linkOut: Rejected: neighbor has no inputs: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
@@ -363,7 +364,7 @@ func linkOut(pos glob.XY, obj *glob.ObjData, dir uint8) {
 	neigh.InputObjs[util.ReverseDirection(dir)] = obj
 
 	cwlog.DoLog("(%v: %v, %v) linkOut: Linked: %v: %v: (%v,%v)",
-		obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), obj.OutputObj.TypeP.Name, obj.OutputObj.Pos.X, obj.OutputObj.Pos.Y)
+		obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir), obj.OutputObj.TypeP.Name, npos.X, npos.Y)
 }
 
 /* Find and link inputs, set ourself to OutputObj of found objects */
@@ -390,13 +391,13 @@ func linkIn(pos glob.XY, obj *glob.ObjData, newdir uint8) {
 
 		/* Look for neighbor object */
 		neigh, _ := util.GetNeighborObj(obj, pos, dir)
-		npos := neigh.Pos
 
 		/* Did we find an object? */
 		if neigh == nil {
 			//cwlog.DoLog("(%v: %v, %v) linkIn: nil neighbor: %v", obj.TypeP.Name, ppos.X, ppos.Y, util.DirToName(dir))
 			continue
 		}
+		npos := util.CenterXY(neigh.Pos)
 
 		/* Does it have an output? */
 		if !neigh.TypeP.HasMatOutput {
