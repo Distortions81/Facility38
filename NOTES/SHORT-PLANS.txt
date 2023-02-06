@@ -19,3 +19,5 @@ possibly even make user manually specify (no default input/output?)
 
 Think about how we want to handle many materials, and types quickly but without insane memory use.
 :: We could possibly use one material type that has a bitflag, even allowing mixed materials.
+
+Fix the unsafe.go
