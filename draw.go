@@ -6,6 +6,7 @@ import (
 	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/terrain"
+	"GameTest/util"
 	"fmt"
 	"image/color"
 	"math"
@@ -335,54 +336,40 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	} else {
 		/* World Obj tool tip */
-		//pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
-		//chunk := util.GetChunk(pos)
+		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
+		chunk := util.GetChunk(pos)
 
 		toolTip := ""
 		found := false
-		/*
-			if chunk != nil {
-				o := util.GetObj(pos, chunk)
-				if o != nil {
-					found = true
-					toolTip = fmt.Sprintf("(%v,%v)\n%v",
-						humanize.Comma(int64(math.Floor(worldMouseX-gv.XYCenter))),
-						humanize.Comma(int64(math.Floor(worldMouseY-gv.XYCenter))), o.TypeP.Name)
-					for z := gv.DIR_NORTH; z < gv.DIR_NONE; z++ {
-						if o.Contents[z] != nil {
-							toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
-								o.Contents[z].TypeP.Name, o.Contents[z].Amount)
-						}
-					}
-					if o.OutputBuffer != nil && gv.Debug {
-						toolTip = toolTip + fmt.Sprintf("(OutputBuf: %v: %v: %v)\n",
-							util.DirToName(o.Direction),
-							o.OutputBuffer.TypeP.Name,
-							o.OutputBuffer.Amount)
-					}
-					if o.OutputObj != nil && o.OutputObj.InputBuffer[util.ReverseDirection(o.Direction)] != nil && gv.Debug {
-						toolTip = toolTip + fmt.Sprintf("(OutputObj: %v: %v)\n",
-							util.DirToName(o.Direction), o.OutputObj.TypeP.Name)
-					}
 
-					if gv.Debug {
-						var z uint8
-						for z = gv.DIR_NORTH; z < gv.DIR_NONE; z++ {
-							if o.InputBuffer[z] != nil {
-								toolTip = toolTip + fmt.Sprintf("(InputBuf: %v: %v: %v)\n",
-									util.DirToName(z),
-									o.InputBuffer[z].TypeP.Name,
-									o.InputBuffer[z].Amount)
-							}
-							if o.InputObjs[z] != nil {
-								toolTip = toolTip + fmt.Sprintf("(InputObj: %v: %v)\n",
-									o.InputObjs[z].TypeP.Name,
-									util.DirToName(util.ReverseDirection(z)))
-							}
-						}
+		if chunk != nil {
+			o := util.GetObj(pos, chunk)
+			if o != nil {
+				found = true
+				toolTip = fmt.Sprintf("%v: (%v,%v)\n",
+					o.TypeP.Name,
+					humanize.Comma(int64(math.Floor(worldMouseX-gv.XYCenter))),
+					humanize.Comma(int64(math.Floor(worldMouseY-gv.XYCenter))))
+				for z := 0; z < gv.DIR_MAX; z++ {
+					if o.Contents[z] != nil {
+						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
+							o.Contents[z].TypeP.Name, o.Contents[z].Amount)
+					}
+					if o.Ports[z].PortDir == gv.PORT_INPUT && o.Ports[z].Obj != nil {
+						toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %v)\n",
+							util.DirToName(uint8(z)),
+							o.Ports[z].Obj.TypeP.Name,
+							o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
+					}
+					if o.Ports[z].PortDir == gv.PORT_OUTPUT && o.Ports[z].Obj != nil {
+						toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %v: %v)\n",
+							util.DirToName(uint8(z)),
+							o.Ports[z].Obj.TypeP.Name,
+							o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
 					}
 				}
-			} */
+			}
+		}
 
 		/* No object contents found, just show x/y */
 		if !found {

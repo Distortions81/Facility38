@@ -447,7 +447,7 @@ func rotateWorldObjects() {
 		}
 		o := chunk.ObjMap[pos]
 
-		if o != nil && o.TypeP.Rotatable {
+		if o != nil {
 			var newdir uint8
 			if gShiftPressed {
 				newdir = util.RotCCW(o.Dir)

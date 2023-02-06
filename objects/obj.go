@@ -250,8 +250,15 @@ func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
 	EventQueueLock.Lock()
 	defer EventQueueLock.Unlock()
 
+	qtypeStr := "NONE"
+	if qtype == 1 {
+		qtypeStr = "TOCK"
+	} else if qtype == 2 {
+		qtypeStr = "TICK"
+	}
+
 	EventQueue = append(EventQueue, &glob.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
-	cwlog.DoLog("Added: %v to the event type: %v hitlist. Delete: %v", obj.TypeP.Name, qtype, delete)
+	cwlog.DoLog("Added: %v, Event Type: %v, Delete: %v", obj.TypeP.Name, qtypeStr, delete)
 }
 
 /* Lock and remove tick event */
