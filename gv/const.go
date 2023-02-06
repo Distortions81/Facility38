@@ -102,7 +102,6 @@ const (
 	PORT_NONE   = 0
 	PORT_INPUT  = 1
 	PORT_OUTPUT = 2
-	PORT_BOTH   = 3
 
 	/* Overlay Types */
 	ObjOverlayNorth   = 0

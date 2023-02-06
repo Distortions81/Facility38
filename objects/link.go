@@ -6,7 +6,7 @@ import (
 	"GameTest/util"
 )
 
-func linkObj(obj *glob.ObjData) {
+func LinkObj(obj *glob.ObjData) {
 	linkObjDir(obj, gv.PORT_INPUT)
 	linkObjDir(obj, gv.PORT_OUTPUT)
 }
@@ -14,7 +14,7 @@ func linkObj(obj *glob.ObjData) {
 /* Link to output in (dir) */
 func linkObjDir(obj *glob.ObjData, portDir uint8) {
 
-	/* Check our ports for outputs */
+	/* Check our ports */
 	for p, port := range obj.Ports {
 
 		/* Port in correct direction */
@@ -40,13 +40,34 @@ func linkObjDir(obj *glob.ObjData, portDir uint8) {
 			continue
 		}
 
-		/* That port is available */
+		/* Port is available */
 		if neigh.Ports[p].Obj != nil {
 			continue
+		} else {
+			/* Unlink old */
+			neigh.Ports[p].Obj = nil
+			obj.Ports[p].Obj = nil
+
+			if port.PortDir == gv.PORT_INPUT {
+				neigh.NumOutputs--
+				obj.NumInputs--
+			} else {
+				neigh.NumInputs--
+				obj.NumOutputs--
+			}
 		}
 
 		/* Assign on both sides */
 		neigh.Ports[p].Obj = obj
 		obj.Ports[p].Obj = neigh
+
+		/* add to input/output counts */
+		if port.PortDir == gv.PORT_INPUT {
+			neigh.NumOutputs++
+			obj.NumInputs++
+		} else {
+			neigh.NumInputs++
+			obj.NumOutputs++
+		}
 	}
 }

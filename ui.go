@@ -456,12 +456,12 @@ func rotateWorldObjects() {
 			if o != nil {
 				var newdir uint8
 				if gShiftPressed {
-					newdir = util.RotCW(o.Direction)
+					newdir = util.RotCW(o.Dir)
 				} else {
-					newdir = util.RotCCW(o.Direction)
+					newdir = util.RotCCW(o.Dir)
 				}
-				objects.LinkObj(pos, o, newdir)
-				o.Direction = newdir
+				objects.LinkObj(o)
+				o.Dir = newdir
 			}
 		}(o, pos)
 	}

@@ -6,7 +6,6 @@ import (
 	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/terrain"
-	"GameTest/util"
 	"fmt"
 	"image/color"
 	"math"
@@ -197,7 +196,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 
-						/* Draw Input Materials */
+						/* Draw Input Materials
 						if obj.OutputBuffer.Amount > 0 {
 							drawMaterials(obj.OutputBuffer, obj, op, screen)
 						} else {
@@ -207,7 +206,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 									break
 								}
 							}
-						}
+						} */
 
 					}
 					if glob.ShowInfoLayer {
@@ -227,20 +226,26 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 
-						if obj.TypeP.HasOutputs {
+						for p, port := range obj.Ports {
+							if port.PortDir != gv.PORT_OUTPUT {
+								continue
+							}
+
 							iSize := obj.TypeP.Image.Bounds()
 							op.GeoM.Reset()
 							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 								((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
+
 							/* Draw Arrow */
-							img := objects.ObjOverlayTypes[obj.Direction].Image
+							img := objects.ObjOverlayTypes[p].Image
 							if img != nil {
 								screen.DrawImage(img, op)
 							}
+
 							/* Show blocked outputs */
 							img = objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
-							if obj.OutputBuffer.Amount > 0 {
+							if obj.TypeP.ShowBlocked && obj.Blocked {
 
 								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
@@ -332,53 +337,54 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	} else {
 		/* World Obj tool tip */
-		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
-		chunk := util.GetChunk(pos)
+		//pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
+		//chunk := util.GetChunk(pos)
 
 		toolTip := ""
 		found := false
-		if chunk != nil {
-			o := util.GetObj(pos, chunk)
-			if o != nil {
-				found = true
-				toolTip = fmt.Sprintf("(%v,%v)\n%v",
-					humanize.Comma(int64(math.Floor(worldMouseX-gv.XYCenter))),
-					humanize.Comma(int64(math.Floor(worldMouseY-gv.XYCenter))), o.TypeP.Name)
-				for z := gv.DIR_NORTH; z < gv.DIR_NONE; z++ {
-					if o.Contents[z] != nil {
-						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
-							o.Contents[z].TypeP.Name, o.Contents[z].Amount)
+		/*
+			if chunk != nil {
+				o := util.GetObj(pos, chunk)
+				if o != nil {
+					found = true
+					toolTip = fmt.Sprintf("(%v,%v)\n%v",
+						humanize.Comma(int64(math.Floor(worldMouseX-gv.XYCenter))),
+						humanize.Comma(int64(math.Floor(worldMouseY-gv.XYCenter))), o.TypeP.Name)
+					for z := gv.DIR_NORTH; z < gv.DIR_NONE; z++ {
+						if o.Contents[z] != nil {
+							toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
+								o.Contents[z].TypeP.Name, o.Contents[z].Amount)
+						}
 					}
-				}
-				if o.OutputBuffer != nil && gv.Debug {
-					toolTip = toolTip + fmt.Sprintf("(OutputBuf: %v: %v: %v)\n",
-						util.DirToName(o.Direction),
-						o.OutputBuffer.TypeP.Name,
-						o.OutputBuffer.Amount)
-				}
-				if o.OutputObj != nil && o.OutputObj.InputBuffer[util.ReverseDirection(o.Direction)] != nil && gv.Debug {
-					toolTip = toolTip + fmt.Sprintf("(OutputObj: %v: %v)\n",
-						util.DirToName(o.Direction), o.OutputObj.TypeP.Name)
-				}
+					if o.OutputBuffer != nil && gv.Debug {
+						toolTip = toolTip + fmt.Sprintf("(OutputBuf: %v: %v: %v)\n",
+							util.DirToName(o.Direction),
+							o.OutputBuffer.TypeP.Name,
+							o.OutputBuffer.Amount)
+					}
+					if o.OutputObj != nil && o.OutputObj.InputBuffer[util.ReverseDirection(o.Direction)] != nil && gv.Debug {
+						toolTip = toolTip + fmt.Sprintf("(OutputObj: %v: %v)\n",
+							util.DirToName(o.Direction), o.OutputObj.TypeP.Name)
+					}
 
-				if gv.Debug {
-					var z uint8
-					for z = gv.DIR_NORTH; z < gv.DIR_NONE; z++ {
-						if o.InputBuffer[z] != nil {
-							toolTip = toolTip + fmt.Sprintf("(InputBuf: %v: %v: %v)\n",
-								util.DirToName(z),
-								o.InputBuffer[z].TypeP.Name,
-								o.InputBuffer[z].Amount)
-						}
-						if o.InputObjs[z] != nil {
-							toolTip = toolTip + fmt.Sprintf("(InputObj: %v: %v)\n",
-								o.InputObjs[z].TypeP.Name,
-								util.DirToName(util.ReverseDirection(z)))
+					if gv.Debug {
+						var z uint8
+						for z = gv.DIR_NORTH; z < gv.DIR_NONE; z++ {
+							if o.InputBuffer[z] != nil {
+								toolTip = toolTip + fmt.Sprintf("(InputBuf: %v: %v: %v)\n",
+									util.DirToName(z),
+									o.InputBuffer[z].TypeP.Name,
+									o.InputBuffer[z].Amount)
+							}
+							if o.InputObjs[z] != nil {
+								toolTip = toolTip + fmt.Sprintf("(InputObj: %v: %v)\n",
+									o.InputObjs[z].TypeP.Name,
+									util.DirToName(util.ReverseDirection(z)))
+							}
 						}
 					}
 				}
-			}
-		}
+			} */
 
 		/* No object contents found, just show x/y */
 		if !found {
@@ -438,11 +444,11 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.ObjData) {
 				}
 			} */
 
-		if obj.TypeP.Rotatable && obj.Direction > 0 {
+		if obj.TypeP.Rotatable && obj.Dir > 0 {
 			x := float64(iSize.Size().X / 2)
 			y := float64(iSize.Size().Y / 2)
 			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(cNinetyDeg * float64(obj.Direction))
+			op.GeoM.Rotate(cNinetyDeg * float64(obj.Dir))
 			op.GeoM.Translate(x, y)
 		}
 

@@ -122,17 +122,21 @@ type ObjData struct {
 	KGHeld   float64              `json:"k,omitempty"`
 
 	//Input/Output
-	Ports          [gv.DIR_MAX]ObjPortData
-	NumInputs      uint8
-	NumOutputs     uint8
+	Ports      [gv.DIR_MAX]ObjPortData
+	NumInputs  uint8
+	NumOutputs uint8
+
+	/* For round-robin */
 	LastUsedInput  uint8
 	LastUsedOutput uint8
+
+	Blocked bool
 }
 
 type ObjPortData struct {
 	PortDir uint8
 	Obj     *ObjData
-	Buf     *MatData
+	Buf     MatData
 }
 
 /* Object type data, includes image, toolbar action, and update handler */
@@ -153,8 +157,10 @@ type ObjType struct {
 	MinerKGTock float64
 	CapacityKG  float64
 
-	Ports      [gv.DIR_MAX]uint8
-	CanContain bool
+	Ports       [gv.DIR_MAX]uint8
+	CanContain  bool
+	ShowArrow   bool
+	ShowBlocked bool
 
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *ObjData) `json:"-"`

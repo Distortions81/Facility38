@@ -282,27 +282,25 @@ func tocklistRemove(obj *glob.ObjData) {
 }
 
 /* Unlink an object's (dir) input */
-func unlinkInput(obj *glob.ObjData, dir uint8) {
-	if obj.TypeP.HasInputs > 0 {
-		if obj.InputObjs[util.ReverseDirection(dir)] != nil {
-			obj.InputObjs[util.ReverseDirection(dir)].OutputObj = nil
-			obj.InputObjs[util.ReverseDirection(dir)] = nil
-			obj.InputCount--
-		}
-	}
-}
+func unlink(obj *glob.ObjData) {
+	for dir, port := range obj.Ports {
 
-/* Unlink and object's output, also removes itself from OutputObj's inputs */
-func unlinkOut(obj *glob.ObjData) {
-	if obj.TypeP.HasOutputs {
-		if obj.OutputObj != nil {
-			/* Remove ourself from input list */
-			obj.OutputObj.InputObjs[util.ReverseDirection(obj.Direction)] = nil
-			obj.OutputObj.InputCount--
-
-			/* Erase output pointer */
-			obj.OutputObj = nil
+		/* Change object port accounting */
+		if port.PortDir == gv.PORT_INPUT {
+			obj.NumInputs--
+			if port.Obj != nil {
+				port.Obj.NumOutputs++
+				port.Obj.Ports[dir].Obj = nil
+			}
+		} else {
+			obj.NumInputs++
+			if port.Obj != nil {
+				port.Obj.NumOutputs--
+				port.Obj.Ports[dir].Obj = nil
+			}
 		}
+
+		obj.Ports[dir].Obj = nil
 	}
 }
 
@@ -414,20 +412,30 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 	obj.Parent = chunk
 
 	obj.TypeP = GameObjTypes[mtype]
+	for p, port := range obj.TypeP.Ports {
+		obj.Ports[p].PortDir = port
+	}
+
+	if obj.TypeP.Rotatable {
+		obj.Dir = dir
+
+		for x := 0; x < int(dir); x++ {
+			util.RotatePortsCW(obj)
+		}
+	}
 
 	obj.Contents = [gv.MAT_MAX]*glob.MatData{}
-	if obj.TypeP.HasOutputs {
-		obj.Direction = dir
-	}
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 	}
 
-	if obj.TypeP.HasOutputs {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-		obj.OutputBuffer = &glob.MatData{}
+	for _, port := range obj.TypeP.Ports {
+		if port == gv.PORT_OUTPUT {
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+			break
+		}
 	}
 
 	obj.Parent.Lock.Lock()
@@ -440,7 +448,7 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
 
-	LinkObj(pos, obj, dir)
+	LinkObj(obj)
 
 	return obj
 }
@@ -485,12 +493,7 @@ func runObjQueue() {
 	for _, item := range ObjQueue {
 		if item.Delete {
 
-			/* Invalidate object, and disconnect any connections to us */
-			for _, inputObj := range item.Obj.InputObjs {
-				if inputObj != nil {
-					inputObj.OutputObj = nil
-				}
-			}
+			unlink(item.Obj)
 
 			/* Remove tick and tock events */
 			EventQueueAdd(item.Obj, gv.QUEUE_TYPE_TICK, true)
