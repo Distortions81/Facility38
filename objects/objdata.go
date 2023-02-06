@@ -52,7 +52,7 @@ var (
 			Size:      glob.XY{X: 1, Y: 1},
 			Rotatable: true,
 			UpdateObj: splitterUpdate,
-			Symbol:    "SPLIT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:    "SPLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
@@ -72,7 +72,7 @@ var (
 			TypeI:      gv.ObjTypeBasicSmelter,
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 50,
-			Symbol:     "SMELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:     "SMLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj: smelterUpdate,
 			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
@@ -101,7 +101,7 @@ var (
 			TypeI:      gv.ObjTypeSteamEngine,
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 500,
-			Symbol:     "STEAM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:     "STEM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj: steamEngineUpdate,
 			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
@@ -136,7 +136,7 @@ var (
 	/* Materials and images */
 	MatTypes = []*glob.ObjType{
 		//Materials
-		{Symbol: "?", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed, Name: "Error"},
+		{Symbol: "ERR", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed, Name: "Error"},
 		{Symbol: "WOOD", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown, Name: "Wood"},
 		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal.png", Name: "Coal Ore"},
 	}
