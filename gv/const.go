@@ -95,8 +95,7 @@ const (
 	DIR_EAST  = 1
 	DIR_SOUTH = 2
 	DIR_WEST  = 3
-	DIR_NONE  = 4
-	DIR_MAX   = 5
+	DIR_MAX   = 4
 
 	/* Ports */
 	PORT_NONE   = 0

@@ -17,7 +17,8 @@ func RotatePortsCW(obj *glob.ObjData) {
 	var newPorts [gv.DIR_MAX]glob.ObjPortData
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy to array, rotated with modulo
-		newPorts[(i+1)%gv.DIR_MAX] = obj.Ports[i]
+		p := int(PosIntMod((i + 1), gv.DIR_MAX))
+		newPorts[p] = obj.Ports[i]
 	}
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy back to object
@@ -25,11 +26,20 @@ func RotatePortsCW(obj *glob.ObjData) {
 	}
 }
 
+func PosIntMod(d, m int) int {
+	var res int = d % m
+	if res < 0 && m > 0 {
+		return res + m
+	}
+	return res
+}
+
 func RotatePortsCCW(obj *glob.ObjData) {
 	var newPorts [gv.DIR_MAX]glob.ObjPortData
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy to array, rotated with modulo
-		newPorts[(i-1)%gv.DIR_MAX] = obj.Ports[i]
+		p := int(PosIntMod((i - 1), gv.DIR_MAX))
+		newPorts[p] = obj.Ports[i]
 	}
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy back to object
@@ -64,22 +74,12 @@ func CenterXY(pos glob.XY) glob.XY {
 
 /* Rotate consts.DIR value clockwise */
 func RotCW(dir uint8) uint8 {
-	if dir == gv.DIR_WEST {
-		dir = gv.DIR_NORTH
-	} else {
-		dir += 1
-	}
-	return dir
+	return uint8(PosIntMod(int(dir+1), gv.DIR_MAX))
 }
 
 /* Rotate consts.DIR value counter-clockwise */
 func RotCCW(dir uint8) uint8 {
-	if dir == gv.DIR_NORTH {
-		dir = gv.DIR_WEST
-	} else {
-		dir -= 1
-	}
-	return dir
+	return uint8(PosIntMod(int(dir-1), gv.DIR_MAX))
 }
 
 /* give distance between two coordinates */

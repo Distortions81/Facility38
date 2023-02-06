@@ -168,23 +168,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					if obj == nil {
 						continue
 					}
-					objPos := obj.Pos
-
 					/* Is this object on the screen? */
-					if objPos.X < camStartX || objPos.X > camEndX || objPos.Y < camStartY || objPos.Y > camEndY {
+					if obj.Pos.X < camStartX || obj.Pos.X > camEndX || obj.Pos.Y < camStartY || obj.Pos.Y > camEndY {
 						continue
 					}
 
 					/* Time to draw it */
-					drawObject(screen, objPos, obj)
+					drawObject(screen, obj)
 
 					/* Overlays */
 					/* Draw belt overlays */
 					if obj.TypeP.TypeI == gv.ObjTypeBasicBelt {
 
 						/* camera + object */
-						objOffX := camXPos + (float64(objPos.X))
-						objOffY := camYPos + (float64(objPos.Y))
+						objOffX := camXPos + (float64(obj.Pos.X))
+						objOffY := camYPos + (float64(obj.Pos.Y))
 
 						/* camera zoom */
 						objCamPosX := objOffX * glob.ZoomScale
@@ -213,8 +211,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						/* Info Overlays, such as arrows and blocked indicator */
 
 						/* camera + object */
-						objOffX := camXPos + (float64(objPos.X))
-						objOffY := camYPos + (float64(objPos.Y))
+						objOffX := camXPos + (float64(obj.Pos.X))
+						objOffY := camYPos + (float64(obj.Pos.Y))
 
 						/* camera zoom */
 						objCamPosX := objOffX * glob.ZoomScale
@@ -413,11 +411,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 /* Draw world objects */
-func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.ObjData) {
+func drawObject(screen *ebiten.Image, obj *glob.ObjData) {
 
 	/* camera + object */
-	objOffX := camXPos + (float64(objPos.X))
-	objOffY := camYPos + (float64(objPos.Y))
+	objOffX := camXPos + (float64(obj.Pos.X))
+	objOffY := camYPos + (float64(obj.Pos.Y))
 
 	/* camera zoom */
 	x := objOffX * glob.ZoomScale
@@ -444,12 +442,12 @@ func drawObject(screen *ebiten.Image, objPos glob.XY, obj *glob.ObjData) {
 				}
 			} */
 
-		if obj.TypeP.Rotatable && obj.Dir > 0 {
-			x := float64(iSize.Size().X / 2)
-			y := float64(iSize.Size().Y / 2)
-			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(cNinetyDeg * float64(obj.Dir))
-			op.GeoM.Translate(x, y)
+		if obj.TypeP.Rotatable {
+			xx := float64(iSize.Size().X / 2)
+			yy := float64(iSize.Size().Y / 2)
+			op.GeoM.Translate(-xx, -yy)
+			op.GeoM.Rotate(cNinetyDeg * float64(int(obj.Dir)))
+			op.GeoM.Translate(xx, yy)
 		}
 
 		op.GeoM.Scale(

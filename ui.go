@@ -122,15 +122,9 @@ func handleToolbar(rotate bool) bool {
 				if rotate && objects.GameObjTypes[SelectedItemType] != nil {
 					dir := objects.GameObjTypes[SelectedItemType].Direction
 					if gShiftPressed {
-						dir = dir - 1
-						if dir < gv.DIR_NORTH {
-							dir = gv.DIR_WEST
-						}
+						dir = util.RotCCW(dir)
 					} else {
-						dir = dir + 1
-						if dir > gv.DIR_WEST {
-							dir = gv.DIR_NORTH
-						}
+						dir = util.RotCW(dir)
 					}
 					objects.GameObjTypes[SelectedItemType].Direction = dir
 					DrawToolbar()
@@ -453,16 +447,21 @@ func rotateWorldObjects() {
 		o := chunk.ObjMap[pos]
 
 		go func(o *glob.ObjData, pos glob.XY) {
+			glob.SuperChunkListLock.Lock()
 			if o != nil {
 				var newdir uint8
 				if gShiftPressed {
-					newdir = util.RotCW(o.Dir)
-				} else {
 					newdir = util.RotCCW(o.Dir)
+					util.RotatePortsCCW(o)
+				} else {
+					newdir = util.RotCW(o.Dir)
+					util.RotatePortsCW(o)
 				}
 				objects.LinkObj(o)
 				o.Dir = newdir
+
 			}
+			glob.SuperChunkListLock.Unlock()
 		}(o, pos)
 	}
 }

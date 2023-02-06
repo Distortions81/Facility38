@@ -418,13 +418,15 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	if obj.TypeP.Rotatable {
 		obj.Dir = dir
-
-		for x := 0; x < int(dir); x++ {
-			util.RotatePortsCW(obj)
-		}
 	}
 
-	obj.Contents = [gv.MAT_MAX]*glob.MatData{}
+	for x := 0; x < int(dir); x++ {
+		util.RotatePortsCW(obj)
+	}
+
+	if obj.TypeP.CanContain {
+		obj.Contents = [gv.MAT_MAX]*glob.MatData{}
+	}
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
