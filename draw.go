@@ -333,7 +333,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			o := util.GetObj(pos, chunk)
 			if o != nil {
 				found = true
-				toolTip = fmt.Sprintf("(%v,%v) %v", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
+				toolTip = fmt.Sprintf("(%v,%v)\n%v", humanize.Comma(int64(math.Floor(worldMouseX-consts.XYCenter))), humanize.Comma(int64(math.Floor(worldMouseY-consts.XYCenter))), o.TypeP.Name)
 				for z := consts.DIR_NORTH; z < consts.DIR_NONE; z++ {
 					if o.Contents[z] != nil {
 						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
