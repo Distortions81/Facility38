@@ -5,6 +5,7 @@
 GameTest
 save.json
 internalimages_*/
+fakeWasm
 out
 log
 __debug_bin
