@@ -112,27 +112,45 @@ func tickObj(obj *glob.ObjData) {
 	if obj.NumOutputs > 0 {
 		cwlog.DoLog("meep %v %v", obj.TypeP.Name, obj.Pos.X)
 		for p, port := range obj.Ports {
-			if port.Obj != nil {
-				if port.PortDir == gv.PORT_OUTPUT {
-					if port.Buf.Amount > 0 {
-						if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount == 0 {
-							fmt.Printf("TICK: %v: %v: %v\n",
-								port.Obj.TypeP.Name,
-								port.Obj.Ports[p].Buf.TypeP.Name,
-								port.Obj.Ports[p].Buf.Amount)
 
-							port.Obj.Ports[p].Buf.Amount = port.Buf.Amount
-							port.Obj.Ports[p].Buf.TypeP = port.Buf.TypeP
-							port.Buf.Amount = 0
-							obj.Blocked = false
-						} else {
-							obj.Blocked = true
-						}
-					}
-				}
+			/* Valid object */
+			if port.Obj == nil {
+				continue
 			}
+
+			/* Only process our outputs */
+			if port.PortDir != gv.PORT_OUTPUT {
+				continue
+			}
+
+			/* If we have stuff to send */
+			if port.Buf.Amount == 0 {
+				continue
+			}
+
+			/* That go to inputs */
+			if port.Obj.Ports[util.ReverseDirection(uint8(p))].PortDir != gv.PORT_INPUT {
+				continue
+			}
+
+			/* And there is somewhere empty to send it */
+			if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount == 0 {
+				continue
+			}
+
+			fmt.Printf("TICK: %v: %v: %v\n",
+				port.Obj.TypeP.Name,
+				port.Obj.Ports[p].Buf.TypeP.Name,
+				port.Obj.Ports[p].Buf.Amount)
+
+			port.Obj.Ports[p].Buf.Amount = port.Buf.Amount
+			port.Obj.Ports[p].Buf.TypeP = port.Buf.TypeP
+			port.Buf.Amount = 0
+			obj.Blocked = false
 		}
+
 	}
+
 }
 
 /* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
