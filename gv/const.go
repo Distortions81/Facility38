@@ -1,7 +1,7 @@
 package gv
 
 const (
-	Version = "011"
+	Version = "012"
 
 	/* Files and directories */
 	Wasm    = "js" //Detect wasm/jstrue
