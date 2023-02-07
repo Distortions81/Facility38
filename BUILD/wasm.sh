@@ -1,6 +1,6 @@
 #!/bin/bash
-rm html/main.wasm.gz
-rm html/main.wasm
+rm BUILD/builds/wasm/main.wasm.gz
+rm BUILD/builds/wasm/main.wasm
 
 curTime=`date -u '+%Y%m%d%H%M%S'`
 

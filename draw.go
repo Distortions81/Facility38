@@ -141,11 +141,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	chunksDrawn := 0
 
-	if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
+	if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
+		terrain.RenderTerrainST()
+	}
 
-		if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
-			terrain.RenderTerrainST()
-		}
+	if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
 
 		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {

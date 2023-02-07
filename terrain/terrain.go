@@ -18,7 +18,6 @@ const (
 	minTerrainTime      = time.Minute
 	terrainRenderRest   = time.Millisecond * 10
 	terrainRenderLoop   = time.Millisecond * 100
-	zoomCachePurge      = false //Always purges on WASM
 	debugVisualize      = false
 
 	maxPixmapCache     = 500
@@ -112,7 +111,7 @@ func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
 	if glob.ZoomScale <= gv.MapPixelThreshold {
-		if !clearedCache && (zoomCachePurge || gv.WASMMode) {
+		if !clearedCache && gv.WASMMode {
 			for _, sChunk := range glob.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
 					killTerrainCache(chunk, true)
@@ -143,7 +142,7 @@ func RenderTerrainDaemon() {
 
 		/* If we zoom out, decallocate everything */
 		if glob.ZoomScale <= gv.MapPixelThreshold {
-			if !clearedCache && zoomCachePurge {
+			if !clearedCache && gv.WASMMode {
 				glob.SuperChunkListLock.RLock()
 				for _, sChunk := range glob.SuperChunkList {
 					for _, chunk := range sChunk.ChunkList {
@@ -180,7 +179,7 @@ func RenderTerrainDaemon() {
 /* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
 func killTerrainCache(chunk *glob.MapChunk, force bool) {
 
-	if chunk.UsingTemporary || chunk.TerrainImg == nil {
+	if chunk.UsingTemporary || chunk.Rendering || chunk.TerrainImg == nil {
 		return
 	}
 
