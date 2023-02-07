@@ -9,10 +9,13 @@ import (
 func minerUpdate(obj *glob.ObjData) {
 	/* Hard-coded for speed */
 	if obj.Ports[obj.Dir].Buf.Amount == 0 {
+		obj.Blocked = false
 		input := obj.TypeP.MinerKGTock
 
 		obj.Ports[obj.Dir].Buf.Amount = input
 		obj.Ports[obj.Dir].Buf.TypeP = *MatTypes[gv.MAT_COAL]
+	} else {
+		obj.Blocked = true
 	}
 }
 
