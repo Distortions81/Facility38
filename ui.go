@@ -322,7 +322,11 @@ func createWorldObjects() {
 
 							if !bypass {
 								dir := objects.GameObjTypes[SelectedItemType].Direction
-								go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
+								if glob.WASMMode {
+									objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
+								} else {
+									go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
+								}
 
 								gLastActionPosition = pos
 								gLastActionType = cDragActionTypeBuild
@@ -333,7 +337,11 @@ func createWorldObjects() {
 							if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
 								if o != nil {
-									go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+									if glob.WASMMode {
+										objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+									} else {
+										go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+									}
 									//Action completed, save position and time
 									gLastActionPosition = pos
 									gLastActionType = cDragActionTypeDelete

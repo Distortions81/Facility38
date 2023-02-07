@@ -4,7 +4,6 @@ const (
 	Version = "012"
 
 	/* Files and directories */
-	Wasm    = "js" //Detect wasm/jstrue
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"

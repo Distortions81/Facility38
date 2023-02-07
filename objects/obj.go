@@ -18,9 +18,11 @@ var (
 	TockList     []glob.TickEvent = []glob.TickEvent{}
 	TockListLock sync.Mutex
 
-	ObjQueue   []*glob.ObjectQueuetData
-	EventQueue []*glob.EventQueueData
-	QueueLock  sync.Mutex
+	ObjQueue     []*glob.ObjectQueuetData
+	ObjQueueLock sync.Mutex
+
+	EventQueue     []*glob.EventQueueData
+	EventQueueLock sync.Mutex
 
 	gTickCount    int
 	gTockCount    int
@@ -56,10 +58,13 @@ func ObjUpdateDaemon() {
 		runTocks() //Process objects
 		runTicks() //Move external
 
-		QueueLock.Lock()
+		EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
-		runObjQueue()   //Queue to add/remove objects
-		QueueLock.Unlock()
+		EventQueueLock.Unlock()
+
+		ObjQueueLock.Lock()
+		runObjQueue() //Queue to add/remove objects
+		ObjQueueLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
@@ -81,10 +86,13 @@ func ObjUpdateDaemonST() {
 		runTocksST() //Process objects
 		runTicksST() //Move external
 
-		QueueLock.Lock()
+		EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
-		runObjQueue()   //Queue to add/remove objects
-		QueueLock.Unlock()
+		EventQueueLock.Unlock()
+
+		ObjQueueLock.Lock()
+		runObjQueue() //Queue to add/remove objects
+		ObjQueueLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
@@ -264,8 +272,8 @@ func tockListAdd(obj *glob.ObjData) {
 
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
-	QueueLock.Lock()
-	defer QueueLock.Unlock()
+	EventQueueLock.Lock()
+	defer EventQueueLock.Unlock()
 
 	prefixStr := "Add"
 	if delete {
@@ -496,11 +504,8 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 	}
 
-	for _, port := range obj.TypeP.Ports {
-		if port == gv.PORT_OUTPUT {
-			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-			break
-		}
+	if util.ObjHasPort(obj, gv.PORT_OUTPUT) {
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 
 	return obj
@@ -508,9 +513,9 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
 func ObjQueueAdd(obj *glob.ObjData, otype uint8, pos glob.XY, delete bool, dir uint8) {
-	QueueLock.Lock()
+	ObjQueueLock.Lock()
 	ObjQueue = append(ObjQueue, &glob.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
-	QueueLock.Unlock()
+	ObjQueueLock.Unlock()
 
 	prefixStr := "Add"
 	if delete {

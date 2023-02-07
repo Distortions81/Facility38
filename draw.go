@@ -124,12 +124,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		!glob.PlayerReady.Load() {
 
 		bootScreen(screen)
-		if glob.WASMMode {
-			/* Throttle if needed */
-			sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
-			time.Sleep(sleepFor)
 
-		}
+		/* Throttle if needed */
+		sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
+		time.Sleep(sleepFor)
+		time.Sleep(time.Microsecond)
 		return
 	}
 
@@ -143,6 +142,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	chunksDrawn := 0
 
 	if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
+
+		if glob.WASMMode && frameCount%WASMTerrtainDiv == 0 {
+			terrain.RenderTerrainST()
+		}
 
 		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
@@ -201,7 +204,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 
 						/* Draw Input Materials */
-						for p, _ := range obj.Ports {
+						for p := range obj.Ports {
 							drawMaterials(&obj.Ports[p].Buf, obj, op, screen)
 						}
 
@@ -386,10 +389,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DrawRect(screen, mx-1, my-15, float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 
-	}
-
-	if glob.WASMMode && frameCount%WASMTerrtainDiv == 0 {
-		terrain.RenderTerrainST()
 	}
 
 	/* Throttle if needed */

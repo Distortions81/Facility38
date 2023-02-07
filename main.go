@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"runtime/debug"
 	"time"
 
 	"github.com/ebitenui/ebitenui"
@@ -31,7 +30,7 @@ type Game struct {
 func main() {
 	cwlog.StartLog()
 
-	debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
+	//debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
 	if runtime.GOARCH == "wasm" {
 		glob.WASMMode = true
 	}
@@ -127,10 +126,7 @@ func bootScreen(screen *ebiten.Image) {
 	}
 	screen.Fill(glob.ColorCharcol)
 	if status == "" {
-		//screen.Fill(glob.ColorCharcol)
 		status = "Loading complete!\n(Press any key or click to continue)"
-	} else {
-		//screen.Fill(glob.ColorBlack)
 	}
 
 	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)

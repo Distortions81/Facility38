@@ -13,17 +13,19 @@ import (
 )
 
 const (
-	maxTerrainCache   = 500
-	minTerrainTime    = time.Minute
-	terrainRenderRest = time.Millisecond * 10
-	terrainRenderLoop = time.Millisecond * 100
-	zoomCachePurge    = false //Always purges on WASM
-	debugVisualize    = false
+	maxTerrainCache     = 500
+	maxTerrainCacheWASM = 50
+	minTerrainTime      = time.Minute
+	terrainRenderRest   = time.Millisecond * 10
+	terrainRenderLoop   = time.Millisecond * 100
+	zoomCachePurge      = false //Always purges on WASM
+	debugVisualize      = false
 
-	maxPixmapCache   = 500
-	minPixmapTime    = time.Minute
-	pixmapRenderRest = time.Millisecond * 10
-	pixmapRenderLoop = time.Millisecond * 100
+	maxPixmapCache     = 500
+	maxPixmapCacheWASM = 50
+	minPixmapTime      = time.Minute
+	pixmapRenderRest   = time.Millisecond * 10
+	pixmapRenderLoop   = time.Millisecond * 100
 )
 
 var (
@@ -130,8 +132,7 @@ func RenderTerrainST() {
 				if chunk.Precache && chunk.UsingTemporary {
 					renderChunkGround(chunk, true, chunk.Pos)
 					break
-				} else if !chunk.Precache &&
-					numTerrainCache > maxTerrainCache {
+				} else if !chunk.Precache {
 					killTerrainCache(chunk, false)
 				}
 			}
@@ -169,8 +170,7 @@ func RenderTerrainDaemon() {
 					if chunk.Precache && chunk.UsingTemporary {
 						renderChunkGround(chunk, true, chunk.Pos)
 						time.Sleep(terrainRenderRest)
-					} else if !chunk.Precache &&
-						numTerrainCache > maxTerrainCache {
+					} else if !chunk.Precache {
 						killTerrainCache(chunk, false)
 						time.Sleep(terrainRenderRest)
 					}
@@ -187,14 +187,19 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	if chunk.UsingTemporary || chunk.TerrainImg == nil {
 		return
 	}
-	if force || numTerrainCache > maxTerrainCache &&
-		time.Since(chunk.TerrainTime) > minTerrainTime {
+
+	if force ||
+		(numTerrainCache > maxTerrainCache &&
+			time.Since(chunk.TerrainTime) > minTerrainTime) ||
+		(glob.WASMMode && numTerrainCache > maxTerrainCacheWASM) {
+
 		chunk.TerrainLock.Lock()
 		chunk.TerrainImg.Dispose()
 		chunk.TerrainImg = glob.TempChunkImage
 		chunk.UsingTemporary = true
 		numTerrainCache--
 		chunk.TerrainLock.Unlock()
+
 	}
 }
 
@@ -244,7 +249,9 @@ func PixmapRenderDaemon() {
 
 				pixmapCacheCleared = true
 				sChunk.PixLock.Lock()
-				if sChunk.PixMap != nil && maxPixmapCache > numPixmapCache {
+				if sChunk.PixMap != nil &&
+					(maxPixmapCache > numPixmapCache ||
+						(glob.WASMMode && maxPixmapCacheWASM > numPixmapCache)) {
 
 					sChunk.PixMap.Dispose()
 					sChunk.PixMap = nil
