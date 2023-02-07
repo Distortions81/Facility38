@@ -40,7 +40,7 @@ func ObjUpdateDaemon() {
 	var start time.Time
 
 	for !glob.MapGenerated.Load() {
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Millisecond * 10)
 	}
 
 	for {
@@ -72,7 +72,6 @@ func ObjUpdateDaemon() {
 		}
 
 		glob.MeasuredObjectUPS_ns = time.Since(start)
-		time.Sleep(time.Microsecond)
 	}
 }
 
@@ -99,7 +98,6 @@ func ObjUpdateDaemonST() {
 			time.Sleep(sleepFor)
 		}
 		glob.MeasuredObjectUPS_ns = time.Since(start)
-		time.Sleep(time.Nanosecond)
 	}
 }
 

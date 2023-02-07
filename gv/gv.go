@@ -3,7 +3,7 @@ package gv
 // Set at build
 var (
 	UPSBench   = false
-	LoadTest   = false
+	LoadTest   = true
 	WASMMode   = false
 	Debug      = false
 	Verbose    = false

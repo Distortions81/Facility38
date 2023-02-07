@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -54,7 +53,6 @@ func main() {
 	}
 	cwlog.StartLog()
 
-	//debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
 	str, err := data.GetText("intro")
 	if err != nil {
 		panic(err)
@@ -63,8 +61,7 @@ func main() {
 	detectCPUs()
 
 	/* Set up ebiten and window */
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
-	ebiten.SetScreenFilterEnabled(false)
+	ebiten.SetVsyncEnabled(false)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	setupWindowSize()
@@ -115,9 +112,6 @@ func loadSprites() {
 				timg = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				timg.Fill(icon.ItemColor)
 				text.Draw(timg, icon.Symbol, glob.ObjectFont, gv.SymbOffX, gv.SymbOffY, icon.SymbolColor)
-				if gv.WASMMode {
-					time.Sleep(time.Nanosecond)
-				}
 			}
 
 			icon.Image = timg

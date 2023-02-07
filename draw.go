@@ -105,18 +105,12 @@ func updateVisData() {
 
 /* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
-	/* Draw start */
-	drawStart := time.Now()
 
 	if !glob.MapGenerated.Load() ||
 		!glob.SpritesLoaded.Load() ||
 		!glob.PlayerReady.Load() {
 
 		bootScreen(screen)
-
-		/* Throttle if needed */
-		sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
-		time.Sleep(sleepFor)
 		time.Sleep(time.Microsecond)
 		return
 	}
@@ -378,11 +372,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 
 	}
-
-	/* Throttle if needed */
-	sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
-	time.Sleep(sleepFor)
-
 }
 
 /* Draw world objects */

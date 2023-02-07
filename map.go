@@ -10,7 +10,6 @@ import (
 
 /* Make a test map, or skip and still start daemons */
 func makeTestMap(skip bool) {
-	time.Sleep(time.Second)
 
 	if !skip {
 		//start := time.Now()
@@ -60,9 +59,6 @@ func makeTestMap(skip bool) {
 				}
 
 				glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
-				if gv.WASMMode {
-					time.Sleep(time.Nanosecond)
-				}
 			}
 		} else {
 			/* Default map generator */
@@ -121,21 +117,14 @@ func makeTestMap(skip bool) {
 			Loaded++
 
 			glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
-			if gv.WASMMode {
-				time.Sleep(time.Nanosecond)
-			}
 		}
-		if gv.WASMMode {
-			time.Sleep(time.Nanosecond)
-		}
-		//objects.UnsafeMakeObjLists()
 	}
 
 	glob.MapGenerated.Store(true)
 
 	for !glob.SpritesLoaded.Load() ||
 		!glob.PlayerReady.Load() {
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Millisecond * 10)
 	}
 
 	if !gv.WASMMode {
