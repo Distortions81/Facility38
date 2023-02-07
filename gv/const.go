@@ -55,18 +55,8 @@ const (
 	MAT_NONE = 0
 	MAT_WOOD = 1
 	MAT_COAL = 2 //black with color sheen
-
-	MAT_COPPER_ORE = 3 //Copper blue + dark rust color
-	MAT_LEAD_ORE   = 4 //bright + soft metallic flecks
-	MAT_TIN_ORE    = 5 //Dark gray with light rust color
-	MAT_IRON_ORE   = 6 //fire red, with some gray
-
-	MAT_COPPER = 7  //Copper red
-	MAT_LEAD   = 8  //Dull gray
-	MAT_TIN    = 9  //Solder
-	MAT_IRON   = 10 //Cast pan
-
-	MAT_MAX = 11
+	MAT_ERR  = 3
+	MAT_MAX  = 4
 
 	/* Placeholder texture words render offset */
 	SymbOffX = 0

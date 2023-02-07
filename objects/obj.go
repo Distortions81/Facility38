@@ -146,8 +146,8 @@ func tickObj(obj *glob.ObjData) {
 				port.Obj.Ports[p].Buf.TypeP.Name,
 				port.Obj.Ports[p].Buf.Amount)
 
-			port.Obj.Ports[p].Buf.Amount = port.Buf.Amount
-			port.Obj.Ports[p].Buf.TypeP = port.Buf.TypeP
+			port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount = port.Buf.Amount
+			port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.TypeP = port.Buf.TypeP
 			port.Buf.Amount = 0
 			obj.Blocked = false
 		}

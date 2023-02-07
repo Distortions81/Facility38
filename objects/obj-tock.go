@@ -29,22 +29,27 @@ func beltUpdate(obj *glob.ObjData) {
 
 	/* Find all inputs, round-robin send to output */
 	for p, port := range obj.Ports {
-		if port.PortDir == gv.PORT_INPUT {
-			if obj.NumInputs > 1 {
-				if uint8(p) == obj.LastUsedInput {
-					cwlog.DoLog("beltUpdate: Skipping previously used input.%v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-					continue
-				}
-				obj.LastUsedInput = uint8(p)
-			}
-			if port.Buf.Amount > 0 {
-				obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
-				obj.Ports[obj.Dir].Buf.TypeP = port.Buf.TypeP
-				port.Buf.Amount = 0
-				break
-			}
-			cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+		if port.PortDir != gv.PORT_INPUT {
+			continue
 		}
+		/*if obj.NumInputs > 1 {
+			if uint8(p) == obj.LastUsedInput {
+				cwlog.DoLog("beltUpdate: Skipping previously used input.%v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				continue
+			}
+			obj.LastUsedInput = uint8(p)
+		}*/
+		if port.Buf.Amount == 0 {
+			cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		} else {
+			cwlog.DoLog("beltUpdate: Good! %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
+			obj.Ports[obj.Dir].Buf.TypeP = port.Buf.TypeP
+			obj.Ports[p].Buf.Amount = 0
+			break
+		}
+
 	}
 }
 
@@ -71,16 +76,12 @@ func splitterUpdate(obj *glob.ObjData) {
 }
 
 func boxUpdate(obj *glob.ObjData) {
-	if obj.NumInputs <= 0 {
-		cwlog.DoLog("boxUpdate: No inputs. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-		return
-	}
-
-	for _, port := range obj.Ports {
+	for p, port := range obj.Ports {
 		if port.PortDir != gv.PORT_INPUT {
 			cwlog.DoLog("tickObj: Our port is not an input. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
+
 		if port.Buf.Amount == 0 {
 			cwlog.DoLog("tickObj: Input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
@@ -90,10 +91,12 @@ func boxUpdate(obj *glob.ObjData) {
 			cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
-		obj.Contents[port.Buf.TypeP.TypeI].Amount = port.Buf.Amount
-		obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
+		if obj.Contents[port.Buf.TypeP.TypeI] == nil {
+			obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
+		}
+		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
 		obj.KGHeld += port.Buf.Amount
-		port.Buf.Amount = 0
+		obj.Ports[p].Buf.Amount = 0
 
 	}
 }

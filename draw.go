@@ -345,11 +345,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					o.TypeP.Name,
 					humanize.Comma(int64(math.Floor(worldMouseX-gv.XYCenter))),
 					humanize.Comma(int64(math.Floor(worldMouseY-gv.XYCenter))))
-				for z := 0; z < gv.DIR_MAX; z++ {
+				for z := 0; z < gv.MAT_MAX; z++ {
 					if o.Contents[z] != nil {
 						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
 							o.Contents[z].TypeP.Name, o.Contents[z].Amount)
 					}
+				}
+				for z := 0; z < gv.DIR_MAX; z++ {
 					if o.Ports[z].PortDir == gv.PORT_INPUT && o.Ports[z].Obj != nil {
 						toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %v)\n",
 							util.DirToName(uint8(z)),
