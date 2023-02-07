@@ -43,10 +43,8 @@ func LinkObj(obj *glob.ObjData) {
 			obj.Ports[p].Obj = nil
 
 			if port.PortDir == gv.PORT_INPUT {
-				neigh.NumOutputs--
 				obj.NumInputs--
 			} else {
-				neigh.NumInputs--
 				obj.NumOutputs--
 			}
 		}

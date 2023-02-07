@@ -43,7 +43,6 @@ func beltUpdate(obj *glob.ObjData) {
 			cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		} else {
-			cwlog.DoLog("beltUpdate: Good! %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
 			obj.Ports[obj.Dir].Buf.TypeP = port.Buf.TypeP
 			obj.Ports[p].Buf.Amount = 0
