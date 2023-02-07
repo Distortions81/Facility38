@@ -495,9 +495,7 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 		obj.Ports[p].PortDir = port
 	}
 
-	if obj.TypeP.Rotatable {
-		obj.Dir = dir
-	}
+	obj.Dir = dir
 
 	for x := 0; x < int(dir); x++ {
 		util.RotatePortsCW(obj)
