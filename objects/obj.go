@@ -360,13 +360,14 @@ func makeSuperChunk(pos glob.XY) {
 	newPos := pos
 	scpos := util.PosToSuperChunkPos(newPos)
 
-	glob.SuperChunkMapLock.Lock()         //Lock Superclunk map
-	glob.SuperChunkListLock.Lock()        //Lock Superchunk list
-	glob.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
+	glob.SuperChunkMapLock.Lock()  //Lock Superclunk map
+	glob.SuperChunkListLock.Lock() //Lock Superchunk list
 
 	if glob.SuperChunkMap[scpos] == nil {
+
 		/* Make new superchunk in map at pos */
 		glob.SuperChunkMap[scpos] = &glob.MapSuperChunk{}
+		glob.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
 
 		glob.SuperChunkList =
 			append(glob.SuperChunkList, glob.SuperChunkMap[scpos])
@@ -374,9 +375,9 @@ func makeSuperChunk(pos glob.XY) {
 
 		/* Save position */
 		glob.SuperChunkMap[scpos].Pos = scpos
-	}
 
-	glob.SuperChunkMap[scpos].Lock.Unlock()
+		glob.SuperChunkMap[scpos].Lock.Unlock()
+	}
 	glob.SuperChunkListLock.Unlock()
 	glob.SuperChunkMapLock.Unlock()
 }
@@ -392,9 +393,8 @@ func MakeChunk(pos glob.XY) {
 	cpos := util.PosToChunkPos(newPos)
 	scpos := util.PosToSuperChunkPos(newPos)
 
-	glob.SuperChunkMapLock.Lock()         //Lock Superclunk map
-	glob.SuperChunkListLock.Lock()        //Lock Superchunk list
-	glob.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
+	glob.SuperChunkMapLock.Lock()  //Lock Superclunk map
+	glob.SuperChunkListLock.Lock() //Lock Superchunk list
 
 	if glob.SuperChunkMap[scpos].ChunkMap[cpos] == nil {
 		/* Increase chunk count */
@@ -402,6 +402,7 @@ func MakeChunk(pos glob.XY) {
 
 		/* Make a new empty chunk in the map at pos */
 		glob.SuperChunkMap[scpos].ChunkMap[cpos] = &glob.MapChunk{}
+		glob.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
 
 		/* Append to chunk list */
 		glob.SuperChunkMap[scpos].ChunkList =
@@ -418,9 +419,10 @@ func MakeChunk(pos glob.XY) {
 
 		/* Save parent */
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].Parent = glob.SuperChunkMap[scpos]
+
+		glob.SuperChunkMap[scpos].Lock.Unlock()
 	}
 
-	glob.SuperChunkMap[scpos].Lock.Unlock()
 	glob.SuperChunkListLock.Unlock()
 	glob.SuperChunkMapLock.Unlock()
 }
