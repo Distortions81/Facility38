@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/util"
-	"fmt"
 	"sync"
 	"time"
 
@@ -19,11 +18,9 @@ var (
 	TockList     []glob.TickEvent = []glob.TickEvent{}
 	TockListLock sync.Mutex
 
-	ObjQueue     []*glob.ObjectQueuetData
-	ObjQueueLock sync.Mutex
-
-	EventQueue     []*glob.EventQueueData
-	EventQueueLock sync.Mutex
+	ObjQueue   []*glob.ObjectQueuetData
+	EventQueue []*glob.EventQueueData
+	QueueLock  sync.Mutex
 
 	gTickCount    int
 	gTockCount    int
@@ -56,32 +53,21 @@ func ObjUpdateDaemon() {
 			TockWorkSize = 1
 		}
 
-		TockListLock.Lock()
 		runTocks() //Process objects
-		TockListLock.Unlock()
-
-		TickListLock.Lock()
 		runTicks() //Move external
-		TickListLock.Unlock()
 
-		EventQueueLock.Lock()
+		QueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
-		EventQueueLock.Unlock()
-
-		ObjQueueLock.Lock()
-		runObjQueue() //Queue to add/remove objects
-		ObjQueueLock.Unlock()
+		runObjQueue()   //Queue to add/remove objects
+		QueueLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
-		} else {
-			if glob.WASMMode {
-				time.Sleep(time.Nanosecond)
-			}
 		}
 
 		glob.MeasuredObjectUPS_ns = time.Since(start)
+		time.Sleep(time.Microsecond)
 	}
 }
 
@@ -89,28 +75,23 @@ func ObjUpdateDaemon() {
 func ObjUpdateDaemonST() {
 	var start time.Time
 
-	time.Sleep(time.Second)
-	for !glob.MapGenerated.Load() {
-		time.Sleep(time.Millisecond * 100)
-	}
-
 	for {
 		start = time.Now()
 
-		runTocksST()    //Process objects
-		runTicksST()    //Move external
+		runTocksST() //Process objects
+		runTicksST() //Move external
+
+		QueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
 		runObjQueue()   //Queue to add/remove objects
+		QueueLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
-		} else {
-			if glob.WASMMode {
-				time.Sleep(time.Nanosecond)
-			}
 		}
 		glob.MeasuredObjectUPS_ns = time.Since(start)
+		time.Sleep(time.Nanosecond)
 	}
 }
 
@@ -127,7 +108,7 @@ func tickObj(obj *glob.ObjData) {
 
 		/* Only process our outputs */
 		if port.PortDir != gv.PORT_OUTPUT {
-			cwlog.DoLog("tickObj: Our port not an output. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			//cwlog.DoLog("tickObj: Our port not an output. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
 
@@ -138,20 +119,20 @@ func tickObj(obj *glob.ObjData) {
 
 		/* That go to inputs */
 		if port.Obj.Ports[util.ReverseDirection(uint8(p))].PortDir != gv.PORT_INPUT {
-			cwlog.DoLog("tickObj: Their port is not an input %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			//cwlog.DoLog("tickObj: Their port is not an input %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
 
 		/* And there is somewhere empty to send it */
 		if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount != 0 {
-			cwlog.DoLog("tickObj: Their input isn't empty %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			//cwlog.DoLog("tickObj: Their input isn't empty %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
 
-		fmt.Printf("TICK: %v: %v: %v\n",
-			port.Obj.TypeP.Name,
-			port.Obj.Ports[p].Buf.TypeP.Name,
-			port.Obj.Ports[p].Buf.Amount)
+		/*cwlog.DoLog("TICK: %v: %v: %v\n",
+		port.Obj.TypeP.Name,
+		port.Obj.Ports[p].Buf.TypeP.Name,
+		port.Obj.Ports[p].Buf.Amount) */
 
 		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount = port.Buf.Amount
 		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.TypeP = port.Buf.TypeP
@@ -283,8 +264,8 @@ func tockListAdd(obj *glob.ObjData) {
 
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
-	EventQueueLock.Lock()
-	defer EventQueueLock.Unlock()
+	QueueLock.Lock()
+	defer QueueLock.Unlock()
 
 	prefixStr := "Add"
 	if delete {
@@ -379,28 +360,25 @@ func makeSuperChunk(pos glob.XY) {
 	newPos := pos
 	scpos := util.PosToSuperChunkPos(newPos)
 
-	glob.SuperChunkMapLock.Lock()
-	defer glob.SuperChunkMapLock.Unlock()
+	glob.SuperChunkMapLock.Lock()         //Lock Superclunk map
+	glob.SuperChunkListLock.Lock()        //Lock Superchunk list
+	glob.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
 
 	if glob.SuperChunkMap[scpos] == nil {
 		/* Make new superchunk in map at pos */
 		glob.SuperChunkMap[scpos] = &glob.MapSuperChunk{}
-		glob.SuperChunkMap[scpos].Lock.Lock()
 
-		/* Append to superchunk list */
-		glob.SuperChunkListLock.Lock()
 		glob.SuperChunkList =
 			append(glob.SuperChunkList, glob.SuperChunkMap[scpos])
-		glob.SuperChunkListLock.Unlock()
-
 		glob.SuperChunkMap[scpos].ChunkMap = make(map[glob.XY]*glob.MapChunk)
 
 		/* Save position */
 		glob.SuperChunkMap[scpos].Pos = scpos
-
-		glob.SuperChunkMap[scpos].Lock.Unlock()
 	}
 
+	glob.SuperChunkMap[scpos].Lock.Unlock()
+	glob.SuperChunkListLock.Unlock()
+	glob.SuperChunkMapLock.Unlock()
 }
 
 /* Make a chunk, insert into superchunk */
@@ -414,14 +392,16 @@ func MakeChunk(pos glob.XY) {
 	cpos := util.PosToChunkPos(newPos)
 	scpos := util.PosToSuperChunkPos(newPos)
 
-	if glob.SuperChunkMap[scpos].ChunkMap[cpos] == nil {
+	glob.SuperChunkMapLock.Lock()         //Lock Superclunk map
+	glob.SuperChunkListLock.Lock()        //Lock Superchunk list
+	glob.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
 
+	if glob.SuperChunkMap[scpos].ChunkMap[cpos] == nil {
 		/* Increase chunk count */
 		glob.SuperChunkMap[scpos].NumChunks++
 
 		/* Make a new empty chunk in the map at pos */
 		glob.SuperChunkMap[scpos].ChunkMap[cpos] = &glob.MapChunk{}
-		glob.SuperChunkMap[scpos].Lock.Lock()
 
 		/* Append to chunk list */
 		glob.SuperChunkMap[scpos].ChunkList =
@@ -438,9 +418,11 @@ func MakeChunk(pos glob.XY) {
 
 		/* Save parent */
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].Parent = glob.SuperChunkMap[scpos]
-
-		glob.SuperChunkMap[scpos].Lock.Unlock()
 	}
+
+	glob.SuperChunkMap[scpos].Lock.Unlock()
+	glob.SuperChunkListLock.Unlock()
+	glob.SuperChunkMapLock.Unlock()
 }
 
 /* Explore (input) chunks + and - */
@@ -524,9 +506,9 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
 func ObjQueueAdd(obj *glob.ObjData, otype uint8, pos glob.XY, delete bool, dir uint8) {
-	ObjQueueLock.Lock()
+	QueueLock.Lock()
 	ObjQueue = append(ObjQueue, &glob.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
-	ObjQueueLock.Unlock()
+	QueueLock.Unlock()
 
 	prefixStr := "Add"
 	if delete {

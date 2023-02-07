@@ -23,6 +23,7 @@ const (
 	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
+	cMAX_RENDER_NS_BOOT     = 1000000000 / 30  /* 30 FPS */
 	cPreCache               = 4
 	WASMTerrtainDiv         = 5
 )
@@ -115,13 +116,19 @@ func updateVisData() {
 
 /* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
+	/* Draw start */
+	drawStart := time.Now()
 
 	if !glob.MapGenerated.Load() ||
 		!glob.SpritesLoaded.Load() ||
 		!glob.PlayerReady.Load() {
+
 		bootScreen(screen)
 		if glob.WASMMode {
-			time.Sleep(time.Millisecond * 250) //4 fps
+			/* Throttle if needed */
+			sleepFor := cMAX_RENDER_NS - time.Since(drawStart)
+			time.Sleep(sleepFor)
+
 		}
 		return
 	}
@@ -130,8 +137,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	frameCount++
 
-	/* Draw start */
-	drawStart := time.Now()
 	calcScreenCamera()
 	updateVisData()
 
@@ -383,7 +388,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	}
 
-	/* Limit frame rate */
 	if glob.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 		terrain.RenderTerrainST()
 	}

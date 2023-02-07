@@ -43,6 +43,19 @@ func main() {
 	bootText = str
 	detectCPUs()
 
+	/* Set up ebiten and window */
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
+	ebiten.SetScreenFilterEnabled(false)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+
+	setupWindowSize()
+
+	if glob.WASMMode && (gv.LoadTest || gv.UPSBench) {
+		glob.PlayerReady.Store(true)
+	}
+
+	windowTitle()
+
 	if err := ebiten.RunGame(NewGame()); err != nil {
 		log.Fatal(err)
 	}
@@ -50,20 +63,6 @@ func main() {
 
 /* Ebiten game init */
 func NewGame() *Game {
-
-	/* Set up ebiten and window */
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
-	ebiten.SetScreenFilterEnabled(false)
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
-
-	if glob.WASMMode && (gv.LoadTest || gv.UPSBench) {
-		glob.PlayerReady.Store(true)
-		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	}
-
-	setupWindowSize()
-	windowTitle()
-
 	go loadSprites()
 	objects.ExploreMap(4)
 	go makeTestMap(false)
@@ -141,9 +140,9 @@ func bootScreen(screen *ebiten.Image) {
 
 	multi := 5.0
 	pw := 100.0 * multi
-	tall := 16.0
+	tall := 24.0
 	x := (float64(glob.ScreenWidth) / 2.0) - (pw / 2.0)
-	y := (float64(glob.ScreenHeight) / 3.0) * 2.3
+	y := (float64(glob.ScreenHeight) / 3.0) * 2.4
 	ebitenutil.DrawRect(screen, x, y, pw, tall, glob.ColorVeryDarkGray)
 	color := glob.ColorWhite
 	if glob.MapLoadPercent >= 100 {
@@ -205,13 +204,6 @@ func setupWindowSize() {
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
-	/* Don't resize until we are ready */
-	if gv.UPSBench ||
-		!glob.MapGenerated.Load() ||
-		!glob.SpritesLoaded.Load() ||
-		!glob.PlayerReady.Load() {
-		return glob.ScreenWidth, glob.ScreenHeight
-	}
 	if outsideWidth != glob.ScreenWidth || outsideHeight != glob.ScreenHeight {
 		glob.ScreenWidth = outsideWidth
 		glob.ScreenHeight = outsideHeight

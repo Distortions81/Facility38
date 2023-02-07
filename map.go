@@ -130,15 +130,19 @@ func makeTestMap(skip bool) {
 		}
 		//objects.UnsafeMakeObjLists()
 	}
+
+	glob.MapGenerated.Store(true)
+
+	for !glob.SpritesLoaded.Load() ||
+		!glob.PlayerReady.Load() {
+		time.Sleep(time.Millisecond * 100)
+	}
+
 	if !glob.WASMMode {
 		go terrain.RenderTerrainDaemon()
 		go terrain.PixmapRenderDaemon()
 		go objects.ObjUpdateDaemon()
 	} else {
 		go objects.ObjUpdateDaemonST()
-	}
-	glob.MapGenerated.Store(true)
-	if glob.WASMMode {
-		time.Sleep(time.Nanosecond)
 	}
 }
