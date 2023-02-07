@@ -248,8 +248,6 @@ func runTocksST() {
 
 /* Lock and append to TickList */
 func ticklistAdd(obj *glob.ObjData) {
-	TickListLock.Lock()
-	defer TickListLock.Unlock()
 
 	oPos := util.CenterXY(obj.Pos)
 	cwlog.DoLog("tockListAdd: Added %v to TICK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
@@ -260,8 +258,6 @@ func ticklistAdd(obj *glob.ObjData) {
 
 /* Lock and append to TockList */
 func tockListAdd(obj *glob.ObjData) {
-	TockListLock.Lock()
-	defer TockListLock.Unlock()
 
 	oPos := util.CenterXY(obj.Pos)
 	cwlog.DoLog("tockListAdd: Added %v to TOCK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
@@ -272,8 +268,6 @@ func tockListAdd(obj *glob.ObjData) {
 
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
-	EventQueueLock.Lock()
-	defer EventQueueLock.Unlock()
 
 	prefixStr := "Add"
 	if delete {
@@ -295,8 +289,6 @@ func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
 
 /* Lock and remove tick event */
 func ticklistRemove(obj *glob.ObjData) {
-	TickListLock.Lock()
-	defer TickListLock.Unlock()
 
 	oPos := util.CenterXY(obj.Pos)
 	for i, e := range TickList {
@@ -501,11 +493,11 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
-		go EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 	}
 
 	if util.ObjHasPort(obj, gv.PORT_OUTPUT) {
-		go EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 
 	return obj

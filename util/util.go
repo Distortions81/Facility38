@@ -48,8 +48,8 @@ func RotatePortsCCW(obj *glob.ObjData) {
 }
 
 func ObjHasPort(obj *glob.ObjData, portDir uint8) bool {
-	for p, port := range obj.Ports {
-		if obj.TypeP.Ports[p] == portDir && port.Obj == nil {
+	for p, _ := range obj.Ports {
+		if obj.TypeP.Ports[p] == portDir {
 			return true
 		}
 	}
