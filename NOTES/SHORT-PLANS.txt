@@ -4,20 +4,6 @@ export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
 $2D doom$
 
-tickinterval lists, so items can run every Nth tick
-Game objects need folders and JSON files with links to the sprites and other data.
-WASM try to patch mouse lost when going off-screen stupidity, also spread ticks
 
-
-Current Priority:
-Draw a ghost for pending delete/add object... maybe add timer for construct/deconstruct.
-
-support larger items, use pointers or additional maps/lists?
-
-Set object input and output directions in defs instead of trying all directions,
-possibly even make user manually specify (no default input/output?)
-
-Think about how we want to handle many materials, and types quickly but without insane memory use.
-:: We could possibly use one material type that has a bitflag, even allowing mixed materials.
-
-Fix the unsafe.go
+Issues moved to github
+https://github.com/Distortions81/GameTest/issues
