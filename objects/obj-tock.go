@@ -4,15 +4,15 @@ import (
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/gv"
+	"GameTest/util"
 )
 
 func minerUpdate(obj *glob.ObjData) {
 	/* Hard-coded for speed */
 	if obj.Ports[obj.Dir].Buf.Amount == 0 {
 		obj.Blocked = false
-		input := obj.TypeP.MinerKGTock
 
-		obj.Ports[obj.Dir].Buf.Amount = input
+		obj.Ports[obj.Dir].Buf.Amount = obj.TypeP.MinerKGTock
 		obj.Ports[obj.Dir].Buf.TypeP = *MatTypes[gv.MAT_COAL]
 	} else {
 		obj.Blocked = true
@@ -20,13 +20,10 @@ func minerUpdate(obj *glob.ObjData) {
 }
 
 func beltUpdate(obj *glob.ObjData) {
-	/* No outputs */
-	if obj.NumOutputs == 0 {
-		return
-	}
 
 	/* Output is full, exit */
-	if obj.Ports[obj.Dir].Buf.Amount > 0 {
+	if obj.Ports[obj.Dir].Buf.Amount != 0 {
+		cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		return
 	}
 
@@ -35,6 +32,7 @@ func beltUpdate(obj *glob.ObjData) {
 		if port.PortDir == gv.PORT_INPUT {
 			if obj.NumInputs > 1 {
 				if uint8(p) == obj.LastUsedInput {
+					cwlog.DoLog("beltUpdate: Skipping previously used input.%v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 					continue
 				}
 				obj.LastUsedInput = uint8(p)
@@ -45,6 +43,7 @@ func beltUpdate(obj *glob.ObjData) {
 				port.Buf.Amount = 0
 				break
 			}
+			cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		}
 	}
 }
@@ -73,20 +72,29 @@ func splitterUpdate(obj *glob.ObjData) {
 
 func boxUpdate(obj *glob.ObjData) {
 	if obj.NumInputs <= 0 {
+		cwlog.DoLog("boxUpdate: No inputs. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		return
 	}
 
 	for _, port := range obj.Ports {
-		if port.Buf.Amount > 0 {
-			if obj.KGHeld+port.Buf.Amount > obj.TypeP.CapacityKG {
-				cwlog.DoLog("%v: Object is full.", obj.TypeP.Name)
-				continue
-			}
-			obj.Contents[port.Buf.TypeP.TypeI].Amount = port.Buf.Amount
-			obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
-			obj.KGHeld += port.Buf.Amount
-			port.Buf.Amount = 0
+		if port.PortDir != gv.PORT_INPUT {
+			cwlog.DoLog("tickObj: Our port is not an input. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
 		}
+		if port.Buf.Amount == 0 {
+			cwlog.DoLog("tickObj: Input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		}
+
+		if obj.KGHeld+port.Buf.Amount > obj.TypeP.CapacityKG {
+			cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		}
+		obj.Contents[port.Buf.TypeP.TypeI].Amount = port.Buf.Amount
+		obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
+		obj.KGHeld += port.Buf.Amount
+		port.Buf.Amount = 0
+
 	}
 }
 

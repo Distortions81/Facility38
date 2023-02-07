@@ -110,7 +110,7 @@ func ObjUpdateDaemonST() {
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
 func tickObj(obj *glob.ObjData) {
 	if obj.NumOutputs > 0 {
-		cwlog.DoLog("meep %v %v", obj.TypeP.Name, obj.Pos.X)
+		cwlog.DoLog("tick %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		for p, port := range obj.Ports {
 
 			/* Valid object */
@@ -120,6 +120,7 @@ func tickObj(obj *glob.ObjData) {
 
 			/* Only process our outputs */
 			if port.PortDir != gv.PORT_OUTPUT {
+				cwlog.DoLog("tickObj: Our port not an output. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				continue
 			}
 
@@ -130,11 +131,13 @@ func tickObj(obj *glob.ObjData) {
 
 			/* That go to inputs */
 			if port.Obj.Ports[util.ReverseDirection(uint8(p))].PortDir != gv.PORT_INPUT {
+				cwlog.DoLog("tickObj: Their port is not an input %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				continue
 			}
 
 			/* And there is somewhere empty to send it */
-			if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount == 0 {
+			if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount != 0 {
+				cwlog.DoLog("tickObj: Their input isn't empty %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				continue
 			}
 
