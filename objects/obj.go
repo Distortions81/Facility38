@@ -323,8 +323,7 @@ func UnlinkObj(obj *glob.ObjData) {
 				cwlog.DoLog("Unlink: %v (%v,%v): INPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
 				port.Obj.NumOutputs--
 
-				chunk := util.GetChunk(port.Obj.Pos)
-				rObj := util.GetObj(port.Obj.Pos, chunk)
+				rObj := port.Obj
 				rObj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
 
 				obj.Ports[dir].Obj = nil
@@ -335,8 +334,7 @@ func UnlinkObj(obj *glob.ObjData) {
 				cwlog.DoLog("Unlink: %v (%v,%v): OUTPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
 				port.Obj.NumInputs--
 
-				chunk := util.GetChunk(port.Obj.Pos)
-				rObj := util.GetObj(port.Obj.Pos, chunk)
+				rObj := port.Obj
 				rObj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
 
 				obj.Ports[dir].Obj = nil
