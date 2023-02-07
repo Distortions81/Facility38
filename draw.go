@@ -218,38 +218,40 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 
-						for p, port := range obj.Ports {
-							if port.PortDir != gv.PORT_OUTPUT {
-								continue
-							}
-
-							iSize := obj.TypeP.Image.Bounds()
-							op.GeoM.Reset()
-							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
-								((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
-							op.GeoM.Translate(objCamPosX, objCamPosY)
-
-							/* Draw Arrow */
-							img := objects.ObjOverlayTypes[p].Image
-							if img != nil {
-								screen.DrawImage(img, op)
-							}
-
-							/* Show blocked outputs */
-							img = objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
-							if obj.TypeP.ShowBlocked && obj.Blocked {
-
-								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+						if obj.TypeP.ShowArrow {
+							for p, port := range obj.Ports {
+								if port.PortDir != gv.PORT_OUTPUT {
+									continue
+								}
 
 								iSize := obj.TypeP.Image.Bounds()
 								op.GeoM.Reset()
-								op.GeoM.Translate(
-									float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset,
-									cBlockedIndicatorOffset)
 								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 									((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 								op.GeoM.Translate(objCamPosX, objCamPosY)
-								screen.DrawImage(img, op)
+
+								/* Draw Arrow */
+								img := objects.ObjOverlayTypes[p].Image
+								if img != nil {
+									screen.DrawImage(img, op)
+								}
+
+								/* Show blocked outputs */
+								img = objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
+								if obj.TypeP.ShowBlocked && obj.Blocked {
+
+									var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+
+									iSize := obj.TypeP.Image.Bounds()
+									op.GeoM.Reset()
+									op.GeoM.Translate(
+										float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset,
+										cBlockedIndicatorOffset)
+									op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+										((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+									op.GeoM.Translate(objCamPosX, objCamPosY)
+									screen.DrawImage(img, op)
+								}
 							}
 						}
 					}

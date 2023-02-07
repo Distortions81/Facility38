@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/gv"
 )
@@ -75,6 +76,7 @@ func boxUpdate(obj *glob.ObjData) {
 	for _, port := range obj.Ports {
 		if port.Buf.Amount > 0 {
 			if obj.KGHeld+port.Buf.Amount > obj.TypeP.CapacityKG {
+				cwlog.DoLog("%v: Object is full.", obj.TypeP.Name)
 				continue
 			}
 			obj.Contents[port.Buf.TypeP.TypeI].Amount = port.Buf.Amount
