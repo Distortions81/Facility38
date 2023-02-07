@@ -56,11 +56,18 @@ func ObjUpdateDaemon() {
 			TockWorkSize = 1
 		}
 
+		TockListLock.Lock()
 		runTocks() //Process objects
+		TockListLock.Unlock()
+
+		TickListLock.Lock()
 		runTicks() //Move external
+		TickListLock.Unlock()
+
 		EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
 		EventQueueLock.Unlock()
+
 		ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
 		ObjQueueLock.Unlock()
