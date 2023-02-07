@@ -2,9 +2,13 @@ package gv
 
 // Set at build
 var (
-	UPSBench = false
-	LoadTest = false
-	WASMMode = false
+	UPSBench   = false
+	LoadTest   = false
+	WASMMode   = false
+	Debug      = true
+	Verbose    = false
+	LogStdOut  = true
+	LogFileOut = true
 )
 
 const (
@@ -16,10 +20,6 @@ const (
 	TxtDir  = "txt/"
 
 	/* Debug */
-	Debug       = true
-	Verbose     = false
-	LogStdOut   = true
-	LogFileOut  = true
 	TestObjects = 100000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
