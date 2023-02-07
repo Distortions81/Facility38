@@ -109,51 +109,48 @@ func ObjUpdateDaemonST() {
 
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
 func tickObj(obj *glob.ObjData) {
-	if obj.NumOutputs > 0 {
-		cwlog.DoLog("tick %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-		for p, port := range obj.Ports {
 
-			/* Valid object */
-			if port.Obj == nil {
-				continue
-			}
+	cwlog.DoLog("tick %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+	for p, port := range obj.Ports {
 
-			/* Only process our outputs */
-			if port.PortDir != gv.PORT_OUTPUT {
-				cwlog.DoLog("tickObj: Our port not an output. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-				continue
-			}
-
-			/* If we have stuff to send */
-			if port.Buf.Amount == 0 {
-				continue
-			}
-
-			/* That go to inputs */
-			if port.Obj.Ports[util.ReverseDirection(uint8(p))].PortDir != gv.PORT_INPUT {
-				cwlog.DoLog("tickObj: Their port is not an input %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-				continue
-			}
-
-			/* And there is somewhere empty to send it */
-			if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount != 0 {
-				cwlog.DoLog("tickObj: Their input isn't empty %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-				continue
-			}
-
-			fmt.Printf("TICK: %v: %v: %v\n",
-				port.Obj.TypeP.Name,
-				port.Obj.Ports[p].Buf.TypeP.Name,
-				port.Obj.Ports[p].Buf.Amount)
-
-			port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount = port.Buf.Amount
-			port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.TypeP = port.Buf.TypeP
-			port.Buf.Amount = 0
-			obj.Blocked = false
+		/* Valid object */
+		if port.Obj == nil {
+			continue
 		}
 
-	}
+		/* Only process our outputs */
+		if port.PortDir != gv.PORT_OUTPUT {
+			cwlog.DoLog("tickObj: Our port not an output. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		}
 
+		/* If we have stuff to send */
+		if port.Buf.Amount == 0 {
+			continue
+		}
+
+		/* That go to inputs */
+		if port.Obj.Ports[util.ReverseDirection(uint8(p))].PortDir != gv.PORT_INPUT {
+			cwlog.DoLog("tickObj: Their port is not an input %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		}
+
+		/* And there is somewhere empty to send it */
+		if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount != 0 {
+			cwlog.DoLog("tickObj: Their input isn't empty %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		}
+
+		fmt.Printf("TICK: %v: %v: %v\n",
+			port.Obj.TypeP.Name,
+			port.Obj.Ports[p].Buf.TypeP.Name,
+			port.Obj.Ports[p].Buf.Amount)
+
+		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount = port.Buf.Amount
+		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.TypeP = port.Buf.TypeP
+		port.Buf.Amount = 0
+		obj.Blocked = false
+	}
 }
 
 /* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
