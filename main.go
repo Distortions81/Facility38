@@ -75,7 +75,7 @@ func main() {
 
 	windowTitle()
 
-	if err := ebiten.RunGame(NewGame()); err != nil {
+	if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
 		log.Fatal(err)
 	}
 }
