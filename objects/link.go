@@ -36,17 +36,8 @@ func LinkObj(obj *glob.ObjData) {
 
 		/* Port is available */
 		if neigh.Ports[util.ReverseDirection(uint8(p))].Obj != nil {
-			cwlog.DoLog("LinkObj: %v: %v (%v,%v): Port is in use.", obj.TypeP.Name, util.DirToName(uint8(p)), oPos.X, oPos.Y)
+			cwlog.DoLog("LinkObj: %v: %v (%v,%v): Their port is in use.", obj.TypeP.Name, util.DirToName(uint8(p)), oPos.X, oPos.Y)
 			continue
-		} else if obj.Ports[p].Obj != nil {
-			/* Unlink old */
-			obj.Ports[p].Obj = nil
-
-			if port.PortDir == gv.PORT_INPUT {
-				obj.NumInputs--
-			} else {
-				obj.NumOutputs--
-			}
 		}
 
 		/* Assign on both sides */
