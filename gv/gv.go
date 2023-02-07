@@ -5,10 +5,10 @@ var (
 	UPSBench   = false
 	LoadTest   = false
 	WASMMode   = false
-	Debug      = true
+	Debug      = false
 	Verbose    = false
-	LogStdOut  = true
-	LogFileOut = true
+	LogStdOut  = false
+	LogFileOut = false
 )
 
 const (
