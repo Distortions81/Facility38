@@ -31,10 +31,6 @@ func main() {
 	cwlog.StartLog()
 
 	//debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
-	if runtime.GOARCH == "wasm" {
-		glob.WASMMode = true
-	}
-
 	str, err := data.GetText("intro")
 	if err != nil {
 		panic(err)
@@ -49,7 +45,7 @@ func main() {
 
 	setupWindowSize()
 
-	if glob.WASMMode && (gv.LoadTest || gv.UPSBench) {
+	if gv.WASMMode && (gv.LoadTest || gv.UPSBench) {
 		glob.PlayerReady.Store(true)
 	}
 
@@ -95,7 +91,7 @@ func loadSprites() {
 				timg = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				timg.Fill(icon.ItemColor)
 				text.Draw(timg, icon.Symbol, glob.ObjectFont, gv.SymbOffX, gv.SymbOffY, icon.SymbolColor)
-				if glob.WASMMode {
+				if gv.WASMMode {
 					time.Sleep(time.Nanosecond)
 				}
 			}
@@ -149,6 +145,11 @@ func bootScreen(screen *ebiten.Image) {
 
 /* Detect logical and virtual CPUs, set number of workers */
 func detectCPUs() {
+
+	if gv.WASMMode {
+		objects.NumWorkers = 1
+		return
+	}
 
 	/* Detect logical CPUs, failing that... use numcpu */
 	var lCPUs int = runtime.NumCPU() + 1

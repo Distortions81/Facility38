@@ -226,7 +226,7 @@ func zoomHandle() {
 	_, fsy := ebiten.Wheel()
 
 	/* WASM kludge */
-	if glob.WASMMode && (fsy > 0 && fsy < 0) {
+	if gv.WASMMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
 			return
 		}
@@ -322,7 +322,7 @@ func createWorldObjects() {
 
 							if !bypass {
 								dir := objects.GameObjTypes[SelectedItemType].Direction
-								if glob.WASMMode {
+								if gv.WASMMode {
 									objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
 								} else {
 									go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
@@ -337,7 +337,7 @@ func createWorldObjects() {
 							if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
 								if o != nil {
-									if glob.WASMMode {
+									if gv.WASMMode {
 										objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
 									} else {
 										go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
@@ -448,7 +448,6 @@ func rotateWorldObjects() {
 
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
-		glob.SuperChunkListLock.Lock()
 		chunk := util.GetChunk(pos)
 		if chunk == nil {
 			return
@@ -469,6 +468,5 @@ func rotateWorldObjects() {
 			o.Dir = newdir
 			objects.LinkObj(o)
 		}
-		glob.SuperChunkListLock.Unlock()
 	}
 }

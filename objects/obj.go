@@ -501,11 +501,11 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	/* Only add to list if the object calls an update function */
 	if obj.TypeP.UpdateObj != nil {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		go EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 	}
 
 	if util.ObjHasPort(obj, gv.PORT_OUTPUT) {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		go EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 
 	return obj

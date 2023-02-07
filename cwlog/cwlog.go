@@ -1,7 +1,6 @@
 package cwlog
 
 import (
-	"GameTest/glob"
 	"GameTest/gv"
 	"fmt"
 	"os"
@@ -15,7 +14,7 @@ var LogName string
 
 /* Log this, can use printf arguments */
 func DoLog(format string, args ...interface{}) {
-	if glob.WASMMode || (!gv.Debug && !gv.LogStdOut) {
+	if gv.WASMMode || (!gv.Debug && !gv.LogStdOut) {
 		return
 	}
 	ctime := time.Now()
@@ -42,7 +41,7 @@ func DoLog(format string, args ...interface{}) {
 
 /* Prep logger */
 func StartLog() {
-	if glob.WASMMode || (!gv.Debug && !gv.LogStdOut) {
+	if gv.WASMMode || (!gv.Debug && !gv.LogStdOut) {
 		return
 	}
 	t := time.Now()

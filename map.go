@@ -60,7 +60,7 @@ func makeTestMap(skip bool) {
 				}
 
 				glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
-				if glob.WASMMode {
+				if gv.WASMMode {
 					time.Sleep(time.Nanosecond)
 				}
 			}
@@ -121,11 +121,11 @@ func makeTestMap(skip bool) {
 			Loaded++
 
 			glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
-			if glob.WASMMode {
+			if gv.WASMMode {
 				time.Sleep(time.Nanosecond)
 			}
 		}
-		if glob.WASMMode {
+		if gv.WASMMode {
 			time.Sleep(time.Nanosecond)
 		}
 		//objects.UnsafeMakeObjLists()
@@ -138,7 +138,7 @@ func makeTestMap(skip bool) {
 		time.Sleep(time.Millisecond * 100)
 	}
 
-	if !glob.WASMMode {
+	if !gv.WASMMode {
 		go terrain.RenderTerrainDaemon()
 		go terrain.PixmapRenderDaemon()
 		go objects.ObjUpdateDaemon()

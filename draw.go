@@ -143,7 +143,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
 
-		if glob.WASMMode && frameCount%WASMTerrtainDiv == 0 {
+		if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 			terrain.RenderTerrainST()
 		}
 
@@ -271,7 +271,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 
 		/* Single thread render terrain for WASM */
-		if glob.WASMMode {
+		if gv.WASMMode {
 			terrain.PixmapRenderST()
 		}
 		/* Draw superchunk images (pixmap mode)*/

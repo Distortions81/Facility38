@@ -112,7 +112,7 @@ func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
 	if glob.ZoomScale <= gv.MapPixelThreshold {
-		if !clearedCache && (zoomCachePurge || glob.WASMMode) {
+		if !clearedCache && (zoomCachePurge || gv.WASMMode) {
 			for _, sChunk := range glob.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
 					killTerrainCache(chunk, true)
@@ -191,7 +191,7 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 	if force ||
 		(numTerrainCache > maxTerrainCache &&
 			time.Since(chunk.TerrainTime) > minTerrainTime) ||
-		(glob.WASMMode && numTerrainCache > maxTerrainCacheWASM) {
+		(gv.WASMMode && numTerrainCache > maxTerrainCacheWASM) {
 
 		chunk.TerrainLock.Lock()
 		chunk.TerrainImg.Dispose()
@@ -251,7 +251,7 @@ func PixmapRenderDaemon() {
 				sChunk.PixLock.Lock()
 				if sChunk.PixMap != nil &&
 					(maxPixmapCache > numPixmapCache ||
-						(glob.WASMMode && maxPixmapCacheWASM > numPixmapCache)) {
+						(gv.WASMMode && maxPixmapCacheWASM > numPixmapCache)) {
 
 					sChunk.PixMap.Dispose()
 					sChunk.PixMap = nil
