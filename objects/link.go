@@ -15,20 +15,20 @@ func LinkObj(obj *glob.ObjData) {
 	/* Check our ports */
 	for p, port := range obj.Ports {
 
-		/* Make sure it is empty */
+		/* Make sure our port is empty */
 		if port.Obj != nil {
 			continue
 		}
 
-		/* Look for neighbor in that direction */
+		/* Look for neighbor in direction */
 		neigh := util.GetNeighborObj(obj, uint8(p))
 
-		/* We found one */
+		/* We found one*/
 		if neigh == nil {
 			continue
 		}
 
-		/* Port is in correct direction */
+		/* Port is in correct direction on their side */
 		if port.PortDir == neigh.Ports[util.ReverseDirection(uint8(p))].PortDir {
 			//cwlog.DoLog("LinkObj: %v: %v (%v,%v): PortDir is wrong.", obj.TypeP.Name, util.DirToName(uint8(p)), oPos.X, oPos.Y)
 			continue
