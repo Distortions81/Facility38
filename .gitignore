@@ -1,11 +1,9 @@
-*.exe
 *.zip
 *.gz
-*.wasm
+*.exe
+
 GameTest
-save.json
 internalimages_*/
-fakeWasm
 out
 log
 __debug_bin

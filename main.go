@@ -19,8 +19,15 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 )
 
-var bootText string = "Loading..."
-var buildTime string = "Dev Build"
+var (
+	bootText string = "Loading..."
+
+	/* Compile flags */
+	buildTime string = "Dev Build"
+	WASMMode  string
+	UPSBench  string
+	LoadTest  string
+)
 
 type Game struct {
 	ui *ebitenui.UI
@@ -28,6 +35,15 @@ type Game struct {
 
 /* Main function */
 func main() {
+	if WASMMode == "true" {
+		gv.WASMMode = true
+	}
+	if UPSBench == "true" {
+		gv.UPSBench = true
+	}
+	if LoadTest == "true" {
+		gv.LoadTest = true
+	}
 	cwlog.StartLog()
 
 	//debug.SetMemoryLimit(1024 * 1024 * 1024 * 24)
