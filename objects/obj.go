@@ -383,7 +383,7 @@ func makeSuperChunk(pos glob.XY) {
 }
 
 /* Make a chunk, insert into superchunk */
-func MakeChunk(pos glob.XY) {
+func MakeChunk(pos glob.XY) bool {
 	//Make chunk if needed
 
 	newPos := pos
@@ -421,22 +421,27 @@ func MakeChunk(pos glob.XY) {
 		glob.SuperChunkMap[scpos].ChunkMap[cpos].Parent = glob.SuperChunkMap[scpos]
 
 		glob.SuperChunkMap[scpos].Lock.Unlock()
+
+		glob.SuperChunkListLock.Unlock()
+		glob.SuperChunkMapLock.Unlock()
+		return true
 	}
 
 	glob.SuperChunkListLock.Unlock()
 	glob.SuperChunkMapLock.Unlock()
+	return false
 }
 
 /* Explore (input) chunks + and - */
-func ExploreMap(input int) {
+func ExploreMap(pos glob.XY, input int) {
 	/* Explore some map */
 
 	area := input * gv.ChunkSize
-	offs := int(gv.XYCenter) - (area / 2)
+	offx := int(pos.X) - (area / 2)
+	offy := int(pos.Y) - (area / 2)
 	for x := -area; x < area; x += gv.ChunkSize {
 		for y := -area; y < area; y += gv.ChunkSize {
-			pos := glob.XY{X: offs - x, Y: offs - y}
-
+			pos := glob.XY{X: offx - x, Y: offy - y}
 			MakeChunk(pos)
 		}
 	}
@@ -446,7 +451,9 @@ func ExploreMap(input int) {
 func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	//Make chunk if needed
-	MakeChunk(pos)
+	if MakeChunk(pos) {
+		ExploreMap(pos, 5)
+	}
 	chunk := util.GetChunk(pos)
 	obj := util.GetObj(pos, chunk)
 

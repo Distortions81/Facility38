@@ -62,11 +62,6 @@ func updateVisData() {
 		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
 
-			if sChunk.NumChunks == 0 {
-				sChunk.Visible = false
-				continue
-			}
-
 			/* Is this super chunk on the screen? */
 			if sChunk.Pos.X < screenStartX/gv.SuperChunkSize ||
 				sChunk.Pos.X > screenEndX/gv.SuperChunkSize ||
@@ -79,12 +74,6 @@ func updateVisData() {
 			sChunk.Visible = true
 
 			for _, chunk := range sChunk.ChunkList {
-
-				/*if chunk.NumObjects == 0 {
-					chunk.Visible = false
-					chunk.Precache = false
-					continue
-				} */
 
 				/* Is this chunk in the prerender area? */
 				if chunk.Pos.X+cPreCache < screenStartX ||
@@ -149,7 +138,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
-
 			for _, chunk := range sChunk.ChunkList {
 				if !chunk.Visible {
 					continue
