@@ -1,10 +1,11 @@
 package objects
 
 import (
-	"GameTest/consts"
 	"GameTest/cwlog"
 	"GameTest/glob"
+	"GameTest/gv"
 	"GameTest/util"
+	"fmt"
 	"sync"
 	"time"
 
@@ -55,16 +56,23 @@ func ObjUpdateDaemon() {
 			TockWorkSize = 1
 		}
 
+		TockListLock.Lock()
 		runTocks() //Process objects
+		TockListLock.Unlock()
+
+		TickListLock.Lock()
 		runTicks() //Move external
+		TickListLock.Unlock()
+
 		EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
 		EventQueueLock.Unlock()
+
 		ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
 		ObjQueueLock.Unlock()
 
-		if !consts.UPSBench {
+		if !gv.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		} else {
@@ -94,7 +102,7 @@ func ObjUpdateDaemonST() {
 		runEventQueue() //Queue to add/remove events
 		runObjQueue()   //Queue to add/remove objects
 
-		if !consts.UPSBench {
+		if !gv.UPSBench {
 			sleepFor := glob.ObjectUPS_ns - time.Since(start)
 			time.Sleep(sleepFor)
 		} else {
@@ -107,19 +115,48 @@ func ObjUpdateDaemonST() {
 }
 
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
-func tickObj(o *glob.ObjData) {
+func tickObj(obj *glob.ObjData) {
 
-	if o.OutputObj != nil {
-		revDir := util.ReverseDirection(o.Direction)
-		if o.OutputBuffer.Amount > 0 &&
-			o.OutputObj.InputBuffer[revDir] != nil &&
-			o.OutputObj.InputBuffer[revDir].Amount == 0 {
+	cwlog.DoLog("tick %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+	for p, port := range obj.Ports {
 
-			o.OutputObj.InputBuffer[revDir].Amount = o.OutputBuffer.Amount
-			o.OutputObj.InputBuffer[revDir].TypeP = o.OutputBuffer.TypeP
-
-			o.OutputBuffer.Amount = 0
+		/* Valid object */
+		if port.Obj == nil {
+			continue
 		}
+
+		/* Only process our outputs */
+		if port.PortDir != gv.PORT_OUTPUT {
+			cwlog.DoLog("tickObj: Our port not an output. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		}
+
+		/* If we have stuff to send */
+		if port.Buf.Amount == 0 {
+			continue
+		}
+
+		/* That go to inputs */
+		if port.Obj.Ports[util.ReverseDirection(uint8(p))].PortDir != gv.PORT_INPUT {
+			cwlog.DoLog("tickObj: Their port is not an input %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		}
+
+		/* And there is somewhere empty to send it */
+		if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount != 0 {
+			cwlog.DoLog("tickObj: Their input isn't empty %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		}
+
+		fmt.Printf("TICK: %v: %v: %v\n",
+			port.Obj.TypeP.Name,
+			port.Obj.Ports[p].Buf.TypeP.Name,
+			port.Obj.Ports[p].Buf.Amount)
+
+		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount = port.Buf.Amount
+		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.TypeP = port.Buf.TypeP
+		obj.Ports[p].Buf.Amount = 0
+		obj.Blocked = false
 	}
 }
 
@@ -221,23 +258,27 @@ func runTocksST() {
 }
 
 /* Lock and append to TickList */
-func ticklistAdd(target *glob.ObjData) {
+func ticklistAdd(obj *glob.ObjData) {
 	TickListLock.Lock()
 	defer TickListLock.Unlock()
 
-	TickList = append(TickList, glob.TickEvent{Target: target})
+	oPos := util.CenterXY(obj.Pos)
+	cwlog.DoLog("tockListAdd: Added %v to TICK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
+
+	TickList = append(TickList, glob.TickEvent{Target: obj})
 	gTickCount++
-	cwlog.DoLog("Added: %v to ticklist.", target.TypeP.Name)
 }
 
 /* Lock and append to TockList */
-func tockListAdd(target *glob.ObjData) {
+func tockListAdd(obj *glob.ObjData) {
 	TockListLock.Lock()
 	defer TockListLock.Unlock()
 
-	TockList = append(TockList, glob.TickEvent{Target: target})
+	oPos := util.CenterXY(obj.Pos)
+	cwlog.DoLog("tockListAdd: Added %v to TOCK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
+
+	TockList = append(TockList, glob.TickEvent{Target: obj})
 	gTockCount++
-	cwlog.DoLog("Added: %v to tocklist.", target.TypeP.Name)
 }
 
 /* Lock and add it EventQueue */
@@ -245,8 +286,22 @@ func EventQueueAdd(obj *glob.ObjData, qtype uint8, delete bool) {
 	EventQueueLock.Lock()
 	defer EventQueueLock.Unlock()
 
+	prefixStr := "Add"
+	if delete {
+		prefixStr = "Delete"
+	}
+
+	qtypeStr := "NONE"
+	if qtype == 1 {
+		qtypeStr = "TOCK"
+	} else if qtype == 2 {
+		qtypeStr = "TICK"
+	}
+
 	EventQueue = append(EventQueue, &glob.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
-	cwlog.DoLog("Added: %v to the event type: %v hitlist. Delete: %v", obj.TypeP.Name, qtype, delete)
+
+	oPos := util.CenterXY(obj.Pos)
+	cwlog.DoLog("EventQueue: %v %v for %v (%v,%v)", prefixStr, qtypeStr, obj.TypeP.Name, oPos.X, oPos.Y)
 }
 
 /* Lock and remove tick event */
@@ -254,14 +309,17 @@ func ticklistRemove(obj *glob.ObjData) {
 	TickListLock.Lock()
 	defer TickListLock.Unlock()
 
+	oPos := util.CenterXY(obj.Pos)
 	for i, e := range TickList {
 		if e.Target == obj {
+			cwlog.DoLog("ticklistRemove: Removed %v from the TICK list. (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 			TickList = append(TickList[:i], TickList[i+1:]...)
-			cwlog.DoLog("Removed: %v from the ticklist.", obj.TypeP.Name)
 			gTickCount--
-			break
+			return
 		}
 	}
+	cwlog.DoLog("ticklistRemove:Not found in TICK list: %v (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
+
 }
 
 /* lock and remove tock event */
@@ -269,37 +327,47 @@ func tocklistRemove(obj *glob.ObjData) {
 	TockListLock.Lock()
 	defer TockListLock.Unlock()
 
+	oPos := util.CenterXY(obj.Pos)
 	for i, e := range TockList {
 		if e.Target == obj {
+			cwlog.DoLog("tocklistRemove: Removed %v from the TOCK list. (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 			TockList = append(TockList[:i], TockList[i+1:]...)
-			cwlog.DoLog("Removed %v from the tocklist.", obj.TypeP.Name)
 			gTockCount--
-			break
+			return
 		}
 	}
+	cwlog.DoLog("tocklistRemove: Not found in TOCK list: %v (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 }
 
-/* Unlink an object's (dir) input */
-func unlinkInput(obj *glob.ObjData, dir uint8) {
-	if obj.TypeP.HasMatInput > 0 {
-		if obj.InputObjs[util.ReverseDirection(dir)] != nil {
-			obj.InputObjs[util.ReverseDirection(dir)].OutputObj = nil
-			obj.InputObjs[util.ReverseDirection(dir)] = nil
-			obj.InputCount--
-		}
-	}
-}
+/* UnlinkObj an object's (dir) input */
+func UnlinkObj(obj *glob.ObjData) {
+	oPos := util.CenterXY(obj.Pos)
 
-/* Unlink and object's output, also removes itself from OutputObj's inputs */
-func unlinkOut(obj *glob.ObjData) {
-	if obj.TypeP.HasMatOutput {
-		if obj.OutputObj != nil {
-			/* Remove ourself from input list */
-			obj.OutputObj.InputObjs[util.ReverseDirection(obj.Direction)] = nil
-			obj.OutputObj.InputCount--
+	for dir, port := range obj.Ports {
 
-			/* Erase output pointer */
-			obj.OutputObj = nil
+		/* Change object port accounting */
+		if port.PortDir == gv.PORT_INPUT {
+			obj.NumInputs--
+			if port.Obj != nil {
+				cwlog.DoLog("Unlink: %v (%v,%v): INPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
+				port.Obj.NumOutputs--
+
+				rObj := port.Obj
+				rObj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
+
+				obj.Ports[dir].Obj = nil
+			}
+		} else if port.PortDir == gv.PORT_OUTPUT {
+			obj.NumOutputs++
+			if port.Obj != nil {
+				cwlog.DoLog("Unlink: %v (%v,%v): OUTPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
+				port.Obj.NumInputs--
+
+				rObj := port.Obj
+				rObj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
+
+				obj.Ports[dir].Obj = nil
+			}
 		}
 	}
 }
@@ -379,10 +447,10 @@ func MakeChunk(pos glob.XY) {
 func ExploreMap(input int) {
 	/* Explore some map */
 
-	area := input * consts.ChunkSize
-	offs := int(consts.XYCenter) - (area / 2)
-	for x := -area; x < area; x += consts.ChunkSize {
-		for y := -area; y < area; y += consts.ChunkSize {
+	area := input * gv.ChunkSize
+	offs := int(gv.XYCenter) - (area / 2)
+	for x := -area; x < area; x += gv.ChunkSize {
+		for y := -area; y < area; y += gv.ChunkSize {
 			pos := glob.XY{X: offs - x, Y: offs - y}
 
 			MakeChunk(pos)
@@ -400,7 +468,7 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	ppos := util.CenterXY(pos)
 	if obj != nil {
-		cwlog.DoLog("CreateObj: Object already exists at location: %v,%v", ppos.X, ppos.Y)
+		cwlog.DoLog("CreateObj: Object already exists at location: (%v,%v)", ppos.X, ppos.Y)
 		return nil
 	}
 
@@ -413,20 +481,7 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	obj.TypeP = GameObjTypes[mtype]
 
-	obj.Contents = [consts.MAT_MAX]*glob.MatData{}
-	if obj.TypeP.HasMatOutput {
-		obj.Direction = dir
-	}
-
-	/* Only add to list if the object calls an update function */
-	if obj.TypeP.UpdateObj != nil {
-		EventQueueAdd(obj, consts.QUEUE_TYPE_TOCK, false)
-	}
-
-	if obj.TypeP.HasMatOutput {
-		EventQueueAdd(obj, consts.QUEUE_TYPE_TICK, false)
-		obj.OutputBuffer = &glob.MatData{}
-	}
+	cwlog.DoLog("CreateObj: Make %v: (%v,%v)", obj.TypeP.Name, ppos.X, ppos.Y)
 
 	obj.Parent.Lock.Lock()
 	obj.Parent.ObjMap[pos] = obj
@@ -436,9 +491,33 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 	obj.Parent.NumObjects++
 	obj.Parent.Lock.Unlock()
 
-	cwlog.DoLog("CreateObj: Make Obj %v: %v,%v", obj.TypeP.Name, ppos.X, ppos.Y)
+	for p, port := range obj.TypeP.Ports {
+		obj.Ports[p].PortDir = port
+	}
 
-	LinkObj(pos, obj, dir)
+	obj.Dir = dir
+
+	for x := 0; x < int(dir); x++ {
+		util.RotatePortsCW(obj)
+	}
+
+	if obj.TypeP.CanContain {
+		obj.Contents = [gv.MAT_MAX]*glob.MatData{}
+	}
+
+	LinkObj(obj)
+
+	/* Only add to list if the object calls an update function */
+	if obj.TypeP.UpdateObj != nil {
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+	}
+
+	for _, port := range obj.TypeP.Ports {
+		if port == gv.PORT_OUTPUT {
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+			break
+		}
+	}
 
 	return obj
 }
@@ -449,8 +528,13 @@ func ObjQueueAdd(obj *glob.ObjData, otype uint8, pos glob.XY, delete bool, dir u
 	ObjQueue = append(ObjQueue, &glob.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	ObjQueueLock.Unlock()
 
-	ppos := util.CenterXY(pos)
-	cwlog.DoLog("Added: %v,%v to the object hitlist. Delete: %v", ppos.X, ppos.Y, delete)
+	prefixStr := "Add"
+	if delete {
+		prefixStr = "Delete"
+	}
+
+	oPos := util.CenterXY(pos)
+	cwlog.DoLog("ObjQueue: %v %v (%v,%v)", prefixStr, GameObjTypes[otype].Name, oPos.X, oPos.Y)
 }
 
 /* Add/remove tick/tock events from the lists */
@@ -459,16 +543,16 @@ func runEventQueue() {
 	for _, e := range EventQueue {
 		if e.Delete {
 			switch e.QType {
-			case consts.QUEUE_TYPE_TICK:
+			case gv.QUEUE_TYPE_TICK:
 				ticklistRemove(e.Obj)
-			case consts.QUEUE_TYPE_TOCK:
+			case gv.QUEUE_TYPE_TOCK:
 				tocklistRemove(e.Obj)
 			}
 		} else {
 			switch e.QType {
-			case consts.QUEUE_TYPE_TICK:
+			case gv.QUEUE_TYPE_TICK:
 				ticklistAdd(e.Obj)
-			case consts.QUEUE_TYPE_TOCK:
+			case gv.QUEUE_TYPE_TOCK:
 				tockListAdd(e.Obj)
 			}
 		}
@@ -483,16 +567,11 @@ func runObjQueue() {
 	for _, item := range ObjQueue {
 		if item.Delete {
 
-			/* Invalidate object, and disconnect any connections to us */
-			for _, inputObj := range item.Obj.InputObjs {
-				if inputObj != nil {
-					inputObj.OutputObj = nil
-				}
-			}
+			UnlinkObj(item.Obj)
 
 			/* Remove tick and tock events */
-			EventQueueAdd(item.Obj, consts.QUEUE_TYPE_TICK, true)
-			EventQueueAdd(item.Obj, consts.QUEUE_TYPE_TOCK, true)
+			EventQueueAdd(item.Obj, gv.QUEUE_TYPE_TICK, true)
+			EventQueueAdd(item.Obj, gv.QUEUE_TYPE_TOCK, true)
 
 			removeObj(item.Obj)
 
@@ -507,6 +586,10 @@ func runObjQueue() {
 
 /* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
 func removeObj(obj *glob.ObjData) {
+
+	oPos := util.CenterXY(obj.Pos)
+	cwlog.DoLog("removeObj: Deleted %v from chunk ObjMap at (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
+
 	/* delete from map */
 	obj.Parent.Lock.Lock()
 	defer obj.Parent.Lock.Unlock()

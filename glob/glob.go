@@ -1,7 +1,7 @@
 package glob
 
 import (
-	"GameTest/consts"
+	"GameTest/gv"
 	"image/color"
 	"sync"
 	"sync/atomic"
@@ -29,7 +29,7 @@ var (
 	MeasuredObjectUPS_ns = ObjectUPS_ns
 
 	/* eBiten variables */
-	ZoomScale     float64 = consts.DefaultZoom //Current zoom
+	ZoomScale     float64 = gv.DefaultZoom //Current zoom
 	ShowInfoLayer bool
 
 	/* Boot images */
@@ -47,14 +47,14 @@ var (
 	ObjectFont  font.Face
 
 	/* Camera position */
-	CameraX float64 = float64(consts.XYCenter)
-	CameraY float64 = float64(consts.XYCenter)
+	CameraX float64 = float64(gv.XYCenter)
+	CameraY float64 = float64(gv.XYCenter)
 	/* If position/zoom changed */
 	VisDataDirty atomic.Bool
 
 	/* Mouse vars */
-	MouseX float64 = float64(consts.XYCenter)
-	MouseY float64 = float64(consts.XYCenter)
+	MouseX float64 = float64(gv.XYCenter)
+	MouseY float64 = float64(gv.XYCenter)
 
 	/* Setup latches */
 	InitMouse = false
@@ -115,36 +115,28 @@ type ObjData struct {
 	Parent *MapChunk
 	TypeP  *ObjType `json:"-"`
 
-	Direction uint8    `json:"d,omitempty"`
-	OutputObj *ObjData `json:"-"`
+	Dir uint8 `json:"d,omitempty"`
 
-	//Internal useW
-	Contents [consts.MAT_MAX]*MatData `json:"c,omitempty"`
-	KGHeld   uint64                   `json:"k,omitempty"`
+	//Internal use
+	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
+	KGHeld   float64              `json:"k,omitempty"`
 
 	//Input/Output
-	InputBuffer [consts.DIR_MAX]*MatData `json:"i,omitempty"`
-	InputObjs   [consts.DIR_MAX]*ObjData
-	InputCount  uint8
+	Ports      [gv.DIR_MAX]ObjPortData
+	NumInputs  uint8
+	NumOutputs uint8
 
-	LastInput    uint8
-	OutputBuffer *MatData `json:"o,omitempty"`
+	/* For round-robin */
+	LastUsedInput  uint8
+	LastUsedOutput uint8
+
+	Blocked bool
 }
 
-/* Material Data, used for InputBuffer, OutputBuffer and Contents */
-type MatData struct {
-	TypeP  ObjType `json:"-"`
-	Amount uint64  `json:"a,omitempty"`
-}
-
-/* Int x/y */
-type XY struct {
-	X, Y int
-}
-
-/* float64 x/y */
-type XYF64 struct {
-	X, Y float64
+type ObjPortData struct {
+	PortDir uint8
+	Obj     *ObjData
+	Buf     MatData
 }
 
 /* Object type data, includes image, toolbar action, and update handler */
@@ -163,13 +155,31 @@ type ObjType struct {
 	Image     *ebiten.Image
 
 	MinerKGTock float64
-	CapacityKG  uint64
+	CapacityKG  float64
 
-	HasMatOutput bool
-	HasMatInput  int
+	Ports       [gv.DIR_MAX]uint8
+	CanContain  bool
+	ShowArrow   bool
+	ShowBlocked bool
 
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *ObjData) `json:"-"`
+}
+
+/* ObjectQueue data */
+type ObjectQueuetData struct {
+	Delete bool
+	Obj    *ObjData
+	OType  uint8
+	Pos    XY
+	Dir    uint8
+}
+
+/* EventQueue data */
+type EventQueueData struct {
+	Delete bool
+	Obj    *ObjData
+	QType  uint8
 }
 
 /* Toolbar list item */
@@ -189,18 +199,18 @@ type SaveMObj struct {
 	P XY
 }
 
-/* ObjectQueue data */
-type ObjectQueuetData struct {
-	Delete bool
-	Obj    *ObjData
-	OType  uint8
-	Pos    XY
-	Dir    uint8
+/* Material Data, used for InputBuffer, OutputBuffer and Contents */
+type MatData struct {
+	TypeP  ObjType `json:"-"`
+	Amount float64 `json:"a,omitempty"`
 }
 
-/* EventQueue data */
-type EventQueueData struct {
-	Delete bool
-	Obj    *ObjData
-	QType  uint8
+/* Int x/y */
+type XY struct {
+	X, Y int
+}
+
+/* float64 x/y */
+type XYF64 struct {
+	X, Y float64
 }

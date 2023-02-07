@@ -1,8 +1,8 @@
 package data
 
 import (
-	"GameTest/consts"
 	"GameTest/cwlog"
+	"GameTest/gv"
 	"embed"
 	"image"
 	_ "image/png"
@@ -21,7 +21,7 @@ var f embed.FS
 func GetSpriteImage(name string) (*ebiten.Image, error) {
 
 	if cLoadEmbedSprites {
-		gpng, err := f.Open(consts.GfxDir + name)
+		gpng, err := f.Open(gv.GfxDir + name)
 		if err != nil {
 			cwlog.DoLog("GetSpriteImage: Embeded: %v", err)
 			return nil, err
@@ -36,7 +36,7 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 		return img, nil
 
 	} else {
-		img, _, err := ebitenutil.NewImageFromFile(consts.DataDir + consts.GfxDir + name)
+		img, _, err := ebitenutil.NewImageFromFile(gv.DataDir + gv.GfxDir + name)
 		if err != nil {
 			cwlog.DoLog("GetSpriteImage: File: %v", err)
 		}
@@ -45,7 +45,7 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 }
 
 func GetText(name string) (string, error) {
-	file, err := f.Open(consts.TxtDir + name + ".txt")
+	file, err := f.Open(gv.TxtDir + name + ".txt")
 	if err != nil {
 		cwlog.DoLog("GetText: %v", err)
 		return "GetText: File: " + name + " not found in embed.", err

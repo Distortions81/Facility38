@@ -1,9 +1,9 @@
 package objects
 
 import (
-	"GameTest/consts"
 	"GameTest/cwlog"
 	"GameTest/glob"
+	"GameTest/gv"
 	"GameTest/save"
 	"bytes"
 	"encoding/json"
@@ -26,82 +26,98 @@ var (
 		//Game Objects
 		{ImagePath: "world-obj/basic-miner.png",
 			Name:        "Basic miner",
-			TypeI:       consts.ObjTypeBasicMiner,
+			TypeI:       gv.ObjTypeBasicMiner,
 			Size:        glob.XY{X: 1, Y: 1},
 			UpdateObj:   minerUpdate,
 			MinerKGTock: 1,
 			CapacityKG:  500,
+			ShowArrow:   true,
+			ShowBlocked: true,
 			Symbol:      "MINE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			HasMatOutput: true,
+			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
 		{ImagePath: "world-obj/basic-belt.png",
 			Name:       "Basic belt",
-			TypeI:      consts.ObjTypeBasicBelt,
+			TypeI:      gv.ObjTypeBasicBelt,
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 20,
 			Rotatable:  true,
 			UpdateObj:  beltUpdate,
 			Symbol:     "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			HasMatInput:  1,
-			HasMatOutput: true},
+			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		},
 
 		{ImagePath: "world-obj/basic-splitter.png",
-			Name:      "Basic Splitter",
-			TypeI:     consts.ObjTypeBasicSplit,
-			Size:      glob.XY{X: 1, Y: 1},
-			Rotatable: true,
-			UpdateObj: splitterUpdate,
-			Symbol:    "SPLIT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			HasMatInput:  2,
-			HasMatOutput: true},
+			Name:        "Basic Splitter",
+			TypeI:       gv.ObjTypeBasicSplit,
+			Size:        glob.XY{X: 1, Y: 1},
+			Rotatable:   true,
+			ShowArrow:   true,
+			ShowBlocked: true,
+			UpdateObj:   splitterUpdate,
+			Symbol:      "SPLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		},
 
 		{ImagePath: "world-obj/basic-box.png",
 			Name:       "Basic box",
-			TypeI:      consts.ObjTypeBasicBox,
+			TypeI:      gv.ObjTypeBasicBox,
 			Size:       glob.XY{X: 1, Y: 1},
 			CapacityKG: 5000,
 			Symbol:     "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj:   boxUpdate,
-			HasMatInput: consts.DIR_MAX},
+			CanContain:  true,
+			ShowBlocked: true,
+			Ports:       [gv.DIR_MAX]uint8{gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		},
 
 		{ImagePath: "world-obj/basic-smelter-1.png",
-			Name:       "Basic smelter",
-			TypeI:      consts.ObjTypeBasicSmelter,
-			Size:       glob.XY{X: 1, Y: 1},
-			CapacityKG: 50,
-			Symbol:     "SMELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:    smelterUpdate,
-			HasMatInput:  2,
-			HasMatOutput: true},
+			Name:        "Basic smelter",
+			TypeI:       gv.ObjTypeBasicSmelter,
+			Size:        glob.XY{X: 1, Y: 1},
+			CapacityKG:  50,
+			ShowArrow:   true,
+			ShowBlocked: true,
+			Symbol:      "SMLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			UpdateObj: smelterUpdate,
+			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		},
 
 		{ImagePath: "world-obj/iron-rod-caster.png",
 			Name:   "Iron rod caster",
-			TypeI:  consts.ObjTypeBasicIronCaster,
+			TypeI:  gv.ObjTypeBasicIronCaster,
 			Size:   glob.XY{X: 1, Y: 1},
 			Symbol: "CAST", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:    ironCasterUpdate,
-			HasMatInput:  2,
-			HasMatOutput: true},
+			UpdateObj:   ironCasterUpdate,
+			ShowArrow:   true,
+			ShowBlocked: true,
+			Ports:       [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		},
 
 		{ImagePath: "world-obj/basic-boiler.png",
-			Name:       "Basic boiler",
-			TypeI:      consts.ObjTypeBasicBoiler,
-			Size:       glob.XY{X: 1, Y: 1},
-			CapacityKG: 500,
-			Symbol:     "BOIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:    steamEngineUpdate,
-			HasMatInput:  1,
-			HasMatOutput: true},
+			Name:        "Basic boiler",
+			TypeI:       gv.ObjTypeBasicBoiler,
+			Size:        glob.XY{X: 1, Y: 1},
+			CapacityKG:  500,
+			ShowArrow:   true,
+			ShowBlocked: true,
+			Symbol:      "BOIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			UpdateObj: steamEngineUpdate,
+			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		},
 
 		{ImagePath: "world-obj/steam-engine.png",
-			Name:       "Steam engine",
-			TypeI:      consts.ObjTypeSteamEngine,
-			Size:       glob.XY{X: 1, Y: 1},
-			CapacityKG: 500,
-			Symbol:     "STEAM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			UpdateObj:   steamEngineUpdate,
-			HasMatInput: 1},
+			Name:        "Steam engine",
+			TypeI:       gv.ObjTypeSteamEngine,
+			Size:        glob.XY{X: 1, Y: 1},
+			CapacityKG:  500,
+			ShowArrow:   true,
+			ShowBlocked: true,
+			Symbol:      "STEM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			UpdateObj: steamEngineUpdate,
+			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		},
 	}
 
 	/* Terrain types and images */
@@ -133,9 +149,14 @@ var (
 	/* Materials and images */
 	MatTypes = []*glob.ObjType{
 		//Materials
-		{Symbol: "?", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed, Name: "Error"},
-		{Symbol: "WOOD", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown, Name: "Wood"},
-		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray, ImagePath: "belt-obj/coal.png", Name: "Coal Ore"},
+		{Symbol: "ERR", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
+			Name: "Error"},
+		{Symbol: "WOOD", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown,
+			Name: "Wood"},
+		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+			ImagePath: "belt-obj/coal.png"},
+		{Symbol: "ERR", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
+			Name: "Error"},
 	}
 
 	/* Toolbar item types, array of array of ObjType */
@@ -147,6 +168,21 @@ var (
 		TerrainTypes,
 	}
 )
+
+func init() {
+	for i := range MatTypes {
+		MatTypes[i].TypeI = uint8(i)
+	}
+	for i := range ObjOverlayTypes {
+		ObjOverlayTypes[i].TypeI = uint8(i)
+	}
+	for i := range UIObjsTypes {
+		UIObjsTypes[i].TypeI = uint8(i)
+	}
+	for i := range MatTypes {
+		MatTypes[i].TypeI = uint8(i)
+	}
+}
 
 /* Debug quick dump GameObjTypes */
 func DumpItems() bool {
