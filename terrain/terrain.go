@@ -123,11 +123,7 @@ func RenderTerrainST() {
 	} else {
 		clearedCache = false
 
-		glob.SuperChunkListLock.RLock()
 		for _, sChunk := range glob.SuperChunkList {
-			if !sChunk.Visible {
-				continue
-			}
 			for _, chunk := range sChunk.ChunkList {
 				if chunk.Precache && chunk.UsingTemporary {
 					renderChunkGround(chunk, true, chunk.Pos)
