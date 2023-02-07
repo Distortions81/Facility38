@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/util"
@@ -8,6 +9,8 @@ import (
 
 /* Link to output in (dir) */
 func LinkObj(obj *glob.ObjData) {
+	oPos := util.CenterXY(obj.Pos)
+	cwlog.DoLog("LinkObj: %v (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 
 	/* Check our ports */
 	for p, port := range obj.Ports {
@@ -27,11 +30,13 @@ func LinkObj(obj *glob.ObjData) {
 
 		/* Port is in correct direction */
 		if port.PortDir == neigh.Ports[util.ReverseDirection(uint8(p))].PortDir {
+			//cwlog.DoLog("LinkObj: %v: %v (%v,%v): PortDir is wrong.", obj.TypeP.Name, util.DirToName(uint8(p)), oPos.X, oPos.Y)
 			continue
 		}
 
 		/* Port is available */
 		if neigh.Ports[util.ReverseDirection(uint8(p))].Obj != nil {
+			cwlog.DoLog("LinkObj: %v: %v (%v,%v): Port is in use.", obj.TypeP.Name, util.DirToName(uint8(p)), oPos.X, oPos.Y)
 			continue
 		} else {
 			/* Unlink old */
@@ -49,6 +54,8 @@ func LinkObj(obj *glob.ObjData) {
 		/* Assign on both sides */
 		neigh.Ports[util.ReverseDirection(uint8(p))].Obj = obj
 		obj.Ports[p].Obj = neigh
+
+		cwlog.DoLog("LinkObj: %v: %v (%v,%v)", obj.TypeP.Name, util.DirToName(uint8(p)), oPos.X, oPos.Y)
 
 		/* add to input/output counts */
 		if port.PortDir == gv.PORT_INPUT {

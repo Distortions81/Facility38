@@ -120,6 +120,9 @@ func tickObj(obj *glob.ObjData) {
 							port.Obj.Ports[p].Buf.Amount = port.Buf.Amount
 							port.Obj.Ports[p].Buf.TypeP = port.Buf.TypeP
 							port.Buf.Amount = 0
+							obj.Blocked = false
+						} else {
+							obj.Blocked = true
 						}
 					}
 				}
@@ -307,8 +310,8 @@ func tocklistRemove(obj *glob.ObjData) {
 	cwlog.DoLog("tocklistRemove: Not found in TOCK list: %v (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 }
 
-/* Unlink an object's (dir) input */
-func unlink(obj *glob.ObjData) {
+/* UnlinkObj an object's (dir) input */
+func UnlinkObj(obj *glob.ObjData) {
 	oPos := util.CenterXY(obj.Pos)
 
 	for dir, port := range obj.Ports {
@@ -317,16 +320,26 @@ func unlink(obj *glob.ObjData) {
 		if port.PortDir == gv.PORT_INPUT {
 			obj.NumInputs--
 			if port.Obj != nil {
-				cwlog.DoLog("unlink: %v (%v,%v): INPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
-				port.Obj.NumOutputs++
-				port.Obj.Ports[dir].Obj = nil
+				cwlog.DoLog("Unlink: %v (%v,%v): INPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
+				port.Obj.NumOutputs--
+
+				chunk := util.GetChunk(port.Obj.Pos)
+				rObj := util.GetObj(port.Obj.Pos, chunk)
+				rObj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
+
+				obj.Ports[dir].Obj = nil
 			}
 		} else if port.PortDir == gv.PORT_OUTPUT {
-			obj.NumInputs++
+			obj.NumOutputs++
 			if port.Obj != nil {
-				cwlog.DoLog("unlink: %v (%v,%v): OUTPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
-				port.Obj.NumOutputs--
-				port.Obj.Ports[dir].Obj = nil
+				cwlog.DoLog("Unlink: %v (%v,%v): OUTPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
+				port.Obj.NumInputs--
+
+				chunk := util.GetChunk(port.Obj.Pos)
+				rObj := util.GetObj(port.Obj.Pos, chunk)
+				rObj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
+
+				obj.Ports[dir].Obj = nil
 			}
 		}
 	}
@@ -529,7 +542,7 @@ func runObjQueue() {
 	for _, item := range ObjQueue {
 		if item.Delete {
 
-			unlink(item.Obj)
+			UnlinkObj(item.Obj)
 
 			/* Remove tick and tock events */
 			EventQueueAdd(item.Obj, gv.QUEUE_TYPE_TICK, true)

@@ -180,24 +180,26 @@ func FloatXYToPosition(x float64, y float64) glob.XY {
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
 func GetNeighborObj(src *glob.ObjData, dir uint8) *glob.ObjData {
 
+	pos := src.Pos
+
 	switch dir {
 	case gv.DIR_NORTH:
-		src.Pos.Y--
+		pos.Y--
 	case gv.DIR_EAST:
-		src.Pos.X++
+		pos.X++
 	case gv.DIR_SOUTH:
-		src.Pos.Y++
+		pos.Y++
 	case gv.DIR_WEST:
-		src.Pos.X--
+		pos.X--
 	default:
 		return nil
 	}
 
-	chunk := GetChunk(src.Pos)
+	chunk := GetChunk(pos)
 	if chunk == nil {
 		return nil
 	}
-	obj := GetObj(src.Pos, chunk)
+	obj := GetObj(pos, chunk)
 	if obj == nil {
 		return nil
 	}

@@ -195,17 +195,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 							((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 						op.GeoM.Translate(objCamPosX, objCamPosY)
 
-						/* Draw Input Materials
-						if obj.OutputBuffer.Amount > 0 {
-							drawMaterials(obj.OutputBuffer, obj, op, screen)
-						} else {
-							for _, m := range obj.InputBuffer {
-								if m != nil && m.Amount > 0 {
-									drawMaterials(m, obj, op, screen)
-									break
-								}
-							}
-						} */
+						/* Draw Input Materials */
+						for p, _ := range obj.Ports {
+							drawMaterials(&obj.Ports[p].Buf, obj, op, screen)
+						}
 
 					}
 					if glob.ShowInfoLayer {

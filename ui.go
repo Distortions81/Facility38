@@ -448,6 +448,8 @@ func rotateWorldObjects() {
 		o := chunk.ObjMap[pos]
 
 		if o != nil {
+
+			objects.UnlinkObj(o)
 			var newdir uint8
 			if gShiftPressed {
 				newdir = util.RotCCW(o.Dir)
