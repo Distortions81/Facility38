@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	workChunks = 100
+	WorkChunks = 100
 )
 
 var (
@@ -50,11 +50,11 @@ func ObjUpdateDaemon() {
 	for {
 		start = time.Now()
 
-		gTickWorkSize = gTickCount / (NumWorkers * workChunks)
+		gTickWorkSize = gTickCount / (NumWorkers * WorkChunks)
 		if gTickWorkSize < 1 {
 			gTickWorkSize = 1
 		}
-		TockWorkSize = gTockCount / (NumWorkers * workChunks)
+		TockWorkSize = gTockCount / (NumWorkers * WorkChunks)
 		if TockWorkSize < 1 {
 			TockWorkSize = 1
 		}
