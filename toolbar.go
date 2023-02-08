@@ -36,6 +36,7 @@ func DrawToolbar() {
 	if toolbarCache == nil {
 		toolbarCache = ebiten.NewImage(gv.ToolBarScale*ToolbarMax, gv.ToolBarScale)
 	}
+	toolbarCache.Clear()
 
 	for pos := 0; pos < ToolbarMax; pos++ {
 		item := ToolbarItems[pos]
