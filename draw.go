@@ -339,7 +339,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					humanize.Comma(int64(math.Floor(worldMouseY-gv.XYCenter))))
 				for z := 0; z < gv.MAT_MAX; z++ {
 					if o.Contents[z] != nil {
-						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v%v)\n",
+						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %0.2f%v)\n",
 							o.Contents[z].TypeP.Name, o.Contents[z].Amount, o.Contents[z].TypeP.UnitName)
 					}
 				}
