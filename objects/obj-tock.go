@@ -30,7 +30,7 @@ func minerUpdate(obj *glob.ObjData) {
 		}
 
 		if numTypesFound > 0 {
-			pick := rand.Intn(numTypesFound + 1)
+			pick := rand.Intn(numTypesFound)
 
 			obj.Ports[obj.Dir].Buf.Amount = obj.TypeP.MinerKGTock * matsFound[pick]
 			obj.Ports[obj.Dir].Buf.TypeP = *MatTypes[matsFoundT[pick]]
