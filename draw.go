@@ -5,7 +5,6 @@ import (
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/objects"
-	"GameTest/terrain"
 	"GameTest/util"
 	"fmt"
 	"image/color"
@@ -67,24 +66,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	frameCount++
 
-	if gv.CurrentLayer != gv.LayerNormal {
-		ShowLayer(screen)
-	} else {
+	calcScreenCamera()
+	updateVisData()
 
-		calcScreenCamera()
-		updateVisData()
-
-		if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
-			terrain.RenderTerrainST()
-		}
-		if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
-			drawIconMode(screen)
-		} else {
-			drawPixmapMode(screen)
-		}
-
-		drawWorldTooltip(screen)
+	if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
+		objects.RenderTerrainST()
 	}
+	if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
+		drawIconMode(screen)
+	} else {
+		drawPixmapMode(screen)
+	}
+
+	drawWorldTooltip(screen)
 
 	drawDebugInfo(screen)
 
@@ -142,6 +136,26 @@ func updateVisData() {
 	}
 }
 
+func drawTerrain(chunk *glob.MapChunk, screen *ebiten.Image) {
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+
+	/* Draw ground */
+	chunk.TerrainLock.RLock()
+	cTmp := chunk.TerrainImg
+	if chunk.TerrainImg == nil {
+		cTmp = glob.TempChunkImage
+	}
+
+	iSize := cTmp.Bounds().Size()
+	op.GeoM.Reset()
+	op.GeoM.Scale((gv.ChunkSize*glob.ZoomScale)/float64(iSize.X),
+		(gv.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
+	op.GeoM.Translate((camXPos+float64(chunk.Pos.X*gv.ChunkSize))*glob.ZoomScale,
+		(camYPos+float64(chunk.Pos.Y*gv.ChunkSize))*glob.ZoomScale)
+	screen.DrawImage(cTmp, op)
+	chunk.TerrainLock.RUnlock()
+}
+
 func drawIconMode(screen *ebiten.Image) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
@@ -152,21 +166,10 @@ func drawIconMode(screen *ebiten.Image) {
 				continue
 			}
 
-			/* Draw ground */
-			chunk.TerrainLock.RLock()
-			cTmp := chunk.TerrainImg
-			if chunk.TerrainImg == nil {
-				cTmp = glob.TempChunkImage
+			drawTerrain(chunk, screen)
+			if gv.ShowMineralLayer {
+				continue
 			}
-
-			iSize := cTmp.Bounds().Size()
-			op.GeoM.Reset()
-			op.GeoM.Scale((gv.ChunkSize*glob.ZoomScale)/float64(iSize.X),
-				(gv.ChunkSize*glob.ZoomScale)/float64(iSize.Y))
-			op.GeoM.Translate((camXPos+float64(chunk.Pos.X*gv.ChunkSize))*glob.ZoomScale,
-				(camYPos+float64(chunk.Pos.Y*gv.ChunkSize))*glob.ZoomScale)
-			screen.DrawImage(cTmp, op)
-			chunk.TerrainLock.RUnlock()
 
 			/* Draw objects in chunk */
 			for _, obj := range chunk.ObjList {
@@ -270,7 +273,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 
 	/* Single thread render terrain for WASM */
 	if gv.WASMMode {
-		terrain.PixmapRenderST()
+		objects.PixmapRenderST()
 	}
 	/* Draw superchunk images (pixmap mode)*/
 	glob.SuperChunkListLock.RLock()
@@ -472,20 +475,4 @@ func drawMaterials(m *glob.MatData, obj *glob.ObjData, op *ebiten.DrawImageOptio
 			screen.DrawImage(img, op)
 		}
 	}
-}
-
-func ShowLayer(screen *ebiten.Image) {
-	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-	screen.Fill(glob.ColorVeryDarkGray)
-
-	op.GeoM.Scale(100, 100)
-	screen.DrawImage(objects.TerrainTypes[1].Image, op)
-
-	scale := 1.5
-	dbuf := "=Work in progress="
-	tRect := text.BoundString(glob.LargeFont, dbuf)
-	mx := (float64(glob.ScreenWidth) / 2.0) - float64(tRect.Dx()/2.0)
-	my := (float64(glob.ScreenHeight) / 2.0) - float64(tRect.Dy()/2.0)
-	ebitenutil.DrawRect(screen, mx, my-float64(tRect.Dy())*scale/1.5, float64(tRect.Dx()), float64(tRect.Dy())*scale, glob.ColorToolTipBG)
-	text.Draw(screen, dbuf, glob.LargeFont, int(mx), int(my), glob.ColorAqua)
 }

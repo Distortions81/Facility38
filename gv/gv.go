@@ -1,5 +1,7 @@
 package gv
 
+import "sync"
+
 // Set at build
 var (
 	UPSBench   = false
@@ -10,7 +12,8 @@ var (
 	LogStdOut  = false
 	LogFileOut = false
 
-	CurrentLayer int
+	ShowMineralLayer     bool
+	ShowMineralLayerLock sync.RWMutex
 )
 
 const (
@@ -20,10 +23,6 @@ const (
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
-
-	/* World Layers */
-	LayerNormal  = 0
-	LayerMineral = 1
 
 	/* Debug */
 	TestObjects = 100000 //Make (approx) this number items

@@ -4,7 +4,6 @@ import (
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/objects"
-	"GameTest/terrain"
 	"time"
 )
 
@@ -128,8 +127,8 @@ func makeTestMap(skip bool) {
 	}
 
 	if !gv.WASMMode {
-		go terrain.RenderTerrainDaemon()
-		go terrain.PixmapRenderDaemon()
+		go objects.RenderTerrainDaemon()
+		go objects.PixmapRenderDaemon()
 		go objects.ObjUpdateDaemon()
 	} else {
 		go objects.ObjUpdateDaemonST()

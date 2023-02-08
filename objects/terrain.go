@@ -1,11 +1,10 @@
-package terrain
+package objects
 
 import (
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/noise"
-	"GameTest/objects"
 	"image"
 	"time"
 
@@ -30,12 +29,34 @@ var (
 	numPixmapCache  int
 )
 
+func SwitchLayer() {
+	gv.ShowMineralLayerLock.Lock()
+
+	if gv.ShowMineralLayer {
+		gv.ShowMineralLayer = false
+	} else {
+		gv.ShowMineralLayer = true
+
+	}
+	gv.ShowMineralLayerLock.Unlock()
+
+	SetupTerrainCache()
+}
+
 /* Make a 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
 
 	tChunk := glob.MapChunk{}
 	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
 	glob.TempChunkImage = tChunk.TerrainImg
+
+	glob.SuperChunkListLock.RLock()
+	for _, sChunk := range glob.SuperChunkList {
+		for _, chunk := range sChunk.ChunkList {
+			killTerrainCache(chunk, true)
+		}
+	}
+	glob.SuperChunkListLock.RUnlock()
 
 	if debugVisualize {
 		glob.TempChunkImage.Fill(glob.ColorDarkRed)
@@ -44,10 +65,12 @@ func SetupTerrainCache() {
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
 func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
-
 	if chunk.Rendering {
 		return
 	}
+	gv.ShowMineralLayerLock.RLock()
+	defer gv.ShowMineralLayerLock.RUnlock()
+
 	chunk.Rendering = true
 
 	/* Make optimized background */
@@ -55,7 +78,12 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 
 	chunkPix := (gv.SpriteScale * gv.ChunkSize)
 
-	bg := objects.TerrainTypes[0].Image
+	var bg *ebiten.Image
+	if !gv.ShowMineralLayer {
+		bg = TerrainTypes[0].Image
+	} else {
+		bg = TerrainTypes[1].Image
+	}
 	sx := int(float64(bg.Bounds().Size().X))
 	sy := int(float64(bg.Bounds().Size().Y))
 	var tImg *ebiten.Image
@@ -77,13 +105,23 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 				if doDetail {
 					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
 					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
-					h := noise.GrassNoiseMap(x, y)
+
+					var h float64
+					if !gv.ShowMineralLayer {
+						h = noise.GrassNoiseMap(x, y)
+					} else {
+						h = noise.CoalNoiseMap(x, y)
+					}
 
 					if gv.Verbose {
 						cwlog.DoLog("%.2f,%.2f: %.2f", x, y, h)
 					}
 					op.ColorM.Reset()
-					op.ColorM.Scale(h*2, 1, 1, 1)
+					if !gv.ShowMineralLayer {
+						op.ColorM.Scale(h*2, 1, 1, 1)
+					} else {
+						op.ColorM.Scale(h*2, h*2, h*2, 1)
+					}
 				}
 
 				tImg.DrawImage(bg, op)
@@ -93,7 +131,9 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	} else {
 		panic("No valid bg texture.")
 	}
+
 	chunk.TerrainLock.Lock()
+
 	numTerrainCache++
 	chunk.TerrainImg = tImg
 	chunk.UsingTemporary = false

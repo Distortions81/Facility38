@@ -13,14 +13,16 @@ const (
 	grassAlpha      = 2.0
 	grassBeta       = 2.0
 	grassN          = 3
+	grassContrast   = 1
+	grassBrightness = 0.0
 
 	/* Coal noise */
 	coalNoiseScale = 66.0
 	coalAlpha      = 2.0
 	coalBeta       = 2.0
 	coalN          = 3
-	coalContrast   = 0.25
-	coalBrightness = 1.0
+	coalContrast   = 0.10
+	coalBrightness = -2.15
 )
 
 var (
@@ -42,9 +44,13 @@ func init() {
 }
 
 func GrassNoiseMap(x, y float64) float64 {
-	return ((grassPer.Noise2D(x/grassNoiseScale, y/grassNoiseScale) + 1) / 2.0)
+	return (((grassPer.Noise2D(x/grassNoiseScale, y/grassNoiseScale) + 1) / 2.0) / grassContrast) + grassBrightness
 }
 
 func CoalNoiseMap(x, y float64) float64 {
-	return ((grassPer.Noise2D(x/grassNoiseScale, y/grassNoiseScale) + 1) / 2.0)
+	val := (((coalPer.Noise2D(x/grassNoiseScale, y/grassNoiseScale) + 1) / 2.0) / coalContrast) + coalBrightness
+	if val > 0.5 {
+		return 0.5
+	}
+	return val
 }

@@ -6,7 +6,6 @@ import (
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/objects"
-	"GameTest/terrain"
 	"fmt"
 	"log"
 	"runtime"
@@ -119,7 +118,7 @@ func loadSprites() {
 		}
 	}
 
-	terrain.SetupTerrainCache()
+	objects.SetupTerrainCache()
 	DrawToolbar()
 
 	glob.SpritesLoaded.Store(true)
