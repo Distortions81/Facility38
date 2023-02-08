@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/noise"
@@ -102,25 +101,46 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 				op.GeoM.Reset()
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
-				if doDetail {
+				if doDetail && !gv.ShowMineralLayer {
 					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
 					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
 
-					var h float64
-					if !gv.ShowMineralLayer {
-						h = noise.GrassNoiseMap(x, y)
-					} else {
-						h = noise.CoalNoiseMap(x, y)
-					}
+					h := noise.NoiseMap(x, y, 0)
 
-					if gv.Verbose {
-						cwlog.DoLog("%.2f,%.2f: %.2f", x, y, h)
-					}
 					op.ColorM.Reset()
-					if !gv.ShowMineralLayer {
-						op.ColorM.Scale(h*2, 1, 1, 1)
-					} else {
-						op.ColorM.Scale(h*2, h*2, h*2, 1)
+					op.ColorM.Scale(h, 1, 1, 1)
+
+				} else if doDetail {
+					op.ColorM.Reset()
+					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
+					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
+
+					for p, nl := range noise.NoiseLayers {
+						if p == 0 {
+							continue
+						}
+
+						h := noise.NoiseMap(x, y, p)
+
+						var r, g, b, a float64
+						r = 1
+						g = 1
+						b = 1
+						a = 1
+
+						if nl.RMod {
+							r = h * nl.RMulti
+						}
+						if nl.GMod {
+							g = h * nl.GMulti
+						}
+						if nl.BMod {
+							b = h * nl.BMulti
+						}
+						if nl.AMod {
+							a = h * nl.AMulti
+						}
+						op.ColorM.Scale(r, g, b, a)
 					}
 				}
 

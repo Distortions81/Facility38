@@ -7,50 +7,105 @@ import (
 	"github.com/aquilax/go-perlin"
 )
 
-const (
-	/* Grass noise */
-	grassNoiseScale = 66.0
-	grassAlpha      = 2.0
-	grassBeta       = 2.0
-	grassN          = 3
-	grassContrast   = 0.8
-	grassBrightness = -0.2
+type noiseLayerData struct {
+	Name       string
+	Scale      float64
+	Alpha      float64
+	Beta       float64
+	N          int32
+	Contrast   float64
+	Brightness float64
+	LimitHigh  float64
+	LimitLow   float64
 
-	/* Coal noise */
-	coalNoiseScale = 66.0
-	coalAlpha      = 2.0
-	coalBeta       = 2.0
-	coalN          = 3
-	coalContrast   = 0.10
-	coalBrightness = -2.2
-)
+	RMod bool
+	BMod bool
+	GMod bool
+	AMod bool
 
-var (
-	grassPer  *perlin.Perlin
-	grassSeed int64
+	RMulti float64
+	GMulti float64
+	BMulti float64
+	AMulti float64
 
-	coalPer  *perlin.Perlin
-	coalSeed int64
-)
+	Source rand.Source
+	Seed   int64
+	Perlin *perlin.Perlin
+}
+
+var NoiseLayers = []noiseLayerData{
+	{Name: "Grass",
+		Scale:      66,
+		Alpha:      2,
+		Beta:       2.0,
+		N:          3,
+		Contrast:   0.8,
+		Brightness: -0.2,
+		LimitHigh:  2,
+		LimitLow:   0,
+
+		RMod: true,
+
+		RMulti: 2,
+		GMulti: 1,
+		BMulti: 1,
+		AMulti: 1,
+	},
+	{Name: "Coal",
+		Scale:      66,
+		Alpha:      2,
+		Beta:       2.0,
+		N:          3,
+		Contrast:   0.1,
+		Brightness: -2.2,
+		LimitHigh:  0.5,
+		LimitLow:   0,
+
+		RMod: true,
+		GMod: true,
+		BMod: true,
+
+		RMulti: 2,
+		GMulti: 2,
+		BMulti: 2,
+		AMulti: 1,
+	},
+	{Name: "Iron",
+		Scale:      66,
+		Alpha:      2,
+		Beta:       2.0,
+		N:          3,
+		Contrast:   0.1,
+		Brightness: -2.2,
+		LimitHigh:  0.5,
+		LimitLow:   0,
+
+		RMod: true,
+
+		RMulti: 2,
+		GMulti: 2,
+		BMulti: 2,
+		AMulti: 1,
+	},
+}
 
 func init() {
-	grassSeed = time.Now().UnixNano()
-	grassSource := rand.NewSource(grassSeed)
-	grassPer = perlin.NewPerlinRandSource(grassAlpha, grassBeta, grassN, grassSource)
-
-	coalSeed = time.Now().UnixNano()
-	coalSource := rand.NewSource(coalSeed)
-	coalPer = perlin.NewPerlinRandSource(coalAlpha, coalBeta, coalN, coalSource)
+	for p, _ := range NoiseLayers {
+		NoiseLayers[p].Seed = time.Now().UnixNano()
+		NoiseLayers[p].Source = rand.NewSource(NoiseLayers[p].Seed)
+		NoiseLayers[p].Perlin = perlin.NewPerlinRandSource(NoiseLayers[p].Alpha, NoiseLayers[p].Beta, NoiseLayers[p].N, NoiseLayers[p].Source)
+	}
 }
 
-func GrassNoiseMap(x, y float64) float64 {
-	return (((grassPer.Noise2D(x/grassNoiseScale, y/grassNoiseScale) + 1) / 2.0) / grassContrast) + grassBrightness
-}
+func NoiseMap(x, y float64, p int) float64 {
+	val := (((NoiseLayers[p].Perlin.Noise2D(
+		x/NoiseLayers[p].Scale,
+		y/NoiseLayers[p].Scale) + 1) / 2.0) / NoiseLayers[p].Contrast) + NoiseLayers[p].Brightness
 
-func CoalNoiseMap(x, y float64) float64 {
-	val := (((coalPer.Noise2D(x/grassNoiseScale, y/grassNoiseScale) + 1) / 2.0) / coalContrast) + coalBrightness
-	if val > 0.5 {
-		return 0.5
+	if val > NoiseLayers[p].LimitHigh {
+		return NoiseLayers[p].LimitHigh
+	} else if val < NoiseLayers[p].LimitLow {
+		return NoiseLayers[p].LimitLow
 	}
 	return val
 }
