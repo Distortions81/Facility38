@@ -128,6 +128,10 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 						b = 1
 						a = 1
 
+						if nl.InvertValue {
+							h = 1.0 - h
+						}
+
 						if nl.RMod {
 							r = h * nl.RMulti
 						}

@@ -18,6 +18,8 @@ type noiseLayerData struct {
 	LimitHigh  float64
 	LimitLow   float64
 
+	InvertValue bool
+
 	RMod bool
 	BMod bool
 	GMod bool
@@ -40,7 +42,7 @@ var NoiseLayers = []noiseLayerData{
 		Beta:       2.0,
 		N:          3,
 		Contrast:   0.8,
-		Brightness: -0.2,
+		Brightness: -0.1,
 		LimitHigh:  2,
 		LimitLow:   0,
 
@@ -57,7 +59,7 @@ var NoiseLayers = []noiseLayerData{
 		Beta:       2.0,
 		N:          3,
 		Contrast:   0.1,
-		Brightness: -2.2,
+		Brightness: -2.0,
 		LimitHigh:  0.5,
 		LimitLow:   0,
 
@@ -76,11 +78,52 @@ var NoiseLayers = []noiseLayerData{
 		Beta:       2.0,
 		N:          3,
 		Contrast:   0.1,
-		Brightness: -2.2,
+		Brightness: -2.0,
+		LimitHigh:  0.5,
+		LimitLow:   0,
+
+		RMod: false,
+		GMod: true,
+		BMod: true,
+
+		RMulti: 1,
+		GMulti: 2,
+		BMulti: 2,
+		AMulti: 1,
+	},
+	{Name: "Copper",
+		Scale:      66,
+		Alpha:      2,
+		Beta:       2.0,
+		N:          3,
+		Contrast:   0.1,
+		Brightness: -2.0,
 		LimitHigh:  0.5,
 		LimitLow:   0,
 
 		RMod: true,
+		GMod: false,
+		BMod: false,
+
+		RMulti: 2,
+		GMulti: 1,
+		BMulti: 1,
+		AMulti: 1,
+	},
+	{Name: "Limestone",
+		Scale:      66,
+		Alpha:      2,
+		Beta:       2.0,
+		N:          3,
+		Contrast:   0.1,
+		Brightness: -2.0,
+		LimitHigh:  0.5,
+		LimitLow:   0.0,
+
+		InvertValue: true,
+		RMod:        true,
+		GMod:        true,
+		BMod:        true,
 
 		RMulti: 2,
 		GMulti: 2,
