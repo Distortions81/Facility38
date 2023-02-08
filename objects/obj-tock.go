@@ -5,6 +5,7 @@ import (
 	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/util"
+	"math/rand"
 )
 
 func minerUpdate(obj *glob.ObjData) {
@@ -14,6 +15,7 @@ func minerUpdate(obj *glob.ObjData) {
 
 		obj.Ports[obj.Dir].Buf.Amount = obj.TypeP.MinerKGTock
 		obj.Ports[obj.Dir].Buf.TypeP = *MatTypes[gv.MAT_COAL]
+		obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
 	} else {
 		obj.Blocked = true
 	}
@@ -45,6 +47,7 @@ func beltUpdate(obj *glob.ObjData) {
 		} else {
 			obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
 			obj.Ports[obj.Dir].Buf.TypeP = port.Buf.TypeP
+			obj.Ports[obj.Dir].Buf.Rot = port.Buf.Rot
 			obj.Ports[p].Buf.Amount = 0
 			break
 		}
@@ -65,6 +68,7 @@ func splitterUpdate(obj *glob.ObjData) {
 						if oport.Buf.Amount <= 0 {
 							oport.Buf.Amount = port.Buf.Amount
 							oport.Buf.TypeP = port.Buf.TypeP
+							oport.Buf.Rot = port.Buf.Rot
 							port.Buf.Amount = 0
 						}
 					}

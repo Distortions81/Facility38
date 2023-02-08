@@ -59,7 +59,7 @@ func DrawToolbar() {
 				x := float64(iSize.Size().X / 2)
 				y := float64(iSize.Size().Y / 2)
 				op.GeoM.Translate(-x, -y)
-				op.GeoM.Rotate(cNinetyDeg * float64(item.OType.Direction))
+				op.GeoM.Rotate(gv.CNinetyDeg * float64(item.OType.Direction))
 				op.GeoM.Translate(x, y)
 			}
 

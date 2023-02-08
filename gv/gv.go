@@ -1,6 +1,9 @@
 package gv
 
-import "sync"
+import (
+	"math"
+	"sync"
+)
 
 // Set at build
 var (
@@ -17,6 +20,11 @@ var (
 )
 
 const (
+	CNinetyDeg     = math.Pi / 2
+	COneEightyDeg  = math.Pi
+	CThreeSixtyDeg = math.Pi * 2
+	DegToRad       = 6.28319
+
 	Version = "012"
 
 	/* Files and directories */

@@ -207,6 +207,7 @@ type SaveMObj struct {
 type MatData struct {
 	TypeP  ObjType `json:"-"`
 	Amount float64 `json:"a,omitempty"`
+	Rot    uint8
 }
 
 /* Int x/y */

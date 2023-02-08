@@ -19,7 +19,6 @@ import (
 )
 
 const (
-	cNinetyDeg              = math.Pi / 2
 	cBlockedIndicatorOffset = 0
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
 	cMAX_RENDER_NS_BOOT     = 1000000000 / 30  /* 30 FPS */
@@ -157,7 +156,6 @@ func drawTerrain(chunk *glob.MapChunk, screen *ebiten.Image) {
 }
 
 func drawIconMode(screen *ebiten.Image) {
-	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	glob.SuperChunkListLock.RLock()
 	for _, sChunk := range glob.SuperChunkList {
@@ -188,23 +186,9 @@ func drawIconMode(screen *ebiten.Image) {
 				/* Draw belt overlays */
 				if obj.TypeP.TypeI == gv.ObjTypeBasicBelt {
 
-					/* camera + object */
-					objOffX := camXPos + (float64(obj.Pos.X))
-					objOffY := camYPos + (float64(obj.Pos.Y))
-
-					/* camera zoom */
-					objCamPosX := objOffX * glob.ZoomScale
-					objCamPosY := objOffY * glob.ZoomScale
-
-					iSize := obj.TypeP.Image.Bounds()
-					op.GeoM.Reset()
-					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
-						((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
-					op.GeoM.Translate(objCamPosX, objCamPosY)
-
 					/* Draw Input Materials */
 					for p := range obj.Ports {
-						drawMaterials(&obj.Ports[p].Buf, obj, op, screen)
+						drawMaterials(&obj.Ports[p].Buf, obj, screen)
 					}
 
 				}
@@ -220,7 +204,7 @@ func drawIconMode(screen *ebiten.Image) {
 					objCamPosY := objOffY * glob.ZoomScale
 
 					iSize := obj.TypeP.Image.Bounds()
-					op.GeoM.Reset()
+					var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 						((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 					op.GeoM.Translate(objCamPosX, objCamPosY)
@@ -232,7 +216,7 @@ func drawIconMode(screen *ebiten.Image) {
 							}
 
 							iSize := obj.TypeP.Image.Bounds()
-							op.GeoM.Reset()
+							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 								((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
@@ -250,7 +234,6 @@ func drawIconMode(screen *ebiten.Image) {
 								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 								iSize := obj.TypeP.Image.Bounds()
-								op.GeoM.Reset()
 								op.GeoM.Translate(
 									float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset,
 									cBlockedIndicatorOffset)
@@ -430,7 +413,7 @@ func drawObject(screen *ebiten.Image, obj *glob.ObjData) {
 			xx := float64(iSize.Size().X / 2)
 			yy := float64(iSize.Size().Y / 2)
 			op.GeoM.Translate(-xx, -yy)
-			op.GeoM.Rotate(cNinetyDeg * float64(int(obj.Dir)))
+			op.GeoM.Rotate(gv.CNinetyDeg * float64(int(obj.Dir)))
 			op.GeoM.Translate(xx, yy)
 		}
 
@@ -469,11 +452,32 @@ func calcScreenCamera() {
 }
 
 /* Draw materials on belts */
-func drawMaterials(m *glob.MatData, obj *glob.ObjData, op *ebiten.DrawImageOptions, screen *ebiten.Image) {
+func drawMaterials(m *glob.MatData, obj *glob.ObjData, screen *ebiten.Image) {
 
 	if m.Amount > 0 {
 		img := m.TypeP.Image
 		if img != nil {
+
+			/* camera + object */
+			objOffX := camXPos + (float64(obj.Pos.X))
+			objOffY := camYPos + (float64(obj.Pos.Y))
+
+			/* camera zoom */
+			objCamPosX := objOffX * glob.ZoomScale
+			objCamPosY := objOffY * glob.ZoomScale
+
+			iSize := obj.TypeP.Image.Bounds()
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+			xx := float64(iSize.Dx()) / 2.0
+			yy := float64(iSize.Dy()) / 2.0
+			op.GeoM.Translate(-xx, -yy)
+			op.GeoM.Rotate(float64(m.Rot) * gv.CNinetyDeg)
+			op.GeoM.Translate(xx, yy)
+
+			op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+				((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+			op.GeoM.Translate(objCamPosX, objCamPosY)
+
 			screen.DrawImage(img, op)
 		}
 	}
