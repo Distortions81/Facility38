@@ -155,11 +155,11 @@ var (
 		{Symbol: "C", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
 			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
 		{Symbol: "FE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Iron", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
+			Name: "Iron", UnitName: " kg", ImagePath: "belt-obj/iron.png"},
 		{Symbol: "Cu", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Copper", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
-		{Symbol: "RCK", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Stone", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
+			Name: "Copper", UnitName: " kg", ImagePath: "belt-obj/copper.png"},
+		{Symbol: "STO", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+			Name: "Stone", UnitName: " kg", ImagePath: "belt-obj/stone.png"},
 	}
 
 	/* Toolbar item types, array of array of ObjType */
