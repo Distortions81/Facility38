@@ -49,7 +49,7 @@ func init() {
 	glob.MiniMapTile.Fill(color.White)
 
 	glob.ToolBG = ebiten.NewImage(gv.ToolBarScale, gv.ToolBarScale)
-	glob.ToolBG.Fill(glob.ColorCharcol)
+	glob.ToolBG.Fill(glob.ColorCharcolSemi)
 }
 
 /* Ebiten: Draw everything */
@@ -78,12 +78,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		drawPixmapMode(screen)
 	}
 
-	drawWorldTooltip(screen)
-
-	drawDebugInfo(screen)
-
 	/* Draw toolbar */
 	screen.DrawImage(toolbarCache, nil)
+
+	drawWorldTooltip(screen)
+	drawDebugInfo(screen)
+
 }
 
 /* Look at camera position, make a list of visible superchunks and chunks. Saves to VisChunks, checks glob.CameraDirty */
@@ -360,18 +360,20 @@ func drawWorldTooltip(screen *ebiten.Image) {
 							o.Contents[z].TypeP.Name, o.Contents[z].Amount, o.Contents[z].TypeP.UnitName)
 					}
 				}
-				for z := 0; z < gv.DIR_MAX; z++ {
-					if o.Ports[z].PortDir == gv.PORT_INPUT && o.Ports[z].Obj != nil {
-						toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %v)\n",
-							util.DirToName(uint8(z)),
-							o.Ports[z].Obj.TypeP.Name,
-							o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
-					}
-					if o.Ports[z].PortDir == gv.PORT_OUTPUT && o.Ports[z].Obj != nil {
-						toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %v: %v)\n",
-							util.DirToName(uint8(z)),
-							o.Ports[z].Obj.TypeP.Name,
-							o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
+				if gv.Debug {
+					for z := 0; z < gv.DIR_MAX; z++ {
+						if o.Ports[z].PortDir == gv.PORT_INPUT && o.Ports[z].Obj != nil {
+							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %v)\n",
+								util.DirToName(uint8(z)),
+								o.Ports[z].Obj.TypeP.Name,
+								o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
+						}
+						if o.Ports[z].PortDir == gv.PORT_OUTPUT && o.Ports[z].Obj != nil {
+							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %v: %v)\n",
+								util.DirToName(uint8(z)),
+								o.Ports[z].Obj.TypeP.Name,
+								o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
+						}
 					}
 				}
 			}

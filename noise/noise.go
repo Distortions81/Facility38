@@ -37,12 +37,12 @@ type noiseLayerData struct {
 
 var NoiseLayers = []noiseLayerData{
 	{Name: "Grass",
-		Scale:      66,
+		Scale:      33,
 		Alpha:      2,
 		Beta:       2.0,
 		N:          3,
-		Contrast:   0.8,
-		Brightness: -0.1,
+		Contrast:   1.1,
+		Brightness: 0.55,
 		LimitHigh:  2,
 		LimitLow:   0,
 
@@ -58,7 +58,7 @@ var NoiseLayers = []noiseLayerData{
 		Alpha:      2,
 		Beta:       2.0,
 		N:          3,
-		Contrast:   0.1,
+		Contrast:   0.11,
 		Brightness: -2.0,
 		LimitHigh:  0.5,
 		LimitLow:   0,

@@ -18,8 +18,8 @@ var (
 			Symbol: "SAVE", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorWhite},
 		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: action.LoadGame,
 			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite}, */
-		{Name: "Layer", ImagePath: "", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorVeryDarkGray},
+		{ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
+			Symbol: "LAYER", ItemColor: &glob.ColorGray, SymbolColor: &glob.ColorWhite},
 	}
 
 	/* World objects and images */
