@@ -1,6 +1,7 @@
 package noise
 
 import (
+	"GameTest/gv"
 	"math/rand"
 	"time"
 
@@ -8,7 +9,9 @@ import (
 )
 
 type noiseLayerData struct {
-	Name       string
+	Name string
+	Type uint8
+
 	Scale      float64
 	Alpha      float64
 	Beta       float64
@@ -25,6 +28,8 @@ type noiseLayerData struct {
 	GMod bool
 	AMod bool
 
+	MineralMulti float64
+
 	RMulti float64
 	GMulti float64
 	BMulti float64
@@ -35,8 +40,11 @@ type noiseLayerData struct {
 	Perlin *perlin.Perlin
 }
 
+const NumNoiseTypes = 4
+
 var NoiseLayers = []noiseLayerData{
 	{Name: "Grass",
+		Type:       gv.MAT_NONE,
 		Scale:      33,
 		Alpha:      2,
 		Beta:       2.0,
@@ -48,12 +56,14 @@ var NoiseLayers = []noiseLayerData{
 
 		RMod: true,
 
-		RMulti: 2,
-		GMulti: 1,
-		BMulti: 1,
-		AMulti: 1,
+		MineralMulti: 0,
+		RMulti:       2,
+		GMulti:       1,
+		BMulti:       1,
+		AMulti:       1,
 	},
 	{Name: "Coal",
+		Type:       gv.MAT_COAL,
 		Scale:      66,
 		Alpha:      2,
 		Beta:       2.0,
@@ -67,12 +77,14 @@ var NoiseLayers = []noiseLayerData{
 		GMod: true,
 		BMod: true,
 
-		RMulti: 2,
-		GMulti: 2,
-		BMulti: 2,
-		AMulti: 1,
+		MineralMulti: 2,
+		RMulti:       2,
+		GMulti:       2,
+		BMulti:       2,
+		AMulti:       1,
 	},
 	{Name: "Iron",
+		Type:       gv.MAT_IRON,
 		Scale:      66,
 		Alpha:      2,
 		Beta:       2.0,
@@ -86,12 +98,14 @@ var NoiseLayers = []noiseLayerData{
 		GMod: true,
 		BMod: true,
 
-		RMulti: 1,
-		GMulti: 2,
-		BMulti: 2,
-		AMulti: 1,
+		MineralMulti: 2,
+		RMulti:       1,
+		GMulti:       2,
+		BMulti:       2,
+		AMulti:       1,
 	},
 	{Name: "Copper",
+		Type:       gv.MAT_COPPER,
 		Scale:      66,
 		Alpha:      2,
 		Beta:       2.0,
@@ -105,12 +119,14 @@ var NoiseLayers = []noiseLayerData{
 		GMod: false,
 		BMod: false,
 
-		RMulti: 2,
-		GMulti: 1,
-		BMulti: 1,
-		AMulti: 1,
+		MineralMulti: 2,
+		RMulti:       2,
+		GMulti:       1,
+		BMulti:       1,
+		AMulti:       1,
 	},
-	{Name: "Limestone",
+	{Name: "Stone",
+		Type:       gv.MAT_STONE,
 		Scale:      66,
 		Alpha:      2,
 		Beta:       2.0,
@@ -125,10 +141,11 @@ var NoiseLayers = []noiseLayerData{
 		GMod:        true,
 		BMod:        true,
 
-		RMulti: 2,
-		GMulti: 2,
-		BMulti: 2,
-		AMulti: 1,
+		MineralMulti: 2,
+		RMulti:       2,
+		GMulti:       2,
+		BMulti:       2,
+		AMulti:       1,
 	},
 }
 

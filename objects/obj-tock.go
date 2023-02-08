@@ -4,6 +4,7 @@ import (
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/gv"
+	"GameTest/noise"
 	"GameTest/util"
 	"math/rand"
 )
@@ -13,9 +14,30 @@ func minerUpdate(obj *glob.ObjData) {
 	if obj.Ports[obj.Dir].Buf.Amount == 0 {
 		obj.Blocked = false
 
-		obj.Ports[obj.Dir].Buf.Amount = obj.TypeP.MinerKGTock
-		obj.Ports[obj.Dir].Buf.TypeP = *MatTypes[gv.MAT_COAL]
-		obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
+		var matsFound [noise.NumNoiseTypes]float64
+		var matsFoundT [noise.NumNoiseTypes]uint8
+		numTypesFound := 0
+
+		for p := 1; p < 5; p++ {
+			h := 1.0 - (noise.NoiseMap(float64(obj.Pos.X), float64(obj.Pos.Y), p) * 2)
+
+			if h > 0.5 {
+				//fmt.Println(h, obj.Pos)
+				matsFound[numTypesFound] = h
+				matsFoundT[numTypesFound] = uint8(p)
+				numTypesFound++
+			}
+		}
+
+		if numTypesFound > 0 {
+			pick := rand.Intn(numTypesFound + 1)
+
+			obj.Ports[obj.Dir].Buf.Amount = obj.TypeP.MinerKGTock * matsFound[pick]
+			obj.Ports[obj.Dir].Buf.TypeP = *MatTypes[matsFoundT[pick]]
+			obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
+		} else {
+			obj.Blocked = true
+		}
 	} else {
 		obj.Blocked = true
 	}

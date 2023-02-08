@@ -69,11 +69,12 @@ const (
 	ObjTypeSteamEngine     = 7
 
 	/* Materials */
-	MAT_NONE = 0
-	MAT_WOOD = 1
-	MAT_COAL = 2 //black with color sheen
-	MAT_ERR  = 3
-	MAT_MAX  = 4
+	MAT_NONE   = 0
+	MAT_COAL   = 1 //black with color sheen
+	MAT_IRON   = 2
+	MAT_COPPER = 3
+	MAT_STONE  = 4
+	MAT_MAX    = 5
 
 	/* Placeholder texture words render offset */
 	SymbOffX = 0

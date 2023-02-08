@@ -150,14 +150,16 @@ var (
 	/* Materials and images */
 	MatTypes = []*glob.ObjType{
 		//Materials
-		{Symbol: "ERR", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
-			Name: "Error"},
-		{Symbol: "WOOD", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown,
-			Name: "Wood", UnitName: " kg"},
-		{Symbol: "COAL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "NIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
+			Name: "NONE"},
+		{Symbol: "C", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
 			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
-		{Symbol: "ERR", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
-			Name: "Error"},
+		{Symbol: "FE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+			Name: "Iron", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
+		{Symbol: "Cu", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+			Name: "Copper", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
+		{Symbol: "RCK", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+			Name: "Stone", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
 	}
 
 	/* Toolbar item types, array of array of ObjType */
