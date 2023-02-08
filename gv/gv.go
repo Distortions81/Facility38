@@ -3,12 +3,12 @@ package gv
 // Set at build
 var (
 	UPSBench   = false
-	LoadTest   = false
+	LoadTest   = true
 	WASMMode   = false
-	Debug      = true
+	Debug      = false
 	Verbose    = false
-	LogStdOut  = true
-	LogFileOut = true
+	LogStdOut  = false
+	LogFileOut = false
 )
 
 const (

@@ -16,15 +16,13 @@ const (
 	maxTerrainCache     = 500
 	maxTerrainCacheWASM = 50
 	minTerrainTime      = time.Minute
-	terrainRenderRest   = time.Millisecond * 10
-	terrainRenderLoop   = time.Millisecond * 100
+	terrainRenderLoop   = time.Millisecond * 10
 	debugVisualize      = false
 
 	maxPixmapCache     = 500
 	maxPixmapCacheWASM = 50
 	minPixmapTime      = time.Minute
-	pixmapRenderRest   = time.Millisecond * 10
-	pixmapRenderLoop   = time.Millisecond * 100
+	pixmapRenderLoop   = time.Millisecond * 10
 )
 
 var (
@@ -147,7 +145,6 @@ func RenderTerrainDaemon() {
 				for _, sChunk := range glob.SuperChunkList {
 					for _, chunk := range sChunk.ChunkList {
 						killTerrainCache(chunk, true)
-						time.Sleep(terrainRenderRest)
 					}
 				}
 				glob.SuperChunkListLock.RUnlock()
@@ -164,10 +161,8 @@ func RenderTerrainDaemon() {
 				for _, chunk := range sChunk.ChunkList {
 					if chunk.Precache && chunk.UsingTemporary {
 						renderChunkGround(chunk, true, chunk.Pos)
-						time.Sleep(terrainRenderRest)
 					} else if !chunk.Precache {
 						killTerrainCache(chunk, false)
-						time.Sleep(terrainRenderRest)
 					}
 				}
 			}
@@ -251,7 +246,6 @@ func PixmapRenderDaemon() {
 					sChunk.PixMap.Dispose()
 					sChunk.PixMap = nil
 					numPixmapCache--
-					time.Sleep(pixmapRenderRest)
 
 				}
 				sChunk.PixLock.Unlock()
@@ -261,7 +255,6 @@ func PixmapRenderDaemon() {
 				sChunk.PixLock.Lock()
 				if sChunk.PixMap == nil || sChunk.PixmapDirty {
 					drawPixmap(sChunk, sChunk.Pos)
-					time.Sleep(pixmapRenderRest)
 				}
 				sChunk.PixLock.Unlock()
 			}
