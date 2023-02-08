@@ -9,6 +9,8 @@ var (
 	Verbose    = false
 	LogStdOut  = false
 	LogFileOut = false
+
+	CurrentLayer int
 )
 
 const (
@@ -18,6 +20,10 @@ const (
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
+
+	/* World Layers */
+	LayerNormal  = 0
+	LayerMineral = 1
 
 	/* Debug */
 	TestObjects = 100000 //Make (approx) this number items

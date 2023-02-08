@@ -119,6 +119,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	frameCount++
 
+	if gv.CurrentLayer != gv.LayerNormal {
+		ShowLayer(screen)
+
+		/* Draw toolbar */
+		screen.DrawImage(toolbarCache, nil)
+		return
+	}
+
 	calcScreenCamera()
 	updateVisData()
 
@@ -127,7 +135,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 		terrain.RenderTerrainST()
 	}
-
 	if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
 
 		glob.SuperChunkListLock.RLock()
@@ -301,9 +308,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 	text.Draw(screen, dbuf, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 
-	/* Draw toolbar */
-	screen.DrawImage(toolbarCache, nil)
-
 	/* Toolbar tool tip */
 	uipix := float64(ToolbarMax * int(gv.ToolBarScale))
 	if glob.MouseX <= uipix+gv.ToolBarOffsetX && glob.MouseY <= gv.ToolBarScale+gv.ToolBarOffsetY {
@@ -372,6 +376,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 
 	}
+
+	/* Draw toolbar */
+	screen.DrawImage(toolbarCache, nil)
 }
 
 /* Draw world objects */
@@ -457,4 +464,8 @@ func drawMaterials(m *glob.MatData, obj *glob.ObjData, op *ebiten.DrawImageOptio
 			screen.DrawImage(img, op)
 		}
 	}
+}
+
+func ShowLayer(screen *ebiten.Image) {
+	screen.DrawImage(objects.TerrainTypes[1].Image, nil)
 }

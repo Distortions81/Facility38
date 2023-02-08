@@ -1,10 +1,10 @@
 package objects
 
 import (
+	"GameTest/action"
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/gv"
-	"GameTest/save"
 	"bytes"
 	"encoding/json"
 	"os"
@@ -15,10 +15,12 @@ var (
 	/* Toolbar actions and images */
 	UIObjsTypes = []*glob.ObjType{
 		//Ui Only
-		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: save.SaveGame,
+		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: action.SaveGame,
 			Symbol: "SAVE", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorWhite},
-		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: save.LoadGame,
+		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: action.LoadGame,
 			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite},
+		{Name: "Layer", ImagePath: "", ToolbarAction: action.SwitchLayer,
+			Symbol: "LAYER", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorVeryDarkGray},
 	}
 
 	/* World objects and images */
