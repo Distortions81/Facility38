@@ -160,6 +160,8 @@ type ObjType struct {
 
 	MinerKGTock float64
 	CapacityKG  float64
+	IsOre       bool
+	Result      uint8
 
 	Ports       [gv.DIR_MAX]uint8
 	CanContain  bool

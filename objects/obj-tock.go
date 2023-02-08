@@ -18,6 +18,7 @@ func minerUpdate(obj *glob.ObjData) {
 		var matsFoundT [noise.NumNoiseTypes]uint8
 		numTypesFound := 0
 
+		/* TODO: Optimize, only run this once when placed */
 		for p := 1; p < 5; p++ {
 			h := 1.0 - (noise.NoiseMap(float64(obj.Pos.X), float64(obj.Pos.Y), p) * 2)
 
@@ -78,24 +79,33 @@ func beltUpdate(obj *glob.ObjData) {
 }
 
 func splitterUpdate(obj *glob.ObjData) {
-	if obj.NumOutputs <= 0 {
+	/* Output is full, exit */
+	if obj.Ports[obj.Dir].Buf.Amount != 0 {
+		cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		return
 	}
 
-	for _, port := range obj.Ports {
-		if port.PortDir == gv.PORT_INPUT {
-			if port.Buf.Amount > 0 {
-				for _, oport := range obj.Ports {
-					if oport.PortDir == gv.PORT_OUTPUT {
-						if oport.Buf.Amount <= 0 {
-							oport.Buf.Amount = port.Buf.Amount
-							oport.Buf.TypeP = port.Buf.TypeP
-							oport.Buf.Rot = port.Buf.Rot
-							port.Buf.Amount = 0
-						}
-					}
-				}
+	/* Find all inputs, round-robin send to output */
+	for p, port := range obj.Ports {
+		if port.PortDir != gv.PORT_INPUT {
+			continue
+		}
+		if obj.NumInputs > 1 {
+			if uint8(p) == obj.LastUsedInput {
+				cwlog.DoLog("beltUpdate: Skipping previously used input.%v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				continue
 			}
+			obj.LastUsedInput = uint8(p)
+		}
+		if port.Buf.Amount == 0 {
+			cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		} else {
+			obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
+			obj.Ports[obj.Dir].Buf.TypeP = port.Buf.TypeP
+			obj.Ports[obj.Dir].Buf.Rot = port.Buf.Rot
+			obj.Ports[p].Buf.Amount = 0
+			break
 		}
 	}
 }
@@ -127,9 +137,64 @@ func boxUpdate(obj *glob.ObjData) {
 	}
 }
 
-func smelterUpdate(o *glob.ObjData) {
-	//oData := glob.GameObjTypes[Obj.Type]
+func smelterUpdate(obj *glob.ObjData) {
 
+	/* Find all inputs, round-robin send to output */
+	for p, port := range obj.Ports {
+
+		if port.PortDir == gv.PORT_INPUT {
+
+			/* Are we full? */
+			if obj.KGHeld+port.Buf.Amount > obj.TypeP.CapacityKG {
+				cwlog.DoLog("Smelter full")
+				break
+			}
+
+			/* If this is fuel or ore, take it */
+			if port.Buf.TypeP.TypeI == gv.MAT_COAL ||
+				port.Buf.TypeP.IsOre {
+
+				if obj.Contents[port.Buf.TypeP.TypeI] == nil {
+					obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
+					obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
+				}
+
+				obj.Contents[port.Buf.TypeP.TypeI].Amount += port.Buf.Amount
+
+				obj.Ports[p].Buf.Amount = 0
+				obj.KGHeld += port.Buf.Amount
+
+				cwlog.DoLog("Accepted: %v", port.Buf.TypeP.Name)
+			}
+		} else {
+
+			/* Output is full, exit */
+			if port.Buf.Amount != 0 {
+				cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				continue
+			}
+
+			/* Smelt stuff */
+			//if obj.Contents[gv.MAT_COAL] != nil && obj.Contents[gv.MAT_COAL].Amount >= 0.0 {
+			for c, cont := range obj.Contents {
+				if cont == nil {
+					continue
+				}
+
+				if cont.TypeP.IsOre && cont.Amount >= 0.75 {
+					//obj.Contents[gv.MAT_COAL].Amount -= 0.125
+					obj.Contents[c].Amount -= 0.75
+
+					obj.Ports[p].Buf.Amount = 0.75
+					obj.Ports[p].Buf.TypeP = *MatTypes[cont.TypeP.Result]
+					obj.Ports[p].Buf.Rot = port.Buf.Rot
+				}
+			}
+
+			//}
+		}
+
+	}
 }
 
 func ironCasterUpdate(o *glob.ObjData) {

@@ -10,10 +10,10 @@ var (
 	UPSBench   = false
 	LoadTest   = false
 	WASMMode   = false
-	Debug      = false
+	Debug      = true
 	Verbose    = false
-	LogStdOut  = false
-	LogFileOut = false
+	LogStdOut  = true
+	LogFileOut = true
 
 	ShowMineralLayer     bool
 	ShowMineralLayerLock sync.RWMutex
@@ -69,12 +69,18 @@ const (
 	ObjTypeSteamEngine     = 7
 
 	/* Materials */
-	MAT_NONE   = 0
-	MAT_COAL   = 1 //black with color sheen
-	MAT_IRON   = 2
-	MAT_COPPER = 3
-	MAT_STONE  = 4
-	MAT_MAX    = 5
+	MAT_NONE = 0
+	MAT_COAL = 1 //black with color sheen
+
+	MAT_IRON_ORE   = 2
+	MAT_COPPER_ORE = 3
+	MAT_STONE_ORE  = 4
+
+	MAT_IRON   = 5
+	MAT_COPPER = 6
+	MAT_STONE  = 7
+
+	MAT_MAX = 8
 
 	/* Placeholder texture words render offset */
 	SymbOffX = 0
