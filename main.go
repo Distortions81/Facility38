@@ -43,6 +43,7 @@ func main() {
 	}
 	if WASMMode == "true" {
 		gv.WASMMode = true
+		objects.WorkChunks = 1
 	}
 	if UPSBench == "true" {
 		gv.UPSBench = true

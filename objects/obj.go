@@ -11,11 +11,9 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 )
 
-const (
-	WorkChunks = 100
-)
-
 var (
+	WorkChunks = 100
+
 	TickList     []glob.TickEvent = []glob.TickEvent{}
 	TickListLock sync.Mutex
 
@@ -29,7 +27,7 @@ var (
 	EventQueueLock sync.Mutex
 
 	gTickCount    int
-	gTockCount    int
+	GTockCount    int
 	gTickWorkSize int
 
 	TockWorkSize int
@@ -54,7 +52,7 @@ func ObjUpdateDaemon() {
 		if gTickWorkSize < 1 {
 			gTickWorkSize = 1
 		}
-		TockWorkSize = gTockCount / (NumWorkers * WorkChunks)
+		TockWorkSize = GTockCount / (NumWorkers * WorkChunks)
 		if TockWorkSize < 1 {
 			TockWorkSize = 1
 		}
@@ -202,7 +200,7 @@ func runTicks() {
 /* Run all object tocks (interal) multi-threaded */
 func runTocks() {
 
-	l := gTockCount - 1
+	l := GTockCount - 1
 	if l < 1 {
 		return
 	} else if TockWorkSize == 0 {
@@ -265,7 +263,7 @@ func tockListAdd(obj *glob.ObjData) {
 	cwlog.DoLog("tockListAdd: Added %v to TOCK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 
 	TockList = append(TockList, glob.TickEvent{Target: obj})
-	gTockCount++
+	GTockCount++
 }
 
 /* Lock and add it EventQueue */
@@ -315,7 +313,7 @@ func tocklistRemove(obj *glob.ObjData) {
 		if e.Target == obj {
 			cwlog.DoLog("tocklistRemove: Removed %v from the TOCK list. (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 			TockList = append(TockList[:i], TockList[i+1:]...)
-			gTockCount--
+			GTockCount--
 			return
 		}
 	}

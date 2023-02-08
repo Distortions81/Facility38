@@ -308,7 +308,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
 		ebiten.ActualFPS(),
 		1000000000.0/float64(glob.MeasuredObjectUPS_ns),
-		humanize.SIWithDigits(float64(objects.TockWorkSize*(objects.NumWorkers*objects.WorkChunks)), 2, ""),
+		humanize.SIWithDigits(float64(objects.GTockCount), 2, ""),
 		runtime.GOARCH, buildTime)
 
 	tRect := text.BoundString(glob.ToolTipFont, dbuf)
