@@ -8,22 +8,43 @@ import (
 )
 
 const (
-	//Perlin noise physical scale
-	cNoiseScale = 66.0
-	cAlpha      = 2.0
-	cBeta       = 2.0
-	cN          = 3
+	/* Grass noise */
+	grassNoiseScale = 66.0
+	grassAlpha      = 2.0
+	grassBeta       = 2.0
+	grassN          = 3
+
+	/* Coal noise */
+	coalNoiseScale = 66.0
+	coalAlpha      = 2.0
+	coalBeta       = 2.0
+	coalN          = 3
+	coalContrast   = 0.25
+	coalBrightness = 1.0
 )
 
 var (
-	per *perlin.Perlin
+	grassPer  *perlin.Perlin
+	grassSeed int64
+
+	coalPer  *perlin.Perlin
+	coalSeed int64
 )
 
 func init() {
-	source := rand.NewSource(time.Now().Unix())
-	per = perlin.NewPerlinRandSource(cAlpha, cBeta, cN, source)
+	grassSeed = time.Now().UnixNano()
+	grassSource := rand.NewSource(grassSeed)
+	grassPer = perlin.NewPerlinRandSource(grassAlpha, grassBeta, grassN, grassSource)
+
+	coalSeed = time.Now().UnixNano()
+	coalSource := rand.NewSource(coalSeed)
+	coalPer = perlin.NewPerlinRandSource(coalAlpha, coalBeta, coalN, coalSource)
 }
 
-func NoiseMap(x, y float64) float64 {
-	return ((per.Noise2D(x/cNoiseScale, y/cNoiseScale) + 1) / 2.0)
+func GrassNoiseMap(x, y float64) float64 {
+	return ((grassPer.Noise2D(x/grassNoiseScale, y/grassNoiseScale) + 1) / 2.0)
+}
+
+func CoalNoiseMap(x, y float64) float64 {
+	return ((grassPer.Noise2D(x/grassNoiseScale, y/grassNoiseScale) + 1) / 2.0)
 }

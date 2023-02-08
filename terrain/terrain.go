@@ -77,7 +77,7 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 				if doDetail {
 					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
 					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
-					h := noise.NoiseMap(x, y)
+					h := noise.GrassNoiseMap(x, y)
 
 					if gv.Verbose {
 						cwlog.DoLog("%.2f,%.2f: %.2f", x, y, h)
