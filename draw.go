@@ -53,6 +53,45 @@ func init() {
 	glob.ToolBG.Fill(glob.ColorCharcol)
 }
 
+/* Ebiten: Draw everything */
+func (g *Game) Draw(screen *ebiten.Image) {
+
+	if !glob.MapGenerated.Load() ||
+		!glob.SpritesLoaded.Load() ||
+		!glob.PlayerReady.Load() {
+
+		bootScreen(screen)
+		time.Sleep(time.Microsecond)
+		return
+	}
+
+	frameCount++
+
+	if gv.CurrentLayer != gv.LayerNormal {
+		ShowLayer(screen)
+	} else {
+
+		calcScreenCamera()
+		updateVisData()
+
+		if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
+			terrain.RenderTerrainST()
+		}
+		if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
+			drawIconMode(screen)
+		} else {
+			drawPixmapMode(screen)
+		}
+
+		drawWorldTooltip(screen)
+	}
+
+	drawDebugInfo(screen)
+
+	/* Draw toolbar */
+	screen.DrawImage(toolbarCache, nil)
+}
+
 /* Look at camera position, make a list of visible superchunks and chunks. Saves to VisChunks, checks glob.CameraDirty */
 func updateVisData() {
 
@@ -348,45 +387,6 @@ func drawWorldTooltip(screen *ebiten.Image) {
 		ebitenutil.DrawRect(screen, mx-1, my-15, float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 		text.Draw(screen, toolTip, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
 	}
-}
-
-/* Ebiten: Draw everything */
-func (g *Game) Draw(screen *ebiten.Image) {
-
-	if !glob.MapGenerated.Load() ||
-		!glob.SpritesLoaded.Load() ||
-		!glob.PlayerReady.Load() {
-
-		bootScreen(screen)
-		time.Sleep(time.Microsecond)
-		return
-	}
-
-	frameCount++
-
-	if gv.CurrentLayer != gv.LayerNormal {
-		ShowLayer(screen)
-	} else {
-
-		calcScreenCamera()
-		updateVisData()
-
-		if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
-			terrain.RenderTerrainST()
-		}
-		if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
-			drawIconMode(screen)
-		} else {
-			drawPixmapMode(screen)
-		}
-
-		drawWorldTooltip(screen)
-	}
-
-	drawDebugInfo(screen)
-
-	/* Draw toolbar */
-	screen.DrawImage(toolbarCache, nil)
 }
 
 /* Draw world objects */
