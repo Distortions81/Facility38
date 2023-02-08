@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"GameTest/action"
 	"GameTest/cwlog"
 	"GameTest/glob"
 	"GameTest/gv"
@@ -15,10 +14,10 @@ var (
 	/* Toolbar actions and images */
 	UIObjsTypes = []*glob.ObjType{
 		//Ui Only
-		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: action.SaveGame,
+		/*{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: action.SaveGame,
 			Symbol: "SAVE", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorWhite},
 		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: action.LoadGame,
-			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite},
+			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite}, */
 		{Name: "Layer", ImagePath: "", ToolbarAction: SwitchLayer,
 			Symbol: "LAYER", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorVeryDarkGray},
 	}
@@ -74,7 +73,7 @@ var (
 			Ports:       [gv.DIR_MAX]uint8{gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-smelter-1.png",
+		/* {ImagePath: "world-obj/basic-smelter-1.png",
 			Name:        "Basic smelter",
 			TypeI:       gv.ObjTypeBasicSmelter,
 			Size:        glob.XY{X: 1, Y: 1},
@@ -119,7 +118,7 @@ var (
 			Symbol:      "STEM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj: steamEngineUpdate,
 			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
-		},
+		}, */
 	}
 
 	/* Terrain types and images */

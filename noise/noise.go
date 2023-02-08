@@ -13,8 +13,8 @@ const (
 	grassAlpha      = 2.0
 	grassBeta       = 2.0
 	grassN          = 3
-	grassContrast   = 1
-	grassBrightness = 0.0
+	grassContrast   = 0.8
+	grassBrightness = -0.2
 
 	/* Coal noise */
 	coalNoiseScale = 66.0
@@ -22,7 +22,7 @@ const (
 	coalBeta       = 2.0
 	coalN          = 3
 	coalContrast   = 0.10
-	coalBrightness = -2.15
+	coalBrightness = -2.2
 )
 
 var (

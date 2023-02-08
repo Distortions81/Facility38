@@ -87,7 +87,7 @@ const (
 	ChunkTotal      = ChunkSize * ChunkSize
 
 	DefaultZoom       = SpriteScale * 2
-	MapPixelThreshold = (SpriteScale / 2)
+	MapPixelThreshold = (SpriteScale / 3)
 
 	/* Directions */
 	DIR_NORTH = 0
