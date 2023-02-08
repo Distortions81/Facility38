@@ -134,7 +134,7 @@ var NoiseLayers = []noiseLayerData{
 
 func init() {
 	for p, _ := range NoiseLayers {
-		NoiseLayers[p].Seed = time.Now().UnixNano()
+		NoiseLayers[p].Seed = time.Now().UnixNano() + int64(rand.Intn(1000))
 		NoiseLayers[p].Source = rand.NewSource(NoiseLayers[p].Seed)
 		NoiseLayers[p].Perlin = perlin.NewPerlinRandSource(NoiseLayers[p].Alpha, NoiseLayers[p].Beta, NoiseLayers[p].N, NoiseLayers[p].Source)
 	}
