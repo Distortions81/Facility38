@@ -155,25 +155,25 @@ var (
 		{Symbol: "NIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
 			Name: "NONE"},
 		{Symbol: "C", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
+			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-16.png"},
 
 		/* Ore */
 		{Symbol: "FEo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
 			Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore.png", IsOre: true, Result: gv.MAT_IRON},
 		{Symbol: "Cuo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper-ore.png", IsOre: true, Result: gv.MAT_COPPER},
+			Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper-ore-16.png", IsOre: true, Result: gv.MAT_COPPER},
 		{Symbol: "STOo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
 			Name: "Stone Ore", UnitName: " kg", ImagePath: "belt-obj/stone-ore.png", IsOre: true, Result: gv.MAT_STONE},
 
 		/* Metal */
 		{Symbol: "FE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Iron Bar", UnitName: " kg", ImagePath: "belt-obj/iron.png"},
+			Name: "Iron Bar", UnitName: " kg", ImagePath: "belt-obj/iron-16.png"},
 		{Symbol: "Cu", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Copper Bar", UnitName: " kg", ImagePath: "belt-obj/copper.png"},
+			Name: "Copper Bar", UnitName: " kg", ImagePath: "belt-obj/copper-16.png"},
 		{Symbol: "STO", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Stone Block", UnitName: " kg", ImagePath: "belt-obj/stone.png"},
+			Name: "Stone Block", UnitName: " kg", ImagePath: "belt-obj/stone-16.png"},
 		{Symbol: "SLG", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone.png"},
+			Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone-16.png"},
 	}
 
 	/* Toolbar item types, array of array of ObjType */

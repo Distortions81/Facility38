@@ -120,7 +120,9 @@ type ObjData struct {
 
 	//Internal use
 	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	KGHeld   float64              `json:"k,omitempty"`
+	Fuel     [gv.MAT_MAX]*MatData
+	KGFuel   float64
+	KGHeld   float64 `json:"k,omitempty"`
 
 	//Input/Output
 	Ports      [gv.DIR_MAX]ObjPortData
