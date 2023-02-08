@@ -143,13 +143,16 @@ type ObjPortData struct {
 type ObjType struct {
 	Name string
 
-	TypeI       uint8
+	TypeI uint8
+
 	ItemColor   *color.NRGBA
 	SymbolColor *color.NRGBA
-	Symbol      string
-	Size        XY
-	Rotatable   bool
-	Direction   uint8
+	UnitName    string
+
+	Symbol    string
+	Size      XY
+	Rotatable bool
+	Direction uint8
 
 	ImagePath string
 	Image     *ebiten.Image

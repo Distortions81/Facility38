@@ -94,6 +94,7 @@ func boxUpdate(obj *glob.ObjData) {
 			obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
 		}
 		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
+		obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
 		obj.KGHeld += port.Buf.Amount
 		obj.Ports[p].Buf.Amount = 0
 

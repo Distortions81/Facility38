@@ -337,8 +337,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					humanize.Comma(int64(math.Floor(worldMouseY-gv.XYCenter))))
 				for z := 0; z < gv.MAT_MAX; z++ {
 					if o.Contents[z] != nil {
-						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v)\n",
-							o.Contents[z].TypeP.Name, o.Contents[z].Amount)
+						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %v%v)\n",
+							o.Contents[z].TypeP.Name, o.Contents[z].Amount, o.Contents[z].TypeP.UnitName)
 					}
 				}
 				for z := 0; z < gv.DIR_MAX; z++ {
