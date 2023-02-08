@@ -11,6 +11,10 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 )
 
+const (
+	workChunks = 100
+)
+
 var (
 	TickList     []glob.TickEvent = []glob.TickEvent{}
 	TickListLock sync.Mutex
@@ -46,11 +50,11 @@ func ObjUpdateDaemon() {
 	for {
 		start = time.Now()
 
-		gTickWorkSize = gTickCount / NumWorkers
+		gTickWorkSize = gTickCount / (NumWorkers * workChunks)
 		if gTickWorkSize < 1 {
 			gTickWorkSize = 1
 		}
-		TockWorkSize = (gTockCount / NumWorkers)
+		TockWorkSize = gTockCount / (NumWorkers * workChunks)
 		if TockWorkSize < 1 {
 			TockWorkSize = 1
 		}
