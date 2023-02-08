@@ -50,4 +50,14 @@ func init() {
 		log.Fatal(err)
 	}
 
+	/* Tooltip font */
+	glob.LargeFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    50,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }

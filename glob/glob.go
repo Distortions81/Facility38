@@ -45,6 +45,7 @@ var (
 	BootFont    font.Face
 	ToolTipFont font.Face
 	ObjectFont  font.Face
+	LargeFont   font.Face
 
 	/* Camera position */
 	CameraX float64 = float64(gv.XYCenter)

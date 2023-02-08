@@ -476,8 +476,16 @@ func drawMaterials(m *glob.MatData, obj *glob.ObjData, op *ebiten.DrawImageOptio
 
 func ShowLayer(screen *ebiten.Image) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-	op.GeoM.Scale(10, 10)
-	op.GeoM.Translate(float64(glob.ScreenWidth/2), float64(glob.ScreenHeight/2))
 	screen.Fill(glob.ColorVeryDarkGray)
+
+	op.GeoM.Scale(100, 100)
 	screen.DrawImage(objects.TerrainTypes[1].Image, op)
+
+	scale := 1.5
+	dbuf := "=Work in progress="
+	tRect := text.BoundString(glob.LargeFont, dbuf)
+	mx := (float64(glob.ScreenWidth) / 2.0) - float64(tRect.Dx()/2.0)
+	my := (float64(glob.ScreenHeight) / 2.0) - float64(tRect.Dy()/2.0)
+	ebitenutil.DrawRect(screen, mx, my-float64(tRect.Dy())*scale/1.5, float64(tRect.Dx()), float64(tRect.Dy())*scale, glob.ColorToolTipBG)
+	text.Draw(screen, dbuf, glob.LargeFont, int(mx), int(my), glob.ColorAqua)
 }
