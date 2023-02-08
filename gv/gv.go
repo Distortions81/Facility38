@@ -79,8 +79,9 @@ const (
 	MAT_IRON   = 5
 	MAT_COPPER = 6
 	MAT_STONE  = 7
+	MAT_SLAG   = 8
 
-	MAT_MAX = 8
+	MAT_MAX = 9
 
 	/* Placeholder texture words render offset */
 	SymbOffX = 0

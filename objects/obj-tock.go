@@ -10,6 +10,13 @@ import (
 )
 
 func minerUpdate(obj *glob.ObjData) {
+
+	obj.TickCount++
+	if obj.TickCount < obj.TypeP.Interval {
+		return
+	}
+	obj.TickCount = 0
+
 	/* Hard-coded for speed */
 	if obj.Ports[obj.Dir].Buf.Amount == 0 {
 		obj.Blocked = false
@@ -174,24 +181,35 @@ func smelterUpdate(obj *glob.ObjData) {
 				continue
 			}
 
-			/* Smelt stuff */
-			//if obj.Contents[gv.MAT_COAL] != nil && obj.Contents[gv.MAT_COAL].Amount >= 0.0 {
-			for c, cont := range obj.Contents {
-				if cont == nil {
-					continue
-				}
+			obj.TickCount++
+			if obj.TickCount >= obj.TypeP.Interval {
+				typeCount := 0
 
-				if cont.TypeP.IsOre && cont.Amount >= 0.75 {
-					//obj.Contents[gv.MAT_COAL].Amount -= 0.125
-					obj.Contents[c].Amount -= 0.75
+				/* Smelt stuff */
+				//if obj.Contents[gv.MAT_COAL] != nil && obj.Contents[gv.MAT_COAL].Amount >= 0.0 {
+				for c, cont := range obj.Contents {
+					if cont == nil {
+						continue
+					}
 
-					obj.Ports[p].Buf.Amount = 0.75
-					obj.Ports[p].Buf.TypeP = *MatTypes[cont.TypeP.Result]
-					obj.Ports[p].Buf.Rot = port.Buf.Rot
+					if cont.TypeP.IsOre && cont.Amount >= 0.75 {
+						typeCount++
+						//obj.Contents[gv.MAT_COAL].Amount -= 0.125
+						obj.Contents[c].Amount -= 0.75
+						obj.KGHeld -= 0.75
+
+						obj.Ports[p].Buf.Amount = 0.75
+						if typeCount == 1 {
+							obj.Ports[p].Buf.TypeP = *MatTypes[cont.TypeP.Result]
+						} else {
+							obj.Ports[p].Buf.TypeP = *MatTypes[gv.MAT_SLAG]
+						}
+						obj.Ports[p].Buf.Rot = port.Buf.Rot
+					}
 				}
+				//}
+				obj.TickCount = 0
 			}
-
-			//}
 		}
 
 	}

@@ -131,6 +131,8 @@ type ObjData struct {
 	LastUsedInput  uint8
 	LastUsedOutput uint8
 
+	TickCount uint8
+
 	Blocked bool
 }
 
@@ -162,6 +164,7 @@ type ObjType struct {
 	CapacityKG  float64
 	IsOre       bool
 	Result      uint8
+	Interval    uint8
 
 	Ports       [gv.DIR_MAX]uint8
 	CanContain  bool

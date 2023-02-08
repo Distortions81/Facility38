@@ -30,7 +30,8 @@ var (
 			TypeI:       gv.ObjTypeBasicMiner,
 			Size:        glob.XY{X: 1, Y: 1},
 			UpdateObj:   minerUpdate,
-			MinerKGTock: 0.5,
+			MinerKGTock: 1,
+			Interval:    4,
 			CapacityKG:  500,
 			ShowArrow:   true,
 			ShowBlocked: true,
@@ -78,6 +79,7 @@ var (
 			TypeI:       gv.ObjTypeBasicSmelter,
 			Size:        glob.XY{X: 1, Y: 1},
 			CapacityKG:  50,
+			Interval:    20,
 			ShowArrow:   true,
 			ShowBlocked: true,
 			Symbol:      "SMLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
@@ -170,6 +172,8 @@ var (
 			Name: "Copper Bar", UnitName: " kg", ImagePath: "belt-obj/copper.png"},
 		{Symbol: "STO", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
 			Name: "Stone Block", UnitName: " kg", ImagePath: "belt-obj/stone.png"},
+		{Symbol: "SLG", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+			Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone.png"},
 	}
 
 	/* Toolbar item types, array of array of ObjType */
