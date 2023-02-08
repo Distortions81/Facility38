@@ -261,11 +261,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 	glob.SuperChunkListLock.RUnlock()
 }
 
-func drawWorldTooltip(screen *ebiten.Image) {
-	/* Get mouse position on world */
-	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale))
-	worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale))
-
+func drawDebugInfo(screen *ebiten.Image) {
 	/* Draw debug info */
 	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
 		ebiten.ActualFPS(),
@@ -278,6 +274,12 @@ func drawWorldTooltip(screen *ebiten.Image) {
 	my := float64(glob.ScreenHeight) - 4.0
 	ebitenutil.DrawRect(screen, mx-1, my-(float64(tRect.Dy()-1)), float64(tRect.Dx()+4), float64(tRect.Dy()+3), glob.ColorToolTipBG)
 	text.Draw(screen, dbuf, glob.ToolTipFont, int(mx), int(my), glob.ColorAqua)
+}
+
+func drawWorldTooltip(screen *ebiten.Image) {
+	/* Get mouse position on world */
+	worldMouseX := (glob.MouseX/glob.ZoomScale + (glob.CameraX - (float64(glob.ScreenWidth)/2.0)/glob.ZoomScale))
+	worldMouseY := (glob.MouseY/glob.ZoomScale + (glob.CameraY - (float64(glob.ScreenHeight)/2.0)/glob.ZoomScale))
 
 	/* Toolbar tool tip */
 	uipix := float64(ToolbarMax * int(gv.ToolBarScale))
@@ -380,6 +382,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		drawWorldTooltip(screen)
 	}
+
+	drawDebugInfo(screen)
 
 	/* Draw toolbar */
 	screen.DrawImage(toolbarCache, nil)
