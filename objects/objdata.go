@@ -159,11 +159,11 @@ var (
 
 		/* Ore */
 		{Symbol: "FEo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron.png", IsOre: true, Result: gv.MAT_IRON},
+			Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore.png", IsOre: true, Result: gv.MAT_IRON},
 		{Symbol: "Cuo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper.png", IsOre: true, Result: gv.MAT_COPPER},
+			Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper-ore.png", IsOre: true, Result: gv.MAT_COPPER},
 		{Symbol: "STOo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Stone Ore", UnitName: " kg", ImagePath: "belt-obj/stone.png", IsOre: true, Result: gv.MAT_STONE},
+			Name: "Stone Ore", UnitName: " kg", ImagePath: "belt-obj/stone-ore.png", IsOre: true, Result: gv.MAT_STONE},
 
 		/* Metal */
 		{Symbol: "FE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
