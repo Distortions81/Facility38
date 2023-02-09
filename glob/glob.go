@@ -209,9 +209,10 @@ type TickEvent struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
-	TypeP  ObjType `json:"-"`
-	Amount float64 `json:"a,omitempty"`
-	Rot    uint8   `json:"r,omitempty"`
+	TypeI  uint8    `json:"i,omitempty"`
+	TypeP  *ObjType `json:"-"`
+	Amount float64  `json:"a,omitempty"`
+	Rot    uint8    `json:"r,omitempty"`
 }
 
 /* Int x/y */

@@ -196,9 +196,6 @@ func init() {
 	for i := range UIObjsTypes {
 		UIObjsTypes[i].TypeI = uint8(i)
 	}
-	for i := range MatTypes {
-		MatTypes[i].TypeI = uint8(i)
-	}
 }
 
 /* Debug quick dump GameObjTypes */

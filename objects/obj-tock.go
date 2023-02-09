@@ -41,7 +41,7 @@ func minerUpdate(obj *glob.ObjData) {
 			pick := rand.Intn(numTypesFound)
 
 			obj.Ports[obj.Dir].Buf.Amount = obj.TypeP.MinerKGTock * matsFound[pick]
-			obj.Ports[obj.Dir].Buf.TypeP = *MatTypes[matsFoundT[pick]]
+			obj.Ports[obj.Dir].Buf.TypeP = MatTypes[matsFoundT[pick]]
 			obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
 		} else {
 			obj.Blocked = true
@@ -200,7 +200,7 @@ func smelterUpdate(obj *glob.ObjData) {
 
 						obj.Ports[p].Buf.Amount = 0.75
 						if typeCount == 1 {
-							obj.Ports[p].Buf.TypeP = *MatTypes[cont.TypeP.Result]
+							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
 						}
 						obj.Ports[p].Buf.Rot = port.Buf.Rot
 					}

@@ -193,6 +193,15 @@ func drawIconMode(screen *ebiten.Image) {
 
 				}
 				if glob.ShowInfoLayer {
+					if obj.TypeP.TypeI == gv.ObjTypeBasicBox {
+						for _, cont := range obj.Contents {
+							if cont == nil {
+								continue
+							}
+							drawMaterials(cont, obj, screen)
+							break
+						}
+					}
 					/* Info Overlays, such as arrows and blocked indicator */
 
 					/* camera + object */

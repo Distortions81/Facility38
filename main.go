@@ -84,7 +84,7 @@ func main() {
 func NewGame() *Game {
 	go loadSprites()
 	objects.ExploreMap(glob.XY{X: gv.XYCenter, Y: gv.XYCenter}, 5)
-	go makeTestMap(true)
+	go makeTestMap(gv.StartMapBlank)
 
 	/* Initialize the game */
 	return &Game{

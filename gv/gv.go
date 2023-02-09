@@ -7,13 +7,14 @@ import (
 
 // Set at build
 var (
-	UPSBench   = false
-	LoadTest   = false
-	WASMMode   = false
-	Debug      = false
-	Verbose    = false
-	LogStdOut  = false
-	LogFileOut = false
+	StartMapBlank = true
+	UPSBench      = false
+	LoadTest      = true
+	WASMMode      = false
+	Debug         = false
+	Verbose       = false
+	LogStdOut     = false
+	LogFileOut    = false
 
 	ShowMineralLayer     bool
 	ShowMineralLayerLock sync.RWMutex

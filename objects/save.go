@@ -12,17 +12,17 @@ import (
 )
 
 /* Used to munge data into a test save file */
+/* TODO: SAVE VERSION AND MAP SEED INTO FILE */
 type saveMObj struct {
-	P  glob.XY                   `json:"p,omitempty"`
-	I  uint8                     `json:"i,omitempty"`
-	D  uint8                     `json:"d,omitempty"`
-	C  [gv.MAT_MAX]*glob.MatData `json:"c,omitempty"`
-	F  [gv.MAT_MAX]*glob.MatData `json:"f,omitempty"`
-	KF float64                   `json:"kf,omitempty"`
-	K  float64                   `json:"k,omitempty"`
-
-	PO [gv.DIR_MAX]*glob.ObjPortData `json:"po,omitempty"`
-	T  uint8                         `json:"t,omitempty"`
+	P  glob.XY             `json:"p,omitempty"`
+	I  uint8               `json:"i,omitempty"`
+	D  uint8               `json:"d,omitempty"`
+	C  []*glob.MatData     `json:"c,omitempty"`
+	F  []*glob.MatData     `json:"f,omitempty"`
+	KF float64             `json:"kf,omitempty"`
+	K  float64             `json:"k,omitempty"`
+	PO []*glob.ObjPortData `json:"po,omitempty"`
+	T  uint8               `json:"t,omitempty"`
 }
 
 /* WIP */
@@ -42,26 +42,48 @@ func SaveGame() {
 
 		tempList := []*saveMObj{}
 		for _, sChunk := range glob.SuperChunkList {
-			fmt.Println("sc:", sChunk.Pos)
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
-					tempList = append(tempList, &saveMObj{
-						P:  mObj.Pos,
-						I:  mObj.TypeP.TypeI,
-						D:  mObj.Dir,
-						C:  mObj.Contents,
-						F:  mObj.Fuel,
+					tobj := &saveMObj{
+						P: util.CenterXY(mObj.Pos),
+						I: mObj.TypeP.TypeI,
+						D: mObj.Dir,
+						//C:  mObj.Contents,
+						//F:  mObj.Fuel,
 						KF: mObj.KGFuel,
 						K:  mObj.KGHeld,
-						PO: mObj.Ports,
-						T:  mObj.TickCount,
-					})
+						//PO: mObj.Ports,
+						T: mObj.TickCount,
+					}
+
+					for c, cont := range mObj.Contents {
+						if cont == nil {
+							continue
+						}
+						mObj.Contents[c].TypeI = cont.TypeP.TypeI
+						tobj.C = append(tobj.C, cont)
+					}
+					for f, fuel := range mObj.Fuel {
+						if fuel == nil {
+							continue
+						}
+						mObj.Fuel[f].TypeI = fuel.TypeP.TypeI
+						tobj.F = append(tobj.F, fuel)
+					}
+					for p, po := range mObj.Ports {
+						if po == nil || po.Buf.TypeP == nil {
+							continue
+						}
+						mObj.Ports[p].Buf.TypeI = po.Buf.TypeP.TypeI
+						tobj.PO = append(tobj.PO, po)
+					}
+					tempList = append(tempList, tobj)
 				}
 			}
 		}
 		fmt.Println("WALK COMPLETE:", time.Since(start).String())
 
-		b, err := json.MarshalIndent(tempList, "", "")
+		b, err := json.Marshal(tempList)
 
 		glob.SuperChunkListLock.RUnlock()
 		TickListLock.Unlock()
@@ -101,77 +123,114 @@ func SaveGame() {
 
 /* WIP */
 func LoadGame() {
+	go func() {
 
-	start := time.Now()
+		start := time.Now()
 
-	b, err := os.ReadFile("save.dat")
-	if err != nil {
-		fmt.Printf("LoadGame: file not found: %v\n", err)
-		return
-	}
-
-	fmt.Println("save read:", time.Since(start).String())
-	data := util.UncompressZip(b)
-	fmt.Println("uncompressed:", time.Since(start).String())
-	dbuf := bytes.NewBuffer(data)
-
-	dec := json.NewDecoder(dbuf)
-
-	/* Pause the whole world ... */
-	glob.SuperChunkListLock.RLock()
-	TickListLock.Lock()
-	TockListLock.Lock()
-	tempList := []*saveMObj{}
-	err = dec.Decode(&tempList)
-	if err != nil {
-		fmt.Printf("LoadGame: JSON decode error: %v\n", err)
-		return
-	}
-	fmt.Println("json decoded:", time.Since(start).String())
-	glob.SuperChunkListLock.RUnlock()
-
-	/* Needs unsafeCreateObj that can accept a starting data set */
-	count := 0
-	for _, item := range tempList {
-
-		obj := glob.ObjData{
-			Pos:       item.P,
-			TypeP:     GameObjTypes[item.I],
-			Dir:       item.D,
-			Contents:  item.C,
-			Fuel:      item.F,
-			KGFuel:    item.KF,
-			KGHeld:    item.K,
-			Ports:     item.PO,
-			TickCount: item.T,
-		}
-		/* Relink */
-		MakeChunk(item.P)
-		chunk := util.GetChunk(item.P)
-		obj.Parent = chunk
-
-		chunk.ObjList = append(chunk.ObjList, &obj)
-		chunk.ObjMap[item.P] = &obj
-
-		LinkObj(&obj)
-
-		/* Only add to list if the object calls an update function */
-		if obj.TypeP.UpdateObj != nil {
-			tockListAdd(&obj)
+		b, err := os.ReadFile("save.dat")
+		if err != nil {
+			fmt.Printf("LoadGame: file not found: %v\n", err)
+			return
 		}
 
-		if util.ObjHasPort(&obj, gv.PORT_OUTPUT) {
-			ticklistAdd(&obj)
+		fmt.Println("save read:", time.Since(start).String())
+		data := util.UncompressZip(b)
+		fmt.Println("uncompressed:", time.Since(start).String())
+		dbuf := bytes.NewBuffer(data)
+
+		dec := json.NewDecoder(dbuf)
+
+		/* Pause the whole world ... */
+		glob.SuperChunkListLock.RLock()
+		TickListLock.Lock()
+		TockListLock.Lock()
+		tempList := []*saveMObj{}
+		err = dec.Decode(&tempList)
+		if err != nil {
+			fmt.Printf("LoadGame: JSON decode error: %v\n", err)
+			return
 		}
+		fmt.Println("json decoded:", time.Since(start).String())
+		glob.SuperChunkListLock.RUnlock()
 
-		chunk.Parent.PixmapDirty = true
-		chunk.NumObjects++
-		count++
-	}
-	glob.VisDataDirty.Store(true)
+		/* Needs unsafeCreateObj that can accept a starting data set */
+		count := 0
+		for i, _ := range tempList {
 
-	TickListLock.Unlock()
-	TockListLock.Unlock()
-	fmt.Printf("%v objects created, Completed in %v\n", count, time.Since(start).String())
+			obj := &glob.ObjData{
+				Pos:   util.UnCenterXY(tempList[i].P),
+				TypeP: GameObjTypes[tempList[i].I],
+				Dir:   tempList[i].D,
+				//Contents:  item.C,
+				//Fuel:      item.F,
+				KGFuel: tempList[i].KF,
+				KGHeld: tempList[i].K,
+				//Ports:     item.PO,
+				TickCount: tempList[i].T,
+			}
+			copy(obj.Contents[:], tempList[i].C)
+			copy(obj.Fuel[:], tempList[i].F)
+			copy(obj.Ports[:], tempList[i].PO)
 
+			for c, cont := range obj.Contents {
+				if cont == nil {
+					continue
+				}
+				obj.Contents[c].TypeP = MatTypes[cont.TypeI]
+			}
+			for f, fuel := range obj.Fuel {
+				if fuel == nil {
+					continue
+				}
+				obj.Fuel[f].TypeP = MatTypes[fuel.TypeI]
+			}
+
+			for p, port := range obj.TypeP.Ports {
+				if obj.Ports[p] == nil {
+					obj.Ports[p] = &glob.ObjPortData{}
+				}
+				obj.Ports[p].PortDir = port
+			}
+			for x := 0; x < int(obj.Dir); x++ {
+				util.RotatePortsCW(obj)
+			}
+
+			for p, port := range obj.Ports {
+				if port == nil {
+					continue
+				}
+				obj.Ports[p].Buf.TypeP = MatTypes[port.Buf.TypeI]
+			}
+
+			/* Relink */
+			MakeChunk(util.UnCenterXY(tempList[i].P))
+			chunk := util.GetChunk(util.UnCenterXY(tempList[i].P))
+			obj.Parent = chunk
+
+			obj.Parent.ObjMap[util.UnCenterXY(tempList[i].P)] = obj
+			obj.Parent.ObjList = append(obj.Parent.ObjList, obj)
+			chunk.Parent.PixmapDirty = true
+			chunk.NumObjects++
+
+			LinkObj(obj)
+
+			/* Only add to list if the object calls an update function */
+			if obj.TypeP.UpdateObj != nil {
+				tockListAdd(obj)
+			}
+
+			if util.ObjHasPort(obj, gv.PORT_OUTPUT) {
+				ticklistAdd(obj)
+			}
+
+			chunk.Parent.PixmapDirty = true
+
+			count++
+		}
+		glob.VisDataDirty.Store(true)
+
+		TickListLock.Unlock()
+		TockListLock.Unlock()
+		fmt.Printf("%v objects created, Completed in %v\n", count, time.Since(start).String())
+	}()
 }

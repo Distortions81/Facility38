@@ -77,6 +77,10 @@ func CenterXY(pos glob.XY) glob.XY {
 	return glob.XY{X: pos.X - gv.XYCenter, Y: pos.Y - gv.XYCenter}
 }
 
+func UnCenterXY(pos glob.XY) glob.XY {
+	return glob.XY{X: pos.X + gv.XYCenter, Y: pos.Y + gv.XYCenter}
+}
+
 /* Rotate consts.DIR value clockwise */
 func RotCW(dir uint8) uint8 {
 	return uint8(PosIntMod(int(dir+1), gv.DIR_MAX))
@@ -272,7 +276,7 @@ func UncompressZip(data []byte) []byte {
 /* Generic zip []byte */
 func CompressZip(data []byte) []byte {
 	var b bytes.Buffer
-	w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
+	w, err := zlib.NewWriterLevel(&b, zlib.DefaultCompression)
 	if err != nil {
 		cwlog.DoLog("CompressZip: %v", err)
 	}
