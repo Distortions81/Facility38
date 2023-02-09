@@ -7,7 +7,7 @@ import (
 
 // Set at build
 var (
-	StartMapBlank = true
+	StartMapBlank = false
 	UPSBench      = false
 	LoadTest      = true
 	WASMMode      = false

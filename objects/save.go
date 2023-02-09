@@ -5,6 +5,7 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"bytes"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -56,34 +57,61 @@ func SaveGame() {
 						T: mObj.TickCount,
 					}
 
-					for c, cont := range mObj.Contents {
+					for _, cont := range mObj.Contents {
 						if cont == nil {
 							continue
 						}
-						mObj.Contents[c].TypeI = cont.TypeP.TypeI
-						tobj.C = append(tobj.C, cont)
+						copy(tobj.C, []*glob.MatData{cont})
 					}
-					for f, fuel := range mObj.Fuel {
+					for c := range tobj.C {
+						if tobj.C[c] == nil {
+							continue
+						}
+						tobj.C[c].TypeI = tobj.C[c].TypeP.TypeI
+						tobj.C[c].TypeP = nil
+					}
+
+					for _, fuel := range mObj.Fuel {
 						if fuel == nil {
 							continue
 						}
-						mObj.Fuel[f].TypeI = fuel.TypeP.TypeI
-						tobj.F = append(tobj.F, fuel)
+						copy(tobj.F, []*glob.MatData{fuel})
 					}
-					for p, po := range mObj.Ports {
+					for f := range tobj.F {
+						if tobj.F[f] == nil {
+							continue
+						}
+						tobj.F[f].TypeI = tobj.F[f].TypeP.TypeI
+						tobj.F[f].TypeP = nil
+					}
+
+					for _, po := range mObj.Ports {
 						if po == nil || po.Buf.TypeP == nil {
 							continue
 						}
-						mObj.Ports[p].Buf.TypeI = po.Buf.TypeP.TypeI
-						tobj.PO = append(tobj.PO, po)
+						copy(tobj.PO, []*glob.ObjPortData{po})
 					}
+					for p := range tobj.PO {
+						if tobj.PO[p] == nil {
+							continue
+						}
+						tobj.PO[p].Buf.TypeI = tobj.PO[p].Buf.TypeP.TypeI
+						tobj.PO[p].Buf.TypeP = nil
+						tobj.PO[p].Obj = nil
+					}
+
 					tempList = append(tempList, tobj)
 				}
 			}
 		}
 		fmt.Println("WALK COMPLETE:", time.Since(start).String())
 
-		b, err := json.Marshal(tempList)
+		//b, err := json.Marshal(tempList)
+
+		var b []byte
+		buf := bytes.NewBuffer(b)
+		enc := gob.NewEncoder(buf)
+		err := enc.Encode(tempList)
 
 		glob.SuperChunkListLock.RUnlock()
 		TickListLock.Unlock()
@@ -92,7 +120,7 @@ func SaveGame() {
 
 		if err != nil {
 			fmt.Printf("SaveGame: encode error: %v\n", err)
-			return
+			//return
 		}
 
 		_, err = os.Create(tempPath)
