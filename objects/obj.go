@@ -57,8 +57,13 @@ func ObjUpdateDaemon() {
 			TockWorkSize = 1
 		}
 
+		TockListLock.Lock()
 		runTocks() //Process objects
+		TockListLock.Unlock()
+
+		TickListLock.Lock()
 		runTicks() //Move external
+		TickListLock.Unlock()
 
 		EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
@@ -84,8 +89,13 @@ func ObjUpdateDaemonST() {
 	for {
 		start = time.Now()
 
+		TockListLock.Lock()
 		runTocksST() //Process objects
+		TockListLock.Unlock()
+
+		TickListLock.Lock()
 		runTicksST() //Move external
+		TickListLock.Unlock()
 
 		EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
@@ -484,6 +494,9 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 	obj.Parent.Lock.Unlock()
 
 	for p, port := range obj.TypeP.Ports {
+		if obj.Ports[p] == nil {
+			obj.Ports[p] = &glob.ObjPortData{}
+		}
 		obj.Ports[p].PortDir = port
 	}
 

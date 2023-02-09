@@ -8,12 +8,12 @@ import (
 // Set at build
 var (
 	UPSBench   = false
-	LoadTest   = false
+	LoadTest   = true
 	WASMMode   = false
-	Debug      = true
+	Debug      = false
 	Verbose    = false
-	LogStdOut  = true
-	LogFileOut = true
+	LogStdOut  = false
+	LogFileOut = false
 
 	ShowMineralLayer     bool
 	ShowMineralLayerLock sync.RWMutex
@@ -33,7 +33,7 @@ const (
 	TxtDir  = "txt/"
 
 	/* Debug */
-	TestObjects = 100000 //Make (approx) this number items
+	TestObjects = 1000000 //Make (approx) this number items
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated  array */

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"runtime/debug"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -34,6 +35,8 @@ type Game struct {
 
 /* Main function */
 func main() {
+	debug.SetMemoryLimit(28 * 1024 * 1024 * 1024)
+
 	if NoDebug == "true" {
 		gv.Debug = false
 		gv.LogFileOut = false

@@ -14,10 +14,10 @@ var (
 	/* Toolbar actions and images */
 	UIObjsTypes = []*glob.ObjType{
 		//Ui Only
-		/*{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: action.SaveGame,
+		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
 			Symbol: "SAVE", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorWhite},
-		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: action.LoadGame,
-			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite}, */
+		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
+			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite},
 		{ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
 			Symbol: "LAYER", ItemColor: &glob.ColorGray, SymbolColor: &glob.ColorWhite},
 	}

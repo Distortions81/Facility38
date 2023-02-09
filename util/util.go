@@ -18,11 +18,11 @@ func RotatePortsCW(obj *glob.ObjData) {
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy to array, rotated with modulo
 		p := int(PosIntMod((i + 1), gv.DIR_MAX))
-		newPorts[p] = obj.Ports[i]
+		newPorts[p] = *obj.Ports[i]
 	}
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy back to object
-		obj.Ports[i] = newPorts[i]
+		obj.Ports[i] = &newPorts[i]
 	}
 }
 
@@ -39,11 +39,11 @@ func RotatePortsCCW(obj *glob.ObjData) {
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy to array, rotated with modulo
 		p := int(PosIntMod((i - 1), gv.DIR_MAX))
-		newPorts[p] = obj.Ports[i]
+		newPorts[p] = *obj.Ports[i]
 	}
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy back to object
-		obj.Ports[i] = newPorts[i]
+		obj.Ports[i] = &newPorts[i]
 	}
 }
 

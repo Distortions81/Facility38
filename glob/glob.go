@@ -76,72 +76,72 @@ func init() {
 type MapSuperChunk struct {
 	Pos XY
 
-	ChunkMap  map[XY]*MapChunk
-	ChunkList []*MapChunk
-	NumChunks uint16
+	ChunkMap  map[XY]*MapChunk `json:"-"`
+	ChunkList []*MapChunk      `json:"-"`
+	NumChunks uint16           `json:"-"`
 
-	PixMap      *ebiten.Image
-	PixmapDirty bool
-	PixLock     sync.RWMutex
-	PixMapTime  time.Time
-	Visible     bool
+	PixMap      *ebiten.Image `json:"-"`
+	PixmapDirty bool          `json:"-"`
+	PixLock     sync.RWMutex  `json:"-"`
+	PixMapTime  time.Time     `json:"-"`
+	Visible     bool          `json:"-"`
 
-	Lock sync.RWMutex
+	Lock sync.RWMutex `json:"-"`
 }
 
 /* Objects that contain object map, object list and TerrainImg */
 type MapChunk struct {
 	Pos XY
 
-	ObjMap     map[XY]*ObjData
-	ObjList    []*ObjData
-	NumObjects uint16
+	ObjMap     map[XY]*ObjData `json:"-"`
+	ObjList    []*ObjData      `json:"-"`
+	NumObjects uint16          `json:"-"`
 
-	Parent *MapSuperChunk
+	Parent *MapSuperChunk `json:"-"`
 
-	TerrainLock    sync.RWMutex
-	Rendering      bool
-	TerrainImg     *ebiten.Image
-	TerrainTime    time.Time
-	UsingTemporary bool
-	Precache       bool
-	Visible        bool
+	TerrainLock    sync.RWMutex  `json:"-"`
+	Rendering      bool          `json:"-"`
+	TerrainImg     *ebiten.Image `json:"-"`
+	TerrainTime    time.Time     `json:"-"`
+	UsingTemporary bool          `json:"-"`
+	Precache       bool          `json:"-"`
+	Visible        bool          `json:"-"`
 
-	Lock sync.RWMutex
+	Lock sync.RWMutex `json:"-"`
 }
 
 /* Object data */
 type ObjData struct {
-	Pos    XY
-	Parent *MapChunk
-	TypeP  *ObjType `json:"-"`
+	Pos    XY        `json:"xy,omitempty"`
+	Parent *MapChunk `json:"-"`
+	TypeP  *ObjType  `json:"-"`
 
 	Dir uint8 `json:"d,omitempty"`
 
 	//Internal use
-	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	Fuel     [gv.MAT_MAX]*MatData
-	KGFuel   float64
-	KGHeld   float64 `json:"k,omitempty"`
+	Contents [gv.MAT_MAX]*MatData `json:"co,omitempty"`
+	Fuel     [gv.MAT_MAX]*MatData `json:"fu,omitempty"`
+	KGFuel   float64              `json:"kf,omitempty"`
+	KGHeld   float64              `json:"kh,omitempty"`
 
 	//Input/Output
-	Ports      [gv.DIR_MAX]ObjPortData
-	NumInputs  uint8
-	NumOutputs uint8
+	Ports      [gv.DIR_MAX]*ObjPortData `json:"p,omitempty"`
+	NumInputs  uint8                    `json:"-"`
+	NumOutputs uint8                    `json:"-"`
 
 	/* For round-robin */
-	LastUsedInput  uint8
-	LastUsedOutput uint8
+	LastUsedInput  uint8 `json:"-"`
+	LastUsedOutput uint8 `json:"-"`
 
 	TickCount uint8
 
-	Blocked bool
+	Blocked bool `json:"-"`
 }
 
 type ObjPortData struct {
-	PortDir uint8
-	Obj     *ObjData
-	Buf     MatData
+	PortDir uint8    `json:"pd,omitempty"`
+	Obj     *ObjData `json:"-"`
+	Buf     MatData  `json:"buf,omitempty"`
 }
 
 /* Object type data, includes image, toolbar action, and update handler */
@@ -214,7 +214,7 @@ type SaveMObj struct {
 type MatData struct {
 	TypeP  ObjType `json:"-"`
 	Amount float64 `json:"a,omitempty"`
-	Rot    uint8
+	Rot    uint8   `json:"r,omitempty"`
 }
 
 /* Int x/y */
