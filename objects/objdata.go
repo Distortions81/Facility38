@@ -155,7 +155,7 @@ var (
 		{Symbol: "NIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
 			Name: "NONE"},
 		{Symbol: "C", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal.png"},
+			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png"},
 
 		/* Ore */
 		{Symbol: "FEo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
