@@ -276,7 +276,7 @@ func UncompressZip(data []byte) []byte {
 /* Generic zip []byte */
 func CompressZip(data []byte) []byte {
 	var b bytes.Buffer
-	w, err := zlib.NewWriterLevel(&b, zlib.DefaultCompression)
+	w, err := zlib.NewWriterLevel(&b, zlib.BestSpeed)
 	if err != nil {
 		cwlog.DoLog("CompressZip: %v", err)
 	}
