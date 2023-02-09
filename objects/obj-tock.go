@@ -154,7 +154,7 @@ func smelterUpdate(obj *glob.ObjData) {
 			/* Are we full? */
 			if obj.KGHeld+port.Buf.Amount > obj.TypeP.CapacityKG {
 				cwlog.DoLog("Smelter full")
-				break
+				continue
 			}
 
 			/* If this is fuel or ore, take it */
@@ -201,8 +201,6 @@ func smelterUpdate(obj *glob.ObjData) {
 						obj.Ports[p].Buf.Amount = 0.75
 						if typeCount == 1 {
 							obj.Ports[p].Buf.TypeP = *MatTypes[cont.TypeP.Result]
-						} else {
-							obj.Ports[p].Buf.TypeP = *MatTypes[gv.MAT_SLAG]
 						}
 						obj.Ports[p].Buf.Rot = port.Buf.Rot
 					}

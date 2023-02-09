@@ -71,7 +71,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 		objects.RenderTerrainST()
 	}
-	if glob.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
+	if glob.ZoomScale > gv.MapPixelThreshold || gv.ShowMineralLayer { /* Draw icon mode */
 		drawIconMode(screen)
 	} else {
 		drawPixmapMode(screen)
@@ -466,7 +466,7 @@ func drawMaterials(m *glob.MatData, obj *glob.ObjData, screen *ebiten.Image) {
 			objCamPosX := objOffX * glob.ZoomScale
 			objCamPosY := objOffY * glob.ZoomScale
 
-			iSize := obj.TypeP.Image.Bounds()
+			iSize := img.Bounds()
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 			xx := float64(iSize.Dx()) / 2.0
 			yy := float64(iSize.Dy()) / 2.0
@@ -474,7 +474,8 @@ func drawMaterials(m *glob.MatData, obj *glob.ObjData, screen *ebiten.Image) {
 			op.GeoM.Rotate(float64(m.Rot) * gv.CNinetyDeg)
 			op.GeoM.Translate(xx, yy)
 
-			op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+			op.GeoM.Scale(
+				((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 				((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 			op.GeoM.Translate(objCamPosX, objCamPosY)
 
