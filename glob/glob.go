@@ -162,6 +162,9 @@ type ObjType struct {
 	ImagePath string
 	Image     *ebiten.Image
 
+	UIPath string
+	UIimg  *ebiten.Image
+
 	MinerKGTock float64
 	CapacityKG  float64
 	IsOre       bool

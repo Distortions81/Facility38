@@ -8,7 +8,7 @@ import (
 // Set at build
 var (
 	UPSBench   = false
-	LoadTest   = true
+	LoadTest   = false
 	WASMMode   = false
 	Debug      = false
 	Verbose    = false

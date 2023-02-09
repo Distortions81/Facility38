@@ -109,6 +109,12 @@ func loadSprites() {
 					found = true
 				}
 			}
+			if icon.UIPath != "" {
+				uimg, err := data.GetSpriteImage(icon.UIPath)
+				if err == nil {
+					icon.UIimg = uimg
+				}
+			}
 
 			/* If not found, fill texture with text */
 			if !found {

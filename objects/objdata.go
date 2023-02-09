@@ -25,7 +25,7 @@ var (
 	/* World objects and images */
 	GameObjTypes = []*glob.ObjType{
 		//Game Objects
-		{ImagePath: "world-obj/basic-miner.png",
+		{ImagePath: "world-obj/basic-miner.png", UIPath: "ui/miner.png",
 			Name:        "Basic miner",
 			TypeI:       gv.ObjTypeBasicMiner,
 			Size:        glob.XY{X: 1, Y: 1},
@@ -39,7 +39,7 @@ var (
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-belt.png",
+		{ImagePath: "world-obj/basic-belt.png", UIPath: "ui/belt.png",
 			Name:       "Basic belt",
 			TypeI:      gv.ObjTypeBasicBelt,
 			Size:       glob.XY{X: 1, Y: 1},
@@ -62,7 +62,7 @@ var (
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-box.png",
+		{ImagePath: "world-obj/basic-box.png", UIPath: "ui/box.png",
 			Name:       "Basic box",
 			TypeI:      gv.ObjTypeBasicBox,
 			Size:       glob.XY{X: 1, Y: 1},
@@ -74,7 +74,7 @@ var (
 			Ports:       [gv.DIR_MAX]uint8{gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-smelter-1.png",
+		{ImagePath: "world-obj/basic-smelter-1.png", UIPath: "ui/smelter.png",
 			Name:        "Basic smelter",
 			TypeI:       gv.ObjTypeBasicSmelter,
 			Size:        glob.XY{X: 1, Y: 1},
