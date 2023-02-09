@@ -25,7 +25,7 @@ var (
 	/* World objects and images */
 	GameObjTypes = []*glob.ObjType{
 		//Game Objects
-		{ImagePath: "world-obj/basic-miner.png",
+		{ImagePath: "world-obj/basic-miner-64.png",
 			Name:        "Basic miner",
 			TypeI:       gv.ObjTypeBasicMiner,
 			Size:        glob.XY{X: 1, Y: 1},
@@ -39,7 +39,7 @@ var (
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-belt.png",
+		{ImagePath: "world-obj/basic-belt-64.png",
 			Name:       "Basic belt",
 			TypeI:      gv.ObjTypeBasicBelt,
 			Size:       glob.XY{X: 1, Y: 1},
@@ -62,7 +62,7 @@ var (
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-box.png",
+		{ImagePath: "world-obj/basic-box-64.png",
 			Name:       "Basic box",
 			TypeI:      gv.ObjTypeBasicBox,
 			Size:       glob.XY{X: 1, Y: 1},
@@ -74,7 +74,7 @@ var (
 			Ports:       [gv.DIR_MAX]uint8{gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-smelter-1.png",
+		{ImagePath: "world-obj/basic-smelter-64.png",
 			Name:        "Basic smelter",
 			TypeI:       gv.ObjTypeBasicSmelter,
 			Size:        glob.XY{X: 1, Y: 1},
@@ -155,25 +155,32 @@ var (
 		{Symbol: "NIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
 			Name: "NONE"},
 		{Symbol: "C", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-16.png"},
+			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-32.png"},
 
 		/* Ore */
 		{Symbol: "FEo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore.png", IsOre: true, Result: gv.MAT_IRON},
+			Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore-32.png", IsOre: true, Result: gv.MAT_IRON,
+			Size: glob.XY{X: 1, Y: 1}},
 		{Symbol: "Cuo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper-ore-16.png", IsOre: true, Result: gv.MAT_COPPER},
+			Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper-ore-32.png", IsOre: true, Result: gv.MAT_COPPER,
+			Size: glob.XY{X: 1, Y: 1}},
 		{Symbol: "STOo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Stone Ore", UnitName: " kg", ImagePath: "belt-obj/stone-ore.png", IsOre: true, Result: gv.MAT_STONE},
+			Name: "Stone Ore", UnitName: " kg", ImagePath: "belt-obj/stone-ore-32.png", IsOre: true, Result: gv.MAT_STONE,
+			Size: glob.XY{X: 1, Y: 1}},
 
 		/* Metal */
 		{Symbol: "FE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Iron Bar", UnitName: " kg", ImagePath: "belt-obj/iron-16.png"},
+			Name: "Iron Bar", UnitName: " kg", ImagePath: "belt-obj/iron-32.png",
+			Size: glob.XY{X: 1, Y: 1}},
 		{Symbol: "Cu", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Copper Bar", UnitName: " kg", ImagePath: "belt-obj/copper-16.png"},
+			Name: "Copper Bar", UnitName: " kg", ImagePath: "belt-obj/copper-32.png",
+			Size: glob.XY{X: 1, Y: 1}},
 		{Symbol: "STO", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Stone Block", UnitName: " kg", ImagePath: "belt-obj/stone-16.png"},
+			Name: "Stone Block", UnitName: " kg", ImagePath: "belt-obj/stone-32.png",
+			Size: glob.XY{X: 1, Y: 1}},
 		{Symbol: "SLG", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
-			Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone-16.png"},
+			Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone-32.png",
+			Size: glob.XY{X: 1, Y: 1}},
 	}
 
 	/* Toolbar item types, array of array of ObjType */
