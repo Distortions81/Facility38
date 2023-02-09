@@ -15,6 +15,11 @@ func LinkObj(obj *glob.ObjData) {
 	/* Check our ports */
 	for p, port := range obj.Ports {
 
+		if obj.Ports[p] == nil {
+			obj.Ports[p] = &glob.ObjPortData{}
+			continue
+		}
+
 		/* Make sure our port is empty */
 		if port.Obj != nil {
 			continue

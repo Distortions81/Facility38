@@ -119,13 +119,13 @@ type ObjData struct {
 	Dir uint8 `json:"d,omitempty"`
 
 	//Internal use
-	Contents [gv.MAT_MAX]*MatData `json:"co,omitempty"`
-	Fuel     [gv.MAT_MAX]*MatData `json:"fu,omitempty"`
+	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
+	Fuel     [gv.MAT_MAX]*MatData `json:"f,omitempty"`
 	KGFuel   float64              `json:"kf,omitempty"`
-	KGHeld   float64              `json:"kh,omitempty"`
+	KGHeld   float64              `json:"k,omitempty"`
 
 	//Input/Output
-	Ports      [gv.DIR_MAX]*ObjPortData `json:"p,omitempty"`
+	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
 	NumInputs  uint8                    `json:"-"`
 	NumOutputs uint8                    `json:"-"`
 
@@ -133,7 +133,7 @@ type ObjData struct {
 	LastUsedInput  uint8 `json:"-"`
 	LastUsedOutput uint8 `json:"-"`
 
-	TickCount uint8
+	TickCount uint8 `json:"t,omitempty"`
 
 	Blocked bool `json:"-"`
 }
@@ -141,7 +141,7 @@ type ObjData struct {
 type ObjPortData struct {
 	PortDir uint8    `json:"pd,omitempty"`
 	Obj     *ObjData `json:"-"`
-	Buf     MatData  `json:"buf,omitempty"`
+	Buf     MatData  `json:"b,omitempty"`
 }
 
 /* Object type data, includes image, toolbar action, and update handler */
@@ -205,12 +205,6 @@ type ToolbarItem struct {
 /* Tick Event (target) */
 type TickEvent struct {
 	Target *ObjData
-}
-
-/* Used to munge data into a test save file */
-type SaveMObj struct {
-	O *ObjData
-	P XY
 }
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */

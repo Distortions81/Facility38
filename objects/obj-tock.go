@@ -65,11 +65,11 @@ func beltUpdate(obj *glob.ObjData) {
 			continue
 		}
 		if obj.NumInputs > 1 {
-			if uint8(p) == obj.LastUsedInput {
-				cwlog.DoLog("beltUpdate: Skipping previously used input.%v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-				continue
+			if obj.LastUsedInput < obj.NumInputs {
+				obj.LastUsedInput++
+			} else {
+				obj.LastUsedInput = 0
 			}
-			obj.LastUsedInput = uint8(p)
 		}
 		if port.Buf.Amount == 0 {
 			cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
