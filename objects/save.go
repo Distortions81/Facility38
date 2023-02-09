@@ -13,16 +13,16 @@ import (
 
 /* Used to munge data into a test save file */
 type saveMObj struct {
-	P  glob.XY
-	I  uint8
-	D  uint8
-	C  [gv.MAT_MAX]*glob.MatData
-	F  [gv.MAT_MAX]*glob.MatData
-	KF float64
-	K  float64
+	P  glob.XY                   `json:"p,omitempty"`
+	I  uint8                     `json:"i,omitempty"`
+	D  uint8                     `json:"d,omitempty"`
+	C  [gv.MAT_MAX]*glob.MatData `json:"c,omitempty"`
+	F  [gv.MAT_MAX]*glob.MatData `json:"f,omitempty"`
+	KF float64                   `json:"kf,omitempty"`
+	K  float64                   `json:"k,omitempty"`
 
-	PO [gv.DIR_MAX]*glob.ObjPortData
-	T  uint8
+	PO [gv.DIR_MAX]*glob.ObjPortData `json:"po,omitempty"`
+	T  uint8                         `json:"t,omitempty"`
 }
 
 /* WIP */
