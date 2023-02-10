@@ -5,7 +5,6 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"bytes"
-	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -28,6 +27,10 @@ type saveMObj struct {
 
 /* WIP */
 func SaveGame() {
+
+	if glob.WASMMode {
+		return
+	}
 
 	go func() {
 		tempPath := "save.dat.tmp"
@@ -92,12 +95,7 @@ func SaveGame() {
 		}
 		fmt.Println("WALK COMPLETE:", time.Since(start).String())
 
-		//b, err := json.Marshal(tempList)
-
-		var b []byte
-		buf := bytes.NewBuffer(b)
-		enc := gob.NewEncoder(buf)
-		err := enc.Encode(tempList)
+		b, err := json.Marshal(tempList)
 
 		glob.SuperChunkListLock.RUnlock()
 		TickListLock.Unlock()
@@ -137,6 +135,11 @@ func SaveGame() {
 
 /* WIP */
 func LoadGame() {
+
+	if glob.WASMMode {
+		return
+	}
+
 	go func() {
 
 		start := time.Now()
