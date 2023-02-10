@@ -6,7 +6,7 @@ var (
 	BootColor       = color.NRGBA{0, 32, 32, 255}
 	BGColor         = color.NRGBA{32, 32, 32, 255}
 	ColorToolTipBG  = color.NRGBA{32, 32, 32, 170}
-	ColorTBSelected = color.NRGBA{0, 255, 255, 255}
+	ColorTBSelected = color.NRGBA{0, 255, 255, 128}
 	GroundColor     = color.NRGBA{51, 78, 38, 255}
 
 	ColorRed         = color.NRGBA{203, 67, 53, 255}

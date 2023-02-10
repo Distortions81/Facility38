@@ -95,36 +95,38 @@ func NewGame() *Game {
 /* Load all sprites, sub missing ones */
 func loadSprites() {
 
-	/* Load Sprites */
-	var timg *ebiten.Image
 	for _, otype := range objects.SubTypes {
-		for key, icon := range otype {
-			found := false
+		for key, item := range otype {
 
 			/* If there is a image name, attempt to fetch it */
-			if icon.ImagePath != "" {
-				img, err := data.GetSpriteImage(icon.ImagePath)
-				if err == nil {
-					timg = img
-					found = true
+			if item.ImagePath != "" {
+				img, err := data.GetSpriteImage(item.ImagePath)
+				if err != nil {
+					/* If not found, fill texture with text */
+					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+					img.Fill(item.ItemColor)
+					text.Draw(img, item.Symbol, glob.ObjectFont, gv.SymbOffX, gv.SymbOffY, item.SymbolColor)
 				}
+				otype[key].Image = img
 			}
-			if icon.UIPath != "" {
-				uimg, err := data.GetSpriteImage(icon.UIPath)
-				if err == nil {
-					icon.UIimg = uimg
+			/* For active flag on objects */
+			if item.ImagePathActive != "" {
+				img, err := data.GetSpriteImage(item.ImagePathActive)
+				if err != nil {
+					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+					img.Fill(item.ItemColor)
+					text.Draw(img, item.Symbol, glob.ObjectFont, gv.SymbOffX, gv.SymbOffY, item.SymbolColor)
 				}
+				otype[key].ImageActive = img
 			}
 
-			/* If not found, fill texture with text */
-			if !found {
-				timg = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-				timg.Fill(icon.ItemColor)
-				text.Draw(timg, icon.Symbol, glob.ObjectFont, gv.SymbOffX, gv.SymbOffY, icon.SymbolColor)
+			/* Alternate sprite for toolbar */
+			if item.UIPath != "" {
+				img, err := data.GetSpriteImage(item.UIPath)
+				if err == nil {
+					otype[key].UIimg = img
+				}
 			}
-
-			icon.Image = timg
-			otype[key] = icon
 		}
 	}
 

@@ -9,6 +9,14 @@ import (
 	"math/rand"
 )
 
+func toggleOverlay() {
+	if glob.ShowInfoLayer {
+		glob.ShowInfoLayer = false
+	} else {
+		glob.ShowInfoLayer = true
+	}
+}
+
 func minerUpdate(obj *glob.ObjData) {
 
 	/* Find all inputs, round-robin send to output */

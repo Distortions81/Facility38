@@ -13,7 +13,7 @@ var (
 	WASMMode      = false
 	Debug         = true
 	Verbose       = false
-	LogStdOut     = false
+	LogStdOut     = true
 	LogFileOut    = false
 
 	ShowMineralLayer     bool

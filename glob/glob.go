@@ -158,11 +158,14 @@ type ObjType struct {
 	Rotatable bool
 	Direction uint8
 
-	ImagePath string
-	Image     *ebiten.Image
+	ImagePath       string
+	ImagePathActive string
+	Image           *ebiten.Image
+	ImageActive     *ebiten.Image
 
-	UIPath string
-	UIimg  *ebiten.Image
+	UIPath       string
+	UIimg        *ebiten.Image
+	ToolBarArrow bool
 
 	KgSecMine float64
 	KgSecFuel float64
