@@ -76,7 +76,7 @@ var (
 			ShowBlocked: true,
 			UpdateObj:   splitterUpdate,
 			Symbol:      "SPLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
-			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
 		},
 
 		{ImagePath: "world-obj/basic-box.png", UIPath: "ui/box.png",

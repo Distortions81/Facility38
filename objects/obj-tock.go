@@ -112,51 +112,58 @@ func beltUpdate(obj *glob.ObjData) {
 	}
 	obj.Blocked = false
 
-	if obj.NumInputs > 1 {
-		/* Find all inputs, round-robin send to output */
-		dir := obj.LastUsedInput
-		for x := 0; x < 4; x++ {
-			dir = util.RotCW(dir)
+	/* Find all inputs, round-robin send to output */
+	dir := obj.LastUsedInput
+	for x := 0; x < 4; x++ {
+		dir = util.RotCW(dir)
 
-			if obj.Ports[dir].PortDir != gv.PORT_INPUT {
-				continue
-			}
-			if obj.Ports[dir].Buf.Amount == 0 {
-				//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-				continue
-			} else {
-				obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
-				obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
-				obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
-				obj.Ports[dir].Buf.Amount = 0
-				obj.LastUsedInput = dir
-				break
-			}
-
+		if obj.Ports[dir].PortDir != gv.PORT_INPUT {
+			continue
 		}
-	} else {
-		for dir, port := range obj.Ports {
-			if port.PortDir == gv.PORT_OUTPUT {
-				continue
-			}
-			if port.Buf.Amount == 0 {
-				continue
-			}
+		if obj.Ports[dir].Buf.Amount == 0 {
+			//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			continue
+		} else {
 			obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
 			obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
 			obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
 			obj.Ports[dir].Buf.Amount = 0
+			obj.LastUsedInput = dir
 			break
 		}
+
 	}
 }
 
 func splitterUpdate(obj *glob.ObjData) {
 
-	if obj.Ports[util.ReverseDirection(obj.Dir)].Buf.Amount == 0 {
+	input := util.ReverseDirection(obj.Dir)
+	if obj.Ports[input].Buf.Amount == 0 {
 		cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		return
 	}
+
+	/* Find all inputs, round-robin send to output */
+	dir := obj.LastUsedOutput
+	for x := 0; x < 4; x++ {
+		dir = util.RotCW(dir)
+
+		if obj.Ports[dir].PortDir != gv.PORT_OUTPUT {
+			continue
+		}
+		if obj.Ports[dir].Buf.Amount != 0 {
+			continue
+		} else {
+			obj.Ports[dir].Buf.Amount = obj.Ports[input].Buf.Amount
+			obj.Ports[dir].Buf.TypeP = obj.Ports[input].Buf.TypeP
+			obj.Ports[dir].Buf.Rot = obj.Ports[input].Buf.Rot
+			obj.Ports[input].Buf.Amount = 0
+			obj.LastUsedOutput = dir
+			break
+		}
+
+	}
+
 }
 
 func boxUpdate(obj *glob.ObjData) {
