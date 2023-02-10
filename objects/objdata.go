@@ -41,8 +41,8 @@ var (
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         glob.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
-			KgSecMine:    0.5, //Converted at boot
-			KgSecFuel:    0.2, //Converted at boot
+			KgSecMine:    0.5,
+			KgSecFuel:    0.2,
 			Interval:     8,
 			MaxContainKG: 0,
 			MaxFuelKG:    50,
