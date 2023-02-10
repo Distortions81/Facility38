@@ -352,11 +352,11 @@ func drawWorldTooltip(screen *ebiten.Image) {
 							o.Contents[z].TypeP.Name, o.Contents[z].Amount, o.Contents[z].TypeP.UnitName)
 					}
 				}
-				if gv.Debug {
+				if o.KGFuel > 0 {
+					toolTip = toolTip + fmt.Sprintf("(Fuel: %0.2f kg)\n", o.KGFuel)
+				}
 
-					if o.KGFuel > 0 {
-						toolTip = toolTip + fmt.Sprintf("(Fuel: %0.2f kg)\n", o.KGFuel)
-					}
+				if gv.Debug {
 
 					for z := 0; z < gv.DIR_MAX; z++ {
 						if o.Ports[z] == nil {
