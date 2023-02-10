@@ -11,7 +11,7 @@ var (
 	UPSBench      = false
 	LoadTest      = false
 	WASMMode      = false
-	Debug         = false
+	Debug         = true
 	Verbose       = false
 	LogStdOut     = true
 	LogFileOut    = false
@@ -145,7 +145,7 @@ const (
 	BASIC_BURN_EFFICIENCY     = 0.2
 	PRIMITIVE_BURN_EFFICIENCY = 0.1
 
-	TIMESCALE_MULTI = 720 //5 seconds is one hour.
+	TIMESCALE_MULTI = 1
 
 	/* Event queue types */
 	QUEUE_TYPE_NONE = 0

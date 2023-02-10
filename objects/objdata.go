@@ -42,10 +42,12 @@ func init() {
 	}
 	for _, item := range GameObjTypes {
 		if item.KgFuelEach > 0 {
-			item.MaxFuelKG = item.KgFuelEach * 4
+			item.MaxFuelKG = item.KgFuelEach * 10
+		}
+		if item.KgMineEach > 0 {
+			item.MaxContainKG = item.KgMineEach * 10
 		}
 	}
-
 }
 
 var (
@@ -83,14 +85,13 @@ var (
 		},
 
 		{ImagePath: "world-obj/basic-belt.png", UIPath: "ui/belt.png",
-			Name:         "Basic belt",
-			TypeI:        gv.ObjTypeBasicBelt,
-			Size:         glob.XY{X: 1, Y: 1},
-			MaxContainKG: 450,
-			Rotatable:    true,
-			ShowBlocked:  true,
-			UpdateObj:    beltUpdate,
-			Symbol:       "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Name:        "Basic belt",
+			TypeI:       gv.ObjTypeBasicBelt,
+			Size:        glob.XY{X: 1, Y: 1},
+			Rotatable:   true,
+			ShowBlocked: true,
+			UpdateObj:   beltUpdate,
+			Symbol:      "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
@@ -127,7 +128,6 @@ var (
 			Name:            "Basic smelter",
 			TypeI:           gv.ObjTypeBasicSmelter,
 			Size:            glob.XY{X: 1, Y: 1},
-			MaxContainKG:    40,
 			KW:              320,
 			KgHourMine:      3600,
 			Interval:        uint8(glob.ObjectUPS * 5),
