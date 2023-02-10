@@ -36,4 +36,4 @@ adjustable miners/furnace speeds
 
 high priority:
 splitters, over/under, hoppers
-
+eventually set machine times in ms/sec
