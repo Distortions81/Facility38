@@ -188,7 +188,10 @@ func drawIconMode(screen *ebiten.Image) {
 
 					/* Draw Input Materials */
 					for p := range obj.Ports {
-						drawMaterials(&obj.Ports[p].Buf, obj, screen)
+						if obj.Ports[p].Buf.Amount > 0 {
+							drawMaterials(&obj.Ports[p].Buf, obj, screen)
+							break
+						}
 					}
 
 				}

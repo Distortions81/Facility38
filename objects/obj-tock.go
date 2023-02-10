@@ -112,63 +112,50 @@ func beltUpdate(obj *glob.ObjData) {
 	}
 	obj.Blocked = false
 
-	/* Find all inputs, round-robin send to output */
-	for p, port := range obj.Ports {
-		if port.PortDir != gv.PORT_INPUT {
-			continue
-		}
-		if obj.NumInputs > 1 {
-			if obj.LastUsedInput < obj.NumInputs {
-				obj.LastUsedInput++
-			} else {
-				obj.LastUsedInput = 0
+	if obj.NumInputs > 1 {
+		/* Find all inputs, round-robin send to output */
+		dir := obj.LastUsedInput
+		for x := 0; x < 4; x++ {
+			dir = util.RotCW(dir)
+
+			if obj.Ports[dir].PortDir != gv.PORT_INPUT {
+				continue
 			}
+			if obj.Ports[dir].Buf.Amount == 0 {
+				//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				continue
+			} else {
+				obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
+				obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
+				obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
+				obj.Ports[dir].Buf.Amount = 0
+				obj.LastUsedInput = dir
+				break
+			}
+
 		}
-		if port.Buf.Amount == 0 {
-			//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-			continue
-		} else {
-			obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
-			obj.Ports[obj.Dir].Buf.TypeP = port.Buf.TypeP
-			obj.Ports[obj.Dir].Buf.Rot = port.Buf.Rot
-			obj.Ports[p].Buf.Amount = 0
+	} else {
+		for dir, port := range obj.Ports {
+			if port.PortDir == gv.PORT_OUTPUT {
+				continue
+			}
+			if port.Buf.Amount == 0 {
+				continue
+			}
+			obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
+			obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
+			obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
+			obj.Ports[dir].Buf.Amount = 0
 			break
 		}
-
 	}
 }
 
 func splitterUpdate(obj *glob.ObjData) {
-	/* Output is full, exit */
-	if obj.Ports[obj.Dir].Buf.Amount != 0 {
-		//cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-		obj.Blocked = true
-		return
-	}
-	obj.Blocked = false
 
-	/* Find all inputs, round-robin send to output */
-	for p, port := range obj.Ports {
-		if port.PortDir != gv.PORT_INPUT {
-			continue
-		}
-		if obj.NumInputs > 1 {
-			if uint8(p) == obj.LastUsedInput {
-				cwlog.DoLog("beltUpdate: Skipping previously used input.%v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-				continue
-			}
-			obj.LastUsedInput = uint8(p)
-		}
-		if port.Buf.Amount == 0 {
-			cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-			continue
-		} else {
-			obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
-			obj.Ports[obj.Dir].Buf.TypeP = port.Buf.TypeP
-			obj.Ports[obj.Dir].Buf.Rot = port.Buf.Rot
-			obj.Ports[p].Buf.Amount = 0
-			break
-		}
+	if obj.Ports[util.ReverseDirection(obj.Dir)].Buf.Amount == 0 {
+		cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+		return
 	}
 }
 
