@@ -49,6 +49,9 @@ func init() {
 
 	glob.ToolBG = ebiten.NewImage(gv.ToolBarScale, gv.ToolBarScale)
 	glob.ToolBG.Fill(glob.ColorCharcolSemi)
+
+	glob.BeltBlock = ebiten.NewImage(1, 1)
+	glob.BeltBlock.Fill(glob.ColorOrange)
 }
 
 /* Ebiten: Draw everything */
@@ -207,7 +210,6 @@ func drawIconMode(screen *ebiten.Image) {
 						}
 					}
 					/* Info Overlays, such as arrows and blocked indicator */
-					var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 					/* camera + object */
 					objOffX := camXPos + (float64(obj.Pos.X))
@@ -217,48 +219,66 @@ func drawIconMode(screen *ebiten.Image) {
 					objCamPosX := objOffX * glob.ZoomScale
 					objCamPosY := objOffY * glob.ZoomScale
 
-					iSize := obj.TypeP.Image.Bounds()
-					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
-						((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
-					op.GeoM.Translate(objCamPosX, objCamPosY)
-
 					/* Show objects with no fuel */
-					img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Image
 					if obj.TypeP.MaxFuelKG > 0 && obj.KGFuel < obj.TypeP.KgFuelEach {
+
+						img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Image
+
+						iSize := img.Bounds()
+						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+							((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+						op.GeoM.Translate(objCamPosX, objCamPosY)
+
 						screen.DrawImage(img, op)
+
 					} else if obj.TypeP.ShowArrow {
 						for p, port := range obj.Ports {
 							if port.PortDir != gv.PORT_OUTPUT {
 								continue
 							}
 
-							iSize := obj.TypeP.Image.Bounds()
+							img := objects.ObjOverlayTypes[p].Image
+							iSize := img.Bounds()
 							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 								((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
 
 							/* Draw Arrow */
-							img := objects.ObjOverlayTypes[p].Image
 							if img != nil {
 								screen.DrawImage(img, op)
 							}
+						}
+					}
+					/* Show blocked outputs */
+					if obj.TypeP.ShowBlocked && obj.Blocked {
 
-							/* Show blocked outputs */
-							img = objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
-							if obj.TypeP.ShowBlocked && obj.Blocked {
+						if obj.TypeP.TypeI == gv.ObjTypeBasicBelt {
+							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+							img := glob.BeltBlock
 
-								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+							iSize := obj.TypeP.Image.Bounds()
+							op.GeoM.Translate(
+								0,
+								float64(iSize.Max.Y/2)-1)
+							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+								((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+							op.GeoM.Translate(objCamPosX, objCamPosY)
+							screen.DrawImage(img, op)
 
-								iSize := obj.TypeP.Image.Bounds()
-								op.GeoM.Translate(
-									float64(iSize.Max.X)-float64(img.Bounds().Max.X)-cBlockedIndicatorOffset,
-									cBlockedIndicatorOffset)
-								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
-									((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
-								op.GeoM.Translate(objCamPosX, objCamPosY)
-								screen.DrawImage(img, op)
-							}
+						} else {
+							img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
+							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+
+							iSize := img.Bounds()
+							op.GeoM.Translate(
+								cBlockedIndicatorOffset,
+								cBlockedIndicatorOffset)
+							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
+								((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
+							op.GeoM.Translate(objCamPosX, objCamPosY)
+							screen.DrawImage(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image, op)
 						}
 					}
 				}
@@ -356,12 +376,20 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					humanize.Comma(int64(math.Floor(worldMouseY-gv.XYCenter))))
 				for z := 0; z < gv.MAT_MAX; z++ {
 					if o.Contents[z] != nil {
-						toolTip = toolTip + fmt.Sprintf("(Contents: %v: %0.2f%v)\n",
+						toolTip = toolTip + fmt.Sprintf("Contents: %v: %0.2f%v\n",
 							o.Contents[z].TypeP.Name, o.Contents[z].Amount, o.Contents[z].TypeP.UnitName)
 					}
 				}
-				if o.KGFuel > 0 {
-					toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.KGFuel)
+				if o.TypeP.MaxFuelKG > 0 {
+					if o.KGFuel > o.TypeP.KgFuelEach {
+						toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.KGFuel)
+					} else {
+						toolTip = toolTip + "NO FUEL\n"
+					}
+				}
+
+				if o.Blocked {
+					toolTip = toolTip + "BLOCKED\n"
 				}
 
 				if gv.Debug {
@@ -374,13 +402,13 @@ func drawWorldTooltip(screen *ebiten.Image) {
 							continue
 						}
 						if o.Ports[z].PortDir == gv.PORT_INPUT && o.Ports[z].Obj != nil {
-							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %v)\n",
+							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
 								o.Ports[z].Obj.TypeP.Name,
 								o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
 						}
 						if o.Ports[z].PortDir == gv.PORT_OUTPUT && o.Ports[z].Obj != nil {
-							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %v: %v)\n",
+							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
 								o.Ports[z].Obj.TypeP.Name,
 								o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)

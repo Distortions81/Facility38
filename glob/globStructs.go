@@ -35,6 +35,7 @@ var (
 	/* Boot images */
 	MiniMapTile *ebiten.Image
 	ToolBG      *ebiten.Image
+	BeltBlock   *ebiten.Image
 
 	/* Boot status */
 	SpritesLoaded atomic.Bool

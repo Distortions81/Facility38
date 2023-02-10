@@ -9,9 +9,9 @@ import (
 var (
 	StartMapBlank = true
 	UPSBench      = false
-	LoadTest      = true
+	LoadTest      = false
 	WASMMode      = false
-	Debug         = true
+	Debug         = false
 	Verbose       = false
 	LogStdOut     = true
 	LogFileOut    = false

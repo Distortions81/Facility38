@@ -61,6 +61,7 @@ var (
 			Size:         glob.XY{X: 1, Y: 1},
 			MaxContainKG: 450,
 			Rotatable:    true,
+			ShowBlocked:  true,
 			UpdateObj:    beltUpdate,
 			Symbol:       "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
