@@ -44,10 +44,10 @@ func minerUpdate(obj *glob.ObjData) {
 			if obj.TickCount >= obj.TypeP.Interval {
 
 				/* Mine stuff */
-				if obj.KGFuel >= obj.TypeP.FuelKGTock {
+				if obj.KGFuel >= obj.TypeP.KgSecFuel {
 
 					/* Burn fuel */
-					obj.KGFuel -= obj.TypeP.FuelKGTock
+					obj.KGFuel -= obj.TypeP.KgSecFuel
 
 					var matsFound [noise.NumNoiseTypes]float64
 					var matsFoundT [noise.NumNoiseTypes]uint8
@@ -68,14 +68,14 @@ func minerUpdate(obj *glob.ObjData) {
 					if numTypesFound > 0 {
 						pick := rand.Intn(numTypesFound)
 
-						amount := obj.TypeP.KGTock * matsFound[pick]
+						amount := obj.TypeP.KgSecMine * matsFound[pick]
 						kind := MatTypes[matsFoundT[pick]]
 
 						/* If we are mining coal, and it won't overfill us,
 						 * and we are low on fuel, burn the coal and don't output */
 						if matsFoundT[pick] == gv.MAT_COAL &&
 							obj.KGFuel+amount < obj.TypeP.MaxFuelKG &&
-							obj.KGFuel < obj.TypeP.FuelKGTock*2 {
+							obj.KGFuel < obj.TypeP.KgSecFuel*2 {
 							obj.KGFuel += amount
 							break
 						}
@@ -194,18 +194,18 @@ func smelterUpdate(obj *glob.ObjData) {
 		if port == nil {
 			continue
 		}
-		if port.Buf.TypeP == nil {
-			continue
-		}
 		if port.PortDir == gv.PORT_INPUT {
+			if port.Buf.TypeP == nil {
+				continue
+			}
 
 			/* If this is fuel or ore, take it */
 			if port.Buf.TypeP.TypeI == gv.MAT_COAL {
 				if obj.KGFuel+port.Buf.Amount > obj.TypeP.MaxFuelKG {
 					continue
 				}
-				obj.Ports[p].Buf.Amount = 0
 				obj.KGFuel += port.Buf.Amount
+				obj.Ports[p].Buf.Amount = 0
 			} else if port.Buf.TypeP.IsOre {
 				if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
 					continue
@@ -233,19 +233,19 @@ func smelterUpdate(obj *glob.ObjData) {
 			if obj.TickCount >= obj.TypeP.Interval {
 
 				/* Smelt stuff */
-				if obj.KGFuel >= obj.TypeP.FuelKGTock {
+				if obj.KGFuel >= obj.TypeP.KgSecFuel {
 					for c, cont := range obj.Contents {
 						if cont == nil {
 							continue
 						}
 
-						if cont.TypeP.IsOre && cont.Amount >= obj.TypeP.KGTock {
-							obj.KGFuel -= obj.TypeP.FuelKGTock
+						if cont.TypeP.IsOre && cont.Amount >= obj.TypeP.KgSecMine {
+							obj.KGFuel -= obj.TypeP.KgSecFuel
 
-							obj.Contents[c].Amount -= obj.TypeP.KGTock
-							obj.KGHeld -= obj.TypeP.KGTock
+							obj.Contents[c].Amount -= obj.TypeP.KgSecMine
+							obj.KGHeld -= obj.TypeP.KgSecMine
 
-							obj.Ports[p].Buf.Amount = obj.TypeP.KGTock
+							obj.Ports[p].Buf.Amount = obj.TypeP.KgSecMine
 							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
 							obj.Ports[p].Buf.Rot = port.Buf.Rot
 						}

@@ -164,8 +164,11 @@ type ObjType struct {
 	UIPath string
 	UIimg  *ebiten.Image
 
-	KGTock     float64
-	FuelKGTock float64
+	KgSecMine float64
+	KgSecFuel float64
+
+	KgMineEach float64
+	KgFuelEach float64
 
 	MaxContainKG float64
 	MaxFuelKG    float64

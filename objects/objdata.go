@@ -9,6 +9,17 @@ import (
 	"os"
 )
 
+func init() {
+
+	/* Pre-calculate some object values */
+	for i, item := range GameObjTypes {
+		GameObjTypes[i].KgMineEach = (item.KgSecMine / glob.ObjectUPS) * float64(item.Interval) * gv.TIMESCALE_MULTI
+	}
+	for i, item := range GameObjTypes {
+		GameObjTypes[i].KgFuelEach = (item.KgSecFuel / glob.ObjectUPS) * float64(item.Interval) * gv.TIMESCALE_MULTI
+	}
+}
+
 var (
 
 	/* Toolbar actions and images */
@@ -30,11 +41,11 @@ var (
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         glob.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
-			KGTock:       1,
-			Interval:     4,
-			MaxContainKG: 100,
-			MaxFuelKG:    30,
-			FuelKGTock:   0.2,
+			KgSecMine:    0.5, //Converted at boot
+			KgSecFuel:    0.2, //Converted at boot
+			Interval:     8,
+			MaxContainKG: 0,
+			MaxFuelKG:    50,
 			ShowArrow:    true,
 			ShowBlocked:  true,
 			Symbol:       "MINE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
@@ -80,10 +91,10 @@ var (
 			Name:         "Basic smelter",
 			TypeI:        gv.ObjTypeBasicSmelter,
 			Size:         glob.XY{X: 1, Y: 1},
-			MaxContainKG: 1000,
-			MaxFuelKG:    150,
-			FuelKGTock:   0.4,
-			KGTock:       20,
+			MaxContainKG: 40,
+			MaxFuelKG:    50,
+			KgSecFuel:    0.4,
+			KgSecMine:    20,
 			Interval:     4 * 5,
 			ShowArrow:    true,
 			ShowBlocked:  true,
