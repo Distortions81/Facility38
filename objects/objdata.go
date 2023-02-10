@@ -9,6 +9,17 @@ import (
 	"os"
 )
 
+func init() {
+
+	/* Pre-calculate some object values */
+	for i, item := range GameObjTypes {
+		GameObjTypes[i].KgMineEach = (item.KgSecMine / glob.ObjectUPS) * float64(item.Interval) * gv.TIMESCALE_MULTI
+	}
+	for i, item := range GameObjTypes {
+		GameObjTypes[i].KgFuelEach = (item.KgSecFuel / glob.ObjectUPS) * float64(item.Interval) * gv.TIMESCALE_MULTI
+	}
+}
+
 var (
 
 	/* Toolbar actions and images */
@@ -26,27 +37,29 @@ var (
 	GameObjTypes = []*glob.ObjType{
 		//Game Objects
 		{ImagePath: "world-obj/basic-miner.png", UIPath: "ui/miner.png",
-			Name:        "Basic miner",
-			TypeI:       gv.ObjTypeBasicMiner,
-			Size:        glob.XY{X: 1, Y: 1},
-			UpdateObj:   minerUpdate,
-			MinerKGTock: 1,
-			Interval:    4,
-			CapacityKG:  500,
-			ShowArrow:   true,
-			ShowBlocked: true,
-			Symbol:      "MINE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Name:         "Basic miner",
+			TypeI:        gv.ObjTypeBasicMiner,
+			Size:         glob.XY{X: 1, Y: 1},
+			UpdateObj:    minerUpdate,
+			KgSecMine:    0.5, //Converted at boot
+			KgSecFuel:    0.2, //Converted at boot
+			Interval:     8,
+			MaxContainKG: 0,
+			MaxFuelKG:    50,
+			ShowArrow:    true,
+			ShowBlocked:  true,
+			Symbol:       "MINE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
 		{ImagePath: "world-obj/basic-belt.png", UIPath: "ui/belt.png",
-			Name:       "Basic belt",
-			TypeI:      gv.ObjTypeBasicBelt,
-			Size:       glob.XY{X: 1, Y: 1},
-			CapacityKG: 20,
-			Rotatable:  true,
-			UpdateObj:  beltUpdate,
-			Symbol:     "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Name:         "Basic belt",
+			TypeI:        gv.ObjTypeBasicBelt,
+			Size:         glob.XY{X: 1, Y: 1},
+			MaxContainKG: 450,
+			Rotatable:    true,
+			UpdateObj:    beltUpdate,
+			Symbol:       "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
@@ -63,11 +76,11 @@ var (
 		},
 
 		{ImagePath: "world-obj/basic-box.png", UIPath: "ui/box.png",
-			Name:       "Basic box",
-			TypeI:      gv.ObjTypeBasicBox,
-			Size:       glob.XY{X: 1, Y: 1},
-			CapacityKG: 5000,
-			Symbol:     "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Name:         "Basic box",
+			TypeI:        gv.ObjTypeBasicBox,
+			Size:         glob.XY{X: 1, Y: 1},
+			MaxContainKG: 1000,
+			Symbol:       "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj:   boxUpdate,
 			CanContain:  true,
 			ShowBlocked: true,
@@ -75,14 +88,17 @@ var (
 		},
 
 		{ImagePath: "world-obj/basic-smelter-1.png", UIPath: "ui/smelter.png",
-			Name:        "Basic smelter",
-			TypeI:       gv.ObjTypeBasicSmelter,
-			Size:        glob.XY{X: 1, Y: 1},
-			CapacityKG:  50,
-			Interval:    20,
-			ShowArrow:   true,
-			ShowBlocked: true,
-			Symbol:      "SMLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Name:         "Basic smelter",
+			TypeI:        gv.ObjTypeBasicSmelter,
+			Size:         glob.XY{X: 1, Y: 1},
+			MaxContainKG: 40,
+			MaxFuelKG:    50,
+			KgSecFuel:    0.4,
+			KgSecMine:    20,
+			Interval:     4 * 5,
+			ShowArrow:    true,
+			ShowBlocked:  true,
+			Symbol:       "SMLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj: smelterUpdate,
 			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},

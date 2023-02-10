@@ -4,6 +4,10 @@ export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
 $2D doom$
 
+Units: Coal per KWH: 0.5KG
+KW/H to HP/H 1.34
+KW/H to BTU 3412
+
 
 Issues moved to github
 https://github.com/Distortions81/GameTest/issues

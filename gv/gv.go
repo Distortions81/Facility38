@@ -7,11 +7,11 @@ import (
 
 // Set at build
 var (
-	StartMapBlank = false
+	StartMapBlank = true
 	UPSBench      = false
 	LoadTest      = true
 	WASMMode      = false
-	Debug         = false
+	Debug         = true
 	Verbose       = false
 	LogStdOut     = false
 	LogFileOut    = false
@@ -126,11 +126,23 @@ const (
 	ObjOverlayBlocked = 4
 
 	/* World Values */
-	COAL_KWH_KG        = 8
+	COALKG_KWH = 0.5
+	COALKG_BTU = 4500
+
+	COPPERKG_SMELT_KWH = 10
+	IRONKG_SMELT_KWH   = 0.5
+
+	HP_PER_KW = 1.3
+	BTU_TO_HP = 2500
+
 	BOILER_EFFICIENCY  = 0.4
 	TURBINE_EFFICIENCY = 0.9
-	COAL_KWH_MTON      = 1927
-	TIMESCALE          = 60 //1 Day passes in 24 minutes
+
+	NORMAL_EFFICIENCY         = 0.4
+	BASIC_BURN_EFFICIENCY     = 0.2
+	PRIMITIVE_BURN_EFFICIENCY = 0.1
+
+	TIMESCALE_MULTI = 60 //1 Day passes in 24 minutes
 
 	/* Event queue types */
 	QUEUE_TYPE_NONE = 0

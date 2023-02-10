@@ -147,6 +147,11 @@ func tickObj(obj *glob.ObjData) {
 			continue
 		}
 
+		/* Don't send if the object is blocked */
+		if port.Obj.Blocked {
+			continue
+		}
+
 		/*cwlog.DoLog("TICK: %v: %v: %v\n",
 		port.Obj.TypeP.Name,
 		port.Obj.Ports[p].Buf.TypeP.Name,
@@ -156,7 +161,6 @@ func tickObj(obj *glob.ObjData) {
 		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.TypeP = port.Buf.TypeP
 		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Rot = port.Buf.Rot
 		obj.Ports[p].Buf.Amount = 0
-		obj.Blocked = false
 	}
 }
 
@@ -508,6 +512,10 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 
 	if obj.TypeP.CanContain {
 		obj.Contents = [gv.MAT_MAX]*glob.MatData{}
+	}
+
+	if obj.TypeP.MaxFuelKG > 0 {
+		obj.KGFuel = 10
 	}
 
 	LinkObj(obj)
