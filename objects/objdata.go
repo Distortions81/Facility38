@@ -47,7 +47,6 @@ var (
 			KgSecMine:    0.5,
 			KgSecFuel:    0.2,
 			Interval:     8,
-			MaxContainKG: 0,
 			MaxFuelKG:    50,
 			ShowArrow:    true,
 			ToolBarArrow: true,
@@ -74,6 +73,8 @@ var (
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
+			KgSecFuel:   0.0002,
+			MaxFuelKG:   20,
 			UpdateObj:   splitterUpdate,
 			Symbol:      "SPLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
@@ -109,6 +110,20 @@ var (
 			Symbol:          "SMLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			UpdateObj: smelterUpdate,
 			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		},
+
+		{ImagePath: "world-obj/basic-fuel-hopper.png",
+			Name:        "Basic Fuel Hopper",
+			TypeI:       gv.ObjTypeBasicFuelHopper,
+			Size:        glob.XY{X: 1, Y: 1},
+			Rotatable:   true,
+			ShowArrow:   false,
+			ShowBlocked: true,
+			KgSecFuel:   0.0002,
+			MaxFuelKG:   25,
+			UpdateObj:   fuelHopperUpdate,
+			Symbol:      "FHOP", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
 		/*		{ImagePath: "world-obj/iron-rod-caster.png",
@@ -171,6 +186,8 @@ var (
 			Symbol: "<", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
 		{ImagePath: "overlays/blocked.png", Name: "Blocked",
 			Symbol: "*", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
+		{ImagePath: "overlays/nofuel.png", Name: "NO FUEL",
+			Symbol: "&", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
 	}
 
 	/* Materials and images */

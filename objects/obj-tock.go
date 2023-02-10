@@ -44,6 +44,7 @@ func minerUpdate(obj *glob.ObjData) {
 			if port.Buf.Amount != 0 {
 				//cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				obj.Blocked = true
+				obj.Active = false
 				continue
 			}
 			obj.Blocked = false
@@ -52,10 +53,10 @@ func minerUpdate(obj *glob.ObjData) {
 			if obj.TickCount >= obj.TypeP.Interval {
 
 				/* Mine stuff */
-				if obj.KGFuel >= obj.TypeP.KgSecFuel {
+				if obj.KGFuel >= obj.TypeP.KgFuelEach {
 
 					/* Burn fuel */
-					obj.KGFuel -= obj.TypeP.KgSecFuel
+					obj.KGFuel -= obj.TypeP.KgFuelEach
 
 					var matsFound [noise.NumNoiseTypes]float64
 					var matsFoundT [noise.NumNoiseTypes]uint8
@@ -83,7 +84,7 @@ func minerUpdate(obj *glob.ObjData) {
 						 * and we are low on fuel, burn the coal and don't output */
 						if matsFoundT[pick] == gv.MAT_COAL &&
 							obj.KGFuel+amount < obj.TypeP.MaxFuelKG &&
-							obj.KGFuel < obj.TypeP.KgSecFuel*2 {
+							obj.KGFuel < obj.TypeP.KgFuelEach*4 {
 							obj.KGFuel += amount
 							break
 						}
@@ -108,6 +109,7 @@ func beltUpdate(obj *glob.ObjData) {
 	if obj.Ports[obj.Dir].Buf.Amount != 0 {
 		//cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		obj.Blocked = true
+		obj.Active = false
 		return
 	}
 	obj.Blocked = false
@@ -121,9 +123,11 @@ func beltUpdate(obj *glob.ObjData) {
 			continue
 		}
 		if obj.Ports[dir].Buf.Amount == 0 {
+			obj.Active = false
 			//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		} else {
+			obj.Active = true
 			obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
 			obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
 			obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
@@ -132,6 +136,17 @@ func beltUpdate(obj *glob.ObjData) {
 			break
 		}
 
+	}
+}
+
+func fuelHopperUpdate(obj *glob.ObjData) {
+
+	/* Handle putting fuel into objects */
+	if obj.Ports[obj.Dir].Obj != nil &&
+		obj.Ports[obj.Dir].Obj.TypeP.MaxFuelKG > 0 {
+
+	} else {
+		obj.Blocked = true
 	}
 }
 
@@ -245,7 +260,7 @@ func smelterUpdate(obj *glob.ObjData) {
 			if obj.TickCount >= obj.TypeP.Interval {
 
 				/* Smelt stuff */
-				if obj.KGFuel >= obj.TypeP.KgSecFuel {
+				if obj.KGFuel >= obj.TypeP.KgFuelEach {
 					for c, cont := range obj.Contents {
 						if cont == nil {
 							continue

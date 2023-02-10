@@ -135,6 +135,7 @@ type ObjData struct {
 	TickCount uint8 `json:"t,omitempty"`
 
 	Blocked bool `json:"-"`
+	Active  bool `json:"-"`
 }
 
 type ObjPortData struct {

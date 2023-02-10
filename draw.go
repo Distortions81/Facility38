@@ -196,6 +196,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 				}
 				if glob.ShowInfoLayer {
+
 					if obj.TypeP.TypeI == gv.ObjTypeBasicBox {
 						for _, cont := range obj.Contents {
 							if cont == nil {
@@ -206,6 +207,7 @@ func drawIconMode(screen *ebiten.Image) {
 						}
 					}
 					/* Info Overlays, such as arrows and blocked indicator */
+					var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 					/* camera + object */
 					objOffX := camXPos + (float64(obj.Pos.X))
@@ -216,12 +218,15 @@ func drawIconMode(screen *ebiten.Image) {
 					objCamPosY := objOffY * glob.ZoomScale
 
 					iSize := obj.TypeP.Image.Bounds()
-					var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 					op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 						((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 					op.GeoM.Translate(objCamPosX, objCamPosY)
 
-					if obj.TypeP.ShowArrow {
+					/* Show objects with no fuel */
+					img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Image
+					if obj.TypeP.MaxFuelKG > 0 && obj.KGFuel < obj.TypeP.KgFuelEach {
+						screen.DrawImage(img, op)
+					} else if obj.TypeP.ShowArrow {
 						for p, port := range obj.Ports {
 							if port.PortDir != gv.PORT_OUTPUT {
 								continue
@@ -247,7 +252,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 								iSize := obj.TypeP.Image.Bounds()
 								op.GeoM.Translate(
-									float64(iSize.Max.X)-float64(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image.Bounds().Max.X)-cBlockedIndicatorOffset,
+									float64(iSize.Max.X)-float64(img.Bounds().Max.X)-cBlockedIndicatorOffset,
 									cBlockedIndicatorOffset)
 								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 									((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))

@@ -65,9 +65,11 @@ const (
 	ObjTypeBasicSplit      = 2
 	ObjTypeBasicBox        = 3
 	ObjTypeBasicSmelter    = 4
-	ObjTypeBasicIronCaster = 5
-	ObjTypeBasicBoiler     = 6
-	ObjTypeSteamEngine     = 7
+	ObjTypeBasicFuelHopper = 5
+
+	ObjTypeBasicIronCaster = 0
+	ObjTypeBasicBoiler     = 0
+	ObjTypeSteamEngine     = 0
 
 	/* Materials */
 	MAT_NONE = 0
@@ -124,6 +126,7 @@ const (
 	ObjOverlaySouth   = 2
 	ObjOverlayWest    = 3
 	ObjOverlayBlocked = 4
+	ObjOverlayNoFuel  = 5
 
 	/* World Values */
 	COALKG_KWH = 0.5
@@ -142,7 +145,7 @@ const (
 	BASIC_BURN_EFFICIENCY     = 0.2
 	PRIMITIVE_BURN_EFFICIENCY = 0.1
 
-	TIMESCALE_MULTI = 60 //1 Day passes in 24 minutes
+	TIMESCALE_MULTI = 1
 
 	/* Event queue types */
 	QUEUE_TYPE_NONE = 0
