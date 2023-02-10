@@ -98,9 +98,11 @@ func beltUpdate(obj *glob.ObjData) {
 
 	/* Output is full, exit */
 	if obj.Ports[obj.Dir].Buf.Amount != 0 {
-		cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+		//cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+		obj.Blocked = true
 		return
 	}
+	obj.Blocked = false
 
 	/* Find all inputs, round-robin send to output */
 	for p, port := range obj.Ports {
@@ -115,7 +117,7 @@ func beltUpdate(obj *glob.ObjData) {
 			}
 		}
 		if port.Buf.Amount == 0 {
-			cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		} else {
 			obj.Ports[obj.Dir].Buf.Amount = port.Buf.Amount
@@ -131,9 +133,11 @@ func beltUpdate(obj *glob.ObjData) {
 func splitterUpdate(obj *glob.ObjData) {
 	/* Output is full, exit */
 	if obj.Ports[obj.Dir].Buf.Amount != 0 {
-		cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+		//cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+		obj.Blocked = true
 		return
 	}
+	obj.Blocked = false
 
 	/* Find all inputs, round-robin send to output */
 	for p, port := range obj.Ports {
@@ -174,8 +178,11 @@ func boxUpdate(obj *glob.ObjData) {
 
 		if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
 			cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			obj.Blocked = true
 			continue
 		}
+		obj.Blocked = false
+
 		if obj.Contents[port.Buf.TypeP.TypeI] == nil {
 			obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
 		}
@@ -225,9 +232,12 @@ func smelterUpdate(obj *glob.ObjData) {
 
 			/* Output is full, exit */
 			if port.Buf.Amount != 0 {
+				cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				obj.Blocked = true
 				//cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				continue
 			}
+			obj.Blocked = false
 
 			obj.TickCount++
 			if obj.TickCount >= obj.TypeP.Interval {
