@@ -120,7 +120,6 @@ type ObjData struct {
 
 	//Internal use
 	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	Fuel     [gv.MAT_MAX]*MatData `json:"f,omitempty"`
 	KGFuel   float64              `json:"kf,omitempty"`
 	KGHeld   float64              `json:"k,omitempty"`
 
@@ -165,11 +164,15 @@ type ObjType struct {
 	UIPath string
 	UIimg  *ebiten.Image
 
-	MinerKGTock float64
-	CapacityKG  float64
-	IsOre       bool
-	Result      uint8
-	Interval    uint8
+	KGTock     float64
+	FuelKGTock float64
+
+	MaxContainKG float64
+	MaxFuelKG    float64
+
+	IsOre    bool
+	Result   uint8
+	Interval uint8
 
 	Ports       [gv.DIR_MAX]uint8
 	CanContain  bool

@@ -11,43 +11,86 @@ import (
 
 func minerUpdate(obj *glob.ObjData) {
 
-	obj.TickCount++
-	if obj.TickCount < obj.TypeP.Interval {
-		return
-	}
-	obj.TickCount = 0
+	/* Find all inputs, round-robin send to output */
+	for p, port := range obj.Ports {
+		if port == nil {
+			continue
+		}
 
-	/* Hard-coded for speed */
-	if obj.Ports[obj.Dir].Buf.Amount == 0 {
-		obj.Blocked = false
+		if port.PortDir == gv.PORT_INPUT {
+			if port.Buf.TypeP == nil {
+				continue
+			}
 
-		var matsFound [noise.NumNoiseTypes]float64
-		var matsFoundT [noise.NumNoiseTypes]uint8
-		numTypesFound := 0
+			/* If this is fuel, take it */
+			if port.Buf.TypeP.TypeI == gv.MAT_COAL {
+				if obj.KGFuel+port.Buf.Amount > obj.TypeP.MaxFuelKG {
+					continue
+				}
+				obj.KGFuel += port.Buf.Amount
+				obj.Ports[p].Buf.Amount = 0
+			}
+		} else {
 
-		/* TODO: Optimize, only run this once when placed */
-		for p := 1; p < 5; p++ {
-			h := 1.0 - (noise.NoiseMap(float64(obj.Pos.X), float64(obj.Pos.Y), p) * 2)
+			/* Output is full, exit */
+			if port.Buf.Amount != 0 {
+				//cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				obj.Blocked = true
+				continue
+			}
+			obj.Blocked = false
 
-			if h > 0.5 {
-				//fmt.Println(h, obj.Pos)
-				matsFound[numTypesFound] = h
-				matsFoundT[numTypesFound] = uint8(p)
-				numTypesFound++
+			obj.TickCount++
+			if obj.TickCount >= obj.TypeP.Interval {
+
+				/* Mine stuff */
+				if obj.KGFuel >= obj.TypeP.FuelKGTock {
+
+					/* Burn fuel */
+					obj.KGFuel -= obj.TypeP.FuelKGTock
+
+					var matsFound [noise.NumNoiseTypes]float64
+					var matsFoundT [noise.NumNoiseTypes]uint8
+					numTypesFound := 0
+
+					/* TODO: Optimize, only run this once when placed */
+					for p := 1; p < 5; p++ {
+						h := 1.0 - (noise.NoiseMap(float64(obj.Pos.X), float64(obj.Pos.Y), p) * 2)
+
+						if h > 0 {
+							//fmt.Println(h, obj.Pos)
+							matsFound[numTypesFound] = h
+							matsFoundT[numTypesFound] = noise.NoiseLayers[p].Type
+							numTypesFound++
+						}
+					}
+
+					if numTypesFound > 0 {
+						pick := rand.Intn(numTypesFound)
+
+						amount := obj.TypeP.KGTock * matsFound[pick]
+						kind := MatTypes[matsFoundT[pick]]
+
+						/* If we are mining coal, and it won't overfill us,
+						 * and we are low on fuel, burn the coal and don't output */
+						if matsFoundT[pick] == gv.MAT_COAL &&
+							obj.KGFuel+amount < obj.TypeP.MaxFuelKG &&
+							obj.KGFuel < obj.TypeP.FuelKGTock*2 {
+							obj.KGFuel += amount
+							break
+						}
+
+						obj.Ports[obj.Dir].Buf.Amount = amount
+						obj.Ports[obj.Dir].Buf.TypeP = kind
+						obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
+
+						//We should remove ourselves here if we run out of ore
+					}
+				}
+				obj.TickCount = 0
 			}
 		}
 
-		if numTypesFound > 0 {
-			pick := rand.Intn(numTypesFound)
-
-			obj.Ports[obj.Dir].Buf.Amount = obj.TypeP.MinerKGTock * matsFound[pick]
-			obj.Ports[obj.Dir].Buf.TypeP = MatTypes[matsFoundT[pick]]
-			obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
-		} else {
-			obj.Blocked = true
-		}
-	} else {
-		obj.Blocked = true
 	}
 }
 
@@ -129,7 +172,7 @@ func boxUpdate(obj *glob.ObjData) {
 			continue
 		}
 
-		if obj.KGHeld+port.Buf.Amount > obj.TypeP.CapacityKG {
+		if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
 			cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
@@ -148,18 +191,25 @@ func smelterUpdate(obj *glob.ObjData) {
 
 	/* Find all inputs, round-robin send to output */
 	for p, port := range obj.Ports {
-
+		if port == nil {
+			continue
+		}
+		if port.Buf.TypeP == nil {
+			continue
+		}
 		if port.PortDir == gv.PORT_INPUT {
 
-			/* Are we full? */
-			if obj.KGHeld+port.Buf.Amount > obj.TypeP.CapacityKG {
-				cwlog.DoLog("Smelter full")
-				continue
-			}
-
 			/* If this is fuel or ore, take it */
-			if port.Buf.TypeP.TypeI == gv.MAT_COAL ||
-				port.Buf.TypeP.IsOre {
+			if port.Buf.TypeP.TypeI == gv.MAT_COAL {
+				if obj.KGFuel+port.Buf.Amount > obj.TypeP.MaxFuelKG {
+					continue
+				}
+				obj.Ports[p].Buf.Amount = 0
+				obj.KGFuel += port.Buf.Amount
+			} else if port.Buf.TypeP.IsOre {
+				if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
+					continue
+				}
 
 				if obj.Contents[port.Buf.TypeP.TypeI] == nil {
 					obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
@@ -170,42 +220,37 @@ func smelterUpdate(obj *glob.ObjData) {
 
 				obj.Ports[p].Buf.Amount = 0
 				obj.KGHeld += port.Buf.Amount
-
-				cwlog.DoLog("Accepted: %v", port.Buf.TypeP.Name)
 			}
 		} else {
 
 			/* Output is full, exit */
 			if port.Buf.Amount != 0 {
-				cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				//cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				continue
 			}
 
 			obj.TickCount++
 			if obj.TickCount >= obj.TypeP.Interval {
-				typeCount := 0
 
 				/* Smelt stuff */
-				//if obj.Contents[gv.MAT_COAL] != nil && obj.Contents[gv.MAT_COAL].Amount >= 0.0 {
-				for c, cont := range obj.Contents {
-					if cont == nil {
-						continue
-					}
-
-					if cont.TypeP.IsOre && cont.Amount >= 0.75 {
-						typeCount++
-						//obj.Contents[gv.MAT_COAL].Amount -= 0.125
-						obj.Contents[c].Amount -= 0.75
-						obj.KGHeld -= 0.75
-
-						obj.Ports[p].Buf.Amount = 0.75
-						if typeCount == 1 {
-							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
+				if obj.KGFuel >= obj.TypeP.FuelKGTock {
+					for c, cont := range obj.Contents {
+						if cont == nil {
+							continue
 						}
-						obj.Ports[p].Buf.Rot = port.Buf.Rot
+
+						if cont.TypeP.IsOre && cont.Amount >= obj.TypeP.KGTock {
+							obj.KGFuel -= obj.TypeP.FuelKGTock
+
+							obj.Contents[c].Amount -= obj.TypeP.KGTock
+							obj.KGHeld -= obj.TypeP.KGTock
+
+							obj.Ports[p].Buf.Amount = obj.TypeP.KGTock
+							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
+							obj.Ports[p].Buf.Rot = port.Buf.Rot
+						}
 					}
 				}
-				//}
 				obj.TickCount = 0
 			}
 		}

@@ -71,20 +71,6 @@ func SaveGame() {
 						tobj.C[c].TypeP = nil
 					}
 
-					for _, fuel := range mObj.Fuel {
-						if fuel == nil {
-							continue
-						}
-						copy(tobj.F, []*glob.MatData{fuel})
-					}
-					for f := range tobj.F {
-						if tobj.F[f] == nil {
-							continue
-						}
-						tobj.F[f].TypeI = tobj.F[f].TypeP.TypeI
-						tobj.F[f].TypeP = nil
-					}
-
 					for _, po := range mObj.Ports {
 						if po == nil || po.Buf.TypeP == nil {
 							continue
@@ -183,21 +169,19 @@ func LoadGame() {
 
 		/* Needs unsafeCreateObj that can accept a starting data set */
 		count := 0
-		for i, _ := range tempList {
+		for i := range tempList {
 
 			obj := &glob.ObjData{
 				Pos:   util.UnCenterXY(tempList[i].P),
 				TypeP: GameObjTypes[tempList[i].I],
 				Dir:   tempList[i].D,
 				//Contents:  item.C,
-				//Fuel:      item.F,
 				KGFuel: tempList[i].KF,
 				KGHeld: tempList[i].K,
 				//Ports:     item.PO,
 				TickCount: tempList[i].T,
 			}
 			copy(obj.Contents[:], tempList[i].C)
-			copy(obj.Fuel[:], tempList[i].F)
 			copy(obj.Ports[:], tempList[i].PO)
 
 			for c, cont := range obj.Contents {
@@ -205,12 +189,6 @@ func LoadGame() {
 					continue
 				}
 				obj.Contents[c].TypeP = MatTypes[cont.TypeI]
-			}
-			for f, fuel := range obj.Fuel {
-				if fuel == nil {
-					continue
-				}
-				obj.Fuel[f].TypeP = MatTypes[fuel.TypeI]
 			}
 
 			for p, port := range obj.TypeP.Ports {

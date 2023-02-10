@@ -353,7 +353,18 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					}
 				}
 				if gv.Debug {
+
+					if o.KGFuel > 0 {
+						toolTip = toolTip + fmt.Sprintf("(Fuel: %0.2f kg)\n", o.KGFuel)
+					}
+
 					for z := 0; z < gv.DIR_MAX; z++ {
+						if o.Ports[z] == nil {
+							continue
+						}
+						if o.Ports[z].Obj == nil || o.Ports[z].Buf.TypeP == nil {
+							continue
+						}
 						if o.Ports[z].PortDir == gv.PORT_INPUT && o.Ports[z].Obj != nil {
 							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %v)\n",
 								util.DirToName(uint8(z)),

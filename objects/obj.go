@@ -510,6 +510,10 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 		obj.Contents = [gv.MAT_MAX]*glob.MatData{}
 	}
 
+	if obj.TypeP.MaxFuelKG > 0 {
+		obj.KGFuel = 10
+	}
+
 	LinkObj(obj)
 
 	/* Only add to list if the object calls an update function */
