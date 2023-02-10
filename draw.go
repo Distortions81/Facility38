@@ -361,7 +361,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					}
 				}
 				if o.KGFuel > 0 {
-					toolTip = toolTip + fmt.Sprintf("(Fuel: %0.2f kg)\n", o.KGFuel)
+					toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.KGFuel)
 				}
 
 				if gv.Debug {
