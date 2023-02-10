@@ -6,6 +6,7 @@ import (
 	"GameTest/gv"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -13,11 +14,38 @@ func init() {
 
 	/* Pre-calculate some object values */
 	for i, item := range GameObjTypes {
-		GameObjTypes[i].KgMineEach = (item.KgSecMine / glob.ObjectUPS) * float64(item.Interval) * gv.TIMESCALE_MULTI
+		if item.KgHourMine > 0 {
+			GameObjTypes[i].KgMineEach = ((item.KgHourMine / 60 / 60 / glob.ObjectUPS) * float64(item.Interval)) * gv.TIMESCALE_MULTI
+			fmt.Printf("%v: KG/h: %v KgMineEach: %0.4f\n",
+				GameObjTypes[i].Name,
+				GameObjTypes[i].KgHourMine,
+				GameObjTypes[i].KgMineEach)
+		}
 	}
 	for i, item := range GameObjTypes {
-		GameObjTypes[i].KgFuelEach = (item.KgSecFuel / glob.ObjectUPS) * float64(item.Interval) * gv.TIMESCALE_MULTI
+		if item.HP > 0 {
+			KW := item.HP * gv.HP_PER_KW
+			COALKG := KW / gv.COALKG_KWH
+			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / glob.ObjectUPS) * float64(item.Interval)) * gv.TIMESCALE_MULTI
+			fmt.Printf("%v: HP: %v KgFuelEach: %0.4f\n",
+				GameObjTypes[i].Name,
+				GameObjTypes[i].HP,
+				GameObjTypes[i].KgFuelEach)
+		} else if item.KW > 0 {
+			COALKG := item.KW / gv.COALKG_KWH
+			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / glob.ObjectUPS) * float64(item.Interval)) * gv.TIMESCALE_MULTI
+			fmt.Printf("%v: HP: %v KgFuelEach: %0.4f\n",
+				GameObjTypes[i].Name,
+				GameObjTypes[i].HP,
+				GameObjTypes[i].KgFuelEach)
+		}
 	}
+	for _, item := range GameObjTypes {
+		if item.KgFuelEach > 0 {
+			item.MaxFuelKG = item.KgFuelEach * 4
+		}
+	}
+
 }
 
 var (
@@ -44,10 +72,9 @@ var (
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         glob.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
-			KgSecMine:    0.5,
-			KgSecFuel:    0.2,
-			Interval:     8,
-			MaxFuelKG:    50,
+			KgHourMine:   18000,
+			HP:           1000,
+			Interval:     uint8(glob.ObjectUPS) * 2,
 			ShowArrow:    true,
 			ToolBarArrow: true,
 			ShowBlocked:  true,
@@ -74,8 +101,8 @@ var (
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
-			KgSecFuel:   0.0002,
-			MaxFuelKG:   20,
+			Interval:    1,
+			HP:          10,
 			UpdateObj:   splitterUpdate,
 			Symbol:      "SPLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
@@ -101,10 +128,9 @@ var (
 			TypeI:           gv.ObjTypeBasicSmelter,
 			Size:            glob.XY{X: 1, Y: 1},
 			MaxContainKG:    40,
-			MaxFuelKG:       50,
-			KgSecFuel:       0.4,
-			KgSecMine:       20,
-			Interval:        4 * 5,
+			KW:              320,
+			KgHourMine:      3600,
+			Interval:        uint8(glob.ObjectUPS * 5),
 			ShowArrow:       true,
 			ShowBlocked:     true,
 			ToolBarArrow:    true,
@@ -120,8 +146,6 @@ var (
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
-			KgSecFuel:   0.0002,
-			MaxFuelKG:   25,
 			UpdateObj:   fuelHopperUpdate,
 			Symbol:      "FHOP", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},

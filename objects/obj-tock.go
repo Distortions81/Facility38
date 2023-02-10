@@ -77,22 +77,20 @@ func minerUpdate(obj *glob.ObjData) {
 					if numTypesFound > 0 {
 						pick := rand.Intn(numTypesFound)
 
-						amount := obj.TypeP.KgSecMine * matsFound[pick]
+						amount := obj.TypeP.KgMineEach * matsFound[pick]
 						kind := MatTypes[matsFoundT[pick]]
 
 						/* If we are mining coal, and it won't overfill us,
 						 * and we are low on fuel, burn the coal and don't output */
 						if matsFoundT[pick] == gv.MAT_COAL &&
-							obj.KGFuel+amount < obj.TypeP.MaxFuelKG &&
-							obj.KGFuel < obj.TypeP.KgFuelEach*4 {
+							obj.KGFuel+amount < obj.TypeP.MaxFuelKG {
 							obj.KGFuel += amount
-							break
+						} else {
+
+							obj.Ports[obj.Dir].Buf.Amount = amount
+							obj.Ports[obj.Dir].Buf.TypeP = kind
+							obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
 						}
-
-						obj.Ports[obj.Dir].Buf.Amount = amount
-						obj.Ports[obj.Dir].Buf.TypeP = kind
-						obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
-
 						//We should remove ourselves here if we run out of ore
 					}
 				}
@@ -266,13 +264,13 @@ func smelterUpdate(obj *glob.ObjData) {
 							continue
 						}
 
-						if cont.TypeP.IsOre && cont.Amount >= obj.TypeP.KgSecMine {
-							obj.KGFuel -= obj.TypeP.KgSecFuel
+						if cont.TypeP.IsOre && cont.Amount >= obj.TypeP.KgMineEach {
+							obj.KGFuel -= obj.TypeP.KgFuelEach
 
-							obj.Contents[c].Amount -= obj.TypeP.KgSecMine
-							obj.KGHeld -= obj.TypeP.KgSecMine
+							obj.Contents[c].Amount -= obj.TypeP.KgMineEach
+							obj.KGHeld -= obj.TypeP.KgMineEach
 
-							obj.Ports[p].Buf.Amount = obj.TypeP.KgSecMine
+							obj.Ports[p].Buf.Amount = obj.TypeP.KgMineEach
 							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
 							obj.Ports[p].Buf.Rot = port.Buf.Rot
 						}

@@ -169,8 +169,9 @@ type ObjType struct {
 	UIimg        *ebiten.Image
 	ToolBarArrow bool
 
-	KgSecMine float64
-	KgSecFuel float64
+	KgHourMine float64
+	HP         float64
+	KW         float64
 
 	KgMineEach float64
 	KgFuelEach float64

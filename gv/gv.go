@@ -145,7 +145,7 @@ const (
 	BASIC_BURN_EFFICIENCY     = 0.2
 	PRIMITIVE_BURN_EFFICIENCY = 0.1
 
-	TIMESCALE_MULTI = 1
+	TIMESCALE_MULTI = 720 //5 seconds is one hour.
 
 	/* Event queue types */
 	QUEUE_TYPE_NONE = 0

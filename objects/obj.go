@@ -515,7 +515,7 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 	}
 
 	if obj.TypeP.MaxFuelKG > 0 {
-		obj.KGFuel = 10
+		obj.KGFuel = obj.TypeP.MaxFuelKG
 	}
 
 	LinkObj(obj)
