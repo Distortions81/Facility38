@@ -110,28 +110,32 @@ func getShiftToggle() {
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
 	uipix := float64(ToolbarMax * int(gv.ToolBarScale))
+
 	if glob.MouseX <= uipix+gv.ToolBarOffsetX {
 		if glob.MouseY <= gv.ToolBarScale+gv.ToolBarOffsetY {
+
 			ipos := int((glob.MouseX - gv.ToolBarOffsetX) / gv.ToolBarScale)
 			item := ToolbarItems[ipos].OType
 
 			/* Actions */
-			if item.ToolbarAction != nil {
+			if item.ToolbarAction != nil && !rotate {
 				item.ToolbarAction()
 			} else {
-				if rotate && objects.GameObjTypes[SelectedItemType] != nil {
-					dir := objects.GameObjTypes[SelectedItemType].Direction
+				if rotate && item != nil {
+					dir := item.Direction
 					if gShiftPressed {
 						dir = util.RotCCW(dir)
 					} else {
 						dir = util.RotCW(dir)
 					}
-					objects.GameObjTypes[SelectedItemType].Direction = dir
+					item.Direction = dir
 					DrawToolbar()
+					/* Deselect */
 				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI {
 					SelectedItemType = 0
 					DrawToolbar()
 				} else {
+					/* Select */
 					SelectedItemType = ToolbarItems[ipos].OType.TypeI
 					DrawToolbar()
 				}
