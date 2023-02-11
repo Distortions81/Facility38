@@ -83,7 +83,7 @@ func minerUpdate(obj *glob.ObjData) {
 						/* If we are mining coal, and it won't overfill us,
 						 * and we are low on fuel, burn the coal and don't output */
 						if matsFoundT[pick] == gv.MAT_COAL &&
-							obj.KGFuel+amount < obj.TypeP.MaxFuelKG {
+							obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
 							obj.KGFuel += amount
 						} else {
 
@@ -270,7 +270,7 @@ func smelterUpdate(obj *glob.ObjData) {
 							obj.Contents[c].Amount -= obj.TypeP.KgMineEach
 							obj.KGHeld -= obj.TypeP.KgMineEach
 
-							obj.Ports[p].Buf.Amount = obj.TypeP.KgMineEach
+							obj.Ports[p].Buf.Amount = obj.TypeP.KgMineEach * gv.ORE_WASTE
 							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
 							obj.Ports[p].Buf.Rot = port.Buf.Rot
 						}

@@ -39,21 +39,21 @@ func init() {
 				GameObjTypes[i].KW,
 				GameObjTypes[i].KgFuelEach)
 		}
-	}
-	for _, item := range GameObjTypes {
+
 		if item.KgFuelEach > 0 {
-			item.MaxFuelKG = item.KgFuelEach * 25
-			if item.KgFuelEach*25 < 10 {
-				item.MaxFuelKG = 10
+			item.MaxFuelKG = (item.KgFuelEach * 10)
+			if item.MaxFuelKG < 10 {
+				GameObjTypes[i].MaxFuelKG = 10
 			}
 			fmt.Printf("%v: MaxFuelKG: %0.4f\n",
 				item.Name,
 				item.MaxFuelKG)
 		}
+
 		if item.KgMineEach > 0 {
-			item.MaxContainKG = item.KgMineEach * 25
-			if item.MaxContainKG < 10 {
-				item.MaxContainKG = 10
+			GameObjTypes[i].MaxContainKG = (item.KgMineEach * 10)
+			if item.MaxFuelKG < 10 {
+				GameObjTypes[i].MaxContainKG = 10
 			}
 			fmt.Printf("%v: MaxContainKG: %0.4f\n",
 				item.Name,
@@ -142,7 +142,7 @@ var (
 			Size:            glob.XY{X: 1, Y: 1},
 			KW:              320,
 			KgHourMine:      40,
-			Interval:        uint8(glob.ObjectUPS * 5),
+			Interval:        uint8(glob.ObjectUPS * 60),
 			ShowArrow:       true,
 			ShowBlocked:     true,
 			ToolBarArrow:    true,

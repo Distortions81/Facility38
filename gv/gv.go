@@ -147,7 +147,7 @@ const (
 	CU_KG_CO_KG    = 0.18
 	STEEL_KG_CO_KG = 1.4
 
-	IRON_ORE_WASTE = 0.45
+	ORE_WASTE = 0.45
 
 	HP_PER_KW = 1.35
 	KW_PER_HP = 0.74
@@ -163,7 +163,7 @@ const (
 	BASIC_EFFICIENCY     = 0.5
 	PRIMITIVE_EFFICIENCY = 0.2
 
-	TIMESCALE_MULTI = 6
+	TIMESCALE_MULTI = 12
 
 	/* Event queue types */
 	QUEUE_TYPE_NONE = 0
