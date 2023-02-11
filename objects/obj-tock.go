@@ -17,6 +17,26 @@ func toggleOverlay() {
 	}
 }
 
+func InitMiner(obj *glob.ObjData) {
+	if obj == nil {
+		return
+	}
+	/* Init miner data if needed */
+	if obj.MinerData == nil {
+		obj.MinerData = &glob.MinerDataType{}
+	}
+
+	for p := 1; p < 5; p++ {
+		h := 1.0 - (noise.NoiseMap(float64(obj.Pos.X), float64(obj.Pos.Y), p) * 2)
+
+		if h > 0 {
+			obj.MinerData.MatsFound[obj.MinerData.NumTypesFound] = h
+			obj.MinerData.MatsFoundT[obj.MinerData.NumTypesFound] = noise.NoiseLayers[p].Type
+			obj.MinerData.NumTypesFound++
+		}
+	}
+}
+
 func minerUpdate(obj *glob.ObjData) {
 
 	/* Find all inputs, round-robin send to output */
@@ -58,31 +78,15 @@ func minerUpdate(obj *glob.ObjData) {
 					/* Burn fuel */
 					obj.KGFuel -= obj.TypeP.KgFuelEach
 
-					var matsFound [noise.NumNoiseTypes]float64
-					var matsFoundT [noise.NumNoiseTypes]uint8
-					numTypesFound := 0
+					if obj.MinerData.NumTypesFound > 0 {
+						pick := rand.Intn(int(obj.MinerData.NumTypesFound))
 
-					/* TODO: Optimize, only run this once when placed */
-					for p := 1; p < 5; p++ {
-						h := 1.0 - (noise.NoiseMap(float64(obj.Pos.X), float64(obj.Pos.Y), p) * 2)
-
-						if h > 0 {
-							//fmt.Println(h, obj.Pos)
-							matsFound[numTypesFound] = h
-							matsFoundT[numTypesFound] = noise.NoiseLayers[p].Type
-							numTypesFound++
-						}
-					}
-
-					if numTypesFound > 0 {
-						pick := rand.Intn(numTypesFound)
-
-						amount := obj.TypeP.KgMineEach * matsFound[pick]
-						kind := MatTypes[matsFoundT[pick]]
+						amount := obj.TypeP.KgMineEach * obj.MinerData.MatsFound[pick]
+						kind := MatTypes[obj.MinerData.MatsFoundT[pick]]
 
 						/* If we are mining coal, and it won't overfill us,
 						 * and we are low on fuel, burn the coal and don't output */
-						if matsFoundT[pick] == gv.MAT_COAL &&
+						if obj.MinerData.MatsFoundT[pick] == gv.MAT_COAL &&
 							obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
 							obj.KGFuel += amount
 						} else {
@@ -247,7 +251,6 @@ func smelterUpdate(obj *glob.ObjData) {
 
 			/* Output is full, exit */
 			if port.Buf.Amount != 0 {
-				cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				obj.Blocked = true
 				//cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				continue

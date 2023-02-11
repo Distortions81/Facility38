@@ -529,6 +529,11 @@ func CreateObj(pos glob.XY, mtype uint8, dir uint8) *glob.ObjData {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 
+	/* Init obj if we have a function for it */
+	if obj.TypeP.InitObj != nil {
+		obj.TypeP.InitObj(obj)
+	}
+
 	return obj
 }
 

@@ -2,6 +2,7 @@ package glob
 
 import (
 	"GameTest/gv"
+	"GameTest/noise"
 	"image/color"
 	"sync"
 	"sync/atomic"
@@ -111,6 +112,12 @@ type MapChunk struct {
 	Lock sync.RWMutex `json:"-"`
 }
 
+type MinerDataType struct {
+	MatsFound     [noise.NumNoiseTypes]float64
+	MatsFoundT    [noise.NumNoiseTypes]uint8
+	NumTypesFound uint8
+}
+
 /* Object data */
 type ObjData struct {
 	Pos    XY        `json:"xy,omitempty"`
@@ -128,6 +135,7 @@ type ObjData struct {
 	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
 	NumInputs  uint8                    `json:"-"`
 	NumOutputs uint8                    `json:"-"`
+	MinerData  *MinerDataType
 
 	/* For round-robin */
 	LastUsedInput  uint8 `json:"-"`
@@ -190,6 +198,7 @@ type ObjType struct {
 
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *ObjData) `json:"-"`
+	InitObj       func(Obj *ObjData) `json:"-"`
 }
 
 /* ObjectQueue data */
