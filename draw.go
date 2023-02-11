@@ -261,7 +261,7 @@ func drawIconMode(screen *ebiten.Image) {
 							iSize := obj.TypeP.Image.Bounds()
 							op.GeoM.Translate(
 								0,
-								float64(iSize.Max.Y/2)-1)
+								0)
 							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*glob.ZoomScale)/float64(iSize.Max.X),
 								((float64(obj.TypeP.Size.Y))*glob.ZoomScale)/float64(iSize.Max.Y))
 							op.GeoM.Translate(objCamPosX, objCamPosY)
