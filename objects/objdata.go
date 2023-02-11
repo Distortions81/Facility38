@@ -42,10 +42,22 @@ func init() {
 	}
 	for _, item := range GameObjTypes {
 		if item.KgFuelEach > 0 {
-			item.MaxFuelKG = item.KgFuelEach * 10
+			item.MaxFuelKG = item.KgFuelEach * 25
+			if item.KgFuelEach*25 < 10 {
+				item.MaxFuelKG = 10
+			}
+			fmt.Printf("%v: MaxFuelKG: %0.4f\n",
+				item.Name,
+				item.MaxFuelKG)
 		}
 		if item.KgMineEach > 0 {
-			item.MaxContainKG = item.KgMineEach * 10
+			item.MaxContainKG = item.KgMineEach * 25
+			if item.MaxContainKG < 10 {
+				item.MaxContainKG = 10
+			}
+			fmt.Printf("%v: MaxContainKG: %0.4f\n",
+				item.Name,
+				item.MaxFuelKG)
 		}
 	}
 }
@@ -103,7 +115,7 @@ var (
 			ShowArrow:   false,
 			ShowBlocked: true,
 			Interval:    1,
-			HP:          10,
+			KW:          100,
 			UpdateObj:   splitterUpdate,
 			Symbol:      "SPLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
@@ -128,8 +140,8 @@ var (
 			Name:            "Basic smelter",
 			TypeI:           gv.ObjTypeBasicSmelter,
 			Size:            glob.XY{X: 1, Y: 1},
-			KW:              160,
-			KgHourMine:      20,
+			KW:              320,
+			KgHourMine:      40,
 			Interval:        uint8(glob.ObjectUPS * 5),
 			ShowArrow:       true,
 			ShowBlocked:     true,
