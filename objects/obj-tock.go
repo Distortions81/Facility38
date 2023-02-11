@@ -62,7 +62,6 @@ func minerUpdate(obj *glob.ObjData) {
 
 			/* Output is full, exit */
 			if port.Buf.Amount != 0 {
-				//cwlog.DoLog("smelterUpdate: Our output is blocked. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				obj.Blocked = true
 				obj.Active = false
 				continue
@@ -85,7 +84,7 @@ func minerUpdate(obj *glob.ObjData) {
 						kind := MatTypes[obj.MinerData.MatsFoundT[pick]]
 
 						/* If we are mining coal, and it won't overfill us,
-						 * and we are low on fuel, burn the coal and don't output */
+						 * burn the coal and don't output */
 						if obj.MinerData.MatsFoundT[pick] == gv.MAT_COAL &&
 							obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
 							obj.KGFuel += amount
@@ -109,7 +108,6 @@ func beltUpdate(obj *glob.ObjData) {
 
 	/* Output is full, exit */
 	if obj.Ports[obj.Dir].Buf.Amount != 0 {
-		//cwlog.DoLog("beltUpdate: Our output is full. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		obj.Blocked = true
 		obj.Active = false
 		return
@@ -126,7 +124,6 @@ func beltUpdate(obj *glob.ObjData) {
 		}
 		if obj.Ports[dir].Buf.Amount == 0 {
 			obj.Active = false
-			//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		} else {
 			obj.Active = true
