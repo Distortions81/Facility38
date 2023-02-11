@@ -6,17 +6,57 @@ import (
 	"GameTest/gv"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
 func init() {
 
 	/* Pre-calculate some object values */
-	for i, item := range GameObjTypes {
-		GameObjTypes[i].KgMineEach = (item.KgSecMine / glob.ObjectUPS) * float64(item.Interval) * gv.TIMESCALE_MULTI
-	}
-	for i, item := range GameObjTypes {
-		GameObjTypes[i].KgFuelEach = (item.KgSecFuel / glob.ObjectUPS) * float64(item.Interval) * gv.TIMESCALE_MULTI
+	for i, _ := range GameObjTypes {
+		if GameObjTypes[i].KgHourMine > 0 {
+			GameObjTypes[i].KgMineEach = ((GameObjTypes[i].KgHourMine / 60 / 60 / glob.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+			fmt.Printf("%v: KG/h: %0.4f KgMineEach: %0.4f\n",
+				GameObjTypes[i].Name,
+				GameObjTypes[i].KgHourMine,
+				GameObjTypes[i].KgMineEach)
+		}
+		if GameObjTypes[i].HP > 0 {
+			KW := GameObjTypes[i].HP * gv.HP_PER_KW
+			COALKG := KW / gv.COAL_KWH_PER_KG
+			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / glob.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+			fmt.Printf("%v: HP: %0.4f KgFuelEach: %0.4f\n",
+				GameObjTypes[i].Name,
+				GameObjTypes[i].HP,
+				GameObjTypes[i].KgFuelEach)
+		} else if GameObjTypes[i].KW > 0 {
+			COALKG := GameObjTypes[i].KW / gv.COAL_KWH_PER_KG
+			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / glob.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+			fmt.Printf("%v: KW: %0.4f KgFuelEach: %0.4f\n",
+				GameObjTypes[i].Name,
+				GameObjTypes[i].KW,
+				GameObjTypes[i].KgFuelEach)
+		}
+
+		if GameObjTypes[i].KgFuelEach > 0 {
+			GameObjTypes[i].MaxFuelKG = (GameObjTypes[i].KgFuelEach * 10)
+			if GameObjTypes[i].MaxFuelKG < 10 {
+				GameObjTypes[i].MaxFuelKG = 10
+			}
+			fmt.Printf("%v: MaxFuelKG: %0.4f\n",
+				GameObjTypes[i].Name,
+				GameObjTypes[i].MaxFuelKG)
+		}
+
+		if GameObjTypes[i].KgMineEach > 0 {
+			GameObjTypes[i].MaxContainKG = (GameObjTypes[i].KgMineEach * 10)
+			if GameObjTypes[i].MaxContainKG < 10 {
+				GameObjTypes[i].MaxContainKG = 10
+			}
+			fmt.Printf("%v: MaxContainKG: %0.4f\n",
+				GameObjTypes[i].Name,
+				GameObjTypes[i].MaxContainKG)
+		}
 	}
 }
 
@@ -44,10 +84,10 @@ var (
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         glob.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
-			KgSecMine:    0.5,
-			KgSecFuel:    0.2,
-			Interval:     8,
-			MaxFuelKG:    50,
+			InitObj:      InitMiner,
+			KgHourMine:   1000,
+			KW:           360,
+			Interval:     uint8(glob.ObjectUPS) * 2,
 			ShowArrow:    true,
 			ToolBarArrow: true,
 			ShowBlocked:  true,
@@ -56,14 +96,13 @@ var (
 		},
 
 		{ImagePath: "world-obj/basic-belt.png", UIPath: "ui/belt.png",
-			Name:         "Basic belt",
-			TypeI:        gv.ObjTypeBasicBelt,
-			Size:         glob.XY{X: 1, Y: 1},
-			MaxContainKG: 450,
-			Rotatable:    true,
-			ShowBlocked:  true,
-			UpdateObj:    beltUpdate,
-			Symbol:       "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Name:        "Basic belt",
+			TypeI:       gv.ObjTypeBasicBelt,
+			Size:        glob.XY{X: 1, Y: 1},
+			Rotatable:   true,
+			ShowBlocked: true,
+			UpdateObj:   beltUpdate,
+			Symbol:      "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
@@ -74,8 +113,8 @@ var (
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
-			KgSecFuel:   0.0002,
-			MaxFuelKG:   20,
+			Interval:    1,
+			KW:          100,
 			UpdateObj:   splitterUpdate,
 			Symbol:      "SPLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
@@ -100,11 +139,9 @@ var (
 			Name:            "Basic smelter",
 			TypeI:           gv.ObjTypeBasicSmelter,
 			Size:            glob.XY{X: 1, Y: 1},
-			MaxContainKG:    40,
-			MaxFuelKG:       50,
-			KgSecFuel:       0.4,
-			KgSecMine:       20,
-			Interval:        4 * 5,
+			KW:              320,
+			KgHourMine:      40,
+			Interval:        uint8(glob.ObjectUPS * 60),
 			ShowArrow:       true,
 			ShowBlocked:     true,
 			ToolBarArrow:    true,
@@ -120,8 +157,6 @@ var (
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
-			KgSecFuel:   0.0002,
-			MaxFuelKG:   25,
 			UpdateObj:   fuelHopperUpdate,
 			Symbol:      "FHOP", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},

@@ -11,7 +11,7 @@ var (
 	UPSBench      = false
 	LoadTest      = false
 	WASMMode      = false
-	Debug         = false
+	Debug         = true
 	Verbose       = false
 	LogStdOut     = true
 	LogFileOut    = false
@@ -129,23 +129,41 @@ const (
 	ObjOverlayNoFuel  = 5
 
 	/* World Values */
-	COALKG_KWH = 0.5
-	COALKG_BTU = 4500
+	COAL_KWH_PER_KG = 8
+	NG_KWH_PER_KG   = 15.5
+	OIL_KWH_PER_KG  = 11.63
 
-	COPPERKG_SMELT_KWH = 10
-	IRONKG_SMELT_KWH   = 0.5
+	PB_KWH_PER_KG    = 0.05
+	NICAD_KWH_PER_KG = 0.08
+	NIM_KWH_PER_KG   = 0.12
+	LITH_KWH_PER_KG  = 0.27
 
-	HP_PER_KW = 1.3
-	BTU_TO_HP = 2500
+	CU_KG_SMELT_KWH    = 8
+	FE_KG_SMELT_KWH    = 4
+	AL_KG_SMELT_KWH    = 13
+	STEEL_KG_SMELT_KWH = 3.7
 
+	AL_KG_CO_KG    = 2
+	CU_KG_CO_KG    = 0.18
+	STEEL_KG_CO_KG = 1.4
+
+	ORE_WASTE = 0.45
+
+	HP_PER_KW = 1.35
+	KW_PER_HP = 0.74
+
+	BTU_PER_HP = 2500
+	HP_PER_BTU = 0.0004
+
+	BURNER_EFFICIENCY  = 0.3
 	BOILER_EFFICIENCY  = 0.4
 	TURBINE_EFFICIENCY = 0.9
 
-	NORMAL_EFFICIENCY         = 0.4
-	BASIC_BURN_EFFICIENCY     = 0.2
-	PRIMITIVE_BURN_EFFICIENCY = 0.1
+	NORMAL_EFFICIENCY    = 1.0
+	BASIC_EFFICIENCY     = 0.5
+	PRIMITIVE_EFFICIENCY = 0.2
 
-	TIMESCALE_MULTI = 1
+	TIMESCALE_MULTI = 12
 
 	/* Event queue types */
 	QUEUE_TYPE_NONE = 0
