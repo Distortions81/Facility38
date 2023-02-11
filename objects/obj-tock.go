@@ -240,8 +240,8 @@ func smelterUpdate(obj *glob.ObjData) {
 
 				obj.Contents[port.Buf.TypeP.TypeI].Amount += port.Buf.Amount
 
-				obj.Ports[p].Buf.Amount = 0
 				obj.KGHeld += port.Buf.Amount
+				obj.Ports[p].Buf.Amount = 0
 			}
 		} else {
 
