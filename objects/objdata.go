@@ -2,8 +2,8 @@ package objects
 
 import (
 	"GameTest/cwlog"
-	"GameTest/glob"
 	"GameTest/gv"
+	"GameTest/world"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -15,7 +15,7 @@ func init() {
 	/* Pre-calculate some object values */
 	for i, _ := range GameObjTypes {
 		if GameObjTypes[i].KgHourMine > 0 {
-			GameObjTypes[i].KgMineEach = ((GameObjTypes[i].KgHourMine / 60 / 60 / glob.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+			GameObjTypes[i].KgMineEach = ((GameObjTypes[i].KgHourMine / 60 / 60 / world.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
 			fmt.Printf("%v: KG/h: %0.4f KgMineEach: %0.4f\n",
 				GameObjTypes[i].Name,
 				GameObjTypes[i].KgHourMine,
@@ -24,14 +24,14 @@ func init() {
 		if GameObjTypes[i].HP > 0 {
 			KW := GameObjTypes[i].HP * gv.HP_PER_KW
 			COALKG := KW / gv.COAL_KWH_PER_KG
-			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / glob.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / world.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
 			fmt.Printf("%v: HP: %0.4f KgFuelEach: %0.4f\n",
 				GameObjTypes[i].Name,
 				GameObjTypes[i].HP,
 				GameObjTypes[i].KgFuelEach)
 		} else if GameObjTypes[i].KW > 0 {
 			COALKG := GameObjTypes[i].KW / gv.COAL_KWH_PER_KG
-			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / glob.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / world.ObjectUPS) * float64(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
 			fmt.Printf("%v: KW: %0.4f KgFuelEach: %0.4f\n",
 				GameObjTypes[i].Name,
 				GameObjTypes[i].KW,
@@ -63,69 +63,69 @@ func init() {
 var (
 
 	/* Toolbar actions and images */
-	UIObjsTypes = []*glob.ObjType{
+	UIObjsTypes = []*world.ObjType{
 		//Ui Only
 		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
-			Symbol: "SAVE", ItemColor: &glob.ColorRed, SymbolColor: &glob.ColorWhite},
+			Symbol: "SAVE", ItemColor: &world.ColorRed, SymbolColor: &world.ColorWhite},
 		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
-			Symbol: "LOAD", ItemColor: &glob.ColorBlue, SymbolColor: &glob.ColorWhite},
+			Symbol: "LOAD", ItemColor: &world.ColorBlue, SymbolColor: &world.ColorWhite},
 		{ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER", ItemColor: &glob.ColorGray, SymbolColor: &glob.ColorWhite},
+			Symbol: "LAYER", ItemColor: &world.ColorGray, SymbolColor: &world.ColorWhite},
 		{ImagePath: "ui/overlay.png", Name: "Overlays", ToolbarAction: toggleOverlay,
-			Symbol: "OVRLY", ItemColor: &glob.ColorGray, SymbolColor: &glob.ColorWhite},
+			Symbol: "OVRLY", ItemColor: &world.ColorGray, SymbolColor: &world.ColorWhite},
 	}
 
 	/* World objects and images */
-	GameObjTypes = []*glob.ObjType{
+	GameObjTypes = []*world.ObjType{
 		//Game Objects
 		{ImagePath: "world-obj/basic-miner.png",
 			UIPath:       "ui/miner.png",
 			Name:         "Basic miner",
 			TypeI:        gv.ObjTypeBasicMiner,
-			Size:         glob.XY{X: 1, Y: 1},
+			Size:         world.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
 			InitObj:      InitMiner,
 			KgHourMine:   1000,
 			KW:           360,
-			Interval:     uint8(glob.ObjectUPS) * 2,
+			Interval:     uint8(world.ObjectUPS) * 2,
 			ShowArrow:    true,
 			ToolBarArrow: true,
 			ShowBlocked:  true,
-			Symbol:       "MINE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:       "MINE", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
 		{ImagePath: "world-obj/basic-belt.png", UIPath: "ui/belt.png",
 			Name:        "Basic belt",
 			TypeI:       gv.ObjTypeBasicBelt,
-			Size:        glob.XY{X: 1, Y: 1},
+			Size:        world.XY{X: 1, Y: 1},
 			Rotatable:   true,
 			ShowBlocked: true,
 			UpdateObj:   beltUpdate,
-			Symbol:      "BELT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:      "BELT", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
 		{ImagePath: "world-obj/basic-splitter.png",
 			Name:        "Basic Splitter",
 			TypeI:       gv.ObjTypeBasicSplit,
-			Size:        glob.XY{X: 1, Y: 1},
+			Size:        world.XY{X: 1, Y: 1},
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
 			Interval:    1,
 			KW:          100,
 			UpdateObj:   splitterUpdate,
-			Symbol:      "SPLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:      "SPLT", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
 		},
 
 		{ImagePath: "world-obj/basic-box.png", UIPath: "ui/box.png",
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
-			Size:         glob.XY{X: 1, Y: 1},
+			Size:         world.XY{X: 1, Y: 1},
 			MaxContainKG: 1000,
-			Symbol:       "BOX", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:       "BOX", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 			UpdateObj:    boxUpdate,
 			CanContain:   true,
 			ShowBlocked:  true,
@@ -138,14 +138,14 @@ var (
 			UIPath:          "ui/smelter.png",
 			Name:            "Basic smelter",
 			TypeI:           gv.ObjTypeBasicSmelter,
-			Size:            glob.XY{X: 1, Y: 1},
+			Size:            world.XY{X: 1, Y: 1},
 			KW:              320,
 			KgHourMine:      40,
-			Interval:        uint8(glob.ObjectUPS * 60),
+			Interval:        uint8(world.ObjectUPS * 60),
 			ShowArrow:       true,
 			ShowBlocked:     true,
 			ToolBarArrow:    true,
-			Symbol:          "SMLT", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:          "SMLT", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 			UpdateObj: smelterUpdate,
 			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
@@ -153,20 +153,20 @@ var (
 		{ImagePath: "world-obj/basic-fuel-hopper.png",
 			Name:        "Basic Fuel Hopper",
 			TypeI:       gv.ObjTypeBasicFuelHopper,
-			Size:        glob.XY{X: 1, Y: 1},
+			Size:        world.XY{X: 1, Y: 1},
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
 			UpdateObj:   fuelHopperUpdate,
-			Symbol:      "FHOP", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+			Symbol:      "FHOP", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 			Ports: [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
 		/*		{ImagePath: "world-obj/iron-rod-caster.png",
 					Name:   "Iron rod caster",
 					TypeI:  gv.ObjTypeBasicIronCaster,
-					Size:   glob.XY{X: 1, Y: 1},
-					Symbol: "CAST", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+					Size:   world.XY{X: 1, Y: 1},
+					Symbol: "CAST", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 					UpdateObj:   ironCasterUpdate,
 					ShowArrow:   true,
 					ShowBlocked: true,
@@ -176,11 +176,11 @@ var (
 				{ImagePath: "world-obj/basic-boiler.png",
 					Name:        "Basic boiler",
 					TypeI:       gv.ObjTypeBasicBoiler,
-					Size:        glob.XY{X: 1, Y: 1},
+					Size:        world.XY{X: 1, Y: 1},
 					CapacityKG:  500,
 					ShowArrow:   true,
 					ShowBlocked: true,
-					Symbol:      "BOIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+					Symbol:      "BOIL", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 					UpdateObj: steamEngineUpdate,
 					Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 				},
@@ -188,73 +188,73 @@ var (
 				{ImagePath: "world-obj/steam-engine.png",
 					Name:        "Steam engine",
 					TypeI:       gv.ObjTypeSteamEngine,
-					Size:        glob.XY{X: 1, Y: 1},
+					Size:        world.XY{X: 1, Y: 1},
 					CapacityKG:  500,
 					ShowArrow:   true,
 					ShowBlocked: true,
-					Symbol:      "STEM", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorWhite,
+					Symbol:      "STEM", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
 					UpdateObj: steamEngineUpdate,
 					Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 				}, */
 	}
 
 	/* Terrain types and images */
-	TerrainTypes = []*glob.ObjType{
+	TerrainTypes = []*world.ObjType{
 		//Overlays
 		{ImagePath: "terrain/grass-1.png", Name: "grass",
-			Size:   glob.XY{X: 1, Y: 1},
-			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorGreen},
+			Size:   world.XY{X: 1, Y: 1},
+			Symbol: ".", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorGreen},
 		{ImagePath: "terrain/dirt-1.png", Name: "dirt",
-			Size:   glob.XY{X: 1, Y: 1},
-			Symbol: ".", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorBrown},
+			Size:   world.XY{X: 1, Y: 1},
+			Symbol: ".", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorBrown},
 	}
 
 	/* Overlay images */
-	ObjOverlayTypes = []*glob.ObjType{
+	ObjOverlayTypes = []*world.ObjType{
 		//Overlays
 		{ImagePath: "overlays/arrow-north.png", Name: "Arrow North",
-			Symbol: "^", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
+			Symbol: "^", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorOrange},
 		{ImagePath: "overlays/arrow-east.png", Name: "Arrow East",
-			Symbol: ">", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
+			Symbol: ">", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorOrange},
 		{ImagePath: "overlays/arrow-south.png", Name: "Arrow South",
-			Symbol: "v", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
+			Symbol: "v", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorOrange},
 		{ImagePath: "overlays/arrow-west.png", Name: "Arrow West",
-			Symbol: "<", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
+			Symbol: "<", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorOrange},
 		{ImagePath: "overlays/blocked.png", Name: "Blocked",
-			Symbol: "*", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
+			Symbol: "*", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorOrange},
 		{ImagePath: "overlays/nofuel.png", Name: "NO FUEL",
-			Symbol: "&", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorOrange},
+			Symbol: "&", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorOrange},
 	}
 
 	/* Materials and images */
-	MatTypes = []*glob.ObjType{
+	MatTypes = []*world.ObjType{
 		//Materials
-		{Symbol: "NIL", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorRed,
+		{Symbol: "NIL", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorRed,
 			Name: "NONE"},
-		{Symbol: "C", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "C", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorDarkGray,
 			Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png"},
 
 		/* Ore */
-		{Symbol: "FEo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "FEo", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorDarkGray,
 			Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore.png", IsOre: true, Result: gv.MAT_IRON},
-		{Symbol: "Cuo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "Cuo", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorDarkGray,
 			Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper-ore.png", IsOre: true, Result: gv.MAT_COPPER},
-		{Symbol: "STOo", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "STOo", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorDarkGray,
 			Name: "Stone Ore", UnitName: " kg", ImagePath: "belt-obj/stone-ore.png", IsOre: true, Result: gv.MAT_STONE},
 
 		/* Metal */
-		{Symbol: "FE", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "FE", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorDarkGray,
 			Name: "Iron Bar", UnitName: " kg", ImagePath: "belt-obj/iron.png"},
-		{Symbol: "Cu", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "Cu", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorDarkGray,
 			Name: "Copper Bar", UnitName: " kg", ImagePath: "belt-obj/copper.png"},
-		{Symbol: "STO", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "STO", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorDarkGray,
 			Name: "Stone Block", UnitName: " kg", ImagePath: "belt-obj/stone.png"},
-		{Symbol: "SLG", ItemColor: &glob.ColorVeryDarkGray, SymbolColor: &glob.ColorDarkGray,
+		{Symbol: "SLG", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorDarkGray,
 			Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone.png"},
 	}
 
 	/* Toolbar item types, array of array of ObjType */
-	SubTypes = [][]*glob.ObjType{
+	SubTypes = [][]*world.ObjType{
 		UIObjsTypes,
 		GameObjTypes,
 		MatTypes,

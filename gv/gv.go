@@ -5,8 +5,8 @@ import (
 	"sync"
 )
 
-// Set at build
 var (
+	/* Build flags */
 	StartMapBlank = true
 	UPSBench      = false
 	LoadTest      = false

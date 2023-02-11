@@ -1,78 +1,14 @@
-package glob
+package world
 
 import (
 	"GameTest/gv"
 	"GameTest/noise"
 	"image/color"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
 )
-
-var (
-	/* World map */
-	SuperChunkList     []*MapSuperChunk
-	SuperChunkListLock sync.RWMutex
-
-	SuperChunkMap     map[XY]*MapSuperChunk
-	SuperChunkMapLock sync.RWMutex
-
-	/* eBiten start settings */
-	ScreenWidth  int = 1280 //Screen width default
-	ScreenHeight int = 720  //Screen height default
-
-	/* Game UPS rate */
-	ObjectUPS            = 4.0
-	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
-	MeasuredObjectUPS_ns = ObjectUPS_ns
-
-	/* eBiten variables */
-	ZoomScale     float64 = gv.DefaultZoom //Current zoom
-	ShowInfoLayer bool
-
-	/* Boot images */
-	MiniMapTile *ebiten.Image
-	ToolBG      *ebiten.Image
-	BeltBlock   *ebiten.Image
-
-	/* Boot status */
-	SpritesLoaded atomic.Bool
-	PlayerReady   atomic.Bool
-	MapGenerated  atomic.Bool
-
-	/* Fonts */
-	BootFont    font.Face
-	ToolTipFont font.Face
-	ObjectFont  font.Face
-	LargeFont   font.Face
-
-	/* Camera position */
-	CameraX float64 = float64(gv.XYCenter)
-	CameraY float64 = float64(gv.XYCenter)
-	/* If position/zoom changed */
-	VisDataDirty atomic.Bool
-
-	/* Mouse vars */
-	MouseX float64 = float64(gv.XYCenter)
-	MouseY float64 = float64(gv.XYCenter)
-
-	/* Setup latches */
-	InitMouse = false
-
-	/* Used for startup screen */
-	TempChunkImage *ebiten.Image
-	WASMMode       bool
-
-	MapLoadPercent float64
-)
-
-func init() {
-	VisDataDirty.Store(true)
-	SuperChunkMap = make(map[XY]*MapSuperChunk)
-}
 
 /* Objects that contain a map of chunks and PixMap */
 type MapSuperChunk struct {

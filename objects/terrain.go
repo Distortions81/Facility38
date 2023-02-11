@@ -1,9 +1,9 @@
 package objects
 
 import (
-	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/noise"
+	"GameTest/world"
 	"image"
 	"time"
 
@@ -45,25 +45,25 @@ func SwitchLayer() {
 /* Make a 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
 
-	tChunk := glob.MapChunk{}
-	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
-	glob.TempChunkImage = tChunk.TerrainImg
+	tChunk := world.MapChunk{}
+	renderChunkGround(&tChunk, false, world.XY{X: 0, Y: 0})
+	world.TempChunkImage = tChunk.TerrainImg
 
-	glob.SuperChunkListLock.RLock()
-	for _, sChunk := range glob.SuperChunkList {
+	world.SuperChunkListLock.RLock()
+	for _, sChunk := range world.SuperChunkList {
 		for _, chunk := range sChunk.ChunkList {
 			killTerrainCache(chunk, true)
 		}
 	}
-	glob.SuperChunkListLock.RUnlock()
+	world.SuperChunkListLock.RUnlock()
 
 	if debugVisualize {
-		glob.TempChunkImage.Fill(glob.ColorDarkRed)
+		world.TempChunkImage.Fill(world.ColorDarkRed)
 	}
 }
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
-func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
+func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 	if chunk.Rendering {
 		return
 	}
@@ -172,9 +172,9 @@ var clearedCache bool
 func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
-	if glob.ZoomScale <= gv.MapPixelThreshold {
+	if world.ZoomScale <= gv.MapPixelThreshold {
 		if !clearedCache && gv.WASMMode {
-			for _, sChunk := range glob.SuperChunkList {
+			for _, sChunk := range world.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
 					killTerrainCache(chunk, true)
 				}
@@ -184,7 +184,7 @@ func RenderTerrainST() {
 	} else {
 		clearedCache = false
 
-		for _, sChunk := range glob.SuperChunkList {
+		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
 				if chunk.Precache && chunk.UsingTemporary {
 					renderChunkGround(chunk, true, chunk.Pos)
@@ -203,22 +203,22 @@ func RenderTerrainDaemon() {
 		time.Sleep(terrainRenderLoop)
 
 		/* If we zoom out, decallocate everything */
-		if glob.ZoomScale <= gv.MapPixelThreshold {
+		if world.ZoomScale <= gv.MapPixelThreshold {
 			if !clearedCache && gv.WASMMode {
-				glob.SuperChunkListLock.RLock()
-				for _, sChunk := range glob.SuperChunkList {
+				world.SuperChunkListLock.RLock()
+				for _, sChunk := range world.SuperChunkList {
 					for _, chunk := range sChunk.ChunkList {
 						killTerrainCache(chunk, true)
 					}
 				}
-				glob.SuperChunkListLock.RUnlock()
+				world.SuperChunkListLock.RUnlock()
 				clearedCache = true
 			}
 		} else {
 			clearedCache = false
 
-			glob.SuperChunkListLock.RLock()
-			for _, sChunk := range glob.SuperChunkList {
+			world.SuperChunkListLock.RLock()
+			for _, sChunk := range world.SuperChunkList {
 				if !sChunk.Visible {
 					continue
 				}
@@ -230,13 +230,13 @@ func RenderTerrainDaemon() {
 					}
 				}
 			}
-			glob.SuperChunkListLock.RUnlock()
+			world.SuperChunkListLock.RUnlock()
 		}
 	}
 }
 
 /* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
-func killTerrainCache(chunk *glob.MapChunk, force bool) {
+func killTerrainCache(chunk *world.MapChunk, force bool) {
 
 	if chunk.UsingTemporary || chunk.Rendering || chunk.TerrainImg == nil {
 		return
@@ -249,7 +249,7 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 
 		chunk.TerrainLock.Lock()
 		chunk.TerrainImg.Dispose()
-		chunk.TerrainImg = glob.TempChunkImage
+		chunk.TerrainImg = world.TempChunkImage
 		chunk.UsingTemporary = true
 		numTerrainCache--
 		chunk.TerrainLock.Unlock()
@@ -260,10 +260,10 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 /* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
 
-	if glob.ZoomScale > gv.MapPixelThreshold {
+	if world.ZoomScale > gv.MapPixelThreshold {
 
 		if !pixmapCacheCleared {
-			for _, sChunk := range glob.SuperChunkList {
+			for _, sChunk := range world.SuperChunkList {
 				if sChunk.PixMap != nil {
 
 					sChunk.PixMap.Dispose()
@@ -278,7 +278,7 @@ func PixmapRenderST() {
 	} else {
 		pixmapCacheCleared = false
 
-		for _, sChunk := range glob.SuperChunkList {
+		for _, sChunk := range world.SuperChunkList {
 			if sChunk.PixMap == nil || sChunk.PixmapDirty {
 				drawPixmap(sChunk, sChunk.Pos)
 				break
@@ -296,10 +296,10 @@ func PixmapRenderDaemon() {
 	for {
 		time.Sleep(pixmapRenderLoop)
 
-		glob.SuperChunkListLock.RLock()
-		for _, sChunk := range glob.SuperChunkList {
+		world.SuperChunkListLock.RLock()
+		for _, sChunk := range world.SuperChunkList {
 
-			if glob.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
+			if world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 
 				pixmapCacheCleared = true
 				sChunk.PixLock.Lock()
@@ -313,7 +313,7 @@ func PixmapRenderDaemon() {
 
 				}
 				sChunk.PixLock.Unlock()
-			} else if glob.ZoomScale <= gv.MapPixelThreshold {
+			} else if world.ZoomScale <= gv.MapPixelThreshold {
 				pixmapCacheCleared = false
 
 				sChunk.PixLock.Lock()
@@ -323,12 +323,12 @@ func PixmapRenderDaemon() {
 				sChunk.PixLock.Unlock()
 			}
 		}
-		glob.SuperChunkListLock.RUnlock()
+		world.SuperChunkListLock.RUnlock()
 	}
 }
 
 /* Draw a superchunk's pixmap, allocates image if needed. */
-func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
+func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Make Pixelmap images */
@@ -341,7 +341,7 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 		sChunk.PixMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 	}
 
-	sChunk.PixMap.Fill(glob.ColorCharcol)
+	sChunk.PixMap.Fill(world.ColorCharcol)
 
 	for _, chunk := range sChunk.ChunkList {
 		if chunk.NumObjects <= 0 {
@@ -357,7 +357,7 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 			y := float64((obj.Pos.Y - gv.XYCenter) - scY)
 			op.GeoM.Reset()
 			op.GeoM.Translate(x, y)
-			sChunk.PixMap.DrawImage(glob.MiniMapTile, op)
+			sChunk.PixMap.DrawImage(world.MiniMapTile, op)
 		}
 		sChunk.PixMapTime = time.Now()
 		sChunk.PixmapDirty = false

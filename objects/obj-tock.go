@@ -2,28 +2,28 @@ package objects
 
 import (
 	"GameTest/cwlog"
-	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/noise"
 	"GameTest/util"
+	"GameTest/world"
 	"math/rand"
 )
 
 func toggleOverlay() {
-	if glob.ShowInfoLayer {
-		glob.ShowInfoLayer = false
+	if world.ShowInfoLayer {
+		world.ShowInfoLayer = false
 	} else {
-		glob.ShowInfoLayer = true
+		world.ShowInfoLayer = true
 	}
 }
 
-func InitMiner(obj *glob.ObjData) {
+func InitMiner(obj *world.ObjData) {
 	if obj == nil {
 		return
 	}
 	/* Init miner data if needed */
 	if obj.MinerData == nil {
-		obj.MinerData = &glob.MinerDataType{}
+		obj.MinerData = &world.MinerDataType{}
 	}
 
 	for p := 1; p < 5; p++ {
@@ -37,7 +37,7 @@ func InitMiner(obj *glob.ObjData) {
 	}
 }
 
-func minerUpdate(obj *glob.ObjData) {
+func minerUpdate(obj *world.ObjData) {
 
 	/* Find all inputs, round-robin send to output */
 	for p, port := range obj.Ports {
@@ -104,7 +104,7 @@ func minerUpdate(obj *glob.ObjData) {
 	}
 }
 
-func beltUpdate(obj *glob.ObjData) {
+func beltUpdate(obj *world.ObjData) {
 
 	/* Output is full, exit */
 	if obj.Ports[obj.Dir].Buf.Amount != 0 {
@@ -138,7 +138,7 @@ func beltUpdate(obj *glob.ObjData) {
 	}
 }
 
-func fuelHopperUpdate(obj *glob.ObjData) {
+func fuelHopperUpdate(obj *world.ObjData) {
 
 	/* Handle putting fuel into objects */
 	if obj.Ports[obj.Dir].Obj != nil &&
@@ -149,7 +149,7 @@ func fuelHopperUpdate(obj *glob.ObjData) {
 	}
 }
 
-func splitterUpdate(obj *glob.ObjData) {
+func splitterUpdate(obj *world.ObjData) {
 
 	input := util.ReverseDirection(obj.Dir)
 	if obj.Ports[input].Buf.Amount == 0 {
@@ -180,7 +180,7 @@ func splitterUpdate(obj *glob.ObjData) {
 
 }
 
-func boxUpdate(obj *glob.ObjData) {
+func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Ports {
 		if port.PortDir != gv.PORT_INPUT {
 			cwlog.DoLog("tickObj: Our port is not an input. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
@@ -200,7 +200,7 @@ func boxUpdate(obj *glob.ObjData) {
 		obj.Blocked = false
 
 		if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-			obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
+			obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
 		}
 		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
 		obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
@@ -210,7 +210,7 @@ func boxUpdate(obj *glob.ObjData) {
 	}
 }
 
-func smelterUpdate(obj *glob.ObjData) {
+func smelterUpdate(obj *world.ObjData) {
 
 	/* Find all inputs, round-robin send to output */
 	for p, port := range obj.Ports {
@@ -235,7 +235,7 @@ func smelterUpdate(obj *glob.ObjData) {
 				}
 
 				if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-					obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
+					obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
 					obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
 				}
 
@@ -283,10 +283,10 @@ func smelterUpdate(obj *glob.ObjData) {
 	}
 }
 
-func ironCasterUpdate(o *glob.ObjData) {
-	//oData := glob.GameObjTypes[Obj.Type]
+func ironCasterUpdate(o *world.ObjData) {
+	//oData := world.GameObjTypes[Obj.Type]
 
 }
 
-func steamEngineUpdate(o *glob.ObjData) {
+func steamEngineUpdate(o *world.ObjData) {
 }

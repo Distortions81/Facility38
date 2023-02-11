@@ -2,13 +2,13 @@ package objects
 
 import (
 	"GameTest/cwlog"
-	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/util"
+	"GameTest/world"
 )
 
 /* Link to output in (dir) */
-func LinkObj(obj *glob.ObjData) {
+func LinkObj(obj *world.ObjData) {
 	oPos := util.CenterXY(obj.Pos)
 	cwlog.DoLog("LinkObj: %v (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 
@@ -16,7 +16,7 @@ func LinkObj(obj *glob.ObjData) {
 	for p, port := range obj.Ports {
 
 		if obj.Ports[p] == nil {
-			obj.Ports[p] = &glob.ObjPortData{}
+			obj.Ports[p] = &world.ObjPortData{}
 			continue
 		}
 

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/objects"
+	"GameTest/world"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -13,7 +13,7 @@ var (
 	toolbarCache     *ebiten.Image
 	ToolbarMax       int
 	SelectedItemType uint8 = 0
-	ToolbarItems           = []glob.ToolbarItem{}
+	ToolbarItems           = []world.ToolbarItem{}
 )
 
 /* Make default toolbar list */
@@ -24,7 +24,7 @@ func init() {
 		if spos == gv.ObjSubUI || spos == gv.ObjSubGame {
 			for _, otype := range stype {
 				ToolbarMax++
-				ToolbarItems = append(ToolbarItems, glob.ToolbarItem{SType: spos, OType: otype})
+				ToolbarItems = append(ToolbarItems, world.ToolbarItem{SType: spos, OType: otype})
 
 			}
 		}
@@ -55,7 +55,7 @@ func DrawToolbar() {
 
 		op.GeoM.Reset()
 		op.GeoM.Translate(x, 0)
-		toolbarCache.DrawImage(glob.ToolBG, op)
+		toolbarCache.DrawImage(world.ToolBG, op)
 
 		op.GeoM.Reset()
 		iSize := img.Bounds()
@@ -79,17 +79,17 @@ func DrawToolbar() {
 			if item.OType.TypeI == SelectedItemType {
 				ebitenutil.DrawRect(toolbarCache,
 					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
-					gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, glob.ColorTBSelected)
+					gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, world.ColorTBSelected)
 				ebitenutil.DrawRect(toolbarCache,
 					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
-					gv.ToolBarOffsetY, gv.ToolBarScale, gv.TBThick, glob.ColorTBSelected)
+					gv.ToolBarOffsetY, gv.ToolBarScale, gv.TBThick, world.ColorTBSelected)
 
 				ebitenutil.DrawRect(toolbarCache,
 					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
-					gv.ToolBarOffsetY+gv.ToolBarScale-gv.TBThick, gv.ToolBarScale, gv.TBThick, glob.ColorTBSelected)
+					gv.ToolBarOffsetY+gv.ToolBarScale-gv.TBThick, gv.ToolBarScale, gv.TBThick, world.ColorTBSelected)
 				ebitenutil.DrawRect(toolbarCache,
 					gv.ToolBarOffsetX+(float64(pos)*gv.ToolBarScale)+gv.ToolBarScale-gv.TBThick,
-					gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, glob.ColorTBSelected)
+					gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, world.ColorTBSelected)
 			}
 		}
 
