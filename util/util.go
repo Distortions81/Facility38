@@ -48,7 +48,7 @@ func RotatePortsCCW(obj *world.ObjData) {
 }
 
 func ObjHasPort(obj *world.ObjData, portDir uint8) bool {
-	for p, _ := range obj.Ports {
+	for p := range obj.Ports {
 		if obj.TypeP.Ports[p] == portDir {
 			return true
 		}
@@ -92,10 +92,10 @@ func RotCCW(dir uint8) uint8 {
 }
 
 /* give distance between two coordinates */
-func Distance(xa, ya, xb, yb int) float64 {
+func Distance(xa, ya, xb, yb int) float32 {
 	x := math.Abs(float64(xa - xb))
 	y := math.Abs(float64(ya - yb))
-	return math.Sqrt(x*x + y*y)
+	return float32(math.Sqrt(x*x + y*y))
 }
 
 /* Find point directly in the middle of two coordinates */
@@ -176,7 +176,7 @@ func SuperChunkPosToChunkPos(pos world.XY) world.XY {
 }
 
 /* Float (X, Y) to world.XY (int) */
-func FloatXYToPosition(x float64, y float64) world.XY {
+func FloatXYToPosition(x float32, y float32) world.XY {
 
 	return world.XY{X: int(x), Y: int(y)}
 }

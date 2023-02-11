@@ -19,8 +19,8 @@ type saveMObj struct {
 	D  uint8                `json:"d,omitempty"`
 	C  []*world.MatData     `json:"c,omitempty"`
 	F  []*world.MatData     `json:"f,omitempty"`
-	KF float64              `json:"kf,omitempty"`
-	K  float64              `json:"k,omitempty"`
+	KF float32              `json:"kf,omitempty"`
+	K  float32              `json:"k,omitempty"`
 	PO []*world.ObjPortData `json:"po,omitempty"`
 	T  uint8                `json:"t,omitempty"`
 }

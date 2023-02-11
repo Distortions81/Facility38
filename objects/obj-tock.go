@@ -27,7 +27,7 @@ func InitMiner(obj *world.ObjData) {
 	}
 
 	for p := 1; p < 5; p++ {
-		h := 1.0 - (noise.NoiseMap(float64(obj.Pos.X), float64(obj.Pos.Y), p) * 2)
+		var h float32 = 1.0 - (noise.NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p) * 2)
 
 		if h > 0 {
 			obj.MinerData.MatsFound[obj.MinerData.NumTypesFound] = h
@@ -80,7 +80,7 @@ func minerUpdate(obj *world.ObjData) {
 					if obj.MinerData.NumTypesFound > 0 {
 						pick := rand.Intn(int(obj.MinerData.NumTypesFound))
 
-						amount := obj.TypeP.KgMineEach * obj.MinerData.MatsFound[pick]
+						amount := obj.TypeP.KgMineEach * float32(obj.MinerData.MatsFound[pick])
 						kind := MatTypes[obj.MinerData.MatsFoundT[pick]]
 
 						/* If we are mining coal, and it won't overfill us,

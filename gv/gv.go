@@ -2,29 +2,25 @@ package gv
 
 import (
 	"math"
-	"sync"
 )
 
 var (
 	/* Build flags */
-	StartMapBlank = true
-	UPSBench      = false
-	LoadTest      = false
-	WASMMode      = false
-	Debug         = true
-	Verbose       = false
-	LogStdOut     = true
-	LogFileOut    = false
-
-	ShowMineralLayer     bool
-	ShowMineralLayerLock sync.RWMutex
+	StartNewMap = true
+	UPSBench    = false
+	LoadTest    = false
+	Debug       = true
+	Verbose     = false
+	LogStdOut   = true
+	LogFileOut  = false
+	WASMMode    = false
 )
 
 const (
-	CNinetyDeg     = math.Pi / 2
-	COneEightyDeg  = math.Pi
-	CThreeSixtyDeg = math.Pi * 2
-	DegToRad       = 6.28319
+	NinetyDeg     = math.Pi / 2
+	OneEightyDeg  = math.Pi
+	ThreeSixtyDeg = math.Pi * 2
+	DegToRad      = 6.28319
 
 	Version = "014"
 
@@ -33,18 +29,17 @@ const (
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	/* Debug */
-	TestObjects = 1000000 //Make (approx) this number items
+	LoadTestObjects = 1000000
 
 	/* Limit numbers of chunks that can be drawn */
 	/* Pre-allocated  array */
-	MAX_DRAW_CHUNKS = 32767
+	DrawChunkLimit = 32767
 
-	WALKSPEED = 4.0
-	RUNSPEED  = 16.0
+	MoveSpeed = 4.0
+	RunSpeed  = 16.0
 
 	/* Define world center */
-	XYCenter = 100000.0
+	XYCenter = 50000.0
 	XYMax    = XYCenter * 2.0
 	XYMin    = 1.0
 
@@ -73,7 +68,7 @@ const (
 
 	/* Materials */
 	MAT_NONE = 0
-	MAT_COAL = 1 //black with color sheen
+	MAT_COAL = 1
 
 	MAT_IRON_ORE   = 2
 	MAT_COPPER_ORE = 3
@@ -87,15 +82,13 @@ const (
 	MAT_MAX = 9
 
 	/* Placeholder texture words render offset */
-	SymbOffX = 0
-	SymbOffY = 10
+	PlaceholdOffX = 0
+	PlaceholdOffY = 10
 
 	/* Toolbar settings */
-	ToolBarScale   = 64
-	SpriteScale    = 16
-	TBThick        = 2
-	ToolBarOffsetX = 0
-	ToolBarOffsetY = 0
+	ToolBarScale = 64
+	SpriteScale  = 16
+	TBSelThick   = 2
 
 	/* Draw settings */
 	MaxSuperChunk = SuperChunkSize * SuperChunkSize

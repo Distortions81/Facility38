@@ -18,10 +18,10 @@ var (
 	gPrevTouchY   int
 	gPrevTouchA   int
 	gPrevTouchB   int
-	gPrevPinch    float64
+	gPrevPinch    float32
 	gTouchPressed bool
 	gPinchPressed bool
-	gTouchZoom    float64
+	gTouchZoom    float32
 
 	/* UI state */
 	gMouseHeld      bool
@@ -30,10 +30,10 @@ var (
 	gClickCaptured  bool
 
 	/* Mouse vars */
-	gMouseX     float64 = 1
-	gMouseY     float64 = 1
-	gPrevMouseX float64 = 1
-	gPrevMouseY float64 = 1
+	gMouseX     float32 = 1
+	gMouseY     float32 = 1
+	gPrevMouseX float32 = 1
+	gPrevMouseY float32 = 1
 
 	/* Last object we performed an action on */
 	gLastActionPosition world.XY
@@ -109,12 +109,12 @@ func getShiftToggle() {
 
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
-	uipix := float64(ToolbarMax * int(gv.ToolBarScale))
+	uipix := float32(ToolbarMax * int(gv.ToolBarScale))
 
-	if world.MouseX <= uipix+gv.ToolBarOffsetX {
-		if world.MouseY <= gv.ToolBarScale+gv.ToolBarOffsetY {
+	if world.MouseX <= uipix {
+		if world.MouseY <= gv.ToolBarScale {
 
-			ipos := int((world.MouseX - gv.ToolBarOffsetX) / gv.ToolBarScale)
+			ipos := int((world.MouseX) / gv.ToolBarScale)
 			item := ToolbarItems[ipos].OType
 
 			/* Actions */
@@ -208,13 +208,13 @@ func touchScreenHandle() {
 
 		if gPinchPressed {
 			nx, ny := util.MidPoint(tx, ty, ta, tb)
-			world.CameraX = world.CameraX + (float64(gPrevTouchA-nx) / world.ZoomScale)
-			world.CameraY = world.CameraY + (float64(gPrevTouchB-ny) / world.ZoomScale)
+			world.CameraX = world.CameraX + (float32(gPrevTouchA-nx) / world.ZoomScale)
+			world.CameraY = world.CameraY + (float32(gPrevTouchB-ny) / world.ZoomScale)
 			gPrevTouchA, gPrevTouchB = util.MidPoint(tx, ty, ta, tb)
 			world.VisDataDirty.Store(true)
 		} else {
-			world.CameraX = world.CameraX + (float64(gPrevTouchX-tx) / world.ZoomScale)
-			world.CameraY = world.CameraY + (float64(gPrevTouchY-ty) / world.ZoomScale)
+			world.CameraX = world.CameraX + (float32(gPrevTouchX-tx) / world.ZoomScale)
+			world.CameraY = world.CameraY + (float32(gPrevTouchY-ty) / world.ZoomScale)
 			gPrevTouchX = tx
 			gPrevTouchY = ty
 			world.VisDataDirty.Store(true)
@@ -260,8 +260,8 @@ func zoomHandle() {
 func getMousePos() {
 	/* Mouse position */
 	intx, inty := ebiten.CursorPosition()
-	gMouseX = float64(intx)
-	gMouseY = float64(inty)
+	gMouseX = float32(intx)
+	gMouseY = float32(inty)
 	world.MouseX = gMouseX
 	world.MouseY = gMouseY
 	gClickCaptured = false
@@ -292,8 +292,8 @@ func createWorldObjects() {
 		/* UI area */
 		if !gClickCaptured {
 			/* Get mouse position on world */
-			worldMouseX := (world.MouseX/world.ZoomScale + (world.CameraX - (float64(world.ScreenWidth)/2.0)/world.ZoomScale))
-			worldMouseY := (world.MouseY/world.ZoomScale + (world.CameraY - (float64(world.ScreenHeight)/2.0)/world.ZoomScale))
+			worldMouseX := (world.MouseX/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
+			worldMouseY := (world.MouseY/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
 
 			pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
@@ -363,9 +363,9 @@ func createWorldObjects() {
 /* Right-click drag or WASD movement, shift run */
 func moveCamera() {
 
-	base := gv.WALKSPEED
+	var base float32 = gv.MoveSpeed
 	if gShiftPressed {
-		base = gv.RUNSPEED
+		base = gv.RunSpeed
 	}
 	speed := base / (world.ZoomScale / 4.0)
 
@@ -398,18 +398,18 @@ func moveCamera() {
 			world.InitMouse = true
 		}
 
-		world.CameraX = world.CameraX + (float64(gPrevMouseX-gMouseX) / world.ZoomScale)
-		world.CameraY = world.CameraY + (float64(gPrevMouseY-gMouseY) / world.ZoomScale)
+		world.CameraX = world.CameraX + (float32(gPrevMouseX-gMouseX) / world.ZoomScale)
+		world.CameraY = world.CameraY + (float32(gPrevMouseY-gMouseY) / world.ZoomScale)
 		world.VisDataDirty.Store(true)
 
 		/* Don't let camera go beyond a reasonable point */
-		if world.CameraX > float64(gv.XYMax) {
-			world.CameraX = float64(gv.XYMax)
+		if world.CameraX > float32(gv.XYMax) {
+			world.CameraX = float32(gv.XYMax)
 		} else if world.CameraX < gv.XYMin {
 			world.CameraX = gv.XYMin
 		}
-		if world.CameraY > float64(gv.XYMax) {
-			world.CameraY = float64(gv.XYMax)
+		if world.CameraY > float32(gv.XYMax) {
+			world.CameraY = float32(gv.XYMax)
 		} else if world.CameraY < gv.XYMin {
 			world.CameraY = gv.XYMin
 		}
@@ -447,8 +447,8 @@ func rotateWorldObjects() {
 	/* Rotate object */
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		/* Get mouse position on world */
-		worldMouseX := (world.MouseX/world.ZoomScale + (world.CameraX - (float64(world.ScreenWidth/2.0) / world.ZoomScale)))
-		worldMouseY := (world.MouseY/world.ZoomScale + (world.CameraY - (float64(world.ScreenHeight/2.0))/world.ZoomScale))
+		worldMouseX := (world.MouseX/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth/2.0) / world.ZoomScale)))
+		worldMouseY := (world.MouseY/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight/2.0))/world.ZoomScale))
 
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 

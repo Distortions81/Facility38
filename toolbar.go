@@ -6,7 +6,7 @@ import (
 	"GameTest/world"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 var (
@@ -68,7 +68,7 @@ func DrawToolbar() {
 			x := float64(gv.ToolBarScale / 2)
 			y := float64(gv.ToolBarScale / 2)
 			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(gv.CNinetyDeg * float64(item.OType.Direction))
+			op.GeoM.Rotate(gv.NinetyDeg * float64(item.OType.Direction))
 			op.GeoM.Translate(x, y)
 		}
 
@@ -77,19 +77,17 @@ func DrawToolbar() {
 
 		if item.SType == gv.ObjSubGame {
 			if item.OType.TypeI == SelectedItemType {
-				ebitenutil.DrawRect(toolbarCache,
-					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
-					gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, world.ColorTBSelected)
-				ebitenutil.DrawRect(toolbarCache,
-					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
-					gv.ToolBarOffsetY, gv.ToolBarScale, gv.TBThick, world.ColorTBSelected)
+				vector.DrawFilledRect(toolbarCache, float32(pos)*gv.ToolBarScale, 0, gv.TBSelThick, gv.ToolBarScale, world.ColorTBSelected)
+				//ebitenutil.DrawRect(toolbarCache,gv.ToolBarOffsetX+float32(pos)*gv.ToolBarScale,gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, world.ColorTBSelected)
 
-				ebitenutil.DrawRect(toolbarCache,
-					gv.ToolBarOffsetX+float64(pos)*gv.ToolBarScale,
-					gv.ToolBarOffsetY+gv.ToolBarScale-gv.TBThick, gv.ToolBarScale, gv.TBThick, world.ColorTBSelected)
-				ebitenutil.DrawRect(toolbarCache,
-					gv.ToolBarOffsetX+(float64(pos)*gv.ToolBarScale)+gv.ToolBarScale-gv.TBThick,
-					gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, world.ColorTBSelected)
+				vector.DrawFilledRect(toolbarCache, float32(pos)*gv.ToolBarScale, 0, gv.ToolBarScale, gv.TBSelThick, world.ColorTBSelected)
+				//ebitenutil.DrawRect(toolbarCache,gv.ToolBarOffsetX+float32(pos)*gv.ToolBarScale,gv.ToolBarOffsetY, gv.ToolBarScale, gv.TBThick, world.ColorTBSelected)
+
+				vector.DrawFilledRect(toolbarCache, float32(pos)*gv.ToolBarScale, gv.ToolBarScale-gv.TBSelThick, gv.ToolBarScale, gv.TBSelThick, world.ColorTBSelected)
+				//ebitenutil.DrawRect(toolbarCache,gv.ToolBarOffsetX+float32(pos)*gv.ToolBarScale,gv.ToolBarOffsetY+gv.ToolBarScale-gv.TBThick, gv.ToolBarScale, gv.TBThick, world.ColorTBSelected)
+
+				vector.DrawFilledRect(toolbarCache, float32(pos)*gv.ToolBarScale+gv.ToolBarScale-gv.TBSelThick, 0, gv.TBSelThick, gv.ToolBarScale, world.ColorTBSelected)
+				//ebitenutil.DrawRect(toolbarCache,gv.ToolBarOffsetX+(float32(pos)*gv.ToolBarScale)+gv.ToolBarScale-gv.TBThick,gv.ToolBarOffsetY, gv.TBThick, gv.ToolBarScale, world.ColorTBSelected)
 			}
 		}
 

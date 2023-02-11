@@ -29,15 +29,15 @@ var (
 )
 
 func SwitchLayer() {
-	gv.ShowMineralLayerLock.Lock()
+	world.ShowMineralLayerLock.Lock()
 
-	if gv.ShowMineralLayer {
-		gv.ShowMineralLayer = false
+	if world.ShowMineralLayer {
+		world.ShowMineralLayer = false
 	} else {
-		gv.ShowMineralLayer = true
+		world.ShowMineralLayer = true
 
 	}
-	gv.ShowMineralLayerLock.Unlock()
+	world.ShowMineralLayerLock.Unlock()
 
 	SetupTerrainCache()
 }
@@ -67,8 +67,8 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 	if chunk.Rendering {
 		return
 	}
-	gv.ShowMineralLayerLock.RLock()
-	defer gv.ShowMineralLayerLock.RUnlock()
+	world.ShowMineralLayerLock.RLock()
+	defer world.ShowMineralLayerLock.RUnlock()
 
 	chunk.Rendering = true
 
@@ -78,13 +78,13 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 	chunkPix := (gv.SpriteScale * gv.ChunkSize)
 
 	var bg *ebiten.Image
-	if !gv.ShowMineralLayer {
+	if !world.ShowMineralLayer {
 		bg = TerrainTypes[0].Image
 	} else {
 		bg = TerrainTypes[1].Image
 	}
-	sx := int(float64(bg.Bounds().Size().X))
-	sy := int(float64(bg.Bounds().Size().Y))
+	sx := int(float32(bg.Bounds().Size().X))
+	sy := int(float32(bg.Bounds().Size().Y))
 	var tImg *ebiten.Image
 
 	if sx > 0 && sy > 0 {
@@ -101,19 +101,19 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 				op.GeoM.Reset()
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
-				if doDetail && !gv.ShowMineralLayer {
-					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
-					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
+				if doDetail && !world.ShowMineralLayer {
+					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
+					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
 					h := noise.NoiseMap(x, y, 0)
 
-					op.ColorM.Reset()
-					op.ColorM.Scale(h, 1, 1, 1)
+					op.ColorScale.Reset()
+					op.ColorScale.Scale(h, 1, 1, 1)
 
 				} else if doDetail {
-					op.ColorM.Reset()
-					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
-					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
+					op.ColorScale.Reset()
+					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
+					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
 					for p, nl := range noise.NoiseLayers {
 						if p == 0 {
@@ -122,7 +122,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 
 						h := noise.NoiseMap(x, y, p)
 
-						var r, g, b, a float64
+						var r, g, b, a float32
 						r = 1
 						g = 1
 						b = 1
@@ -144,7 +144,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 						if nl.AMod {
 							a = h * nl.AMulti
 						}
-						op.ColorM.Scale(r, g, b, a)
+						op.ColorScale.Scale(r, g, b, a)
 					}
 				}
 

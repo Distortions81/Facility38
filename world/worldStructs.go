@@ -3,7 +3,6 @@ package world
 import (
 	"GameTest/gv"
 	"GameTest/noise"
-	"image/color"
 	"sync"
 	"time"
 
@@ -49,7 +48,7 @@ type MapChunk struct {
 }
 
 type MinerDataType struct {
-	MatsFound     [noise.NumNoiseTypes]float64
+	MatsFound     [noise.NumNoiseTypes]float32
 	MatsFoundT    [noise.NumNoiseTypes]uint8
 	NumTypesFound uint8
 }
@@ -64,8 +63,8 @@ type ObjData struct {
 
 	//Internal use
 	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	KGFuel   float64              `json:"kf,omitempty"`
-	KGHeld   float64              `json:"k,omitempty"`
+	KGFuel   float32              `json:"kf,omitempty"`
+	KGHeld   float32              `json:"k,omitempty"`
 
 	//Input/Output
 	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
@@ -89,15 +88,24 @@ type ObjPortData struct {
 	Buf     MatData  `json:"b,omitempty"`
 }
 
+type MaterialType struct {
+	Symbol   string
+	Name     string
+	UnitName string
+
+	ImagePath string
+	Image     *ebiten.Image
+
+	TypeI  uint8
+	IsOre  bool
+	Result uint8
+}
+
 /* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
 	Name string
 
 	TypeI uint8
-
-	ItemColor   *color.NRGBA
-	SymbolColor *color.NRGBA
-	UnitName    string
 
 	Symbol    string
 	Size      XY
@@ -113,18 +121,16 @@ type ObjType struct {
 	UIimg        *ebiten.Image
 	ToolBarArrow bool
 
-	KgHourMine float64
-	HP         float64
-	KW         float64
+	KgHourMine float32
+	HP         float32
+	KW         float32
 
-	KgMineEach float64
-	KgFuelEach float64
+	KgMineEach float32
+	KgFuelEach float32
 
-	MaxContainKG float64
-	MaxFuelKG    float64
+	MaxContainKG float32
+	MaxFuelKG    float32
 
-	IsOre    bool
-	Result   uint8
 	Interval uint8
 
 	Ports       [gv.DIR_MAX]uint8
@@ -166,18 +172,13 @@ type TickEvent struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
-	TypeI  uint8    `json:"i,omitempty"`
-	TypeP  *ObjType `json:"-"`
-	Amount float64  `json:"a,omitempty"`
-	Rot    uint8    `json:"r,omitempty"`
+	TypeI  uint8         `json:"i,omitempty"`
+	TypeP  *MaterialType `json:"-"`
+	Amount float32       `json:"a,omitempty"`
+	Rot    uint8         `json:"r,omitempty"`
 }
 
 /* Int x/y */
 type XY struct {
 	X, Y int
-}
-
-/* float64 x/y */
-type XYF64 struct {
-	X, Y float64
 }

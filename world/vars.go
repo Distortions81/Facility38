@@ -58,9 +58,9 @@ var (
 	ScreenHeight int = 720
 
 	/* Game UPS rate */
-	ObjectUPS            = 4.0
-	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
-	MeasuredObjectUPS_ns = ObjectUPS_ns
+	ObjectUPS            float32 = 4.0
+	ObjectUPS_ns                 = time.Duration((1000000000.0 / ObjectUPS))
+	MeasuredObjectUPS_ns         = ObjectUPS_ns
 
 	/* Small images used in game */
 	MiniMapTile *ebiten.Image
@@ -79,17 +79,23 @@ var (
 	LargeFont   font.Face
 
 	/* Camera position */
-	CameraX float64 = float64(gv.XYCenter)
-	CameraY float64 = float64(gv.XYCenter)
+	CameraX float32 = float32(gv.XYCenter)
+	CameraY float32 = float32(gv.XYCenter)
+
 	/* Camera states */
-	ZoomScale     float64 = gv.DefaultZoom //Current zoom
+	ZoomScale     float32 = gv.DefaultZoom //Current zoom
 	ShowInfoLayer bool
+
+	/* View layers */
+	ShowMineralLayer     bool
+	ShowMineralLayerLock sync.RWMutex
+
 	/* If position/zoom changed */
 	VisDataDirty atomic.Bool
 
 	/* Mouse vars */
-	MouseX float64 = float64(gv.XYCenter)
-	MouseY float64 = float64(gv.XYCenter)
+	MouseX float32 = float32(gv.XYCenter)
+	MouseY float32 = float32(gv.XYCenter)
 
 	/* Setup latches */
 	InitMouse = false
@@ -101,5 +107,5 @@ var (
 	WASMMode bool
 
 	/* Boot progress */
-	MapLoadPercent float64
+	MapLoadPercent float32
 )

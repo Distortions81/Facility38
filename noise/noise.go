@@ -12,14 +12,14 @@ type noiseLayerData struct {
 	Name string
 	Type uint8
 
-	Scale      float64
-	Alpha      float64
-	Beta       float64
+	Scale      float32
+	Alpha      float32
+	Beta       float32
 	N          int32
-	Contrast   float64
-	Brightness float64
-	LimitHigh  float64
-	LimitLow   float64
+	Contrast   float32
+	Brightness float32
+	LimitHigh  float32
+	LimitLow   float32
 
 	InvertValue bool
 
@@ -30,10 +30,10 @@ type noiseLayerData struct {
 
 	MineralMulti float64
 
-	RMulti float64
-	GMulti float64
-	BMulti float64
-	AMulti float64
+	RMulti float32
+	GMulti float32
+	BMulti float32
+	AMulti float32
 
 	Source rand.Source
 	Seed   int64
@@ -150,17 +150,17 @@ var NoiseLayers = []noiseLayerData{
 }
 
 func init() {
-	for p, _ := range NoiseLayers {
+	for p := range NoiseLayers {
 		NoiseLayers[p].Seed = time.Now().UnixNano() + int64(rand.Intn(1000))
 		NoiseLayers[p].Source = rand.NewSource(NoiseLayers[p].Seed)
-		NoiseLayers[p].Perlin = perlin.NewPerlinRandSource(NoiseLayers[p].Alpha, NoiseLayers[p].Beta, NoiseLayers[p].N, NoiseLayers[p].Source)
+		NoiseLayers[p].Perlin = perlin.NewPerlinRandSource(float64(NoiseLayers[p].Alpha), float64(NoiseLayers[p].Beta), NoiseLayers[p].N, NoiseLayers[p].Source)
 	}
 }
 
-func NoiseMap(x, y float64, p int) float64 {
-	val := (((NoiseLayers[p].Perlin.Noise2D(
-		x/NoiseLayers[p].Scale,
-		y/NoiseLayers[p].Scale) + 1) / 2.0) / NoiseLayers[p].Contrast) + NoiseLayers[p].Brightness
+func NoiseMap(x, y float32, p int) float32 {
+	val := float32(((NoiseLayers[p].Perlin.Noise2D(
+		float64(x/NoiseLayers[p].Scale),
+		float64(y/NoiseLayers[p].Scale)+1) / 2.0) / float64(NoiseLayers[p].Contrast))) + NoiseLayers[p].Brightness
 
 	if val > NoiseLayers[p].LimitHigh {
 		return NoiseLayers[p].LimitHigh

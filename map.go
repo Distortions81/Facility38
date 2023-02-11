@@ -21,7 +21,7 @@ func makeTestMap(skip bool) {
 		vSpace := 4
 		bLen := 2
 		beltLength := hSpace + bLen
-		for i := 0; total < gv.TestObjects; i++ {
+		for i := 0; total < gv.LoadTestObjects; i++ {
 			if i%2 == 0 {
 				rows++
 			} else {
@@ -57,7 +57,7 @@ func makeTestMap(skip bool) {
 					cols = 0
 				}
 
-				world.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
+				world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
 			}
 		} else {
 			/* Default map generator */
@@ -115,7 +115,7 @@ func makeTestMap(skip bool) {
 			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_NORTH)
 			Loaded++
 
-			world.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
+			world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
 		}
 	}
 
