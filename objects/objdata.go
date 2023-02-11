@@ -16,7 +16,7 @@ func init() {
 	for i, item := range GameObjTypes {
 		if item.KgHourMine > 0 {
 			GameObjTypes[i].KgMineEach = ((item.KgHourMine / 60 / 60 / glob.ObjectUPS) * float64(item.Interval)) * gv.TIMESCALE_MULTI
-			fmt.Printf("%v: KG/h: %v KgMineEach: %0.4f\n",
+			fmt.Printf("%v: KG/h: %0.4f KgMineEach: %0.4f\n",
 				GameObjTypes[i].Name,
 				GameObjTypes[i].KgHourMine,
 				GameObjTypes[i].KgMineEach)
@@ -25,18 +25,18 @@ func init() {
 	for i, item := range GameObjTypes {
 		if item.HP > 0 {
 			KW := item.HP * gv.HP_PER_KW
-			COALKG := KW / gv.COALKG_KWH
+			COALKG := KW / gv.COAL_KWH_PER_KG
 			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / glob.ObjectUPS) * float64(item.Interval)) * gv.TIMESCALE_MULTI
-			fmt.Printf("%v: HP: %v KgFuelEach: %0.4f\n",
+			fmt.Printf("%v: HP: %0.4f KgFuelEach: %0.4f\n",
 				GameObjTypes[i].Name,
 				GameObjTypes[i].HP,
 				GameObjTypes[i].KgFuelEach)
 		} else if item.KW > 0 {
-			COALKG := item.KW / gv.COALKG_KWH
+			COALKG := item.KW / gv.COAL_KWH_PER_KG
 			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / glob.ObjectUPS) * float64(item.Interval)) * gv.TIMESCALE_MULTI
-			fmt.Printf("%v: HP: %v KgFuelEach: %0.4f\n",
+			fmt.Printf("%v: KW: %0.4f KgFuelEach: %0.4f\n",
 				GameObjTypes[i].Name,
-				GameObjTypes[i].HP,
+				GameObjTypes[i].KW,
 				GameObjTypes[i].KgFuelEach)
 		}
 	}
@@ -74,8 +74,8 @@ var (
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         glob.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
-			KgHourMine:   18000,
-			HP:           1000,
+			KgHourMine:   1000,
+			KW:           360,
 			Interval:     uint8(glob.ObjectUPS) * 2,
 			ShowArrow:    true,
 			ToolBarArrow: true,
@@ -128,8 +128,8 @@ var (
 			Name:            "Basic smelter",
 			TypeI:           gv.ObjTypeBasicSmelter,
 			Size:            glob.XY{X: 1, Y: 1},
-			KW:              320,
-			KgHourMine:      3600,
+			KW:              160,
+			KgHourMine:      20,
 			Interval:        uint8(glob.ObjectUPS * 5),
 			ShowArrow:       true,
 			ShowBlocked:     true,
