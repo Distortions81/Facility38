@@ -138,14 +138,14 @@ const (
 	NIM_KWH_PER_KG   = 0.12
 	LITH_KWH_PER_KG  = 0.27
 
-	CU_KG_SMELT_KWH    = 3
+	CU_KG_SMELT_KWH    = 3 //iea: 8.3
 	FE_KG_SMELT_KWH    = 4
 	AL_KG_SMELT_KWH    = 13
 	STEEL_KG_SMELT_KWH = 3.7
 
 	AL_KG_CO_KG    = 2
 	CU_KG_CO_KG    = 0.18
-	STEEL_KG_CO_KG = 1
+	STEEL_KG_CO_KG = 1.4
 
 	HP_PER_KW = 1.35
 	KW_PER_HP = 0.74
