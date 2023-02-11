@@ -31,10 +31,6 @@ const (
 
 	LoadTestObjects = 1000000
 
-	/* Limit numbers of chunks that can be drawn */
-	/* Pre-allocated  array */
-	DrawChunkLimit = 32767
-
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0
 

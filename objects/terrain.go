@@ -35,7 +35,9 @@ func SwitchLayer() {
 		world.ShowMineralLayer = false
 	} else {
 		world.ShowMineralLayer = true
-
+		if world.ZoomScale < 8 {
+			world.ZoomScale = 8
+		}
 	}
 	world.ShowMineralLayerLock.Unlock()
 
@@ -116,17 +118,16 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
 					for p, nl := range noise.NoiseLayers {
-						if p == 0 {
+						if p == 0 || p > 1 {
 							continue
 						}
 
 						h := noise.NoiseMap(x, y, p)
 
-						var r, g, b, a float32
+						var r, g, b float32
 						r = 1
 						g = 1
 						b = 1
-						a = 1
 
 						if nl.InvertValue {
 							h = 1.0 - h
@@ -141,10 +142,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 						if nl.BMod {
 							b = h * nl.BMulti
 						}
-						if nl.AMod {
-							a = h * nl.AMulti
-						}
-						op.ColorScale.Scale(r, g, b, a)
+						op.ColorScale.Scale(r, g, b, 1)
 					}
 				}
 
