@@ -26,7 +26,7 @@ const (
 	CThreeSixtyDeg = math.Pi * 2
 	DegToRad       = 6.28319
 
-	Version = "013"
+	Version = "014"
 
 	/* Files and directories */
 	DataDir = "data/"
