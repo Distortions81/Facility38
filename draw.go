@@ -74,7 +74,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 		objects.RenderTerrainST()
 	}
-	if world.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
+	if world.ZoomScale > gv.MapPixelThreshold || world.ShowMineralLayer { /* Draw icon mode */
 		drawIconMode(screen)
 	} else {
 		drawPixmapMode(screen)

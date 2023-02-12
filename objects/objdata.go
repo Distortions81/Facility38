@@ -225,6 +225,8 @@ var (
 		//Materials
 		{Symbol: "NIL", Name: "NONE"},
 		{Symbol: "C", Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png"},
+		{Symbol: "Oil", Name: "Oil", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png"},
+		{Symbol: "Gas", Name: "Gas", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png"},
 
 		/* Ore */
 		{Symbol: "FEo", Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore.png",

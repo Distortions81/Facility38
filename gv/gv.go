@@ -65,6 +65,8 @@ const (
 	/* Materials */
 	MAT_NONE = 0
 	MAT_COAL = 1
+	MAT_OIL  = 2
+	MAT_GAS  = 3
 
 	MAT_IRON_ORE   = 2
 	MAT_COPPER_ORE = 3
@@ -95,7 +97,7 @@ const (
 	ChunkTotal      = ChunkSize * ChunkSize
 
 	DefaultZoom       = SpriteScale * 2
-	MapPixelThreshold = (SpriteScale / 3)
+	MapPixelThreshold = (SpriteScale / 2)
 
 	/* Directions */
 	DIR_NORTH = 0

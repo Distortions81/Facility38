@@ -112,41 +112,35 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					h := noise.NoiseMap(x, y, 0)
 
 					op.ColorScale.Reset()
-					op.ColorScale.Scale(h, 1, 1, 1)
+					op.ColorScale.Scale(h, 2, 2, 2)
 
 				} else if doDetail {
-					//op.GeoM.Scale(gv.SpriteScale, gv.SpriteScale)
 					op.ColorScale.Reset()
 					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
 					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
 					for p, nl := range noise.NoiseLayers {
-						if p == 0 || p > 3 {
+						if p == 0 {
 							continue
 						}
-
+						var r, g, b float32 = 0.95, 0.95, 0.95
 						h := noise.NoiseMap(x, y, p)
-
-						var r, g, b float32
-						r = 1
-						g = 1
-						b = 1
-
 						if nl.InvertValue {
-							h = 1.0 - h
+							h = -h
 						}
 
 						if nl.RMod {
-							r = h * nl.RMulti
+							r -= (h * nl.RMulti)
 						}
 						if nl.GMod {
-							g = h * nl.GMulti
+							g -= (h * nl.GMulti)
 						}
 						if nl.BMod {
-							b = h * nl.BMulti
+							b -= (h * nl.BMulti)
 						}
 						op.ColorScale.Scale(r, g, b, 1)
 					}
+
 				}
 
 				tImg.DrawImage(bg, op)
@@ -173,7 +167,7 @@ var clearedCache bool
 func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
-	if world.ZoomScale <= gv.MapPixelThreshold {
+	if world.ZoomScale <= gv.MapPixelThreshold && !world.ShowMineralLayer {
 		if !clearedCache && gv.WASMMode {
 			for _, sChunk := range world.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
@@ -204,7 +198,7 @@ func RenderTerrainDaemon() {
 		time.Sleep(terrainRenderLoop)
 
 		/* If we zoom out, decallocate everything */
-		if world.ZoomScale <= gv.MapPixelThreshold {
+		if world.ZoomScale <= gv.MapPixelThreshold && !world.ShowMineralLayer {
 			if !clearedCache && gv.WASMMode {
 				world.SuperChunkListLock.RLock()
 				for _, sChunk := range world.SuperChunkList {
@@ -261,7 +255,7 @@ func killTerrainCache(chunk *world.MapChunk, force bool) {
 /* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
 
-	if world.ZoomScale > gv.MapPixelThreshold {
+	if world.ZoomScale > gv.MapPixelThreshold && !world.ShowMineralLayer {
 
 		if !pixmapCacheCleared {
 			for _, sChunk := range world.SuperChunkList {
@@ -314,7 +308,7 @@ func PixmapRenderDaemon() {
 
 				}
 				sChunk.PixLock.Unlock()
-			} else if world.ZoomScale <= gv.MapPixelThreshold {
+			} else if world.ZoomScale <= gv.MapPixelThreshold && !world.ShowMineralLayer {
 				pixmapCacheCleared = false
 
 				sChunk.PixLock.Lock()

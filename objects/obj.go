@@ -443,7 +443,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 	//Make chunk if needed
 	if MakeChunk(pos) {
-		ExploreMap(pos, 5)
+		ExploreMap(pos, 10)
 	}
 	chunk := util.GetChunk(pos)
 	obj := util.GetObj(pos, chunk)
