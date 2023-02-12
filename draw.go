@@ -254,33 +254,19 @@ func drawIconMode(screen *ebiten.Image) {
 					/* Show blocked outputs */
 					if obj.TypeP.ShowBlocked && obj.Blocked {
 
-						if obj.TypeP.TypeI == gv.ObjTypeBasicBelt {
-							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-							img := world.BeltBlock
+						img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
+						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-							iSize := obj.TypeP.Image.Bounds()
-							op.GeoM.Translate(
-								0,
-								0)
-							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-								((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
-							op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
-							screen.DrawImage(img, op)
-
-						} else {
-							img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
-							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-
-							iSize := img.Bounds()
-							op.GeoM.Translate(
-								cBlockedIndicatorOffset,
-								cBlockedIndicatorOffset)
-							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-								((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
-							op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
-							screen.DrawImage(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image, op)
-						}
+						iSize := img.Bounds()
+						op.GeoM.Translate(
+							cBlockedIndicatorOffset,
+							cBlockedIndicatorOffset)
+						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
+							((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+						screen.DrawImage(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image, op)
 					}
+
 				}
 			}
 		}
@@ -471,7 +457,11 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) {
 		if gv.Verbose {
 			cwlog.DoLog("%v,%v (%v)", x, y, (float32(obj.TypeP.Size.X)*world.ZoomScale)/float32(iSize.Max.X))
 		}
-		screen.DrawImage(obj.TypeP.Image, op)
+		if obj.TypeP.ImagePathActive != "" && obj.Active {
+			screen.DrawImage(obj.TypeP.ImageActive, op)
+		} else {
+			screen.DrawImage(obj.TypeP.Image, op)
+		}
 
 	}
 

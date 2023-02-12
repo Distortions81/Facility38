@@ -76,14 +76,16 @@ func minerUpdate(obj *world.ObjData) {
 			}
 			obj.Blocked = false
 
-			obj.TickCount++
-			if obj.TickCount >= obj.TypeP.Interval {
+			/* Mine stuff */
+			if obj.KGFuel >= obj.TypeP.KgFuelEach {
 
-				/* Mine stuff */
-				if obj.KGFuel >= obj.TypeP.KgFuelEach {
+				/* Burn fuel */
+				obj.KGFuel -= obj.TypeP.KgFuelEach
 
-					/* Burn fuel */
-					obj.KGFuel -= obj.TypeP.KgFuelEach
+				obj.TickCount++
+				obj.Active = true
+
+				if obj.TickCount >= obj.TypeP.Interval {
 
 					if obj.MinerData.NumTypesFound > 0 {
 						pick := rand.Intn(int(obj.MinerData.NumTypesFound))
@@ -104,8 +106,12 @@ func minerUpdate(obj *world.ObjData) {
 						}
 						//We should remove ourselves here if we run out of ore
 					}
+
+					obj.TickCount = 0
 				}
-				obj.TickCount = 0
+
+			} else {
+				obj.Active = false
 			}
 		}
 
@@ -162,6 +168,7 @@ func splitterUpdate(obj *world.ObjData) {
 	input := util.ReverseDirection(obj.Dir)
 	if obj.Ports[input].Buf.Amount == 0 {
 		cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+		obj.Active = false
 		return
 	}
 
@@ -174,6 +181,7 @@ func splitterUpdate(obj *world.ObjData) {
 			continue
 		}
 		if obj.Ports[dir].Buf.Amount != 0 {
+			obj.Active = false
 			continue
 		} else {
 			obj.Ports[dir].Buf.Amount = obj.Ports[input].Buf.Amount
@@ -181,6 +189,7 @@ func splitterUpdate(obj *world.ObjData) {
 			obj.Ports[dir].Buf.Rot = obj.Ports[input].Buf.Rot
 			obj.Ports[input].Buf.Amount = 0
 			obj.LastUsedOutput = dir
+			obj.Active = true
 			break
 		}
 
@@ -191,21 +200,28 @@ func splitterUpdate(obj *world.ObjData) {
 func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Ports {
 		if port.PortDir != gv.PORT_INPUT {
-			cwlog.DoLog("tickObj: Our port is not an input. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			//cwlog.DoLog("tickObj: Our port is not an input. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
 
 		if port.Buf.Amount == 0 {
-			cwlog.DoLog("tickObj: Input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			//cwlog.DoLog("tickObj: Input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			if obj.TickCount > uint8(world.ObjectUPS*2) {
+				obj.Active = false
+			}
+			obj.TickCount++
 			continue
 		}
 
 		if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
-			cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+			//cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			obj.Blocked = true
+			obj.Active = false
 			continue
 		}
 		obj.Blocked = false
+		obj.Active = true
+		obj.TickCount = 0
 
 		if obj.Contents[port.Buf.TypeP.TypeI] == nil {
 			obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
@@ -262,17 +278,17 @@ func smelterUpdate(obj *world.ObjData) {
 			}
 			obj.Blocked = false
 
-			obj.TickCount++
-			if obj.TickCount >= obj.TypeP.Interval {
+			/* Smelt stuff */
+			if obj.KGFuel >= obj.TypeP.KgFuelEach {
+				for c, cont := range obj.Contents {
+					if cont == nil {
+						continue
+					}
 
-				/* Smelt stuff */
-				if obj.KGFuel >= obj.TypeP.KgFuelEach {
-					for c, cont := range obj.Contents {
-						if cont == nil {
-							continue
-						}
-
-						if cont.TypeP.IsSolid && cont.Amount >= obj.TypeP.KgMineEach {
+					if cont.TypeP.IsSolid && cont.Amount >= obj.TypeP.KgMineEach {
+						obj.Active = true
+						obj.TickCount++
+						if obj.TickCount >= obj.TypeP.Interval {
 							obj.KGFuel -= obj.TypeP.KgFuelEach
 
 							obj.Contents[c].Amount -= obj.TypeP.KgMineEach
@@ -281,10 +297,12 @@ func smelterUpdate(obj *world.ObjData) {
 							obj.Ports[p].Buf.Amount = obj.TypeP.KgMineEach * gv.ORE_WASTE
 							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
 							obj.Ports[p].Buf.Rot = port.Buf.Rot
+							obj.TickCount = 0
+							obj.Active = false
 						}
 					}
 				}
-				obj.TickCount = 0
+
 			}
 		}
 

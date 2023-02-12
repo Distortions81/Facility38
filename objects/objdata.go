@@ -29,7 +29,7 @@ func init() {
 		}
 
 		if GameObjTypes[i].KgFuelEach > 0 {
-			GameObjTypes[i].MaxFuelKG = (GameObjTypes[i].KgFuelEach * 10)
+			GameObjTypes[i].MaxFuelKG = (GameObjTypes[i].KgFuelEach * 50)
 			if GameObjTypes[i].MaxFuelKG < 10 {
 				GameObjTypes[i].MaxFuelKG = 10
 			}
@@ -64,7 +64,7 @@ var (
 	/* World objects and images */
 	GameObjTypes = []*world.ObjType{
 		//Game Objects
-		{ImagePath: "world-obj/basic-miner.png",
+		{ImagePath: "world-obj/basic-miner.png", ImagePathActive: "world-obj/basic-miner-active.png",
 			UIPath:       "ui/miner.png",
 			Name:         "Basic miner",
 			TypeI:        gv.ObjTypeBasicMiner,
@@ -81,18 +81,18 @@ var (
 			Ports:        [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-belt.png", UIPath: "ui/belt.png",
-			Name:        "Basic belt",
-			TypeI:       gv.ObjTypeBasicBelt,
-			Size:        world.XY{X: 1, Y: 1},
-			Rotatable:   true,
-			ShowBlocked: true,
-			UpdateObj:   beltUpdate,
-			Symbol:      "BELT",
-			Ports:       [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		{ImagePath: "world-obj/basic-belt.png",
+			UIPath:    "ui/belt.png",
+			Name:      "Basic belt",
+			TypeI:     gv.ObjTypeBasicBelt,
+			Size:      world.XY{X: 1, Y: 1},
+			Rotatable: true,
+			UpdateObj: beltUpdate,
+			Symbol:    "BELT",
+			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-splitter.png",
+		{ImagePath: "world-obj/basic-splitter.png", ImagePathActive: "world-obj/basic-splitter-active.png",
 			Name:        "Basic Splitter",
 			TypeI:       gv.ObjTypeBasicSplit,
 			Size:        world.XY{X: 1, Y: 1},
@@ -106,7 +106,8 @@ var (
 			Ports:       [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
 		},
 
-		{ImagePath: "world-obj/basic-box.png", UIPath: "ui/box.png",
+		{ImagePath: "world-obj/basic-box.png", ImagePathActive: "world-obj/basic-box-active.png",
+			UIPath:       "ui/box.png",
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
 			Size:         world.XY{X: 1, Y: 1},
@@ -114,26 +115,25 @@ var (
 			Symbol:       "BOX",
 			UpdateObj:    boxUpdate,
 			CanContain:   true,
-			ShowBlocked:  true,
-			ToolBarArrow: true,
+			ShowBlocked:  false,
+			ToolBarArrow: false,
 			Ports:        [gv.DIR_MAX]uint8{gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
-		{ImagePath: "world-obj/basic-smelter.png",
-			ImagePathActive: "world-obj/basic-smelter-active.png",
-			UIPath:          "ui/smelter.png",
-			Name:            "Basic smelter",
-			TypeI:           gv.ObjTypeBasicSmelter,
-			Size:            world.XY{X: 1, Y: 1},
-			KW:              320,
-			KgHourMine:      40,
-			Interval:        uint8(world.ObjectUPS * 60),
-			ShowArrow:       true,
-			ShowBlocked:     true,
-			ToolBarArrow:    true,
-			Symbol:          "SMLT",
-			UpdateObj:       smelterUpdate,
-			Ports:           [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+		{ImagePath: "world-obj/basic-smelter.png", ImagePathActive: "world-obj/basic-smelter-active.png",
+			UIPath:       "ui/smelter.png",
+			Name:         "Basic smelter",
+			TypeI:        gv.ObjTypeBasicSmelter,
+			Size:         world.XY{X: 1, Y: 1},
+			KW:           320,
+			KgHourMine:   40,
+			Interval:     uint8(world.ObjectUPS * 60),
+			ShowArrow:    true,
+			ShowBlocked:  true,
+			ToolBarArrow: true,
+			Symbol:       "SMLT",
+			UpdateObj:    smelterUpdate,
+			Ports:        [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
 		},
 
 		{ImagePath: "world-obj/basic-fuel-hopper.png",
