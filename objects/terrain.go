@@ -123,7 +123,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 						if p == 0 {
 							continue
 						}
-						var r, g, b float32 = 0.95, 0.95, 0.95
+						var r, g, b float32 = 0.98, 0.98, 0.98
 						h := noise.NoiseMap(x, y, p)
 						if nl.InvertValue {
 							h = -h
