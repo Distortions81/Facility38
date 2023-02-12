@@ -302,14 +302,14 @@ func drawMineral(sChunk *world.MapSuperChunk) {
 			worldX := float32((sChunk.Pos.X * gv.SuperChunkTotal) + x)
 			worldY := float32((sChunk.Pos.Y * gv.SuperChunkTotal) + y)
 
-			var r, g, b float32 = 0.1, 0.1, 0.1
+			var r, g, b float32 = 0.5, 0.5, 0.5
 			for p, nl := range NoiseLayers {
 				if p == 0 {
 					continue
 				}
 
 				h := NoiseMap(worldX, worldY, p)
-				if nl.InvertValue {
+				if !nl.InvertValue {
 					h = -h
 				}
 
@@ -356,11 +356,32 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 
 	var ObjPix []byte = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
 
+	didCopy := false
 	sChunk.MineralLock.Lock()
 	if world.ShowMineralLayer && sChunk.MineralMap != nil {
 		copy(ObjPix, sChunk.MineralMap)
+		didCopy = true
 	}
 	sChunk.MineralLock.Unlock()
+
+	//Fill will bg and grid
+	for x := 0; x < gv.SuperChunkTotal; x++ {
+		for y := 0; y < gv.SuperChunkTotal; y++ {
+			ppos := 4 * (x + y*gv.SuperChunkTotal)
+
+			if x%32 == 0 || y%32 == 0 {
+				ObjPix[ppos] = 0x20
+				ObjPix[ppos+1] = 0x20
+				ObjPix[ppos+2] = 0x20
+				ObjPix[ppos+3] = 0x10
+			} else if !didCopy {
+				ObjPix[ppos] = 0x05
+				ObjPix[ppos+1] = 0x05
+				ObjPix[ppos+2] = 0x05
+				ObjPix[ppos+3] = 0xff
+			}
+		}
+	}
 
 	for _, chunk := range sChunk.ChunkList {
 		if chunk.NumObjects <= 0 {
