@@ -230,7 +230,7 @@ func smelterUpdate(obj *world.ObjData) {
 				}
 				obj.KGFuel += port.Buf.Amount
 				obj.Ports[p].Buf.Amount = 0
-			} else if port.Buf.TypeP.IsOre {
+			} else if port.Buf.TypeP.IsSolid {
 				if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
 					continue
 				}
@@ -265,7 +265,7 @@ func smelterUpdate(obj *world.ObjData) {
 							continue
 						}
 
-						if cont.TypeP.IsOre && cont.Amount >= obj.TypeP.KgMineEach {
+						if cont.TypeP.IsSolid && cont.Amount >= obj.TypeP.KgMineEach {
 							obj.KGFuel -= obj.TypeP.KgFuelEach
 
 							obj.Contents[c].Amount -= obj.TypeP.KgMineEach
