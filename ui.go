@@ -249,9 +249,6 @@ func zoomHandle() {
 		world.ZoomScale = 256
 		world.VisDataDirty.Store(true)
 	}
-	if world.ZoomScale < 8 && world.ShowMineralLayer {
-		world.ZoomScale = 8
-	}
 
 }
 

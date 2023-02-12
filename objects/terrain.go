@@ -14,13 +14,13 @@ const (
 	maxTerrainCache     = 500
 	maxTerrainCacheWASM = 50
 	minTerrainTime      = time.Minute
-	terrainRenderLoop   = time.Millisecond * 10
+	terrainRenderLoop   = time.Nanosecond
 	debugVisualize      = false
 
 	maxPixmapCache     = 500
 	maxPixmapCacheWASM = 50
 	minPixmapTime      = time.Minute
-	pixmapRenderLoop   = time.Millisecond * 10
+	pixmapRenderLoop   = time.Nanosecond
 )
 
 var (
@@ -35,9 +35,6 @@ func SwitchLayer() {
 		world.ShowMineralLayer = false
 	} else {
 		world.ShowMineralLayer = true
-		if world.ZoomScale < 8 {
-			world.ZoomScale = 8
-		}
 	}
 	world.ShowMineralLayerLock.Unlock()
 
@@ -93,8 +90,13 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 
 		rect := image.Rectangle{}
 
-		rect.Max.X = chunkPix
-		rect.Max.Y = chunkPix
+		if world.ShowMineralLayer {
+			rect.Max.X = gv.ChunkSize
+			rect.Max.Y = gv.ChunkSize
+		} else {
+			rect.Max.X = chunkPix
+			rect.Max.Y = chunkPix
+		}
 
 		tImg = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 
@@ -113,12 +115,13 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					op.ColorScale.Scale(h, 1, 1, 1)
 
 				} else if doDetail {
+					//op.GeoM.Scale(gv.SpriteScale, gv.SpriteScale)
 					op.ColorScale.Reset()
 					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
 					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
 					for p, nl := range noise.NoiseLayers {
-						if p == 0 || p > 1 {
+						if p == 0 || p > 3 {
 							continue
 						}
 
