@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	/* Touch vars */
+	/* Touch vars
 	gPrevTouchX   int
 	gPrevTouchY   int
 	gPrevTouchA   int
@@ -21,7 +21,7 @@ var (
 	gPrevPinch    float32
 	gTouchPressed bool
 	gPinchPressed bool
-	gTouchZoom    float32
+	gTouchZoom    float32 */
 
 	/* UI state */
 	gMouseHeld      bool
@@ -147,9 +147,8 @@ func handleToolbar(rotate bool) bool {
 	return false
 }
 
-/* Touchscreen input, incompelte */
+/* Touchscreen input, incomplete
 func touchScreenHandle() {
-	/* Touchscreen input */
 	tids := ebiten.TouchIDs()
 
 	tx := 0
@@ -157,7 +156,6 @@ func touchScreenHandle() {
 	ta := 0
 	tb := 0
 
-	/* Find touch events */
 	foundTouch := false
 	foundPinch := false
 	for _, tid := range tids {
@@ -177,7 +175,6 @@ func touchScreenHandle() {
 		}
 	}
 
-	/* Touch zoom-pinch */
 	if foundPinch {
 		dist := util.Distance((ta), (tb), (tx), (ty))
 		if !gPinchPressed {
@@ -193,7 +190,7 @@ func touchScreenHandle() {
 		}
 		gPinchPressed = false
 	}
-	/* Touch pan */
+
 	if foundTouch {
 		if !gTouchPressed {
 			if gPinchPressed {
@@ -222,7 +219,7 @@ func touchScreenHandle() {
 	} else {
 		gTouchPressed = false
 	}
-}
+} */
 
 /* Handle scroll wheel and +- keys */
 func zoomHandle() {
@@ -244,7 +241,6 @@ func zoomHandle() {
 		world.ZoomScale = world.ZoomScale / 2
 		world.VisDataDirty.Store(true)
 	}
-	gTouchZoom = 0
 
 	if world.ZoomScale < 1 {
 		world.ZoomScale = 1
