@@ -118,6 +118,40 @@ func minerUpdate(obj *world.ObjData) {
 	}
 }
 
+func beltUpdateInter(obj *world.ObjData) {
+
+	/* Output is full, exit */
+	if obj.Ports[obj.Dir].Buf.Amount != 0 {
+		obj.Blocked = true
+		obj.Active = false
+		return
+	}
+	obj.Blocked = false
+
+	/* Find all inputs, round-robin send to output */
+	dir := obj.LastUsedInput
+	for x := 0; x < 4; x++ {
+		dir = util.RotCW(dir)
+
+		if obj.Ports[dir].PortDir != gv.PORT_INPUT {
+			continue
+		}
+		if obj.Ports[dir].Buf.Amount == 0 {
+			obj.Active = false
+			continue
+		} else {
+			obj.Active = true
+			obj.Ports[util.ReverseDirection(dir)].Buf.Amount = obj.Ports[dir].Buf.Amount
+			obj.Ports[util.ReverseDirection(dir)].Buf.TypeP = obj.Ports[dir].Buf.TypeP
+			obj.Ports[util.ReverseDirection(dir)].Buf.Rot = obj.Ports[dir].Buf.Rot
+			obj.Ports[util.ReverseDirection(dir)].Buf.Amount = 0
+			obj.LastUsedInput = dir
+			break
+		}
+
+	}
+}
+
 func beltUpdate(obj *world.ObjData) {
 
 	/* Output is full, exit */
