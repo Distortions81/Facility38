@@ -174,7 +174,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 			BatchTop = 0
 
-			/* Draw objects in chunk */
+			/* Draw ground*/
 			op, img := drawTerrain(chunk)
 			if img != nil {
 				OpBatch[BatchTop] = op
@@ -182,6 +182,7 @@ func drawIconMode(screen *ebiten.Image) {
 				BatchTop++
 			}
 
+			/* Draw objects in chunk */
 			for _, obj := range chunk.ObjList {
 				if obj == nil {
 					continue
