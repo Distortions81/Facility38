@@ -509,8 +509,6 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 		}
 
 	}
-
-	return nil, nil
 }
 
 /* Update local vars with camera position calculations */
