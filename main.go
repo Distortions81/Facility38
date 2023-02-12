@@ -87,9 +87,7 @@ func NewGame() *Game {
 	go makeTestMap(gv.StartNewMap)
 
 	/* Initialize the game */
-	return &Game{
-		//ui: EUI()
-	}
+	return &Game{}
 }
 
 /* Load all sprites, sub missing ones */
