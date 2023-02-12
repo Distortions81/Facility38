@@ -40,6 +40,10 @@ var (
 	screenEndX   int
 	screenEndY   int
 	frameCount   uint64
+
+	BatchTop   int
+	ImageBatch [gv.ChunkSizeTotal * gv.SuperChunkTotal]*ebiten.Image
+	OpBatch    [gv.ChunkSizeTotal * gv.SuperChunkTotal]*ebiten.DrawImageOptions
 )
 
 /* Setup a few images for later use */
@@ -138,7 +142,7 @@ func updateVisData() {
 	}
 }
 
-func drawTerrain(chunk *world.MapChunk, screen *ebiten.Image) {
+func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Draw ground */
@@ -154,11 +158,14 @@ func drawTerrain(chunk *world.MapChunk, screen *ebiten.Image) {
 		(gv.ChunkSize*float64(world.ZoomScale))/float64(iSize.Y))
 	op.GeoM.Translate((float64(camXPos)+float64(chunk.Pos.X*gv.ChunkSize))*float64(world.ZoomScale),
 		(float64(camYPos)+float64(chunk.Pos.Y*gv.ChunkSize))*float64(world.ZoomScale))
-	screen.DrawImage(cTmp, op)
 	chunk.TerrainLock.RUnlock()
+
+	return op, cTmp
 }
 
 func drawIconMode(screen *ebiten.Image) {
+
+	BatchTop = 0
 
 	world.SuperChunkListLock.RLock()
 	for _, sChunk := range world.SuperChunkList {
@@ -167,9 +174,14 @@ func drawIconMode(screen *ebiten.Image) {
 				continue
 			}
 
-			drawTerrain(chunk, screen)
-
 			/* Draw objects in chunk */
+			op, img := drawTerrain(chunk)
+			if img != nil {
+				OpBatch[BatchTop] = op
+				ImageBatch[BatchTop] = img
+				BatchTop++
+			}
+
 			for _, obj := range chunk.ObjList {
 				if obj == nil {
 					continue
@@ -180,7 +192,12 @@ func drawIconMode(screen *ebiten.Image) {
 				}
 
 				/* Time to draw it */
-				drawObject(screen, obj)
+				op, img = drawObject(screen, obj)
+				if img != nil {
+					OpBatch[BatchTop] = op
+					ImageBatch[BatchTop] = img
+					BatchTop++
+				}
 
 				/* Overlays */
 				/* Draw belt overlays */
@@ -189,7 +206,12 @@ func drawIconMode(screen *ebiten.Image) {
 					/* Draw Input Materials */
 					for p := range obj.Ports {
 						if obj.Ports[p].Buf.Amount > 0 {
-							drawMaterials(&obj.Ports[p].Buf, obj, screen)
+							op, img = drawMaterials(&obj.Ports[p].Buf, obj, screen)
+							if img != nil {
+								OpBatch[BatchTop] = op
+								ImageBatch[BatchTop] = img
+								BatchTop++
+							}
 							break
 						}
 					}
@@ -202,7 +224,12 @@ func drawIconMode(screen *ebiten.Image) {
 							if cont == nil {
 								continue
 							}
-							drawMaterials(cont, obj, screen)
+							op, img = drawMaterials(cont, obj, screen)
+							if img != nil {
+								OpBatch[BatchTop] = op
+								ImageBatch[BatchTop] = img
+								BatchTop++
+							}
 							break
 						}
 					}
@@ -227,7 +254,12 @@ func drawIconMode(screen *ebiten.Image) {
 							((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 
-						screen.DrawImage(img, op)
+						//screen.DrawImage(img, op)
+						if img != nil {
+							OpBatch[BatchTop] = op
+							ImageBatch[BatchTop] = img
+							BatchTop++
+						}
 
 					} else if obj.TypeP.ShowArrow {
 						for p, port := range obj.Ports {
@@ -243,8 +275,11 @@ func drawIconMode(screen *ebiten.Image) {
 							op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 
 							/* Draw Arrow */
+							//screen.DrawImage(img, op)
 							if img != nil {
-								screen.DrawImage(img, op)
+								OpBatch[BatchTop] = op
+								ImageBatch[BatchTop] = img
+								BatchTop++
 							}
 						}
 					}
@@ -261,14 +296,24 @@ func drawIconMode(screen *ebiten.Image) {
 						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
 							((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
-						screen.DrawImage(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image, op)
+
+						if img != nil {
+							OpBatch[BatchTop] = op
+							ImageBatch[BatchTop] = img
+							BatchTop++
+						}
+						//screen.DrawImage(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image, op)
 					}
 
 				}
 			}
+
 		}
 	}
 	world.SuperChunkListLock.RUnlock()
+	for p := 0; p < BatchTop; p++ {
+		screen.DrawImage(ImageBatch[p], OpBatch[p])
+	}
 }
 
 func drawPixmapMode(screen *ebiten.Image) {
@@ -308,11 +353,11 @@ func drawPixmapMode(screen *ebiten.Image) {
 
 func drawDebugInfo(screen *ebiten.Image) {
 	/* Draw debug info */
-	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
+	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v, Batched: %v",
 		ebiten.ActualFPS(),
 		1000000000.0/float32(world.MeasuredObjectUPS_ns),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
-		runtime.GOARCH, buildTime)
+		runtime.GOARCH, buildTime, BatchTop)
 
 	tRect := text.BoundString(world.ToolTipFont, dbuf)
 	my := float32(world.ScreenHeight) - 4.0
@@ -419,7 +464,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 }
 
 /* Draw world objects */
-func drawObject(screen *ebiten.Image, obj *world.ObjData) {
+func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 
 	/* camera + object */
 	objOffX := camXPos + (float32(obj.Pos.X))
@@ -431,7 +476,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) {
 
 	/* Draw sprite */
 	if obj.TypeP.Image == nil {
-		return
+		return nil, nil
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
@@ -455,13 +500,16 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) {
 			cwlog.DoLog("%v,%v (%v)", x, y, (float32(obj.TypeP.Size.X)*world.ZoomScale)/float32(iSize.Max.X))
 		}
 		if obj.TypeP.ImagePathActive != "" && obj.Active {
-			screen.DrawImage(obj.TypeP.ImageActive, op)
+			return op, obj.TypeP.ImageActive
+			//screen.DrawImage(obj.TypeP.ImageActive, op)
 		} else {
-			screen.DrawImage(obj.TypeP.Image, op)
+			//screen.DrawImage(obj.TypeP.Image, op)
+			return op, obj.TypeP.Image
 		}
 
 	}
 
+	return nil, nil
 }
 
 /* Update local vars with camera position calculations */
@@ -484,7 +532,7 @@ func calcScreenCamera() {
 }
 
 /* Draw materials on belts */
-func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image) {
+func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 
 	if m.Amount > 0 {
 		img := m.TypeP.Image
@@ -511,7 +559,9 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image) {
 				((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 			op.GeoM.Translate(objCamPosX, objCamPosY)
 
-			screen.DrawImage(img, op)
+			//screen.DrawImage(img, op)
+			return op, img
 		}
 	}
+	return nil, nil
 }

@@ -6,9 +6,9 @@ import (
 
 var (
 	/* Build flags */
-	StartNewMap = true
+	StartNewMap = false
 	UPSBench    = false
-	LoadTest    = false
+	LoadTest    = true
 	Debug       = false
 	Verbose     = false
 	LogStdOut   = false
@@ -92,6 +92,7 @@ const (
 	MaxSuperChunk = SuperChunkSize * SuperChunkSize
 
 	ChunkSize       = 32
+	ChunkSizeTotal  = ChunkSize * ChunkSize
 	SuperChunkSize  = 32
 	SuperChunkTotal = SuperChunkSize * SuperChunkSize
 	ChunkTotal      = ChunkSize * ChunkSize
