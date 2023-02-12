@@ -42,8 +42,8 @@ var (
 	frameCount   uint64
 
 	BatchTop   int
-	ImageBatch [gv.ChunkSizeTotal * gv.SuperChunkTotal]*ebiten.Image
-	OpBatch    [gv.ChunkSizeTotal * gv.SuperChunkTotal]*ebiten.DrawImageOptions
+	ImageBatch [gv.ChunkSizeTotal * 3]*ebiten.Image
+	OpBatch    [gv.ChunkSizeTotal * 3]*ebiten.DrawImageOptions
 )
 
 /* Setup a few images for later use */
@@ -165,14 +165,14 @@ func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image
 
 func drawIconMode(screen *ebiten.Image) {
 
-	BatchTop = 0
-
 	world.SuperChunkListLock.RLock()
 	for _, sChunk := range world.SuperChunkList {
 		for _, chunk := range sChunk.ChunkList {
 			if !chunk.Visible {
 				continue
 			}
+
+			BatchTop = 0
 
 			/* Draw objects in chunk */
 			op, img := drawTerrain(chunk)
@@ -308,12 +308,12 @@ func drawIconMode(screen *ebiten.Image) {
 				}
 			}
 
+			for p := 0; p < BatchTop; p++ {
+				screen.DrawImage(ImageBatch[p], OpBatch[p])
+			}
 		}
 	}
 	world.SuperChunkListLock.RUnlock()
-	for p := 0; p < BatchTop; p++ {
-		screen.DrawImage(ImageBatch[p], OpBatch[p])
-	}
 }
 
 func drawPixmapMode(screen *ebiten.Image) {
