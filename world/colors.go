@@ -1,4 +1,4 @@
-package glob
+package world
 
 import "image/color"
 

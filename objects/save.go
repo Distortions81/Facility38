@@ -1,9 +1,9 @@
 package objects
 
 import (
-	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/util"
+	"GameTest/world"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -14,21 +14,21 @@ import (
 /* Used to munge data into a test save file */
 /* TODO: SAVE VERSION AND MAP SEED INTO FILE */
 type saveMObj struct {
-	P  glob.XY             `json:"p,omitempty"`
-	I  uint8               `json:"i,omitempty"`
-	D  uint8               `json:"d,omitempty"`
-	C  []*glob.MatData     `json:"c,omitempty"`
-	F  []*glob.MatData     `json:"f,omitempty"`
-	KF float64             `json:"kf,omitempty"`
-	K  float64             `json:"k,omitempty"`
-	PO []*glob.ObjPortData `json:"po,omitempty"`
-	T  uint8               `json:"t,omitempty"`
+	P  world.XY             `json:"p,omitempty"`
+	I  uint8                `json:"i,omitempty"`
+	D  uint8                `json:"d,omitempty"`
+	C  []*world.MatData     `json:"c,omitempty"`
+	F  []*world.MatData     `json:"f,omitempty"`
+	KF float32              `json:"kf,omitempty"`
+	K  float32              `json:"k,omitempty"`
+	PO []*world.ObjPortData `json:"po,omitempty"`
+	T  uint8                `json:"t,omitempty"`
 }
 
 /* WIP */
 func SaveGame() {
 
-	if glob.WASMMode {
+	if world.WASMMode {
 		return
 	}
 
@@ -40,12 +40,12 @@ func SaveGame() {
 		fmt.Println("Save starting.")
 
 		/* Pause the whole world ... */
-		glob.SuperChunkListLock.RLock()
-		TickListLock.Lock()
-		TockListLock.Lock()
+		world.SuperChunkListLock.RLock()
+		world.TickListLock.Lock()
+		world.TockListLock.Lock()
 
 		tempList := []*saveMObj{}
-		for _, sChunk := range glob.SuperChunkList {
+		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
 					tobj := &saveMObj{
@@ -64,7 +64,7 @@ func SaveGame() {
 						if cont == nil {
 							continue
 						}
-						copy(tobj.C, []*glob.MatData{cont})
+						copy(tobj.C, []*world.MatData{cont})
 					}
 					for c := range tobj.C {
 						if tobj.C[c] == nil {
@@ -78,7 +78,7 @@ func SaveGame() {
 						if po == nil || po.Buf.TypeP == nil {
 							continue
 						}
-						copy(tobj.PO, []*glob.ObjPortData{po})
+						copy(tobj.PO, []*world.ObjPortData{po})
 					}
 					for p := range tobj.PO {
 						if tobj.PO[p] == nil {
@@ -97,9 +97,9 @@ func SaveGame() {
 
 		b, err := json.Marshal(tempList)
 
-		glob.SuperChunkListLock.RUnlock()
-		TickListLock.Unlock()
-		TockListLock.Unlock()
+		world.SuperChunkListLock.RUnlock()
+		world.TickListLock.Unlock()
+		world.TockListLock.Unlock()
 		fmt.Println("ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
 
 		if err != nil {
@@ -136,7 +136,7 @@ func SaveGame() {
 /* WIP */
 func LoadGame() {
 
-	if glob.WASMMode {
+	if world.WASMMode {
 		return
 	}
 
@@ -158,9 +158,9 @@ func LoadGame() {
 		dec := json.NewDecoder(dbuf)
 
 		/* Pause the whole world ... */
-		glob.SuperChunkListLock.RLock()
-		TickListLock.Lock()
-		TockListLock.Lock()
+		world.SuperChunkListLock.RLock()
+		world.TickListLock.Lock()
+		world.TockListLock.Lock()
 		tempList := []*saveMObj{}
 		err = dec.Decode(&tempList)
 		if err != nil {
@@ -168,13 +168,13 @@ func LoadGame() {
 			return
 		}
 		fmt.Println("json decoded:", time.Since(start).String())
-		glob.SuperChunkListLock.RUnlock()
+		world.SuperChunkListLock.RUnlock()
 
 		/* Needs unsafeCreateObj that can accept a starting data set */
 		count := 0
 		for i := range tempList {
 
-			obj := &glob.ObjData{
+			obj := &world.ObjData{
 				Pos:   util.UnCenterXY(tempList[i].P),
 				TypeP: GameObjTypes[tempList[i].I],
 				Dir:   tempList[i].D,
@@ -196,7 +196,7 @@ func LoadGame() {
 
 			for p, port := range obj.TypeP.Ports {
 				if obj.Ports[p] == nil {
-					obj.Ports[p] = &glob.ObjPortData{}
+					obj.Ports[p] = &world.ObjPortData{}
 				}
 				obj.Ports[p].PortDir = port
 			}
@@ -236,10 +236,10 @@ func LoadGame() {
 
 			count++
 		}
-		glob.VisDataDirty.Store(true)
+		world.VisDataDirty.Store(true)
 
-		TickListLock.Unlock()
-		TockListLock.Unlock()
+		world.TickListLock.Unlock()
+		world.TockListLock.Unlock()
 		fmt.Printf("%v objects created, Completed in %v\n", count, time.Since(start).String())
 	}()
 }

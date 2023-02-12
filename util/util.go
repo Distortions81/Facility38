@@ -2,8 +2,8 @@ package util
 
 import (
 	"GameTest/cwlog"
-	"GameTest/glob"
 	"GameTest/gv"
+	"GameTest/world"
 	"bytes"
 	"compress/zlib"
 	"io"
@@ -13,8 +13,8 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func RotatePortsCW(obj *glob.ObjData) {
-	var newPorts [gv.DIR_MAX]glob.ObjPortData
+func RotatePortsCW(obj *world.ObjData) {
+	var newPorts [gv.DIR_MAX]world.ObjPortData
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy to array, rotated with modulo
 		p := int(PosIntMod((i + 1), gv.DIR_MAX))
@@ -34,8 +34,8 @@ func PosIntMod(d, m int) int {
 	return res
 }
 
-func RotatePortsCCW(obj *glob.ObjData) {
-	var newPorts [gv.DIR_MAX]glob.ObjPortData
+func RotatePortsCCW(obj *world.ObjData) {
+	var newPorts [gv.DIR_MAX]world.ObjPortData
 	for i := 0; i < gv.DIR_MAX; i++ {
 		//Copy to array, rotated with modulo
 		p := int(PosIntMod((i - 1), gv.DIR_MAX))
@@ -47,8 +47,8 @@ func RotatePortsCCW(obj *glob.ObjData) {
 	}
 }
 
-func ObjHasPort(obj *glob.ObjData, portDir uint8) bool {
-	for p, _ := range obj.Ports {
+func ObjHasPort(obj *world.ObjData, portDir uint8) bool {
+	for p := range obj.Ports {
 		if obj.TypeP.Ports[p] == portDir {
 			return true
 		}
@@ -56,8 +56,8 @@ func ObjHasPort(obj *glob.ObjData, portDir uint8) bool {
 	return false
 }
 
-/* Delete an object from a glob.ObjData list, does not retain order (fast) */
-func ObjListDelete(obj *glob.ObjData) {
+/* Delete an object from a world.ObjData list, does not retain order (fast) */
+func ObjListDelete(obj *world.ObjData) {
 	oPos := CenterXY(obj.Pos)
 
 	for index, item := range obj.Parent.ObjList {
@@ -73,12 +73,12 @@ func ObjListDelete(obj *glob.ObjData) {
 }
 
 /* Convert an internal XY (unsigned) to a (0,0) center */
-func CenterXY(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X - gv.XYCenter, Y: pos.Y - gv.XYCenter}
+func CenterXY(pos world.XY) world.XY {
+	return world.XY{X: pos.X - gv.XYCenter, Y: pos.Y - gv.XYCenter}
 }
 
-func UnCenterXY(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X + gv.XYCenter, Y: pos.Y + gv.XYCenter}
+func UnCenterXY(pos world.XY) world.XY {
+	return world.XY{X: pos.X + gv.XYCenter, Y: pos.Y + gv.XYCenter}
 }
 
 /* Rotate consts.DIR value clockwise */
@@ -92,10 +92,10 @@ func RotCCW(dir uint8) uint8 {
 }
 
 /* give distance between two coordinates */
-func Distance(xa, ya, xb, yb int) float64 {
+func Distance(xa, ya, xb, yb int) float32 {
 	x := math.Abs(float64(xa - xb))
 	y := math.Abs(float64(ya - yb))
-	return math.Sqrt(x*x + y*y)
+	return float32(math.Sqrt(x*x + y*y))
 }
 
 /* Find point directly in the middle of two coordinates */
@@ -104,7 +104,7 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 }
 
 /* Get an object by XY, uses map (hashtable). RLocks the given chunk */
-func GetObj(pos glob.XY, chunk *glob.MapChunk) *glob.ObjData {
+func GetObj(pos world.XY, chunk *world.MapChunk) *world.ObjData {
 	if chunk != nil {
 		chunk.Lock.RLock()
 		o := chunk.ObjMap[pos]
@@ -116,13 +116,13 @@ func GetObj(pos glob.XY, chunk *glob.MapChunk) *glob.ObjData {
 }
 
 /* Get a chunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
-func GetChunk(pos glob.XY) *glob.MapChunk {
+func GetChunk(pos world.XY) *world.MapChunk {
 	scpos := PosToSuperChunkPos(pos)
 	cpos := PosToChunkPos(pos)
 
-	glob.SuperChunkMapLock.RLock()
-	sChunk := glob.SuperChunkMap[scpos]
-	glob.SuperChunkMapLock.RUnlock()
+	world.SuperChunkMapLock.RLock()
+	sChunk := world.SuperChunkMap[scpos]
+	world.SuperChunkMapLock.RUnlock()
 
 	if sChunk == nil {
 		return nil
@@ -135,54 +135,54 @@ func GetChunk(pos glob.XY) *glob.MapChunk {
 }
 
 /* Get a superchunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
-func GetSuperChunk(pos glob.XY) *glob.MapSuperChunk {
+func GetSuperChunk(pos world.XY) *world.MapSuperChunk {
 	scpos := PosToChunkPos(pos)
 
-	glob.SuperChunkMapLock.RLock()
-	sChunk := glob.SuperChunkMap[scpos]
-	glob.SuperChunkMapLock.RUnlock()
+	world.SuperChunkMapLock.RLock()
+	sChunk := world.SuperChunkMap[scpos]
+	world.SuperChunkMapLock.RUnlock()
 
 	return sChunk
 }
 
 /* XY to Chunk XY */
-func PosToChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X / gv.ChunkSize, Y: pos.Y / gv.ChunkSize}
+func PosToChunkPos(pos world.XY) world.XY {
+	return world.XY{X: pos.X / gv.ChunkSize, Y: pos.Y / gv.ChunkSize}
 }
 
 /* Chunk XY to XY */
-func ChunkPosToPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X * gv.ChunkSize, Y: pos.Y * gv.ChunkSize}
+func ChunkPosToPos(pos world.XY) world.XY {
+	return world.XY{X: pos.X * gv.ChunkSize, Y: pos.Y * gv.ChunkSize}
 }
 
 /* XY to SuperChunk XY */
-func PosToSuperChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X / gv.MaxSuperChunk, Y: pos.Y / gv.MaxSuperChunk}
+func PosToSuperChunkPos(pos world.XY) world.XY {
+	return world.XY{X: pos.X / gv.MaxSuperChunk, Y: pos.Y / gv.MaxSuperChunk}
 }
 
 /* SuperChunk XY to XY */
-func SuperChunkPosToPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X * gv.MaxSuperChunk, Y: pos.Y * gv.MaxSuperChunk}
+func SuperChunkPosToPos(pos world.XY) world.XY {
+	return world.XY{X: pos.X * gv.MaxSuperChunk, Y: pos.Y * gv.MaxSuperChunk}
 }
 
 /* Chunk XY to SuperChunk XY */
-func ChunkPosToSuperChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X / gv.SuperChunkSize, Y: pos.Y / gv.SuperChunkSize}
+func ChunkPosToSuperChunkPos(pos world.XY) world.XY {
+	return world.XY{X: pos.X / gv.SuperChunkSize, Y: pos.Y / gv.SuperChunkSize}
 }
 
 /* SuperChunk XY to Chunk XY */
-func SuperChunkPosToChunkPos(pos glob.XY) glob.XY {
-	return glob.XY{X: pos.X * gv.SuperChunkSize, Y: pos.Y * gv.SuperChunkSize}
+func SuperChunkPosToChunkPos(pos world.XY) world.XY {
+	return world.XY{X: pos.X * gv.SuperChunkSize, Y: pos.Y * gv.SuperChunkSize}
 }
 
-/* Float (X, Y) to glob.XY (int) */
-func FloatXYToPosition(x float64, y float64) glob.XY {
+/* Float (X, Y) to world.XY (int) */
+func FloatXYToPosition(x float32, y float32) world.XY {
 
-	return glob.XY{X: int(x), Y: int(y)}
+	return world.XY{X: int(x), Y: int(y)}
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
-func GetNeighborObj(src *glob.ObjData, dir uint8) *glob.ObjData {
+func GetNeighborObj(src *world.ObjData, dir uint8) *world.ObjData {
 
 	pos := src.Pos
 

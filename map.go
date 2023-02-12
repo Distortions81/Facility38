@@ -1,9 +1,9 @@
 package main
 
 import (
-	"GameTest/glob"
 	"GameTest/gv"
 	"GameTest/objects"
+	"GameTest/world"
 	"time"
 )
 
@@ -21,7 +21,7 @@ func makeTestMap(skip bool) {
 		vSpace := 4
 		bLen := 2
 		beltLength := hSpace + bLen
-		for i := 0; total < gv.TestObjects; i++ {
+		for i := 0; total < gv.LoadTestObjects; i++ {
 			if i%2 == 0 {
 				rows++
 			} else {
@@ -40,16 +40,16 @@ func makeTestMap(skip bool) {
 				cols++
 
 				tx := int(gv.XYCenter) - (columns*(beltLength+hSpace))/2
-				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
+				objects.CreateObj(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
-					objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
+					objects.CreateObj(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
 					Loaded++
 				}
 				tx++
-				objects.CreateObj(glob.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
+				objects.CreateObj(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
 				Loaded++
 
 				if cols%columns == 0 {
@@ -57,7 +57,7 @@ func makeTestMap(skip bool) {
 					cols = 0
 				}
 
-				glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
+				world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
 			}
 		} else {
 			/* Default map generator */
@@ -65,64 +65,64 @@ func makeTestMap(skip bool) {
 			ty := int(gv.XYCenter)
 			total = 16
 
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
+			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
+				objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
 				Loaded++
 			}
 			tx++
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
+			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter - 2)
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_WEST)
+			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_WEST)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
-				objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_WEST)
+				objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_WEST)
 				Loaded++
 			}
 			tx--
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_WEST)
+			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_WEST)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter + 2)
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_SOUTH)
+			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_SOUTH)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
-				objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_SOUTH)
+				objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_SOUTH)
 				Loaded++
 			}
 			ty++
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_SOUTH)
+			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_SOUTH)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter - 4)
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_NORTH)
+			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_NORTH)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
-				objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_NORTH)
+				objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_NORTH)
 				Loaded++
 			}
 			ty--
-			objects.CreateObj(glob.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_NORTH)
+			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_NORTH)
 			Loaded++
 
-			glob.MapLoadPercent = (float64(Loaded) / float64(total) * 100.0)
+			world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
 		}
 	}
 
-	glob.MapGenerated.Store(true)
+	world.MapGenerated.Store(true)
 
-	for !glob.SpritesLoaded.Load() ||
-		!glob.PlayerReady.Load() {
+	for !world.SpritesLoaded.Load() ||
+		!world.PlayerReady.Load() {
 		time.Sleep(time.Millisecond * 10)
 	}
 

@@ -1,9 +1,8 @@
 package objects
 
 import (
-	"GameTest/glob"
 	"GameTest/gv"
-	"GameTest/noise"
+	"GameTest/world"
 	"image"
 	"time"
 
@@ -14,13 +13,13 @@ const (
 	maxTerrainCache     = 500
 	maxTerrainCacheWASM = 50
 	minTerrainTime      = time.Minute
-	terrainRenderLoop   = time.Millisecond * 10
+	terrainRenderLoop   = time.Nanosecond
 	debugVisualize      = false
 
 	maxPixmapCache     = 500
 	maxPixmapCacheWASM = 50
 	minPixmapTime      = time.Minute
-	pixmapRenderLoop   = time.Millisecond * 10
+	pixmapRenderLoop   = time.Nanosecond
 )
 
 var (
@@ -29,15 +28,14 @@ var (
 )
 
 func SwitchLayer() {
-	gv.ShowMineralLayerLock.Lock()
+	world.ShowMineralLayerLock.Lock()
 
-	if gv.ShowMineralLayer {
-		gv.ShowMineralLayer = false
+	if world.ShowMineralLayer {
+		world.ShowMineralLayer = false
 	} else {
-		gv.ShowMineralLayer = true
-
+		world.ShowMineralLayer = true
 	}
-	gv.ShowMineralLayerLock.Unlock()
+	world.ShowMineralLayerLock.Unlock()
 
 	SetupTerrainCache()
 }
@@ -45,30 +43,30 @@ func SwitchLayer() {
 /* Make a 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
 
-	tChunk := glob.MapChunk{}
-	renderChunkGround(&tChunk, false, glob.XY{X: 0, Y: 0})
-	glob.TempChunkImage = tChunk.TerrainImg
+	tChunk := world.MapChunk{}
+	renderChunkGround(&tChunk, false, world.XY{X: 0, Y: 0})
+	world.TempChunkImage = tChunk.TerrainImg
 
-	glob.SuperChunkListLock.RLock()
-	for _, sChunk := range glob.SuperChunkList {
+	world.SuperChunkListLock.RLock()
+	for _, sChunk := range world.SuperChunkList {
 		for _, chunk := range sChunk.ChunkList {
 			killTerrainCache(chunk, true)
 		}
 	}
-	glob.SuperChunkListLock.RUnlock()
+	world.SuperChunkListLock.RUnlock()
 
 	if debugVisualize {
-		glob.TempChunkImage.Fill(glob.ColorDarkRed)
+		world.TempChunkImage.Fill(world.ColorDarkRed)
 	}
 }
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
-func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
+func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 	if chunk.Rendering {
 		return
 	}
-	gv.ShowMineralLayerLock.RLock()
-	defer gv.ShowMineralLayerLock.RUnlock()
+	world.ShowMineralLayerLock.RLock()
+	defer world.ShowMineralLayerLock.RUnlock()
 
 	chunk.Rendering = true
 
@@ -78,21 +76,26 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 	chunkPix := (gv.SpriteScale * gv.ChunkSize)
 
 	var bg *ebiten.Image
-	if !gv.ShowMineralLayer {
+	if !world.ShowMineralLayer {
 		bg = TerrainTypes[0].Image
 	} else {
 		bg = TerrainTypes[1].Image
 	}
-	sx := int(float64(bg.Bounds().Size().X))
-	sy := int(float64(bg.Bounds().Size().Y))
+	sx := int(float32(bg.Bounds().Size().X))
+	sy := int(float32(bg.Bounds().Size().Y))
 	var tImg *ebiten.Image
 
 	if sx > 0 && sy > 0 {
 
 		rect := image.Rectangle{}
 
-		rect.Max.X = chunkPix
-		rect.Max.Y = chunkPix
+		if world.ShowMineralLayer {
+			rect.Max.X = gv.ChunkSize
+			rect.Max.Y = gv.ChunkSize
+		} else {
+			rect.Max.X = chunkPix
+			rect.Max.Y = chunkPix
+		}
 
 		tImg = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 
@@ -101,51 +104,42 @@ func renderChunkGround(chunk *glob.MapChunk, doDetail bool, cpos glob.XY) {
 				op.GeoM.Reset()
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
-				if doDetail && !gv.ShowMineralLayer {
-					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
-					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
+				if doDetail && !world.ShowMineralLayer {
+					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
+					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
-					h := noise.NoiseMap(x, y, 0)
+					h := NoiseMap(x, y, 0)
 
-					op.ColorM.Reset()
-					op.ColorM.Scale(h, 1, 1, 1)
+					op.ColorScale.Reset()
+					op.ColorScale.Scale(h, 1, 1, 1)
 
 				} else if doDetail {
-					op.ColorM.Reset()
-					x := (float64(cpos.X*gv.ChunkSize) + float64(i))
-					y := (float64(cpos.Y*gv.ChunkSize) + float64(j))
+					op.ColorScale.Reset()
+					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
+					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
-					for p, nl := range noise.NoiseLayers {
+					for p, nl := range NoiseLayers {
 						if p == 0 {
 							continue
 						}
-
-						h := noise.NoiseMap(x, y, p)
-
-						var r, g, b, a float64
-						r = 1
-						g = 1
-						b = 1
-						a = 1
-
+						var r, g, b float32 = 0.98, 0.98, 0.98
+						h := NoiseMap(x, y, p)
 						if nl.InvertValue {
-							h = 1.0 - h
+							h = -h
 						}
 
 						if nl.RMod {
-							r = h * nl.RMulti
+							r -= (h * nl.RMulti)
 						}
 						if nl.GMod {
-							g = h * nl.GMulti
+							g -= (h * nl.GMulti)
 						}
 						if nl.BMod {
-							b = h * nl.BMulti
+							b -= (h * nl.BMulti)
 						}
-						if nl.AMod {
-							a = h * nl.AMulti
-						}
-						op.ColorM.Scale(r, g, b, a)
+						op.ColorScale.Scale(r, g, b, 1)
 					}
+
 				}
 
 				tImg.DrawImage(bg, op)
@@ -172,9 +166,9 @@ var clearedCache bool
 func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
-	if glob.ZoomScale <= gv.MapPixelThreshold {
+	if world.ZoomScale <= gv.MapPixelThreshold && !world.ShowMineralLayer {
 		if !clearedCache && gv.WASMMode {
-			for _, sChunk := range glob.SuperChunkList {
+			for _, sChunk := range world.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
 					killTerrainCache(chunk, true)
 				}
@@ -184,7 +178,7 @@ func RenderTerrainST() {
 	} else {
 		clearedCache = false
 
-		for _, sChunk := range glob.SuperChunkList {
+		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
 				if chunk.Precache && chunk.UsingTemporary {
 					renderChunkGround(chunk, true, chunk.Pos)
@@ -203,22 +197,22 @@ func RenderTerrainDaemon() {
 		time.Sleep(terrainRenderLoop)
 
 		/* If we zoom out, decallocate everything */
-		if glob.ZoomScale <= gv.MapPixelThreshold {
+		if world.ZoomScale <= gv.MapPixelThreshold && !world.ShowMineralLayer {
 			if !clearedCache && gv.WASMMode {
-				glob.SuperChunkListLock.RLock()
-				for _, sChunk := range glob.SuperChunkList {
+				world.SuperChunkListLock.RLock()
+				for _, sChunk := range world.SuperChunkList {
 					for _, chunk := range sChunk.ChunkList {
 						killTerrainCache(chunk, true)
 					}
 				}
-				glob.SuperChunkListLock.RUnlock()
+				world.SuperChunkListLock.RUnlock()
 				clearedCache = true
 			}
 		} else {
 			clearedCache = false
 
-			glob.SuperChunkListLock.RLock()
-			for _, sChunk := range glob.SuperChunkList {
+			world.SuperChunkListLock.RLock()
+			for _, sChunk := range world.SuperChunkList {
 				if !sChunk.Visible {
 					continue
 				}
@@ -230,13 +224,13 @@ func RenderTerrainDaemon() {
 					}
 				}
 			}
-			glob.SuperChunkListLock.RUnlock()
+			world.SuperChunkListLock.RUnlock()
 		}
 	}
 }
 
 /* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
-func killTerrainCache(chunk *glob.MapChunk, force bool) {
+func killTerrainCache(chunk *world.MapChunk, force bool) {
 
 	if chunk.UsingTemporary || chunk.Rendering || chunk.TerrainImg == nil {
 		return
@@ -249,7 +243,7 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 
 		chunk.TerrainLock.Lock()
 		chunk.TerrainImg.Dispose()
-		chunk.TerrainImg = glob.TempChunkImage
+		chunk.TerrainImg = world.TempChunkImage
 		chunk.UsingTemporary = true
 		numTerrainCache--
 		chunk.TerrainLock.Unlock()
@@ -260,10 +254,10 @@ func killTerrainCache(chunk *glob.MapChunk, force bool) {
 /* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
 
-	if glob.ZoomScale > gv.MapPixelThreshold {
+	if world.ZoomScale > gv.MapPixelThreshold && !world.ShowMineralLayer {
 
 		if !pixmapCacheCleared {
-			for _, sChunk := range glob.SuperChunkList {
+			for _, sChunk := range world.SuperChunkList {
 				if sChunk.PixMap != nil {
 
 					sChunk.PixMap.Dispose()
@@ -278,7 +272,7 @@ func PixmapRenderST() {
 	} else {
 		pixmapCacheCleared = false
 
-		for _, sChunk := range glob.SuperChunkList {
+		for _, sChunk := range world.SuperChunkList {
 			if sChunk.PixMap == nil || sChunk.PixmapDirty {
 				drawPixmap(sChunk, sChunk.Pos)
 				break
@@ -296,10 +290,10 @@ func PixmapRenderDaemon() {
 	for {
 		time.Sleep(pixmapRenderLoop)
 
-		glob.SuperChunkListLock.RLock()
-		for _, sChunk := range glob.SuperChunkList {
+		world.SuperChunkListLock.RLock()
+		for _, sChunk := range world.SuperChunkList {
 
-			if glob.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
+			if world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 
 				pixmapCacheCleared = true
 				sChunk.PixLock.Lock()
@@ -313,7 +307,7 @@ func PixmapRenderDaemon() {
 
 				}
 				sChunk.PixLock.Unlock()
-			} else if glob.ZoomScale <= gv.MapPixelThreshold {
+			} else if world.ZoomScale <= gv.MapPixelThreshold && !world.ShowMineralLayer {
 				pixmapCacheCleared = false
 
 				sChunk.PixLock.Lock()
@@ -323,12 +317,12 @@ func PixmapRenderDaemon() {
 				sChunk.PixLock.Unlock()
 			}
 		}
-		glob.SuperChunkListLock.RUnlock()
+		world.SuperChunkListLock.RUnlock()
 	}
 }
 
 /* Draw a superchunk's pixmap, allocates image if needed. */
-func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
+func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Make Pixelmap images */
@@ -341,7 +335,7 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 		sChunk.PixMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 	}
 
-	sChunk.PixMap.Fill(glob.ColorCharcol)
+	sChunk.PixMap.Fill(world.ColorCharcol)
 
 	for _, chunk := range sChunk.ChunkList {
 		if chunk.NumObjects <= 0 {
@@ -357,7 +351,7 @@ func drawPixmap(sChunk *glob.MapSuperChunk, scPos glob.XY) {
 			y := float64((obj.Pos.Y - gv.XYCenter) - scY)
 			op.GeoM.Reset()
 			op.GeoM.Translate(x, y)
-			sChunk.PixMap.DrawImage(glob.MiniMapTile, op)
+			sChunk.PixMap.DrawImage(world.MiniMapTile, op)
 		}
 		sChunk.PixMapTime = time.Now()
 		sChunk.PixmapDirty = false

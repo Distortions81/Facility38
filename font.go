@@ -1,7 +1,7 @@
 package main
 
 import (
-	"GameTest/glob"
+	"GameTest/world"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
@@ -21,7 +21,7 @@ func init() {
 	 */
 	const dpi = 96
 	/* Boot screen font */
-	glob.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	world.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    15,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
@@ -31,7 +31,7 @@ func init() {
 	}
 
 	/* Missing texture font */
-	glob.ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	world.ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    5,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
@@ -41,7 +41,7 @@ func init() {
 	}
 
 	/* Tooltip font */
-	glob.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	world.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    11,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
@@ -51,7 +51,7 @@ func init() {
 	}
 
 	/* Tooltip font */
-	glob.LargeFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	world.LargeFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    50,
 		DPI:     dpi,
 		Hinting: font.HintingFull,

@@ -2,29 +2,25 @@ package gv
 
 import (
 	"math"
-	"sync"
 )
 
-// Set at build
 var (
-	StartMapBlank = true
-	UPSBench      = false
-	LoadTest      = false
-	WASMMode      = false
-	Debug         = true
-	Verbose       = false
-	LogStdOut     = true
-	LogFileOut    = false
-
-	ShowMineralLayer     bool
-	ShowMineralLayerLock sync.RWMutex
+	/* Build flags */
+	StartNewMap = true
+	UPSBench    = false
+	LoadTest    = false
+	Debug       = false
+	Verbose     = false
+	LogStdOut   = false
+	LogFileOut  = false
+	WASMMode    = false
 )
 
 const (
-	CNinetyDeg     = math.Pi / 2
-	COneEightyDeg  = math.Pi
-	CThreeSixtyDeg = math.Pi * 2
-	DegToRad       = 6.28319
+	NinetyDeg     = math.Pi / 2
+	OneEightyDeg  = math.Pi
+	ThreeSixtyDeg = math.Pi * 2
+	DegToRad      = 6.28319
 
 	Version = "014"
 
@@ -33,18 +29,13 @@ const (
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	/* Debug */
-	TestObjects = 1000000 //Make (approx) this number items
+	LoadTestObjects = 1000000
 
-	/* Limit numbers of chunks that can be drawn */
-	/* Pre-allocated  array */
-	MAX_DRAW_CHUNKS = 32767
-
-	WALKSPEED = 4.0
-	RUNSPEED  = 16.0
+	MoveSpeed = 4.0
+	RunSpeed  = 16.0
 
 	/* Define world center */
-	XYCenter = 100000.0
+	XYCenter = 50000.0
 	XYMax    = XYCenter * 2.0
 	XYMin    = 1.0
 
@@ -73,29 +64,29 @@ const (
 
 	/* Materials */
 	MAT_NONE = 0
-	MAT_COAL = 1 //black with color sheen
+	MAT_COAL = 1
+	MAT_OIL  = 2
+	MAT_GAS  = 3
 
-	MAT_IRON_ORE   = 2
-	MAT_COPPER_ORE = 3
-	MAT_STONE_ORE  = 4
+	MAT_IRON_ORE   = 4
+	MAT_COPPER_ORE = 5
+	MAT_STONE_ORE  = 6
 
-	MAT_IRON   = 5
-	MAT_COPPER = 6
-	MAT_STONE  = 7
-	MAT_SLAG   = 8
+	MAT_IRON   = 7
+	MAT_COPPER = 8
+	MAT_STONE  = 9
+	MAT_SLAG   = 10
 
-	MAT_MAX = 9
+	MAT_MAX = 11
 
 	/* Placeholder texture words render offset */
-	SymbOffX = 0
-	SymbOffY = 10
+	PlaceholdOffX = 0
+	PlaceholdOffY = 10
 
 	/* Toolbar settings */
-	ToolBarScale   = 64
-	SpriteScale    = 16
-	TBThick        = 2
-	ToolBarOffsetX = 0
-	ToolBarOffsetY = 0
+	ToolBarScale = 64
+	SpriteScale  = 16
+	TBSelThick   = 2
 
 	/* Draw settings */
 	MaxSuperChunk = SuperChunkSize * SuperChunkSize
@@ -106,7 +97,7 @@ const (
 	ChunkTotal      = ChunkSize * ChunkSize
 
 	DefaultZoom       = SpriteScale * 2
-	MapPixelThreshold = (SpriteScale / 3)
+	MapPixelThreshold = (SpriteScale / 2)
 
 	/* Directions */
 	DIR_NORTH = 0
@@ -132,6 +123,7 @@ const (
 	COAL_KWH_PER_KG = 8
 	NG_KWH_PER_KG   = 15.5
 	OIL_KWH_PER_KG  = 11.63
+	GAS_KWH_PER_CM  = 10.55
 
 	PB_KWH_PER_KG    = 0.05
 	NICAD_KWH_PER_KG = 0.08

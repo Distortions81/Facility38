@@ -2,42 +2,52 @@ package objects
 
 import (
 	"GameTest/cwlog"
-	"GameTest/glob"
 	"GameTest/gv"
-	"GameTest/noise"
 	"GameTest/util"
+	"GameTest/world"
+	"fmt"
+	"math"
 	"math/rand"
 )
 
 func toggleOverlay() {
-	if glob.ShowInfoLayer {
-		glob.ShowInfoLayer = false
+	if world.ShowInfoLayer {
+		world.ShowInfoLayer = false
 	} else {
-		glob.ShowInfoLayer = true
+		world.ShowInfoLayer = true
 	}
 }
 
-func InitMiner(obj *glob.ObjData) {
+func InitMiner(obj *world.ObjData) {
 	if obj == nil {
 		return
 	}
 	/* Init miner data if needed */
 	if obj.MinerData == nil {
-		obj.MinerData = &glob.MinerDataType{}
+		obj.MinerData = &world.MinerDataType{}
+	} else {
+		return
 	}
 
-	for p := 1; p < 5; p++ {
-		h := 1.0 - (noise.NoiseMap(float64(obj.Pos.X), float64(obj.Pos.Y), p) * 2)
+	for p := 1; p < len(NoiseLayers); p++ {
+		var h float32 = float32(math.Abs(float64(NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p))))
 
+		/* We only mind solids */
+		if !NoiseLayers[p].TypeP.IsSolid {
+			//fmt.Printf("InitMiner: %v: %0.2f is not soild, skipping.\n", NoiseLayers[p].TypeP.Name, h)
+			continue
+		}
+		fmt.Printf("InitMiner: %v: %0.2f\n", NoiseLayers[p].TypeP.Name, h)
 		if h > 0 {
-			obj.MinerData.MatsFound[obj.MinerData.NumTypesFound] = h
-			obj.MinerData.MatsFoundT[obj.MinerData.NumTypesFound] = noise.NoiseLayers[p].Type
+			obj.MinerData.MatsFound = append(obj.MinerData.MatsFound, h)
+			obj.MinerData.MatsFoundT = append(obj.MinerData.MatsFoundT, NoiseLayers[p].TypeI)
 			obj.MinerData.NumTypesFound++
 		}
 	}
+	fmt.Println("")
 }
 
-func minerUpdate(obj *glob.ObjData) {
+func minerUpdate(obj *world.ObjData) {
 
 	/* Find all inputs, round-robin send to output */
 	for p, port := range obj.Ports {
@@ -80,7 +90,7 @@ func minerUpdate(obj *glob.ObjData) {
 					if obj.MinerData.NumTypesFound > 0 {
 						pick := rand.Intn(int(obj.MinerData.NumTypesFound))
 
-						amount := obj.TypeP.KgMineEach * obj.MinerData.MatsFound[pick]
+						amount := obj.TypeP.KgMineEach * float32(obj.MinerData.MatsFound[pick])
 						kind := MatTypes[obj.MinerData.MatsFoundT[pick]]
 
 						/* If we are mining coal, and it won't overfill us,
@@ -104,7 +114,7 @@ func minerUpdate(obj *glob.ObjData) {
 	}
 }
 
-func beltUpdate(obj *glob.ObjData) {
+func beltUpdate(obj *world.ObjData) {
 
 	/* Output is full, exit */
 	if obj.Ports[obj.Dir].Buf.Amount != 0 {
@@ -138,7 +148,7 @@ func beltUpdate(obj *glob.ObjData) {
 	}
 }
 
-func fuelHopperUpdate(obj *glob.ObjData) {
+func fuelHopperUpdate(obj *world.ObjData) {
 
 	/* Handle putting fuel into objects */
 	if obj.Ports[obj.Dir].Obj != nil &&
@@ -149,7 +159,7 @@ func fuelHopperUpdate(obj *glob.ObjData) {
 	}
 }
 
-func splitterUpdate(obj *glob.ObjData) {
+func splitterUpdate(obj *world.ObjData) {
 
 	input := util.ReverseDirection(obj.Dir)
 	if obj.Ports[input].Buf.Amount == 0 {
@@ -180,7 +190,7 @@ func splitterUpdate(obj *glob.ObjData) {
 
 }
 
-func boxUpdate(obj *glob.ObjData) {
+func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Ports {
 		if port.PortDir != gv.PORT_INPUT {
 			cwlog.DoLog("tickObj: Our port is not an input. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
@@ -200,7 +210,7 @@ func boxUpdate(obj *glob.ObjData) {
 		obj.Blocked = false
 
 		if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-			obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
+			obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
 		}
 		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
 		obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
@@ -210,7 +220,7 @@ func boxUpdate(obj *glob.ObjData) {
 	}
 }
 
-func smelterUpdate(obj *glob.ObjData) {
+func smelterUpdate(obj *world.ObjData) {
 
 	/* Find all inputs, round-robin send to output */
 	for p, port := range obj.Ports {
@@ -229,13 +239,13 @@ func smelterUpdate(obj *glob.ObjData) {
 				}
 				obj.KGFuel += port.Buf.Amount
 				obj.Ports[p].Buf.Amount = 0
-			} else if port.Buf.TypeP.IsOre {
+			} else if port.Buf.TypeP.IsSolid {
 				if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
 					continue
 				}
 
 				if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-					obj.Contents[port.Buf.TypeP.TypeI] = &glob.MatData{}
+					obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
 					obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
 				}
 
@@ -264,7 +274,7 @@ func smelterUpdate(obj *glob.ObjData) {
 							continue
 						}
 
-						if cont.TypeP.IsOre && cont.Amount >= obj.TypeP.KgMineEach {
+						if cont.TypeP.IsSolid && cont.Amount >= obj.TypeP.KgMineEach {
 							obj.KGFuel -= obj.TypeP.KgFuelEach
 
 							obj.Contents[c].Amount -= obj.TypeP.KgMineEach
@@ -283,10 +293,10 @@ func smelterUpdate(obj *glob.ObjData) {
 	}
 }
 
-func ironCasterUpdate(o *glob.ObjData) {
-	//oData := glob.GameObjTypes[Obj.Type]
+func ironCasterUpdate(o *world.ObjData) {
+	//oData := world.GameObjTypes[Obj.Type]
 
 }
 
-func steamEngineUpdate(o *glob.ObjData) {
+func steamEngineUpdate(o *world.ObjData) {
 }

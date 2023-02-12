@@ -1,78 +1,14 @@
-package glob
+package world
 
 import (
 	"GameTest/gv"
-	"GameTest/noise"
-	"image/color"
+	"math/rand"
 	"sync"
-	"sync/atomic"
 	"time"
 
+	"github.com/aquilax/go-perlin"
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font"
 )
-
-var (
-	/* World map */
-	SuperChunkList     []*MapSuperChunk
-	SuperChunkListLock sync.RWMutex
-
-	SuperChunkMap     map[XY]*MapSuperChunk
-	SuperChunkMapLock sync.RWMutex
-
-	/* eBiten start settings */
-	ScreenWidth  int = 1280 //Screen width default
-	ScreenHeight int = 720  //Screen height default
-
-	/* Game UPS rate */
-	ObjectUPS            = 4.0
-	ObjectUPS_ns         = time.Duration((1000000000.0 / ObjectUPS))
-	MeasuredObjectUPS_ns = ObjectUPS_ns
-
-	/* eBiten variables */
-	ZoomScale     float64 = gv.DefaultZoom //Current zoom
-	ShowInfoLayer bool
-
-	/* Boot images */
-	MiniMapTile *ebiten.Image
-	ToolBG      *ebiten.Image
-	BeltBlock   *ebiten.Image
-
-	/* Boot status */
-	SpritesLoaded atomic.Bool
-	PlayerReady   atomic.Bool
-	MapGenerated  atomic.Bool
-
-	/* Fonts */
-	BootFont    font.Face
-	ToolTipFont font.Face
-	ObjectFont  font.Face
-	LargeFont   font.Face
-
-	/* Camera position */
-	CameraX float64 = float64(gv.XYCenter)
-	CameraY float64 = float64(gv.XYCenter)
-	/* If position/zoom changed */
-	VisDataDirty atomic.Bool
-
-	/* Mouse vars */
-	MouseX float64 = float64(gv.XYCenter)
-	MouseY float64 = float64(gv.XYCenter)
-
-	/* Setup latches */
-	InitMouse = false
-
-	/* Used for startup screen */
-	TempChunkImage *ebiten.Image
-	WASMMode       bool
-
-	MapLoadPercent float64
-)
-
-func init() {
-	VisDataDirty.Store(true)
-	SuperChunkMap = make(map[XY]*MapSuperChunk)
-}
 
 /* Objects that contain a map of chunks and PixMap */
 type MapSuperChunk struct {
@@ -112,9 +48,42 @@ type MapChunk struct {
 	Lock sync.RWMutex `json:"-"`
 }
 
+type NoiseLayerData struct {
+	Name  string
+	TypeI uint8
+	TypeP *MaterialType
+
+	Scale      float32
+	Alpha      float32
+	Beta       float32
+	N          int32
+	Contrast   float32
+	Brightness float32
+	LimitHigh  float32
+	LimitLow   float32
+
+	InvertValue bool
+
+	RMod bool
+	BMod bool
+	GMod bool
+	AMod bool
+
+	MineralMulti float64
+
+	RMulti float32
+	GMulti float32
+	BMulti float32
+	AMulti float32
+
+	Source rand.Source
+	Seed   int64
+	Perlin *perlin.Perlin
+}
+
 type MinerDataType struct {
-	MatsFound     [noise.NumNoiseTypes]float64
-	MatsFoundT    [noise.NumNoiseTypes]uint8
+	MatsFound     []float32
+	MatsFoundT    []uint8
 	NumTypesFound uint8
 }
 
@@ -128,8 +97,8 @@ type ObjData struct {
 
 	//Internal use
 	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	KGFuel   float64              `json:"kf,omitempty"`
-	KGHeld   float64              `json:"k,omitempty"`
+	KGFuel   float32              `json:"kf,omitempty"`
+	KGHeld   float32              `json:"k,omitempty"`
 
 	//Input/Output
 	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
@@ -153,15 +122,26 @@ type ObjPortData struct {
 	Buf     MatData  `json:"b,omitempty"`
 }
 
+type MaterialType struct {
+	Symbol   string
+	Name     string
+	UnitName string
+
+	ImagePath string
+	Image     *ebiten.Image
+
+	TypeI   uint8
+	IsSolid bool
+	IsGas   bool
+	IsFluid bool
+	Result  uint8
+}
+
 /* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
 	Name string
 
 	TypeI uint8
-
-	ItemColor   *color.NRGBA
-	SymbolColor *color.NRGBA
-	UnitName    string
 
 	Symbol    string
 	Size      XY
@@ -177,18 +157,16 @@ type ObjType struct {
 	UIimg        *ebiten.Image
 	ToolBarArrow bool
 
-	KgHourMine float64
-	HP         float64
-	KW         float64
+	KgHourMine float32
+	HP         float32
+	KW         float32
 
-	KgMineEach float64
-	KgFuelEach float64
+	KgMineEach float32
+	KgFuelEach float32
 
-	MaxContainKG float64
-	MaxFuelKG    float64
+	MaxContainKG float32
+	MaxFuelKG    float32
 
-	IsOre    bool
-	Result   uint8
 	Interval uint8
 
 	Ports       [gv.DIR_MAX]uint8
@@ -230,18 +208,13 @@ type TickEvent struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
-	TypeI  uint8    `json:"i,omitempty"`
-	TypeP  *ObjType `json:"-"`
-	Amount float64  `json:"a,omitempty"`
-	Rot    uint8    `json:"r,omitempty"`
+	TypeI  uint8         `json:"i,omitempty"`
+	TypeP  *MaterialType `json:"-"`
+	Amount float32       `json:"a,omitempty"`
+	Rot    uint8         `json:"r,omitempty"`
 }
 
 /* Int x/y */
 type XY struct {
 	X, Y int
-}
-
-/* float64 x/y */
-type XYF64 struct {
-	X, Y float64
 }
