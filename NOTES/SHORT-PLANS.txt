@@ -20,4 +20,5 @@ high priority:
 splitters, over/under, hoppers
 eventually set machine times in ms/sec
 
-Set mining types, with pointers to typep
+Make mouse tooltip show minerals in mineral mode.
+make UI with checkboxes for mineral selection to draw
