@@ -7,14 +7,9 @@ Issues moved to github
 https://github.com/Distortions81/GameTest/issues
 
 
-
-
 Minimize nested ifs
-Update var/func/struct names, comments
 occupied map, with pointers and x/y cords for building piece info
-don't draw all inputs on belts, just selected
 adjustable miners/furnace speeds
-
 
 high priority:
 splitters, over/under, hoppers
@@ -23,8 +18,6 @@ eventually set machine times in ms/sec
 Make mouse tooltip show minerals in mineral mode.
 make UI with checkboxes for mineral selection to draw
 
-
-Change materials over to superchunks, show items as pixels
 Add ground rendering for pixel mode too
 Possibly look at further cleaning of object types:
 	SubTypes = [][]*world.ObjType{
