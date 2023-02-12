@@ -357,7 +357,9 @@ func makeSuperChunk(pos world.XY) {
 	if world.SuperChunkMap[scpos] == nil {
 
 		/* Make new superchunk in map at pos */
-		world.SuperChunkMap[scpos] = &world.MapSuperChunk{}
+		newSuperChunk := &world.MapSuperChunk{}
+
+		world.SuperChunkMap[scpos] = newSuperChunk
 		world.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
 
 		world.SuperChunkList =
@@ -366,6 +368,8 @@ func makeSuperChunk(pos world.XY) {
 
 		/* Save position */
 		world.SuperChunkMap[scpos].Pos = scpos
+
+		drawMineral(newSuperChunk)
 
 		world.SuperChunkMap[scpos].Lock.Unlock()
 	}
@@ -443,7 +447,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 	//Make chunk if needed
 	if MakeChunk(pos) {
-		ExploreMap(pos, 10)
+		ExploreMap(pos, 4)
 	}
 	chunk := util.GetChunk(pos)
 	obj := util.GetObj(pos, chunk)

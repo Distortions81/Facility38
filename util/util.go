@@ -13,6 +13,22 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
+func Min(a, b float32) float32 {
+	if a <= b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func Max(a, b float32) float32 {
+	if a >= b {
+		return a
+	} else {
+		return b
+	}
+}
+
 func RotatePortsCW(obj *world.ObjData) {
 	var newPorts [gv.DIR_MAX]world.ObjPortData
 	for i := 0; i < gv.DIR_MAX; i++ {

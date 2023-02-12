@@ -200,37 +200,37 @@ func splitterUpdate(obj *world.ObjData) {
 func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Ports {
 		if port.PortDir != gv.PORT_INPUT {
-			//cwlog.DoLog("tickObj: Our port is not an input. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-			continue
-		}
 
-		if port.Buf.Amount == 0 {
-			//cwlog.DoLog("tickObj: Input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-			if obj.TickCount > uint8(world.ObjectUPS*2) {
-				obj.Active = false
+			if port.Buf.Amount == 0 {
+				//cwlog.DoLog("tickObj: Input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				if obj.TickCount > uint8(world.ObjectUPS*2) {
+					obj.Active = false
+				}
+				obj.TickCount++
+				continue
 			}
-			obj.TickCount++
-			continue
+
+			if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
+				//cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+				obj.Blocked = true
+				obj.Active = false
+				continue
+			}
+			obj.Blocked = false
+			obj.Active = true
+			obj.TickCount = 0
+
+			if obj.Contents[port.Buf.TypeP.TypeI] == nil {
+				obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
+			}
+			obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
+			obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
+			obj.KGHeld += port.Buf.Amount
+			obj.Ports[p].Buf.Amount = 0
+
 		}
 
-		if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
-			//cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-			obj.Blocked = true
-			obj.Active = false
-			continue
-		}
-		obj.Blocked = false
-		obj.Active = true
-		obj.TickCount = 0
-
-		if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-			obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
-		}
-		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
-		obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
-		obj.KGHeld += port.Buf.Amount
-		obj.Ports[p].Buf.Amount = 0
-
+		//Unloader goes here
 	}
 }
 

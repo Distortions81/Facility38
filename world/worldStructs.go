@@ -18,11 +18,15 @@ type MapSuperChunk struct {
 	ChunkList []*MapChunk      `json:"-"`
 	NumChunks uint16           `json:"-"`
 
+	MineralMap  []byte `json:"-"`
+	MineralLock sync.Mutex
+
 	PixMap      *ebiten.Image `json:"-"`
 	PixmapDirty bool          `json:"-"`
 	PixLock     sync.RWMutex  `json:"-"`
 	PixMapTime  time.Time     `json:"-"`
-	Visible     bool          `json:"-"`
+
+	Visible bool `json:"-"`
 
 	Lock sync.RWMutex `json:"-"`
 }
