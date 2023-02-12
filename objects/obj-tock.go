@@ -199,7 +199,7 @@ func splitterUpdate(obj *world.ObjData) {
 
 func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Ports {
-		if port.PortDir != gv.PORT_INPUT {
+		if port.PortDir == gv.PORT_INPUT {
 
 			if port.Buf.Amount == 0 {
 				//cwlog.DoLog("tickObj: Input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
