@@ -6,6 +6,7 @@ import (
 	"GameTest/noise"
 	"GameTest/util"
 	"GameTest/world"
+	"math"
 	"math/rand"
 )
 
@@ -26,11 +27,11 @@ func InitMiner(obj *world.ObjData) {
 		obj.MinerData = &world.MinerDataType{}
 	}
 
-	for p := 1; p < 5; p++ {
-		var h float32 = 1.0 - (noise.NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p) * 2)
+	for p := 1; p < len(noise.NoiseLayers)-2; p++ {
+		var h float32 = float32(math.Abs(float64(noise.NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p))))
 
 		if h > 0 {
-			obj.MinerData.MatsFound[obj.MinerData.NumTypesFound] = h
+			obj.MinerData.MatsFound[obj.MinerData.NumTypesFound] = float32(math.Abs(float64(h)))
 			obj.MinerData.MatsFoundT[obj.MinerData.NumTypesFound] = noise.NoiseLayers[p].Type
 			obj.MinerData.NumTypesFound++
 		}
