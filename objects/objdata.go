@@ -223,29 +223,37 @@ var (
 	/* Materials and images */
 	MatTypes = []*world.MaterialType{
 		//Materials
-		{Symbol: "NIL", Name: "NONE"},
+		{Symbol: "NIL", Name: "NONE", TypeI: gv.MAT_NONE},
+
 		{Symbol: "C", Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png",
 			IsSolid: true, TypeI: gv.MAT_COAL},
-		{Symbol: "Oil", Name: "Oil", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png",
+
+		{Symbol: "Oil", Name: "Oil", UnitName: " L", ImagePath: "belt-obj/coal-ore.png",
 			IsFluid: true, TypeI: gv.MAT_OIL},
-		{Symbol: "Gas", Name: "Gas", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png",
+
+		{Symbol: "Gas", Name: "Natural Gas", UnitName: " cm", ImagePath: "belt-obj/coal-ore.png",
 			IsGas: true, TypeI: gv.MAT_GAS},
 
 		/* Ore */
 		{Symbol: "FEo", Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore.png",
 			IsSolid: true, Result: gv.MAT_IRON, TypeI: gv.MAT_IRON_ORE},
+
 		{Symbol: "Cuo", Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper-ore.png",
 			IsSolid: true, Result: gv.MAT_COPPER, TypeI: gv.MAT_COPPER_ORE},
+
 		{Symbol: "STOo", Name: "Stone Ore", UnitName: " kg", ImagePath: "belt-obj/stone-ore.png",
 			IsSolid: true, Result: gv.MAT_STONE, TypeI: gv.MAT_STONE_ORE},
 
 		/* Metal */
 		{Symbol: "FE", Name: "Iron Bar", UnitName: " kg", ImagePath: "belt-obj/iron.png",
 			IsSolid: true, TypeI: gv.MAT_IRON},
+
 		{Symbol: "Cu", Name: "Copper Bar", UnitName: " kg", ImagePath: "belt-obj/copper.png",
 			IsSolid: true, TypeI: gv.MAT_COPPER},
+
 		{Symbol: "STO", Name: "Stone Block", UnitName: " kg", ImagePath: "belt-obj/stone.png",
 			IsSolid: true, TypeI: gv.MAT_STONE},
+
 		{Symbol: "SLG", Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone.png",
 			IsSolid: true, TypeI: gv.MAT_SLAG},
 	}

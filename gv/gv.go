@@ -9,9 +9,9 @@ var (
 	StartNewMap = true
 	UPSBench    = false
 	LoadTest    = false
-	Debug       = true
+	Debug       = false
 	Verbose     = false
-	LogStdOut   = true
+	LogStdOut   = false
 	LogFileOut  = false
 	WASMMode    = false
 )
@@ -68,16 +68,16 @@ const (
 	MAT_OIL  = 2
 	MAT_GAS  = 3
 
-	MAT_IRON_ORE   = 2
-	MAT_COPPER_ORE = 3
-	MAT_STONE_ORE  = 4
+	MAT_IRON_ORE   = 4
+	MAT_COPPER_ORE = 5
+	MAT_STONE_ORE  = 6
 
-	MAT_IRON   = 5
-	MAT_COPPER = 6
-	MAT_STONE  = 7
-	MAT_SLAG   = 8
+	MAT_IRON   = 7
+	MAT_COPPER = 8
+	MAT_STONE  = 9
+	MAT_SLAG   = 10
 
-	MAT_MAX = 9
+	MAT_MAX = 11
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0
@@ -123,6 +123,7 @@ const (
 	COAL_KWH_PER_KG = 8
 	NG_KWH_PER_KG   = 15.5
 	OIL_KWH_PER_KG  = 11.63
+	GAS_KWH_PER_CM  = 10.55
 
 	PB_KWH_PER_KG    = 0.05
 	NICAD_KWH_PER_KG = 0.08

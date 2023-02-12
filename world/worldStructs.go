@@ -2,10 +2,11 @@ package world
 
 import (
 	"GameTest/gv"
-	"GameTest/noise"
+	"math/rand"
 	"sync"
 	"time"
 
+	"github.com/aquilax/go-perlin"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -47,9 +48,42 @@ type MapChunk struct {
 	Lock sync.RWMutex `json:"-"`
 }
 
+type NoiseLayerData struct {
+	Name  string
+	TypeI uint8
+	TypeP *MaterialType
+
+	Scale      float32
+	Alpha      float32
+	Beta       float32
+	N          int32
+	Contrast   float32
+	Brightness float32
+	LimitHigh  float32
+	LimitLow   float32
+
+	InvertValue bool
+
+	RMod bool
+	BMod bool
+	GMod bool
+	AMod bool
+
+	MineralMulti float64
+
+	RMulti float32
+	GMulti float32
+	BMulti float32
+	AMulti float32
+
+	Source rand.Source
+	Seed   int64
+	Perlin *perlin.Perlin
+}
+
 type MinerDataType struct {
-	MatsFound     [noise.NumNoiseTypes]float32
-	MatsFoundT    [noise.NumNoiseTypes]uint8
+	MatsFound     []float32
+	MatsFoundT    []uint8
 	NumTypesFound uint8
 }
 

@@ -2,7 +2,6 @@ package objects
 
 import (
 	"GameTest/gv"
-	"GameTest/noise"
 	"GameTest/world"
 	"image"
 	"time"
@@ -109,7 +108,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
 					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
-					h := noise.NoiseMap(x, y, 0)
+					h := NoiseMap(x, y, 0)
 
 					op.ColorScale.Reset()
 					op.ColorScale.Scale(h, 2, 2, 2)
@@ -119,12 +118,12 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
 					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
-					for p, nl := range noise.NoiseLayers {
+					for p, nl := range NoiseLayers {
 						if p == 0 {
 							continue
 						}
 						var r, g, b float32 = 0.98, 0.98, 0.98
-						h := noise.NoiseMap(x, y, p)
+						h := NoiseMap(x, y, p)
 						if nl.InvertValue {
 							h = -h
 						}

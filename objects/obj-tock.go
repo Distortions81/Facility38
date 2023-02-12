@@ -3,9 +3,9 @@ package objects
 import (
 	"GameTest/cwlog"
 	"GameTest/gv"
-	"GameTest/noise"
 	"GameTest/util"
 	"GameTest/world"
+	"fmt"
 	"math"
 	"math/rand"
 )
@@ -25,17 +25,26 @@ func InitMiner(obj *world.ObjData) {
 	/* Init miner data if needed */
 	if obj.MinerData == nil {
 		obj.MinerData = &world.MinerDataType{}
+	} else {
+		return
 	}
 
-	for p := 1; p < len(noise.NoiseLayers)-2; p++ {
-		var h float32 = float32(math.Abs(float64(noise.NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p))))
+	for p := 1; p < len(NoiseLayers); p++ {
+		var h float32 = float32(math.Abs(float64(NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p))))
 
+		/* We only mind solids */
+		if !NoiseLayers[p].TypeP.IsSolid {
+			//fmt.Printf("InitMiner: %v: %0.2f is not soild, skipping.\n", NoiseLayers[p].TypeP.Name, h)
+			continue
+		}
+		fmt.Printf("InitMiner: %v: %0.2f\n", NoiseLayers[p].TypeP.Name, h)
 		if h > 0 {
-			obj.MinerData.MatsFound[obj.MinerData.NumTypesFound] = float32(math.Abs(float64(h)))
-			obj.MinerData.MatsFoundT[obj.MinerData.NumTypesFound] = noise.NoiseLayers[p].Type
+			obj.MinerData.MatsFound = append(obj.MinerData.MatsFound, h)
+			obj.MinerData.MatsFoundT = append(obj.MinerData.MatsFoundT, NoiseLayers[p].TypeI)
 			obj.MinerData.NumTypesFound++
 		}
 	}
+	fmt.Println("")
 }
 
 func minerUpdate(obj *world.ObjData) {

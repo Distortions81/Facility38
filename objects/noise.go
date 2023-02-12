@@ -1,50 +1,33 @@
-package noise
+package objects
 
 import (
 	"GameTest/gv"
+	"GameTest/world"
 	"math/rand"
 	"time"
 
 	"github.com/aquilax/go-perlin"
 )
 
-type noiseLayerData struct {
-	Name string
-	Type uint8
+func init() {
 
-	Scale      float32
-	Alpha      float32
-	Beta       float32
-	N          int32
-	Contrast   float32
-	Brightness float32
-	LimitHigh  float32
-	LimitLow   float32
-
-	InvertValue bool
-
-	RMod bool
-	BMod bool
-	GMod bool
-	AMod bool
-
-	MineralMulti float64
-
-	RMulti float32
-	GMulti float32
-	BMulti float32
-	AMulti float32
-
-	Source rand.Source
-	Seed   int64
-	Perlin *perlin.Perlin
+	for i, nl := range NoiseLayers {
+		if NoiseLayers[i].TypeI == gv.MAT_NONE {
+			continue
+		}
+		for j, mt := range MatTypes {
+			if nl.TypeI == mt.TypeI {
+				//fmt.Printf("NoiseLayer: %v : MatType: %v\n", nl.Name, mt.Name)
+				NoiseLayers[i].TypeP = MatTypes[j]
+				break
+			}
+		}
+	}
 }
 
-const NumNoiseTypes = 4
-
-var NoiseLayers = []noiseLayerData{
+var NoiseLayers = []world.NoiseLayerData{
 	{Name: "Grass",
-		Type:       gv.MAT_NONE,
+		TypeI:      gv.MAT_NONE,
 		Scale:      32,
 		Alpha:      2,
 		Beta:       2.0,
@@ -62,7 +45,7 @@ var NoiseLayers = []noiseLayerData{
 
 	/* Minerals */
 	{Name: "Oil",
-		Type:  gv.MAT_OIL,
+		TypeI: gv.MAT_OIL,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
@@ -82,8 +65,8 @@ var NoiseLayers = []noiseLayerData{
 		GMulti:       0.7,
 		BMulti:       1,
 	},
-	{Name: "Gas",
-		Type:  gv.MAT_GAS,
+	{Name: "Natural Gas",
+		TypeI: gv.MAT_GAS,
 		Scale: 128,
 		Alpha: 2,
 		Beta:  2.0,
@@ -104,7 +87,7 @@ var NoiseLayers = []noiseLayerData{
 		BMulti:       0,
 	},
 	{Name: "Coal",
-		Type:  gv.MAT_COAL,
+		TypeI: gv.MAT_COAL,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
@@ -124,8 +107,8 @@ var NoiseLayers = []noiseLayerData{
 		GMulti:       1,
 		BMulti:       1,
 	},
-	{Name: "Iron",
-		Type:  gv.MAT_IRON_ORE,
+	{Name: "Iron Ore",
+		TypeI: gv.MAT_IRON_ORE,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
@@ -145,8 +128,8 @@ var NoiseLayers = []noiseLayerData{
 		GMulti:       0.85,
 		BMulti:       1,
 	},
-	{Name: "Copper",
-		Type:  gv.MAT_COPPER_ORE,
+	{Name: "Copper Ore",
+		TypeI: gv.MAT_COPPER_ORE,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
@@ -166,8 +149,8 @@ var NoiseLayers = []noiseLayerData{
 		GMulti:       0.25,
 		BMulti:       0,
 	},
-	{Name: "Stone",
-		Type:  gv.MAT_STONE_ORE,
+	{Name: "Stone Ore",
+		TypeI: gv.MAT_STONE_ORE,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
