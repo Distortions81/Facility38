@@ -220,22 +220,21 @@ func killTerrainCache(chunk *world.MapChunk, force bool) {
 /* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
 
-	if world.ZoomScale > gv.MapPixelThreshold {
+	if !world.ShowMineralLayer && world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 
-		if !pixmapCacheCleared {
-			for _, sChunk := range world.SuperChunkList {
-				if sChunk.PixMap != nil {
+		for _, sChunk := range world.SuperChunkList {
+			if sChunk.PixMap != nil {
 
-					sChunk.PixMap.Dispose()
-					sChunk.PixMap = nil
-					numPixmapCache--
-					break
+				sChunk.PixMap.Dispose()
+				sChunk.PixMap = nil
+				numPixmapCache--
+				break
 
-				}
 			}
-			pixmapCacheCleared = true
 		}
-	} else {
+		pixmapCacheCleared = true
+
+	} else if world.ZoomScale <= gv.MapPixelThreshold || world.ShowMineralLayer {
 		pixmapCacheCleared = false
 
 		for _, sChunk := range world.SuperChunkList {

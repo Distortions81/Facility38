@@ -229,6 +229,7 @@ func zoomHandle() {
 	/* WASM kludge */
 	if gv.WASMMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
+			world.VisDataDirty.Store(true)
 			return
 		}
 	}
