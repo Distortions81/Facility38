@@ -130,6 +130,19 @@ func loadSprites() {
 		}
 	}
 
+	for m, item := range objects.MatTypes {
+		if item.ImagePath != "" {
+			img, err := data.GetSpriteImage(item.ImagePath)
+			if err != nil {
+				/* If not found, fill texture with text */
+				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+				img.Fill(world.ColorVeryDarkGray)
+				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
+			}
+			objects.MatTypes[m].Image = img
+		}
+	}
+
 	objects.SetupTerrainCache()
 	DrawToolbar()
 
