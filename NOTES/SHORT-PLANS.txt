@@ -7,6 +7,8 @@ Issues moved to github
 https://github.com/Distortions81/GameTest/issues
 
 
+
+
 Minimize nested ifs
 Update var/func/struct names, comments
 occupied map, with pointers and x/y cords for building piece info
@@ -17,3 +19,5 @@ adjustable miners/furnace speeds
 high priority:
 splitters, over/under, hoppers
 eventually set machine times in ms/sec
+
+Set mining types, with pointers to typep
