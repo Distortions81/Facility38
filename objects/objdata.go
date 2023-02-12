@@ -6,7 +6,6 @@ import (
 	"GameTest/world"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -16,26 +15,17 @@ func init() {
 	for i := range GameObjTypes {
 		if GameObjTypes[i].KgHourMine > 0 {
 			GameObjTypes[i].KgMineEach = ((GameObjTypes[i].KgHourMine / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
-			fmt.Printf("%v: KG/h: %0.4f KgMineEach: %0.4f\n",
-				GameObjTypes[i].Name,
-				GameObjTypes[i].KgHourMine,
-				GameObjTypes[i].KgMineEach)
+			//fmt.Printf("%v: KG/h: %0.4f KgMineEach: %0.4f\n",GameObjTypes[i].Name,GameObjTypes[i].KgHourMine,GameObjTypes[i].KgMineEach)
 		}
 		if GameObjTypes[i].HP > 0 {
 			KW := GameObjTypes[i].HP * gv.HP_PER_KW
 			COALKG := KW / gv.COAL_KWH_PER_KG
 			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
-			fmt.Printf("%v: HP: %0.4f KgFuelEach: %0.4f\n",
-				GameObjTypes[i].Name,
-				GameObjTypes[i].HP,
-				GameObjTypes[i].KgFuelEach)
+			//fmt.Printf("%v: HP: %0.4f KgFuelEach: %0.4f\n",GameObjTypes[i].Name,GameObjTypes[i].HP,GameObjTypes[i].KgFuelEach)
 		} else if GameObjTypes[i].KW > 0 {
 			COALKG := GameObjTypes[i].KW / gv.COAL_KWH_PER_KG
 			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
-			fmt.Printf("%v: KW: %0.4f KgFuelEach: %0.4f\n",
-				GameObjTypes[i].Name,
-				GameObjTypes[i].KW,
-				GameObjTypes[i].KgFuelEach)
+			//fmt.Printf("%v: KW: %0.4f KgFuelEach: %0.4f\n",GameObjTypes[i].Name,GameObjTypes[i].KW,GameObjTypes[i].KgFuelEach)
 		}
 
 		if GameObjTypes[i].KgFuelEach > 0 {
@@ -43,9 +33,7 @@ func init() {
 			if GameObjTypes[i].MaxFuelKG < 10 {
 				GameObjTypes[i].MaxFuelKG = 10
 			}
-			fmt.Printf("%v: MaxFuelKG: %0.4f\n",
-				GameObjTypes[i].Name,
-				GameObjTypes[i].MaxFuelKG)
+			//fmt.Printf("%v: MaxFuelKG: %0.4f\n",GameObjTypes[i].Name,GameObjTypes[i].MaxFuelKG)
 		}
 
 		if GameObjTypes[i].KgMineEach > 0 {
@@ -53,9 +41,7 @@ func init() {
 			if GameObjTypes[i].MaxContainKG < 10 {
 				GameObjTypes[i].MaxContainKG = 10
 			}
-			fmt.Printf("%v: MaxContainKG: %0.4f\n",
-				GameObjTypes[i].Name,
-				GameObjTypes[i].MaxContainKG)
+			//fmt.Printf("%v: MaxContainKG: %0.4f\n",GameObjTypes[i].Name,GameObjTypes[i].MaxContainKG)
 		}
 	}
 }

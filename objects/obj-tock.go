@@ -5,7 +5,6 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
-	"fmt"
 	"math"
 	"math/rand"
 )
@@ -37,14 +36,13 @@ func InitMiner(obj *world.ObjData) {
 			//fmt.Printf("InitMiner: %v: %0.2f is not soild, skipping.\n", NoiseLayers[p].TypeP.Name, h)
 			continue
 		}
-		fmt.Printf("InitMiner: %v: %0.2f\n", NoiseLayers[p].TypeP.Name, h)
+		//fmt.Printf("InitMiner: %v: %0.2f\n", NoiseLayers[p].TypeP.Name, h)
 		if h > 0 {
 			obj.MinerData.MatsFound = append(obj.MinerData.MatsFound, h)
 			obj.MinerData.MatsFoundT = append(obj.MinerData.MatsFoundT, NoiseLayers[p].TypeI)
 			obj.MinerData.NumTypesFound++
 		}
 	}
-	fmt.Println("")
 }
 
 func minerUpdate(obj *world.ObjData) {

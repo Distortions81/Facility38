@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
 )
 
 /* Used to munge data into a test save file */
@@ -36,8 +35,8 @@ func SaveGame() {
 		tempPath := "save.dat.tmp"
 		finalPath := "save.dat"
 
-		start := time.Now()
-		fmt.Println("Save starting.")
+		//start := time.Now()
+		//("Save starting.")
 
 		/* Pause the whole world ... */
 		world.SuperChunkListLock.RLock()
@@ -93,17 +92,17 @@ func SaveGame() {
 				}
 			}
 		}
-		fmt.Println("WALK COMPLETE:", time.Since(start).String())
+		//fmt.Println("WALK COMPLETE:", time.Since(start).String())
 
 		b, err := json.Marshal(tempList)
 
 		world.SuperChunkListLock.RUnlock()
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
-		fmt.Println("ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
+		//fmt.Println("ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
 
 		if err != nil {
-			fmt.Printf("SaveGame: encode error: %v\n", err)
+			//fmt.Printf("SaveGame: encode error: %v\n", err)
 			//return
 		}
 
@@ -129,7 +128,7 @@ func SaveGame() {
 			return
 		}
 
-		fmt.Println("COMPRESS & WRITE COMPLETE:", time.Since(start).String())
+		//fmt.Println("COMPRESS & WRITE COMPLETE:", time.Since(start).String())
 	}()
 }
 
@@ -142,7 +141,7 @@ func LoadGame() {
 
 	go func() {
 
-		start := time.Now()
+		//start := time.Now()
 
 		b, err := os.ReadFile("save.dat")
 		if err != nil {
@@ -150,9 +149,9 @@ func LoadGame() {
 			return
 		}
 
-		fmt.Println("save read:", time.Since(start).String())
+		//fmt.Println("save read:", time.Since(start).String())
 		data := util.UncompressZip(b)
-		fmt.Println("uncompressed:", time.Since(start).String())
+		//fmt.Println("uncompressed:", time.Since(start).String())
 		dbuf := bytes.NewBuffer(data)
 
 		dec := json.NewDecoder(dbuf)
@@ -167,7 +166,7 @@ func LoadGame() {
 			fmt.Printf("LoadGame: JSON decode error: %v\n", err)
 			return
 		}
-		fmt.Println("json decoded:", time.Since(start).String())
+		//fmt.Println("json decoded:", time.Since(start).String())
 		world.SuperChunkListLock.RUnlock()
 
 		/* Needs unsafeCreateObj that can accept a starting data set */
@@ -240,6 +239,6 @@ func LoadGame() {
 
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
-		fmt.Printf("%v objects created, Completed in %v\n", count, time.Since(start).String())
+		//fmt.Printf("%v objects created, Completed in %v\n", count, time.Since(start).String())
 	}()
 }
