@@ -6,7 +6,7 @@ import (
 
 var (
 	/* Build flags */
-	StartNewMap = false
+	StartNewMap = true
 	UPSBench    = false
 	LoadTest    = true
 	Debug       = false

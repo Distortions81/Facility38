@@ -17,8 +17,8 @@ func makeTestMap(skip bool) {
 		total := 0
 		rows := 0
 		columns := 0
-		hSpace := 2
-		vSpace := 1
+		hSpace := 4
+		vSpace := 2
 		bLen := 2
 		beltLength := hSpace + bLen
 		for i := 0; total < gv.LoadTestObjects; i++ {
