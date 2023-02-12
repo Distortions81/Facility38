@@ -22,3 +22,14 @@ eventually set machine times in ms/sec
 
 Make mouse tooltip show minerals in mineral mode.
 make UI with checkboxes for mineral selection to draw
+
+
+Change materials over to superchunks, show items as pixels
+Add ground rendering for pixel mode too
+Possibly look at further cleaning of object types:
+	SubTypes = [][]*world.ObjType{
+		UIObjsTypes,
+		GameObjTypes,
+		ObjOverlayTypes,
+		TerrainTypes,
+	}
