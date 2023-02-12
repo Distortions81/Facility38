@@ -32,15 +32,15 @@ var NoiseLayers = []world.NoiseLayerData{
 		Alpha:      2,
 		Beta:       2.0,
 		N:          3,
-		Contrast:   1,
-		Brightness: 0,
-		LimitHigh:  1,
+		Contrast:   2,
+		Brightness: 1,
+		LimitHigh:  5,
 		LimitLow:   0,
 
 		RMod: true,
 
 		MineralMulti: 0,
-		RMulti:       2,
+		RMulti:       1,
 	},
 
 	/* Minerals */

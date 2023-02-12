@@ -169,7 +169,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 			drawTerrain(chunk, screen)
 			if world.ShowMineralLayer {
-				//continue
+				continue
 			}
 
 			/* Draw objects in chunk */

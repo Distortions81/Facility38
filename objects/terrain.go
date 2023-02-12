@@ -111,7 +111,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					h := NoiseMap(x, y, 0)
 
 					op.ColorScale.Reset()
-					op.ColorScale.Scale(h, 2, 2, 2)
+					op.ColorScale.Scale(h, 1, 1, 1)
 
 				} else if doDetail {
 					op.ColorScale.Reset()
