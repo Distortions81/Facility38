@@ -51,13 +51,14 @@ const (
 	ObjTypeLoad = 1
 
 	/* Buildings */
-	ObjTypeBasicMiner      = 0
-	ObjTypeBasicBelt       = 1
-	ObjTypeBasicBeltInter  = 2
-	ObjTypeBasicSplit      = 3
-	ObjTypeBasicBox        = 4
-	ObjTypeBasicSmelter    = 5
-	ObjTypeBasicFuelHopper = 6
+	ObjTypeBasicMiner          = 0
+	ObjTypeBasicBelt           = 1
+	ObjTypeBasicBeltInterRight = 2
+	ObjTypeBasicBeltInterLeft  = 3
+	ObjTypeBasicSplit          = 3
+	ObjTypeBasicBox            = 4
+	ObjTypeBasicSmelter        = 5
+	ObjTypeBasicFuelHopper     = 6
 
 	ObjTypeBasicIronCaster = 7
 	ObjTypeBasicBoiler     = 8
