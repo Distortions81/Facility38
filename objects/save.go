@@ -89,22 +89,17 @@ func SaveGame() {
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
 					tobj := &saveMObj{
-						Pos:   util.CenterXY(mObj.Pos),
-						TypeI: mObj.TypeP.TypeI,
-						Dir:   mObj.Dir,
-						//C:  mObj.Contents,
-						KGFuel: mObj.KGFuel,
-						KGHeld: mObj.KGHeld,
-						//PO: mObj.Ports,
-						Ticks: mObj.TickCount,
+						Pos:      util.CenterXY(mObj.Pos),
+						TypeI:    mObj.TypeP.TypeI,
+						Dir:      mObj.Dir,
+						Contents: mObj.Contents,
+						KGFuel:   mObj.KGFuel,
+						KGHeld:   mObj.KGHeld,
+						Ports:    mObj.Ports,
+						Ticks:    mObj.TickCount,
 					}
 
-					for c := range mObj.Contents {
-						if mObj.Contents[c] == nil {
-							continue
-						}
-						tobj.Contents[c] = mObj.Contents[c]
-					}
+					/* Convert pointer to type int */
 					for c := range tobj.Contents {
 						if tobj.Contents[c] == nil {
 							continue
@@ -113,12 +108,7 @@ func SaveGame() {
 						tobj.Contents[c].TypeP = nil
 					}
 
-					for p := range mObj.Ports {
-						if mObj.Ports[p] == nil || mObj.Ports[p].Buf.Amount == 0 {
-							continue
-						}
-						tobj.Ports[p] = mObj.Ports[p]
-					}
+					/* Convert pointer to type int */
 					for p := range tobj.Ports {
 						if tobj.Ports[p] == nil {
 							continue
