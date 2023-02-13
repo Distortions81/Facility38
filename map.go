@@ -10,7 +10,7 @@ import (
 /* Make a test map, or skip and still start daemons */
 func makeTestMap(skip bool) {
 
-	objects.NoiseInit()
+	objects.PerlinNoiseInit()
 
 	if !skip {
 		//start := time.Now()

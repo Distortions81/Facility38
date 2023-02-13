@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"GameTest/cwlog"
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
@@ -31,15 +32,14 @@ type MapSeedsData struct {
 }
 
 type saveMObj struct {
-	P  world.XY             `json:"p,omitempty"`
-	I  uint8                `json:"i,omitempty"`
-	D  uint8                `json:"d,omitempty"`
-	C  []*world.MatData     `json:"c,omitempty"`
-	F  []*world.MatData     `json:"f,omitempty"`
-	KF float32              `json:"kf,omitempty"`
-	K  float32              `json:"k,omitempty"`
-	PO []*world.ObjPortData `json:"po,omitempty"`
-	T  uint8                `json:"t,omitempty"`
+	Pos      world.XY                       `json:"p,omitempty"`
+	TypeI    uint8                          `json:"i,omitempty"`
+	Dir      uint8                          `json:"d,omitempty"`
+	Contents [gv.MAT_MAX]*world.MatData     `json:"c,omitempty"`
+	KGFuel   float32                        `json:"kf,omitempty"`
+	KGHeld   float32                        `json:"k,omitempty"`
+	Ports    [gv.DIR_MAX]*world.ObjPortData `json:"po,omitempty"`
+	Ticks    uint8                          `json:"t,omitempty"`
 }
 
 /* WIP */
@@ -82,53 +82,51 @@ func SaveGame() {
 		}
 
 		tempList := gameSave{
-			Version:  1,
+			Version:  2,
 			Date:     time.Now().Unix(),
 			MapSeeds: seeds}
 		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
 					tobj := &saveMObj{
-						P: util.CenterXY(mObj.Pos),
-						I: mObj.TypeP.TypeI,
-						D: mObj.Dir,
+						Pos:   util.CenterXY(mObj.Pos),
+						TypeI: mObj.TypeP.TypeI,
+						Dir:   mObj.Dir,
 						//C:  mObj.Contents,
-						//F:  mObj.Fuel,
-						KF: mObj.KGFuel,
-						K:  mObj.KGHeld,
+						KGFuel: mObj.KGFuel,
+						KGHeld: mObj.KGHeld,
 						//PO: mObj.Ports,
-						T: mObj.TickCount,
+						Ticks: mObj.TickCount,
 					}
 
-					for _, cont := range mObj.Contents {
-						if cont == nil {
+					for c := range mObj.Contents {
+						if mObj.Contents[c] == nil {
 							continue
 						}
-						copy(tobj.C, []*world.MatData{cont})
+						tobj.Contents[c] = mObj.Contents[c]
 					}
-					for c := range tobj.C {
-						if tobj.C[c] == nil {
+					for c := range tobj.Contents {
+						if tobj.Contents[c] == nil {
 							continue
 						}
-						tobj.C[c].TypeI = tobj.C[c].TypeP.TypeI
-						tobj.C[c].TypeP = nil
-					}
-
-					for _, po := range mObj.Ports {
-						if po == nil || po.Buf.TypeP == nil {
-							continue
-						}
-						copy(tobj.PO, []*world.ObjPortData{po})
-					}
-					for p := range tobj.PO {
-						if tobj.PO[p] == nil {
-							continue
-						}
-						tobj.PO[p].Buf.TypeI = tobj.PO[p].Buf.TypeP.TypeI
-						tobj.PO[p].Buf.TypeP = nil
-						tobj.PO[p].Obj = nil
+						tobj.Contents[c].TypeI = tobj.Contents[c].TypeP.TypeI
+						tobj.Contents[c].TypeP = nil
 					}
 
+					for p := range mObj.Ports {
+						if mObj.Ports[p] == nil || mObj.Ports[p].Buf.Amount == 0 {
+							continue
+						}
+						tobj.Ports[p] = mObj.Ports[p]
+					}
+					for p := range tobj.Ports {
+						if tobj.Ports[p] == nil {
+							continue
+						}
+						tobj.Ports[p].Buf.TypeI = tobj.Ports[p].Buf.TypeP.TypeI
+						tobj.Ports[p].Buf.TypeP = nil
+						tobj.Ports[p].Obj = nil
+					}
 					tempList.Objects = append(tempList.Objects, tobj)
 				}
 			}
@@ -154,9 +152,9 @@ func SaveGame() {
 			return
 		}
 
-		zip := util.CompressZip(b)
+		//zip := util.CompressZip(b)
 
-		err = os.WriteFile(tempPath, zip, 0644)
+		err = os.WriteFile(tempPath, b, 0644)
 
 		if err != nil {
 			fmt.Printf("SaveGame: os.WriteFile error: %v\n", err)
@@ -191,9 +189,9 @@ func LoadGame() {
 		}
 
 		//fmt.Println("save read:", time.Since(start).String())
-		data := util.UncompressZip(b)
+		//data := util.UncompressZip(b)
 		//fmt.Println("uncompressed:", time.Since(start).String())
-		dbuf := bytes.NewBuffer(data)
+		dbuf := bytes.NewBuffer(b)
 
 		dec := json.NewDecoder(dbuf)
 
@@ -207,6 +205,11 @@ func LoadGame() {
 			fmt.Printf("LoadGame: JSON decode error: %v\n", err)
 			return
 		}
+
+		if tempList.Version != 2 {
+			cwlog.DoLog("LoadGame: Invalid save version.")
+		}
+
 		//fmt.Println("json decoded:", time.Since(start).String())
 		world.SuperChunkListLock.RUnlock()
 		for n, nl := range NoiseLayers {
@@ -228,55 +231,43 @@ func LoadGame() {
 			}
 		}
 
-		NoiseInit()
+		PerlinNoiseInit()
 
 		/* Needs unsafeCreateObj that can accept a starting data set */
 		count := 0
 		for i := range tempList.Objects {
 
 			obj := &world.ObjData{
-				Pos:   util.UnCenterXY(tempList.Objects[i].P),
-				TypeP: GameObjTypes[tempList.Objects[i].I],
-				Dir:   tempList.Objects[i].D,
-				//Contents:  item.C,
-				KGFuel: tempList.Objects[i].KF,
-				KGHeld: tempList.Objects[i].K,
-				//Ports:     item.PO,
-				TickCount: tempList.Objects[i].T,
+				Pos:       util.UnCenterXY(tempList.Objects[i].Pos),
+				TypeP:     GameObjTypes[tempList.Objects[i].TypeI],
+				Dir:       tempList.Objects[i].Dir,
+				Contents:  tempList.Objects[i].Contents,
+				KGFuel:    tempList.Objects[i].KGFuel,
+				KGHeld:    tempList.Objects[i].KGHeld,
+				Ports:     tempList.Objects[i].Ports,
+				TickCount: tempList.Objects[i].Ticks,
 			}
-			copy(obj.Contents[:], tempList.Objects[i].C)
-			copy(obj.Ports[:], tempList.Objects[i].PO)
 
-			for c, cont := range obj.Contents {
-				if cont == nil {
+			for c := range obj.Contents {
+				if obj.Contents[c] == nil {
 					continue
 				}
-				obj.Contents[c].TypeP = MatTypes[cont.TypeI]
+				obj.Contents[c].TypeP = MatTypes[obj.Contents[c].TypeI]
 			}
 
-			for p, port := range obj.TypeP.Ports {
+			for p := range obj.Ports {
 				if obj.Ports[p] == nil {
-					obj.Ports[p] = &world.ObjPortData{}
-				}
-				obj.Ports[p].PortDir = port
-			}
-			for x := 0; x < int(obj.Dir); x++ {
-				util.RotatePortsCW(obj)
-			}
-
-			for p, port := range obj.Ports {
-				if port == nil {
 					continue
 				}
-				obj.Ports[p].Buf.TypeP = MatTypes[port.Buf.TypeI]
+				obj.Ports[p].Buf.TypeP = MatTypes[obj.Ports[p].Buf.TypeI]
 			}
 
 			/* Relink */
-			MakeChunk(util.UnCenterXY(tempList.Objects[i].P))
-			chunk := util.GetChunk(util.UnCenterXY(tempList.Objects[i].P))
+			MakeChunk(util.UnCenterXY(tempList.Objects[i].Pos))
+			chunk := util.GetChunk(util.UnCenterXY(tempList.Objects[i].Pos))
 			obj.Parent = chunk
 
-			obj.Parent.ObjMap[util.UnCenterXY(tempList.Objects[i].P)] = obj
+			obj.Parent.ObjMap[util.UnCenterXY(tempList.Objects[i].Pos)] = obj
 			obj.Parent.ObjList = append(obj.Parent.ObjList, obj)
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjects++
