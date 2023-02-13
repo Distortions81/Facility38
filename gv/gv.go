@@ -55,14 +55,14 @@ const (
 	ObjTypeBasicBelt           = 1
 	ObjTypeBasicBeltInterRight = 2
 	ObjTypeBasicBeltInterLeft  = 3
-	ObjTypeBasicSplit          = 3
-	ObjTypeBasicBox            = 4
-	ObjTypeBasicSmelter        = 5
-	ObjTypeBasicFuelHopper     = 6
+	ObjTypeBasicSplit          = 4
+	ObjTypeBasicBox            = 5
+	ObjTypeBasicSmelter        = 6
+	ObjTypeBasicFuelHopper     = 7
 
-	ObjTypeBasicIronCaster = 7
-	ObjTypeBasicBoiler     = 8
-	ObjTypeSteamEngine     = 9
+	ObjTypeBasicIronCaster = 8
+	ObjTypeBasicBoiler     = 9
+	ObjTypeSteamEngine     = 10
 
 	/* Materials */
 	MAT_NONE = 0
