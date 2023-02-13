@@ -8,10 +8,28 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 )
 
 /* Used to munge data into a test save file */
 /* TODO: SAVE VERSION AND MAP SEED INTO FILE */
+type gameSave struct {
+	Version  int
+	Date     int64
+	MapSeeds MapSeedsData
+	Objects  []*saveMObj
+}
+
+type MapSeedsData struct {
+	Grass  int64
+	Oil    int64
+	Gas    int64
+	Coal   int64
+	Iron   int64
+	Copper int64
+	Stone  int64
+}
+
 type saveMObj struct {
 	P  world.XY             `json:"p,omitempty"`
 	I  uint8                `json:"i,omitempty"`
@@ -43,7 +61,30 @@ func SaveGame() {
 		world.TickListLock.Lock()
 		world.TockListLock.Lock()
 
-		tempList := []*saveMObj{}
+		var seeds MapSeedsData
+		for _, nl := range NoiseLayers {
+			switch nl.TypeI {
+			case gv.MAT_NONE:
+				seeds.Grass = nl.Seed
+			case gv.MAT_OIL:
+				seeds.Oil = nl.Seed
+			case gv.MAT_GAS:
+				seeds.Gas = nl.Seed
+			case gv.MAT_COAL:
+				seeds.Coal = nl.Seed
+			case gv.MAT_IRON_ORE:
+				seeds.Iron = nl.Seed
+			case gv.MAT_COPPER:
+				seeds.Copper = nl.Seed
+			case gv.MAT_STONE:
+				seeds.Stone = nl.Seed
+			}
+		}
+
+		tempList := gameSave{
+			Version:  1,
+			Date:     time.Now().Unix(),
+			MapSeeds: seeds}
 		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
@@ -88,7 +129,7 @@ func SaveGame() {
 						tobj.PO[p].Obj = nil
 					}
 
-					tempList = append(tempList, tobj)
+					tempList.Objects = append(tempList.Objects, tobj)
 				}
 			}
 		}
@@ -160,7 +201,7 @@ func LoadGame() {
 		world.SuperChunkListLock.RLock()
 		world.TickListLock.Lock()
 		world.TockListLock.Lock()
-		tempList := []*saveMObj{}
+		tempList := gameSave{}
 		err = dec.Decode(&tempList)
 		if err != nil {
 			fmt.Printf("LoadGame: JSON decode error: %v\n", err)
@@ -168,23 +209,43 @@ func LoadGame() {
 		}
 		//fmt.Println("json decoded:", time.Since(start).String())
 		world.SuperChunkListLock.RUnlock()
+		for n, nl := range NoiseLayers {
+			switch nl.TypeI {
+			case gv.MAT_NONE:
+				NoiseLayers[n].Seed = tempList.MapSeeds.Grass
+			case gv.MAT_OIL:
+				NoiseLayers[n].Seed = tempList.MapSeeds.Oil
+			case gv.MAT_GAS:
+				NoiseLayers[n].Seed = tempList.MapSeeds.Gas
+			case gv.MAT_COAL:
+				NoiseLayers[n].Seed = tempList.MapSeeds.Coal
+			case gv.MAT_IRON_ORE:
+				NoiseLayers[n].Seed = tempList.MapSeeds.Iron
+			case gv.MAT_COPPER:
+				NoiseLayers[n].Seed = tempList.MapSeeds.Copper
+			case gv.MAT_STONE:
+				NoiseLayers[n].Seed = tempList.MapSeeds.Stone
+			}
+		}
+
+		NoiseInit()
 
 		/* Needs unsafeCreateObj that can accept a starting data set */
 		count := 0
-		for i := range tempList {
+		for i := range tempList.Objects {
 
 			obj := &world.ObjData{
-				Pos:   util.UnCenterXY(tempList[i].P),
-				TypeP: GameObjTypes[tempList[i].I],
-				Dir:   tempList[i].D,
+				Pos:   util.UnCenterXY(tempList.Objects[i].P),
+				TypeP: GameObjTypes[tempList.Objects[i].I],
+				Dir:   tempList.Objects[i].D,
 				//Contents:  item.C,
-				KGFuel: tempList[i].KF,
-				KGHeld: tempList[i].K,
+				KGFuel: tempList.Objects[i].KF,
+				KGHeld: tempList.Objects[i].K,
 				//Ports:     item.PO,
-				TickCount: tempList[i].T,
+				TickCount: tempList.Objects[i].T,
 			}
-			copy(obj.Contents[:], tempList[i].C)
-			copy(obj.Ports[:], tempList[i].PO)
+			copy(obj.Contents[:], tempList.Objects[i].C)
+			copy(obj.Ports[:], tempList.Objects[i].PO)
 
 			for c, cont := range obj.Contents {
 				if cont == nil {
@@ -211,11 +272,11 @@ func LoadGame() {
 			}
 
 			/* Relink */
-			MakeChunk(util.UnCenterXY(tempList[i].P))
-			chunk := util.GetChunk(util.UnCenterXY(tempList[i].P))
+			MakeChunk(util.UnCenterXY(tempList.Objects[i].P))
+			chunk := util.GetChunk(util.UnCenterXY(tempList.Objects[i].P))
 			obj.Parent = chunk
 
-			obj.Parent.ObjMap[util.UnCenterXY(tempList[i].P)] = obj
+			obj.Parent.ObjMap[util.UnCenterXY(tempList.Objects[i].P)] = obj
 			obj.Parent.ObjList = append(obj.Parent.ObjList, obj)
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjects++
@@ -231,14 +292,24 @@ func LoadGame() {
 				ticklistAdd(obj)
 			}
 
+			if obj.TypeP.InitObj != nil {
+				obj.TypeP.InitObj(obj)
+			}
+
 			chunk.Parent.PixmapDirty = true
 
 			count++
+		}
+
+		/* Refresh minerals */
+		for _, sChunk := range world.SuperChunkList {
+			drawMineral(sChunk)
 		}
 		world.VisDataDirty.Store(true)
 
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
+
 		//fmt.Printf("%v objects created, Completed in %v\n", count, time.Since(start).String())
 	}()
 }

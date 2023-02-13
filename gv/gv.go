@@ -9,9 +9,9 @@ var (
 	StartNewMap = true
 	UPSBench    = false
 	LoadTest    = true
-	Debug       = true
+	Debug       = false
 	Verbose     = false
-	LogStdOut   = true
+	LogStdOut   = false
 	LogFileOut  = false
 	WASMMode    = false
 )
