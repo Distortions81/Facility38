@@ -120,36 +120,35 @@ func minerUpdate(obj *world.ObjData) {
 
 func beltUpdateInter(obj *world.ObjData) {
 
-	/* Output is full, exit */
-	if obj.Ports[obj.Dir].Buf.Amount != 0 {
-		obj.Blocked = true
-		obj.Active = false
-		return
-	}
-	obj.Blocked = false
-
-	/* Find all inputs, round-robin send to output */
-	dir := obj.LastUsedInput
-	for x := 0; x < 4; x++ {
-		dir = util.RotCW(dir)
-
-		if obj.Ports[dir].PortDir != gv.PORT_INPUT {
+	for p, port := range obj.Ports {
+		if port == nil {
 			continue
 		}
-		if obj.Ports[dir].Buf.Amount == 0 {
-			obj.Active = false
+		if port.PortDir != gv.PORT_INPUT {
 			continue
-		} else {
-			obj.Active = true
-			obj.Ports[util.ReverseDirection(dir)].Buf.Amount = obj.Ports[dir].Buf.Amount
-			obj.Ports[util.ReverseDirection(dir)].Buf.TypeP = obj.Ports[dir].Buf.TypeP
-			obj.Ports[util.ReverseDirection(dir)].Buf.Rot = obj.Ports[dir].Buf.Rot
-			obj.Ports[util.ReverseDirection(dir)].Buf.Amount = 0
-			obj.LastUsedInput = dir
-			break
 		}
+		if port.Obj == nil {
+			continue
+		}
+		odir := util.ReverseDirection(uint8(p))
+		if obj.Ports[odir] == nil {
+			continue
+		}
+		if obj.Ports[odir].Obj == nil {
+			continue
+		}
+		if obj.Ports[odir].PortDir != gv.PORT_OUTPUT {
+			continue
+		}
+		if obj.Ports[p].Buf.Amount > 0 && obj.Ports[odir].Buf.Amount == 0 {
+			obj.Ports[odir].Buf.Amount = obj.Ports[p].Buf.Amount
+			obj.Ports[odir].Buf.TypeP = obj.Ports[p].Buf.TypeP
+			obj.Ports[odir].Buf.Rot = obj.Ports[p].Buf.Rot
 
+			obj.Ports[p].Buf.Amount = 0
+		}
 	}
+
 }
 
 func beltUpdate(obj *world.ObjData) {

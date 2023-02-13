@@ -9,9 +9,9 @@ var (
 	StartNewMap = true
 	UPSBench    = false
 	LoadTest    = true
-	Debug       = false
+	Debug       = true
 	Verbose     = false
-	LogStdOut   = false
+	LogStdOut   = true
 	LogFileOut  = false
 	WASMMode    = false
 )
@@ -112,6 +112,7 @@ const (
 	PORT_NONE   = 0
 	PORT_INPUT  = 1
 	PORT_OUTPUT = 2
+	PORT_BOTH   = 3
 
 	/* Overlay Types */
 	ObjOverlayNorth   = 0
