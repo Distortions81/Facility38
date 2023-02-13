@@ -104,8 +104,10 @@ func SaveGame() {
 						if tobj.Contents[c] == nil {
 							continue
 						}
+						if tobj.Contents[c].TypeP == nil {
+							continue
+						}
 						tobj.Contents[c].TypeI = tobj.Contents[c].TypeP.TypeI
-						tobj.Contents[c].TypeP = nil
 					}
 
 					/* Convert pointer to type int */
@@ -113,8 +115,10 @@ func SaveGame() {
 						if tobj.Ports[p] == nil {
 							continue
 						}
+						if tobj.Ports[p].Buf.TypeP == nil {
+							continue
+						}
 						tobj.Ports[p].Buf.TypeI = tobj.Ports[p].Buf.TypeP.TypeI
-						tobj.Ports[p].Buf.TypeP = nil
 						tobj.Ports[p].Obj = nil
 					}
 					tempList.Objects = append(tempList.Objects, tobj)
@@ -142,9 +146,9 @@ func SaveGame() {
 			return
 		}
 
-		//zip := util.CompressZip(b)
+		zip := util.CompressZip(b)
 
-		err = os.WriteFile(tempPath, b, 0644)
+		err = os.WriteFile(tempPath, zip, 0644)
 
 		if err != nil {
 			fmt.Printf("SaveGame: os.WriteFile error: %v\n", err)
@@ -179,9 +183,9 @@ func LoadGame() {
 		}
 
 		//fmt.Println("save read:", time.Since(start).String())
-		//data := util.UncompressZip(b)
+		unzip := util.UncompressZip(b)
 		//fmt.Println("uncompressed:", time.Since(start).String())
-		dbuf := bytes.NewBuffer(b)
+		dbuf := bytes.NewBuffer(unzip)
 
 		dec := json.NewDecoder(dbuf)
 
