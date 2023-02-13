@@ -29,5 +29,7 @@ Possibly look at further cleaning of object types:
 
 
 QUICK DO: Destroy world on map load
+ALSO DO: Fix loading screen, material rendering progress, etc.
+
 Fix overs not showing sprite when rotated. Not sure how to fix that other than a special tag?
 Fix delay before loading screen from mineral prerendering.
