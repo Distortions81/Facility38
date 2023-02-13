@@ -8,11 +8,10 @@ https://github.com/Distortions81/GameTest/issues
 
 
 Minimize nested ifs
-occupied map, with pointers and x/y cords for building piece info
 adjustable miners/furnace speeds
 
 high priority:
-splitters, over/under, hoppers
+hoppers. occupied map, with pointers and x/y cords for building piece info
 eventually set machine times in ms/sec
 
 Make mouse tooltip show minerals in mineral mode.
@@ -30,6 +29,8 @@ Possibly look at further cleaning of object types:
 
 QUICK DO: Destroy world on map load
 ALSO DO: Fix loading screen, material rendering progress, etc.
+Complete unsafe for faster loading, make packed binary format for saves.
+Also: BP/minisave format
 
-Fix overs not showing sprite when rotated. Not sure how to fix that other than a special tag?
+Fix overs not showing mats when rotated (use rotation to get right input)
 Fix delay before loading screen from mineral prerendering.
