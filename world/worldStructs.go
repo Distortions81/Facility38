@@ -86,9 +86,9 @@ type NoiseLayerData struct {
 }
 
 type MinerDataType struct {
-	MatsFound     []float32
-	MatsFoundT    []uint8
-	NumTypesFound uint8
+	MatsFound    []float32
+	MatsFoundT   []uint8
+	NumMatsFound uint8
 }
 
 /* Object data */

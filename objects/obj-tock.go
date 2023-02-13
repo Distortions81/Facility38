@@ -40,7 +40,7 @@ func InitMiner(obj *world.ObjData) {
 		if h > 0 {
 			obj.MinerData.MatsFound = append(obj.MinerData.MatsFound, h)
 			obj.MinerData.MatsFoundT = append(obj.MinerData.MatsFoundT, NoiseLayers[p].TypeI)
-			obj.MinerData.NumTypesFound++
+			obj.MinerData.NumMatsFound++
 		}
 	}
 }
@@ -48,6 +48,10 @@ func InitMiner(obj *world.ObjData) {
 func minerUpdate(obj *world.ObjData) {
 
 	/* Find all inputs, round-robin send to output */
+	if obj.MinerData != nil && obj.MinerData.NumMatsFound == 0 {
+		return
+	}
+
 	for p, port := range obj.Ports {
 		if port == nil {
 			continue
@@ -87,8 +91,8 @@ func minerUpdate(obj *world.ObjData) {
 
 				if obj.TickCount >= obj.TypeP.Interval {
 
-					if obj.MinerData.NumTypesFound > 0 {
-						pick := rand.Intn(int(obj.MinerData.NumTypesFound))
+					if obj.MinerData.NumMatsFound > 0 {
+						pick := rand.Intn(int(obj.MinerData.NumMatsFound))
 
 						amount := obj.TypeP.KgMineEach * float32(obj.MinerData.MatsFound[pick])
 						kind := MatTypes[obj.MinerData.MatsFoundT[pick]]

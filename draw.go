@@ -294,7 +294,8 @@ func drawIconMode(screen *ebiten.Image) {
 						}
 					}
 					/* Show blocked outputs */
-					if obj.TypeP.ShowBlocked && obj.Blocked {
+					if (obj.TypeP.ShowBlocked && obj.Blocked) ||
+						obj.MinerData != nil && obj.MinerData.NumMatsFound == 0 {
 
 						img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -429,6 +430,9 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 				if o.Blocked {
 					toolTip = toolTip + "BLOCKED\n"
+				}
+				if o.MinerData != nil && o.MinerData.NumMatsFound == 0 {
+					toolTip = toolTip + "NOTHING TO MINE."
 				}
 
 				if gv.Debug {
