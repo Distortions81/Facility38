@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"GameTest/cwlog"
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
@@ -204,7 +203,7 @@ func splitterUpdate(obj *world.ObjData) {
 
 	input := util.ReverseDirection(obj.Dir)
 	if obj.Ports[input].Buf.Amount == 0 {
-		cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
+		//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		obj.Active = false
 		return
 	}

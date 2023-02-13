@@ -1,7 +1,6 @@
 package main
 
 import (
-	"GameTest/cwlog"
 	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/util"
@@ -66,7 +65,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		!world.PlayerReady.Load() {
 
 		bootScreen(screen)
-		time.Sleep(time.Microsecond)
+		time.Sleep(time.Millisecond * 10)
 		return
 	}
 
@@ -510,9 +509,6 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
-		if gv.Verbose {
-			cwlog.DoLog("%v,%v (%v)", x, y, (float32(obj.TypeP.Size.X)*world.ZoomScale)/float32(iSize.Max.X))
-		}
 		if obj.TypeP.ImagePathActive != "" && obj.Active {
 			return op, obj.TypeP.ImageActive
 			//screen.DrawImage(obj.TypeP.ImageActive, op)
