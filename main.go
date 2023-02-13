@@ -175,13 +175,11 @@ func bootScreen(screen *ebiten.Image) {
 	x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
 	y := (float32(world.ScreenHeight) / 3.0) * 2.4
 	vector.DrawFilledRect(screen, x, y, pw, tall, world.ColorVeryDarkGray)
-	//ebitenutil.DrawRect(screen, x, y, pw, tall, world.ColorVeryDarkGray)
 	color := world.ColorWhite
 	if world.MapLoadPercent >= 100 {
 		color = world.ColorGreen
 	}
 	vector.DrawFilledRect(screen, x, y, world.MapLoadPercent*float32(multi), tall, color)
-	//ebitenutil.DrawRect(screen, x, y, world.MapLoadPercent*multi, tall, color)
 }
 
 /* Detect logical and virtual CPUs, set number of workers */

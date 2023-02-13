@@ -17,7 +17,6 @@ func init() {
 		}
 		for j, mt := range MatTypes {
 			if nl.TypeI == mt.TypeI {
-				//fmt.Printf("NoiseLayer: %v : MatType: %v\n", nl.Name, mt.Name)
 				NoiseLayers[i].TypeP = MatTypes[j]
 				break
 			}

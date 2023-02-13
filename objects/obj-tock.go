@@ -32,10 +32,8 @@ func InitMiner(obj *world.ObjData) {
 
 		/* We only mind solids */
 		if !NoiseLayers[p].TypeP.IsSolid {
-			//fmt.Printf("InitMiner: %v: %0.2f is not soild, skipping.\n", NoiseLayers[p].TypeP.Name, h)
 			continue
 		}
-		//fmt.Printf("InitMiner: %v: %0.2f\n", NoiseLayers[p].TypeP.Name, h)
 		if h > 0 {
 			obj.MinerData.MatsFound = append(obj.MinerData.MatsFound, h)
 			obj.MinerData.MatsFoundT = append(obj.MinerData.MatsFoundT, NoiseLayers[p].TypeI)

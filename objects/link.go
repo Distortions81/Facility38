@@ -8,8 +8,6 @@ import (
 
 /* Link to output in (dir) */
 func LinkObj(obj *world.ObjData) {
-	//oPos := util.CenterXY(obj.Pos)
-	//cwlog.DoLog("LinkObj: %v (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 
 	/* Check our ports */
 	for p, port := range obj.Ports {
@@ -39,15 +37,12 @@ func LinkObj(obj *world.ObjData) {
 
 		/* Port is available */
 		if neigh.Ports[util.ReverseDirection(uint8(p))].Obj != nil {
-			//cwlog.DoLog("LinkObj: %v: %v (%v,%v): Their port is in use.", obj.TypeP.Name, util.DirToName(uint8(p)), oPos.X, oPos.Y)
 			continue
 		}
 
 		/* Assign on both sides */
 		neigh.Ports[util.ReverseDirection(uint8(p))].Obj = obj
 		obj.Ports[p].Obj = neigh
-
-		//cwlog.DoLog("LinkObj: %v: %v (%v,%v)", obj.TypeP.Name, util.DirToName(uint8(p)), oPos.X, oPos.Y)
 
 		/* add to input/output counts */
 		if port.PortDir == gv.PORT_INPUT {

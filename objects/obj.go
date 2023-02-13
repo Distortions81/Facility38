@@ -91,7 +91,6 @@ func ObjUpdateDaemonST() {
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
 func tickObj(obj *world.ObjData) {
 
-	//cwlog.DoLog("tick %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 	for p, port := range obj.Ports {
 
 		/* Valid object */
@@ -101,7 +100,6 @@ func tickObj(obj *world.ObjData) {
 
 		/* Only process our outputs */
 		if port.PortDir != gv.PORT_OUTPUT {
-			//cwlog.DoLog("tickObj: Our port not an output. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
 
@@ -112,13 +110,11 @@ func tickObj(obj *world.ObjData) {
 
 		/* That go to inputs */
 		if port.Obj.Ports[util.ReverseDirection(uint8(p))].PortDir != gv.PORT_INPUT {
-			//cwlog.DoLog("tickObj: Their port is not an input %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
 
 		/* And there is somewhere empty to send it */
 		if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount != 0 {
-			//cwlog.DoLog("tickObj: Their input isn't empty %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 			continue
 		}
 
@@ -126,11 +122,6 @@ func tickObj(obj *world.ObjData) {
 		if port.Obj.Blocked {
 			continue
 		}
-
-		/*cwlog.DoLog("TICK: %v: %v: %v\n",
-		port.Obj.TypeP.Name,
-		port.Obj.Ports[p].Buf.TypeP.Name,
-		port.Obj.Ports[p].Buf.Amount) */
 
 		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount = port.Buf.Amount
 		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.TypeP = port.Buf.TypeP
@@ -239,22 +230,12 @@ func runTocksST() {
 /* Lock and append to TickList */
 func ticklistAdd(obj *world.ObjData) {
 
-	/*
-		oPos := util.CenterXY(obj.Pos)
-		cwlog.DoLog("tockListAdd: Added %v to TICK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
-	*/
-
 	world.TickList = append(world.TickList, world.TickEvent{Target: obj})
 	world.TickCount++
 }
 
 /* Lock and append to TockList */
 func tockListAdd(obj *world.ObjData) {
-
-	/*
-		oPos := util.CenterXY(obj.Pos)
-		cwlog.DoLog("tockListAdd: Added %v to TOCK list (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
-	*/
 
 	world.TockList = append(world.TockList, world.TickEvent{Target: obj})
 	world.TockCount++
@@ -263,43 +244,19 @@ func tockListAdd(obj *world.ObjData) {
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
 
-	/*
-		prefixStr := "Add"
-		if delete {
-			prefixStr = "Delete"
-		}
-	*/
-
-	/*
-		qtypeStr := "NONE"
-		if qtype == 1 {
-			qtypeStr = "TOCK"
-		} else if qtype == 2 {
-			qtypeStr = "TICK"
-		}
-	*/
-
 	world.EventQueue = append(world.EventQueue, &world.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
-
-	/*
-		oPos := util.CenterXY(obj.Pos)
-		cwlog.DoLog("EventQueue: %v %v for %v (%v,%v)", prefixStr, qtypeStr, obj.TypeP.Name, oPos.X, oPos.Y)
-	*/
 }
 
 /* Lock and remove tick event */
 func ticklistRemove(obj *world.ObjData) {
 
-	//oPos := util.CenterXY(obj.Pos)
 	for i, e := range world.TickList {
 		if e.Target == obj {
-			//cwlog.DoLog("ticklistRemove: Removed %v from the TICK list. (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 			world.TickList = append(world.TickList[:i], world.TickList[i+1:]...)
 			world.TickCount--
 			return
 		}
 	}
-	//cwlog.DoLog("ticklistRemove:Not found in TICK list: %v (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 
 }
 
@@ -308,21 +265,17 @@ func tocklistRemove(obj *world.ObjData) {
 	world.TockListLock.Lock()
 	defer world.TockListLock.Unlock()
 
-	//oPos := util.CenterXY(obj.Pos)
 	for i, e := range world.TockList {
 		if e.Target == obj {
-			//cwlog.DoLog("tocklistRemove: Removed %v from the TOCK list. (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 			world.TockList = append(world.TockList[:i], world.TockList[i+1:]...)
 			world.TockCount--
 			return
 		}
 	}
-	//cwlog.DoLog("tocklistRemove: Not found in TOCK list: %v (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
 }
 
 /* UnlinkObj an object's (dir) input */
 func UnlinkObj(obj *world.ObjData) {
-	//oPos := util.CenterXY(obj.Pos)
 
 	for dir, port := range obj.Ports {
 
@@ -330,7 +283,6 @@ func UnlinkObj(obj *world.ObjData) {
 		if port.PortDir == gv.PORT_INPUT {
 			obj.NumInputs--
 			if port.Obj != nil {
-				//cwlog.DoLog("Unlink: %v (%v,%v): INPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
 				port.Obj.NumOutputs--
 
 				rObj := port.Obj
@@ -341,7 +293,6 @@ func UnlinkObj(obj *world.ObjData) {
 		} else if port.PortDir == gv.PORT_OUTPUT {
 			obj.NumOutputs++
 			if port.Obj != nil {
-				//cwlog.DoLog("Unlink: %v (%v,%v): OUTPUT: %v", obj.TypeP.Name, oPos.X, oPos.Y, util.DirToName(uint8(dir)))
 				port.Obj.NumInputs--
 
 				rObj := port.Obj
@@ -461,9 +412,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	chunk := util.GetChunk(pos)
 	obj := util.GetObj(pos, chunk)
 
-	//ppos := util.CenterXY(pos)
 	if obj != nil {
-		//cwlog.DoLog("CreateObj: Object already exists at location: (%v,%v)", ppos.X, ppos.Y)
 		return nil
 	}
 
@@ -475,8 +424,6 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	obj.Parent = chunk
 
 	obj.TypeP = GameObjTypes[mtype]
-
-	//cwlog.DoLog("CreateObj: Make %v: (%v,%v)", obj.TypeP.Name, ppos.X, ppos.Y)
 
 	obj.Parent.Lock.Lock()
 	obj.Parent.ObjMap[pos] = obj
@@ -531,16 +478,6 @@ func ObjQueueAdd(obj *world.ObjData, otype uint8, pos world.XY, delete bool, dir
 	world.ObjQueueLock.Lock()
 	world.ObjQueue = append(world.ObjQueue, &world.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	world.ObjQueueLock.Unlock()
-
-	/*
-		prefixStr := "Add"
-		if delete {
-			prefixStr = "Delete"
-		}
-
-		oPos := util.CenterXY(pos)
-		cwlog.DoLog("ObjQueue: %v %v (%v,%v)", prefixStr, GameObjTypes[otype].Name, oPos.X, oPos.Y)
-	*/
 }
 
 /* Add/remove tick/tock events from the lists */
@@ -592,12 +529,6 @@ func runObjQueue() {
 
 /* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
 func removeObj(obj *world.ObjData) {
-
-	/*
-		oPos := util.CenterXY(obj.Pos)
-		cwlog.DoLog("removeObj: Deleted %v from chunk ObjMap at (%v,%v)", obj.TypeP.Name, oPos.X, oPos.Y)
-	*/
-
 	/* delete from map */
 	obj.Parent.Lock.Lock()
 	defer obj.Parent.Lock.Unlock()

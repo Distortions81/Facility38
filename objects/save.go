@@ -182,9 +182,7 @@ func LoadGame() {
 			return
 		}
 
-		//fmt.Println("save read:", time.Since(start).String())
 		unzip := util.UncompressZip(b)
-		//fmt.Println("uncompressed:", time.Since(start).String())
 		dbuf := bytes.NewBuffer(unzip)
 
 		dec := json.NewDecoder(dbuf)
@@ -204,7 +202,6 @@ func LoadGame() {
 			cwlog.DoLog("LoadGame: Invalid save version.")
 		}
 
-		//fmt.Println("json decoded:", time.Since(start).String())
 		world.SuperChunkListLock.RUnlock()
 		for n, nl := range NoiseLayers {
 			switch nl.TypeI {
@@ -294,7 +291,5 @@ func LoadGame() {
 
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
-
-		//fmt.Printf("%v objects created, Completed in %v\n", count, time.Since(start).String())
 	}()
 }

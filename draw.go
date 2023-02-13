@@ -372,7 +372,6 @@ func drawDebugInfo(screen *ebiten.Image) {
 	tRect := text.BoundString(world.ToolTipFont, dbuf)
 	my := float32(world.ScreenHeight) - 4.0
 	vector.DrawFilledRect(screen, -1, my-(float32(tRect.Dy()-1)), float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
-	//ebitenutil.DrawRect(screen, mx-1, my-(float32(tRect.Dy()-1)), float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
 	text.Draw(screen, dbuf, world.ToolTipFont, 0, int(my), world.ColorAqua)
 }
 
@@ -394,7 +393,6 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			var mx float32 = world.MouseX + 20
 			var my float32 = world.MouseY + 20
 			vector.DrawFilledRect(screen, mx-1, my-float32(tRect.Dy()-1), float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
-			//ebitenutil.DrawRect(screen, mx-1, my-(float32(tRect.Dy()-1)), float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
 			text.Draw(screen, toolTip, world.ToolTipFont, int(mx), int(my), world.ColorAqua)
 		}
 	} else {
@@ -471,7 +469,6 @@ func drawWorldTooltip(screen *ebiten.Image) {
 		mx := world.MouseX + 20
 		my := world.MouseY + 20
 		vector.DrawFilledRect(screen, mx-1, my-15, float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
-		//ebitenutil.DrawRect(screen, mx-1, my-15, float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
 		text.Draw(screen, toolTip, world.ToolTipFont, int(mx), int(my), world.ColorAqua)
 	}
 }
@@ -511,9 +508,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 
 		if obj.TypeP.ImagePathActive != "" && obj.Active {
 			return op, obj.TypeP.ImageActive
-			//screen.DrawImage(obj.TypeP.ImageActive, op)
 		} else {
-			//screen.DrawImage(obj.TypeP.Image, op)
 			return op, obj.TypeP.Image
 		}
 
@@ -567,7 +562,6 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 				((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
 				((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 			op.GeoM.Translate(objCamPosX, objCamPosY)
-			//screen.DrawImage(img, op)
 			return op, img
 		}
 	}

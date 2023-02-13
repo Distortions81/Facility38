@@ -74,18 +74,14 @@ func ObjHasPort(obj *world.ObjData, portDir uint8) bool {
 
 /* Delete an object from a world.ObjData list, does not retain order (fast) */
 func ObjListDelete(obj *world.ObjData) {
-	//oPos := CenterXY(obj.Pos)
 
 	for index, item := range obj.Parent.ObjList {
 		if item.Pos == obj.Pos {
-			//cwlog.DoLog("ObjListDelete: Deleted %v at index: %v (%v,%v)", obj.TypeP.Name, index, oPos.X, oPos.Y)
 			obj.Parent.ObjList[index] = obj.Parent.ObjList[len(obj.Parent.ObjList)-1]
 			obj.Parent.ObjList = obj.Parent.ObjList[:len(obj.Parent.ObjList)-1]
 			return
 		}
 	}
-
-	//cwlog.DoLog("ObjListDelete: %v (%v,%v) not found in chunk ObjList", obj.TypeP.Name, oPos.X, oPos.Y)
 }
 
 /* Convert an internal XY (unsigned) to a (0,0) center */
