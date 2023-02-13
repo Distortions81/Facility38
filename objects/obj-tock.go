@@ -118,6 +118,39 @@ func minerUpdate(obj *world.ObjData) {
 	}
 }
 
+func beltUpdateInter(obj *world.ObjData) {
+
+	for p, port := range obj.Ports {
+		if port == nil {
+			continue
+		}
+		if port.PortDir != gv.PORT_INPUT {
+			continue
+		}
+		if port.Obj == nil {
+			continue
+		}
+		odir := util.ReverseDirection(uint8(p))
+		if obj.Ports[odir] == nil {
+			continue
+		}
+		if obj.Ports[odir].Obj == nil {
+			continue
+		}
+		if obj.Ports[odir].PortDir != gv.PORT_OUTPUT {
+			continue
+		}
+		if obj.Ports[p].Buf.Amount > 0 && obj.Ports[odir].Buf.Amount == 0 {
+			obj.Ports[odir].Buf.Amount = obj.Ports[p].Buf.Amount
+			obj.Ports[odir].Buf.TypeP = obj.Ports[p].Buf.TypeP
+			obj.Ports[odir].Buf.Rot = obj.Ports[p].Buf.Rot
+
+			obj.Ports[p].Buf.Amount = 0
+		}
+	}
+
+}
+
 func beltUpdate(obj *world.ObjData) {
 
 	/* Output is full, exit */

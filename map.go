@@ -10,6 +10,8 @@ import (
 /* Make a test map, or skip and still start daemons */
 func makeTestMap(skip bool) {
 
+	objects.NoiseInit()
+
 	if !skip {
 		//start := time.Now()
 
@@ -125,6 +127,8 @@ func makeTestMap(skip bool) {
 		!world.PlayerReady.Load() {
 		time.Sleep(time.Millisecond * 10)
 	}
+
+	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
 
 	if !gv.WASMMode {
 		go objects.RenderTerrainDaemon()

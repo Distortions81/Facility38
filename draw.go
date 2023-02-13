@@ -207,7 +207,7 @@ func drawIconMode(screen *ebiten.Image) {
 					/* Draw Input Materials */
 					for p := range obj.Ports {
 						if obj.Ports[p].Buf.Amount > 0 {
-							op, img = drawMaterials(&obj.Ports[p].Buf, obj, screen)
+							op, img = drawMaterials(&obj.Ports[p].Buf, obj, screen, 1.0)
 							if img != nil {
 								OpBatch[BatchTop] = op
 								ImageBatch[BatchTop] = img
@@ -216,7 +216,16 @@ func drawIconMode(screen *ebiten.Image) {
 							break
 						}
 					}
-
+				}
+				if obj.TypeP.TypeI == gv.ObjTypeBasicBeltInterRight {
+					if obj.Ports[2] != nil {
+						op, img = drawMaterials(&obj.Ports[2].Buf, obj, screen, 0.5)
+						if img != nil {
+							OpBatch[BatchTop] = op
+							ImageBatch[BatchTop] = img
+							BatchTop++
+						}
+					}
 				}
 				if world.ShowInfoLayer {
 
@@ -225,7 +234,7 @@ func drawIconMode(screen *ebiten.Image) {
 							if cont == nil {
 								continue
 							}
-							op, img = drawMaterials(cont, obj, screen)
+							op, img = drawMaterials(cont, obj, screen, 1.0)
 							if img != nil {
 								OpBatch[BatchTop] = op
 								ImageBatch[BatchTop] = img
@@ -531,7 +540,7 @@ func calcScreenCamera() {
 }
 
 /* Draw materials on belts */
-func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
+func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, scale float64) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 
 	if m.Amount > 0 {
 		img := m.TypeP.Image
@@ -551,13 +560,13 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image) (
 			yy := float64(iSize.Dy()) / 2.0
 			op.GeoM.Translate(-xx, -yy)
 			op.GeoM.Rotate(float64(m.Rot) * gv.NinetyDeg)
+			op.GeoM.Scale(scale, scale)
 			op.GeoM.Translate(xx, yy)
 
 			op.GeoM.Scale(
 				((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
 				((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 			op.GeoM.Translate(objCamPosX, objCamPosY)
-
 			//screen.DrawImage(img, op)
 			return op, img
 		}

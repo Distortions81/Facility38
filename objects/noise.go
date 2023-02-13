@@ -173,9 +173,11 @@ var NoiseLayers = []world.NoiseLayerData{
 	},
 }
 
-func init() {
+func NoiseInit() {
 	for p := range NoiseLayers {
-		NoiseLayers[p].Seed = time.Now().UnixNano() + int64(rand.Intn(1000))
+		if NoiseLayers[p].Seed == 0 {
+			NoiseLayers[p].Seed = time.Now().UnixNano() + int64(rand.Intn(1000))
+		}
 		NoiseLayers[p].Source = rand.NewSource(NoiseLayers[p].Seed)
 		NoiseLayers[p].Perlin = perlin.NewPerlinRandSource(float64(NoiseLayers[p].Alpha), float64(NoiseLayers[p].Beta), NoiseLayers[p].N, NoiseLayers[p].Source)
 	}

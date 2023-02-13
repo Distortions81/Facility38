@@ -51,16 +51,18 @@ const (
 	ObjTypeLoad = 1
 
 	/* Buildings */
-	ObjTypeBasicMiner      = 0
-	ObjTypeBasicBelt       = 1
-	ObjTypeBasicSplit      = 2
-	ObjTypeBasicBox        = 3
-	ObjTypeBasicSmelter    = 4
-	ObjTypeBasicFuelHopper = 5
+	ObjTypeBasicMiner          = 0
+	ObjTypeBasicBelt           = 1
+	ObjTypeBasicBeltInterRight = 2
+	ObjTypeBasicBeltInterLeft  = 3
+	ObjTypeBasicSplit          = 4
+	ObjTypeBasicBox            = 5
+	ObjTypeBasicSmelter        = 6
+	ObjTypeBasicFuelHopper     = 7
 
-	ObjTypeBasicIronCaster = 0
-	ObjTypeBasicBoiler     = 0
-	ObjTypeSteamEngine     = 0
+	ObjTypeBasicIronCaster = 8
+	ObjTypeBasicBoiler     = 9
+	ObjTypeSteamEngine     = 10
 
 	/* Materials */
 	MAT_NONE = 0
@@ -111,6 +113,7 @@ const (
 	PORT_NONE   = 0
 	PORT_INPUT  = 1
 	PORT_OUTPUT = 2
+	PORT_BOTH   = 3
 
 	/* Overlay Types */
 	ObjOverlayNorth   = 0
