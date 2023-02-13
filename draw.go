@@ -217,8 +217,7 @@ func drawIconMode(screen *ebiten.Image) {
 						}
 					}
 				}
-				if obj.TypeP.TypeI == gv.ObjTypeBasicBeltInterLeft ||
-					obj.TypeP.TypeI == gv.ObjTypeBasicBeltInterRight {
+				if obj.TypeP.TypeI == gv.ObjTypeBasicBeltInterRight {
 					if obj.Ports[2] != nil {
 						op, img = drawMaterials(&obj.Ports[2].Buf, obj, screen, 0.5)
 						if img != nil {
