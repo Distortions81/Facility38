@@ -34,3 +34,7 @@ Also: BP/minisave format
 
 Fix overs not showing mats when rotated (use rotation to get right input)
 Fix delay before loading screen from resources prerendering.
+
+obj-tock.go: Cut down code in tock, move anything we can to init.
+We should put inputs and output ports into separate lists, and append to them on link.
+Read should be faster than write, becuase of CPU caches. So we should always read the material type and only type typeP if need be.
