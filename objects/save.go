@@ -299,21 +299,16 @@ func LoadGame() {
 
 func NukeWorld() {
 
-	fmt.Println("Nuking world...")
-
 	world.TickListLock.Lock()
 	world.TickList = []world.TickEvent{}
-	fmt.Println("Nuked ticklist.")
 	world.TickListLock.Unlock()
 
 	world.TockListLock.Lock()
 	world.TockList = []world.TickEvent{}
-	fmt.Println("Nuked tocklist.")
 	world.TockListLock.Unlock()
 
 	world.EventQueueLock.Lock()
 	world.EventQueue = []*world.EventQueueData{}
-	fmt.Println("Nuked event queue.")
 	world.EventQueueLock.Unlock()
 
 	world.ObjQueueLock.Lock()
@@ -321,13 +316,10 @@ func NukeWorld() {
 	fmt.Println("Nuked ObjQueue.")
 	world.ObjQueueLock.Unlock()
 
-	fmt.Println("Erased lists...")
-
 	world.SuperChunkListLock.Lock()
 	/* Erase current map */
 	for sc, superchunk := range world.SuperChunkList {
 		for c, chunk := range superchunk.ChunkList {
-			fmt.Println("Nuking chunk:", chunk.Pos)
 
 			world.SuperChunkList[sc].ChunkList[c].NumObjects = 0
 			world.SuperChunkList[sc].ChunkList[c].Parent = nil
@@ -364,12 +356,9 @@ func NukeWorld() {
 	}
 	world.SuperChunkList = []*world.MapSuperChunk{}
 	world.SuperChunkMap = make(map[world.XY]*world.MapSuperChunk)
-	fmt.Println("Nuking superchunk list and map.")
 	runtime.GC()
 
 	world.SuperChunkListLock.Unlock()
-
-	fmt.Println("World nuked.")
 
 	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
 }
