@@ -28,7 +28,6 @@ Possibly look at further cleaning of object types:
 	}
 
 
-QUICK DO: Destroy world on map load
 ALSO DO: Fix loading screen, material rendering progress, etc.
 Complete unsafe for faster loading, make packed binary format for saves.
 Also: BP/minisave format
