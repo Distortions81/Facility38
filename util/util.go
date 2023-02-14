@@ -6,7 +6,6 @@ import (
 	"GameTest/world"
 	"bytes"
 	"compress/zlib"
-	"fmt"
 	"image/color"
 	"io"
 	"log"
@@ -36,22 +35,18 @@ func init() {
 
 func deleteOldLines() {
 
-	deleted := false
+	var newLines []world.ChatLines
+	var newTop int
 
 	/* Delete 1 expired line each time */
-	for i, line := range ChatLines {
-		if time.Since(line.Timestamp) > line.Life {
-			ChatLines = append(ChatLines[:i], ChatLines[i+1:]...)
-			ChatLinesTop--
-			fmt.Println("deleted:", i)
-			deleted = true
-			break
+	for _, line := range ChatLines {
+		if time.Since(line.Timestamp) < line.Life {
+			newLines = append(newLines, line)
+			newTop++
 		}
 	}
-
-	if deleted {
-		deleteOldLines()
-	}
+	ChatLines = newLines
+	ChatLinesTop = newTop
 }
 
 func Chat(text string) {
