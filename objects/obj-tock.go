@@ -177,7 +177,7 @@ func beltUpdateInter(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
-	/* Output is full, exit */
+	/* Output full? */
 	if obj.Ports[obj.Dir].Buf.Amount != 0 {
 		obj.Blocked = true
 		obj.Active = false
@@ -185,14 +185,18 @@ func beltUpdate(obj *world.ObjData) {
 	}
 	obj.Blocked = false
 
-	/* Find all inputs, round-robin send to output */
+	/* Find all inputs round-robin, send to output */
 	dir := obj.LastUsedInput
+	/* Start with last input, then rotate one */
 	for x := 0; x < 4; x++ {
 		dir = util.RotCW(dir)
 
+		/* Is this an input? */
 		if obj.Ports[dir].PortDir != gv.PORT_INPUT {
 			continue
 		}
+
+		/* Does the input contain anything? */
 		if obj.Ports[dir].Buf.Amount == 0 {
 			obj.Active = false
 			continue
@@ -203,7 +207,7 @@ func beltUpdate(obj *world.ObjData) {
 			obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
 			obj.Ports[dir].Buf.Amount = 0
 			obj.LastUsedInput = dir
-			break
+			break /* Stop */
 		}
 
 	}
@@ -211,25 +215,39 @@ func beltUpdate(obj *world.ObjData) {
 
 func fuelHopperUpdate(obj *world.ObjData) {
 
-	/* Handle putting fuel into objects */
-	if obj.Ports[obj.Dir].Obj != nil &&
-		obj.Ports[obj.Dir].Obj.TypeP.MaxFuelKG > 0 {
-
-	} else {
+	/* Valid port? */
+	if obj.Ports[obj.Dir] == nil {
 		obj.Blocked = true
+		return
+	}
+
+	/* Connected to valid object? */
+	if obj.Ports[obj.Dir].Obj == nil {
+		obj.Blocked = true
+		return
+	}
+
+	/* Grab destination object */
+	dest := obj.Ports[obj.Dir].Obj
+
+	/* Does it use fuel? */
+	if dest.TypeP.MaxFuelKG == 0 {
+		obj.Blocked = true
+		return
 	}
 }
 
 func splitterUpdate(obj *world.ObjData) {
 
 	input := util.ReverseDirection(obj.Dir)
+
+	/* Anything in the input? */
 	if obj.Ports[input].Buf.Amount == 0 {
-		//cwlog.DoLog("beltUpdate: Our input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 		obj.Active = false
 		return
 	}
 
-	/* Find all inputs, round-robin send to output */
+	/* Round-robin output */
 	dir := obj.LastUsedOutput
 	for x := 0; x < 4; x++ {
 		dir = util.RotCW(dir)
