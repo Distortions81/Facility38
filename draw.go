@@ -15,6 +15,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"golang.org/x/image/font"
 )
 
 const (
@@ -373,16 +374,13 @@ func drawPixmapMode(screen *ebiten.Image) {
 
 func drawDebugInfo(screen *ebiten.Image) {
 	/* Draw debug info */
-	dbuf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v, Batched: %v",
+	buf := fmt.Sprintf("FPS: %.2f UPS: %.2f Active Objects: %v Arch: %v Build: %v",
 		ebiten.ActualFPS(),
 		1000000000.0/float32(world.MeasuredObjectUPS_ns),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
-		runtime.GOARCH, buildTime, BatchTop)
+		runtime.GOARCH, buildTime)
 
-	tRect := text.BoundString(world.ToolTipFont, dbuf)
-	my := float32(world.ScreenHeight) - 4.0
-	vector.DrawFilledRect(screen, -1, my-(float32(tRect.Dy()-1)), float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
-	text.Draw(screen, dbuf, world.ToolTipFont, 0, int(my), world.ColorAqua)
+	DrawText(buf, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XY{X: 0, Y: world.ScreenHeight}, 11, screen, true, false, false)
 }
 
 func drawWorldTooltip(screen *ebiten.Image) {
@@ -474,14 +472,37 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				humanize.Comma(int64((worldMouseX - gv.XYCenter))),
 				humanize.Comma(int64((worldMouseY - gv.XYCenter))))
 		}
-
-		var pad float32 = 11.0
-		tRect := text.BoundString(world.ToolTipFont, toolTip)
-		mx := float32(world.ScreenWidth-tRect.Dx()) - pad
-		my := float32(world.ScreenHeight - tRect.Dy())
-		vector.DrawFilledRect(screen, mx-(pad/2), my-11-(pad/2), float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, world.ColorToolTipBG)
-		text.Draw(screen, toolTip, world.ToolTipFont, int(mx), int(my), world.ColorAqua)
+		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XY{X: world.ScreenWidth, Y: world.ScreenHeight}, 11, screen, false, true, false)
 	}
+}
+
+func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XY,
+	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) {
+	var mx, my float32
+
+	halfPad := (pad / 2)
+	tRect := text.BoundString(face, input)
+	if justCenter {
+		mx = float32(pos.X - (tRect.Dx() / 2))
+		my = float32(pos.Y - (tRect.Dy() / 2))
+	} else {
+		if justLeft {
+			mx = float32(pos.X) + halfPad
+		} else {
+			mx = float32(pos.X-tRect.Dx()) - halfPad
+		}
+
+		if justUp {
+			my = float32(pos.Y-tRect.Dy()) + halfPad
+		} else {
+			my = float32(pos.Y) - halfPad
+		}
+	}
+	_, _, _, alpha := bgcolor.RGBA()
+	if alpha > 0 {
+		vector.DrawFilledRect(screen, mx-halfPad, my-11-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor)
+	}
+	text.Draw(screen, input, face, int(mx), int(my), color)
 }
 
 /* Draw world objects */

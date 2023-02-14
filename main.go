@@ -7,6 +7,7 @@ import (
 	"GameTest/objects"
 	"GameTest/world"
 	"fmt"
+	"image/color"
 	"log"
 	"runtime"
 	"runtime/debug"
@@ -166,8 +167,11 @@ func bootScreen(screen *ebiten.Image) {
 
 	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)
 
-	tRect := text.BoundString(world.BootFont, output)
-	text.Draw(screen, output, world.BootFont, ((world.ScreenWidth)/2.0)-int(tRect.Max.X/2), ((world.ScreenHeight)/2.0)-int(tRect.Max.Y/2), world.ColorWhite)
+	/*
+		tRect := text.BoundString(world.BootFont, output)
+		text.Draw(screen, output, world.BootFont, ((world.ScreenWidth)/2.0)-int(tRect.Max.X/2), ((world.ScreenHeight)/2.0)-int(tRect.Max.Y/2), world.ColorWhite)
+	*/
+	DrawText(output, world.BootFont, world.ColorWhite, color.Transparent, world.XY{X: world.ScreenWidth / 2, Y: world.ScreenHeight / 2}, 0, screen, false, false, true)
 
 	multi := 5.0
 	pw := float32(100.0 * multi)

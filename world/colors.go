@@ -5,7 +5,8 @@ import "image/color"
 var (
 	BootColor       = color.NRGBA{0, 32, 32, 255}
 	BGColor         = color.NRGBA{32, 32, 32, 255}
-	ColorToolTipBG  = color.NRGBA{32, 32, 32, 170}
+	ColorToolTipBG  = color.NRGBA{16, 16, 16, 190}
+	ColorDebugBG    = color.NRGBA{16, 16, 16, 128}
 	ColorTBSelected = color.NRGBA{0, 255, 255, 128}
 	GroundColor     = color.NRGBA{51, 78, 38, 255}
 
