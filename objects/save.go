@@ -301,10 +301,12 @@ func NukeWorld() {
 
 	world.TickListLock.Lock()
 	world.TickList = []world.TickEvent{}
+	world.TickCount = 0
 	world.TickListLock.Unlock()
 
 	world.TockListLock.Lock()
 	world.TockList = []world.TickEvent{}
+	world.TockCount = 0
 	world.TockListLock.Unlock()
 
 	world.EventQueueLock.Lock()
@@ -313,26 +315,21 @@ func NukeWorld() {
 
 	world.ObjQueueLock.Lock()
 	world.ObjQueue = []*world.ObjectQueuetData{}
-	fmt.Println("Nuked ObjQueue.")
 	world.ObjQueueLock.Unlock()
 
 	world.SuperChunkListLock.Lock()
+
 	/* Erase current map */
 	for sc, superchunk := range world.SuperChunkList {
 		for c, chunk := range superchunk.ChunkList {
 
-			world.SuperChunkList[sc].ChunkList[c].NumObjects = 0
 			world.SuperChunkList[sc].ChunkList[c].Parent = nil
 			if chunk.TerrainImg != nil && chunk.TerrainImg != world.TempChunkImage {
 				world.SuperChunkList[sc].ChunkList[c].TerrainImg.Dispose()
 			}
-			world.SuperChunkList[sc].ChunkList[c].Visible = false
 
 			for o, obj := range chunk.ObjList {
 				world.SuperChunkList[sc].ChunkList[c].ObjList[o].Parent = nil
-				world.SuperChunkList[sc].ChunkList[c].ObjList[o].NumInputs = 0
-				world.SuperChunkList[sc].ChunkList[c].ObjList[o].NumOutputs = 0
-				world.SuperChunkList[sc].ChunkList[c].ObjList[o].Pos = world.XY{X: 0, Y: 0}
 				for p := range obj.Ports {
 					world.SuperChunkList[sc].ChunkList[c].ObjList[o].Ports[p].Obj = nil
 				}
@@ -341,7 +338,6 @@ func NukeWorld() {
 
 			world.SuperChunkList[sc].ChunkList[c].ObjList = nil
 			world.SuperChunkList[sc].ChunkList[c].ObjMap = nil
-			world.SuperChunkList[sc].ChunkList[c].Pos = world.XY{X: 0, Y: 0}
 		}
 		world.SuperChunkList[sc].ChunkList = nil
 		world.SuperChunkList[sc].ChunkMap = nil
@@ -350,13 +346,15 @@ func NukeWorld() {
 			world.SuperChunkList[sc].PixMap = nil
 		}
 		world.SuperChunkList[sc].ResourceMap = nil
-		world.SuperChunkList[sc].Visible = false
 
 		runtime.GC()
 	}
 	world.SuperChunkList = []*world.MapSuperChunk{}
 	world.SuperChunkMap = make(map[world.XY]*world.MapSuperChunk)
 	runtime.GC()
+
+	world.VisDataDirty.Store(true)
+	world.ZoomScale = gv.DefaultZoom
 
 	world.SuperChunkListLock.Unlock()
 
