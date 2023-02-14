@@ -329,7 +329,7 @@ func makeSuperChunk(pos world.XY) {
 		/* Save position */
 		world.SuperChunkMap[scpos].Pos = scpos
 
-		drawMineral(newSuperChunk)
+		drawResource(newSuperChunk)
 
 		world.SuperChunkMap[scpos].Lock.Unlock()
 	}

@@ -18,8 +18,8 @@ type MapSuperChunk struct {
 	ChunkList []*MapChunk      `json:"-"`
 	NumChunks uint16           `json:"-"`
 
-	MineralMap  []byte `json:"-"`
-	MineralLock sync.Mutex
+	ResourceMap  []byte `json:"-"`
+	ResourceLock sync.Mutex
 
 	PixMap      *ebiten.Image `json:"-"`
 	PixmapDirty bool          `json:"-"`
@@ -73,7 +73,7 @@ type NoiseLayerData struct {
 	GMod bool
 	AMod bool
 
-	MineralMulti float64
+	ResourceMulti float64
 
 	RMulti float32
 	GMulti float32

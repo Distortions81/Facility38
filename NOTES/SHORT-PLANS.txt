@@ -14,8 +14,8 @@ high priority:
 hoppers. occupied map, with pointers and x/y cords for building piece info
 eventually set machine times in ms/sec
 
-Make mouse tooltip show minerals in mineral mode.
-make UI with checkboxes for mineral selection to draw
+Make mouse tooltip show resources in resource mode.
+make UI with checkboxes for resources selection to draw
 
 Add ground rendering for pixel mode too
 Possibly look at further cleaning of object types:
@@ -33,4 +33,4 @@ Complete unsafe for faster loading, make packed binary format for saves.
 Also: BP/minisave format
 
 Fix overs not showing mats when rotated (use rotation to get right input)
-Fix delay before loading screen from mineral prerendering.
+Fix delay before loading screen from resources prerendering.

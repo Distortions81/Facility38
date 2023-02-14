@@ -87,8 +87,8 @@ var (
 	ShowInfoLayer bool
 
 	/* View layers */
-	ShowMineralLayer     bool
-	ShowMineralLayerLock sync.RWMutex
+	ShowResourceLayer     bool
+	ShowResourceLayerLock sync.RWMutex
 
 	/* If position/zoom changed */
 	VisDataDirty atomic.Bool

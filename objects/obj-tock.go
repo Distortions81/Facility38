@@ -20,6 +20,7 @@ func InitMiner(obj *world.ObjData) {
 	if obj == nil {
 		return
 	}
+
 	/* Init miner data if needed */
 	if obj.MinerData == nil {
 		obj.MinerData = &world.MinerDataType{}
@@ -27,6 +28,7 @@ func InitMiner(obj *world.ObjData) {
 		return
 	}
 
+	/* Check for resources to mine */
 	for p := 1; p < len(NoiseLayers); p++ {
 		var h float32 = float32(math.Abs(float64(NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p))))
 
@@ -54,67 +56,76 @@ func minerUpdate(obj *world.ObjData) {
 			continue
 		}
 
+		/* Fuel input */
 		if port.PortDir == gv.PORT_INPUT {
+			/* Valid? */
 			if port.Buf.TypeP == nil {
 				continue
 			}
 
-			/* If this is fuel, take it */
-			if port.Buf.TypeP.TypeI == gv.MAT_COAL {
-				if obj.KGFuel+port.Buf.Amount > obj.TypeP.MaxFuelKG {
-					continue
-				}
-				obj.KGFuel += port.Buf.Amount
-				obj.Ports[p].Buf.Amount = 0
-			}
-		} else {
-
-			/* Output is full, exit */
-			if port.Buf.Amount != 0 {
-				obj.Blocked = true
-				obj.Active = false
+			/* Is it fuel? */
+			if port.Buf.TypeP.TypeI != gv.MAT_COAL {
 				continue
 			}
-			obj.Blocked = false
-
-			/* Mine stuff */
-			if obj.KGFuel >= obj.TypeP.KgFuelEach {
-
-				/* Burn fuel */
-				obj.KGFuel -= obj.TypeP.KgFuelEach
-
-				obj.TickCount++
-				obj.Active = true
-
-				if obj.TickCount >= obj.TypeP.Interval {
-
-					if obj.MinerData.NumMatsFound > 0 {
-						pick := rand.Intn(int(obj.MinerData.NumMatsFound))
-
-						amount := obj.TypeP.KgMineEach * float32(obj.MinerData.MatsFound[pick])
-						kind := MatTypes[obj.MinerData.MatsFoundT[pick]]
-
-						/* If we are mining coal, and it won't overfill us,
-						 * burn the coal and don't output */
-						if obj.MinerData.MatsFoundT[pick] == gv.MAT_COAL &&
-							obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
-							obj.KGFuel += amount
-						} else {
-
-							obj.Ports[obj.Dir].Buf.Amount = amount
-							obj.Ports[obj.Dir].Buf.TypeP = kind
-							obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
-						}
-						//We should remove ourselves here if we run out of ore
-					}
-
-					obj.TickCount = 0
-				}
-
-			} else {
-				obj.Active = false
+			/* Will it over fill us? */
+			if obj.KGFuel+port.Buf.Amount > obj.TypeP.MaxFuelKG {
+				continue
 			}
+
+			/* Eat the fuel and increase fuel kg */
+			obj.KGFuel += port.Buf.Amount
+			obj.Ports[p].Buf.Amount = 0
+			continue
 		}
+
+		/* Is our output full? */
+		if port.Buf.Amount != 0 {
+			obj.Blocked = true
+			obj.Active = false
+			continue
+		}
+		/* Then we are not blocked */
+		obj.Blocked = false
+
+		/* Burn fuel */
+		obj.KGFuel -= obj.TypeP.KgFuelEach
+		/* Increment timer */
+		obj.TickCount++
+		/* Turn on active status */
+		obj.Active = true
+
+		/* Are we ready to output yet? */
+		if obj.TickCount >= obj.TypeP.Interval {
+			continue
+		}
+
+		/* Is there anything to mine? */
+		if obj.MinerData.NumMatsFound == 0 {
+			continue
+		}
+
+		/* Randomly pick a material from the list */
+		pick := rand.Intn(int(obj.MinerData.NumMatsFound))
+
+		/* Calculate how much material */
+		amount := obj.TypeP.KgMineEach * float32(obj.MinerData.MatsFound[pick])
+		kind := MatTypes[obj.MinerData.MatsFoundT[pick]]
+
+		/* Are we are mining coal? */
+		if obj.MinerData.MatsFoundT[pick] == gv.MAT_COAL &&
+			/* If we need fuel, fuel ourselves */
+			obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
+			obj.KGFuel += amount
+		} else {
+			/* Otherwise output the material */
+			obj.Ports[obj.Dir].Buf.Amount = amount
+			obj.Ports[obj.Dir].Buf.TypeP = kind
+			obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
+		}
+
+		//We should remove ourselves here if we run out of ore
+
+		obj.TickCount = 0
 
 	}
 }

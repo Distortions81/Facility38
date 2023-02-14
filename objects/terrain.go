@@ -29,17 +29,17 @@ var (
 )
 
 func SwitchLayer() {
-	world.ShowMineralLayerLock.Lock()
+	world.ShowResourceLayerLock.Lock()
 
-	if world.ShowMineralLayer {
-		world.ShowMineralLayer = false
+	if world.ShowResourceLayer {
+		world.ShowResourceLayer = false
 	} else {
-		world.ShowMineralLayer = true
+		world.ShowResourceLayer = true
 	}
 	for _, sChunk := range world.SuperChunkList {
 		sChunk.PixmapDirty = true
 	}
-	world.ShowMineralLayerLock.Unlock()
+	world.ShowResourceLayerLock.Unlock()
 }
 
 /* Make a 'loading' temporary texture for chunk terrain */
@@ -220,7 +220,7 @@ func killTerrainCache(chunk *world.MapChunk, force bool) {
 /* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
 
-	if !world.ShowMineralLayer && world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
+	if !world.ShowResourceLayer && world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 
 		for _, sChunk := range world.SuperChunkList {
 			if sChunk.PixMap != nil {
@@ -234,7 +234,7 @@ func PixmapRenderST() {
 		}
 		pixmapCacheCleared = true
 
-	} else if world.ZoomScale <= gv.MapPixelThreshold || world.ShowMineralLayer {
+	} else if world.ZoomScale <= gv.MapPixelThreshold || world.ShowResourceLayer {
 		pixmapCacheCleared = false
 
 		for _, sChunk := range world.SuperChunkList {
@@ -258,7 +258,7 @@ func PixmapRenderDaemon() {
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
 
-			if !world.ShowMineralLayer && world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
+			if !world.ShowResourceLayer && world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 
 				pixmapCacheCleared = true
 				sChunk.PixLock.Lock()
@@ -272,7 +272,7 @@ func PixmapRenderDaemon() {
 
 				}
 				sChunk.PixLock.Unlock()
-			} else if world.ZoomScale <= gv.MapPixelThreshold || world.ShowMineralLayer {
+			} else if world.ZoomScale <= gv.MapPixelThreshold || world.ShowResourceLayer {
 				pixmapCacheCleared = false
 
 				if sChunk.PixMap == nil || sChunk.PixmapDirty {
@@ -284,14 +284,14 @@ func PixmapRenderDaemon() {
 	}
 }
 
-func drawMineral(sChunk *world.MapSuperChunk) {
+func drawResource(sChunk *world.MapSuperChunk) {
 	if sChunk == nil {
 		return
 	}
 
-	sChunk.MineralLock.Lock()
-	if sChunk.MineralMap == nil {
-		sChunk.MineralMap = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
+	sChunk.ResourceLock.Lock()
+	if sChunk.ResourceMap == nil {
+		sChunk.ResourceMap = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
 	}
 
 	for x := 0; x < gv.SuperChunkTotal; x++ {
@@ -330,14 +330,14 @@ func drawMineral(sChunk *world.MapSuperChunk) {
 			g = util.Max(g, 0)
 			b = util.Max(b, 0)
 
-			sChunk.MineralMap[ppos] = byte(r * 128)
-			sChunk.MineralMap[ppos+1] = byte(g * 128)
-			sChunk.MineralMap[ppos+2] = byte(b * 128)
-			sChunk.MineralMap[ppos+3] = 0xFF
+			sChunk.ResourceMap[ppos] = byte(r * 128)
+			sChunk.ResourceMap[ppos+1] = byte(g * 128)
+			sChunk.ResourceMap[ppos+2] = byte(b * 128)
+			sChunk.ResourceMap[ppos+3] = 0xFF
 		}
 	}
 	sChunk.PixmapDirty = true
-	sChunk.MineralLock.Unlock()
+	sChunk.ResourceLock.Unlock()
 
 }
 
@@ -356,12 +356,12 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 	var ObjPix []byte = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
 
 	didCopy := false
-	sChunk.MineralLock.Lock()
-	if world.ShowMineralLayer && sChunk.MineralMap != nil {
-		copy(ObjPix, sChunk.MineralMap)
+	sChunk.ResourceLock.Lock()
+	if world.ShowResourceLayer && sChunk.ResourceMap != nil {
+		copy(ObjPix, sChunk.ResourceMap)
 		didCopy = true
 	}
-	sChunk.MineralLock.Unlock()
+	sChunk.ResourceLock.Unlock()
 
 	//Fill will bg and grid
 	for x := 0; x < gv.SuperChunkTotal; x++ {
