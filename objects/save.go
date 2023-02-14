@@ -162,6 +162,8 @@ func SaveGame() {
 			return
 		}
 
+		util.Chat("Game save complete.")
+
 		//fmt.Println("COMPRESS & WRITE COMPLETE:", time.Since(start).String())
 	}()
 }
@@ -294,6 +296,8 @@ func LoadGame() {
 
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
+
+		util.Chat("Game load complete.")
 	}()
 }
 

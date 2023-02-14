@@ -6,12 +6,51 @@ import (
 	"GameTest/world"
 	"bytes"
 	"compress/zlib"
+	"image/color"
 	"io"
 	"log"
 	"math"
+	"sync"
+	"time"
 
 	"github.com/dustin/go-humanize"
 )
+
+var (
+	ChatLinesTop  int
+	ChatLines     []world.ChatLines
+	ChatLinesLock sync.Mutex
+)
+
+func init() {
+	ChatLines = append(ChatLines, world.ChatLines{
+		Text:      "Welcome! Select a object on the toolar and click to build!",
+		Timestamp: time.Now(),
+		Life:      time.Second * 15,
+		Color:     world.ColorAqua,
+		System:    true,
+	})
+	ChatLinesTop = 1
+}
+
+func Chat(text string) {
+	go func(text string) {
+		ChatLinesLock.Lock()
+		defer ChatLinesLock.Unlock()
+
+		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color.White, Life: time.Second * 15, Timestamp: time.Now()})
+		ChatLinesTop++
+	}(text)
+}
+func ChatDetailed(text string, color color.Color, life time.Duration) {
+	go func(text string) {
+		ChatLinesLock.Lock()
+		defer ChatLinesLock.Unlock()
+
+		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color, Life: life, Timestamp: time.Now()})
+		ChatLinesTop++
+	}(text)
+}
 
 func Min(a, b float32) float32 {
 	if a <= b {

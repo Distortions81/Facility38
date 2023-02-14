@@ -5,6 +5,8 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"GameTest/world"
+	"fmt"
+	"image/color"
 	"os"
 	"time"
 
@@ -38,8 +40,6 @@ var (
 	/* Last object we performed an action on */
 	gLastActionPosition world.XY
 	gLastActionTime     time.Time
-	gBuildActionDelay   time.Duration
-	gRemoveActionDelay  time.Duration
 	gLastActionType     int
 
 	/* WASM wierdness kludge */
@@ -94,6 +94,8 @@ func (g *Game) Update() error {
 func handleQuit() {
 	if (inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt)) ||
 		inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		util.Chat("Game closing...")
+		time.Sleep(time.Second * 5)
 		os.Exit(0)
 	}
 }
@@ -120,6 +122,7 @@ func handleToolbar(rotate bool) bool {
 			/* Actions */
 			if item.ToolbarAction != nil && !rotate {
 				item.ToolbarAction()
+				util.Chat(item.Name)
 			} else {
 				if rotate && item != nil {
 					dir := item.Direction
@@ -325,6 +328,9 @@ func createWorldObjects() {
 								return
 							}
 							dir := objects.GameObjTypes[SelectedItemType].Direction
+							oPos := util.CenterXY(pos)
+							util.ChatDetailed(fmt.Sprintf("Created %v at (%v,%v)", objects.GameObjTypes[SelectedItemType].Name, oPos.X, oPos.Y), color.White, time.Second*3)
+
 							if gv.WASMMode {
 								objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
 							} else {
@@ -336,19 +342,21 @@ func createWorldObjects() {
 						}
 					}
 				} else {
-					if time.Since(gLastActionTime) > gRemoveActionDelay {
-						if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
-							if o != nil {
-								if gv.WASMMode {
-									objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
-								} else {
-									go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
-								}
-								//Action completed, save position and time
-								gLastActionPosition = pos
-								gLastActionType = cDragActionTypeDelete
+					if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
+
+						if o != nil {
+							oPos := util.CenterXY(pos)
+							util.ChatDetailed(fmt.Sprintf("Deleted %v at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*3)
+
+							if gv.WASMMode {
+								objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+							} else {
+								go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
 							}
+							//Action completed, save position and time
+							gLastActionPosition = pos
+							gLastActionType = cDragActionTypeDelete
 						}
 					}
 
@@ -435,8 +443,10 @@ func toggleOverlays() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
 		if world.ShowInfoLayer {
 			world.ShowInfoLayer = false
+			util.Chat("Info overlay is now on.")
 		} else {
 			world.ShowInfoLayer = true
+			util.Chat("Info overlay is now off.")
 		}
 	}
 }
@@ -464,9 +474,13 @@ func rotateWorldObjects() {
 			if gShiftPressed {
 				newdir = util.RotCCW(o.Dir)
 				util.RotatePortsCCW(o)
+				oPos := util.CenterXY(o.Pos)
+				util.Chat(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y))
 			} else {
 				newdir = util.RotCW(o.Dir)
 				util.RotatePortsCW(o)
+				oPos := util.CenterXY(o.Pos)
+				util.Chat(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y))
 			}
 			o.Dir = newdir
 			objects.LinkObj(o)

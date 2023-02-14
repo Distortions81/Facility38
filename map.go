@@ -3,6 +3,7 @@ package main
 import (
 	"GameTest/gv"
 	"GameTest/objects"
+	"GameTest/util"
 	"GameTest/world"
 	"time"
 )
@@ -10,6 +11,7 @@ import (
 /* Make a test map, or skip and still start daemons */
 func makeTestMap(skip bool) {
 
+	util.Chat("Generating resource map.")
 	objects.PerlinNoiseInit()
 
 	if !skip {
@@ -122,12 +124,14 @@ func makeTestMap(skip bool) {
 	}
 
 	world.MapGenerated.Store(true)
+	util.Chat("New map generated.")
 
 	for !world.SpritesLoaded.Load() ||
 		!world.PlayerReady.Load() {
 		time.Sleep(time.Millisecond * 10)
 	}
 
+	util.Chat("Exploring area around start.")
 	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
 
 	if !gv.WASMMode {

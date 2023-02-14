@@ -48,6 +48,7 @@ var (
 
 /* Setup a few images for later use */
 func init() {
+
 	world.MiniMapTile = ebiten.NewImage(1, 1)
 	world.MiniMapTile.Fill(color.White)
 
@@ -56,6 +57,34 @@ func init() {
 
 	world.BeltBlock = ebiten.NewImage(1, 1)
 	world.BeltBlock.Fill(world.ColorOrange)
+}
+
+func drawChatLines(screen *ebiten.Image) {
+
+	lineNum := 0
+	util.ChatLinesLock.Lock()
+	defer util.ChatLinesLock.Unlock()
+
+	for x := util.ChatLinesTop; x > 0 && lineNum < gv.ChatHeightLines; x-- {
+		line := util.ChatLines[x-1]
+		/* Ignore old chat lines */
+		since := time.Since(line.Timestamp)
+		if since > line.Life {
+			continue
+		}
+		lineNum++
+
+		tBgColor := world.ColorToolTipBG
+		r, g, b, _ := line.Color.RGBA()
+		var blend float64 = 0
+		if line.Life-since < gv.ChatFadeTime {
+			blend = (float64(gv.ChatFadeTime-(line.Life-since)) / float64(gv.ChatFadeTime) * 100.0)
+		}
+		newAlpha := 254 - byte(blend*2.55)
+
+		tBgColor.A = newAlpha
+		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: newAlpha}, tBgColor, world.XY{X: 0, Y: (world.ScreenHeight - 25) - (lineNum * 26)}, 11, screen, true, false, false)
+	}
 }
 
 /* Ebiten: Draw everything */
@@ -99,6 +128,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Debug info */
 	drawDebugInfo(screen)
+
+	drawChatLines(screen)
 
 }
 
@@ -380,7 +411,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		runtime.GOARCH, buildTime)
 
-	DrawText(buf, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XY{X: 0, Y: world.ScreenHeight}, 11, screen, true, false, false)
+	DrawText(buf, world.ToolTipFont, color.White, world.ColorDebugBG, world.XY{X: 0, Y: world.ScreenHeight}, 11, screen, true, false, false)
 }
 
 func drawWorldTooltip(screen *ebiten.Image) {

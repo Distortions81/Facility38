@@ -2,6 +2,7 @@ package world
 
 import (
 	"GameTest/gv"
+	"image/color"
 	"math/rand"
 	"sync"
 	"time"
@@ -9,6 +10,14 @@ import (
 	"github.com/aquilax/go-perlin"
 	"github.com/hajimehoshi/ebiten/v2"
 )
+
+type ChatLines struct {
+	Text      string
+	Color     color.Color
+	Timestamp time.Time
+	Life      time.Duration
+	System    bool
+}
 
 /* Objects that contain a map of chunks and PixMap */
 type MapSuperChunk struct {

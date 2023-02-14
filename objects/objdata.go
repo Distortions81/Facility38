@@ -62,7 +62,7 @@ var (
 		{ImagePath: "world-obj/basic-miner.png", ImagePathActive: "world-obj/basic-miner-active.png",
 			UIPath:       "ui/miner.png",
 			Name:         "Basic miner",
-			Info:         "Mines soild resources where place, requires coal fuel.",
+			Info:         "Mines soild resources where placed, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         world.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
@@ -79,7 +79,7 @@ var (
 
 		{ImagePath: "world-obj/basic-belt.png",
 			Name:      "Basic belt",
-			Info:      "Moves items from rear or sides forward in direction of arrow.",
+			Info:      "Moves items from rear or sides in direction of arrow.",
 			TypeI:     gv.ObjTypeBasicBelt,
 			Size:      world.XY{X: 1, Y: 1},
 			Rotatable: true,

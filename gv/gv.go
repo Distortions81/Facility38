@@ -2,6 +2,7 @@ package gv
 
 import (
 	"math"
+	"time"
 )
 
 var (
@@ -20,6 +21,9 @@ const (
 	OneEightyDeg  = math.Pi
 	ThreeSixtyDeg = math.Pi * 2
 	DegToRad      = 6.28319
+
+	ChatHeightLines = 10
+	ChatFadeTime    = time.Second
 
 	Version = "014"
 
