@@ -131,12 +131,12 @@ func handleToolbar(rotate bool) bool {
 					item.Direction = dir
 					DrawToolbar()
 					/* Deselect */
-				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI {
-					SelectedItemType = 0
+				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI-1 {
+					SelectedItemType = 255
 					DrawToolbar()
 				} else {
 					/* Select */
-					SelectedItemType = ToolbarItems[ipos].OType.TypeI
+					SelectedItemType = ToolbarItems[ipos].OType.TypeI - 1
 					DrawToolbar()
 				}
 			}
@@ -295,63 +295,65 @@ func createWorldObjects() {
 			pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
 			if pos != gLastActionPosition {
-				if time.Since(gLastActionTime) > gBuildActionDelay {
 
-					bypass := false
-					chunk := util.GetChunk(pos)
-					o := util.GetObj(pos, chunk)
+				bypass := false
+				chunk := util.GetChunk(pos)
+				o := util.GetObj(pos, chunk)
 
-					if o == nil {
+				if o == nil {
 
-						/* Prevent flopping between delete and create when dragging */
-						if gLastActionType == cDragActionTypeBuild || gLastActionType == cDragActionTypeNone {
+					/* Prevent flopping between delete and create when dragging */
+					if gLastActionType == cDragActionTypeBuild || gLastActionType == cDragActionTypeNone {
 
-							/*
-								size := objects.GameObjTypes[objects.SelectedItemType].Size
-								if size.X > 1 || size.Y > 1 {
-									var tx, ty int
-									for tx = 0; tx < size.X; tx++ {
-										for ty = 0; ty < size.Y; ty++ {
-											if chunk.LargeWObject[world.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
-												cwlog.DoLog("ERROR: Occupied.")
-												bypass = true
-											}
+						/*
+							size := objects.GameObjTypes[objects.SelectedItemType].Size
+							if size.X > 1 || size.Y > 1 {
+								var tx, ty int
+								for tx = 0; tx < size.X; tx++ {
+									for ty = 0; ty < size.Y; ty++ {
+										if chunk.LargeWObject[world.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
+											cwlog.DoLog("ERROR: Occupied.")
+											bypass = true
 										}
 									}
 								}
-							*/
-
-							if !bypass {
-								dir := objects.GameObjTypes[SelectedItemType].Direction
-								if gv.WASMMode {
-									objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
-								} else {
-									go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
-								}
-
-								gLastActionPosition = pos
-								gLastActionType = cDragActionTypeBuild
 							}
-						}
-					} else {
-						if time.Since(gLastActionTime) > gRemoveActionDelay {
-							if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
+						*/
 
-								if o != nil {
-									if gv.WASMMode {
-										objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
-									} else {
-										go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
-									}
-									//Action completed, save position and time
-									gLastActionPosition = pos
-									gLastActionType = cDragActionTypeDelete
-								}
+						if !bypass {
+							if SelectedItemType == 255 {
+								return
 							}
-						}
+							dir := objects.GameObjTypes[SelectedItemType].Direction
+							if gv.WASMMode {
+								objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
+							} else {
+								go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
+							}
 
+							gLastActionPosition = pos
+							gLastActionType = cDragActionTypeBuild
+						}
 					}
+				} else {
+					if time.Since(gLastActionTime) > gRemoveActionDelay {
+						if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
+
+							if o != nil {
+								if gv.WASMMode {
+									objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+								} else {
+									go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+								}
+								//Action completed, save position and time
+								gLastActionPosition = pos
+								gLastActionType = cDragActionTypeDelete
+							}
+						}
+					}
+
 				}
+
 			}
 		}
 	}

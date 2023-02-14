@@ -144,13 +144,15 @@ type MaterialType struct {
 /* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
 	Name string
+	Info string
 
 	TypeI uint8
 
-	Symbol    string
-	Size      XY
-	Rotatable bool
-	Direction uint8
+	Symbol      string
+	ExcludeWASM bool
+	Size        XY
+	Rotatable   bool
+	Direction   uint8
 
 	ImagePath       string
 	ImagePathActive string

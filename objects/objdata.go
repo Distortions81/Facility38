@@ -46,14 +46,14 @@ var (
 	/* Toolbar actions and images */
 	UIObjsTypes = []*world.ObjType{
 		//Ui Only
-		{Name: "Save", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
-			Symbol: "SAVE"},
-		{Name: "Load", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
-			Symbol: "LOAD"},
+		{Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
+			Symbol: "SAVE", ExcludeWASM: true, Info: "Quicksave game to the single save-slot."},
+		{Name: "Load Game", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
+			Symbol: "LOAD", ExcludeWASM: true, Info: "Erase map, and load quicksave."},
 		{ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER"},
-		{ImagePath: "ui/overlay.png", Name: "Overlays", ToolbarAction: toggleOverlay,
-			Symbol: "OVRLY"},
+			Symbol: "LAYER", Info: "Toggle between the normal and Resource layer."},
+		{ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
+			Symbol: "OVRLY", Info: "Toggle info overlays on/off"},
 	}
 
 	/* World objects and images */
@@ -62,6 +62,7 @@ var (
 		{ImagePath: "world-obj/basic-miner.png", ImagePathActive: "world-obj/basic-miner-active.png",
 			UIPath:       "ui/miner.png",
 			Name:         "Basic miner",
+			Info:         "Mines soild resources where place, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         world.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
@@ -78,6 +79,7 @@ var (
 
 		{ImagePath: "world-obj/basic-belt.png",
 			Name:      "Basic belt",
+			Info:      "Moves items from rear or sides forward in direction of arrow.",
 			TypeI:     gv.ObjTypeBasicBelt,
 			Size:      world.XY{X: 1, Y: 1},
 			Rotatable: true,
@@ -87,6 +89,7 @@ var (
 		},
 		{ImagePath: "world-obj/basic-belt-inter-right.png",
 			Name:      "Basic Intersection-Right",
+			Info:      "A belt that has an under-pass going to the right when facing north.",
 			TypeI:     gv.ObjTypeBasicBeltInterRight,
 			Size:      world.XY{X: 1, Y: 1},
 			Rotatable: true,
@@ -96,6 +99,7 @@ var (
 		},
 		{ImagePath: "world-obj/basic-belt-inter-left.png",
 			Name:      "Basic Intersection-Left",
+			Info:      "A belt that has an under-pass going to the left when facing north.",
 			TypeI:     gv.ObjTypeBasicBeltInterLeft,
 			Size:      world.XY{X: 1, Y: 1},
 			Rotatable: true,
@@ -106,6 +110,7 @@ var (
 
 		{ImagePath: "world-obj/basic-splitter.png", ImagePathActive: "world-obj/basic-splitter-active.png",
 			Name:        "Basic Splitter",
+			Info:        "Input from back, ouputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
 			Size:        world.XY{X: 1, Y: 1},
 			Rotatable:   true,
@@ -119,6 +124,7 @@ var (
 		},
 
 		{ImagePath: "world-obj/basic-box.png", ImagePathActive: "world-obj/basic-box-active.png",
+			Info:         "Currently only stores objects (no unloader yet).",
 			UIPath:       "ui/box.png",
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
@@ -135,6 +141,7 @@ var (
 		{ImagePath: "world-obj/basic-smelter.png", ImagePathActive: "world-obj/basic-smelter-active.png",
 			UIPath:       "ui/smelter.png",
 			Name:         "Basic smelter",
+			Info:         "Bakes solid ores into metal or stone bricks, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicSmelter,
 			Size:         world.XY{X: 1, Y: 1},
 			KW:           320,
@@ -150,6 +157,7 @@ var (
 
 		{ImagePath: "world-obj/basic-fuel-hopper.png",
 			Name:        "Basic Fuel Hopper",
+			Info:        "Not Yet Implemented, loads fuel into buildings.",
 			TypeI:       gv.ObjTypeBasicFuelHopper,
 			Size:        world.XY{X: 1, Y: 1},
 			Rotatable:   true,

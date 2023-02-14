@@ -45,19 +45,20 @@ const (
 	ObjOverlay = 2
 
 	/* Buildings */
-	ObjTypeBasicMiner          = 0
-	ObjTypeBasicBelt           = 1
-	ObjTypeBasicBeltInterRight = 2
-	ObjTypeBasicBeltInterLeft  = 3
-	ObjTypeBasicSplit          = 4
-	ObjTypeBasicBox            = 5
-	ObjTypeBasicSmelter        = 6
-	ObjTypeBasicFuelHopper     = 7
+	ObjTypeNone                = 0
+	ObjTypeBasicMiner          = 1
+	ObjTypeBasicBelt           = 2
+	ObjTypeBasicBeltInterRight = 3
+	ObjTypeBasicBeltInterLeft  = 4
+	ObjTypeBasicSplit          = 5
+	ObjTypeBasicBox            = 6
+	ObjTypeBasicSmelter        = 7
+	ObjTypeBasicFuelHopper     = 8
 
 	/*Disabled, incomplete */
-	ObjTypeBasicIronCaster = 8
-	ObjTypeBasicBoiler     = 9
-	ObjTypeSteamEngine     = 10
+	ObjTypeBasicIronCaster = 9
+	ObjTypeBasicBoiler     = 10
+	ObjTypeSteamEngine     = 11
 
 	/* Materials */
 	MAT_NONE = 0
