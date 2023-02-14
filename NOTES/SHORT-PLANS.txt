@@ -2,7 +2,8 @@
 -tags=ebitenginedebug
 export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
-$2D doom$
+
+2D doom
 Issues moved to github
 https://github.com/Distortions81/GameTest/issues
 

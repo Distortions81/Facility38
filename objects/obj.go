@@ -132,6 +132,9 @@ func tickObj(obj *world.ObjData) {
 
 /* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
 func runTicksST() {
+	if world.TickCount == 0 {
+		return
+	}
 	for _, item := range world.TickList {
 		tickObj(item.Target)
 	}
@@ -139,6 +142,9 @@ func runTicksST() {
 
 /* Process internally in an object, multi-threaded*/
 func runTicks() {
+	if world.TickCount == 0 {
+		return
+	}
 
 	l := world.TickCount - 1
 	if l < 1 {
@@ -180,6 +186,9 @@ func runTicks() {
 
 /* Run all object tocks (interal) multi-threaded */
 func runTocks() {
+	if world.TockCount == 0 {
+		return
+	}
 
 	l := world.TockCount - 1
 	if l < 1 {
@@ -222,6 +231,10 @@ func runTocks() {
 
 /* WASM single-thread: Run all object tocks (interal) */
 func runTocksST() {
+	if world.TockCount == 0 {
+		return
+	}
+
 	for _, item := range world.TockList {
 		item.Target.TypeP.UpdateObj(item.Target)
 	}

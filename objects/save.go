@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -187,6 +188,8 @@ func LoadGame() {
 
 		dec := json.NewDecoder(dbuf)
 
+		NukeWorld()
+
 		/* Pause the whole world ... */
 		world.SuperChunkListLock.RLock()
 		world.TickListLock.Lock()
@@ -292,4 +295,81 @@ func LoadGame() {
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
 	}()
+}
+
+func NukeWorld() {
+
+	fmt.Println("Nuking world...")
+
+	world.TickListLock.Lock()
+	world.TickList = []world.TickEvent{}
+	fmt.Println("Nuked ticklist.")
+	world.TickListLock.Unlock()
+
+	world.TockListLock.Lock()
+	world.TockList = []world.TickEvent{}
+	fmt.Println("Nuked tocklist.")
+	world.TockListLock.Unlock()
+
+	world.EventQueueLock.Lock()
+	world.EventQueue = []*world.EventQueueData{}
+	fmt.Println("Nuked event queue.")
+	world.EventQueueLock.Unlock()
+
+	world.ObjQueueLock.Lock()
+	world.ObjQueue = []*world.ObjectQueuetData{}
+	fmt.Println("Nuked ObjQueue.")
+	world.ObjQueueLock.Unlock()
+
+	fmt.Println("Erased lists...")
+
+	world.SuperChunkListLock.Lock()
+	/* Erase current map */
+	for sc, superchunk := range world.SuperChunkList {
+		for c, chunk := range superchunk.ChunkList {
+			fmt.Println("Nuking chunk:", chunk.Pos)
+
+			world.SuperChunkList[sc].ChunkList[c].NumObjects = 0
+			world.SuperChunkList[sc].ChunkList[c].Parent = nil
+			if chunk.TerrainImg != nil && chunk.TerrainImg != world.TempChunkImage {
+				world.SuperChunkList[sc].ChunkList[c].TerrainImg.Dispose()
+			}
+			world.SuperChunkList[sc].ChunkList[c].Visible = false
+
+			for o, obj := range chunk.ObjList {
+				world.SuperChunkList[sc].ChunkList[c].ObjList[o].Parent = nil
+				world.SuperChunkList[sc].ChunkList[c].ObjList[o].NumInputs = 0
+				world.SuperChunkList[sc].ChunkList[c].ObjList[o].NumOutputs = 0
+				world.SuperChunkList[sc].ChunkList[c].ObjList[o].Pos = world.XY{X: 0, Y: 0}
+				for p := range obj.Ports {
+					world.SuperChunkList[sc].ChunkList[c].ObjList[o].Ports[p].Obj = nil
+				}
+				world.SuperChunkList[sc].ChunkList[c].ObjList[o] = nil
+			}
+
+			world.SuperChunkList[sc].ChunkList[c].ObjList = nil
+			world.SuperChunkList[sc].ChunkList[c].ObjMap = nil
+			world.SuperChunkList[sc].ChunkList[c].Pos = world.XY{X: 0, Y: 0}
+		}
+		world.SuperChunkList[sc].ChunkList = nil
+		world.SuperChunkList[sc].ChunkMap = nil
+		if world.SuperChunkList[sc].PixMap != nil {
+			world.SuperChunkList[sc].PixMap.Dispose()
+			world.SuperChunkList[sc].PixMap = nil
+		}
+		world.SuperChunkList[sc].MineralMap = nil
+		world.SuperChunkList[sc].Visible = false
+
+		runtime.GC()
+	}
+	world.SuperChunkList = []*world.MapSuperChunk{}
+	world.SuperChunkMap = make(map[world.XY]*world.MapSuperChunk)
+	fmt.Println("Nuking superchunk list and map.")
+	runtime.GC()
+
+	world.SuperChunkListLock.Unlock()
+
+	fmt.Println("World nuked.")
+
+	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
 }
