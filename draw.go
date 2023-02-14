@@ -395,13 +395,14 @@ func drawWorldTooltip(screen *ebiten.Image) {
 		if val >= 0 && val < ToolbarMax {
 
 			item := ToolbarItems[int(world.MouseX/gv.ToolBarScale)]
+			var toolTip string
 
-			toolTip := fmt.Sprintf("%v", item.OType.Name)
-			tRect := text.BoundString(world.ToolTipFont, toolTip)
-			var mx float32 = world.MouseX + 20
-			var my float32 = world.MouseY + 20
-			vector.DrawFilledRect(screen, mx-1, my-float32(tRect.Dy()-1), float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
-			text.Draw(screen, toolTip, world.ToolTipFont, int(mx), int(my), world.ColorAqua)
+			if item.OType.Info != "" {
+				toolTip = fmt.Sprintf("%v\n%v\n", item.OType.Name, item.OType.Info)
+			} else {
+				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
+			}
+			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG, world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen, true, false, false)
 		}
 	} else {
 		/* World Obj tool tip */
@@ -437,7 +438,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					toolTip = toolTip + "BLOCKED\n"
 				}
 				if o.MinerData != nil && o.MinerData.NumMatsFound == 0 {
-					toolTip = toolTip + "NOTHING TO MINE."
+					toolTip = toolTip + "NOTHING TO MINE.\n"
 				}
 
 				if gv.Debug {
@@ -462,6 +463,10 @@ func drawWorldTooltip(screen *ebiten.Image) {
 								o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
 						}
 					}
+				}
+
+				if o.TypeP.Info != "" {
+					toolTip = toolTip + o.TypeP.Info + "\n"
 				}
 			}
 		}
