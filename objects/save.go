@@ -286,9 +286,9 @@ func LoadGame() {
 			count++
 		}
 
-		/* Refresh minerals */
+		/* Refresh resources */
 		for _, sChunk := range world.SuperChunkList {
-			drawMineral(sChunk)
+			drawResource(sChunk)
 		}
 		world.VisDataDirty.Store(true)
 

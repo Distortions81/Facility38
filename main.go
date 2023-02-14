@@ -83,7 +83,7 @@ func main() {
 /* Ebiten game init */
 func NewGame() *Game {
 	go loadSprites()
-	go makeTestMap(gv.StartNewMap)
+	go makeTestMap(gv.BootBlankMap)
 
 	/* Initialize the game */
 	return &Game{}
