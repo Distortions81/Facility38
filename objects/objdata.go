@@ -65,7 +65,7 @@ var (
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         world.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,
-			InitObj:      InitMiner,
+			InitObj:      initMiner,
 			KgHourMine:   1000,
 			KW:           360,
 			Interval:     uint8(world.ObjectUPS) * 2,

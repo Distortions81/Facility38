@@ -16,7 +16,7 @@ func toggleOverlay() {
 	}
 }
 
-func InitMiner(obj *world.ObjData) {
+func initMiner(obj *world.ObjData) {
 	if obj == nil {
 		return
 	}
@@ -252,13 +252,17 @@ func splitterUpdate(obj *world.ObjData) {
 	for x := 0; x < 4; x++ {
 		dir = util.RotCW(dir)
 
+		/* Is this the output? */
 		if obj.Ports[dir].PortDir != gv.PORT_OUTPUT {
 			continue
 		}
+
+		/* Is the port empty? */
 		if obj.Ports[dir].Buf.Amount != 0 {
 			obj.Active = false
 			continue
 		} else {
+			/* Otherwise output */
 			obj.Ports[dir].Buf.Amount = obj.Ports[input].Buf.Amount
 			obj.Ports[dir].Buf.TypeP = obj.Ports[input].Buf.TypeP
 			obj.Ports[dir].Buf.Rot = obj.Ports[input].Buf.Rot
@@ -266,6 +270,7 @@ func splitterUpdate(obj *world.ObjData) {
 			obj.LastUsedOutput = dir
 			obj.Active = true
 			break
+			/* End */
 		}
 
 	}
@@ -274,35 +279,42 @@ func splitterUpdate(obj *world.ObjData) {
 
 func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Ports {
+
 		if port.PortDir == gv.PORT_INPUT {
 
 			if port.Buf.Amount == 0 {
-				//cwlog.DoLog("tickObj: Input is empty. %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
-				if obj.TickCount > uint8(world.ObjectUPS*2) {
+
+				/* Go inactive after a while */
+				if obj.TickCount > uint8(world.ObjectUPS*4) {
 					obj.Active = false
 				}
 				obj.TickCount++
 				continue
 			}
 
+			/* Will the input fit? */
 			if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
-				//cwlog.DoLog("boxUpdate: Object is full %v %v", obj.TypeP.Name, util.CenterXY(obj.Pos))
 				obj.Blocked = true
 				obj.Active = false
 				continue
 			}
+
+			/* Reset counter */
 			obj.Blocked = false
 			obj.Active = true
 			obj.TickCount = 0
 
+			/* Init content type if needed */
 			if obj.Contents[port.Buf.TypeP.TypeI] == nil {
 				obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
 			}
+
+			/* Add to contents */
 			obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
 			obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
 			obj.KGHeld += port.Buf.Amount
 			obj.Ports[p].Buf.Amount = 0
-
+			continue
 		}
 
 		//Unloader goes here
