@@ -24,7 +24,7 @@ var (
 
 func init() {
 	ChatLines = append(ChatLines, world.ChatLines{
-		Text:      "Welcome! Select a object on the toolar and click to build!",
+		Text:      "Welcome! Select a object on the toolbar and click to build!",
 		Timestamp: time.Now(),
 		Life:      time.Second * 15,
 		Color:     world.ColorAqua,
