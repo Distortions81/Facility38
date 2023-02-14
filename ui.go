@@ -122,7 +122,7 @@ func handleToolbar(rotate bool) bool {
 			/* Actions */
 			if item.ToolbarAction != nil && !rotate {
 				item.ToolbarAction()
-				util.Chat(item.Name)
+				//util.Chat(item.Name)
 			} else {
 				if rotate && item != nil {
 					dir := item.Direction
@@ -443,10 +443,10 @@ func toggleOverlays() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
 		if world.ShowInfoLayer {
 			world.ShowInfoLayer = false
-			util.Chat("Info overlay is now on.")
+			util.Chat("Info overlay is now off.")
 		} else {
 			world.ShowInfoLayer = true
-			util.Chat("Info overlay is now off.")
+			util.Chat("Info overlay is now on.")
 		}
 	}
 }
@@ -475,12 +475,12 @@ func rotateWorldObjects() {
 				newdir = util.RotCCW(o.Dir)
 				util.RotatePortsCCW(o)
 				oPos := util.CenterXY(o.Pos)
-				util.Chat(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y))
+				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*3)
 			} else {
 				newdir = util.RotCW(o.Dir)
 				util.RotatePortsCW(o)
 				oPos := util.CenterXY(o.Pos)
-				util.Chat(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y))
+				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*3)
 			}
 			o.Dir = newdir
 			objects.LinkObj(o)
