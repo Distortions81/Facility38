@@ -60,6 +60,7 @@ func init() {
 /* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
 
+	/* Boot screen */
 	if !world.MapGenerated.Load() ||
 		!world.SpritesLoaded.Load() ||
 		!world.PlayerReady.Load() {
@@ -71,12 +72,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	frameCount++
 
+	/* Calculate viewport */
 	calcScreenCamera()
+
+	/* If needed, calculate object visibility */
 	updateVisData()
 
+	/* WASM terrain rendering */
 	if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
 		objects.RenderTerrainST()
 	}
+
+	/* Draw modes */
 	if world.ZoomScale > gv.MapPixelThreshold && !world.ShowResourceLayer { /* Draw icon mode */
 		drawIconMode(screen)
 	} else {
@@ -86,7 +93,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw toolbar */
 	screen.DrawImage(toolbarCache, nil)
 
+	/* Tooltips */
 	drawWorldTooltip(screen)
+
+	/* Debug info */
 	drawDebugInfo(screen)
 
 }
@@ -465,10 +475,11 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				humanize.Comma(int64((worldMouseY - gv.XYCenter))))
 		}
 
+		var pad float32 = 11.0
 		tRect := text.BoundString(world.ToolTipFont, toolTip)
-		mx := world.MouseX + 20
-		my := world.MouseY + 20
-		vector.DrawFilledRect(screen, mx-1, my-15, float32(tRect.Dx()+4), float32(tRect.Dy()+3), world.ColorToolTipBG)
+		mx := float32(world.ScreenWidth-tRect.Dx()) - pad
+		my := float32(world.ScreenHeight - tRect.Dy())
+		vector.DrawFilledRect(screen, mx-(pad/2), my-11-(pad/2), float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, world.ColorToolTipBG)
 		text.Draw(screen, toolTip, world.ToolTipFont, int(mx), int(my), world.ColorAqua)
 	}
 }
