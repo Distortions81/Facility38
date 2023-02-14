@@ -357,7 +357,7 @@ func NukeWorld() {
 			world.SuperChunkList[sc].PixMap.Dispose()
 			world.SuperChunkList[sc].PixMap = nil
 		}
-		world.SuperChunkList[sc].MineralMap = nil
+		world.SuperChunkList[sc].ResourceMap = nil
 		world.SuperChunkList[sc].Visible = false
 
 		runtime.GC()
