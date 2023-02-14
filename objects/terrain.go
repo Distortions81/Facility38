@@ -33,10 +33,10 @@ func SwitchLayer() {
 
 	if world.ShowResourceLayer {
 		world.ShowResourceLayer = false
-		util.Chat("Switched from game to resource layer.")
+		util.Chat("Switched from resource layer to game.")
 	} else {
 		world.ShowResourceLayer = true
-		util.Chat("Switched from resource layer to game.")
+		util.Chat("Switched from game to resource layer.")
 	}
 	for _, sChunk := range world.SuperChunkList {
 		sChunk.PixmapDirty = true
