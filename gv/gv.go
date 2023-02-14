@@ -6,14 +6,13 @@ import (
 
 var (
 	/* Build flags */
-	StartNewMap = true
-	UPSBench    = false
-	LoadTest    = true
-	Debug       = false
-	Verbose     = false
-	LogStdOut   = false
-	LogFileOut  = false
-	WASMMode    = false
+	BootBlankMap = true
+	UPSBench     = false
+	LoadTest     = false
+	Debug        = false
+	LogStdOut    = false
+	LogFileOut   = false
+	WASMMode     = false
 )
 
 const (
@@ -29,7 +28,7 @@ const (
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	LoadTestObjects = 1000000
+	NumTestObjects = 1000000
 
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0
@@ -43,12 +42,7 @@ const (
 	/* Subtypes */
 	ObjSubUI   = 0
 	ObjSubGame = 1
-	ObjSubMat  = 2
-	ObjOverlay = 3
-
-	/* UI Only */
-	ObjTypeSave = 0
-	ObjTypeLoad = 1
+	ObjOverlay = 2
 
 	/* Buildings */
 	ObjTypeBasicMiner          = 0
@@ -60,6 +54,7 @@ const (
 	ObjTypeBasicSmelter        = 6
 	ObjTypeBasicFuelHopper     = 7
 
+	/*Disabled, incomplete */
 	ObjTypeBasicIronCaster = 8
 	ObjTypeBasicBoiler     = 9
 	ObjTypeSteamEngine     = 10
