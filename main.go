@@ -55,6 +55,7 @@ func main() {
 	if LoadTest == "true" {
 		gv.LoadTest = true
 	}
+	InitToolbar()
 	cwlog.StartLog()
 
 	str, err := data.GetText("intro")
