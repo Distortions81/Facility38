@@ -6,6 +6,7 @@ import (
 	"GameTest/world"
 	"bytes"
 	"compress/zlib"
+	"fmt"
 	"image/color"
 	"io"
 	"log"
@@ -28,17 +29,38 @@ func init() {
 		Timestamp: time.Now(),
 		Life:      time.Second * 15,
 		Color:     world.ColorAqua,
-		System:    true,
+		BGColor:   world.ColorToolTipBG,
 	})
 	ChatLinesTop = 1
+}
+
+func deleteOldLines() {
+
+	deleted := false
+
+	/* Delete 1 expired line each time */
+	for i, line := range ChatLines {
+		if time.Since(line.Timestamp) > line.Life {
+			ChatLines = append(ChatLines[:i], ChatLines[i+1:]...)
+			ChatLinesTop--
+			fmt.Println("deleted:", i)
+			deleted = true
+			break
+		}
+	}
+
+	if deleted {
+		deleteOldLines()
+	}
 }
 
 func Chat(text string) {
 	go func(text string) {
 		ChatLinesLock.Lock()
 		defer ChatLinesLock.Unlock()
+		deleteOldLines()
 
-		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color.White, Life: time.Second * 15, Timestamp: time.Now()})
+		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color.White, BGColor: world.ColorToolTipBG, Life: time.Second * 15, Timestamp: time.Now()})
 		ChatLinesTop++
 	}(text)
 }
@@ -46,8 +68,9 @@ func ChatDetailed(text string, color color.Color, life time.Duration) {
 	go func(text string) {
 		ChatLinesLock.Lock()
 		defer ChatLinesLock.Unlock()
+		deleteOldLines()
 
-		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color, Life: life, Timestamp: time.Now()})
+		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color, BGColor: world.ColorToolTipBG, Life: life, Timestamp: time.Now()})
 		ChatLinesTop++
 	}(text)
 }

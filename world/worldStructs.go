@@ -12,11 +12,13 @@ import (
 )
 
 type ChatLines struct {
-	Text      string
-	Color     color.Color
+	Text string
+
+	Color   color.Color
+	BGColor color.Color
+
 	Timestamp time.Time
 	Life      time.Duration
-	System    bool
 }
 
 /* Objects that contain a map of chunks and PixMap */
