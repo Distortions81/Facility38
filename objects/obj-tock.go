@@ -46,18 +46,28 @@ func InitMiner(obj *world.ObjData) {
 
 func minerUpdate(obj *world.ObjData) {
 
-	/* Find all inputs, round-robin send to output */
-	if obj.MinerData != nil && obj.MinerData.NumMatsFound == 0 {
+	/* Valid? */
+	if obj.MinerData == nil {
+		obj.Blocked = true
 		return
 	}
 
+	/* Anything to mine? */
+	if obj.MinerData.NumMatsFound == 0 {
+		obj.Blocked = true
+		return
+	}
+
+	/* Cycle all ports */
 	for p, port := range obj.Ports {
+		/* Valid? */
 		if port == nil {
 			continue
 		}
 
 		/* Fuel input */
 		if port.PortDir == gv.PORT_INPUT {
+
 			/* Valid? */
 			if port.Buf.TypeP == nil {
 				continue
@@ -67,6 +77,7 @@ func minerUpdate(obj *world.ObjData) {
 			if port.Buf.TypeP.TypeI != gv.MAT_COAL {
 				continue
 			}
+
 			/* Will it over fill us? */
 			if obj.KGFuel+port.Buf.Amount > obj.TypeP.MaxFuelKG {
 				continue
@@ -78,29 +89,22 @@ func minerUpdate(obj *world.ObjData) {
 			continue
 		}
 
-		/* Is our output full? */
+		/* Output full? */
 		if port.Buf.Amount != 0 {
 			obj.Blocked = true
 			obj.Active = false
 			continue
 		}
+
 		/* Then we are not blocked */
 		obj.Blocked = false
-
-		/* Burn fuel */
-		obj.KGFuel -= obj.TypeP.KgFuelEach
 		/* Increment timer */
 		obj.TickCount++
 		/* Turn on active status */
 		obj.Active = true
 
 		/* Are we ready to output yet? */
-		if obj.TickCount >= obj.TypeP.Interval {
-			continue
-		}
-
-		/* Is there anything to mine? */
-		if obj.MinerData.NumMatsFound == 0 {
+		if obj.TickCount < obj.TypeP.Interval {
 			continue
 		}
 
@@ -113,15 +117,23 @@ func minerUpdate(obj *world.ObjData) {
 
 		/* Are we are mining coal? */
 		if obj.MinerData.MatsFoundT[pick] == gv.MAT_COAL &&
-			/* If we need fuel, fuel ourselves */
 			obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
+
+			/* If we need fuel, fuel ourselves */
 			obj.KGFuel += amount
 		} else {
+			if obj.KGFuel < obj.TypeP.KgFuelEach {
+				/* Not enough fuel */
+				continue
+			}
 			/* Otherwise output the material */
 			obj.Ports[obj.Dir].Buf.Amount = amount
 			obj.Ports[obj.Dir].Buf.TypeP = kind
 			obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
 		}
+
+		/* Burn fuel */
+		obj.KGFuel -= obj.TypeP.KgFuelEach
 
 		//We should remove ourselves here if we run out of ore
 
