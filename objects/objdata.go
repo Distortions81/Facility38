@@ -26,16 +26,16 @@ func init() {
 		}
 
 		if GameObjTypes[i].KgFuelEach > 0 {
-			GameObjTypes[i].MaxFuelKG = (GameObjTypes[i].KgFuelEach * 50)
-			if GameObjTypes[i].MaxFuelKG < 10 {
-				GameObjTypes[i].MaxFuelKG = 10
+			GameObjTypes[i].MaxFuelKG = (GameObjTypes[i].KgFuelEach * 10)
+			if GameObjTypes[i].MaxFuelKG < 50 {
+				GameObjTypes[i].MaxFuelKG = 50
 			}
 		}
 
 		if GameObjTypes[i].KgMineEach > 0 {
 			GameObjTypes[i].MaxContainKG = (GameObjTypes[i].KgMineEach * 10)
-			if GameObjTypes[i].MaxContainKG < 10 {
-				GameObjTypes[i].MaxContainKG = 10
+			if GameObjTypes[i].MaxContainKG < 50 {
+				GameObjTypes[i].MaxContainKG = 50
 			}
 		}
 	}
