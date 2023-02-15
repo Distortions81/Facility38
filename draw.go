@@ -536,6 +536,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				buf = lastResourceString
 			}
 			if buf != "" {
+				lastResourceString = buf
 				DrawText(buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
 					world.XY{X: int(gMouseX + 20), Y: int(gMouseY + 20)}, 11, screen, true, false, false)
 			}
