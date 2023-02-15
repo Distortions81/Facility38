@@ -6,7 +6,6 @@ alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%
 
 High priority:
 hoppers
-toolbar button spacing
 add ground water and surface water. Mineralized, fresh and salt.
 Water should get contaiminated by dumping.
 
