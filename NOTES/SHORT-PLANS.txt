@@ -5,21 +5,24 @@ alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%
 
 
 High priority:
-hoppers
-add ground water and surface water. Mineralized, fresh and salt.
+Hoppers
+Timers, pressure switches, item spilling.
+Tile map for mined resources, and spilled items.
+
+Add ground water and surface water. Mineralized, fresh and salt.
 Water should get contaiminated by dumping.
 
-multi-tile objects, ABCDEF port format. Use modulo rotation.
-Fix overs not showing mats when rotated (use rotation to get right input)
+Multi-tile objects, ABCDEF port format. Use modulo rotation.
+Fix overs not showing mats when rotated (use rotation to get righcorrect input)
 obj-tock.go: Cut down code in tock, move anything we can to init.
+
 Read should be faster than write, becuase of CPU caches...
-So we should always read the material type and only set typeP if need be.
+We should always read the material type, and only reset typeP if need be.
 remove uneeded port == nil checks, etc.
 
 Other:
 eventually set machine times in ms/sec
 Add ground rendering for pixel mode too
 Complete unsafe for faster loading, make packed binary format for saves.
-Also: BP/minisave format
 Minimize nested ifs
 adjustable miners/furnace speeds

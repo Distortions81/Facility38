@@ -61,7 +61,7 @@ func DrawToolbar() {
 		iSize := img.Bounds()
 
 		if img.Bounds().Max.X != gv.ToolBarScale {
-			op.GeoM.Scale(1.0/(float64(iSize.Max.X)/gv.ToolBarScale), 1.0/(float64(iSize.Max.Y)/gv.ToolBarScale))
+			op.GeoM.Scale(1.0/(float64(iSize.Max.X)/gv.ToolBarIcons), 1.0/(float64(iSize.Max.Y)/gv.ToolBarIcons))
 		}
 
 		if item.OType.Rotatable && item.OType.Direction > 0 {
@@ -72,13 +72,13 @@ func DrawToolbar() {
 			op.GeoM.Translate(x, y)
 		}
 
-		op.GeoM.Translate(x, gv.TbOffY)
-		vector.DrawFilledRect(toolbarCache, float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorToolTipBG)
+		vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorToolTipBG)
+		op.GeoM.Translate(x+(gv.ToolBarScale-gv.ToolBarIcons)-1, (gv.ToolBarSpacing*2)+1)
 
 		if item.SType == gv.ObjSubGame {
 
 			if item.OType.TypeI == SelectedItemType+1 {
-				vector.DrawFilledRect(toolbarCache, float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorLightAqua)
+				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorLightAqua)
 			}
 		}
 		toolbarCache.DrawImage(img, op)
@@ -86,10 +86,38 @@ func DrawToolbar() {
 		if item.SType == gv.ObjSubGame {
 
 			if item.OType.TypeI == SelectedItemType+1 {
-				vector.DrawFilledRect(toolbarCache, float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, (gv.TBSelThick), gv.ToolBarScale, world.ColorTBSelected)
-				vector.DrawFilledRect(toolbarCache, float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, (gv.TBSelThick), world.ColorTBSelected)
-				vector.DrawFilledRect(toolbarCache, float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY+gv.ToolBarScale-(gv.TBSelThick), gv.ToolBarScale, (gv.TBSelThick), world.ColorTBSelected)
-				vector.DrawFilledRect(toolbarCache, float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+gv.TbOffY+gv.ToolBarScale-(gv.TBSelThick), 1, (gv.TBSelThick), gv.ToolBarScale, world.ColorTBSelected)
+				vector.DrawFilledRect(toolbarCache,
+					float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+1,
+					gv.TbOffY,
+
+					(gv.TBSelThick),
+					gv.ToolBarScale,
+					world.ColorTBSelected)
+
+				vector.DrawFilledRect(toolbarCache,
+					float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+1,
+					gv.TbOffY,
+
+					gv.ToolBarScale,
+					(gv.TBSelThick),
+					world.ColorTBSelected)
+
+				vector.DrawFilledRect(toolbarCache,
+					float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+1,
+					gv.TbOffY+gv.ToolBarScale-(gv.TBSelThick),
+
+					gv.ToolBarScale,
+					(gv.TBSelThick),
+					world.ColorTBSelected)
+
+				vector.DrawFilledRect(toolbarCache,
+					float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+gv.TbOffY+gv.ToolBarScale-(gv.TBSelThick)+1,
+					2,
+
+					(gv.TBSelThick),
+					gv.ToolBarScale,
+					world.ColorTBSelected)
+
 			}
 		}
 
