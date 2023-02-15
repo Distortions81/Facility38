@@ -11,7 +11,6 @@ import (
 /* Make a test map, or skip and still start daemons */
 func makeTestMap(skip bool) {
 
-	util.Chat("Generating resource map.")
 	objects.PerlinNoiseInit()
 
 	if !skip {
@@ -123,16 +122,16 @@ func makeTestMap(skip bool) {
 		}
 	}
 
+	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
+
 	world.MapGenerated.Store(true)
-	util.Chat("New map generated.")
+	util.Chat("Map loaded, click or press any key to continue.")
 
 	for !world.SpritesLoaded.Load() ||
 		!world.PlayerReady.Load() {
 		time.Sleep(time.Millisecond * 10)
 	}
-
-	util.Chat("Exploring area around start.")
-	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
+	util.Chat("Welcome! Click an item in the toolbar to select it, click ground to build.")
 
 	if !gv.WASMMode {
 		go objects.RenderTerrainDaemon()

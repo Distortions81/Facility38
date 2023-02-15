@@ -80,10 +80,17 @@ func drawChatLines(screen *ebiten.Image) {
 		if line.Life-since < gv.ChatFadeTime {
 			blend = (float64(gv.ChatFadeTime-(line.Life-since)) / float64(gv.ChatFadeTime) * 100.0)
 		}
-		newAlpha := 254 - byte(blend*2.55)
+		newAlpha := (254.0 - (blend * 2.55))
 
-		tBgColor.A = newAlpha
-		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: newAlpha}, tBgColor, world.XY{X: 0, Y: (world.ScreenHeight - 25) - (lineNum * 26)}, 11, screen, true, false, false)
+		oldAlpha := tBgColor.A
+		faded := newAlpha - float64(253.0-int(oldAlpha))
+		if faded <= 0 {
+			faded = 0
+		} else if faded > 254 {
+			faded = 254
+		}
+		tBgColor.A = byte(faded)
+		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)}, tBgColor, world.XY{X: 0, Y: (world.ScreenHeight - 25) - (lineNum * 26)}, 11, screen, true, false, false)
 	}
 }
 
@@ -96,6 +103,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		!world.PlayerReady.Load() {
 
 		bootScreen(screen)
+		drawDebugInfo(screen)
+		drawChatLines(screen)
 		time.Sleep(time.Millisecond * 10)
 		return
 	}

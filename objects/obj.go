@@ -404,6 +404,10 @@ func MakeChunk(pos world.XY) bool {
 func ExploreMap(pos world.XY, input int) {
 	/* Explore some map */
 
+	world.MapLoadPercent = 0
+	time.Sleep(time.Millisecond)
+
+	ChunksMade := 0
 	area := input * gv.ChunkSize
 	offx := int(pos.X) - (area / 2)
 	offy := int(pos.Y) - (area / 2)
@@ -411,8 +415,13 @@ func ExploreMap(pos world.XY, input int) {
 		for y := -area; y < area; y += gv.ChunkSize {
 			pos := world.XY{X: offx - x, Y: offy - y}
 			MakeChunk(pos)
+			ChunksMade++
+			world.MapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
+			time.Sleep(time.Nanosecond)
 		}
 	}
+	world.MapLoadPercent = 100
+	time.Sleep(time.Millisecond)
 }
 
 /* Create an object, place self in superchunk, chunk and ObjMap, ObjList, add tick/tock events, link inputs/outputs */

@@ -159,7 +159,7 @@ func bootScreen(screen *ebiten.Image) {
 		if status != "" {
 			status = status + " and "
 		}
-		status = status + fmt.Sprintf("Generating map (%.2f%%)", world.MapLoadPercent)
+		status = status + fmt.Sprintf("Loading map (%.2f%%)", world.MapLoadPercent)
 	}
 	screen.Fill(world.ColorCharcol)
 	if status == "" {
