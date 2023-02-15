@@ -77,18 +77,15 @@ func minerUpdate(obj *world.ObjData) {
 
 			/* Is it fuel? */
 			if port.Buf.TypeP.TypeI != gv.MAT_COAL {
-				continue
-			}
 
-			/* Will it over fill us? */
-			if obj.KGFuel+port.Buf.Amount > obj.TypeP.MaxFuelKG {
-				continue
-			}
+				/* Will it over fill us? */
+				if obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
 
-			/* Eat the fuel and increase fuel kg */
-			obj.KGFuel += port.Buf.Amount
-			obj.Ports[p].Buf.Amount = 0
-			continue
+					/* Eat the fuel and increase fuel kg */
+					obj.KGFuel += port.Buf.Amount
+					obj.Ports[p].Buf.Amount = 0
+				}
+			}
 		}
 
 		/* Output full? */
@@ -100,13 +97,14 @@ func minerUpdate(obj *world.ObjData) {
 
 		/* Then we are not blocked */
 		obj.Blocked = false
-		/* Increment timer */
-		obj.TickCount++
+
 		/* Turn on active status */
 		obj.Active = true
 
 		/* Are we ready to output yet? */
 		if obj.TickCount < obj.TypeP.Interval {
+			/* Increment timer */
+			obj.TickCount++
 			continue
 		}
 
@@ -123,24 +121,24 @@ func minerUpdate(obj *world.ObjData) {
 
 			/* If we need fuel, fuel ourselves */
 			obj.KGFuel += amount
-		} else {
-			if obj.KGFuel < obj.TypeP.KgFuelEach {
-				/* Not enough fuel */
-				continue
-			}
-			/* Otherwise output the material */
-			obj.Ports[obj.Dir].Buf.Amount = amount
-			obj.Ports[obj.Dir].Buf.TypeP = kind
-			obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
+			continue
 		}
+		if obj.KGFuel < obj.TypeP.KgFuelEach {
+			/* Not enough fuel */
+			continue
+		}
+
+		/* Otherwise output the material */
+		obj.Ports[obj.Dir].Buf.Amount = amount
+		obj.Ports[obj.Dir].Buf.TypeP = kind
+		obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
 
 		/* Burn fuel */
 		obj.KGFuel -= obj.TypeP.KgFuelEach
 
-		//We should remove ourselves here if we run out of ore
-
 		obj.TickCount = 0
 
+		//We should remove ourselves here if we run out of ore
 	}
 }
 
@@ -189,6 +187,7 @@ func beltUpdate(obj *world.ObjData) {
 	dir := obj.LastUsedInput
 
 	/* Start with last input, then rotate one */
+	worked := false
 	for x := 0; x < 4; x++ {
 		dir = util.RotCW(dir)
 
@@ -199,9 +198,9 @@ func beltUpdate(obj *world.ObjData) {
 
 		/* Does the input contain anything? */
 		if obj.Ports[dir].Buf.Amount == 0 {
-			obj.Active = false
 			continue
 		} else {
+			worked = true
 			obj.Active = true
 			obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
 			obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
@@ -210,7 +209,9 @@ func beltUpdate(obj *world.ObjData) {
 			obj.LastUsedInput = dir
 			break /* Stop */
 		}
-
+	}
+	if !worked {
+		obj.Active = false
 	}
 }
 
