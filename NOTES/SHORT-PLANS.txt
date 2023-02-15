@@ -6,6 +6,7 @@ alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%
 
 High priority:
 hoppers
+toolbar button spacing
 multi-tile objects, ABCDEF port format. Use modulo rotation.
 Fix overs not showing mats when rotated (use rotation to get right input)
 obj-tock.go: Cut down code in tock, move anything we can to init.
