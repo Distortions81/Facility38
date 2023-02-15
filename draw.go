@@ -105,7 +105,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		bootScreen(screen)
 		drawDebugInfo(screen)
 		drawChatLines(screen)
-		time.Sleep(time.Millisecond * 10)
+		time.Sleep(time.Millisecond)
 		return
 	}
 

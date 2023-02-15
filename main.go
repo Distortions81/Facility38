@@ -10,7 +10,7 @@ import (
 	"image/color"
 	"log"
 	"runtime"
-	"runtime/debug"
+	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -36,7 +36,7 @@ type Game struct {
 
 /* Main function */
 func main() {
-	debug.SetMemoryLimit(28 * 1024 * 1024 * 1024)
+	//debug.SetMemoryLimit(28 * 1024 * 1024 * 1024)
 
 	if NoDebug == "true" {
 		gv.Debug = false
@@ -84,8 +84,17 @@ func main() {
 
 /* Ebiten game init */
 func NewGame() *Game {
+	if gv.WASMMode {
+		time.Sleep(time.Nanosecond)
+	}
 	go loadSprites()
+	if gv.WASMMode {
+		time.Sleep(time.Nanosecond)
+	}
 	go makeTestMap(gv.BootBlankMap)
+	if gv.WASMMode {
+		time.Sleep(time.Nanosecond)
+	}
 
 	/* Initialize the game */
 	return &Game{}
@@ -126,6 +135,10 @@ func loadSprites() {
 					otype[key].UIimg = img
 				}
 			}
+
+			if gv.WASMMode {
+				time.Sleep(time.Nanosecond)
+			}
 		}
 	}
 
@@ -139,6 +152,9 @@ func loadSprites() {
 				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
 			objects.MatTypes[m].Image = img
+			if gv.WASMMode {
+				time.Sleep(time.Nanosecond)
+			}
 		}
 	}
 
@@ -185,6 +201,9 @@ func bootScreen(screen *ebiten.Image) {
 		color = world.ColorGreen
 	}
 	vector.DrawFilledRect(screen, x, y, world.MapLoadPercent*float32(multi), tall, color)
+	if gv.WASMMode {
+		time.Sleep(time.Nanosecond)
+	}
 }
 
 /* Detect logical and virtual CPUs, set number of workers */
