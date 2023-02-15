@@ -66,19 +66,19 @@ func SaveGame() {
 		for _, nl := range NoiseLayers {
 			switch nl.TypeI {
 			case gv.MAT_NONE:
-				seeds.Grass = nl.Seed
+				seeds.Grass = nl.RandomSeed
 			case gv.MAT_OIL:
-				seeds.Oil = nl.Seed
+				seeds.Oil = nl.RandomSeed
 			case gv.MAT_GAS:
-				seeds.Gas = nl.Seed
+				seeds.Gas = nl.RandomSeed
 			case gv.MAT_COAL:
-				seeds.Coal = nl.Seed
+				seeds.Coal = nl.RandomSeed
 			case gv.MAT_IRON_ORE:
-				seeds.Iron = nl.Seed
+				seeds.Iron = nl.RandomSeed
 			case gv.MAT_COPPER:
-				seeds.Copper = nl.Seed
+				seeds.Copper = nl.RandomSeed
 			case gv.MAT_STONE:
-				seeds.Stone = nl.Seed
+				seeds.Stone = nl.RandomSeed
 			}
 		}
 
@@ -211,19 +211,19 @@ func LoadGame() {
 		for n, nl := range NoiseLayers {
 			switch nl.TypeI {
 			case gv.MAT_NONE:
-				NoiseLayers[n].Seed = tempList.MapSeeds.Grass
+				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Grass
 			case gv.MAT_OIL:
-				NoiseLayers[n].Seed = tempList.MapSeeds.Oil
+				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Oil
 			case gv.MAT_GAS:
-				NoiseLayers[n].Seed = tempList.MapSeeds.Gas
+				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Gas
 			case gv.MAT_COAL:
-				NoiseLayers[n].Seed = tempList.MapSeeds.Coal
+				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Coal
 			case gv.MAT_IRON_ORE:
-				NoiseLayers[n].Seed = tempList.MapSeeds.Iron
+				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Iron
 			case gv.MAT_COPPER:
-				NoiseLayers[n].Seed = tempList.MapSeeds.Copper
+				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Copper
 			case gv.MAT_STONE:
-				NoiseLayers[n].Seed = tempList.MapSeeds.Stone
+				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Stone
 			}
 		}
 
@@ -266,7 +266,7 @@ func LoadGame() {
 			obj.Parent.ObjMap[util.UnCenterXY(tempList.Objects[i].Pos)] = obj
 			obj.Parent.ObjList = append(obj.Parent.ObjList, obj)
 			chunk.Parent.PixmapDirty = true
-			chunk.NumObjects++
+			chunk.NumObjs++
 
 			LinkObj(obj)
 
@@ -318,7 +318,7 @@ func NukeWorld() {
 	world.EventQueueLock.Unlock()
 
 	world.ObjQueueLock.Lock()
-	world.ObjQueue = []*world.ObjectQueuetData{}
+	world.ObjQueue = []*world.ObjectQueueData{}
 	world.ObjQueueLock.Unlock()
 
 	world.SuperChunkListLock.Lock()
@@ -328,8 +328,8 @@ func NukeWorld() {
 		for c, chunk := range superchunk.ChunkList {
 
 			world.SuperChunkList[sc].ChunkList[c].Parent = nil
-			if chunk.TerrainImg != nil && chunk.TerrainImg != world.TempChunkImage {
-				world.SuperChunkList[sc].ChunkList[c].TerrainImg.Dispose()
+			if chunk.TerrainImage != nil && chunk.TerrainImage != world.TempChunkImage {
+				world.SuperChunkList[sc].ChunkList[c].TerrainImage.Dispose()
 			}
 
 			for o, obj := range chunk.ObjList {
@@ -345,9 +345,9 @@ func NukeWorld() {
 		}
 		world.SuperChunkList[sc].ChunkList = nil
 		world.SuperChunkList[sc].ChunkMap = nil
-		if world.SuperChunkList[sc].PixMap != nil {
-			world.SuperChunkList[sc].PixMap.Dispose()
-			world.SuperChunkList[sc].PixMap = nil
+		if world.SuperChunkList[sc].PixelMap != nil {
+			world.SuperChunkList[sc].PixelMap.Dispose()
+			world.SuperChunkList[sc].PixelMap = nil
 		}
 		world.SuperChunkList[sc].ResourceMap = nil
 

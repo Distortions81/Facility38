@@ -35,7 +35,7 @@ var (
 	TockListLock sync.Mutex
 
 	/* ObjQueue: add/del objects at end of tick */
-	ObjQueue     []*ObjectQueuetData
+	ObjQueue     []*ObjectQueueData
 	ObjQueueLock sync.Mutex
 
 	/* EventQueue: add/del ticks/tocks at end of tick */

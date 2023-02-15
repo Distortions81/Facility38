@@ -26,7 +26,7 @@ func init() {
 	ChatLines = append(ChatLines, world.ChatLines{
 		Text:      "",
 		Timestamp: time.Now(),
-		Life:      time.Nanosecond,
+		Lifetime:  time.Nanosecond,
 		Color:     world.ColorAqua,
 		BGColor:   world.ColorToolTipBG,
 	})
@@ -40,7 +40,7 @@ func deleteOldLines() {
 
 	/* Delete 1 expired line each time */
 	for _, line := range ChatLines {
-		if time.Since(line.Timestamp) < line.Life {
+		if time.Since(line.Timestamp) < line.Lifetime {
 			newLines = append(newLines, line)
 			newTop++
 		}
@@ -55,7 +55,7 @@ func Chat(text string) {
 		defer ChatLinesLock.Unlock()
 		deleteOldLines()
 
-		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color.White, BGColor: world.ColorToolTipBG, Life: time.Second * 15, Timestamp: time.Now()})
+		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color.White, BGColor: world.ColorToolTipBG, Lifetime: time.Second * 15, Timestamp: time.Now()})
 		ChatLinesTop++
 	}(text)
 }
@@ -65,7 +65,7 @@ func ChatDetailed(text string, color color.Color, life time.Duration) {
 		defer ChatLinesLock.Unlock()
 		deleteOldLines()
 
-		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color, BGColor: world.ColorToolTipBG, Life: life, Timestamp: time.Now()})
+		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color, BGColor: world.ColorToolTipBG, Lifetime: life, Timestamp: time.Now()})
 		ChatLinesTop++
 	}(text)
 }

@@ -71,7 +71,7 @@ func drawChatLines(screen *ebiten.Image) {
 		line := util.ChatLines[x-1]
 		/* Ignore old chat lines */
 		since := time.Since(line.Timestamp)
-		if since > line.Life {
+		if since > line.Lifetime {
 			continue
 		}
 		lineNum++
@@ -79,8 +79,8 @@ func drawChatLines(screen *ebiten.Image) {
 		tBgColor := world.ColorToolTipBG
 		r, g, b, _ := line.Color.RGBA()
 		var blend float64 = 0
-		if line.Life-since < gv.ChatFadeTime {
-			blend = (float64(gv.ChatFadeTime-(line.Life-since)) / float64(gv.ChatFadeTime) * 100.0)
+		if line.Lifetime-since < gv.ChatFadeTime {
+			blend = (float64(gv.ChatFadeTime-(line.Lifetime-since)) / float64(gv.ChatFadeTime) * 100.0)
 		}
 		newAlpha := (254.0 - (blend * 2.55))
 
@@ -199,8 +199,8 @@ func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image
 
 	/* Draw ground */
 	chunk.TerrainLock.RLock()
-	cTmp := chunk.TerrainImg
-	if chunk.TerrainImg == nil {
+	cTmp := chunk.TerrainImage
+	if chunk.TerrainImage == nil {
 		cTmp = world.TempChunkImage
 	}
 
@@ -345,7 +345,7 @@ func drawIconMode(screen *ebiten.Image) {
 					}
 					/* Show blocked outputs */
 					if (obj.TypeP.ShowBlocked && obj.Blocked) ||
-						obj.MinerData != nil && obj.MinerData.NumMatsFound == 0 {
+						obj.MinerData != nil && obj.MinerData.ResourcesCount == 0 {
 
 						img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -390,9 +390,9 @@ func drawPixmapMode(screen *ebiten.Image) {
 			continue
 		}
 
-		sChunk.PixLock.Lock()
-		if sChunk.PixMap == nil {
-			sChunk.PixLock.Unlock()
+		sChunk.PixelMapLock.Lock()
+		if sChunk.PixelMap == nil {
+			sChunk.PixelMapLock.Unlock()
 			continue
 		}
 
@@ -405,8 +405,8 @@ func drawPixmapMode(screen *ebiten.Image) {
 			((float64(camXPos)+float64((sChunk.Pos.X))*gv.MaxSuperChunk)*float64(world.ZoomScale))-1,
 			((float64(camYPos)+float64((sChunk.Pos.Y))*gv.MaxSuperChunk)*float64(world.ZoomScale))-1)
 
-		screen.DrawImage(sChunk.PixMap, op)
-		sChunk.PixLock.Unlock()
+		screen.DrawImage(sChunk.PixelMap, op)
+		sChunk.PixelMapLock.Unlock()
 	}
 	world.SuperChunkListLock.RUnlock()
 
@@ -484,7 +484,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				if o.Blocked {
 					toolTip = toolTip + "BLOCKED\n"
 				}
-				if o.MinerData != nil && o.MinerData.NumMatsFound == 0 {
+				if o.MinerData != nil && o.MinerData.ResourcesCount == 0 {
 					toolTip = toolTip + "NOTHING TO MINE.\n"
 				}
 

@@ -18,7 +18,7 @@ type ChatLines struct {
 	BGColor color.Color
 
 	Timestamp time.Time
-	Life      time.Duration
+	Lifetime  time.Duration
 }
 
 /* Objects that contain a map of chunks and PixMap */
@@ -32,41 +32,46 @@ type MapSuperChunk struct {
 	ResourceMap  []byte `json:"-"`
 	ResourceLock sync.Mutex
 
-	PixMap      *ebiten.Image `json:"-"`
-	PixmapDirty bool          `json:"-"`
-	PixLock     sync.RWMutex  `json:"-"`
-	PixMapTime  time.Time     `json:"-"`
+	PixelMap     *ebiten.Image `json:"-"`
+	PixmapDirty  bool          `json:"-"`
+	PixelMapLock sync.RWMutex  `json:"-"`
+	PixelMapTime time.Time     `json:"-"`
 
 	Visible bool `json:"-"`
 
 	Lock sync.RWMutex `json:"-"`
 }
 
+type ResUsedData struct {
+	Pos  XY
+	Used [gv.NumResourceTypes]float32
+}
+
 /* Objects that contain object map, object list and TerrainImg */
 type MapChunk struct {
-	Pos XY
+	Pos XY `json:"-"`
 
-	ObjMap     map[XY]*ObjData `json:"-"`
-	ObjList    []*ObjData      `json:"-"`
-	NumObjects uint16          `json:"-"`
+	ObjMap         map[XY]*ObjData `json:"-"`
+	ObjList        []*ObjData      `json:"-"`
+	NumObjs        uint16          `json:"-"`
+	ResourcesMined []*ResUsedData  `json:"-"`
 
 	Parent *MapSuperChunk `json:"-"`
 
 	TerrainLock    sync.RWMutex  `json:"-"`
-	Rendering      bool          `json:"-"`
-	TerrainImg     *ebiten.Image `json:"-"`
+	TerrainImage   *ebiten.Image `json:"-"`
 	TerrainTime    time.Time     `json:"-"`
 	UsingTemporary bool          `json:"-"`
 	Precache       bool          `json:"-"`
-	Visible        bool          `json:"-"`
+
+	Visible bool `json:"-"`
 
 	Lock sync.RWMutex `json:"-"`
 }
 
 type NoiseLayerData struct {
-	Name        string
-	TypeI       uint8
-	LegendColor color.Color
+	Name  string
+	TypeI uint8
 
 	TypeP *MaterialType
 
@@ -76,32 +81,34 @@ type NoiseLayerData struct {
 	N          int32
 	Contrast   float32
 	Brightness float32
-	LimitHigh  float32
-	LimitLow   float32
+	MaxValue   float32
+	MinValue   float32
 
 	InvertValue bool
 
-	RMod bool
-	BMod bool
-	GMod bool
-	AMod bool
+	ModRed   bool
+	ModGreen bool
+	ModBlue  bool
+	ModAlpha bool
 
-	ResourceMulti float64
+	ResourceMultiplier float64
 
-	RMulti float32
-	GMulti float32
-	BMulti float32
-	AMulti float32
+	RedMulti   float32
+	GreenMulti float32
+	BlueMulti  float32
+	AlphaMulti float32
 
-	Source rand.Source
-	Seed   int64
-	Perlin *perlin.Perlin
+	RandomSource rand.Source
+	RandomSeed   int64
+	PerlinNoise  *perlin.Perlin
 }
 
 type MinerDataType struct {
-	MatsFound    []float32
-	MatsFoundT   []uint8
-	NumMatsFound uint8
+	Resources      []float32
+	ResourcesType  []uint8
+	ResourcesCount uint8
+
+	TotalMined *ResUsedData
 }
 
 /* Object data */
@@ -173,7 +180,7 @@ type ObjType struct {
 	ImageActive     *ebiten.Image
 
 	UIPath       string
-	UIimg        *ebiten.Image
+	TBarImage    *ebiten.Image
 	ToolBarArrow bool
 
 	KgHourMine float32
@@ -199,7 +206,7 @@ type ObjType struct {
 }
 
 /* ObjectQueue data */
-type ObjectQueuetData struct {
+type ObjectQueueData struct {
 	Delete bool
 	Obj    *ObjData
 	OType  uint8

@@ -379,7 +379,7 @@ func MakeChunk(pos world.XY) bool {
 		world.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap = make(map[world.XY]*world.ObjData)
 
 		/* Terrain img */
-		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainImg = world.TempChunkImage
+		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainImage = world.TempChunkImage
 		world.SuperChunkMap[scpos].ChunkMap[cpos].UsingTemporary = true
 
 		/* Save position */
@@ -456,7 +456,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	obj.Parent.ObjList =
 		append(obj.Parent.ObjList, obj)
 	obj.Parent.Parent.PixmapDirty = true
-	obj.Parent.NumObjects++
+	obj.Parent.NumObjs++
 	obj.Parent.Lock.Unlock()
 
 	for p, port := range obj.TypeP.Ports {
@@ -502,7 +502,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 /* Add to ObjQueue (add/delete world object at end of tick) */
 func ObjQueueAdd(obj *world.ObjData, otype uint8, pos world.XY, delete bool, dir uint8) {
 	world.ObjQueueLock.Lock()
-	world.ObjQueue = append(world.ObjQueue, &world.ObjectQueuetData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
+	world.ObjQueue = append(world.ObjQueue, &world.ObjectQueueData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	world.ObjQueueLock.Unlock()
 }
 
@@ -550,7 +550,7 @@ func runObjQueue() {
 		}
 	}
 
-	world.ObjQueue = []*world.ObjectQueuetData{}
+	world.ObjQueue = []*world.ObjectQueueData{}
 }
 
 /* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
@@ -559,7 +559,7 @@ func removeObj(obj *world.ObjData) {
 	obj.Parent.Lock.Lock()
 	defer obj.Parent.Lock.Unlock()
 
-	obj.Parent.NumObjects--
+	obj.Parent.NumObjs--
 	delete(obj.Parent.ObjMap, obj.Pos)
 	util.ObjListDelete(obj)
 

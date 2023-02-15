@@ -49,7 +49,7 @@ func SetupTerrainCache() {
 
 	tChunk := world.MapChunk{}
 	renderChunkGround(&tChunk, false, world.XY{X: 0, Y: 0})
-	world.TempChunkImage = tChunk.TerrainImg
+	world.TempChunkImage = tChunk.TerrainImage
 
 	world.SuperChunkListLock.RLock()
 	for _, sChunk := range world.SuperChunkList {
@@ -66,11 +66,6 @@ func SetupTerrainCache() {
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
 func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
-	if chunk.Rendering {
-		return
-	}
-
-	chunk.Rendering = true
 	chunkPix := (gv.SpriteScale * gv.ChunkSize)
 
 	var bg *ebiten.Image = TerrainTypes[0].Image
@@ -121,9 +116,8 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 	chunk.TerrainLock.Lock()
 
 	numTerrainCache++
-	chunk.TerrainImg = tImg
+	chunk.TerrainImage = tImg
 	chunk.UsingTemporary = false
-	chunk.Rendering = false
 	chunk.TerrainTime = time.Now()
 	chunk.TerrainLock.Unlock()
 }
@@ -200,7 +194,7 @@ func RenderTerrainDaemon() {
 /* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
 func killTerrainCache(chunk *world.MapChunk, force bool) {
 
-	if chunk.UsingTemporary || chunk.Rendering || chunk.TerrainImg == nil {
+	if chunk.UsingTemporary || chunk.TerrainImage == nil {
 		return
 	}
 
@@ -210,8 +204,8 @@ func killTerrainCache(chunk *world.MapChunk, force bool) {
 		(gv.WASMMode && numTerrainCache > maxTerrainCacheWASM) {
 
 		chunk.TerrainLock.Lock()
-		chunk.TerrainImg.Dispose()
-		chunk.TerrainImg = world.TempChunkImage
+		chunk.TerrainImage.Dispose()
+		chunk.TerrainImage = world.TempChunkImage
 		chunk.UsingTemporary = true
 		numTerrainCache--
 		chunk.TerrainLock.Unlock()
@@ -225,10 +219,10 @@ func PixmapRenderST() {
 	if !world.ShowResourceLayer && world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 
 		for _, sChunk := range world.SuperChunkList {
-			if sChunk.PixMap != nil {
+			if sChunk.PixelMap != nil {
 
-				sChunk.PixMap.Dispose()
-				sChunk.PixMap = nil
+				sChunk.PixelMap.Dispose()
+				sChunk.PixelMap = nil
 				numPixmapCache--
 				break
 
@@ -240,7 +234,7 @@ func PixmapRenderST() {
 		pixmapCacheCleared = false
 
 		for _, sChunk := range world.SuperChunkList {
-			if sChunk.PixMap == nil || sChunk.PixmapDirty {
+			if sChunk.PixelMap == nil || sChunk.PixmapDirty {
 				drawPixmap(sChunk, sChunk.Pos)
 				break
 			}
@@ -263,21 +257,21 @@ func PixmapRenderDaemon() {
 			if !world.ShowResourceLayer && world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 
 				pixmapCacheCleared = true
-				sChunk.PixLock.Lock()
-				if sChunk.PixMap != nil &&
+				sChunk.PixelMapLock.Lock()
+				if sChunk.PixelMap != nil &&
 					(maxPixmapCache > numPixmapCache ||
 						(gv.WASMMode && maxPixmapCacheWASM > numPixmapCache)) {
 
-					sChunk.PixMap.Dispose()
-					sChunk.PixMap = nil
+					sChunk.PixelMap.Dispose()
+					sChunk.PixelMap = nil
 					numPixmapCache--
 
 				}
-				sChunk.PixLock.Unlock()
+				sChunk.PixelMapLock.Unlock()
 			} else if world.ZoomScale <= gv.MapPixelThreshold || world.ShowResourceLayer {
 				pixmapCacheCleared = false
 
-				if sChunk.PixMap == nil || sChunk.PixmapDirty {
+				if sChunk.PixelMap == nil || sChunk.PixmapDirty {
 					drawPixmap(sChunk, sChunk.Pos)
 				}
 			}
@@ -314,14 +308,14 @@ func drawResource(sChunk *world.MapSuperChunk) {
 					h = -h
 				}
 
-				if nl.RMod {
-					r += (h * nl.RMulti)
+				if nl.ModRed {
+					r += (h * nl.RedMulti)
 				}
-				if nl.GMod {
-					g += (h * nl.GMulti)
+				if nl.ModGreen {
+					g += (h * nl.GreenMulti)
 				}
-				if nl.BMod {
-					b += (h * nl.BMulti)
+				if nl.ModBlue {
+					b += (h * nl.BlueMulti)
 				}
 			}
 			r = util.Min(r, 1.0)
@@ -346,13 +340,13 @@ func drawResource(sChunk *world.MapSuperChunk) {
 /* Draw a superchunk's pixmap, allocates image if needed. */
 func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 	/* Make Pixelmap images */
-	if sChunk.PixMap == nil {
+	if sChunk.PixelMap == nil {
 		rect := image.Rectangle{}
 
 		rect.Max.X = gv.SuperChunkTotal
 		rect.Max.Y = gv.SuperChunkTotal
 
-		sChunk.PixMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
+		sChunk.PixelMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 	}
 
 	var ObjPix []byte = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
@@ -385,7 +379,7 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 	}
 
 	for _, chunk := range sChunk.ChunkList {
-		if chunk.NumObjects <= 0 {
+		if chunk.NumObjs <= 0 {
 			continue
 		}
 
@@ -405,10 +399,10 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 		}
 
 	}
-	sChunk.PixLock.Lock()
-	sChunk.PixMap.WritePixels(ObjPix)
-	sChunk.PixMapTime = time.Now()
+	sChunk.PixelMapLock.Lock()
+	sChunk.PixelMap.WritePixels(ObjPix)
+	sChunk.PixelMapTime = time.Now()
 	sChunk.PixmapDirty = false
 	numPixmapCache++
-	sChunk.PixLock.Unlock()
+	sChunk.PixelMapLock.Unlock()
 }

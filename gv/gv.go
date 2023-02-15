@@ -21,10 +21,11 @@ var (
 )
 
 const (
-	NinetyDeg     = math.Pi / 2
-	OneEightyDeg  = math.Pi
-	ThreeSixtyDeg = math.Pi * 2
-	DegToRad      = 6.28319
+	NumResourceTypes = 7
+	NinetyDeg        = math.Pi / 2
+	OneEightyDeg     = math.Pi
+	ThreeSixtyDeg    = math.Pi * 2
+	DegToRad         = 6.28319
 
 	ChatHeightLines = 10
 	ChatFadeTime    = time.Second

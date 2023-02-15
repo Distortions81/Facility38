@@ -27,23 +27,23 @@ func init() {
 
 func PerlinNoiseInit() {
 	for p := range NoiseLayers {
-		if NoiseLayers[p].Seed == 0 {
-			NoiseLayers[p].Seed = time.Now().UnixNano() + int64(rand.Intn(1000))
+		if NoiseLayers[p].RandomSeed == 0 {
+			NoiseLayers[p].RandomSeed = time.Now().UnixNano() + int64(rand.Intn(1000))
 		}
-		NoiseLayers[p].Source = rand.NewSource(NoiseLayers[p].Seed)
-		NoiseLayers[p].Perlin = perlin.NewPerlinRandSource(float64(NoiseLayers[p].Alpha), float64(NoiseLayers[p].Beta), NoiseLayers[p].N, NoiseLayers[p].Source)
+		NoiseLayers[p].RandomSource = rand.NewSource(NoiseLayers[p].RandomSeed)
+		NoiseLayers[p].PerlinNoise = perlin.NewPerlinRandSource(float64(NoiseLayers[p].Alpha), float64(NoiseLayers[p].Beta), NoiseLayers[p].N, NoiseLayers[p].RandomSource)
 	}
 }
 
 func NoiseMap(x, y float32, p int) float32 {
-	val := float32(NoiseLayers[p].Perlin.Noise2D(
+	val := float32(NoiseLayers[p].PerlinNoise.Noise2D(
 		float64(x/NoiseLayers[p].Scale),
 		float64(y/NoiseLayers[p].Scale)))/float32(NoiseLayers[p].Contrast) + NoiseLayers[p].Brightness
 
-	if val > NoiseLayers[p].LimitHigh {
-		return NoiseLayers[p].LimitHigh
-	} else if val < NoiseLayers[p].LimitLow {
-		return NoiseLayers[p].LimitLow
+	if val > NoiseLayers[p].MaxValue {
+		return NoiseLayers[p].MaxValue
+	} else if val < NoiseLayers[p].MinValue {
+		return NoiseLayers[p].MinValue
 	}
 	return val
 }
@@ -52,7 +52,7 @@ func DrawResourceLegend(screen *ebiten.Image) {
 
 }
 
-var NoiseLayers = []world.NoiseLayerData{
+var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 	{Name: "Grass",
 		TypeI:      gv.MAT_NONE,
 		Scale:      32,
@@ -61,13 +61,13 @@ var NoiseLayers = []world.NoiseLayerData{
 		N:          3,
 		Contrast:   2,
 		Brightness: 1,
-		LimitHigh:  5,
-		LimitLow:   0,
+		MaxValue:   5,
+		MinValue:   0,
 
-		RMod: true,
+		ModRed: true,
 
-		ResourceMulti: 0,
-		RMulti:        1,
+		ResourceMultiplier: 0,
+		RedMulti:           1,
 	},
 
 	/* Resources */
@@ -80,17 +80,17 @@ var NoiseLayers = []world.NoiseLayerData{
 
 		Contrast:   0.2,
 		Brightness: -2.2,
-		LimitHigh:  5,
-		LimitLow:   0,
+		MaxValue:   5,
+		MinValue:   0,
 
-		RMod: true,
-		GMod: true,
-		BMod: true,
+		ModRed:   true,
+		ModGreen: true,
+		ModBlue:  true,
 
-		ResourceMulti: 1,
-		RMulti:        0.6,
-		GMulti:        0.7,
-		BMulti:        1,
+		ResourceMultiplier: 1,
+		RedMulti:           0.6,
+		GreenMulti:         0.7,
+		BlueMulti:          1,
 	},
 	{Name: "Natural Gas",
 		TypeI: gv.MAT_GAS,
@@ -101,17 +101,17 @@ var NoiseLayers = []world.NoiseLayerData{
 
 		Contrast:   0.3,
 		Brightness: -1.5,
-		LimitHigh:  5,
-		LimitLow:   0,
+		MaxValue:   5,
+		MinValue:   0,
 
-		RMod: true,
-		GMod: true,
-		BMod: true,
+		ModRed:   true,
+		ModGreen: true,
+		ModBlue:  true,
 
-		ResourceMulti: 1,
-		RMulti:        0.5,
-		GMulti:        1,
-		BMulti:        0,
+		ResourceMultiplier: 1,
+		RedMulti:           0.5,
+		GreenMulti:         1,
+		BlueMulti:          0,
 	},
 	{Name: "Coal",
 		TypeI: gv.MAT_COAL,
@@ -122,17 +122,17 @@ var NoiseLayers = []world.NoiseLayerData{
 
 		Contrast:   0.3,
 		Brightness: -1.0,
-		LimitHigh:  5,
-		LimitLow:   0,
+		MaxValue:   5,
+		MinValue:   0,
 
-		RMod: true,
-		GMod: true,
-		BMod: true,
+		ModRed:   true,
+		ModGreen: true,
+		ModBlue:  true,
 
-		ResourceMulti: 1,
-		RMulti:        1,
-		GMulti:        1,
-		BMulti:        1,
+		ResourceMultiplier: 1,
+		RedMulti:           1,
+		GreenMulti:         1,
+		BlueMulti:          1,
 	},
 	{Name: "Iron Ore",
 		TypeI: gv.MAT_IRON_ORE,
@@ -143,17 +143,17 @@ var NoiseLayers = []world.NoiseLayerData{
 
 		Contrast:   0.3,
 		Brightness: -1.5,
-		LimitHigh:  5,
-		LimitLow:   0,
+		MaxValue:   5,
+		MinValue:   0,
 
-		RMod: true,
-		GMod: true,
-		BMod: true,
+		ModRed:   true,
+		ModGreen: true,
+		ModBlue:  true,
 
-		ResourceMulti: 1,
-		RMulti:        0,
-		GMulti:        0.85,
-		BMulti:        1,
+		ResourceMultiplier: 1,
+		RedMulti:           0,
+		GreenMulti:         0.85,
+		BlueMulti:          1,
 	},
 	{Name: "Copper Ore",
 		TypeI: gv.MAT_COPPER_ORE,
@@ -164,17 +164,17 @@ var NoiseLayers = []world.NoiseLayerData{
 
 		Contrast:   0.3,
 		Brightness: -1.5,
-		LimitHigh:  5,
-		LimitLow:   0,
+		MaxValue:   5,
+		MinValue:   0,
 
-		RMod: true,
-		GMod: true,
-		BMod: true,
+		ModRed:   true,
+		ModGreen: true,
+		ModBlue:  true,
 
-		ResourceMulti: 1,
-		RMulti:        1,
-		GMulti:        0.25,
-		BMulti:        0,
+		ResourceMultiplier: 1,
+		RedMulti:           1,
+		GreenMulti:         0.25,
+		BlueMulti:          0,
 	},
 	{Name: "Stone Ore",
 		TypeI: gv.MAT_STONE_ORE,
@@ -185,17 +185,17 @@ var NoiseLayers = []world.NoiseLayerData{
 
 		Contrast:   0.4,
 		Brightness: -0.5,
-		LimitHigh:  5,
-		LimitLow:   0,
+		MaxValue:   5,
+		MinValue:   0,
 
 		InvertValue: true,
-		RMod:        true,
-		GMod:        true,
-		BMod:        true,
+		ModRed:      true,
+		ModGreen:    true,
+		ModBlue:     true,
 
-		ResourceMulti: 1,
-		RMulti:        1,
-		GMulti:        1,
-		BMulti:        1,
+		ResourceMultiplier: 1,
+		RedMulti:           1,
+		GreenMulti:         1,
+		BlueMulti:          1,
 	},
 }

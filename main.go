@@ -132,7 +132,7 @@ func loadSprites() {
 			if item.UIPath != "" {
 				img, err := data.GetSpriteImage(item.UIPath)
 				if err == nil {
-					otype[key].UIimg = img
+					otype[key].TBarImage = img
 				}
 			}
 
