@@ -4,26 +4,19 @@ export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
 
 
-Minimize nested ifs
-adjustable miners/furnace speeds
-
-high priority:
+High priority:
 hoppers
 multi-tile objects, ABCDEF port format. Use modulo rotation.
-eventually set machine times in ms/sec
-
-Make mouse tooltip show resources in resource mode.
-make UI with checkboxes for resources selection to draw
-Add resource legend
-
-Add ground rendering for pixel mode too
-
-Complete unsafe for faster loading, make packed binary format for saves.
-Also: BP/minisave format
-
 Fix overs not showing mats when rotated (use rotation to get right input)
-
 obj-tock.go: Cut down code in tock, move anything we can to init.
 Read should be faster than write, becuase of CPU caches...
 So we should always read the material type and only set typeP if need be.
 remove uneeded port == nil checks, etc.
+
+Other:
+eventually set machine times in ms/sec
+Add ground rendering for pixel mode too
+Complete unsafe for faster loading, make packed binary format for saves.
+Also: BP/minisave format
+Minimize nested ifs
+adjustable miners/furnace speeds
