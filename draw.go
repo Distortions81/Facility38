@@ -41,6 +41,8 @@ var (
 	screenEndY   int
 	frameCount   uint64
 
+	lastResourceString string
+
 	BatchTop   int
 	ImageBatch [gv.ChunkSizeTotal * 3]*ebiten.Image
 	OpBatch    [gv.ChunkSizeTotal * 3]*ebiten.DrawImageOptions
@@ -521,12 +523,17 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 		if world.ShowResourceLayer {
 			buf := ""
-			for p := 1; p < len(objects.NoiseLayers); p++ {
-				var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
+			if gMouseX != gPrevMouseX && gMouseY != gPrevMouseY {
+				for p := 1; p < len(objects.NoiseLayers); p++ {
+					var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
 
-				if h > 0 {
-					buf = buf + fmt.Sprintf("%v: %0.2f\n", objects.NoiseLayers[p].Name, h)
+					if h > 0 {
+						buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, h*100.0)
+					}
 				}
+			} else {
+				/* save a bit of processing */
+				buf = lastResourceString
 			}
 			if buf != "" {
 				DrawText(buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
