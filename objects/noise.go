@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aquilax/go-perlin"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func init() {
@@ -22,6 +23,33 @@ func init() {
 			}
 		}
 	}
+}
+
+func PerlinNoiseInit() {
+	for p := range NoiseLayers {
+		if NoiseLayers[p].Seed == 0 {
+			NoiseLayers[p].Seed = time.Now().UnixNano() + int64(rand.Intn(1000))
+		}
+		NoiseLayers[p].Source = rand.NewSource(NoiseLayers[p].Seed)
+		NoiseLayers[p].Perlin = perlin.NewPerlinRandSource(float64(NoiseLayers[p].Alpha), float64(NoiseLayers[p].Beta), NoiseLayers[p].N, NoiseLayers[p].Source)
+	}
+}
+
+func NoiseMap(x, y float32, p int) float32 {
+	val := float32(NoiseLayers[p].Perlin.Noise2D(
+		float64(x/NoiseLayers[p].Scale),
+		float64(y/NoiseLayers[p].Scale)))/float32(NoiseLayers[p].Contrast) + NoiseLayers[p].Brightness
+
+	if val > NoiseLayers[p].LimitHigh {
+		return NoiseLayers[p].LimitHigh
+	} else if val < NoiseLayers[p].LimitLow {
+		return NoiseLayers[p].LimitLow
+	}
+	return val
+}
+
+func DrawResourceLegend(screen *ebiten.Image) {
+
 }
 
 var NoiseLayers = []world.NoiseLayerData{
@@ -170,27 +198,4 @@ var NoiseLayers = []world.NoiseLayerData{
 		GMulti:        1,
 		BMulti:        1,
 	},
-}
-
-func PerlinNoiseInit() {
-	for p := range NoiseLayers {
-		if NoiseLayers[p].Seed == 0 {
-			NoiseLayers[p].Seed = time.Now().UnixNano() + int64(rand.Intn(1000))
-		}
-		NoiseLayers[p].Source = rand.NewSource(NoiseLayers[p].Seed)
-		NoiseLayers[p].Perlin = perlin.NewPerlinRandSource(float64(NoiseLayers[p].Alpha), float64(NoiseLayers[p].Beta), NoiseLayers[p].N, NoiseLayers[p].Source)
-	}
-}
-
-func NoiseMap(x, y float32, p int) float32 {
-	val := float32(NoiseLayers[p].Perlin.Noise2D(
-		float64(x/NoiseLayers[p].Scale),
-		float64(y/NoiseLayers[p].Scale)))/float32(NoiseLayers[p].Contrast) + NoiseLayers[p].Brightness
-
-	if val > NoiseLayers[p].LimitHigh {
-		return NoiseLayers[p].LimitHigh
-	} else if val < NoiseLayers[p].LimitLow {
-		return NoiseLayers[p].LimitLow
-	}
-	return val
 }

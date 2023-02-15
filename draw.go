@@ -41,6 +41,8 @@ var (
 	screenEndY   int
 	frameCount   uint64
 
+	lastResourceString string
+
 	BatchTop   int
 	ImageBatch [gv.ChunkSizeTotal * 3]*ebiten.Image
 	OpBatch    [gv.ChunkSizeTotal * 3]*ebiten.DrawImageOptions
@@ -410,6 +412,13 @@ func drawPixmapMode(screen *ebiten.Image) {
 		sChunk.PixLock.Unlock()
 	}
 	world.SuperChunkListLock.RUnlock()
+
+	if world.ShowResourceLayer && gv.ResourceLegendImage != nil {
+		op.GeoM.Reset()
+		op.GeoM.Scale(2, 2)
+		op.GeoM.Translate(8, gv.ToolBarScale)
+		screen.DrawImage(gv.ResourceLegendImage, op)
+	}
 }
 
 func drawDebugInfo(screen *ebiten.Image) {
@@ -430,6 +439,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 	/* Toolbar tool tip */
 	uipix := float32(ToolbarMax * int(gv.ToolBarScale))
+
 	if world.MouseX <= uipix && world.MouseY <= gv.ToolBarScale {
 		val := int(world.MouseX / gv.ToolBarScale)
 		if val >= 0 && val < ToolbarMax {
@@ -517,7 +527,29 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				humanize.Comma(int64((worldMouseX - gv.XYCenter))),
 				humanize.Comma(int64((worldMouseY - gv.XYCenter))))
 		}
+
+		if world.ShowResourceLayer {
+			buf := ""
+			if gMouseX != gPrevMouseX && gMouseY != gPrevMouseY {
+				for p := 1; p < len(objects.NoiseLayers); p++ {
+					var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
+
+					if h > 0 {
+						buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, h*100.0)
+					}
+				}
+			} else {
+				/* save a bit of processing */
+				buf = lastResourceString
+			}
+			if buf != "" {
+				lastResourceString = buf
+				DrawText(buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
+					world.XY{X: int(gMouseX + 20), Y: int(gMouseY + 20)}, 11, screen, true, false, false)
+			}
+		}
 		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XY{X: world.ScreenWidth, Y: world.ScreenHeight}, 11, screen, false, true, false)
+
 	}
 }
 

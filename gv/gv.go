@@ -3,6 +3,8 @@ package gv
 import (
 	"math"
 	"time"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 var (
@@ -14,6 +16,8 @@ var (
 	LogStdOut    = false
 	LogFileOut   = false
 	WASMMode     = false
+
+	ResourceLegendImage *ebiten.Image
 )
 
 const (
