@@ -1,3 +1,19 @@
 {
-    "go.inferGopath": false
+    "go.inferGopath": false,
+    "cSpell.words": [
+        "cpos",
+        "deallocate",
+        "decallocate",
+        "ebiten",
+        "hajimehoshi",
+        "Pixelmap",
+        "pixmap",
+        "Pixmap",
+        "ppos",
+        "Precache",
+        "superchunk",
+        "superchunk's",
+        "Unmanaged",
+        "useses"
+    ]
 }

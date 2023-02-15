@@ -41,7 +41,7 @@ var (
 	gLastActionPosition world.XY
 	gLastActionType     int
 
-	/* WASM wierdness kludge */
+	/* WASM weirdness kludge */
 	lastScroll time.Time
 )
 

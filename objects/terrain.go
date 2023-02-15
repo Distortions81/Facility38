@@ -164,7 +164,7 @@ func RenderTerrainDaemon() {
 	for {
 		time.Sleep(terrainRenderLoop)
 
-		/* If we zoom out, decallocate everything */
+		/* If we zoom out, deallocate everything */
 		if world.ZoomScale <= gv.MapPixelThreshold {
 			if !clearedCache && gv.WASMMode {
 				world.SuperChunkListLock.RLock()

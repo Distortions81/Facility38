@@ -62,7 +62,7 @@ var (
 		{ImagePath: "world-obj/basic-miner.png", ImagePathActive: "world-obj/basic-miner-active.png",
 			UIPath:       "ui/miner.png",
 			Name:         "Basic miner",
-			Info:         "Mines soild resources where placed, requires coal fuel.",
+			Info:         "Mines solid resources where placed, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicMiner,
 			Size:         world.XY{X: 1, Y: 1},
 			UpdateObj:    minerUpdate,

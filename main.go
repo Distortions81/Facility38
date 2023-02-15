@@ -182,7 +182,7 @@ func bootScreen(screen *ebiten.Image) {
 		}
 		status = status + fmt.Sprintf("Loading map (%.2f%%)", world.MapLoadPercent)
 	}
-	screen.Fill(world.ColorCharcol)
+	screen.Fill(world.ColorCharcoal)
 	if status == "" {
 		status = "Loading complete!\n(Press any key or click to continue)"
 	}

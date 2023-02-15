@@ -10,15 +10,15 @@ Timers, pressure switches, item spilling.
 Tile map for mined resources, and spilled items.
 
 Add ground water and surface water. Mineralized, fresh and salt.
-Water should get contaiminated by dumping.
+Water should get contaminated by dumping.
 
 Multi-tile objects, ABCDEF port format. Use modulo rotation.
-Fix overs not showing mats when rotated (use rotation to get righcorrect input)
+Fix overs not showing mats when rotated (use rotation to get correct input)
 obj-tock.go: Cut down code in tock, move anything we can to init.
 
-Read should be faster than write, becuase of CPU caches...
+Read should be faster than write, because of CPU caches...
 We should always read the material type, and only reset typeP if need be.
-remove uneeded port == nil checks, etc.
+remove unneeded port == nil checks, etc.
 
 Other:
 eventually set machine times in ms/sec

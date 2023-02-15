@@ -23,13 +23,13 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 	if cLoadEmbedSprites {
 		gpng, err := f.Open(gv.GfxDir + name)
 		if err != nil {
-			cwlog.DoLog("GetSpriteImage: Embeded: %v", err)
+			cwlog.DoLog("GetSpriteImage: Embedded: %v", err)
 			return nil, err
 		}
 
 		m, _, err := image.Decode(gpng)
 		if err != nil {
-			cwlog.DoLog("GetSpriteImage: Embeded: %v", err)
+			cwlog.DoLog("GetSpriteImage: Embedded: %v", err)
 			return nil, err
 		}
 		img := ebiten.NewImageFromImage(m)

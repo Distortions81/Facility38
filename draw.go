@@ -23,7 +23,7 @@ const (
 	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
 	cMAX_RENDER_NS_BOOT     = 1000000000 / 30  /* 30 FPS */
 	cPreCache               = 4
-	WASMTerrtainDiv         = 5
+	WASMTerrainDiv          = 5
 )
 
 var (
@@ -55,7 +55,7 @@ func init() {
 	world.MiniMapTile.Fill(color.White)
 
 	world.ToolBG = ebiten.NewImage(gv.ToolBarScale, gv.ToolBarScale)
-	world.ToolBG.Fill(world.ColorCharcolSemi)
+	world.ToolBG.Fill(world.ColorCharcoalSemi)
 
 	world.BeltBlock = ebiten.NewImage(1, 1)
 	world.BeltBlock.Fill(world.ColorOrange)
@@ -120,7 +120,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	updateVisData()
 
 	/* WASM terrain rendering */
-	if gv.WASMMode && frameCount%WASMTerrtainDiv == 0 {
+	if gv.WASMMode && frameCount%WASMTerrainDiv == 0 {
 		objects.RenderTerrainST()
 	}
 
@@ -316,7 +316,6 @@ func drawIconMode(screen *ebiten.Image) {
 							((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 
-						//screen.DrawImage(img, op)
 						if img != nil {
 							OpBatch[BatchTop] = op
 							ImageBatch[BatchTop] = img
@@ -337,7 +336,6 @@ func drawIconMode(screen *ebiten.Image) {
 							op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 
 							/* Draw Arrow */
-							//screen.DrawImage(img, op)
 							if img != nil {
 								OpBatch[BatchTop] = op
 								ImageBatch[BatchTop] = img
@@ -365,7 +363,6 @@ func drawIconMode(screen *ebiten.Image) {
 							ImageBatch[BatchTop] = img
 							BatchTop++
 						}
-						//screen.DrawImage(objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image, op)
 					}
 
 				}
