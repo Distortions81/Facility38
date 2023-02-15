@@ -3,41 +3,27 @@
 export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
 
-2D doom
-Issues moved to github
-https://github.com/Distortions81/GameTest/issues
-
 
 Minimize nested ifs
 adjustable miners/furnace speeds
 
 high priority:
-hoppers. occupied map, with pointers and x/y cords for building piece info
+hoppers
+multi-tile objects, ABCDEF port format. Use modulo rotation.
 eventually set machine times in ms/sec
 
 Make mouse tooltip show resources in resource mode.
 make UI with checkboxes for resources selection to draw
+Add resource legend
 
 Add ground rendering for pixel mode too
-Possibly look at further cleaning of object types:
-	SubTypes = [][]*world.ObjType{
-		UIObjsTypes,
-		GameObjTypes,
-		ObjOverlayTypes,
-		TerrainTypes,
-	}
 
-
-ALSO DO: Fix loading screen, material rendering progress, etc.
 Complete unsafe for faster loading, make packed binary format for saves.
 Also: BP/minisave format
 
 Fix overs not showing mats when rotated (use rotation to get right input)
-Fix delay before loading screen from resources prerendering.
 
 obj-tock.go: Cut down code in tock, move anything we can to init.
-Read should be faster than write, becuase of CPU caches. So we should always read the material type and only type typeP if need be.
-
-Ports: statically allocated makes lookup fast.
-seperate input/output lists could be faster, but more memory.
-slices would use less memory and cut down looping, but there is no quick lookup.
+Read should be faster than write, becuase of CPU caches...
+So we should always read the material type and only set typeP if need be.
+remove uneeded port == nil checks, etc.
