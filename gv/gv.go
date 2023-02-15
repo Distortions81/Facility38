@@ -91,7 +91,7 @@ const (
 
 	/* Toolbar settings */
 	ToolBarScale   = 64
-	ToolBarSpacing = 2
+	ToolBarSpacing = 3
 	SpriteScale    = 16
 	TBSelThick     = 3
 
