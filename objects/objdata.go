@@ -79,7 +79,7 @@ var (
 
 		{ImagePath: "world-obj/basic-belt.png",
 			Name:      "Basic belt",
-			Info:      "Moves items from rear or sides in direction of arrow.",
+			Info:      "Moves items from rear and sides in direction of arrow.",
 			TypeI:     gv.ObjTypeBasicBelt,
 			Size:      world.XY{X: 1, Y: 1},
 			Rotatable: true,
@@ -110,7 +110,7 @@ var (
 
 		{ImagePath: "world-obj/basic-splitter.png", ImagePathActive: "world-obj/basic-splitter-active.png",
 			Name:        "Basic Splitter",
-			Info:        "Input from back, ouputs equally to up to 3 outputs.",
+			Info:        "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
 			Size:        world.XY{X: 1, Y: 1},
 			Rotatable:   true,
