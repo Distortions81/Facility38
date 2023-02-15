@@ -30,6 +30,39 @@ func initMiner(obj *world.ObjData) {
 		return
 	}
 
+	/* Init ResourcesMined if needed */
+	if obj.Parent.ResourcesMined == nil {
+		obj.Parent.ResourcesMined = []*world.ResUsedData{}
+	}
+
+	/*
+	 * Lets check if this chunk and position has ResourcesMined data.
+	 * If it does not:
+	 *
+	 * Init our position in the ResourcesMined list now
+	 * so that concurrent access is possible later.
+	 * Also link to the data in obj's MinerData, to avoid lookups
+	 */
+
+	found := false
+	for i, item := range obj.Parent.ResourcesMined {
+		if item.Pos == obj.Pos {
+			//Add a link to our position for access later
+			obj.MinerData.TotalMined = obj.Parent.ResourcesMined[i]
+			found = true
+			break
+		}
+	}
+
+	/* Not found, add */
+	if !found {
+		insert := &world.ResUsedData{Pos: obj.Pos}
+		obj.Parent.ResourcesMined = append(obj.Parent.ResourcesMined, insert)
+
+		//Add a link to our position for access later
+		obj.MinerData.TotalMined = insert
+	}
+
 	/* Check for resources to mine */
 	for p := 1; p < len(NoiseLayers); p++ {
 		var h float32 = float32(math.Abs(float64(NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p))))
@@ -39,9 +72,9 @@ func initMiner(obj *world.ObjData) {
 			continue
 		}
 		if h > 0 {
-			obj.MinerData.MatsFound = append(obj.MinerData.MatsFound, h)
-			obj.MinerData.MatsFoundT = append(obj.MinerData.MatsFoundT, NoiseLayers[p].TypeI)
-			obj.MinerData.NumMatsFound++
+			obj.MinerData.Resources = append(obj.MinerData.Resources, h)
+			obj.MinerData.ResourcesType = append(obj.MinerData.ResourcesType, NoiseLayers[p].TypeI)
+			obj.MinerData.ResourcesCount++
 		}
 	}
 }
@@ -55,7 +88,7 @@ func minerUpdate(obj *world.ObjData) {
 	}
 
 	/* Anything to mine? */
-	if obj.MinerData.NumMatsFound == 0 {
+	if obj.MinerData.ResourcesCount == 0 {
 		obj.Blocked = true
 		return
 	}
@@ -109,14 +142,14 @@ func minerUpdate(obj *world.ObjData) {
 		}
 
 		/* Randomly pick a material from the list */
-		pick := rand.Intn(int(obj.MinerData.NumMatsFound))
+		pick := rand.Intn(int(obj.MinerData.ResourcesCount))
 
 		/* Calculate how much material */
-		amount := obj.TypeP.KgMineEach * float32(obj.MinerData.MatsFound[pick])
-		kind := MatTypes[obj.MinerData.MatsFoundT[pick]]
+		amount := obj.TypeP.KgMineEach * float32(obj.MinerData.Resources[pick])
+		kind := MatTypes[obj.MinerData.ResourcesType[pick]]
 
 		/* Are we are mining coal? */
-		if obj.MinerData.MatsFoundT[pick] == gv.MAT_COAL &&
+		if obj.MinerData.ResourcesType[pick] == gv.MAT_COAL &&
 			obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
 
 			/* If we need fuel, fuel ourselves */

@@ -48,8 +48,8 @@ func DrawToolbar() {
 		x := float64((gv.ToolBarScale + gv.ToolBarSpacing) * int(pos))
 
 		img := item.OType.Image
-		if item.OType.UIimg != nil {
-			img = item.OType.UIimg
+		if item.OType.TBarImage != nil {
+			img = item.OType.TBarImage
 		}
 		if img == nil {
 			return
