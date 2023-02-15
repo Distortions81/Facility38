@@ -417,7 +417,11 @@ func ExploreMap(pos world.XY, input int) {
 			MakeChunk(pos)
 			ChunksMade++
 			world.MapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
-			time.Sleep(time.Nanosecond)
+			if gv.WASMMode {
+				time.Sleep(time.Nanosecond)
+			} else {
+				time.Sleep(time.Millisecond)
+			}
 		}
 	}
 	world.MapLoadPercent = 100

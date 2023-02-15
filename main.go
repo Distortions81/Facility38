@@ -196,10 +196,11 @@ func bootScreen(screen *ebiten.Image) {
 	x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
 	y := (float32(world.ScreenHeight) / 3.0) * 2.4
 	vector.DrawFilledRect(screen, x, y, pw, tall, world.ColorVeryDarkGray)
-	color := world.ColorWhite
+	color := world.ColorVeryDarkGray
 	if world.MapLoadPercent >= 100 {
-		color = world.ColorGreen
+		world.MapLoadPercent = 100
 	}
+	color.G = byte(104 + (world.MapLoadPercent * 1.5))
 	vector.DrawFilledRect(screen, x, y, world.MapLoadPercent*float32(multi), tall, color)
 	if gv.WASMMode {
 		time.Sleep(time.Nanosecond)
