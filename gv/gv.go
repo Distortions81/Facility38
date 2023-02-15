@@ -90,9 +90,10 @@ const (
 	PlaceholdOffY = 10
 
 	/* Toolbar settings */
-	ToolBarScale = 64
-	SpriteScale  = 16
-	TBSelThick   = 2
+	ToolBarScale   = 64
+	ToolBarSpacing = 2
+	SpriteScale    = 16
+	TBSelThick     = 3
 
 	/* Draw settings */
 	MaxSuperChunk = SuperChunkSize * SuperChunkSize

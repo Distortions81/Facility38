@@ -438,13 +438,13 @@ func drawWorldTooltip(screen *ebiten.Image) {
 	worldMouseY := (world.MouseY/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
 
 	/* Toolbar tool tip */
-	uipix := float32(ToolbarMax * int(gv.ToolBarScale))
+	uipix := float32((ToolbarMax * int(gv.ToolBarScale+gv.ToolBarScale)))
 
 	if world.MouseX <= uipix && world.MouseY <= gv.ToolBarScale {
-		val := int(world.MouseX / gv.ToolBarScale)
+		val := int(world.MouseX / (gv.ToolBarScale + gv.ToolBarSpacing))
 		if val >= 0 && val < ToolbarMax {
 
-			item := ToolbarItems[int(world.MouseX/gv.ToolBarScale)]
+			item := ToolbarItems[int(world.MouseX/float32(gv.ToolBarScale+gv.ToolBarSpacing))]
 			var toolTip string
 
 			if item.OType.Info != "" {

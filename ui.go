@@ -110,12 +110,12 @@ func getShiftToggle() {
 
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
-	uipix := float32(ToolbarMax * int(gv.ToolBarScale))
+	uipix := float32((ToolbarMax * int(gv.ToolBarScale+gv.ToolBarSpacing)))
 
 	if world.MouseX <= uipix {
 		if world.MouseY <= gv.ToolBarScale {
 
-			ipos := int((world.MouseX) / gv.ToolBarScale)
+			ipos := int((world.MouseX) / float32(gv.ToolBarScale+gv.ToolBarSpacing))
 			item := ToolbarItems[ipos].OType
 
 			/* Actions */
