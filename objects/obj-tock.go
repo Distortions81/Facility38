@@ -34,7 +34,7 @@ func initMiner(obj *world.ObjData) {
 	for p := 1; p < len(NoiseLayers); p++ {
 		var h float32 = float32(math.Abs(float64(NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p))))
 
-		/* We only mind solids */
+		/* We only mine solids */
 		if !NoiseLayers[p].TypeP.IsSolid {
 			continue
 		}

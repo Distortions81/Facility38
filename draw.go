@@ -430,6 +430,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 	/* Toolbar tool tip */
 	uipix := float32(ToolbarMax * int(gv.ToolBarScale))
+
 	if world.MouseX <= uipix && world.MouseY <= gv.ToolBarScale {
 		val := int(world.MouseX / gv.ToolBarScale)
 		if val >= 0 && val < ToolbarMax {
@@ -518,6 +519,19 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				humanize.Comma(int64((worldMouseY - gv.XYCenter))))
 		}
 		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XY{X: world.ScreenWidth, Y: world.ScreenHeight}, 11, screen, false, true, false)
+
+		if world.ShowResourceLayer {
+			matsFoundT noise
+			for p := 1; p < len(objects.NoiseLayers); p++ {
+				var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
+
+				if h > 0 {
+					matsFoundT = append(obj.MinerData.MatsFoundT, objects.NoiseLayers[p].TypeI)
+				}
+			}
+			DrawText(buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
+				world.XY{X: int(worldMouseX + 20), Y: int(worldMouseY + 20)}, 11, screen, true, false, false)
+		}
 	}
 }
 
