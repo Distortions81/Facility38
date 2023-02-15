@@ -158,6 +158,11 @@ func loadSprites() {
 		}
 	}
 
+	img, err := data.GetSpriteImage("ui/resource-legend.png")
+	if err == nil {
+		gv.ResourceLegendImage = img
+	}
+
 	objects.SetupTerrainCache()
 	DrawToolbar()
 

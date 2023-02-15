@@ -64,8 +64,10 @@ type MapChunk struct {
 }
 
 type NoiseLayerData struct {
-	Name  string
-	TypeI uint8
+	Name        string
+	TypeI       uint8
+	LegendColor color.Color
+
 	TypeP *MaterialType
 
 	Scale      float32

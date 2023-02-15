@@ -412,6 +412,13 @@ func drawPixmapMode(screen *ebiten.Image) {
 		sChunk.PixLock.Unlock()
 	}
 	world.SuperChunkListLock.RUnlock()
+
+	if world.ShowResourceLayer && gv.ResourceLegendImage != nil {
+		op.GeoM.Reset()
+		op.GeoM.Scale(2, 2)
+		op.GeoM.Translate(8, gv.ToolBarScale)
+		screen.DrawImage(gv.ResourceLegendImage, op)
+	}
 }
 
 func drawDebugInfo(screen *ebiten.Image) {
