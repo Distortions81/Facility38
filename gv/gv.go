@@ -91,9 +91,11 @@ const (
 
 	/* Toolbar settings */
 	ToolBarScale   = 64
-	ToolBarSpacing = 3
+	ToolBarSpacing = 4
 	SpriteScale    = 16
 	TBSelThick     = 3
+	TbOffX         = 1
+	TbOffY         = 1
 
 	/* Draw settings */
 	MaxSuperChunk = SuperChunkSize * SuperChunkSize
