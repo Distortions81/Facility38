@@ -39,7 +39,6 @@ var (
 
 	/* Last object we performed an action on */
 	gLastActionPosition world.XY
-	gLastActionTime     time.Time
 	gLastActionType     int
 
 	/* WASM wierdness kludge */
