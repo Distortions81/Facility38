@@ -73,14 +73,14 @@ func initMiner(obj *world.ObjData) {
 	 * If it does not:
 	 *
 	 * Init our position in the ResourcesMined list now
-	 * so that concurrent access is possible later.
+	 * so that threaded access is possible later.
 	 * Also link to the data in obj's MinerData, to avoid lookups
 	 */
 
 	found := false
 	for i, item := range obj.Parent.ResourcesMined {
 		if item.Pos == obj.Pos {
-			//Add a link to our position for access later
+			//Add a link to our position in the list, for access later
 			obj.MinerData.TotalMined = obj.Parent.ResourcesMined[i]
 			found = true
 			break
@@ -92,7 +92,7 @@ func initMiner(obj *world.ObjData) {
 		insert := &world.ResUsedData{Pos: obj.Pos}
 		obj.Parent.ResourcesMined = append(obj.Parent.ResourcesMined, insert)
 
-		//Add a link to our position for access later
+		//Add a link to our position in the list, for access later
 		obj.MinerData.TotalMined = insert
 	}
 
@@ -222,7 +222,7 @@ func beltUpdate(obj *world.ObjData) {
 	dir := obj.LastUsedInput
 
 	/* Start with last input, then rotate one */
-	worked := false
+	found := false
 	for x := 0; x < 4; x++ {
 		dir = util.RotCW(dir)
 
@@ -235,7 +235,7 @@ func beltUpdate(obj *world.ObjData) {
 		if obj.Ports[dir].Buf.Amount == 0 {
 			continue
 		} else {
-			worked = true
+			found = true
 			obj.Active = true
 			obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
 			obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
@@ -245,18 +245,12 @@ func beltUpdate(obj *world.ObjData) {
 			break /* Stop */
 		}
 	}
-	if !worked {
+	if !found {
 		obj.Active = false
 	}
 }
 
 func fuelHopperUpdate(obj *world.ObjData) {
-
-	/* Valid port? */
-	if obj.Ports[obj.Dir] == nil {
-		obj.Blocked = true
-		return
-	}
 
 	/* Grab destination object */
 	dest := obj.Ports[obj.Dir].Obj
