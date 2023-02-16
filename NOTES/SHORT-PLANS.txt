@@ -9,6 +9,10 @@ Hoppers
 Timers, pressure switches, item spilling.
 Tile map for mined resources, and spilled items.
 
+Make array for input and output ports,
+To reduce testing unlinked ports.
+Write on link.
+
 Add ground water and surface water. Mineralized, fresh and salt.
 Water should get contaminated by dumping.
 
