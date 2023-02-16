@@ -277,7 +277,7 @@ func splitterUpdate(obj *world.ObjData) {
 	for x := 0; x < 4; x++ {
 		dir = util.RotCW(dir)
 
-		/* Is this the output? */
+		/* Is this a output? */
 		if obj.Ports[dir].PortDir != gv.PORT_OUTPUT {
 			continue
 		}
@@ -287,7 +287,7 @@ func splitterUpdate(obj *world.ObjData) {
 			obj.Active = false
 			continue
 		} else {
-			/* Otherwise output */
+			/* Output empty, proceed */
 			obj.Ports[dir].Buf.Amount = obj.Ports[input].Buf.Amount
 			obj.Ports[dir].Buf.TypeP = obj.Ports[input].Buf.TypeP
 			obj.Ports[dir].Buf.Rot = obj.Ports[input].Buf.Rot
@@ -304,7 +304,7 @@ func splitterUpdate(obj *world.ObjData) {
 
 func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Ports {
-
+		/* Input port? */
 		if port.PortDir == gv.PORT_INPUT {
 
 			if port.Buf.Amount == 0 {
