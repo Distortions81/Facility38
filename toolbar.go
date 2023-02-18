@@ -4,6 +4,7 @@ import (
 	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/world"
+	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,11 +13,13 @@ import (
 
 var (
 	toolbarCache     *ebiten.Image
+	toolbarCacheLock sync.RWMutex
 	ToolbarMax       int
 	SelectedItemType uint8 = 255
 	ToolbarItems           = []world.ToolbarItem{}
 
-	lastClick time.Time
+	lastClick    time.Time
+	ToolbarHover bool
 )
 
 /* Make default toolbar list */
@@ -38,10 +41,14 @@ func InitToolbar() {
 	}
 }
 
-var ToolbarHover bool
-
 /* Draw toolbar to an image */
-func DrawToolbar(hover bool, click bool, index int) {
+func DrawToolbar(click, hover bool, index int) {
+	if time.Since(lastClick) < time.Millisecond*150 {
+		return
+	}
+	toolbarCacheLock.Lock()
+	defer toolbarCacheLock.Unlock()
+
 	if toolbarCache == nil {
 
 		toolbarCache = ebiten.NewImage((gv.ToolBarScale+gv.ToolBarSpacing)*ToolbarMax, gv.ToolBarScale+gv.ToolBarSpacing)
@@ -88,15 +95,21 @@ func DrawToolbar(hover bool, click bool, index int) {
 			}
 		}
 
-		if hover {
-			if pos == index {
+		if pos == index {
+			if click {
+				lastClick = time.Now()
+				go func() {
+					time.Sleep(time.Millisecond * 155)
+					DrawToolbar(false, false, 0)
+				}()
+
+				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorRed)
+				ToolbarHover = true
+			} else if hover {
 				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorAqua)
 				ToolbarHover = true
-			}
-		}
 
-		if click {
-			lastClick = time.Now()
+			}
 		}
 
 		toolbarCache.DrawImage(img, op)

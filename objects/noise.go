@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/aquilax/go-perlin"
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func init() {
@@ -48,10 +47,6 @@ func NoiseMap(x, y float32, p int) float32 {
 	return val
 }
 
-func DrawResourceLegend(screen *ebiten.Image) {
-
-}
-
 var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 	{Name: "Grass",
 		TypeI:      gv.MAT_NONE,
@@ -88,9 +83,9 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		ModBlue:  true,
 
 		ResourceMultiplier: 1,
-		RedMulti:           0.6,
-		GreenMulti:         0.7,
-		BlueMulti:          1,
+		RedMulti:           0,
+		GreenMulti:         1,
+		BlueMulti:          0,
 	},
 	{Name: "Natural Gas",
 		TypeI: gv.MAT_GAS,
@@ -109,7 +104,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		ModBlue:  true,
 
 		ResourceMultiplier: 1,
-		RedMulti:           0.5,
+		RedMulti:           0.80,
 		GreenMulti:         1,
 		BlueMulti:          0,
 	},
@@ -131,8 +126,8 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 
 		ResourceMultiplier: 1,
 		RedMulti:           1,
-		GreenMulti:         1,
-		BlueMulti:          1,
+		GreenMulti:         0,
+		BlueMulti:          0,
 	},
 	{Name: "Iron Ore",
 		TypeI: gv.MAT_IRON_ORE,
@@ -151,9 +146,9 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		ModBlue:  true,
 
 		ResourceMultiplier: 1,
-		RedMulti:           0,
-		GreenMulti:         0.85,
-		BlueMulti:          1,
+		RedMulti:           1,
+		GreenMulti:         0.5,
+		BlueMulti:          0,
 	},
 	{Name: "Copper Ore",
 		TypeI: gv.MAT_COPPER_ORE,
@@ -172,9 +167,9 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		ModBlue:  true,
 
 		ResourceMultiplier: 1,
-		RedMulti:           1,
-		GreenMulti:         0.25,
-		BlueMulti:          0,
+		RedMulti:           0,
+		GreenMulti:         1,
+		BlueMulti:          1,
 	},
 	{Name: "Stone Ore",
 		TypeI: gv.MAT_STONE_ORE,
@@ -194,8 +189,8 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		ModBlue:     true,
 
 		ResourceMultiplier: 1,
-		RedMulti:           1,
-		GreenMulti:         1,
-		BlueMulti:          1,
+		RedMulti:           0.5,
+		GreenMulti:         0.5,
+		BlueMulti:          0.5,
 	},
 }

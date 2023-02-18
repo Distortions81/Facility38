@@ -93,7 +93,7 @@ func (g *Game) Update() error {
 func handleQuit() {
 	if (inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt)) ||
 		inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
-		util.Chat("Game closing...")
+		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
 		time.Sleep(time.Second * 5)
 		os.Exit(0)
 	}
@@ -118,11 +118,12 @@ func handleToolbar(rotate bool) bool {
 			ipos := int((world.MouseX) / float32(gv.ToolBarScale+gv.ToolBarSpacing))
 			item := ToolbarItems[ipos].OType
 
-			DrawToolbar(false, true, ipos)
+			DrawToolbar(true, false, ipos)
 
 			/* Actions */
 			if item.ToolbarAction != nil && !rotate {
 				item.ToolbarAction()
+				DrawToolbar(true, false, ipos)
 				//util.Chat(item.Name)
 			} else {
 				if rotate && item != nil {
@@ -133,15 +134,15 @@ func handleToolbar(rotate bool) bool {
 						dir = util.RotCW(dir)
 					}
 					item.Direction = dir
-					DrawToolbar(false, false, ipos)
+					DrawToolbar(true, false, ipos)
 					/* Deselect */
 				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI-1 {
 					SelectedItemType = 255
-					DrawToolbar(false, false, ipos)
+					DrawToolbar(true, false, ipos)
 				} else {
 					/* Select */
 					SelectedItemType = ToolbarItems[ipos].OType.TypeI - 1
-					DrawToolbar(false, false, ipos)
+					DrawToolbar(true, false, ipos)
 				}
 			}
 			gMouseHeld = false
@@ -329,8 +330,8 @@ func createWorldObjects() {
 								return
 							}
 							dir := objects.GameObjTypes[SelectedItemType].Direction
-							oPos := util.CenterXY(pos)
-							util.ChatDetailed(fmt.Sprintf("Created %v at (%v,%v)", objects.GameObjTypes[SelectedItemType].Name, oPos.X, oPos.Y), color.White, time.Second*3)
+							//oPos := util.CenterXY(pos)
+							//util.ChatDetailed(fmt.Sprintf("Created %v at (%v,%v)", objects.GameObjTypes[SelectedItemType].Name, oPos.X, oPos.Y), color.White, time.Second*3)
 
 							if gv.WASMMode {
 								objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
@@ -347,8 +348,8 @@ func createWorldObjects() {
 					if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
 
 						if o != nil {
-							oPos := util.CenterXY(pos)
-							util.ChatDetailed(fmt.Sprintf("Deleted %v at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*3)
+							//oPos := util.CenterXY(pos)
+							//util.ChatDetailed(fmt.Sprintf("Deleted %v at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*3)
 
 							if gv.WASMMode {
 								objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
@@ -444,10 +445,10 @@ func toggleOverlays() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
 		if world.ShowInfoLayer {
 			world.ShowInfoLayer = false
-			util.Chat("Info overlay is now off.")
+			util.ChatDetailed("Info overlay is now off.", world.ColorOrange, time.Second*5)
 		} else {
 			world.ShowInfoLayer = true
-			util.Chat("Info overlay is now on.")
+			util.ChatDetailed("Info overlay is now on.", world.ColorOrange, time.Second*5)
 		}
 	}
 }
@@ -476,12 +477,12 @@ func rotateWorldObjects() {
 				newdir = util.RotCCW(o.Dir)
 				util.RotatePortsCCW(o)
 				oPos := util.CenterXY(o.Pos)
-				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*3)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
 			} else {
 				newdir = util.RotCW(o.Dir)
 				util.RotatePortsCW(o)
 				oPos := util.CenterXY(o.Pos)
-				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*3)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
 			}
 			o.Dir = newdir
 			objects.LinkObj(o)
