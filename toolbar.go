@@ -98,18 +98,19 @@ func DrawToolbar(click, hover bool, index int) {
 		if pos == index {
 			if click {
 				lastClick = time.Now()
+
+				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorRed)
+				ToolbarHover = true
+
 				go func() {
 					time.Sleep(time.Millisecond * 155)
 					DrawToolbar(false, false, 0)
 				}()
-
-				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorRed)
-				ToolbarHover = true
 			} else if hover {
 				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorAqua)
 				ToolbarHover = true
-
 			}
+
 		}
 
 		toolbarCache.DrawImage(img, op)

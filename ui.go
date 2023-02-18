@@ -289,84 +289,66 @@ func getMouseClicks() {
 
 /* Look for clicks in window, create or destroy objects */
 func createWorldObjects() {
-	if gMouseHeld {
+	/* Is mouse held */
+	if !gMouseHeld {
+		return
+	}
 
-		/* UI area */
-		if !gClickCaptured {
-			/* Get mouse position on world */
-			worldMouseX := (world.MouseX/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
-			worldMouseY := (world.MouseY/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
+	/* Has the click already been captured? */
+	if gClickCaptured {
+		return
+	}
 
-			pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
+	/* Get mouse position on world */
+	worldMouseX := (world.MouseX/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
+	worldMouseY := (world.MouseY/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
 
-			if pos != gLastActionPosition {
+	pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
-				bypass := false
-				chunk := util.GetChunk(pos)
-				o := util.GetObj(pos, chunk)
+	/* Is this a new position? */
+	if pos == gLastActionPosition {
+		return
+	}
 
-				if o == nil {
+	bypass := false
+	chunk := util.GetChunk(pos)
+	o := util.GetObj(pos, chunk)
 
-					/* Prevent flopping between delete and create when dragging */
-					if gLastActionType == cDragActionTypeBuild || gLastActionType == cDragActionTypeNone {
+	if o == nil {
+		/* Prevent flopping between delete and create when dragging */
+		if gLastActionType == cDragActionTypeBuild || gLastActionType == cDragActionTypeNone {
+			if !bypass {
+				if SelectedItemType == 255 {
+					return
+				}
+				dir := objects.GameObjTypes[SelectedItemType].Direction
 
-						/*
-							size := objects.GameObjTypes[objects.SelectedItemType].Size
-							if size.X > 1 || size.Y > 1 {
-								var tx, ty int
-								for tx = 0; tx < size.X; tx++ {
-									for ty = 0; ty < size.Y; ty++ {
-										if chunk.LargeWObject[world.XY{X: pos.X + tx, Y: pos.Y + ty}] != nil {
-											cwlog.DoLog("ERROR: Occupied.")
-											bypass = true
-										}
-									}
-								}
-							}
-						*/
-
-						if !bypass {
-							if SelectedItemType == 255 {
-								return
-							}
-							dir := objects.GameObjTypes[SelectedItemType].Direction
-							//oPos := util.CenterXY(pos)
-							//util.ChatDetailed(fmt.Sprintf("Created %v at (%v,%v)", objects.GameObjTypes[SelectedItemType].Name, oPos.X, oPos.Y), color.White, time.Second*3)
-
-							if gv.WASMMode {
-								objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
-							} else {
-								go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
-							}
-
-							gLastActionPosition = pos
-							gLastActionType = cDragActionTypeBuild
-						}
-					}
+				if gv.WASMMode {
+					objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
 				} else {
-
-					if gLastActionType == cDragActionTypeDelete || gLastActionType == cDragActionTypeNone {
-
-						if o != nil {
-							//oPos := util.CenterXY(pos)
-							//util.ChatDetailed(fmt.Sprintf("Deleted %v at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*3)
-
-							if gv.WASMMode {
-								objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
-							} else {
-								go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
-							}
-							//Action completed, save position and time
-							gLastActionPosition = pos
-							gLastActionType = cDragActionTypeDelete
-						}
-					}
-
+					go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
 				}
 
+				gLastActionPosition = pos
+				gLastActionType = cDragActionTypeBuild
 			}
 		}
+		return
 	}
+
+	if gLastActionType != cDragActionTypeDelete && gLastActionType != cDragActionTypeNone {
+		return
+	}
+
+	if gv.WASMMode {
+		objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+	} else {
+		go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+	}
+	//Action completed, save position and time
+	gLastActionPosition = pos
+	gLastActionType = cDragActionTypeDelete
+
 }
 
 /* Right-click drag or WASD movement, shift run */

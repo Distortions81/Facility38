@@ -440,24 +440,23 @@ func drawWorldTooltip(screen *ebiten.Image) {
 	/* Toolbar tool tip */
 	uipix := float32((ToolbarMax * int(gv.ToolBarScale+gv.ToolBarScale)))
 
-	if world.MouseX <= uipix && world.MouseY <= gv.ToolBarScale {
-		val := int(world.MouseX / (gv.ToolBarScale + gv.ToolBarSpacing))
-		if val >= 0 && val < ToolbarMax {
-			if gMouseX != gPrevMouseX && gMouseY != gPrevMouseY {
+	val := int(world.MouseX / (gv.ToolBarScale + gv.ToolBarSpacing))
+	if world.MouseX <= uipix && world.MouseY <= gv.ToolBarScale &&
+		val >= 0 && val < ToolbarMax {
+		if gMouseX != gPrevMouseX && gMouseY != gPrevMouseY {
 
-				pos := int(world.MouseX / float32(gv.ToolBarScale+gv.ToolBarSpacing))
-				item := ToolbarItems[pos]
-				var toolTip string
+			pos := int(world.MouseX / float32(gv.ToolBarScale+gv.ToolBarSpacing))
+			item := ToolbarItems[pos]
+			var toolTip string
 
-				if item.OType.Info != "" {
-					toolTip = fmt.Sprintf("%v\n%v\n", item.OType.Name, item.OType.Info)
-				} else {
-					toolTip = fmt.Sprintf("%v\n", item.OType.Name)
-				}
-				DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG, world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen, true, false, false)
-
-				DrawToolbar(false, true, pos)
+			if item.OType.Info != "" {
+				toolTip = fmt.Sprintf("%v\n%v\n", item.OType.Name, item.OType.Info)
+			} else {
+				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
 			}
+			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG, world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen, true, false, false)
+
+			DrawToolbar(false, true, pos)
 		}
 	} else {
 		/* Erase hover highlight when mouse moves off */
