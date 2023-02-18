@@ -33,10 +33,10 @@ func SwitchLayer() {
 
 	if world.ShowResourceLayer {
 		world.ShowResourceLayer = false
-		util.Chat("Switched from resource layer to game.")
+		util.ChatDetailed("Switched from resource layer to game.", world.ColorOrange, time.Second*10)
 	} else {
 		world.ShowResourceLayer = true
-		util.Chat("Switched from game to resource layer.")
+		util.ChatDetailed("Switched from game to resource layer.", world.ColorOrange, time.Second*10)
 	}
 	for _, sChunk := range world.SuperChunkList {
 		sChunk.PixmapDirty = true
@@ -297,16 +297,13 @@ func drawResource(sChunk *world.MapSuperChunk) {
 			worldX := float32((sChunk.Pos.X * gv.SuperChunkTotal) + x)
 			worldY := float32((sChunk.Pos.Y * gv.SuperChunkTotal) + y)
 
-			var r, g, b float32 = 0.5, 0.5, 0.5
+			var r, g, b float32 = 0.01, 0.01, 0.01
 			for p, nl := range NoiseLayers {
 				if p == 0 {
 					continue
 				}
 
 				h := NoiseMap(worldX, worldY, p)
-				if !nl.InvertValue {
-					h = -h
-				}
 
 				if nl.ModRed {
 					r += (h * nl.RedMulti)
@@ -326,9 +323,9 @@ func drawResource(sChunk *world.MapSuperChunk) {
 			g = util.Max(g, 0)
 			b = util.Max(b, 0)
 
-			sChunk.ResourceMap[ppos] = byte(r * 128)
-			sChunk.ResourceMap[ppos+1] = byte(g * 128)
-			sChunk.ResourceMap[ppos+2] = byte(b * 128)
+			sChunk.ResourceMap[ppos] = byte(r * 255)
+			sChunk.ResourceMap[ppos+1] = byte(g * 255)
+			sChunk.ResourceMap[ppos+2] = byte(b * 255)
 			sChunk.ResourceMap[ppos+3] = 0xFF
 		}
 	}
