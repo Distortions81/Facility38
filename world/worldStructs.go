@@ -120,15 +120,15 @@ type ObjData struct {
 	Dir uint8 `json:"d,omitempty"`
 
 	//Internal use
-	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	KGFuel   float32              `json:"kf,omitempty"`
-	KGHeld   float32              `json:"k,omitempty"`
+	Contents  [gv.MAT_MAX]*MatData `json:"c,omitempty"`
+	KGFuel    float32              `json:"kf,omitempty"`
+	KGHeld    float32              `json:"k,omitempty"`
+	MinerData *MinerDataType       `json:"-"`
 
 	//Input/Output
 	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
 	NumInputs  uint8                    `json:"-"`
 	NumOutputs uint8                    `json:"-"`
-	MinerData  *MinerDataType
 
 	/* For round-robin */
 	LastUsedInput  uint8 `json:"-"`

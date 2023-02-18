@@ -59,12 +59,12 @@ var (
 	/* World objects and images */
 	GameObjTypes = []*world.ObjType{
 		//Game Objects
-		{ImagePath: "world-obj/basic-miner.png", ImagePathActive: "world-obj/basic-miner-active.png",
+		{ImagePath: "world-obj/basic-miner-64.png", ImagePathActive: "world-obj/basic-miner-active-64.png",
 			UIPath:       "ui/miner.png",
 			Name:         "Basic miner",
 			Info:         "Mines solid resources where placed, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicMiner,
-			Size:         world.XY{X: 1, Y: 1},
+			Size:         world.XY{X: 2, Y: 2},
 			UpdateObj:    minerUpdate,
 			InitObj:      initMiner,
 			KgHourMine:   1000,
@@ -234,10 +234,10 @@ var (
 		{Symbol: "C", Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png",
 			IsSolid: true, TypeI: gv.MAT_COAL},
 
-		{Symbol: "Oil", Name: "Oil", UnitName: " L", ImagePath: "belt-obj/coal-ore.png",
+		{Symbol: "Oil", Name: "Oil", UnitName: " L",
 			IsFluid: true, TypeI: gv.MAT_OIL},
 
-		{Symbol: "Gas", Name: "Natural Gas", UnitName: " cm", ImagePath: "belt-obj/coal-ore.png",
+		{Symbol: "Gas", Name: "Natural Gas", UnitName: " cm",
 			IsGas: true, TypeI: gv.MAT_GAS},
 
 		/* Ore */
