@@ -118,6 +118,8 @@ func handleToolbar(rotate bool) bool {
 			ipos := int((world.MouseX) / float32(gv.ToolBarScale+gv.ToolBarSpacing))
 			item := ToolbarItems[ipos].OType
 
+			DrawToolbar(false, true, ipos)
+
 			/* Actions */
 			if item.ToolbarAction != nil && !rotate {
 				item.ToolbarAction()
@@ -131,15 +133,15 @@ func handleToolbar(rotate bool) bool {
 						dir = util.RotCW(dir)
 					}
 					item.Direction = dir
-					DrawToolbar()
+					DrawToolbar(false, false, ipos)
 					/* Deselect */
 				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI-1 {
 					SelectedItemType = 255
-					DrawToolbar()
+					DrawToolbar(false, false, ipos)
 				} else {
 					/* Select */
 					SelectedItemType = ToolbarItems[ipos].OType.TypeI - 1
-					DrawToolbar()
+					DrawToolbar(false, false, ipos)
 				}
 			}
 			gMouseHeld = false

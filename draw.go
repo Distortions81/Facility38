@@ -440,18 +440,27 @@ func drawWorldTooltip(screen *ebiten.Image) {
 	if world.MouseX <= uipix && world.MouseY <= gv.ToolBarScale {
 		val := int(world.MouseX / (gv.ToolBarScale + gv.ToolBarSpacing))
 		if val >= 0 && val < ToolbarMax {
+			if gMouseX != gPrevMouseX && gMouseY != gPrevMouseY {
 
-			item := ToolbarItems[int(world.MouseX/float32(gv.ToolBarScale+gv.ToolBarSpacing))]
-			var toolTip string
+				pos := int(world.MouseX / float32(gv.ToolBarScale+gv.ToolBarSpacing))
+				item := ToolbarItems[pos]
+				var toolTip string
 
-			if item.OType.Info != "" {
-				toolTip = fmt.Sprintf("%v\n%v\n", item.OType.Name, item.OType.Info)
-			} else {
-				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
+				if item.OType.Info != "" {
+					toolTip = fmt.Sprintf("%v\n%v\n", item.OType.Name, item.OType.Info)
+				} else {
+					toolTip = fmt.Sprintf("%v\n", item.OType.Name)
+				}
+				DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG, world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen, true, false, false)
+
+				DrawToolbar(true, false, pos)
 			}
-			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG, world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen, true, false, false)
 		}
 	} else {
+		if ToolbarHover {
+			DrawToolbar(false, false, 0)
+		}
+
 		/* World Obj tool tip */
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 		chunk := util.GetChunk(pos)

@@ -4,6 +4,7 @@ import (
 	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/world"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -14,6 +15,8 @@ var (
 	ToolbarMax       int
 	SelectedItemType uint8 = 255
 	ToolbarItems           = []world.ToolbarItem{}
+
+	lastClick time.Time
 )
 
 /* Make default toolbar list */
@@ -35,8 +38,10 @@ func InitToolbar() {
 	}
 }
 
+var ToolbarHover bool
+
 /* Draw toolbar to an image */
-func DrawToolbar() {
+func DrawToolbar(hover bool, click bool, index int) {
 	if toolbarCache == nil {
 
 		toolbarCache = ebiten.NewImage((gv.ToolBarScale+gv.ToolBarSpacing)*ToolbarMax, gv.ToolBarScale+gv.ToolBarSpacing)
@@ -73,14 +78,27 @@ func DrawToolbar() {
 		}
 
 		vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorToolTipBG)
+
 		op.GeoM.Translate(x+(gv.ToolBarScale-gv.ToolBarIcons)-1, (gv.ToolBarSpacing*2)+1)
 
 		if item.SType == gv.ObjSubGame {
 
 			if item.OType.TypeI == SelectedItemType+1 {
-				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorLightAqua)
+				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorDarkGray)
 			}
 		}
+
+		if hover {
+			if pos == index {
+				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorAqua)
+				ToolbarHover = true
+			}
+		}
+
+		if click {
+			lastClick = time.Now()
+		}
+
 		toolbarCache.DrawImage(img, op)
 
 		if item.SType == gv.ObjSubGame {

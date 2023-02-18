@@ -164,7 +164,7 @@ func loadSprites() {
 	}
 
 	objects.SetupTerrainCache()
-	DrawToolbar()
+	DrawToolbar(false, false, 0)
 
 	world.SpritesLoaded.Store(true)
 }
