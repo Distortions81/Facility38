@@ -40,7 +40,7 @@ func deleteOldLines() {
 
 	/* Delete 1 excess line each time */
 	for l, line := range ChatLines {
-		if l > 1000 {
+		if l < 1000 {
 			newLines = append(newLines, line)
 			newTop++
 		}
