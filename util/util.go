@@ -38,9 +38,9 @@ func deleteOldLines() {
 	var newLines []world.ChatLines
 	var newTop int
 
-	/* Delete 1 expired line each time */
-	for _, line := range ChatLines {
-		if time.Since(line.Timestamp) < line.Lifetime {
+	/* Delete 1 excess line each time */
+	for l, line := range ChatLines {
+		if l > 1000 {
 			newLines = append(newLines, line)
 			newTop++
 		}
@@ -80,6 +80,22 @@ func Min(a, b float32) float32 {
 
 func Max(a, b float32) float32 {
 	if a >= b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func MaxI(a, b int) int {
+	if a >= b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func MinI(a, b int) int {
+	if a <= b {
 		return a
 	} else {
 		return b
