@@ -42,6 +42,7 @@ var (
 	frameCount   uint64
 
 	lastResourceString string
+	ConsoleActive      bool
 
 	BatchTop   int
 	ImageBatch [gv.ChunkSizeTotal * 3]*ebiten.Image
@@ -71,7 +72,7 @@ func drawChatLines(screen *ebiten.Image) {
 		line := util.ChatLines[x-1]
 		/* Ignore old chat lines */
 		since := time.Since(line.Timestamp)
-		if since > line.Lifetime {
+		if !ConsoleActive && since > line.Lifetime {
 			continue
 		}
 		lineNum++
@@ -132,7 +133,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw toolbar */
+	toolbarCacheLock.RLock()
 	screen.DrawImage(toolbarCache, nil)
+	toolbarCacheLock.RUnlock()
 
 	/* Tooltips */
 	drawWorldTooltip(screen)
@@ -453,12 +456,14 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				}
 				DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG, world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen, true, false, false)
 
-				DrawToolbar(true, false, pos)
+				DrawToolbar(false, true, pos)
 			}
 		}
 	} else {
+		/* Erase hover highlight when mouse moves off */
 		if ToolbarHover {
 			DrawToolbar(false, false, 0)
+			ToolbarHover = false
 		}
 
 		/* World Obj tool tip */
@@ -534,6 +539,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				humanize.Comma(int64((worldMouseY - gv.XYCenter))))
 		}
 
+		/* Tooltip for resources */
 		if world.ShowResourceLayer {
 			buf := ""
 			if gMouseX != gPrevMouseX && gMouseY != gPrevMouseY {
@@ -541,7 +547,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
 
 					if h > 0 {
-						buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, h*100.0)
+						buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
 					}
 				}
 			} else {
@@ -550,7 +556,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			}
 			if buf != "" {
 				lastResourceString = buf
-				DrawText(buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
+				DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
 					world.XY{X: int(gMouseX + 20), Y: int(gMouseY + 20)}, 11, screen, true, false, false)
 			}
 		}
