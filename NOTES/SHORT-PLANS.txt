@@ -9,6 +9,7 @@ Hoppers
 Timers, pressure switches, item spilling.
 Add to mined list: spilled items.
 Add TotalMined to save/load
+make totalmined map for quick rendering, rebuild on load.
 
 Make array for input and output ports,
 To reduce testing unlinked ports.

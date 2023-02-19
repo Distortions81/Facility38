@@ -77,8 +77,8 @@ func DrawToolbar(click, hover bool, index int) {
 		}
 
 		if item.OType.Rotatable && item.OType.Direction > 0 {
-			x := float64(gv.ToolBarScale / 2)
-			y := float64(gv.ToolBarScale / 2)
+			x := float64(gv.ToolBarIcons / 2)
+			y := float64(gv.ToolBarIcons / 2)
 			op.GeoM.Translate(-x, -y)
 			op.GeoM.Rotate(gv.NinetyDeg * float64(item.OType.Direction))
 			op.GeoM.Translate(x, y)
