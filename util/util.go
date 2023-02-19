@@ -275,9 +275,9 @@ func GetNeighborObj(src *world.ObjData, dir uint8) *world.ObjData {
 	case gv.DIR_NORTH:
 		pos.Y--
 	case gv.DIR_EAST:
-		pos.X++
+		pos.X += src.TypeP.Size.X
 	case gv.DIR_SOUTH:
-		pos.Y++
+		pos.Y += src.TypeP.Size.Y
 	case gv.DIR_WEST:
 		pos.X--
 	default:

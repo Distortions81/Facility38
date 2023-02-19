@@ -112,7 +112,7 @@ var (
 			Name:        "Basic Splitter",
 			Info:        "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
-			Size:        world.XY{X: 1, Y: 1},
+			Size:        world.XY{X: 2, Y: 2},
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
