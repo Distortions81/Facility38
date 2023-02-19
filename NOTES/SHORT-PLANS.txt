@@ -7,11 +7,11 @@ alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%
 High priority:
 Hoppers
 Timers, pressure switches, item spilling.
-Tile map for mined resources, and spilled items.
+Add to mined list: spilled items.
+Add TotalMined to save/load
 
 Make array for input and output ports,
 To reduce testing unlinked ports.
-Write on link.
 add on-link function for objects.
 
 Add ground water and surface water. Mineralized, fresh and salt.
