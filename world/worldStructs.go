@@ -42,19 +42,34 @@ type MapSuperChunk struct {
 	Lock sync.RWMutex `json:"-"`
 }
 
-type ResUsedData struct {
-	Pos  XY
-	Used [gv.NumResourceTypes]float32
+type SubObjectData struct {
+	SubPos   XY
+	Parent   *ObjData
+	Rendered bool //Flip this for quick accounting
+	Ports    ObjPortData
+}
+
+type TileData struct {
+	Mined      [gv.NumResourceTypes]float32
+	GroundTile *GroundTileData
+
+	SubObj *SubObjectData
+}
+
+type GroundTileData struct {
+	Img     ebiten.Image
+	ImgPath string
 }
 
 /* Objects that contain object map, object list and TerrainImg */
 type MapChunk struct {
 	Pos XY `json:"-"`
 
-	ObjMap         map[XY]*ObjData `json:"-"`
-	ObjList        []*ObjData      `json:"-"`
-	NumObjs        uint16          `json:"-"`
-	ResourcesMined []*ResUsedData  `json:"-"`
+	ObjMap map[XY]*ObjData  `json:"-"`
+	Tiles  map[XY]*TileData `json:"-"`
+
+	ObjList []*ObjData `json:"-"`
+	NumObjs uint16     `json:"-"`
 
 	Parent *MapSuperChunk `json:"-"`
 
@@ -107,8 +122,6 @@ type MinerDataType struct {
 	Resources      []float32
 	ResourcesType  []uint8
 	ResourcesCount uint8
-
-	TotalMined *ResUsedData
 }
 
 /* Object data */
@@ -124,6 +137,7 @@ type ObjData struct {
 	KGFuel    float32              `json:"kf,omitempty"`
 	KGHeld    float32              `json:"k,omitempty"`
 	MinerData *MinerDataType       `json:"-"`
+	Tile      *TileData            `json:"-"`
 
 	//Input/Output
 	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
