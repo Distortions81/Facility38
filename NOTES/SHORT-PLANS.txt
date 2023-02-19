@@ -55,3 +55,10 @@ We will need to check for space for non-square objects.
 also rotate ports as usual.
 
 Show ghost preview when item is selected for placing.
+
+NEW DATA FORMAT:
+MAP: *TileObjData:
+*Obj
+*Sub-Obj/ParentObj
+*MinedResources
+*Spilled Resources/Items?
