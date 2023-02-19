@@ -452,6 +452,7 @@ func CreateObjMultiTile(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	obj.TypeP = GameObjTypes[mtype]
 
 	obj.Parent.Lock.Lock()
+
 	obj.Parent.ObjMap[pos] = obj
 	obj.Parent.ObjList =
 		append(obj.Parent.ObjList, obj)
