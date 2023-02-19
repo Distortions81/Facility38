@@ -150,6 +150,14 @@ func minerUpdate(obj *world.ObjData) {
 		amount := obj.TypeP.KgMineEach * float32(obj.MinerData.Resources[pick])
 		kind := MatTypes[obj.MinerData.ResourcesType[pick]]
 
+		/* Stop if the amount is extremely small, zero or negative */
+		if amount <= 0.001 {
+			continue
+		}
+
+		/* Tally the amount taken as well as the type */
+		obj.MinerData.TotalMined.Used[pick] += amount
+
 		/* Are we are mining coal? */
 		if obj.MinerData.ResourcesType[pick] == gv.MAT_COAL &&
 			obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {

@@ -380,6 +380,27 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 			continue
 		}
 
+		for _, res := range chunk.ResourcesMined {
+			for _, used := range res.Used {
+				if used > 0 {
+
+					scX := (((scPos.X) * (gv.MaxSuperChunk)) - gv.XYCenter)
+					scY := (((scPos.Y) * (gv.MaxSuperChunk)) - gv.XYCenter)
+
+					x := int((res.Pos.X - gv.XYCenter) - scX)
+					y := int((res.Pos.Y - gv.XYCenter) - scY)
+
+					ppos := 4 * (x + y*gv.SuperChunkTotal)
+
+					ObjPix[ppos] = 0xff
+					ObjPix[ppos+1] = 0x00
+					ObjPix[ppos+2] = 0x00
+					ObjPix[ppos+3] = 0xff
+					break
+				}
+			}
+		}
+
 		/* Draw objects in chunk */
 		for _, obj := range chunk.ObjList {
 			scX := (((scPos.X) * (gv.MaxSuperChunk)) - gv.XYCenter)

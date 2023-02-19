@@ -454,7 +454,9 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			} else {
 				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
 			}
-			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG, world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen, true, false, false)
+			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG,
+				world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen,
+				true, false, false)
 
 			DrawToolbar(false, true, pos)
 		}
