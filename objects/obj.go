@@ -420,7 +420,7 @@ func ExploreMap(pos world.XY, input int) {
 			if gv.WASMMode {
 				time.Sleep(time.Nanosecond)
 			} else {
-				time.Sleep(time.Millisecond)
+				time.Sleep(time.Microsecond * 100)
 			}
 		}
 	}
@@ -428,8 +428,79 @@ func ExploreMap(pos world.XY, input int) {
 	time.Sleep(time.Millisecond)
 }
 
+/* Create a multi-tile object */
+func CreateObjMultiTile(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
+
+	//Make chunk if needed
+	if MakeChunk(pos) {
+		ExploreMap(pos, 4)
+	}
+	chunk := util.GetChunk(pos)
+	obj := util.GetObj(pos, chunk)
+
+	if obj != nil {
+		return nil
+	}
+
+	world.VisDataDirty.Store(true)
+
+	obj = &world.ObjData{}
+
+	obj.Pos = pos
+	obj.Parent = chunk
+
+	obj.TypeP = GameObjTypes[mtype]
+
+	obj.Parent.Lock.Lock()
+	obj.Parent.ObjMap[pos] = obj
+	obj.Parent.ObjList =
+		append(obj.Parent.ObjList, obj)
+	obj.Parent.Parent.PixmapDirty = true
+	obj.Parent.NumObjs++
+	obj.Parent.Lock.Unlock()
+
+	for p, port := range obj.TypeP.Ports {
+		if obj.Ports[p] == nil {
+			obj.Ports[p] = &world.ObjPortData{}
+		}
+		obj.Ports[p].PortDir = port
+	}
+
+	obj.Dir = dir
+
+	for x := 0; x < int(dir); x++ {
+		util.RotatePortsCW(obj)
+	}
+
+	if obj.TypeP.CanContain {
+		obj.Contents = [gv.MAT_MAX]*world.MatData{}
+	}
+
+	if obj.TypeP.MaxFuelKG > 0 {
+		obj.KGFuel = obj.TypeP.MaxFuelKG
+	}
+
+	LinkObj(obj)
+
+	/* Only add to list if the object calls an update function */
+	if obj.TypeP.UpdateObj != nil {
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+	}
+
+	if util.ObjHasPort(obj, gv.PORT_OUTPUT) {
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+	}
+
+	/* Init obj if we have a function for it */
+	if obj.TypeP.InitObj != nil {
+		obj.TypeP.InitObj(obj)
+	}
+
+	return obj
+}
+
 /* Create an object, place self in superchunk, chunk and ObjMap, ObjList, add tick/tock events, link inputs/outputs */
-func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
+func CreateObjSingleTile(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 	//Make chunk if needed
 	if MakeChunk(pos) {
@@ -546,7 +617,7 @@ func runObjQueue() {
 
 		} else {
 			//Add
-			CreateObj(item.Pos, item.OType, item.Dir)
+			CreateObjSingleTile(item.Pos, item.OType, item.Dir)
 		}
 	}
 

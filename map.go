@@ -43,16 +43,16 @@ func makeTestMap(skip bool) {
 				cols++
 
 				tx := int(gv.XYCenter) - (columns*(beltLength+hSpace))/2
-				objects.CreateObj(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
+				objects.CreateObjSingleTile(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
-					objects.CreateObj(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
+					objects.CreateObjSingleTile(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
 					Loaded++
 				}
 				tx++
-				objects.CreateObj(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
+				objects.CreateObjSingleTile(world.XY{X: tx + (cols * beltLength), Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
 				Loaded++
 
 				if cols%columns == 0 {
@@ -68,54 +68,54 @@ func makeTestMap(skip bool) {
 			ty := int(gv.XYCenter)
 			total = 16
 
-			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
+			objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
+				objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_EAST)
 				Loaded++
 			}
 			tx++
-			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
+			objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_EAST)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter - 2)
-			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_WEST)
+			objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_WEST)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
-				objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_WEST)
+				objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_WEST)
 				Loaded++
 			}
 			tx--
-			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_WEST)
+			objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_WEST)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter + 2)
-			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_SOUTH)
+			objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_SOUTH)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
-				objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_SOUTH)
+				objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_SOUTH)
 				Loaded++
 			}
 			ty++
-			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_SOUTH)
+			objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_SOUTH)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter - 4)
-			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_NORTH)
+			objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicMiner, gv.DIR_NORTH)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
-				objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_NORTH)
+				objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBelt, gv.DIR_NORTH)
 				Loaded++
 			}
 			ty--
-			objects.CreateObj(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_NORTH)
+			objects.CreateObjSingleTile(world.XY{X: tx, Y: ty}, gv.ObjTypeBasicBox, gv.DIR_NORTH)
 			Loaded++
 
 			world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
