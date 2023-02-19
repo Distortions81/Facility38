@@ -60,5 +60,7 @@ NEW DATA FORMAT:
 MAP: *TileObjData:
 *Obj
 *Sub-Obj/ParentObj
+
+ResMap:
 *MinedResources
 *Spilled Resources/Items?
