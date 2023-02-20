@@ -20,7 +20,8 @@ const (
 	maxPixmapCache     = 500
 	maxPixmapCacheWASM = 50
 	minPixmapTime      = time.Minute
-	pixmapRenderLoop   = time.Nanosecond
+	pixmapRenderLoop   = time.Millisecond * 10
+	resouceRenderLoop  = time.Second * 10
 )
 
 var (
@@ -280,6 +281,25 @@ func PixmapRenderDaemon() {
 	}
 }
 
+/* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
+func ResouceRenderDaemon() {
+
+	for {
+		time.Sleep(resouceRenderLoop)
+
+		world.SuperChunkListLock.RLock()
+		for _, sChunk := range world.SuperChunkList {
+			sChunk.ResourceLock.Lock()
+			if sChunk.ResourceMap == nil || sChunk.ResouceDirty {
+				drawResource(sChunk)
+				sChunk.ResouceDirty = false
+			}
+			sChunk.ResourceLock.Unlock()
+		}
+		world.SuperChunkListLock.RUnlock()
+	}
+}
+
 func drawResource(sChunk *world.MapSuperChunk) {
 	if sChunk == nil {
 		return
@@ -305,6 +325,14 @@ func drawResource(sChunk *world.MapSuperChunk) {
 
 				h := NoiseMap(worldX, worldY, p)
 
+				Chunk := sChunk.ChunkMap[util.PosToChunkPos(world.XY{X: int(worldX), Y: int(worldY)})]
+				if Chunk != nil {
+					Tile := Chunk.Tiles[world.XY{X: x, Y: y}]
+
+					if Tile != nil {
+						h -= (Tile.Mined[p] / 150)
+					}
+				}
 				if nl.ModRed {
 					r += (h * nl.RedMulti)
 				}
@@ -378,27 +406,6 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 	for _, chunk := range sChunk.ChunkList {
 		if chunk.NumObjs <= 0 {
 			continue
-		}
-
-		for _, res := range chunk.ResourcesMined {
-			for _, used := range res.Used {
-				if used > 0 {
-
-					scX := (((scPos.X) * (gv.MaxSuperChunk)) - gv.XYCenter)
-					scY := (((scPos.Y) * (gv.MaxSuperChunk)) - gv.XYCenter)
-
-					x := int((res.Pos.X - gv.XYCenter) - scX)
-					y := int((res.Pos.Y - gv.XYCenter) - scY)
-
-					ppos := 4 * (x + y*gv.SuperChunkTotal)
-
-					ObjPix[ppos] = 0xff
-					ObjPix[ppos+1] = 0x00
-					ObjPix[ppos+2] = 0x00
-					ObjPix[ppos+3] = 0xff
-					break
-				}
-			}
 		}
 
 		/* Draw objects in chunk */

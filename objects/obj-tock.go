@@ -64,38 +64,15 @@ func initMiner(obj *world.ObjData) {
 	}
 
 	/* Init ResourcesMined if needed */
-	if obj.Parent.ResourcesMined == nil {
-		obj.Parent.ResourcesMined = []*world.ResUsedData{}
+	if obj.Parent.Tiles[obj.Pos] == nil {
+		obj.Parent.Tiles[obj.Pos] = &world.TileData{}
 	}
 
 	/*
-	 * Lets check if this chunk and position has ResourcesMined data.
-	 * If it does not:
-	 *
-	 * Init our position in the ResourcesMined list now
-	 * so that threaded access is possible later.
-	 * Also link to the data in obj's MinerData, to avoid lookups
+	 * Add a link to our tile
+	 * To avoid lookup cost
 	 */
-
-	found := false
-	for i, item := range obj.Parent.ResourcesMined {
-		if item.Pos == obj.Pos {
-			//Add a link to our position in the list, for access later
-			obj.MinerData.TotalMined = obj.Parent.ResourcesMined[i]
-			found = true
-			break
-		}
-	}
-
-	/* Not found, add */
-	if !found {
-		insert := &world.ResUsedData{Pos: obj.Pos}
-		obj.Parent.ResourcesMined = append(obj.Parent.ResourcesMined, insert)
-
-		//Add a link to our position in the list, for access later
-		obj.MinerData.TotalMined = insert
-	}
-
+	obj.Tile = obj.Parent.Tiles[obj.Pos]
 }
 
 func minerUpdate(obj *world.ObjData) {
@@ -156,7 +133,7 @@ func minerUpdate(obj *world.ObjData) {
 		}
 
 		/* Tally the amount taken as well as the type */
-		obj.MinerData.TotalMined.Used[pick] += amount
+		obj.Tile.Mined[pick] += amount
 
 		/* Are we are mining coal? */
 		if obj.MinerData.ResourcesType[pick] == gv.MAT_COAL &&

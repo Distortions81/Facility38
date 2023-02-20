@@ -137,6 +137,7 @@ func makeTestMap(skip bool) {
 		go objects.RenderTerrainDaemon()
 		go objects.PixmapRenderDaemon()
 		go objects.ObjUpdateDaemon()
+		go objects.ResouceRenderDaemon()
 	} else {
 		go objects.ObjUpdateDaemonST()
 	}

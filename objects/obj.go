@@ -377,7 +377,7 @@ func MakeChunk(pos world.XY) bool {
 			append(world.SuperChunkMap[scpos].ChunkList, world.SuperChunkMap[scpos].ChunkMap[cpos])
 
 		world.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap = make(map[world.XY]*world.ObjData)
-
+		world.SuperChunkMap[scpos].ChunkMap[cpos].Tiles = make(map[world.XY]*world.TileData)
 		/* Terrain img */
 		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainImage = world.TempChunkImage
 		world.SuperChunkMap[scpos].ChunkMap[cpos].UsingTemporary = true

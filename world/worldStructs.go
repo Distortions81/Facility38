@@ -29,6 +29,7 @@ type MapSuperChunk struct {
 	ChunkList []*MapChunk      `json:"-"`
 	NumChunks uint16           `json:"-"`
 
+	ResouceDirty bool
 	ResourceMap  []byte `json:"-"`
 	ResourceLock sync.Mutex
 
