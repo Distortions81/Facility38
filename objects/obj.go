@@ -563,6 +563,10 @@ func removeObj(obj *world.ObjData) {
 	obj.Parent.Lock.Lock()
 	defer obj.Parent.Lock.Unlock()
 
+	if obj.TypeP.TypeI == gv.ObjTypeBasicMiner {
+		obj.Parent.Parent.ResouceDirty = true
+	}
+
 	obj.Parent.NumObjs--
 	delete(obj.Parent.ObjMap, obj.Pos)
 	util.ObjListDelete(obj)
