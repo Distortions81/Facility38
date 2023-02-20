@@ -141,7 +141,6 @@ type ObjData struct {
 	KGFuel    float32              `json:"kf,omitempty"`
 	KGHeld    float32              `json:"k,omitempty"`
 	MinerData *MinerDataType       `json:"-"`
-	Tile      *TileData            `json:"-"`
 
 	//Input/Output
 	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
