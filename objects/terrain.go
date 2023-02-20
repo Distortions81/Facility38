@@ -284,8 +284,8 @@ func PixmapRenderDaemon() {
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func ResouceRenderDaemon() {
 
+	time.Sleep(time.Second * 5)
 	for {
-		time.Sleep(resouceRenderLoop)
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
@@ -297,6 +297,8 @@ func ResouceRenderDaemon() {
 			sChunk.ResourceLock.Unlock()
 		}
 		world.SuperChunkListLock.RUnlock()
+
+		time.Sleep(resouceRenderLoop)
 	}
 }
 
