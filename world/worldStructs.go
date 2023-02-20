@@ -44,10 +44,9 @@ type MapSuperChunk struct {
 }
 
 type SubObjectData struct {
-	SubPos   XY
-	Parent   *ObjData
-	Rendered bool //Flip this for quick accounting
-	Ports    ObjPortData
+	SubPos XY
+	Parent *ObjData
+	Ports  ObjPortData
 }
 
 type TileData struct {
