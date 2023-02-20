@@ -75,9 +75,9 @@ type MapChunk struct {
 	BuildingMap map[XY]*BuildingData `json:"-"`
 	TileMap     map[XY]*TileData     `json:"-"`
 
-	ObjList  []*ObjData `json:"-"`
-	TileList []*ObjData `json:"-"`
-	NumObjs  uint16     `json:"-"`
+	ObjList []*ObjData `json:"-"`
+	//TileList []*ObjData `json:"-"`
+	NumObjs uint16 `json:"-"`
 
 	Parent *MapSuperChunk `json:"-"`
 
