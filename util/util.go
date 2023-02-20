@@ -192,9 +192,13 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 func GetObj(pos world.XY, chunk *world.MapChunk) *world.ObjData {
 	if chunk != nil {
 		chunk.Lock.RLock()
-		o := chunk.ObjMap[pos]
+		o := chunk.BuildingMap[pos]
 		chunk.Lock.RUnlock()
-		return o
+		if o != nil {
+			return o.Obj
+		} else {
+			return nil
+		}
 	} else {
 		return nil
 	}

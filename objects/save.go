@@ -263,7 +263,7 @@ func LoadGame() {
 			chunk := util.GetChunk(util.UnCenterXY(tempList.Objects[i].Pos))
 			obj.Parent = chunk
 
-			obj.Parent.ObjMap[util.UnCenterXY(tempList.Objects[i].Pos)] = obj
+			obj.Parent.BuildingMap[util.UnCenterXY(tempList.Objects[i].Pos)].Obj = obj
 			obj.Parent.ObjList = append(obj.Parent.ObjList, obj)
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjs++
@@ -341,7 +341,7 @@ func NukeWorld() {
 			}
 
 			world.SuperChunkList[sc].ChunkList[c].ObjList = nil
-			world.SuperChunkList[sc].ChunkList[c].ObjMap = nil
+			world.SuperChunkList[sc].ChunkList[c].BuildingMap = nil
 		}
 		world.SuperChunkList[sc].ChunkList = nil
 		world.SuperChunkList[sc].ChunkMap = nil

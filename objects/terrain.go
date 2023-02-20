@@ -326,7 +326,7 @@ func drawResource(sChunk *world.MapSuperChunk) {
 
 				Chunk := sChunk.ChunkMap[util.PosToChunkPos(world.XY{X: int(worldX), Y: int(worldY)})]
 				if Chunk != nil {
-					Tile := Chunk.Tiles[world.XY{X: x, Y: y}]
+					Tile := Chunk.TileMap[world.XY{X: x, Y: y}]
 
 					if Tile != nil {
 						h -= (Tile.Mined[p] / 150)

@@ -449,7 +449,7 @@ func rotateWorldObjects() {
 		if chunk == nil {
 			return
 		}
-		o := chunk.ObjMap[pos]
+		o := util.GetObj(pos, chunk)
 
 		if o != nil {
 

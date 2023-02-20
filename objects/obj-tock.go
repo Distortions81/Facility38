@@ -64,15 +64,15 @@ func initMiner(obj *world.ObjData) {
 	}
 
 	/* Init ResourcesMined if needed */
-	if obj.Parent.Tiles[obj.Pos] == nil {
-		obj.Parent.Tiles[obj.Pos] = &world.TileData{}
+	if obj.Parent.TileMap[obj.Pos] == nil {
+		obj.Parent.TileMap[obj.Pos] = &world.TileData{}
 	}
 
 	/*
 	 * Add a link to our tile
 	 * To avoid lookup cost
 	 */
-	obj.Tile = obj.Parent.Tiles[obj.Pos]
+	obj.Tile = obj.Parent.TileMap[obj.Pos]
 }
 
 func minerUpdate(obj *world.ObjData) {

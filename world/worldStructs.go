@@ -52,8 +52,6 @@ type SubObjectData struct {
 type TileData struct {
 	Mined      [gv.NumResourceTypes]float32
 	GroundTile *GroundTileData
-
-	SubObj *SubObjectData
 }
 
 type GroundTileData struct {
@@ -61,15 +59,21 @@ type GroundTileData struct {
 	ImgPath string
 }
 
+type BuildingData struct {
+	Obj    *ObjData
+	SubObj *SubObjectData
+}
+
 /* Objects that contain object map, object list and TerrainImg */
 type MapChunk struct {
 	Pos XY `json:"-"`
 
-	ObjMap map[XY]*ObjData  `json:"-"`
-	Tiles  map[XY]*TileData `json:"-"`
+	BuildingMap map[XY]*BuildingData `json:"-"`
+	TileMap     map[XY]*TileData     `json:"-"`
 
-	ObjList []*ObjData `json:"-"`
-	NumObjs uint16     `json:"-"`
+	ObjList  []*ObjData `json:"-"`
+	TileList []*ObjData `json:"-"`
+	NumObjs  uint16     `json:"-"`
 
 	Parent *MapSuperChunk `json:"-"`
 

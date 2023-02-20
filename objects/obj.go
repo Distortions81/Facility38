@@ -376,8 +376,9 @@ func MakeChunk(pos world.XY) bool {
 		world.SuperChunkMap[scpos].ChunkList =
 			append(world.SuperChunkMap[scpos].ChunkList, world.SuperChunkMap[scpos].ChunkMap[cpos])
 
-		world.SuperChunkMap[scpos].ChunkMap[cpos].ObjMap = make(map[world.XY]*world.ObjData)
-		world.SuperChunkMap[scpos].ChunkMap[cpos].Tiles = make(map[world.XY]*world.TileData)
+		world.SuperChunkMap[scpos].ChunkMap[cpos].BuildingMap = make(map[world.XY]*world.BuildingData)
+		world.SuperChunkMap[scpos].ChunkMap[cpos].TileMap = make(map[world.XY]*world.TileData)
+
 		/* Terrain img */
 		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainImage = world.TempChunkImage
 		world.SuperChunkMap[scpos].ChunkMap[cpos].UsingTemporary = true
@@ -453,7 +454,8 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 	obj.Parent.Lock.Lock()
 
-	obj.Parent.ObjMap[pos] = obj
+	obj.Parent.BuildingMap[pos] = &world.BuildingData{}
+	obj.Parent.BuildingMap[pos].Obj = obj
 
 	/*Multi-tile object*/
 
@@ -568,7 +570,7 @@ func removeObj(obj *world.ObjData) {
 	}
 
 	obj.Parent.NumObjs--
-	delete(obj.Parent.ObjMap, obj.Pos)
+	delete(obj.Parent.BuildingMap, obj.Pos)
 	util.ObjListDelete(obj)
 
 	obj.Parent.Parent.PixmapDirty = true
