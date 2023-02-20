@@ -63,10 +63,9 @@ func initMiner(obj *world.ObjData) {
 		return /* Stop here */
 	}
 
-	/* Init ResourcesMined if needed */
-	if obj.Parent.TileMap[obj.Pos] == nil {
-		obj.Parent.TileMap[obj.Pos] = &world.TileData{}
-	}
+	/* Init miner data */
+	obj.Parent.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
+	obj.Tile = obj.Parent.TileMap[obj.Pos]
 }
 
 func minerUpdate(obj *world.ObjData) {
@@ -127,7 +126,7 @@ func minerUpdate(obj *world.ObjData) {
 		}
 
 		/* Tally the amount taken as well as the type */
-		obj.Tile.Mined[pick] += amount
+		obj.Tile.MinerData.Mined[pick] += amount
 
 		/* Are we are mining coal? */
 		if obj.MinerData.ResourcesType[pick] == gv.MAT_COAL &&

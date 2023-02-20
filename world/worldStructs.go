@@ -50,7 +50,7 @@ type SubObjectData struct {
 }
 
 type TileData struct {
-	Mined      [gv.NumResourceTypes]float32
+	MinerData  *MinerData
 	GroundTile *GroundTileData
 }
 
@@ -62,6 +62,10 @@ type GroundTileData struct {
 type BuildingData struct {
 	Obj    *ObjData
 	SubObj *SubObjectData
+}
+
+type MinerData struct {
+	Mined [gv.NumResourceTypes]float32
 }
 
 /* Objects that contain object map, object list and TerrainImg */
@@ -141,6 +145,7 @@ type ObjData struct {
 	KGFuel    float32              `json:"kf,omitempty"`
 	KGHeld    float32              `json:"k,omitempty"`
 	MinerData *MinerDataType       `json:"-"`
+	Tile      *TileData            `json:"-"`
 
 	//Input/Output
 	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`

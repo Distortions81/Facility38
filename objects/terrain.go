@@ -329,7 +329,7 @@ func drawResource(sChunk *world.MapSuperChunk) {
 					Tile := Chunk.TileMap[world.XY{X: x, Y: y}]
 
 					if Tile != nil {
-						h -= (Tile.Mined[p] / 150)
+						h -= (Tile.MinerData.Mined[p] / 150)
 					}
 				}
 				if nl.ModRed {
