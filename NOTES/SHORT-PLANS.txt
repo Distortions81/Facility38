@@ -56,11 +56,5 @@ also rotate ports as usual.
 
 Show ghost preview when item is selected for placing.
 
-NEW DATA FORMAT:
-MAP: *TileObjData:
-*Obj
-*Sub-Obj/ParentObj
-
-ResMap:
-*MinedResources
-*Spilled Resources/Items?
+*** Fix saving breaking item links ***
+Finish multi-tile
