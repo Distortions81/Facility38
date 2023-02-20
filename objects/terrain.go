@@ -305,7 +305,6 @@ func drawResource(sChunk *world.MapSuperChunk) {
 		return
 	}
 
-	sChunk.ResourceLock.Lock()
 	if sChunk.ResourceMap == nil {
 		sChunk.ResourceMap = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
 	}
@@ -358,8 +357,6 @@ func drawResource(sChunk *world.MapSuperChunk) {
 		}
 	}
 	sChunk.PixmapDirty = true
-	sChunk.ResourceLock.Unlock()
-
 }
 
 /* Draw a superchunk's pixmap, allocates image if needed. */
