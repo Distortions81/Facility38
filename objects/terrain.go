@@ -29,22 +29,6 @@ var (
 	numPixmapCache  int
 )
 
-func SwitchLayer() {
-	world.ShowResourceLayerLock.Lock()
-
-	if world.ShowResourceLayer {
-		world.ShowResourceLayer = false
-		util.ChatDetailed("Switched from resource layer to game.", world.ColorOrange, time.Second*10)
-	} else {
-		world.ShowResourceLayer = true
-		util.ChatDetailed("Switched from game to resource layer.", world.ColorOrange, time.Second*10)
-	}
-	for _, sChunk := range world.SuperChunkList {
-		sChunk.PixmapDirty = true
-	}
-	world.ShowResourceLayerLock.Unlock()
-}
-
 /* Make a 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
 
