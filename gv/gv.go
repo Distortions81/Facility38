@@ -13,8 +13,7 @@ var (
 	UPSBench     = false
 	LoadTest     = false
 	Debug        = false
-	LogStdOut    = false
-	LogFileOut   = false
+	LogStdOut    = true
 	WASMMode     = false
 
 	ResourceLegendImage *ebiten.Image

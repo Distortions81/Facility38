@@ -52,21 +52,25 @@ func deleteOldLines() {
 func Chat(text string) {
 	go func(text string) {
 		ChatLinesLock.Lock()
-		defer ChatLinesLock.Unlock()
 		deleteOldLines()
 
 		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color.White, BGColor: world.ColorToolTipBG, Lifetime: time.Second * 15, Timestamp: time.Now()})
 		ChatLinesTop++
+
+		ChatLinesLock.Unlock()
+		cwlog.DoLog("Chat: " + text)
 	}(text)
 }
 func ChatDetailed(text string, color color.Color, life time.Duration) {
 	go func(text string) {
 		ChatLinesLock.Lock()
-		defer ChatLinesLock.Unlock()
 		deleteOldLines()
 
 		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color, BGColor: world.ColorToolTipBG, Lifetime: life, Timestamp: time.Now()})
 		ChatLinesTop++
+
+		ChatLinesLock.Unlock()
+		cwlog.DoLog("Chat: " + text)
 	}(text)
 }
 

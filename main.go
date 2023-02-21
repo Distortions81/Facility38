@@ -40,7 +40,6 @@ func main() {
 
 	if NoDebug == "true" {
 		gv.Debug = false
-		gv.LogFileOut = false
 		gv.LogStdOut = false
 		gv.UPSBench = false
 		gv.LoadTest = false
@@ -48,6 +47,9 @@ func main() {
 	if WASMMode == "true" {
 		gv.WASMMode = true
 		world.WorkChunks = 1
+	} else {
+		cwlog.StartLog()
+		cwlog.LogDaemon()
 	}
 	if UPSBench == "true" {
 		gv.UPSBench = true
@@ -56,7 +58,6 @@ func main() {
 		gv.LoadTest = true
 	}
 	InitToolbar()
-	cwlog.StartLog()
 
 	str, err := data.GetText("intro")
 	if err != nil {
