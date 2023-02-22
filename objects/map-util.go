@@ -32,8 +32,6 @@ func makeSuperChunk(pos world.XY) {
 		/* Save position */
 		world.SuperChunkMap[scpos].Pos = scpos
 
-		//(newSuperChunk)
-
 		world.SuperChunkMap[scpos].Lock.Unlock()
 	}
 	world.SuperChunkListLock.Unlock()

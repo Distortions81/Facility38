@@ -67,6 +67,7 @@ var (
 			Size:         world.XY{X: 2, Y: 2},
 			UpdateObj:    minerUpdate,
 			InitObj:      initMiner,
+			DeInitObj:    deinitMiner,
 			KgHourMine:   1000,
 			KW:           360,
 			Interval:     uint8(world.ObjectUPS) * 2,

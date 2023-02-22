@@ -56,3 +56,9 @@ func initMiner(obj *world.ObjData) {
 	obj.Parent.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
 	obj.Tile = obj.Parent.TileMap[obj.Pos]
 }
+
+func deinitMiner(obj *world.ObjData) {
+
+	/* Update resource map on remove */
+	obj.Parent.Parent.ResouceDirty = true
+}
