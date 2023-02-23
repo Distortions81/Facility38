@@ -13,11 +13,10 @@ func LinkObj(obj *world.ObjData) {
 	for p, port := range obj.Ports {
 
 		if obj.Ports[p] == nil {
-			obj.Ports[p] = &world.ObjPortData{}
 			continue
 		}
 
-		/* Make sure our port is empty */
+		/* Make sure port is unoccupied */
 		if port.Obj != nil {
 			continue
 		}
