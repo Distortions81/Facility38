@@ -75,7 +75,14 @@ var (
 			ToolBarArrow: true,
 			ShowBlocked:  true,
 			Symbol:       "MINE",
-			Ports:        [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+			SubObjs: []world.SubObjectData{
+				{SubPos: world.XY{},
+					OutPorts: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH},
+					},
+					FuelIn: world.ObjPortData{},
+				},
+			},
 		},
 
 		{ImagePath: "world-obj/basic-belt.png",
@@ -86,7 +93,16 @@ var (
 			Rotatable: true,
 			UpdateObj: beltUpdate,
 			Symbol:    "BELT",
-			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+			SubObjs: []world.SubObjectData{
+				{SubPos: world.XY{},
+					OutPorts: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH},
+					},
+					InPorts: []world.ObjPortData{
+						{Dir: gv.DIR_EAST}, {Dir: gv.DIR_SOUTH}, {Dir: gv.DIR_WEST},
+					},
+				},
+			},
 		},
 		{ImagePath: "world-obj/basic-belt-inter-right.png",
 			Name:      "Basic Intersection-Right",
@@ -96,7 +112,16 @@ var (
 			Rotatable: true,
 			UpdateObj: beltUpdateInter,
 			Symbol:    "iBLT",
-			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+			SubObjs: []world.SubObjectData{
+				{SubPos: world.XY{},
+					OutPorts: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH}, {Dir: gv.DIR_EAST},
+					},
+					InPorts: []world.ObjPortData{
+						{Dir: gv.DIR_WEST}, {Dir: gv.DIR_SOUTH},
+					},
+				},
+			},
 		},
 		{ImagePath: "world-obj/basic-belt-inter-left.png",
 			Name:      "Basic Intersection-Left",
@@ -106,7 +131,16 @@ var (
 			Rotatable: true,
 			UpdateObj: beltUpdateInter,
 			Symbol:    "iBLT",
-			Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
+			SubObjs: []world.SubObjectData{
+				{SubPos: world.XY{},
+					OutPorts: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH}, {Dir: gv.DIR_WEST},
+					},
+					InPorts: []world.ObjPortData{
+						{Dir: gv.DIR_EAST}, {Dir: gv.DIR_SOUTH},
+					},
+				},
+			},
 		},
 
 		{ImagePath: "world-obj/basic-splitter.png", ImagePathActive: "world-obj/basic-splitter-active.png",
@@ -121,7 +155,16 @@ var (
 			KW:          100,
 			UpdateObj:   splitterUpdate,
 			Symbol:      "SPLT",
-			Ports:       [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_OUTPUT},
+			SubObjs: []world.SubObjectData{
+				{SubPos: world.XY{},
+					OutPorts: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH}, {Dir: gv.DIR_EAST}, {Dir: gv.DIR_WEST},
+					},
+					InPorts: []world.ObjPortData{
+						{Dir: gv.DIR_SOUTH},
+					},
+				},
+			},
 		},
 
 		{ImagePath: "world-obj/basic-box.png", ImagePathActive: "world-obj/basic-box-active.png",
@@ -136,7 +179,13 @@ var (
 			CanContain:   true,
 			ShowBlocked:  false,
 			ToolBarArrow: false,
-			Ports:        [gv.DIR_MAX]uint8{gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+			SubObjs: []world.SubObjectData{
+				{SubPos: world.XY{},
+					InPorts: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH}, {Dir: gv.DIR_EAST}, {Dir: gv.DIR_SOUTH}, {Dir: gv.DIR_WEST},
+					},
+				},
+			},
 		},
 
 		{ImagePath: "world-obj/basic-smelter.png", ImagePathActive: "world-obj/basic-smelter-active.png",
@@ -153,7 +202,17 @@ var (
 			ToolBarArrow: true,
 			Symbol:       "SMLT",
 			UpdateObj:    smelterUpdate,
-			Ports:        [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+			SubObjs: []world.SubObjectData{
+				{SubPos: world.XY{},
+					OutPorts: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH},
+					},
+					InPorts: []world.ObjPortData{
+						{Dir: gv.DIR_SOUTH},
+					},
+					FuelIn: world.ObjPortData{},
+				},
+			},
 		},
 
 		{ImagePath: "world-obj/basic-fuel-hopper.png",
@@ -166,7 +225,14 @@ var (
 			ShowBlocked: true,
 			UpdateObj:   fuelHopperUpdate,
 			Symbol:      "FHOP",
-			Ports:       [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+			SubObjs: []world.SubObjectData{
+				{SubPos: world.XY{},
+					InPorts: []world.ObjPortData{
+						{Dir: gv.DIR_SOUTH},
+					},
+					FuelOut: world.ObjPortData{},
+				},
+			},
 		},
 
 		/*		{ImagePath: "world-obj/iron-rod-caster.png",
