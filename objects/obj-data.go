@@ -76,11 +76,15 @@ var (
 			ShowBlocked:  true,
 			Symbol:       "MINE",
 			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{},
-					OutPorts: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH},
+				{SubPos: world.XY{X: 0, Y: 0},
+					Ports: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT}, {Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
 					},
-					FuelIn: world.ObjPortData{},
+				},
+				{SubPos: world.XY{X: 1, Y: 1},
+					Ports: []world.ObjPortData{
+						{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
+					},
 				},
 			},
 		},
@@ -95,11 +99,11 @@ var (
 			Symbol:    "BELT",
 			SubObjs: []world.SubObjectData{
 				{SubPos: world.XY{},
-					OutPorts: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH},
-					},
-					InPorts: []world.ObjPortData{
-						{Dir: gv.DIR_EAST}, {Dir: gv.DIR_SOUTH}, {Dir: gv.DIR_WEST},
+					Ports: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+						{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
+						{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+						{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
 					},
 				},
 			},
@@ -114,11 +118,9 @@ var (
 			Symbol:    "iBLT",
 			SubObjs: []world.SubObjectData{
 				{SubPos: world.XY{},
-					OutPorts: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH}, {Dir: gv.DIR_EAST},
-					},
-					InPorts: []world.ObjPortData{
-						{Dir: gv.DIR_WEST}, {Dir: gv.DIR_SOUTH},
+					Ports: []world.ObjPortData{
+						{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT}, {Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
+						{Dir: gv.DIR_WEST, Type: gv.PORT_IN}, {Dir: gv.DIR_SOUTH,, Type: gv.PORT_IN},
 					},
 				},
 			},

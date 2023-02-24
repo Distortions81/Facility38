@@ -115,12 +115,14 @@ const (
 	DIR_SOUTH = 2
 	DIR_WEST  = 3
 	DIR_MAX   = 4
+	DIR_ANY   = DIR_MAX
 
 	/* Ports */
-	PORT_NONE   = 0
-	PORT_INPUT  = 1
-	PORT_OUTPUT = 2
-	PORT_BOTH   = 3
+	PORT_NONE = 0
+	PORT_IN   = 1
+	PORT_OUT  = 2
+	PORT_FIN  = 3
+	PORT_FOUT = 4
 
 	/* Overlay Types */
 	ObjOverlayNorth   = 0

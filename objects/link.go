@@ -10,7 +10,7 @@ import (
 func LinkObj(b *world.BuildingData) {
 
 	/* Link inputs if we have any */
-	for p, port := range b.SubObj.InPorts {
+	for p, port := range b.SubObj.Ports {
 
 		/* Make sure port is unoccupied */
 		if port.Obj != nil {
@@ -27,96 +27,17 @@ func LinkObj(b *world.BuildingData) {
 		}
 
 		/* Neighbor port is available */
-		for n, np := range neigh.SubObj.OutPorts {
+		for n, np := range neigh.SubObj.Ports {
 			if np.Dir == util.ReverseDirection(port.Dir) {
 				/* Assign on both sides */
-				neigh.SubObj.OutPorts[n].Obj = b.Obj
-				b.SubObj.InPorts[p].Obj = neigh.Obj
+				neigh.SubObj.Ports[n].Obj = b.Obj
+				b.SubObj.Ports[p].Obj = neigh.Obj
+
+				neigh.SubObj.Ports[n].Link = &b.SubObj.Ports[p]
+				b.SubObj.Ports[p].Link = &neigh.SubObj.Ports[n]
 			}
 		}
 	}
-
-	/* Link outputs if we have any */
-	for p, port := range b.SubObj.OutPorts {
-
-		/* Make sure port is unoccupied */
-		if port.Obj != nil {
-			continue
-		}
-
-		/* Get subobj world position */
-		lpos := util.AddXY(b.Obj.Pos, b.SubObj.SubPos)
-		neigh := util.GetNeighborObj(lpos, port.Dir)
-
-		/* We found one*/
-		if neigh == nil {
-			continue
-		}
-
-		/* Neighbor port is available */
-		for n, np := range neigh.SubObj.InPorts {
-			if np.Dir == util.ReverseDirection(port.Dir) {
-				/* Assign on both sides */
-				neigh.SubObj.InPorts[n].Obj = b.Obj
-				b.SubObj.OutPorts[p].Obj = neigh.Obj
-			}
-		}
-	}
-
-	/* Link fuel outputs if we have any */
-	for p, port := range b.SubObj.FuelOut {
-
-		/* Make sure port is unoccupied */
-		if port.Obj != nil {
-			continue
-		}
-
-		/* Get subobj world position */
-		lpos := util.AddXY(b.Obj.Pos, b.SubObj.SubPos)
-		neigh := util.GetNeighborObj(lpos, port.Dir)
-
-		/* We found one*/
-		if neigh == nil {
-			continue
-		}
-
-		/* Neighbor port is available */
-		for n, np := range neigh.SubObj.FuelIn {
-			if np.Dir == util.ReverseDirection(port.Dir) {
-				/* Assign on both sides */
-				neigh.SubObj.FuelIn[n].Obj = b.Obj
-				b.SubObj.FuelOut[p].Obj = neigh.Obj
-			}
-		}
-	}
-
-	/* Link fuel inputs if we have any */
-	for p, port := range b.SubObj.FuelIn {
-
-		/* Make sure port is unoccupied */
-		if port.Obj != nil {
-			continue
-		}
-
-		/* Get subobj world position */
-		lpos := util.AddXY(b.Obj.Pos, b.SubObj.SubPos)
-		neigh := util.GetNeighborObj(lpos, port.Dir)
-
-		/* We found one*/
-		if neigh == nil {
-			continue
-		}
-
-		/* Neighbor port is available */
-		for n, np := range neigh.SubObj.FuelOut {
-			if np.Dir == util.ReverseDirection(port.Dir) {
-				/* Assign on both sides */
-				neigh.SubObj.FuelOut[n].Obj = b.Obj
-				b.SubObj.FuelIn[p].Obj = neigh.Obj
-			}
-		}
-	}
-
 }
 
 /* UnlinkObj an object's (dir) input */

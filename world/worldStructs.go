@@ -43,16 +43,6 @@ type MapSuperChunk struct {
 	Lock sync.RWMutex `json:"-"`
 }
 
-type SubObjectData struct {
-	SubPos XY
-	Parent *ObjData
-
-	InPorts  []ObjPortData
-	OutPorts []ObjPortData
-	FuelIn   []ObjPortData
-	FuelOut  []ObjPortData
-}
-
 type TileData struct {
 	MinerData  *MinerData
 	GroundTile *GroundTileData
@@ -65,7 +55,8 @@ type GroundTileData struct {
 
 type BuildingData struct {
 	Obj    *ObjData
-	SubObj *SubObjectData
+	Alias  bool
+	SubPos XY
 }
 
 type MinerData struct {
@@ -142,7 +133,14 @@ type ObjData struct {
 	Parent *MapChunk `json:"-"`
 	TypeP  *ObjType  `json:"-"`
 
-	Dir uint8 `json:"d,omitempty"`
+	Dir   uint8 `json:"d,omitempty"`
+	Ports []ObjPortData
+
+	//Port aliases, prevent looping all ports
+	Outputs []*ObjPortData
+	Inputs  []*ObjPortData
+	FuelIn  []*ObjPortData
+	FuelOut []*ObjPortData
 
 	//Internal use
 	Contents  [gv.MAT_MAX]*MatData `json:"c,omitempty"`
@@ -158,9 +156,16 @@ type ObjData struct {
 }
 
 type ObjPortData struct {
-	Dir uint8    `json:"pd,omitempty"`
-	Obj *ObjData `json:"-"`
-	Buf MatData  `json:"b,omitempty"`
+	Dir  uint8 `json:"pd,omitempty"`
+	Type uint8
+
+	/* Sub-object specific ports*/
+	SubPort bool
+	SubPos  XY
+
+	Obj  *ObjData `json:"-"`
+	Buf  MatData  `json:"b,omitempty"`
+	Link *ObjPortData
 }
 
 type MaterialType struct {
@@ -210,9 +215,7 @@ type ObjType struct {
 	MaxContainKG float32
 	MaxFuelKG    float32
 
-	Interval uint8
-
-	SubObjs     []SubObjectData
+	Interval    uint8
 	CanContain  bool
 	ShowArrow   bool
 	ShowBlocked bool
