@@ -10,29 +10,19 @@ Timers, pressure switches, item spilling.
 Add TotalMined to save/load
 make totalmined map for quick rendering, rebuild on load.
 Insert objects into object list IN ORDER.
-
-Make array for input and output ports,
-To reduce testing unlinked ports.
-add on-link function for objects.
-
-Add ground water and surface water. Mineralized, fresh and salt.
-Water should get contaminated by dumping.
-
 Multi-tile objects, ABCDEF port format. Use modulo rotation.
-Fix overs not showing mats when rotated (use rotation to get correct input)
-obj-tock.go: Cut down code in tock, move anything we can to create and delete events.
+*** Fix saving breaking item links on running game ***
+Start investigating server/client and tock/tick spreading.
+Show ghost preview when item is selected for placing, turn red if can not place.
 
-Read should be faster than write, because of CPU caches...
-We should always read the material type, and only reset typeP if need be.
-In cases where it never changes, we should only set it at setup (fuel, etc)
-remove unneeded port == nil checks, etc.
 
 Other:
 eventually set machine times in ms/sec
 Add ground rendering for pixel mode too
 Complete unsafe for faster loading, make packed binary format for saves.
-Minimize nested ifs
 adjustable miners/furnace speeds
+Add ground water and surface water. Mineralized, fresh and salt.
+Water should get contaminated by dumping.
 
 
 MULTI-TILE:
@@ -43,21 +33,3 @@ Rotation works as expected:  (use 0,0 for center of rotation)
 1: -y, x
 2: -x, -y
 3: y, -x
-
-Directions can work, with multiple of each direction or by checking children? N1 N2 N3 N4
-We should make multi-tiles have a parent pointer. Maybe a sep map with a child type.
-Then when we draw, if there is a parent we draw parent ONLY.
-to prevent the need to search, and to prevent pop.
-
-Not sure how to tally that, maybe in vis-check update?
-
-On rotate or delete, remove all children from map, make new map based on rotation and then place and re-link.
-We will need to check for space for non-square objects.
-also rotate ports as usual.
-
-Show ghost preview when item is selected for placing, turn red if can not place.
-
-*** Fix saving breaking item links on running game ***
-Finish multi-tile
-
-Start investigating server/client and tock/tick spreading.
