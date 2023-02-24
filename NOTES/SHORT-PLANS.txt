@@ -16,6 +16,10 @@ Start investigating server/client and tock/tick spreading.
 Show ghost preview when item is selected for placing, turn red if can not place.
 
 
+*** Add surface ID/Name to XY?
+Start inserting objects in-order in chunks.
+Possibly move to 32-row lists.
+
 Other:
 eventually set machine times in ms/sec
 Add ground rendering for pixel mode too
