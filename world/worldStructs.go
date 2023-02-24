@@ -46,7 +46,11 @@ type MapSuperChunk struct {
 type SubObjectData struct {
 	SubPos XY
 	Parent *ObjData
-	Ports  ObjPortData
+
+	InPorts  []ObjPortData
+	OutPorts []ObjPortData
+	FuelIn   []ObjPortData
+	FuelOut  []ObjPortData
 }
 
 type TileData struct {
@@ -147,15 +151,6 @@ type ObjData struct {
 	MinerData *MinerDataType       `json:"-"`
 	Tile      *TileData            `json:"-"`
 
-	//Input/Output
-	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
-	NumInputs  uint8                    `json:"-"`
-	NumOutputs uint8                    `json:"-"`
-
-	/* For round-robin */
-	LastUsedInput  uint8 `json:"-"`
-	LastUsedOutput uint8 `json:"-"`
-
 	TickCount uint8 `json:"t,omitempty"`
 
 	Blocked bool `json:"-"`
@@ -163,9 +158,9 @@ type ObjData struct {
 }
 
 type ObjPortData struct {
-	PortDir uint8    `json:"pd,omitempty"`
-	Obj     *ObjData `json:"-"`
-	Buf     MatData  `json:"b,omitempty"`
+	Dir uint8    `json:"pd,omitempty"`
+	Obj *ObjData `json:"-"`
+	Buf MatData  `json:"b,omitempty"`
 }
 
 type MaterialType struct {
@@ -217,7 +212,7 @@ type ObjType struct {
 
 	Interval uint8
 
-	Ports       [gv.DIR_MAX]uint8
+	SubObjs     []SubObjectData
 	CanContain  bool
 	ShowArrow   bool
 	ShowBlocked bool

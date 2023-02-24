@@ -33,6 +33,14 @@ func init() {
 	ChatLinesTop = 1
 }
 
+func AddXY(a world.XY, b world.XY) world.XY {
+	return world.XY{X: a.X + b.X, Y: a.Y + b.Y}
+}
+
+func SubXY(a world.XY, b world.XY) world.XY {
+	return world.XY{X: a.X - b.X, Y: a.Y - b.Y}
+}
+
 func deleteOldLines() {
 
 	var newLines []world.ChatLines
@@ -193,13 +201,13 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 }
 
 /* Get an object by XY, uses map (hashtable). RLocks the given chunk */
-func GetObj(pos world.XY, chunk *world.MapChunk) *world.ObjData {
+func GetObj(pos world.XY, chunk *world.MapChunk) *world.BuildingData {
 	if chunk != nil {
 		chunk.Lock.RLock()
 		o := chunk.BuildingMap[pos]
 		chunk.Lock.RUnlock()
 		if o != nil {
-			return o.Obj
+			return o
 		} else {
 			return nil
 		}
@@ -275,17 +283,17 @@ func FloatXYToPosition(x float32, y float32) world.XY {
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
-func GetNeighborObj(src *world.ObjData, dir uint8) *world.ObjData {
+func GetNeighborObj(src world.XY, dir uint8) *world.BuildingData {
 
-	pos := src.Pos
+	pos := src
 
 	switch dir {
 	case gv.DIR_NORTH:
 		pos.Y--
 	case gv.DIR_EAST:
-		pos.X += src.TypeP.Size.X
+		pos.X++
 	case gv.DIR_SOUTH:
-		pos.Y += src.TypeP.Size.Y
+		pos.Y++
 	case gv.DIR_WEST:
 		pos.X--
 	default:
