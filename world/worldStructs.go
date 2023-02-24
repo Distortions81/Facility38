@@ -226,6 +226,7 @@ type ObjType struct {
 	UpdateObj     func(Obj *ObjData) `json:"-"`
 	InitObj       func(Obj *ObjData) `json:"-"`
 	DeInitObj     func(Obj *ObjData) `json:"-"`
+	LinkObj       func(Obj *ObjData) `json:"-"`
 }
 
 /* ObjectQueue data */
