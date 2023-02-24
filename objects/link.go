@@ -10,15 +10,15 @@ import (
 func LinkObj(b *world.BuildingData) {
 
 	/* Link inputs if we have any */
-	for p, port := range b.SubObj.Ports {
+	for p, port := range b.Obj.Ports {
 
 		/* Make sure port is unoccupied */
 		if port.Obj != nil {
 			continue
 		}
 
-		/* Get subobj world position */
-		lpos := util.AddXY(b.Obj.Pos, b.SubObj.SubPos)
+		/* Get world obj sub-position */
+		lpos := util.AddXY(b.Obj.Pos, b.SubPos)
 		neigh := util.GetNeighborObj(lpos, port.Dir)
 
 		/* We found one*/
@@ -27,14 +27,14 @@ func LinkObj(b *world.BuildingData) {
 		}
 
 		/* Neighbor port is available */
-		for n, np := range neigh.SubObj.Ports {
+		for n, np := range neigh.Obj.Ports {
 			if np.Dir == util.ReverseDirection(port.Dir) {
 				/* Assign on both sides */
-				neigh.SubObj.Ports[n].Obj = b.Obj
-				b.SubObj.Ports[p].Obj = neigh.Obj
+				neigh.Obj.Ports[n].Obj = b.Obj
+				b.Obj.Ports[p].Obj = neigh.Obj
 
-				neigh.SubObj.Ports[n].Link = &b.SubObj.Ports[p]
-				b.SubObj.Ports[p].Link = &neigh.SubObj.Ports[n]
+				neigh.Obj.Ports[n].Link = &b.Obj.Ports[p]
+				b.Obj.Ports[p].Link = &neigh.Obj.Ports[n]
 			}
 		}
 	}
