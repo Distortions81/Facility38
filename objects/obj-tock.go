@@ -12,7 +12,7 @@ func minerUpdate(obj *world.ObjData) {
 	/* Cycle all ports */
 	for p, port := range obj.Ports {
 		/* Fuel input */
-		if port.PortDir == gv.PORT_INPUT {
+		if port.Dir == gv.PORT_IN {
 
 			/* Valid? */
 			if port.Buf.TypeP == nil {
@@ -97,21 +97,14 @@ func minerUpdate(obj *world.ObjData) {
 func beltUpdateInter(obj *world.ObjData) {
 
 	for p, port := range obj.Ports {
-		/* Valid? */
-		if port == nil {
-			continue
-		}
 
 		/* Input? */
-		if port.PortDir != gv.PORT_INPUT {
+		if port.Dir != gv.PORT_IN {
 			continue
 		}
 
 		/* Valid output on other side? */
 		odir := util.ReverseDirection(uint8(p))
-		if obj.Ports[odir] == nil {
-			continue
-		}
 
 		/* Do we have input and is output is empty */
 		if obj.Ports[p].Buf.Amount > 0 && obj.Ports[odir].Buf.Amount == 0 {
@@ -136,7 +129,7 @@ func beltUpdate(obj *world.ObjData) {
 	obj.Blocked = false
 
 	/* Find all inputs round-robin, send to output */
-	dir := obj.LastUsedInput
+	dir := obj.LastInput
 
 	/* Start with last input, then rotate one */
 	found := false
@@ -144,7 +137,7 @@ func beltUpdate(obj *world.ObjData) {
 		dir = util.RotCW(dir)
 
 		/* Is this an input? */
-		if obj.Ports[dir].PortDir != gv.PORT_INPUT {
+		if obj.Ports[dir].Dir != gv.PORT_IN {
 			continue
 		}
 
@@ -158,7 +151,7 @@ func beltUpdate(obj *world.ObjData) {
 			obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
 			obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
 			obj.Ports[dir].Buf.Amount = 0
-			obj.LastUsedInput = dir
+			obj.LastInput = dir
 			break /* Stop */
 		}
 	}
@@ -190,12 +183,12 @@ func splitterUpdate(obj *world.ObjData) {
 	}
 
 	/* Round-robin output */
-	dir := obj.LastUsedOutput
+	dir := obj.LastInput
 	for x := 0; x < 4; x++ {
 		dir = util.RotCW(dir)
 
 		/* Is this a output? */
-		if obj.Ports[dir].PortDir != gv.PORT_OUTPUT {
+		if obj.Ports[dir].Dir != gv.PORT_OUT {
 			continue
 		}
 
@@ -209,7 +202,7 @@ func splitterUpdate(obj *world.ObjData) {
 			obj.Ports[dir].Buf.TypeP = obj.Ports[input].Buf.TypeP
 			obj.Ports[dir].Buf.Rot = obj.Ports[input].Buf.Rot
 			obj.Ports[input].Buf.Amount = 0
-			obj.LastUsedOutput = dir
+			obj.LastInput = dir
 			obj.Active = true
 			break
 			/* End */
@@ -222,7 +215,7 @@ func splitterUpdate(obj *world.ObjData) {
 func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Ports {
 		/* Input port? */
-		if port.PortDir == gv.PORT_INPUT {
+		if port.Dir == gv.PORT_IN {
 
 			if port.Buf.Amount == 0 {
 
@@ -267,13 +260,8 @@ func smelterUpdate(obj *world.ObjData) {
 
 	for p, port := range obj.Ports {
 
-		/* Valid? */
-		if port == nil {
-			continue
-		}
-
 		/* Input? */
-		if port.PortDir == gv.PORT_INPUT {
+		if port.Dir == gv.PORT_IN {
 
 			/* Valid input? */
 			if port.Buf.TypeP == nil {

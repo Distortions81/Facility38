@@ -102,7 +102,7 @@ func ExploreMap(pos world.XY, input int) {
 	offy := int(pos.Y) - (area / 2)
 	for x := -area; x < area; x += gv.ChunkSize {
 		for y := -area; y < area; y += gv.ChunkSize {
-			pos := world.XY{X: offx - x, Y: offy - y}
+			pos := world.XY{X: uint16(offx - x), Y: uint16(offy - y)}
 			MakeChunk(pos)
 			ChunksMade++
 			world.MapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0

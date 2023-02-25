@@ -27,46 +27,41 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 		ExploreMap(pos, 4)
 	}
 	chunk := util.GetChunk(pos)
-	obj := util.GetObj(pos, chunk)
+	b := util.GetObj(pos, chunk)
 
-	if obj != nil {
+	/* Obj already at his location */
+	if b != nil {
 		return nil
 	}
 
 	world.VisDataDirty.Store(true)
 
-	obj = &world.ObjData{}
+	b = &world.BuildingData{}
+	b.Obj = &world.ObjData{}
+	b.Obj.Pos = pos
+	b.Obj.Parent = chunk
 
-	obj.Pos = pos
-	obj.Parent = chunk
+	b.Obj.TypeP = GameObjTypes[mtype]
 
-	obj.TypeP = GameObjTypes[mtype]
+	b.Obj.Parent.Lock.Lock()
 
-	obj.Parent.Lock.Lock()
-
-	obj.Parent.BuildingMap[pos] = &world.BuildingData{}
-	obj.Parent.BuildingMap[pos].Obj = obj
+	b.Obj.Parent.BuildingMap[pos] = &world.BuildingData{}
+	b.Obj.Parent.BuildingMap[pos].Obj = b.Obj
 
 	/*Multi-tile object*/
 
-	obj.Parent.ObjList =
-		append(obj.Parent.ObjList, obj)
-	obj.Parent.Parent.PixmapDirty = true
-	obj.Parent.NumObjs++
-	obj.Parent.Lock.Unlock()
+	b.Obj.Parent.ObjList =
+		append(b.Obj.Parent.ObjList, b.Obj)
+	b.Obj.Parent.Parent.PixmapDirty = true
+	b.Obj.Parent.NumObjs++
+	b.Obj.Parent.Lock.Unlock()
 
-	for p, port := range obj.TypeP.Ports {
-		if obj.Ports[p] == nil {
-			obj.Ports[p] = &world.ObjPortData{}
-		}
-		obj.Ports[p].PortDir = port
+	for p, port := range b.Obj.TypeP.Ports {
+		b.Obj.Ports[p].Dir = port.Dir
+		b.Obj.Ports[p].Type = port.Type
 	}
 
-	obj.Dir = dir
-
-	for x := 0; x < int(dir); x++ {
-		util.RotatePortsCW(obj)
-	}
+	b.Obj.Dir = dir
 
 	if obj.TypeP.CanContain {
 		obj.Contents = [gv.MAT_MAX]*world.MatData{}

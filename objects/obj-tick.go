@@ -99,7 +99,7 @@ func tickObj(obj *world.ObjData) {
 		}
 
 		/* Only process our outputs */
-		if port.PortDir != gv.PORT_OUTPUT {
+		if port.Dir != gv.PORT_OUT {
 			continue
 		}
 
@@ -109,7 +109,7 @@ func tickObj(obj *world.ObjData) {
 		}
 
 		/* That go to inputs */
-		if port.Obj.Ports[util.ReverseDirection(uint8(p))].PortDir != gv.PORT_INPUT {
+		if port.Obj.Ports[util.ReverseDirection(uint8(p))].Dir != gv.PORT_IN {
 			continue
 		}
 
