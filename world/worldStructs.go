@@ -221,7 +221,8 @@ type ObjType struct {
 	ShowArrow   bool
 	ShowBlocked bool
 
-	Ports []ObjPortData
+	Ports   []ObjPortData
+	SubObjs []LXY
 
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *ObjData) `json:"-"`
