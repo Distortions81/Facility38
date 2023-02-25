@@ -75,17 +75,9 @@ var (
 			ToolBarArrow: true,
 			ShowBlocked:  true,
 			Symbol:       "MINE",
-			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{X: 0, Y: 0},
-					Ports: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT}, {Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
-					},
-				},
-				{SubPos: world.XY{X: 1, Y: 1},
-					Ports: []world.ObjPortData{
-						{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
-					},
-				},
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
 			},
 		},
 
@@ -97,15 +89,11 @@ var (
 			Rotatable: true,
 			UpdateObj: beltUpdate,
 			Symbol:    "BELT",
-			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{},
-					Ports: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-						{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
-						{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-						{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
-					},
-				},
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
 			},
 		},
 		{ImagePath: "world-obj/basic-belt-inter-right.png",
@@ -116,13 +104,11 @@ var (
 			Rotatable: true,
 			UpdateObj: beltUpdateInter,
 			Symbol:    "iBLT",
-			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{},
-					Ports: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT}, {Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
-						{Dir: gv.DIR_WEST, Type: gv.PORT_IN}, {Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-					},
-				},
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
 			},
 		},
 		{ImagePath: "world-obj/basic-belt-inter-left.png",
@@ -133,15 +119,11 @@ var (
 			Rotatable: true,
 			UpdateObj: beltUpdateInter,
 			Symbol:    "iBLT",
-			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{},
-					OutPorts: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH}, {Dir: gv.DIR_WEST},
-					},
-					InPorts: []world.ObjPortData{
-						{Dir: gv.DIR_EAST}, {Dir: gv.DIR_SOUTH},
-					},
-				},
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
 			},
 		},
 
@@ -157,15 +139,11 @@ var (
 			KW:          100,
 			UpdateObj:   splitterUpdate,
 			Symbol:      "SPLT",
-			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{},
-					OutPorts: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH}, {Dir: gv.DIR_EAST}, {Dir: gv.DIR_WEST},
-					},
-					InPorts: []world.ObjPortData{
-						{Dir: gv.DIR_SOUTH},
-					},
-				},
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
 			},
 		},
 
@@ -181,12 +159,11 @@ var (
 			CanContain:   true,
 			ShowBlocked:  false,
 			ToolBarArrow: false,
-			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{},
-					InPorts: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH}, {Dir: gv.DIR_EAST}, {Dir: gv.DIR_SOUTH}, {Dir: gv.DIR_WEST},
-					},
-				},
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
 			},
 		},
 
@@ -204,16 +181,9 @@ var (
 			ToolBarArrow: true,
 			Symbol:       "SMLT",
 			UpdateObj:    smelterUpdate,
-			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{},
-					OutPorts: []world.ObjPortData{
-						{Dir: gv.DIR_NORTH},
-					},
-					InPorts: []world.ObjPortData{
-						{Dir: gv.DIR_SOUTH},
-					},
-					FuelIn: world.ObjPortData{},
-				},
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
 			},
 		},
 
@@ -227,50 +197,46 @@ var (
 			ShowBlocked: true,
 			UpdateObj:   fuelHopperUpdate,
 			Symbol:      "FHOP",
-			SubObjs: []world.SubObjectData{
-				{SubPos: world.XY{},
-					InPorts: []world.ObjPortData{
-						{Dir: gv.DIR_SOUTH},
-					},
-					FuelOut: world.ObjPortData{},
-				},
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_FOUT},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_FIN},
 			},
+
+			/*		{ImagePath: "world-obj/iron-rod-caster.png",
+						Name:   "Iron rod caster",
+						TypeI:  gv.ObjTypeBasicIronCaster,
+						Size:   world.XY{X: 1, Y: 1},
+						Symbol: "CAST", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
+						UpdateObj:   ironCasterUpdate,
+						ShowArrow:   true,
+						ShowBlocked: true,
+						Ports:       [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+					},
+
+					{ImagePath: "world-obj/basic-boiler.png",
+						Name:        "Basic boiler",
+						TypeI:       gv.ObjTypeBasicBoiler,
+						Size:        world.XY{X: 1, Y: 1},
+						CapacityKG:  500,
+						ShowArrow:   true,
+						ShowBlocked: true,
+						Symbol:      "BOIL", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
+						UpdateObj: steamEngineUpdate,
+						Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+					},
+
+					{ImagePath: "world-obj/steam-engine.png",
+						Name:        "Steam engine",
+						TypeI:       gv.ObjTypeSteamEngine,
+						Size:        world.XY{X: 1, Y: 1},
+						CapacityKG:  500,
+						ShowArrow:   true,
+						ShowBlocked: true,
+						Symbol:      "STEM", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
+						UpdateObj: steamEngineUpdate,
+						Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
+					}, */
 		},
-
-		/*		{ImagePath: "world-obj/iron-rod-caster.png",
-					Name:   "Iron rod caster",
-					TypeI:  gv.ObjTypeBasicIronCaster,
-					Size:   world.XY{X: 1, Y: 1},
-					Symbol: "CAST", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
-					UpdateObj:   ironCasterUpdate,
-					ShowArrow:   true,
-					ShowBlocked: true,
-					Ports:       [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
-				},
-
-				{ImagePath: "world-obj/basic-boiler.png",
-					Name:        "Basic boiler",
-					TypeI:       gv.ObjTypeBasicBoiler,
-					Size:        world.XY{X: 1, Y: 1},
-					CapacityKG:  500,
-					ShowArrow:   true,
-					ShowBlocked: true,
-					Symbol:      "BOIL", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
-					UpdateObj: steamEngineUpdate,
-					Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
-				},
-
-				{ImagePath: "world-obj/steam-engine.png",
-					Name:        "Steam engine",
-					TypeI:       gv.ObjTypeSteamEngine,
-					Size:        world.XY{X: 1, Y: 1},
-					CapacityKG:  500,
-					ShowArrow:   true,
-					ShowBlocked: true,
-					Symbol:      "STEM", ItemColor: &world.ColorVeryDarkGray, SymbolColor: &world.ColorWhite,
-					UpdateObj: steamEngineUpdate,
-					Ports:     [gv.DIR_MAX]uint8{gv.PORT_OUTPUT, gv.PORT_INPUT, gv.PORT_INPUT, gv.PORT_INPUT},
-				}, */
 	}
 
 	/* Terrain types and images */
