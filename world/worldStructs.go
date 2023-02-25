@@ -264,5 +264,9 @@ type MatData struct {
 
 /* Int x/y */
 type XY struct {
-	X, Y int
+	X, Y uint16
+}
+
+type LXY struct {
+	X, Y uint8
 }
