@@ -255,31 +255,31 @@ func setupWindowSize() {
 	if !gv.UPSBench {
 		/* Handle high res displays, 50% window */
 		if xSize > 2560 && ySize > 1600 {
-			world.ScreenWidth = xSize / 2
-			world.ScreenHeight = ySize / 2
+			world.ScreenWidth = uint16(xSize) / 2
+			world.ScreenHeight = uint16(ySize) / 2
 
 			/* Small Screen, just go fullscreen */
 		} else if xSize <= 1280 && ySize <= 800 {
-			world.ScreenWidth = xSize
-			world.ScreenHeight = ySize
+			world.ScreenWidth = uint16(xSize)
+			world.ScreenHeight = uint16(ySize)
 			ebiten.SetFullscreen(true)
 		}
 	}
-	ebiten.SetWindowSize(world.ScreenWidth, world.ScreenHeight)
+	ebiten.SetWindowSize(int(world.ScreenWidth), int(world.ScreenHeight))
 }
 
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
-	if outsideWidth != world.ScreenWidth || outsideHeight != world.ScreenHeight {
-		world.ScreenWidth = outsideWidth
-		world.ScreenHeight = outsideHeight
+	if outsideWidth != int(world.ScreenWidth) || outsideHeight != int(world.ScreenHeight) {
+		world.ScreenWidth = uint16(outsideWidth)
+		world.ScreenHeight = uint16(outsideHeight)
 		world.InitMouse = false
 		world.VisDataDirty.Store(true)
 	}
 
 	windowTitle()
-	return world.ScreenWidth, world.ScreenHeight
+	return int(world.ScreenWidth), int(world.ScreenHeight)
 }
 
 /* Automatic window title update */

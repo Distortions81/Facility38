@@ -54,8 +54,8 @@ var (
 	NumWorkers int
 
 	/* Starting resolution */
-	ScreenWidth  int = 1280
-	ScreenHeight int = 720
+	ScreenWidth  uint16 = 1280
+	ScreenHeight uint16 = 720
 
 	/* Game UPS rate */
 	ObjectUPS            float32 = 4.0

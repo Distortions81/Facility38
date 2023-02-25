@@ -96,7 +96,6 @@ func SaveGame() {
 						Contents: mObj.Contents,
 						KGFuel:   mObj.KGFuel,
 						KGHeld:   mObj.KGHeld,
-						Ports:    mObj.Ports,
 						Ticks:    mObj.TickCount,
 					}
 
@@ -240,7 +239,6 @@ func LoadGame() {
 				Contents:  tempList.Objects[i].Contents,
 				KGFuel:    tempList.Objects[i].KGFuel,
 				KGHeld:    tempList.Objects[i].KGHeld,
-				Ports:     tempList.Objects[i].Ports,
 				TickCount: tempList.Objects[i].Ticks,
 			}
 
@@ -249,13 +247,6 @@ func LoadGame() {
 					continue
 				}
 				obj.Contents[c].TypeP = MatTypes[obj.Contents[c].TypeI]
-			}
-
-			for p := range obj.Ports {
-				if obj.Ports[p] == nil {
-					continue
-				}
-				obj.Ports[p].Buf.TypeP = MatTypes[obj.Ports[p].Buf.TypeI]
 			}
 
 			/* Relink */
@@ -268,16 +259,14 @@ func LoadGame() {
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjs++
 
-			LinkObj(obj)
+			//LinkObj(obj)
 
 			/* Only add to list if the object calls an update function */
 			if obj.TypeP.UpdateObj != nil {
 				tockListAdd(obj)
 			}
 
-			if util.ObjHasPort(obj, gv.PORT_OUTPUT) {
-				ticklistAdd(obj)
-			}
+			ticklistAdd(obj)
 
 			if obj.TypeP.InitObj != nil {
 				obj.TypeP.InitObj(obj)

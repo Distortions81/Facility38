@@ -42,6 +42,9 @@ func init() {
 }
 
 var (
+	GroundTiles = []*world.ObjType{
+		{ImagePath: "gtile/paver.png"},
+	}
 
 	/* Toolbar actions and images */
 	UIObjsTypes = []*world.ObjType{
@@ -306,6 +309,7 @@ var (
 		GameObjTypes,
 		ObjOverlayTypes,
 		TerrainTypes,
+		GroundTiles,
 	}
 )
 

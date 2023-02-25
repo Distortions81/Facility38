@@ -30,15 +30,15 @@ var (
 	camXPos float32
 	camYPos float32
 
-	camStartX int
-	camStartY int
-	camEndX   int
-	camEndY   int
+	camStartX uint16
+	camStartY uint16
+	camEndX   uint16
+	camEndY   uint16
 
-	screenStartX int
-	screenStartY int
-	screenEndX   int
-	screenEndY   int
+	screenStartX uint16
+	screenStartY uint16
+	screenEndX   uint16
+	screenEndY   uint16
 	frameCount   uint64
 
 	lastResourceString string
@@ -64,7 +64,7 @@ func init() {
 
 func drawChatLines(screen *ebiten.Image) {
 
-	lineNum := 0
+	var lineNum uint16
 	util.ChatLinesLock.Lock()
 	defer util.ChatLinesLock.Unlock()
 
@@ -273,13 +273,11 @@ func drawIconMode(screen *ebiten.Image) {
 					}
 				}
 				if obj.TypeP.TypeI == gv.ObjTypeBasicBeltInterRight {
-					if obj.Ports[2] != nil {
-						op, img = drawMaterials(&obj.Ports[2].Buf, obj, screen, 0.5)
-						if img != nil {
-							OpBatch[BatchTop] = op
-							ImageBatch[BatchTop] = img
-							BatchTop++
-						}
+					op, img = drawMaterials(&obj.Ports[2].Buf, obj, screen, 0.5)
+					if img != nil {
+						OpBatch[BatchTop] = op
+						ImageBatch[BatchTop] = img
+						BatchTop++
 					}
 				}
 				if world.ShowInfoLayer {
@@ -326,11 +324,7 @@ func drawIconMode(screen *ebiten.Image) {
 						}
 
 					} else if obj.TypeP.ShowArrow {
-						for p, port := range obj.Ports {
-							if port.PortDir != gv.PORT_OUTPUT {
-								continue
-							}
-
+						for p, _ := range obj.Ports {
 							img := objects.ObjOverlayTypes[p].Image
 							iSize := img.Bounds()
 							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -455,7 +449,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
 			}
 			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG,
-				world.XY{X: int(world.MouseX) + 20, Y: int(world.MouseY) + 40}, 11, screen,
+				world.XY{X: uint16(world.MouseX) + 20, Y: uint16(world.MouseY) + 40}, 11, screen,
 				true, false, false)
 
 			DrawToolbar(false, true, pos)
@@ -475,7 +469,8 @@ func drawWorldTooltip(screen *ebiten.Image) {
 		found := false
 
 		if chunk != nil {
-			o := util.GetObj(pos, chunk)
+			b := util.GetObj(pos, chunk)
+			o := b.Obj
 			if o != nil {
 				found = true
 				toolTip = fmt.Sprintf("%v: (%v,%v)\n",
@@ -506,19 +501,16 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				if gv.Debug {
 
 					for z := 0; z < gv.DIR_MAX; z++ {
-						if o.Ports[z] == nil {
-							continue
-						}
 						if o.Ports[z].Obj == nil || o.Ports[z].Buf.TypeP == nil {
 							continue
 						}
-						if o.Ports[z].PortDir == gv.PORT_INPUT && o.Ports[z].Obj != nil {
+						if o.Ports[z].Dir == gv.PORT_IN && o.Ports[z].Obj != nil {
 							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
 								o.Ports[z].Obj.TypeP.Name,
 								o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
 						}
-						if o.Ports[z].PortDir == gv.PORT_OUTPUT && o.Ports[z].Obj != nil {
+						if o.Ports[z].Dir == gv.PORT_OUT && o.Ports[z].Obj != nil {
 							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
 								o.Ports[z].Obj.TypeP.Name,
@@ -558,7 +550,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			if buf != "" {
 				lastResourceString = buf
 				DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
-					world.XY{X: int(gMouseX + 20), Y: int(gMouseY + 20)}, 11, screen, true, false, false)
+					world.XY{X: uint16(gMouseX + 20), Y: uint16(gMouseY + 20)}, 11, screen, true, false, false)
 			}
 		}
 		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XY{X: world.ScreenWidth, Y: world.ScreenHeight}, 11, screen, false, true, false)
@@ -573,17 +565,17 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 	halfPad := (pad / 2)
 	tRect := text.BoundString(face, input)
 	if justCenter {
-		mx = float32(pos.X - (tRect.Dx() / 2))
-		my = float32(pos.Y - (tRect.Dy() / 2))
+		mx = float32(int(pos.X) - (tRect.Dx() / 2))
+		my = float32(int(pos.Y) - (tRect.Dy() / 2))
 	} else {
 		if justLeft {
 			mx = float32(pos.X) + halfPad
 		} else {
-			mx = float32(pos.X-tRect.Dx()) - halfPad
+			mx = float32(int(pos.X)-tRect.Dx()) - halfPad
 		}
 
 		if justUp {
-			my = float32(pos.Y-tRect.Dy()) + halfPad
+			my = float32(int(pos.Y)-tRect.Dy()) + halfPad
 		} else {
 			my = float32(pos.Y) - halfPad
 		}
@@ -644,10 +636,10 @@ func calcScreenCamera() {
 	camYPos = float32(-world.CameraY) + ((float32(world.ScreenHeight) / 2.0) / world.ZoomScale)
 
 	/* Get camera bounds */
-	camStartX = int((1/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale)))
-	camStartY = int((1/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
-	camEndX = int((float32(world.ScreenWidth)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale)))
-	camEndY = int((float32(world.ScreenHeight)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
+	camStartX = uint16((1/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale)))
+	camStartY = uint16((1/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
+	camEndX = uint16((float32(world.ScreenWidth)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale)))
+	camEndY = uint16((float32(world.ScreenHeight)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
 
 	/* Pre-calc camera chunk position */
 	screenStartX = camStartX / gv.ChunkSize

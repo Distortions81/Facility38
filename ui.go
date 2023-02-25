@@ -324,9 +324,9 @@ func createWorldObjects() {
 				dir := objects.GameObjTypes[SelectedItemType].Direction
 
 				if gv.WASMMode {
-					objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
+					objects.ObjQueueAdd(o.Obj, SelectedItemType, pos, false, dir)
 				} else {
-					go objects.ObjQueueAdd(o, SelectedItemType, pos, false, dir)
+					go objects.ObjQueueAdd(o.Obj, SelectedItemType, pos, false, dir)
 				}
 
 				gLastActionPosition = pos
@@ -341,9 +341,9 @@ func createWorldObjects() {
 	}
 
 	if gv.WASMMode {
-		objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+		objects.ObjQueueAdd(o.Obj, o.Obj.TypeP.TypeI, pos, true, 0)
 	} else {
-		go objects.ObjQueueAdd(o, o.TypeP.TypeI, pos, true, 0)
+		go objects.ObjQueueAdd(o.Obj, o.Obj.TypeP.TypeI, pos, true, 0)
 	}
 	//Action completed, save position and time
 	gLastActionPosition = pos
@@ -453,20 +453,18 @@ func rotateWorldObjects() {
 
 		if o != nil {
 
-			objects.UnlinkObj(o)
+			objects.UnlinkObj(o.Obj)
 			var newdir uint8
 			if gShiftPressed {
-				newdir = util.RotCCW(o.Dir)
-				util.RotatePortsCCW(o)
-				oPos := util.CenterXY(o.Pos)
-				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
+				newdir = util.RotCCW(o.Obj.Dir)
+				oPos := util.CenterXY(o.Obj.Pos)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.Obj.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
 			} else {
-				newdir = util.RotCW(o.Dir)
-				util.RotatePortsCW(o)
-				oPos := util.CenterXY(o.Pos)
-				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
+				newdir = util.RotCW(o.Obj.Dir)
+				oPos := util.CenterXY(o.Obj.Pos)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.Obj.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
 			}
-			o.Dir = newdir
+			o.Obj.Dir = newdir
 			objects.LinkObj(o)
 		}
 	}

@@ -29,7 +29,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	chunk := util.GetChunk(pos)
 	b := util.GetObj(pos, chunk)
 
-	/* Obj already at his location */
+	/* Obj already at this location */
 	if b != nil {
 		return nil
 	}
@@ -63,29 +63,27 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 	b.Obj.Dir = dir
 
-	if obj.TypeP.CanContain {
-		obj.Contents = [gv.MAT_MAX]*world.MatData{}
+	if b.Obj.TypeP.CanContain {
+		b.Obj.Contents = [gv.MAT_MAX]*world.MatData{}
 	}
 
-	if obj.TypeP.MaxFuelKG > 0 {
-		obj.KGFuel = obj.TypeP.MaxFuelKG
+	if b.Obj.TypeP.MaxFuelKG > 0 {
+		b.Obj.KGFuel = b.Obj.TypeP.MaxFuelKG
 	}
 
-	LinkObj(obj)
+	LinkObj(b)
 
 	/* Only add to list if the object calls an update function */
-	if obj.TypeP.UpdateObj != nil {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+	if b.Obj.TypeP.UpdateObj != nil {
+		EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TOCK, false)
 	}
 
-	if util.ObjHasPort(obj, gv.PORT_OUTPUT) {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-	}
+	EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
 
 	/* Init obj if we have a function for it */
-	if obj.TypeP.InitObj != nil {
-		obj.TypeP.InitObj(obj)
+	if b.Obj.TypeP.InitObj != nil {
+		b.Obj.TypeP.InitObj(b.Obj)
 	}
 
-	return obj
+	return b.Obj
 }

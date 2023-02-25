@@ -299,8 +299,8 @@ func drawResource(sChunk *world.MapSuperChunk) {
 		for y := 0; y < gv.SuperChunkTotal; y++ {
 			ppos := 4 * (x + y*gv.SuperChunkTotal)
 
-			worldX := float32((sChunk.Pos.X * gv.SuperChunkTotal) + x)
-			worldY := float32((sChunk.Pos.Y * gv.SuperChunkTotal) + y)
+			worldX := float32((sChunk.Pos.X * gv.SuperChunkTotal) + uint16(x))
+			worldY := float32((sChunk.Pos.Y * gv.SuperChunkTotal) + uint16(y))
 
 			var r, g, b float32 = 0.01, 0.01, 0.01
 			for p, nl := range NoiseLayers {
@@ -310,9 +310,9 @@ func drawResource(sChunk *world.MapSuperChunk) {
 
 				h := NoiseMap(worldX, worldY, p)
 
-				Chunk := sChunk.ChunkMap[util.PosToChunkPos(world.XY{X: int(worldX), Y: int(worldY)})]
+				Chunk := sChunk.ChunkMap[util.PosToChunkPos(world.XY{X: uint16(worldX), Y: uint16(worldY)})]
 				if Chunk != nil {
-					Tile := Chunk.TileMap[world.XY{X: x, Y: y}]
+					Tile := Chunk.TileMap[world.XY{X: uint16(x), Y: uint16(y)}]
 
 					if Tile != nil {
 						h -= (Tile.MinerData.Mined[p] / 150)
