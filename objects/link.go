@@ -9,7 +9,7 @@ import (
 /* Link to output in (dir) */
 func LinkObj(b *world.BuildingData) {
 
-	/* Link inputs if we have any */
+	/* Attempt to link ports */
 	for p, port := range b.Obj.Ports {
 
 		/* Make sure port is unoccupied */
@@ -28,11 +28,17 @@ func LinkObj(b *world.BuildingData) {
 
 		/* Neighbor port is available */
 		for n, np := range neigh.Obj.Ports {
-			if np.Dir == util.ReverseDirection(port.Dir) {
+			/* Port is in correct direction */
+			if np.Dir == util.ReverseDirection(port.Dir) &&
+				/* Port is of correct type */
+				np.Type == util.ReverseType(np.Type) {
+
 				/* Assign on both sides */
+				/* Add link to objects */
 				neigh.Obj.Ports[n].Obj = b.Obj
 				b.Obj.Ports[p].Obj = neigh.Obj
 
+				/* Add direct port links */
 				neigh.Obj.Ports[n].Link = &b.Obj.Ports[p]
 				b.Obj.Ports[p].Link = &neigh.Obj.Ports[n]
 			}
