@@ -220,6 +220,8 @@ type ObjType struct {
 	ShowArrow   bool
 	ShowBlocked bool
 
+	Ports []ObjPortData
+
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *ObjData) `json:"-"`
 	InitObj       func(Obj *ObjData) `json:"-"`
