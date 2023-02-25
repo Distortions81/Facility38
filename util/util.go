@@ -114,47 +114,12 @@ func MinI(a, b int) int {
 	}
 }
 
-func RotatePortsCW(obj *world.ObjData) {
-	var newPorts [gv.DIR_MAX]world.ObjPortData
-	for i := 0; i < gv.DIR_MAX; i++ {
-		//Copy to array, rotated with modulo
-		p := int(PosIntMod((i + 1), gv.DIR_MAX))
-		newPorts[p] = *obj.Ports[i]
-	}
-	for i := 0; i < gv.DIR_MAX; i++ {
-		//Copy back to object
-		obj.Ports[i] = &newPorts[i]
-	}
-}
-
 func PosIntMod(d, m int) int {
 	var res int = d % m
 	if res < 0 && m > 0 {
 		return res + m
 	}
 	return res
-}
-
-func RotatePortsCCW(obj *world.ObjData) {
-	var newPorts [gv.DIR_MAX]world.ObjPortData
-	for i := 0; i < gv.DIR_MAX; i++ {
-		//Copy to array, rotated with modulo
-		p := int(PosIntMod((i - 1), gv.DIR_MAX))
-		newPorts[p] = *obj.Ports[i]
-	}
-	for i := 0; i < gv.DIR_MAX; i++ {
-		//Copy back to object
-		obj.Ports[i] = &newPorts[i]
-	}
-}
-
-func ObjHasPort(obj *world.ObjData, portDir uint8) bool {
-	for p := range obj.Ports {
-		if obj.TypeP.Ports[p] == portDir {
-			return true
-		}
-	}
-	return false
 }
 
 /* Delete an object from a world.ObjData list, does not retain order (fast) */
@@ -279,7 +244,7 @@ func SuperChunkPosToChunkPos(pos world.XY) world.XY {
 /* Float (X, Y) to world.XY (int) */
 func FloatXYToPosition(x float32, y float32) world.XY {
 
-	return world.XY{X: int(x), Y: int(y)}
+	return world.XY{X: uint16(x), Y: uint16(y)}
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
@@ -356,15 +321,6 @@ func ReverseDirection(dir uint8) uint8 {
 	}
 
 	return gv.DIR_MAX
-}
-
-func ReversePort(port uint8) uint8 {
-	if port == gv.PORT_INPUT {
-		return gv.PORT_OUTPUT
-	} else if port == gv.PORT_OUTPUT {
-		return gv.PORT_INPUT
-	}
-	return gv.PORT_NONE
 }
 
 /* Generic unzip []byte */

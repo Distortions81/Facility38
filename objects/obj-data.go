@@ -120,7 +120,7 @@ var (
 				{SubPos: world.XY{},
 					Ports: []world.ObjPortData{
 						{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT}, {Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
-						{Dir: gv.DIR_WEST, Type: gv.PORT_IN}, {Dir: gv.DIR_SOUTH,, Type: gv.PORT_IN},
+						{Dir: gv.DIR_WEST, Type: gv.PORT_IN}, {Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 					},
 				},
 			},
