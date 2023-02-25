@@ -327,6 +327,21 @@ func DirToName(dir uint8) string {
 	return "Error"
 }
 
+func ReverseType(t uint8) uint8 {
+	switch t {
+	case gv.PORT_OUT:
+		return gv.PORT_IN
+	case gv.PORT_IN:
+		return gv.PORT_OUT
+	case gv.PORT_FIN:
+		return gv.PORT_FOUT
+	case gv.PORT_FOUT:
+		return gv.PORT_FIN
+	default:
+		return gv.PORT_NONE
+	}
+}
+
 /* Flop a consts.DIR */
 func ReverseDirection(dir uint8) uint8 {
 	switch dir {
