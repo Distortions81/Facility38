@@ -269,11 +269,15 @@ func GetNeighborObj(src world.XY, dir uint8) *world.BuildingData {
 	if chunk == nil {
 		return nil
 	}
-	obj := GetObj(pos, chunk)
-	if obj == nil {
+	b := GetObj(pos, chunk)
+	if b == nil {
 		return nil
 	}
-	return obj
+	subPos := AddXY(b.Obj.Pos, b.SubPos)
+	if subPos == src {
+		return nil
+	}
+	return b
 }
 
 /* Convert consts.DIR to text */

@@ -2,7 +2,6 @@ package objects
 
 import (
 	"GameTest/gv"
-	"GameTest/util"
 	"GameTest/world"
 	"time"
 
@@ -91,30 +90,14 @@ func ObjUpdateDaemonST() {
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
 func tickObj(obj *world.ObjData) {
 
-	for p, port := range obj.Ports {
-
-		/* Valid object */
-		if port.Obj == nil {
-			continue
-		}
-
-		/* Only process our outputs */
-		if port.Dir != gv.PORT_OUT {
-			continue
-		}
-
+	for p, port := range obj.Outputs {
 		/* If we have stuff to send */
 		if port.Buf.Amount == 0 {
 			continue
 		}
 
-		/* That go to inputs */
-		if port.Obj.Ports[util.ReverseDirection(uint8(p))].Dir != gv.PORT_IN {
-			continue
-		}
-
-		/* And there is somewhere empty to send it */
-		if port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount != 0 {
+		/* Is there somewhere empty to send it */
+		if port.Link.Buf.Amount != 0 {
 			continue
 		}
 
@@ -123,9 +106,9 @@ func tickObj(obj *world.ObjData) {
 			continue
 		}
 
-		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Amount = port.Buf.Amount
-		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.TypeP = port.Buf.TypeP
-		port.Obj.Ports[util.ReverseDirection(uint8(p))].Buf.Rot = port.Buf.Rot
+		port.Link.Buf.Amount = port.Buf.Amount
+		port.Link.Buf.TypeP = port.Buf.TypeP
+		port.Link.Buf.Rot = port.Buf.Rot
 		obj.Ports[p].Buf.Amount = 0
 	}
 }

@@ -501,7 +501,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				if gv.Debug {
 
 					for z, p := range o.Ports {
-						if p.Obj == nil || p.Buf.TypeP == nil {
+						if p.Obj == nil {
 							continue
 						}
 						if p.Dir == gv.PORT_IN && p.Obj != nil {

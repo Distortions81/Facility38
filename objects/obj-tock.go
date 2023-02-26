@@ -99,10 +99,11 @@ func beltUpdateInter(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
-	/* Output full? */
-	if obj.Outputs == nil {
+	/* Any ports? */
+	if obj.NumIn == 0 || obj.NumOut == 0 {
 		return
 	}
+	/* Output full? */
 	if obj.Outputs[0].Buf.Amount != 0 {
 		obj.Blocked = true
 		obj.Active = false
@@ -110,30 +111,27 @@ func beltUpdate(obj *world.ObjData) {
 	}
 	obj.Blocked = false
 
-	/* Find all inputs round-robin, send to output */
-	dir := obj.LastInput
-
 	/* Start with last input, then rotate one */
 	found := false
-	for x := 0; x < 4; x++ {
-		dir = util.RotCW(dir)
 
-		/* Is this an input? */
-		if obj.Ports[dir].Dir != gv.PORT_IN {
-			continue
-		}
+	/* Loop ports */
+	if obj.LastInput == obj.NumIn {
+		obj.LastInput = 0
+	}
+
+	for x := obj.LastInput; x < obj.NumIn; x++ {
 
 		/* Does the input contain anything? */
-		if obj.Ports[dir].Buf.Amount == 0 {
+		if obj.Inputs[x].Buf.Amount == 0 {
 			continue
 		} else {
 			found = true
 			obj.Active = true
-			obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
-			obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
-			obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
-			obj.Ports[dir].Buf.Amount = 0
-			obj.LastInput = dir
+			obj.Outputs[0].Buf.Amount = obj.Ports[x].Buf.Amount
+			obj.Outputs[0].Buf.TypeP = obj.Ports[x].Buf.TypeP
+			obj.Outputs[0].Buf.Rot = obj.Ports[x].Buf.Rot
+			obj.Ports[x].Buf.Amount = 0
+			obj.LastInput = x
 			break /* Stop */
 		}
 	}

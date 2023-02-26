@@ -62,25 +62,6 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	b.Obj.Parent.Parent.PixmapDirty = true
 	b.Obj.Parent.NumObjs++
 	b.Obj.Parent.Lock.Unlock()
-
-	/* Link ports to aliases */
-	for _, port := range b.Obj.TypeP.Ports {
-		switch port.Type {
-		case gv.PORT_OUT:
-			b.Obj.Outputs = append(b.Obj.Outputs,
-				world.ObjPortData{Dir: port.Dir, Type: port.Type})
-		case gv.PORT_IN:
-			b.Obj.Inputs = append(b.Obj.Inputs,
-				world.ObjPortData{Dir: port.Dir, Type: port.Type})
-		case gv.PORT_FIN:
-			b.Obj.FuelIn = append(b.Obj.FuelIn,
-				world.ObjPortData{Dir: port.Dir, Type: port.Type})
-		case gv.PORT_FOUT:
-			b.Obj.FuelOut = append(b.Obj.FuelOut,
-				world.ObjPortData{Dir: port.Dir, Type: port.Type})
-		}
-	}
-
 	b.Obj.Dir = dir
 
 	if b.Obj.TypeP.CanContain {

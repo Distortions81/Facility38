@@ -133,14 +133,22 @@ type ObjData struct {
 	Parent *MapChunk `json:"-"`
 	TypeP  *ObjType  `json:"-"`
 
-	Dir       uint8 `json:"d,omitempty"`
-	LastInput uint8
+	Dir        uint8 `json:"d,omitempty"`
+	LastInput  uint8
+	LastOutput uint8
 
 	//Port aliases, prevent looping all ports
-	Outputs []ObjPortData
-	Inputs  []ObjPortData
-	FuelIn  []ObjPortData
-	FuelOut []ObjPortData
+	Ports   []ObjPortData
+	Outputs []*ObjPortData
+	Inputs  []*ObjPortData
+	FuelIn  []*ObjPortData
+	FuelOut []*ObjPortData
+
+	NumPorts uint8
+	NumOut   uint8
+	NumIn    uint8
+	NumFIn   uint8
+	NumFOut  uint8
 
 	//Internal use
 	Contents  [gv.MAT_MAX]*MatData `json:"c,omitempty"`
