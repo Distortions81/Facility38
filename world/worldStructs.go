@@ -135,13 +135,12 @@ type ObjData struct {
 
 	Dir       uint8 `json:"d,omitempty"`
 	LastInput uint8
-	Ports     []ObjPortData
 
 	//Port aliases, prevent looping all ports
-	Outputs []*ObjPortData
-	Inputs  []*ObjPortData
-	FuelIn  []*ObjPortData
-	FuelOut []*ObjPortData
+	Outputs []ObjPortData
+	Inputs  []ObjPortData
+	FuelIn  []ObjPortData
+	FuelOut []ObjPortData
 
 	//Internal use
 	Contents  [gv.MAT_MAX]*MatData `json:"c,omitempty"`
@@ -222,7 +221,7 @@ type ObjType struct {
 	ShowBlocked bool
 
 	Ports   []ObjPortData
-	SubObjs []LXY
+	SubObjs []XY
 
 	ToolbarAction func()             `json:"-"`
 	UpdateObj     func(Obj *ObjData) `json:"-"`
@@ -269,8 +268,4 @@ type MatData struct {
 /* Int x/y */
 type XY struct {
 	X, Y uint16
-}
-
-type LXY struct {
-	X, Y uint8
 }

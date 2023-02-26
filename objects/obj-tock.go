@@ -9,29 +9,26 @@ import (
 
 func minerUpdate(obj *world.ObjData) {
 
-	/* Cycle all ports */
-	for p, port := range obj.Ports {
-		/* Fuel input */
-		if port.Dir == gv.PORT_IN {
+	/* Is it time to run? */
+	if obj.TickCount < obj.TypeP.Interval {
+		/* Increment timer */
+		obj.TickCount++
+		return
+	}
 
-			/* Valid? */
-			if port.Buf.TypeP == nil {
-				continue
-			}
+	/* Get fuel */
+	for p, port := range obj.FuelIn {
+		/* Will it over fill us? */
+		if port.Buf.Amount > 0 &&
+			obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
 
-			/* Is it fuel? */
-			if port.Buf.TypeP.TypeI != gv.MAT_COAL {
-
-				/* Will it over fill us? */
-				if obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
-
-					/* Eat the fuel and increase fuel kg */
-					obj.KGFuel += port.Buf.Amount
-					obj.Ports[p].Buf.Amount = 0
-				}
-			}
+			/* Eat the fuel and increase fuel kg */
+			obj.KGFuel += port.Buf.Amount
+			obj.FuelIn[p].Buf.Amount = 0
 		}
+	}
 
+	for p, port := range obj.Outputs {
 		/* Output full? */
 		if port.Buf.Amount != 0 {
 			obj.Blocked = true
@@ -44,13 +41,6 @@ func minerUpdate(obj *world.ObjData) {
 
 		/* Turn on active status */
 		obj.Active = true
-
-		/* Are we ready to output yet? */
-		if obj.TickCount < obj.TypeP.Interval {
-			/* Increment timer */
-			obj.TickCount++
-			continue
-		}
 
 		/* Randomly pick a material from the list */
 		pick := rand.Intn(int(obj.MinerData.ResourcesCount))
@@ -67,23 +57,22 @@ func minerUpdate(obj *world.ObjData) {
 		/* Tally the amount taken as well as the type */
 		obj.Tile.MinerData.Mined[pick] += amount
 
-		/* Are we are mining coal? */
+		/* Are we are mining coal?
 		if obj.MinerData.ResourcesType[pick] == gv.MAT_COAL &&
 			obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
 
-			/* If we need fuel, fuel ourselves */
 			obj.KGFuel += amount
 			continue
-		}
+		} */
 		if obj.KGFuel < obj.TypeP.KgFuelEach {
 			/* Not enough fuel */
 			continue
 		}
 
 		/* Otherwise output the material */
-		obj.Ports[obj.Dir].Buf.Amount = amount
-		obj.Ports[obj.Dir].Buf.TypeP = kind
-		obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
+		obj.Outputs[p].Buf.Amount = amount
+		obj.Outputs[p].Buf.TypeP = kind
+		obj.Outputs[p].Buf.Rot = uint8(rand.Intn(3))
 
 		/* Burn fuel */
 		obj.KGFuel -= obj.TypeP.KgFuelEach
@@ -96,23 +85,13 @@ func minerUpdate(obj *world.ObjData) {
 
 func beltUpdateInter(obj *world.ObjData) {
 
-	for p, port := range obj.Ports {
+	for _, port := range obj.Inputs {
 
-		/* Input? */
-		if port.Dir != gv.PORT_IN {
-			continue
-		}
-
-		/* Valid output on other side? */
-		odir := util.ReverseDirection(uint8(p))
+		/* Revese direction */
+		//odir := util.ReverseDirection(uint8(p))
 
 		/* Do we have input and is output is empty */
-		if obj.Ports[p].Buf.Amount > 0 && obj.Ports[odir].Buf.Amount == 0 {
-			obj.Ports[odir].Buf.Amount = obj.Ports[p].Buf.Amount
-			obj.Ports[odir].Buf.TypeP = obj.Ports[p].Buf.TypeP
-			obj.Ports[odir].Buf.Rot = obj.Ports[p].Buf.Rot
-
-			obj.Ports[p].Buf.Amount = 0
+		if port.Buf.Amount > 0 && port.Buf.Amount == 0 {
 		}
 	}
 
@@ -121,7 +100,10 @@ func beltUpdateInter(obj *world.ObjData) {
 func beltUpdate(obj *world.ObjData) {
 
 	/* Output full? */
-	if obj.Ports[obj.Dir].Buf.Amount != 0 {
+	if obj.Outputs == nil {
+		return
+	}
+	if obj.Outputs[0].Buf.Amount != 0 {
 		obj.Blocked = true
 		obj.Active = false
 		return

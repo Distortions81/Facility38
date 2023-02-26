@@ -500,21 +500,21 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 				if gv.Debug {
 
-					for z, _ := range o.Ports {
-						if o.Ports[z].Obj == nil || o.Ports[z].Buf.TypeP == nil {
+					for z, p := range o.Ports {
+						if p.Obj == nil || p.Buf.TypeP == nil {
 							continue
 						}
-						if o.Ports[z].Dir == gv.PORT_IN && o.Ports[z].Obj != nil {
+						if p.Dir == gv.PORT_IN && p.Obj != nil {
 							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
-								o.Ports[z].Obj.TypeP.Name,
-								o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
+								p.Obj.TypeP.Name,
+								p.Buf.TypeP.Name, p.Buf.Amount)
 						}
-						if o.Ports[z].Dir == gv.PORT_OUT && o.Ports[z].Obj != nil {
+						if p.Dir == gv.PORT_OUT && p.Obj != nil {
 							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
-								o.Ports[z].Obj.TypeP.Name,
-								o.Ports[z].Buf.TypeP.Name, o.Ports[z].Buf.Amount)
+								p.Obj.TypeP.Name,
+								p.Buf.TypeP.Name, p.Buf.Amount)
 						}
 					}
 				}
