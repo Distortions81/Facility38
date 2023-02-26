@@ -500,7 +500,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 				if gv.Debug {
 
-					for z := 0; z < gv.DIR_MAX; z++ {
+					for z, _ := range o.Ports {
 						if o.Ports[z].Obj == nil || o.Ports[z].Buf.TypeP == nil {
 							continue
 						}

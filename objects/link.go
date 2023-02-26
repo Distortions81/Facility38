@@ -32,7 +32,6 @@ func LinkObj(b *world.BuildingData) {
 				/* Port is of correct type */
 				np.Type == util.ReverseType(np.Type) {
 
-				/* Assign on both sides */
 				/* Add link to objects */
 				neigh.Obj.Ports[n].Obj = b.Obj
 				b.Obj.Ports[p].Obj = neigh.Obj

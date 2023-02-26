@@ -12,7 +12,7 @@ var (
 	BootBlankMap = true
 	UPSBench     = false
 	LoadTest     = false
-	Debug        = false
+	Debug        = true
 	LogStdOut    = true
 	WASMMode     = false
 
