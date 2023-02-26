@@ -49,6 +49,10 @@ func LinkObj(b *world.BuildingData) {
 func UnlinkObj(obj *world.ObjData) {
 
 	for dir, port := range obj.Ports {
+		/* No obj, skip */
+		if port.Obj == nil {
+			continue
+		}
 		port.Obj.Ports[util.ReverseDirection(uint8(dir))].Link = nil
 		obj.Ports[dir].Link = nil
 

@@ -324,9 +324,9 @@ func createWorldObjects() {
 				dir := objects.GameObjTypes[SelectedItemType].Direction
 
 				if gv.WASMMode {
-					objects.ObjQueueAdd(o.Obj, SelectedItemType, pos, false, dir)
+					objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
 				} else {
-					go objects.ObjQueueAdd(o.Obj, SelectedItemType, pos, false, dir)
+					go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
 				}
 
 				gLastActionPosition = pos

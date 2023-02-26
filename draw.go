@@ -470,8 +470,8 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 		if chunk != nil {
 			b := util.GetObj(pos, chunk)
-			o := b.Obj
-			if o != nil {
+			if b != nil {
+				o := b.Obj
 				found = true
 				toolTip = fmt.Sprintf("%v: (%v,%v)\n",
 					o.TypeP.Name,

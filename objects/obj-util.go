@@ -45,8 +45,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 	b.Obj.Parent.Lock.Lock()
 
-	b.Obj.Parent.BuildingMap[pos] = &world.BuildingData{}
-	b.Obj.Parent.BuildingMap[pos].Obj = b.Obj
+	b.Obj.Parent.BuildingMap[pos] = b
 
 	/*Multi-tile object*/
 
@@ -56,9 +55,9 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	b.Obj.Parent.NumObjs++
 	b.Obj.Parent.Lock.Unlock()
 
-	for p, port := range b.Obj.TypeP.Ports {
-		b.Obj.Ports[p].Dir = port.Dir
-		b.Obj.Ports[p].Type = port.Type
+	for _, port := range b.Obj.TypeP.Ports {
+		b.Obj.Ports = append(b.Obj.Ports,
+			world.ObjPortData{Dir: port.Dir, Type: port.Type})
 	}
 
 	b.Obj.Dir = dir
