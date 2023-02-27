@@ -197,44 +197,40 @@ func splitterUpdate(obj *world.ObjData) {
 }
 
 func boxUpdate(obj *world.ObjData) {
-	for p, port := range obj.Ports {
-		/* Input port? */
-		if port.Dir == gv.PORT_IN {
+	for p, port := range obj.Inputs {
+		if port.Buf.Amount == 0 {
 
-			if port.Buf.Amount == 0 {
-
-				/* Go inactive after a while */
-				if obj.TickCount > uint8(world.ObjectUPS*4) {
-					obj.Active = false
-				}
-				obj.TickCount++
-				continue
-			}
-
-			/* Will the input fit? */
-			if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
-				obj.Blocked = true
+			/* Go inactive after a while */
+			if obj.TickCount > uint8(world.ObjectUPS*4) {
 				obj.Active = false
-				continue
 			}
-
-			/* Reset counter */
-			obj.Blocked = false
-			obj.Active = true
-			obj.TickCount = 0
-
-			/* Init content type if needed */
-			if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-				obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
-			}
-
-			/* Add to contents */
-			obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
-			obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
-			obj.KGHeld += port.Buf.Amount
-			obj.Ports[p].Buf.Amount = 0
+			obj.TickCount++
 			continue
 		}
+
+		/* Will the input fit? */
+		if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
+			obj.Blocked = true
+			obj.Active = false
+			continue
+		}
+
+		/* Reset counter */
+		obj.Blocked = false
+		obj.Active = true
+		obj.TickCount = 0
+
+		/* Init content type if needed */
+		if obj.Contents[port.Buf.TypeP.TypeI] == nil {
+			obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
+		}
+
+		/* Add to contents */
+		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
+		obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
+		obj.KGHeld += port.Buf.Amount
+		obj.Ports[p].Buf.Amount = 0
+		continue
 
 		//Unloader goes here
 	}
