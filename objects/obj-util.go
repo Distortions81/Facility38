@@ -73,6 +73,9 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 		b.Obj.KGFuel = b.Obj.TypeP.MaxFuelKG
 	}
 
+	/* Copy port template */
+	b.Obj.Ports = append(b.Obj.Ports, b.Obj.TypeP.Ports...)
+
 	LinkObj(b)
 
 	/* We should add/remove this based on object links */
