@@ -260,9 +260,9 @@ func drawIconMode(screen *ebiten.Image) {
 				if obj.TypeP.TypeI == gv.ObjTypeBasicBelt {
 
 					/* Draw Input Materials */
-					for p := range obj.Ports {
-						if obj.Ports[p].Buf.Amount > 0 {
-							op, img = drawMaterials(obj.Ports[p].Buf, obj, screen, 1.0)
+					for _, port := range obj.Outputs {
+						if port.Buf.Amount > 0 {
+							op, img = drawMaterials(port.Buf, obj, screen, 1.0)
 							if img != nil {
 								OpBatch[BatchTop] = op
 								ImageBatch[BatchTop] = img
@@ -504,17 +504,19 @@ func drawWorldTooltip(screen *ebiten.Image) {
 						if p.Obj == nil {
 							continue
 						}
-						if p.Dir == gv.PORT_IN && p.Obj != nil {
-							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %v: %0.2f)\n",
+						if p.Type == gv.PORT_IN && p.Obj != nil {
+							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
 								p.Obj.TypeP.Name,
-								p.Buf.TypeP.Name, p.Buf.Amount)
+								//p.Buf.TypeP.Name,
+								p.Buf.Amount)
 						}
-						if p.Dir == gv.PORT_OUT && p.Obj != nil {
-							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %v: %0.2f)\n",
+						if p.Type == gv.PORT_OUT && p.Obj != nil {
+							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
 								p.Obj.TypeP.Name,
-								p.Buf.TypeP.Name, p.Buf.Amount)
+								//p.Buf.TypeP.Name,
+								p.Buf.Amount)
 						}
 					}
 				}

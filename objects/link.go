@@ -1,8 +1,10 @@
 package objects
 
 import (
+	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"fmt"
 )
 
 /* Link to output in (dir) */
@@ -10,6 +12,7 @@ func LinkObj(b *world.BuildingData) {
 
 	/* Attempt to link ports */
 	for p, port := range b.Obj.Ports {
+		fmt.Println("MEEP LINK")
 
 		/* Make sure port is unoccupied */
 		if port.Obj != nil {
@@ -18,27 +21,35 @@ func LinkObj(b *world.BuildingData) {
 
 		/* Get world obj sub-position */
 		lpos := util.AddXY(b.Obj.Pos, b.SubPos)
-		neigh := util.GetNeighborObj(lpos, port.Dir)
+		neighb := util.GetNeighborObj(lpos, port.Dir)
 
 		/* We found one*/
-		if neigh == nil {
+		if neighb == nil {
 			continue
 		}
 
+		fmt.Println("MEEP FOUND NEIGH")
+
 		/* Neighbor port is available */
-		for n, np := range neigh.Obj.Ports {
+		for n, np := range neighb.Obj.Ports {
+			fmt.Println(np.Type, np.Dir)
 			/* Port is in correct direction */
 			if np.Dir == util.ReverseDirection(port.Dir) &&
 				/* Port is of correct type */
-				np.Type == util.ReverseType(np.Type) {
+				port.Type == util.ReverseType(np.Type) {
 
 				/* Add link to objects */
-				neigh.Obj.Ports[n].Obj = b.Obj
-				b.Obj.Ports[p].Obj = neigh.Obj
+				neighb.Obj.Ports[n].Obj = b.Obj
+				b.Obj.Ports[p].Obj = neighb.Obj
 
 				/* Add direct port links */
-				neigh.Obj.Ports[n].Link = &b.Obj.Ports[p]
-				b.Obj.Ports[p].Link = &neigh.Obj.Ports[n]
+				neighb.Obj.Ports[n].Link = &b.Obj.Ports[p]
+				b.Obj.Ports[p].Link = &neighb.Obj.Ports[n]
+
+				portAlias(b.Obj, p)
+				portAlias(neighb.Obj, n)
+
+				fmt.Println("MEEP NEIGH PORTS")
 			}
 		}
 	}
@@ -58,4 +69,23 @@ func UnlinkObj(obj *world.ObjData) {
 		port.Obj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
 		obj.Ports[dir].Obj = nil
 	}
+}
+
+func portAlias(obj *world.ObjData, port int) {
+	switch port {
+	case gv.PORT_IN:
+		obj.Inputs = append(obj.Inputs, &obj.Ports[port])
+	case gv.PORT_OUT:
+		obj.Outputs = append(obj.Outputs, &obj.Ports[port])
+	case gv.PORT_FIN:
+		obj.FuelIn = append(obj.FuelIn, &obj.Ports[port])
+	case gv.PORT_FOUT:
+		obj.FuelOut = append(obj.FuelOut, &obj.Ports[port])
+	}
+
+	fmt.Println(obj.TypeP.Name, port)
+}
+
+func portUnAlias(obj *world.ObjData, port int) {
+
 }

@@ -43,6 +43,35 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	b.Obj.Parent = chunk
 
 	b.Obj.TypeP = GameObjTypes[mtype]
+	b.Obj.Dir = dir
+
+	if b.Obj.TypeP.CanContain {
+		b.Obj.Contents = [gv.MAT_MAX]*world.MatData{}
+	}
+
+	if b.Obj.TypeP.MaxFuelKG > 0 {
+		b.Obj.KGFuel = b.Obj.TypeP.MaxFuelKG
+	}
+
+	for p, port := range b.Obj.TypeP.Ports {
+		b.Obj.Ports = append(b.Obj.Ports, port)
+		b.Obj.Ports[p].Buf = &world.MatData{}
+	}
+
+	LinkObj(b)
+
+	/* We should add/remove this based on object links */
+	/* Only add to list if the object calls an update function */
+	if b.Obj.TypeP.UpdateObj != nil {
+		EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TOCK, false)
+	}
+
+	EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
+
+	/* Init obj if we have a function for it */
+	if b.Obj.TypeP.InitObj != nil {
+		b.Obj.TypeP.InitObj(b.Obj)
+	}
 
 	b.Obj.Parent.Lock.Lock()
 
@@ -63,35 +92,6 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	b.Obj.Parent.Parent.PixmapDirty = true
 	b.Obj.Parent.NumObjs++
 	b.Obj.Parent.Lock.Unlock()
-	b.Obj.Dir = dir
-
-	if b.Obj.TypeP.CanContain {
-		b.Obj.Contents = [gv.MAT_MAX]*world.MatData{}
-	}
-
-	if b.Obj.TypeP.MaxFuelKG > 0 {
-		b.Obj.KGFuel = b.Obj.TypeP.MaxFuelKG
-	}
-
-	for _, port := range b.Obj.TypeP.Ports {
-		b.Obj.Ports = append(b.Obj.Ports, port)
-		port.Buf = &world.MatData{}
-	}
-
-	LinkObj(b)
-
-	/* We should add/remove this based on object links */
-	/* Only add to list if the object calls an update function */
-	if b.Obj.TypeP.UpdateObj != nil {
-		EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TOCK, false)
-	}
-
-	EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
-
-	/* Init obj if we have a function for it */
-	if b.Obj.TypeP.InitObj != nil {
-		b.Obj.TypeP.InitObj(b.Obj)
-	}
 
 	return b.Obj
 }
