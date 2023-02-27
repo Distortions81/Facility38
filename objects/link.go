@@ -46,10 +46,10 @@ func LinkObj(b *world.BuildingData) {
 				neighb.Obj.Ports[n].Link = &b.Obj.Ports[p]
 				b.Obj.Ports[p].Link = &neighb.Obj.Ports[n]
 
-				portAlias(b.Obj, p)
-				portAlias(neighb.Obj, n)
+				portAlias(b.Obj, p, port.Type)
+				portAlias(neighb.Obj, n, np.Type)
 
-				fmt.Println("MEEP NEIGH PORTS")
+				fmt.Println("MEEP aliased")
 			}
 		}
 	}
@@ -71,8 +71,8 @@ func UnlinkObj(obj *world.ObjData) {
 	}
 }
 
-func portAlias(obj *world.ObjData, port int) {
-	switch port {
+func portAlias(obj *world.ObjData, port int, ptype uint8) {
+	switch ptype {
 	case gv.PORT_IN:
 		obj.Inputs = append(obj.Inputs, &obj.Ports[port])
 	case gv.PORT_OUT:

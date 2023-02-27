@@ -4,6 +4,7 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"fmt"
 	"math/rand"
 )
 
@@ -15,6 +16,8 @@ func minerUpdate(obj *world.ObjData) {
 		obj.TickCount++
 		return
 	}
+	fmt.Println("Miner tock")
+	obj.TickCount = 0
 
 	/* Get fuel */
 	for p, port := range obj.FuelIn {
@@ -29,6 +32,8 @@ func minerUpdate(obj *world.ObjData) {
 	}
 
 	for p, port := range obj.Outputs {
+
+		fmt.Println("Miner outputting")
 		/* Output full? */
 		if port.Buf.Amount != 0 {
 			obj.Blocked = true
@@ -81,8 +86,7 @@ func minerUpdate(obj *world.ObjData) {
 		/* Burn fuel */
 		obj.KGFuel -= obj.TypeP.KgFuelEach
 
-		obj.TickCount = 0
-
+		fmt.Println("miner tocked")
 		//We should remove ourselves here if we run out of ore
 	}
 }
@@ -198,6 +202,7 @@ func splitterUpdate(obj *world.ObjData) {
 
 func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Inputs {
+		fmt.Println("box input")
 		if port.Buf.Amount == 0 {
 
 			/* Go inactive after a while */

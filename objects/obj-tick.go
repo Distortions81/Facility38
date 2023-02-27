@@ -3,6 +3,7 @@ package objects
 import (
 	"GameTest/gv"
 	"GameTest/world"
+	"fmt"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -107,6 +108,7 @@ func tickObj(obj *world.ObjData) {
 			continue
 		}
 
+		fmt.Println("tick")
 		swapPortBuf(port.Link.Buf, port.Buf)
 	}
 }
