@@ -231,10 +231,10 @@ func boxUpdate(obj *world.ObjData) {
 		}
 
 		/* Add to contents */
-		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
-		obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
+		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Inputs[p].Buf.Amount
+		obj.Contents[port.Buf.TypeP.TypeI].TypeP = MatTypes[port.Buf.TypeP.TypeI]
 		obj.KGHeld += port.Buf.Amount
-		obj.Ports[p].Buf.Amount = 0
+		obj.Inputs[p].Buf.Amount = 0
 		continue
 
 		//Unloader goes here
