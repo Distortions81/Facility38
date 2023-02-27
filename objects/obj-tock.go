@@ -70,8 +70,12 @@ func minerUpdate(obj *world.ObjData) {
 		}
 
 		/* Otherwise output the material */
-		obj.Outputs[p].Buf.Amount = amount
-		obj.Outputs[p].Buf.TypeP = kind
+		if obj.Outputs[p].Buf.Amount != amount {
+			obj.Outputs[p].Buf.Amount = amount
+		}
+		if obj.Outputs[p].Buf.TypeP != kind {
+			obj.Outputs[p].Buf.TypeP = kind
+		}
 		obj.Outputs[p].Buf.Rot = uint8(rand.Intn(3))
 
 		/* Burn fuel */

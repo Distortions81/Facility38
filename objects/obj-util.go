@@ -74,6 +74,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 	LinkObj(b)
 
+	/* We should add/remove this based on object links */
 	/* Only add to list if the object calls an update function */
 	if b.Obj.TypeP.UpdateObj != nil {
 		EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TOCK, false)
@@ -87,4 +88,8 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	}
 
 	return b.Obj
+}
+
+func swapPortBuf(px, py *world.MatData) {
+	*px, *py = *py, *px
 }

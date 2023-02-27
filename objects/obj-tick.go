@@ -90,26 +90,24 @@ func ObjUpdateDaemonST() {
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
 func tickObj(obj *world.ObjData) {
 
-	for p, port := range obj.Outputs {
+	for _, port := range obj.Outputs {
+
+		/* If there is a link */
+		if port.Link == nil {
+			continue
+		}
+
 		/* If we have stuff to send */
 		if port.Buf.Amount == 0 {
 			continue
 		}
 
-		/* Is there somewhere empty to send it */
+		/* If destination is empty */
 		if port.Link.Buf.Amount != 0 {
 			continue
 		}
 
-		/* Don't send if the object is blocked */
-		if port.Obj.Blocked {
-			continue
-		}
-
-		port.Link.Buf.Amount = port.Buf.Amount
-		port.Link.Buf.TypeP = port.Buf.TypeP
-		port.Link.Buf.Rot = port.Buf.Rot
-		obj.Ports[p].Buf.Amount = 0
+		swapPortBuf(port.Link.Buf, port.Buf)
 	}
 }
 
@@ -125,9 +123,6 @@ func runTicksST() {
 
 /* Process internally in an object, multi-threaded*/
 func runTicks() {
-	if world.TickCount == 0 {
-		return
-	}
 
 	l := world.TickCount - 1
 	if l < 1 {

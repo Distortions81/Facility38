@@ -172,7 +172,7 @@ type ObjPortData struct {
 	SubPos  XY
 
 	Obj  *ObjData `json:"-"`
-	Buf  MatData  `json:"b,omitempty"`
+	Buf  *MatData `json:"b,omitempty"`
 	Link *ObjPortData
 }
 
