@@ -260,7 +260,7 @@ func drawIconMode(screen *ebiten.Image) {
 				if obj.TypeP.TypeI == gv.ObjTypeBasicBelt {
 
 					/* Draw Input Materials */
-					for _, port := range obj.Outputs {
+					for _, port := range obj.Inputs {
 						if port.Buf.Amount > 0 {
 							op, img = drawMaterials(port.Buf, obj, screen, 1.0)
 							if img != nil {

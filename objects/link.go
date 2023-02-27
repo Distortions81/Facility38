@@ -75,12 +75,16 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 	switch ptype {
 	case gv.PORT_IN:
 		obj.Inputs = append(obj.Inputs, &obj.Ports[port])
+		obj.NumIn++
 	case gv.PORT_OUT:
 		obj.Outputs = append(obj.Outputs, &obj.Ports[port])
+		obj.NumOut++
 	case gv.PORT_FIN:
 		obj.FuelIn = append(obj.FuelIn, &obj.Ports[port])
+		obj.NumFIn++
 	case gv.PORT_FOUT:
 		obj.FuelOut = append(obj.FuelOut, &obj.Ports[port])
+		obj.NumFOut++
 	}
 
 	fmt.Println(obj.TypeP.Name, port)
