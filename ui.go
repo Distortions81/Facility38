@@ -58,8 +58,6 @@ func init() {
 /* Input interface handler */
 func (g *Game) Update() error {
 
-	g.ui.Update()
-
 	var keys []ebiten.Key
 	/* Game start screen */
 	if !world.PlayerReady.Load() &&

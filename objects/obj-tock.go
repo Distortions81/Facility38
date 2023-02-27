@@ -28,6 +28,7 @@ func minerUpdate(obj *world.ObjData) {
 			/* Eat the fuel and increase fuel kg */
 			obj.KGFuel += port.Buf.Amount
 			obj.FuelIn[p].Buf.Amount = 0
+			break
 		}
 	}
 
@@ -88,6 +89,7 @@ func minerUpdate(obj *world.ObjData) {
 
 		fmt.Println("miner tocked")
 		//We should remove ourselves here if we run out of ore
+		break
 	}
 }
 
@@ -108,15 +110,13 @@ func beltUpdateInter(obj *world.ObjData) {
 func beltUpdate(obj *world.ObjData) {
 
 	/* Output full? */
-	if obj.Outputs == nil {
-		fmt.Println("belt: nil outputs")
-		return
-	}
-	if obj.Outputs[0].Buf.Amount != 0 {
-		obj.Blocked = true
-		obj.Active = false
-		fmt.Println("belt: output blocked")
-		return
+	for _, output := range obj.Outputs {
+		if output.Buf.Amount != 0 {
+			obj.Blocked = true
+			obj.Active = false
+			fmt.Println("belt: output blocked")
+			return
+		}
 	}
 
 	obj.Blocked = false
@@ -154,12 +154,17 @@ func beltUpdate(obj *world.ObjData) {
 func fuelHopperUpdate(obj *world.ObjData) {
 
 	/* Grab destination object */
-	dest := obj.Ports[obj.Dir].Obj
+	for _, output := range obj.Outputs {
 
-	/* Does it use fuel? */
-	if dest.TypeP.MaxFuelKG == 0 {
-		obj.Blocked = true
-		return
+		if output.Obj == nil {
+			continue
+		}
+		/* Does it use fuel? */
+		if output.Obj.TypeP.MaxFuelKG == 0 {
+			obj.Blocked = true
+			return
+		}
+
 	}
 }
 
