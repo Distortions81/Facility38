@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
 )
@@ -40,8 +39,6 @@ func LinkObj(b *world.BuildingData) {
 				/* Add direct port links */
 				neigh.Obj.Ports[n].Link = &b.Obj.Ports[p]
 				b.Obj.Ports[p].Link = &neigh.Obj.Ports[n]
-
-				EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
 			}
 		}
 	}
