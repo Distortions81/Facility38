@@ -262,7 +262,7 @@ func drawIconMode(screen *ebiten.Image) {
 					/* Draw Input Materials */
 					for p := range obj.Ports {
 						if obj.Ports[p].Buf.Amount > 0 {
-							op, img = drawMaterials(&obj.Ports[p].Buf, obj, screen, 1.0)
+							op, img = drawMaterials(obj.Ports[p].Buf, obj, screen, 1.0)
 							if img != nil {
 								OpBatch[BatchTop] = op
 								ImageBatch[BatchTop] = img
@@ -273,7 +273,7 @@ func drawIconMode(screen *ebiten.Image) {
 					}
 				}
 				if obj.TypeP.TypeI == gv.ObjTypeBasicBeltInterRight {
-					op, img = drawMaterials(&obj.Ports[2].Buf, obj, screen, 0.5)
+					op, img = drawMaterials(obj.Ports[2].Buf, obj, screen, 0.5)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
