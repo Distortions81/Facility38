@@ -324,7 +324,7 @@ func drawIconMode(screen *ebiten.Image) {
 						}
 
 					} else if obj.TypeP.ShowArrow {
-						for p, _ := range obj.Ports {
+						for p := range obj.Ports {
 							img := objects.ObjOverlayTypes[p].Image
 							iSize := img.Bounds()
 							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}

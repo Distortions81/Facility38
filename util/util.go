@@ -33,6 +33,12 @@ func init() {
 	ChatLinesTop = 1
 }
 
+func WASMSleep() {
+	if gv.WASMMode {
+		time.Sleep(time.Nanosecond)
+	}
+}
+
 func AddXY(a world.XY, b world.XY) world.XY {
 	return world.XY{X: a.X + b.X, Y: a.Y + b.Y}
 }

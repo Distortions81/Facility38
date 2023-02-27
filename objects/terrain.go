@@ -14,14 +14,14 @@ const (
 	maxTerrainCache     = 500
 	maxTerrainCacheWASM = 50
 	minTerrainTime      = time.Minute
-	terrainRenderLoop   = time.Nanosecond
+	terrainRenderLoop   = time.Millisecond
 	debugVisualize      = false
 
 	maxPixmapCache     = 500
 	maxPixmapCacheWASM = 50
 	minPixmapTime      = time.Minute
-	pixmapRenderLoop   = time.Millisecond * 10
-	resouceRenderLoop  = time.Second * 10
+	pixmapRenderLoop   = time.Millisecond * 100
+	resouceRenderLoop  = time.Second
 )
 
 var (
@@ -268,7 +268,6 @@ func PixmapRenderDaemon() {
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func ResouceRenderDaemon() {
 
-	time.Sleep(time.Second * 1)
 	for {
 
 		world.SuperChunkListLock.RLock()

@@ -94,7 +94,6 @@ func ExploreMap(pos world.XY, input int) {
 	/* Explore some map */
 
 	world.MapLoadPercent = 0
-	time.Sleep(time.Millisecond)
 
 	ChunksMade := 0
 	area := input * gv.ChunkSize
@@ -114,5 +113,4 @@ func ExploreMap(pos world.XY, input int) {
 		}
 	}
 	world.MapLoadPercent = 100
-	time.Sleep(time.Millisecond)
 }

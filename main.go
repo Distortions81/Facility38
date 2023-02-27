@@ -5,6 +5,7 @@ import (
 	"GameTest/data"
 	"GameTest/gv"
 	"GameTest/objects"
+	"GameTest/util"
 	"GameTest/world"
 	"fmt"
 	"image/color"
@@ -85,17 +86,11 @@ func main() {
 
 /* Ebiten game init */
 func NewGame() *Game {
-	if gv.WASMMode {
-		time.Sleep(time.Nanosecond)
-	}
-	go loadSprites()
-	if gv.WASMMode {
-		time.Sleep(time.Nanosecond)
-	}
-	go makeTestMap(gv.BootBlankMap)
-	if gv.WASMMode {
-		time.Sleep(time.Nanosecond)
-	}
+	go func() {
+		time.Sleep(time.Millisecond * 700)
+		loadSprites()
+		makeTestMap(gv.BootBlankMap)
+	}()
 
 	/* Initialize the game */
 	return &Game{}
@@ -137,9 +132,7 @@ func loadSprites() {
 				}
 			}
 
-			if gv.WASMMode {
-				time.Sleep(time.Nanosecond)
-			}
+			util.WASMSleep()
 		}
 	}
 
@@ -153,9 +146,7 @@ func loadSprites() {
 				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
 			objects.MatTypes[m].Image = img
-			if gv.WASMMode {
-				time.Sleep(time.Nanosecond)
-			}
+			util.WASMSleep()
 		}
 	}
 
@@ -208,9 +199,7 @@ func bootScreen(screen *ebiten.Image) {
 	}
 	color.G = byte(104 + (world.MapLoadPercent * 1.5))
 	vector.DrawFilledRect(screen, x, y, world.MapLoadPercent*float32(multi), tall, color)
-	if gv.WASMMode {
-		time.Sleep(time.Nanosecond)
-	}
+	util.WASMSleep()
 }
 
 /* Detect logical and virtual CPUs, set number of workers */
