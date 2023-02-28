@@ -7,6 +7,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func init() {
@@ -39,7 +41,7 @@ func init() {
 			}
 		}
 
-		for p, _ := range GameObjTypes[i].Ports {
+		for p := range GameObjTypes[i].Ports {
 			GameObjTypes[i].Ports[p].Index = uint8(p)
 		}
 	}
@@ -54,13 +56,13 @@ var (
 	UIObjsTypes = []*world.ObjType{
 		//Ui Only
 		{Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
-			Symbol: "SAVE", ExcludeWASM: true, Info: "Quicksave game to the single save-slot."},
+			Symbol: "SAVE", ExcludeWASM: true, Info: "Quicksave game.\n(F2)", QKey: ebiten.KeyF2},
 		{Name: "Load Game", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
-			Symbol: "LOAD", ExcludeWASM: true, Info: "Erase map, and load quicksave."},
+			Symbol: "LOAD", ExcludeWASM: true, Info: "Load quicksave.\n(F3)", QKey: ebiten.KeyF3},
 		{ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER", Info: "Toggle between the normal and Resource layer."},
+			Symbol: "LAYER", Info: "Toggle between the normal and Resource layer.\n(F4)", QKey: ebiten.KeyF4},
 		{ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
-			Symbol: "OVRLY", Info: "Toggle info overlays on/off"},
+			Symbol: "OVRLY", Info: "Toggle info overlays on/off\n(ALT Key)", QKey: ebiten.KeyAlt},
 	}
 
 	/* World objects and images */

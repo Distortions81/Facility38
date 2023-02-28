@@ -1,11 +1,10 @@
 CONTROLS:
 
-Camera: WASD keys or right-click + drag
-WASD Run: Hold-Shift
-Create/destroy objects: left-mouse-click
+Camera: WASD keys or middle click, Run: Shift
+Create objects: left-click
+Delete objects: right-click
 Zoom: +/- or scroll-wheel
 
-Arrows/Overlay toggle: Alt
-Rotate object/toolbar selection: R
-Reverse Rotate: Shift-R
+Rotate object/toolbar item: R-Key
+Reverse Rotate (counter-clock): Shift-R
 Quit: ESC or alt-F4

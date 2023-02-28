@@ -15,16 +15,6 @@ import (
 )
 
 var (
-	/* Touch vars
-	gPrevTouchX   int
-	gPrevTouchY   int
-	gPrevTouchA   int
-	gPrevTouchB   int
-	gPrevPinch    float32
-	gTouchPressed bool
-	gPinchPressed bool
-	gTouchZoom    float32 */
-
 	/* UI state */
 	gMouseHeld      bool
 	gRightMouseHeld bool
@@ -39,7 +29,7 @@ var (
 
 	/* Last object we performed an action on */
 	gLastActionPosition world.XY
-	gLastActionType     int
+	gLastKey            ebiten.Key
 
 	/* WASM weirdness kludge */
 	lastScroll time.Time
@@ -64,7 +54,6 @@ func (g *Game) Update() error {
 		(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
 			inpututil.AppendPressedKeys(keys) != nil) {
 		world.PlayerReady.Store(true)
-		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 		return nil
 	}
 	gClickCaptured = false
@@ -72,6 +61,7 @@ func (g *Game) Update() error {
 	getMouseClicks()
 	getRightMouseClicks()
 	getShiftToggle()
+	getToolbarKeypress()
 	getMousePos()
 
 	handleQuit()
@@ -85,6 +75,21 @@ func (g *Game) Update() error {
 	rotateWorldObjects()
 
 	return nil
+}
+
+func getToolbarKeypress() {
+
+	for _, item := range objects.UIObjsTypes {
+		if item.QKey != 0 {
+			if inpututil.IsKeyJustPressed(item.QKey) {
+				if item.QKey != gLastKey {
+					gLastKey = item.QKey
+
+					item.ToolbarAction()
+				}
+			}
+		}
+	}
 }
 
 /* Quit if alt-f4 or ESC are pressed */
@@ -122,7 +127,6 @@ func handleToolbar(rotate bool) bool {
 			if item.ToolbarAction != nil && !rotate {
 				item.ToolbarAction()
 				DrawToolbar(true, false, ipos)
-				//util.Chat(item.Name)
 			} else {
 				if rotate && item != nil {
 					dir := item.Direction
@@ -149,80 +153,6 @@ func handleToolbar(rotate bool) bool {
 	}
 	return false
 }
-
-/* Touchscreen input, incomplete
-func touchScreenHandle() {
-	tids := ebiten.TouchIDs()
-
-	tx := 0
-	ty := 0
-	ta := 0
-	tb := 0
-
-	foundTouch := false
-	foundPinch := false
-	for _, tid := range tids {
-		ttx, tty := ebiten.TouchPosition(tid)
-		if ttx > 0 || tty > 0 {
-			if foundTouch {
-				ta = ttx
-				tb = tty
-				foundPinch = true
-				break
-			} else {
-				tx = ttx
-				ty = tty
-				foundTouch = true
-			}
-
-		}
-	}
-
-	if foundPinch {
-		dist := util.Distance((ta), (tb), (tx), (ty))
-		if !gPinchPressed {
-			gPrevPinch = dist
-		}
-		gPinchPressed = true
-		gTouchZoom = (gTouchZoom + ((dist - gPrevPinch) / 75))
-		gPrevPinch = dist
-	} else {
-		if gPinchPressed {
-			gTouchPressed = false
-			foundTouch = false
-		}
-		gPinchPressed = false
-	}
-
-	if foundTouch {
-		if !gTouchPressed {
-			if gPinchPressed {
-				gPrevTouchA, gPrevTouchB = util.MidPoint(tx, ty, ta, tb)
-
-			} else {
-				gPrevTouchX = tx
-				gPrevTouchY = ty
-			}
-		}
-		gTouchPressed = true
-
-		if gPinchPressed {
-			nx, ny := util.MidPoint(tx, ty, ta, tb)
-			world.CameraX = world.CameraX + (float32(gPrevTouchA-nx) / world.ZoomScale)
-			world.CameraY = world.CameraY + (float32(gPrevTouchB-ny) / world.ZoomScale)
-			gPrevTouchA, gPrevTouchB = util.MidPoint(tx, ty, ta, tb)
-			world.VisDataDirty.Store(true)
-		} else {
-			world.CameraX = world.CameraX + (float32(gPrevTouchX-tx) / world.ZoomScale)
-			world.CameraY = world.CameraY + (float32(gPrevTouchY-ty) / world.ZoomScale)
-			gPrevTouchX = tx
-			gPrevTouchY = ty
-			world.VisDataDirty.Store(true)
-		}
-	} else {
-		gTouchPressed = false
-	}
-} */
 
 /* Handle scroll wheel and +- keys */
 func zoomHandle() {
@@ -277,7 +207,6 @@ func getMouseClicks() {
 		gMouseHeld = true
 		gLastActionPosition.X = 0
 		gLastActionPosition.Y = 0
-		gLastActionType = cDragActionTypeNone
 
 		gClickCaptured = handleToolbar(false)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyR) {
@@ -288,7 +217,7 @@ func getMouseClicks() {
 /* Look for clicks in window, create or destroy objects */
 func createWorldObjects() {
 	/* Is mouse held */
-	if !gMouseHeld {
+	if !gMouseHeld && !gRightMouseHeld {
 		return
 	}
 
@@ -308,45 +237,29 @@ func createWorldObjects() {
 		return
 	}
 
-	bypass := false
 	chunk := util.GetChunk(pos)
-	o := util.GetObj(pos, chunk)
+	b := util.GetObj(pos, chunk)
 
-	if o == nil {
-		/* Prevent flopping between delete and create when dragging */
-		if gLastActionType == cDragActionTypeBuild || gLastActionType == cDragActionTypeNone {
-			if !bypass {
-				if SelectedItemType == 255 {
-					return
-				}
-				dir := objects.GameObjTypes[SelectedItemType].Direction
-
-				if gv.WASMMode {
-					objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
-				} else {
-					go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
-				}
-
-				gLastActionPosition = pos
-				gLastActionType = cDragActionTypeBuild
-			}
+	if b == nil && gMouseHeld {
+		if SelectedItemType == 255 {
+			return
 		}
-		return
+		dir := objects.GameObjTypes[SelectedItemType].Direction
+
+		if gv.WASMMode {
+			objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+		} else {
+			go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+		}
+	} else if b != nil && b.Obj != nil && gRightMouseHeld {
+		if gv.WASMMode {
+			objects.ObjQueueAdd(b.Obj, SelectedItemType, pos, true, 0)
+		} else {
+			go objects.ObjQueueAdd(b.Obj, SelectedItemType, pos, true, 0)
+		}
 	}
 
-	if gLastActionType != cDragActionTypeDelete && gLastActionType != cDragActionTypeNone {
-		return
-	}
-
-	if gv.WASMMode {
-		objects.ObjQueueAdd(o.Obj, o.Obj.TypeP.TypeI, pos, true, 0)
-	} else {
-		go objects.ObjQueueAdd(o.Obj, o.Obj.TypeP.TypeI, pos, true, 0)
-	}
-	//Action completed, save position and time
 	gLastActionPosition = pos
-	gLastActionType = cDragActionTypeDelete
-
 }
 
 /* Right-click drag or WASD movement, shift run */
@@ -378,36 +291,6 @@ func moveCamera() {
 		world.VisDataDirty.Store(true)
 
 	}
-
-	/* Mouse pan */
-	if gRightMouseHeld {
-		if !world.InitMouse {
-			gPrevMouseX = gMouseX
-			gPrevMouseY = gMouseY
-			world.InitMouse = true
-		}
-
-		world.CameraX = world.CameraX + (float32(gPrevMouseX-gMouseX) / world.ZoomScale)
-		world.CameraY = world.CameraY + (float32(gPrevMouseY-gMouseY) / world.ZoomScale)
-		world.VisDataDirty.Store(true)
-
-		/* Don't let camera go beyond a reasonable point */
-		if world.CameraX > float32(gv.XYMax) {
-			world.CameraX = float32(gv.XYMax)
-		} else if world.CameraX < gv.XYMin {
-			world.CameraX = gv.XYMin
-		}
-		if world.CameraY > float32(gv.XYMax) {
-			world.CameraY = float32(gv.XYMax)
-		} else if world.CameraY < gv.XYMin {
-			world.CameraY = gv.XYMin
-		}
-
-		gPrevMouseX = gMouseX
-		gPrevMouseY = gMouseY
-	} else {
-		world.InitMouse = false
-	}
 }
 
 /* Detect and record right click state */
@@ -422,7 +305,7 @@ func getRightMouseClicks() {
 /* Toggle overylays when ALT is pressed */
 func toggleOverlays() {
 	/* Toggle info overlay */
-	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) {
+	if inpututil.IsKeyJustPressed(objects.UIObjsTypes[gv.ToolbarLayer].QKey) {
 		if world.ShowInfoLayer {
 			world.ShowInfoLayer = false
 			util.ChatDetailed("Info overlay is now off.", world.ColorOrange, time.Second*5)

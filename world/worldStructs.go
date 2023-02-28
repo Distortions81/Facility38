@@ -199,20 +199,23 @@ type ObjType struct {
 
 	TypeI uint8
 
-	Symbol      string
-	ExcludeWASM bool
-	Size        XY
-	Rotatable   bool
-	Direction   uint8
+	Symbol string
+
+	/* Toolbar Specific */
+	ExcludeWASM  bool
+	UIPath       string
+	TBarImage    *ebiten.Image
+	ToolBarArrow bool
+	QKey         ebiten.Key
+
+	Size      XY
+	Rotatable bool
+	Direction uint8
 
 	ImagePath       string
 	ImagePathActive string
 	Image           *ebiten.Image
 	ImageActive     *ebiten.Image
-
-	UIPath       string
-	TBarImage    *ebiten.Image
-	ToolBarArrow bool
 
 	KgHourMine float32
 	HP         float32

@@ -52,6 +52,13 @@ const (
 	ObjSubGame = 1
 	ObjOverlay = 2
 
+	/* Toolbars */
+	ToolbarNone    = 0
+	ToolbarSave    = 1
+	ToolbarLoad    = 2
+	ToolbarLayer   = 3
+	ToolbarOverlay = 4
+
 	/* Buildings */
 	ObjTypeNone                = 0
 	ObjTypeBasicMiner          = 1
