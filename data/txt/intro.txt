@@ -1,6 +1,6 @@
 CONTROLS:
 
-Camera: WASD keys or middle click, Run: Shift
+Camera: WASD keys or hold middle click  Run: Shift
 Create objects: left-click
 Delete objects: right-click
 Zoom: +/- or scroll-wheel
