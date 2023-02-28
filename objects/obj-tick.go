@@ -307,12 +307,12 @@ func runObjQueue() {
 	for _, item := range world.ObjQueue {
 		if item.Delete {
 			if item.Obj.TypeP.SubObjs != nil {
-				pos := item.Pos
 				for _, sub := range item.Obj.TypeP.SubObjs {
-					removePosMap(util.AddXY(sub, pos))
+					pos := util.AddXY(sub, item.Pos)
+					removePosMap(pos)
 				}
-				delObj(item.Obj)
 			}
+			delObj(item.Obj)
 		} else {
 			//Add
 			CreateObj(item.Pos, item.OType, item.Dir)
