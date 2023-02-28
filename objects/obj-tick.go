@@ -307,19 +307,12 @@ func runObjQueue() {
 	for _, item := range world.ObjQueue {
 		if item.Delete {
 			if item.Obj.TypeP.SubObjs != nil {
+				pos := item.Pos
 				for _, sub := range item.Obj.TypeP.SubObjs {
-					subpos := util.AddXY(item.Obj.Pos, sub)
-
-					chunk := util.GetChunk(subpos)
-					if chunk != nil {
-						b := util.GetObj(subpos, chunk)
-						if b != nil && b.Obj != nil {
-							delObj(b.Obj)
-						}
-					}
+					removePosMap(util.AddXY(sub, pos))
 				}
+				delObj(item.Obj)
 			}
-			delObj(item.Obj)
 		} else {
 			//Add
 			CreateObj(item.Pos, item.OType, item.Dir)
@@ -337,4 +330,20 @@ func delObj(obj *world.ObjData) {
 	EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
 
 	removeObj(obj)
+}
+
+/* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
+func removePosMap(pos world.XY) {
+	/* delete from map */
+	sChunk := util.GetSuperChunk(pos)
+	chunk := util.GetChunk(pos)
+	if chunk == nil || sChunk == nil {
+		return
+	}
+	chunk.Lock.Lock()
+	chunk.NumObjs--
+	delete(chunk.BuildingMap, pos)
+	chunk.Lock.Unlock()
+
+	sChunk.PixmapDirty = true
 }

@@ -20,7 +20,7 @@ func LinkObj(b *world.BuildingData) {
 		}
 
 		/* Get world obj sub-position */
-		lpos := util.AddXY(b.Obj.Pos, b.SubPos)
+		lpos := util.AddXY(b.SubPos, b.Obj.Pos)
 		neighb := util.GetNeighborObj(lpos, port.Dir)
 
 		/* We found one*/
