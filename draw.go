@@ -171,7 +171,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
-		fmt.Println(x, y)
 
 		screen.DrawImage(item.Image, op)
 	}
