@@ -36,12 +36,6 @@ var (
 	lastScroll time.Time
 )
 
-const (
-	cDragActionTypeNone   = 0
-	cDragActionTypeBuild  = 1
-	cDragActionTypeDelete = 2
-)
-
 func init() {
 	lastScroll = time.Now()
 }
