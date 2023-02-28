@@ -137,15 +137,43 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(toolbarCache, nil)
 	toolbarCacheLock.RUnlock()
 
-	if SelectedItemType > 0 && SelectedItemType < 255 {
-		op := &ebiten.DrawImageOptions{}
-		item := objects.GameObjTypes[SelectedItemType]
-		img := item.Image
+	/* Draw ghost for selected item */
+	if SelectedItemType < 255 {
 
-		op.GeoM.Scale(float64(world.ZoomScale)/gv.SpriteScale, float64(world.ZoomScale)/gv.SpriteScale)
-		op.GeoM.Translate(float64(gMouseX), float64(gMouseY))
-		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.4)
-		screen.DrawImage(img, op)
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+		item := objects.GameObjTypes[SelectedItemType]
+
+		/* Get mouse position on world */
+		worldMouseX := int(world.MouseX/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
+		worldMouseY := int(world.MouseY/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
+
+		/* camera + object */
+		objOffX := camXPos + (float32((worldMouseX)))
+		objOffY := camYPos + (float32((worldMouseY)))
+
+		/* camera zoom */
+		x := float64(objOffX * world.ZoomScale)
+		y := float64(objOffY * world.ZoomScale)
+
+		iSize := item.Image.Bounds()
+
+		if item.Rotatable {
+			xx := float64(iSize.Size().X / 2)
+			yy := float64(iSize.Size().Y / 2)
+			op.GeoM.Translate(-xx, -yy)
+			op.GeoM.Rotate(gv.NinetyDeg * float64(int(item.Direction)))
+			op.GeoM.Translate(xx, yy)
+		}
+
+		op.GeoM.Scale(
+			(float64(item.Size.X)*float64(world.ZoomScale))/float64(iSize.Max.X),
+			(float64(item.Size.Y)*float64(world.ZoomScale))/float64(iSize.Max.Y))
+
+		op.GeoM.Translate(math.Floor(x), math.Floor(y))
+		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
+		fmt.Println(x, y)
+
+		screen.DrawImage(item.Image, op)
 	}
 
 	/* Tooltips */
