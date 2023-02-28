@@ -38,6 +38,10 @@ func init() {
 				GameObjTypes[i].MaxContainKG = 50
 			}
 		}
+
+		for p, _ := range GameObjTypes[i].Ports {
+			GameObjTypes[i].Ports[p].Index = uint8(p)
+		}
 	}
 }
 

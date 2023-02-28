@@ -159,6 +159,11 @@ func RotCCW(dir uint8) uint8 {
 	return uint8(PosIntMod(int(dir-1), gv.DIR_MAX))
 }
 
+/* Rotate consts.DIR value to x*/
+func RotDir(dir uint8, add uint8) uint8 {
+	return uint8(PosIntMod(int(dir-add), gv.DIR_MAX))
+}
+
 /* give distance between two coordinates */
 func Distance(xa, ya, xb, yb int) float32 {
 	x := math.Abs(float64(xa - xb))

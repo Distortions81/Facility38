@@ -366,10 +366,10 @@ func drawIconMode(screen *ebiten.Image) {
 						}
 
 					} else if obj.TypeP.ShowArrow {
-						for p, port := range obj.Ports {
+						for _, port := range obj.Ports {
 							if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
 
-								img := objects.ObjOverlayTypes[p].Image
+								img := objects.ObjOverlayTypes[port.Dir].Image
 								iSize := img.Bounds()
 								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),

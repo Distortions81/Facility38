@@ -136,6 +136,7 @@ func beltUpdate(obj *world.ObjData) {
 			fmt.Println("belt: input empty")
 			continue
 		} else if obj.Outputs[0].Obj != nil && obj.Outputs[0].Obj.Blocked {
+			fmt.Println("belt: Output obj is blocked")
 			break
 		} else {
 			swapPortBuf(obj.Outputs[0].Buf, obj.Inputs[x].Buf)

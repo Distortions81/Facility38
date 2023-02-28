@@ -456,10 +456,16 @@ func rotateWorldObjects() {
 			if gShiftPressed {
 				newdir = util.RotCCW(o.Obj.Dir)
 				oPos := util.CenterXY(o.Obj.Pos)
+				for p := range o.Obj.Ports {
+					o.Obj.Ports[p].Dir = util.RotCCW(o.Obj.Dir)
+				}
 				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.Obj.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
 			} else {
 				newdir = util.RotCW(o.Obj.Dir)
 				oPos := util.CenterXY(o.Obj.Pos)
+				for p := range o.Obj.Ports {
+					o.Obj.Ports[p].Dir = util.RotCW(o.Obj.Dir)
+				}
 				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.Obj.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
 			}
 			o.Obj.Dir = newdir

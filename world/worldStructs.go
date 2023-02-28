@@ -164,8 +164,9 @@ type ObjData struct {
 }
 
 type ObjPortData struct {
-	Dir  uint8 `json:"pd,omitempty"`
-	Type uint8
+	Index uint8
+	Dir   uint8 `json:"pd,omitempty"`
+	Type  uint8
 
 	/* Sub-object specific ports*/
 	SubPort bool

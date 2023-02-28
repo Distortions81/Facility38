@@ -55,21 +55,16 @@ func LinkObj(b *world.BuildingData) {
 	}
 }
 
-/* UnlinkObj an object's (dir) input */
+/* UnlinkObj an object */
 func UnlinkObj(obj *world.ObjData) {
 
-	for dir, port := range obj.Ports {
+	for p, port := range obj.Ports {
 		/* No obj, skip */
 		if port.Obj == nil {
 			continue
 		}
-		port.Obj.Ports[util.ReverseDirection(uint8(dir))].Link = nil
-		obj.Ports[dir].Link = nil
-
-		port.Obj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
-		obj.Ports[dir].Obj = nil
-
-		portUnAlias(obj, dir)
+		obj.Ports[p].Link = nil
+		obj.Ports[p].Obj = nil
 	}
 }
 
@@ -90,15 +85,4 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 	}
 
 	fmt.Println(obj.TypeP.Name, port)
-}
-
-func portUnAlias(obj *world.ObjData, port int) {
-	obj.Inputs = nil
-	obj.NumIn = 0
-	obj.Outputs = nil
-	obj.NumOut = 0
-	obj.FuelIn = nil
-	obj.NumFIn = 0
-	obj.FuelOut = nil
-	obj.NumFOut = 0
 }

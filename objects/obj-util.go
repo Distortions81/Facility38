@@ -56,6 +56,9 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 		b.Obj.Ports = append(b.Obj.Ports, port)
 		b.Obj.Ports[p].Buf = &world.MatData{}
 	}
+	for p, port := range b.Obj.Ports {
+		b.Obj.Ports[p].Dir = util.RotDir(b.Obj.TypeP.Direction, port.Dir)
+	}
 
 	LinkObj(b)
 
