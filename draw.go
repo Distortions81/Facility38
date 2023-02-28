@@ -132,11 +132,24 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		drawPixmapMode(screen)
 	}
 
+	drawItemPlace(screen)
+
 	/* Draw toolbar */
 	toolbarCacheLock.RLock()
 	screen.DrawImage(toolbarCache, nil)
 	toolbarCacheLock.RUnlock()
 
+	/* Tooltips */
+	drawWorldTooltip(screen)
+
+	/* Debug info */
+	drawDebugInfo(screen)
+
+	drawChatLines(screen)
+
+}
+
+func drawItemPlace(screen *ebiten.Image) {
 	/* Draw ghost for selected item */
 	if SelectedItemType < 255 {
 
@@ -174,15 +187,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		screen.DrawImage(item.Image, op)
 	}
-
-	/* Tooltips */
-	drawWorldTooltip(screen)
-
-	/* Debug info */
-	drawDebugInfo(screen)
-
-	drawChatLines(screen)
-
 }
 
 /* Look at camera position, make a list of visible superchunks and chunks. Saves to VisChunks, checks world.CameraDirty */
