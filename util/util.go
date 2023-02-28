@@ -208,7 +208,7 @@ func GetChunk(pos world.XY) *world.MapChunk {
 
 /* Get a superchunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
 func GetSuperChunk(pos world.XY) *world.MapSuperChunk {
-	scpos := PosToChunkPos(pos)
+	scpos := PosToSuperChunkPos(pos)
 
 	world.SuperChunkMapLock.RLock()
 	sChunk := world.SuperChunkMap[scpos]
