@@ -109,20 +109,20 @@ func beltUpdateInter(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
+	if obj.NumOut == 0 || obj.NumIn == 0 {
+		return
+	}
+
 	/* Output full? */
 	for _, output := range obj.Outputs {
 		if output.Buf.Amount != 0 {
 			obj.Blocked = true
-			obj.Active = false
 			fmt.Println("belt: output blocked")
 			return
 		}
 	}
 
 	obj.Blocked = false
-
-	/* Start with last input, then rotate one */
-	found := false
 
 	/* Loop ports */
 	if obj.LastInput == obj.NumIn {
@@ -135,19 +135,15 @@ func beltUpdate(obj *world.ObjData) {
 		if obj.Inputs[x].Buf.Amount == 0 {
 			fmt.Println("belt: input empty")
 			continue
+		} else if obj.Outputs[0].Obj != nil && obj.Outputs[0].Obj.Blocked {
+			break
 		} else {
-			found = true
-			obj.Active = true
-
 			swapPortBuf(obj.Outputs[0].Buf, obj.Inputs[x].Buf)
 			obj.Inputs[x].Buf.Amount = 0
 			obj.LastInput = x
 			fmt.Println("belt: Object moved")
 			break /* Stop */
 		}
-	}
-	if !found {
-		obj.Active = false
 	}
 }
 
