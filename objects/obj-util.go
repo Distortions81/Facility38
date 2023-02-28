@@ -4,7 +4,6 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
-	"fmt"
 )
 
 /* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
@@ -98,5 +97,4 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 func swapPortBuf(px, py *world.MatData) {
 	*px, *py = *py, *px
-	fmt.Println("Meep.")
 }
