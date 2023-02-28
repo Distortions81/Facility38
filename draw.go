@@ -137,6 +137,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(toolbarCache, nil)
 	toolbarCacheLock.RUnlock()
 
+	if SelectedItemType > 0 && SelectedItemType < 255 {
+		op := &ebiten.DrawImageOptions{}
+		item := objects.GameObjTypes[SelectedItemType]
+		img := item.Image
+
+		op.GeoM.Scale(float64(world.ZoomScale)/gv.SpriteScale, float64(world.ZoomScale)/gv.SpriteScale)
+		op.GeoM.Translate(float64(gMouseX), float64(gMouseY))
+		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.4)
+		screen.DrawImage(img, op)
+	}
+
 	/* Tooltips */
 	drawWorldTooltip(screen)
 

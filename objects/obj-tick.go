@@ -2,6 +2,7 @@ package objects
 
 import (
 	"GameTest/gv"
+	"GameTest/util"
 	"GameTest/world"
 	"fmt"
 	"time"
@@ -305,15 +306,20 @@ func runObjQueue() {
 
 	for _, item := range world.ObjQueue {
 		if item.Delete {
+			if item.Obj.TypeP.SubObjs != nil {
+				for _, sub := range item.Obj.TypeP.SubObjs {
+					subpos := util.AddXY(item.Obj.Pos, sub)
 
-			UnlinkObj(item.Obj)
-
-			/* Remove tick and tock events */
-			EventQueueAdd(item.Obj, gv.QUEUE_TYPE_TICK, true)
-			EventQueueAdd(item.Obj, gv.QUEUE_TYPE_TOCK, true)
-
-			removeObj(item.Obj)
-
+					chunk := util.GetChunk(subpos)
+					if chunk != nil {
+						b := util.GetObj(subpos, chunk)
+						if b != nil && b.Obj != nil {
+							delObj(b.Obj)
+						}
+					}
+				}
+			}
+			delObj(item.Obj)
 		} else {
 			//Add
 			CreateObj(item.Pos, item.OType, item.Dir)
@@ -321,4 +327,14 @@ func runObjQueue() {
 	}
 
 	world.ObjQueue = []*world.ObjectQueueData{}
+}
+
+func delObj(obj *world.ObjData) {
+	UnlinkObj(obj)
+
+	/* Remove tick and tock events */
+	EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+	EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+
+	removeObj(obj)
 }

@@ -68,6 +68,8 @@ func UnlinkObj(obj *world.ObjData) {
 
 		port.Obj.Ports[util.ReverseDirection(uint8(dir))].Obj = nil
 		obj.Ports[dir].Obj = nil
+
+		portUnAlias(obj, dir)
 	}
 }
 
@@ -91,5 +93,12 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 }
 
 func portUnAlias(obj *world.ObjData, port int) {
-
+	obj.Inputs = nil
+	obj.NumIn = 0
+	obj.Outputs = nil
+	obj.NumOut = 0
+	obj.FuelIn = nil
+	obj.NumFIn = 0
+	obj.FuelOut = nil
+	obj.NumFOut = 0
 }
