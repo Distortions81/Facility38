@@ -16,10 +16,11 @@ import (
 
 var (
 	/* UI state */
-	gMouseHeld      bool
-	gRightMouseHeld bool
-	gShiftPressed   bool
-	gClickCaptured  bool
+	gMouseHeld       bool
+	gMiddleMouseHeld bool
+	gRightMouseHeld  bool
+	gShiftPressed    bool
+	gClickCaptured   bool
 
 	/* Mouse vars */
 	gMouseX     float32 = 1
@@ -59,6 +60,7 @@ func (g *Game) Update() error {
 	gClickCaptured = false
 
 	getMouseClicks()
+	getMiddleMouseClicks()
 	getRightMouseClicks()
 	getShiftToggle()
 	getToolbarKeypress()
@@ -291,6 +293,33 @@ func moveCamera() {
 		world.VisDataDirty.Store(true)
 
 	}
+
+	if gMiddleMouseHeld {
+		if !world.InitMouse {
+			gPrevMouseX = gMouseX
+			gPrevMouseY = gMouseY
+			world.InitMouse = true
+		}
+
+		world.CameraX = world.CameraX + (float32(gPrevMouseX-gMouseX) / world.ZoomScale)
+		world.CameraY = world.CameraY + (float32(gPrevMouseY-gMouseY) / world.ZoomScale)
+		world.VisDataDirty.Store(true)
+
+		/* Don't let camera go beyond a reasonable point */
+		if world.CameraX > float32(gv.XYMax) {
+			world.CameraX = float32(gv.XYMax)
+		} else if world.CameraX < gv.XYMin {
+			world.CameraX = gv.XYMin
+		}
+		if world.CameraY > float32(gv.XYMax) {
+			world.CameraY = float32(gv.XYMax)
+		} else if world.CameraY < gv.XYMin {
+			world.CameraY = gv.XYMin
+		}
+
+		gPrevMouseX = gMouseX
+		gPrevMouseY = gMouseY
+	}
 }
 
 /* Detect and record right click state */
@@ -299,6 +328,14 @@ func getRightMouseClicks() {
 		gRightMouseHeld = false
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 		gRightMouseHeld = true
+	}
+}
+
+func getMiddleMouseClicks() {
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonMiddle) {
+		gMiddleMouseHeld = false
+	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
+		gMiddleMouseHeld = true
 	}
 }
 
