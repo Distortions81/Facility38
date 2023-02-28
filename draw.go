@@ -366,19 +366,24 @@ func drawIconMode(screen *ebiten.Image) {
 						}
 
 					} else if obj.TypeP.ShowArrow {
-						for p := range obj.Ports {
-							img := objects.ObjOverlayTypes[p].Image
-							iSize := img.Bounds()
-							var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-							op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-								((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
-							op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+						for p, port := range obj.Ports {
+							if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
 
-							/* Draw Arrow */
-							if img != nil {
-								OpBatch[BatchTop] = op
-								ImageBatch[BatchTop] = img
-								BatchTop++
+								img := objects.ObjOverlayTypes[p].Image
+								iSize := img.Bounds()
+								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
+									((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+								op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+								op.ColorScale.Scale(0.5, 0.5, 0.5, 0.66)
+
+								/* Draw Arrow */
+								if img != nil {
+									OpBatch[BatchTop] = op
+									ImageBatch[BatchTop] = img
+									BatchTop++
+								}
+								break
 							}
 						}
 					}

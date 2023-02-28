@@ -162,6 +162,7 @@ func DrawToolbar(click, hover bool, index int) {
 					aop.GeoM.Scale(1.0/(float64(arrow.Bounds().Max.X)/gv.ToolBarScale), 1.0/(float64(arrow.Bounds().Max.Y)/gv.ToolBarScale))
 				}
 				aop.GeoM.Translate(x, 0)
+				aop.ColorScale.Scale(0.5, 0.5, 0.5, 0.66)
 				toolbarCache.DrawImage(arrow, aop)
 			}
 		}
