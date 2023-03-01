@@ -311,7 +311,7 @@ func runObjQueue() {
 			delObj(item.Obj)
 		} else {
 			//Add
-			CreateObj(item.Pos, item.OType, item.Dir)
+			CreateObj(item.Pos, item.OType, item.Dir, false)
 		}
 	}
 

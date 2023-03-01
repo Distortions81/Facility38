@@ -46,7 +46,11 @@ func minerUpdate(obj *world.ObjData) {
 		obj.Active = true
 
 		/* Randomly pick a material from the list */
-		pick := rand.Intn(int(obj.MinerData.ResourcesCount))
+		count := int(obj.MinerData.ResourcesCount)
+		if count == 0 {
+			break
+		}
+		pick := rand.Intn(count)
 
 		/* Calculate how much material */
 		amount := obj.TypeP.KgMineEach * float32(obj.MinerData.Resources[pick])

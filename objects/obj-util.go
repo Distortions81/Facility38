@@ -20,10 +20,10 @@ func removeObj(obj *world.ObjData) {
 }
 
 /* Create a multi-tile object */
-func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
+func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 
 	//Make chunk if needed
-	if MakeChunk(pos) {
+	if MakeChunk(pos) && !fast {
 		ExploreMap(pos, 4)
 	}
 	chunk := util.GetChunk(pos)
@@ -63,6 +63,11 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 
 	LinkObj(b)
 
+	/* Init obj if we have a function for it */
+	if b.Obj.TypeP.InitObj != nil {
+		b.Obj.TypeP.InitObj(b.Obj)
+	}
+
 	/* We should add/remove this based on object links */
 	/* Only add to list if the object calls an update function */
 	if b.Obj.TypeP.UpdateObj != nil {
@@ -70,11 +75,6 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8) *world.ObjData {
 	}
 
 	EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
-
-	/* Init obj if we have a function for it */
-	if b.Obj.TypeP.InitObj != nil {
-		b.Obj.TypeP.InitObj(b.Obj)
-	}
 
 	b.Obj.Parent.Lock.Lock()
 

@@ -14,10 +14,7 @@ func initMiner(obj *world.ObjData) {
 		return
 	}
 
-	/* Init miner data if needed */
-	if obj.MinerData == nil {
-		obj.MinerData = &world.MinerDataType{}
-	}
+	obj.MinerData = &world.MinerDataType{}
 
 	foundRes := false
 	/* Check for resources to mine */
