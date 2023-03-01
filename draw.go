@@ -62,41 +62,6 @@ func init() {
 	world.BeltBlock.Fill(world.ColorOrange)
 }
 
-func drawChatLines(screen *ebiten.Image) {
-
-	var lineNum uint16
-	util.ChatLinesLock.Lock()
-	defer util.ChatLinesLock.Unlock()
-
-	for x := util.ChatLinesTop; x > 0 && lineNum < gv.ChatHeightLines; x-- {
-		line := util.ChatLines[x-1]
-		/* Ignore old chat lines */
-		since := time.Since(line.Timestamp)
-		if !ConsoleActive && since > line.Lifetime {
-			continue
-		}
-		lineNum++
-
-		tBgColor := world.ColorToolTipBG
-		r, g, b, _ := line.Color.RGBA()
-		var blend float64 = 0
-		if line.Lifetime-since < gv.ChatFadeTime {
-			blend = (float64(gv.ChatFadeTime-(line.Lifetime-since)) / float64(gv.ChatFadeTime) * 100.0)
-		}
-		newAlpha := (254.0 - (blend * 2.55))
-
-		oldAlpha := tBgColor.A
-		faded := newAlpha - float64(253.0-int(oldAlpha))
-		if faded <= 0 {
-			faded = 0
-		} else if faded > 254 {
-			faded = 254
-		}
-		tBgColor.A = byte(faded)
-		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)}, tBgColor, world.XY{X: 0, Y: (world.ScreenHeight - 25) - (lineNum * 26)}, 11, screen, true, false, false)
-	}
-}
-
 /* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
 
@@ -113,9 +78,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	frameCount++
-
-	/* Calculate viewport */
-	calcScreenCamera()
 
 	/* If needed, calculate object visibility */
 	updateVisData()
@@ -195,6 +157,9 @@ func updateVisData() {
 
 	/* When needed, make a list of chunks to draw */
 	if world.VisDataDirty.Load() {
+
+		/* Calculate viewport */
+		calcScreenCamera()
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
@@ -735,4 +700,39 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 		}
 	}
 	return nil, nil
+}
+
+func drawChatLines(screen *ebiten.Image) {
+
+	var lineNum uint16
+	util.ChatLinesLock.Lock()
+	defer util.ChatLinesLock.Unlock()
+
+	for x := util.ChatLinesTop; x > 0 && lineNum < gv.ChatHeightLines; x-- {
+		line := util.ChatLines[x-1]
+		/* Ignore old chat lines */
+		since := time.Since(line.Timestamp)
+		if !ConsoleActive && since > line.Lifetime {
+			continue
+		}
+		lineNum++
+
+		tBgColor := world.ColorToolTipBG
+		r, g, b, _ := line.Color.RGBA()
+		var blend float64 = 0
+		if line.Lifetime-since < gv.ChatFadeTime {
+			blend = (float64(gv.ChatFadeTime-(line.Lifetime-since)) / float64(gv.ChatFadeTime) * 100.0)
+		}
+		newAlpha := (254.0 - (blend * 2.55))
+
+		oldAlpha := tBgColor.A
+		faded := newAlpha - float64(253.0-int(oldAlpha))
+		if faded <= 0 {
+			faded = 0
+		} else if faded > 254 {
+			faded = 254
+		}
+		tBgColor.A = byte(faded)
+		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)}, tBgColor, world.XY{X: 0, Y: (world.ScreenHeight - 25) - (lineNum * 26)}, 11, screen, true, false, false)
+	}
 }
