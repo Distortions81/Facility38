@@ -112,4 +112,7 @@ func ExploreMap(pos world.XY, input int) {
 			}
 		}
 	}
+	if !gv.LoadTest {
+		world.MapLoadPercent = 100
+	}
 }

@@ -56,6 +56,14 @@ func UnlinkObj(obj *world.ObjData) {
 		if port.Obj == nil {
 			continue
 		}
+		/* Delete ourselves from others */
+		for pb, portb := range port.Obj.Ports {
+			if portb.Obj == obj {
+				port.Obj.Ports[pb].Link = nil
+				port.Obj.Ports[pb].Obj = nil
+			}
+		}
+
 		obj.Ports[p].Link = nil
 		obj.Ports[p].Obj = nil
 	}

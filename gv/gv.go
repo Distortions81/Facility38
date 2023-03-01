@@ -9,9 +9,8 @@ import (
 
 var (
 	/* Build flags */
-	BootBlankMap = false
-	UPSBench     = false
-	LoadTest     = true
+	UPSBench = false
+	LoadTest = false
 
 	Debug     = false
 	LogStdOut = true

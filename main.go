@@ -87,7 +87,7 @@ func NewGame() *Game {
 	go func() {
 		time.Sleep(time.Millisecond * 700)
 		loadSprites()
-		makeTestMap(gv.BootBlankMap)
+		makeTestMap(!gv.LoadTest)
 	}()
 
 	/* Initialize the game */
