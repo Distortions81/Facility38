@@ -152,13 +152,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func drawItemPlace(screen *ebiten.Image) {
 	/* Draw ghost for selected item */
 	if SelectedItemType < 255 {
+		mx, my := ebiten.CursorPosition()
 
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 		item := objects.GameObjTypes[SelectedItemType]
 
 		/* Get mouse position on world */
-		worldMouseX := int(world.MouseX/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
-		worldMouseY := int(world.MouseY/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
+		worldMouseX := int(float32(mx)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
+		worldMouseY := int(float32(my)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
 
 		/* camera + object */
 		objOffX := camXPos + (float32((worldMouseX)))
@@ -474,19 +475,24 @@ func drawDebugInfo(screen *ebiten.Image) {
 }
 
 func drawWorldTooltip(screen *ebiten.Image) {
+
+	mx, my := ebiten.CursorPosition()
+	fmx := float32(mx)
+	fmy := float32(my)
+
 	/* Get mouse position on world */
-	worldMouseX := (world.MouseX/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
-	worldMouseY := (world.MouseY/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
+	worldMouseX := (fmx/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
+	worldMouseY := (fmy/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
 
 	/* Toolbar tool tip */
 	uipix := float32((ToolbarMax * int(gv.ToolBarScale+gv.ToolBarScale)))
 
-	val := int(world.MouseX / (gv.ToolBarScale + gv.ToolBarSpacing))
-	if world.MouseX <= uipix && world.MouseY <= gv.ToolBarScale &&
+	val := int(fmx / (gv.ToolBarScale + gv.ToolBarSpacing))
+	if fmx <= uipix && fmy <= gv.ToolBarScale &&
 		val >= 0 && val < ToolbarMax {
-		if gMouseX != gPrevMouseX && gMouseY != gPrevMouseY {
+		if fmx != world.PrevMouseX && fmy != world.PrevMouseY {
 
-			pos := int(world.MouseX / float32(gv.ToolBarScale+gv.ToolBarSpacing))
+			pos := int(fmx / float32(gv.ToolBarScale+gv.ToolBarSpacing))
 			item := ToolbarItems[pos]
 			var toolTip string
 
@@ -496,7 +502,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
 			}
 			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG,
-				world.XY{X: uint16(world.MouseX) + 20, Y: uint16(world.MouseY) + 40}, 11, screen,
+				world.XY{X: uint16(fmx) + 20, Y: uint16(fmy) + 40}, 11, screen,
 				true, false, false)
 
 			DrawToolbar(false, true, pos)
@@ -584,7 +590,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 		/* Tooltip for resources */
 		if world.ShowResourceLayer {
 			buf := ""
-			if gMouseX != gPrevMouseX && gMouseY != gPrevMouseY {
+			if fmx != world.PrevMouseX && fmy != world.PrevMouseY {
 				for p := 1; p < len(objects.NoiseLayers); p++ {
 					var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
 
@@ -599,7 +605,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			if buf != "" {
 				lastResourceString = buf
 				DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
-					world.XY{X: uint16(gMouseX + 20), Y: uint16(gMouseY + 20)}, 11, screen, true, false, false)
+					world.XY{X: uint16(fmx + 20), Y: uint16(fmy + 20)}, 11, screen, true, false, false)
 			}
 		}
 		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XY{X: world.ScreenWidth, Y: world.ScreenHeight}, 11, screen, false, true, false)
