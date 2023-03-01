@@ -230,7 +230,16 @@ func createWorldObjects() {
 		if SelectedItemType == 255 {
 			return
 		}
-		dir := objects.GameObjTypes[SelectedItemType].Direction
+		obj := objects.GameObjTypes[SelectedItemType]
+		dir := obj.Direction
+
+		/* Check if object fits */
+		for _, tile := range obj.SubObjs {
+			tchunk := util.GetChunk(pos)
+			if util.GetObj(tile, tchunk) != nil {
+				return
+			}
+		}
 
 		if gv.WASMMode {
 			objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
