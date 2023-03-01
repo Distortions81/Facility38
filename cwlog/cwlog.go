@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const MaxBufferLines = 1000000
+const MaxBufferLines = 100000
 
 var (
 	LogDesc  *os.File
