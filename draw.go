@@ -189,7 +189,7 @@ func drawItemPlace(screen *ebiten.Image) {
 	}
 }
 
-/* Look at camera position, make a list of visible superchunks and chunks. Saves to VisChunks, checks world.CameraDirty */
+/* Look at camera position, make a list of visible superchunks and chunks. */
 func updateVisData() {
 
 	/* When needed, make a list of chunks to draw */
