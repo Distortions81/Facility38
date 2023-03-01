@@ -54,6 +54,7 @@ func ObjUpdateDaemon() {
 		}
 
 		world.MeasuredObjectUPS_ns = time.Since(start)
+		world.UPSAvr.Add(float64(world.MeasuredObjectUPS_ns.Nanoseconds()))
 	}
 }
 
