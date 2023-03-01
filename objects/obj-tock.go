@@ -127,15 +127,16 @@ func beltUpdate(obj *world.ObjData) {
 	if obj.LastInput == obj.NumIn {
 		obj.LastInput = 0
 	}
-
 	for x := obj.LastInput; x < obj.NumIn; x++ {
 
 		/* Does the input contain anything? */
 		if obj.Inputs[x].Buf.Amount == 0 {
 			continue
+			/* If the destination blocked, stop */
 		} else if obj.Outputs[0].Obj != nil && obj.Outputs[0].Obj.Blocked {
 			break
 		} else {
+			/* Otherwise, do the thing. */
 			swapPortBuf(obj.Outputs[0].Buf, obj.Inputs[x].Buf)
 			obj.Inputs[x].Buf.Amount = 0
 			obj.LastInput = x
@@ -163,6 +164,7 @@ func fuelHopperUpdate(obj *world.ObjData) {
 
 func splitterUpdate(obj *world.ObjData) {
 
+	/* TODO: Update me for new port system */
 	input := util.ReverseDirection(obj.Dir)
 
 	/* Anything in the input? */
@@ -186,10 +188,9 @@ func splitterUpdate(obj *world.ObjData) {
 			obj.Active = false
 			continue
 		} else {
-			/* Output empty, proceed */
-			obj.Ports[dir].Buf.Amount = obj.Ports[input].Buf.Amount
-			obj.Ports[dir].Buf.TypeP = obj.Ports[input].Buf.TypeP
-			obj.Ports[dir].Buf.Rot = obj.Ports[input].Buf.Rot
+			/* Do the thing */
+			swapPortBuf(obj.Ports[dir].Buf, obj.Ports[input].Buf)
+
 			obj.Ports[input].Buf.Amount = 0
 			obj.LastInput = dir
 			obj.Active = true
