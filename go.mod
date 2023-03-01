@@ -16,6 +16,7 @@ require (
 )
 
 require (
+	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/ebitengine/purego v0.2.0 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
