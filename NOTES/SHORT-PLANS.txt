@@ -8,23 +8,25 @@ High priority:
 Hoppers
 Timers, pressure switches, item spilling.
 Add TotalMined to save/load
-make totalmined map for quick rendering, rebuild on load.
-Insert objects into object list IN ORDER.
+
 Multi-tile objects, ABCDEF port format. Use modulo rotation.
 *** Fix saving breaking item links on running game ***
 Start investigating server/client and tock/tick spreading.
 Show ghost preview when item is selected for placing, turn red if can not place.
 
 
-*** Add surface ID/Name to XY?, parent/child surfaces.
+Optimizations:
 
 Start inserting objects in-order in chunks.
 Possibly move to 32-row lists.
+Complete unsafe for faster loading, make packed binary format for saves.
+make totalmined map for quick rendering, rebuild on load.
+Stop recalculating camera/zoom/world mouse, do once per frame.
 
 Other:
+*** Add surface ID/Name to XY?, parent/child surfaces.
 eventually set machine times in ms/sec
 Add ground rendering for pixel mode too
-Complete unsafe for faster loading, make packed binary format for saves.
 adjustable miners/furnace speeds
 Add ground water and surface water. Mineralized, fresh and salt.
 Water should get contaminated by dumping.
