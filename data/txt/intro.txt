@@ -1,6 +1,6 @@
 CONTROLS:
 
-Camera: WASD keys or hold middle click
+Camera: WASD keys or hold middle-click
 Run: Shift
 
 Create objects: left-click
