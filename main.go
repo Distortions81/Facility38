@@ -261,7 +261,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	if outsideWidth != int(world.ScreenWidth) || outsideHeight != int(world.ScreenHeight) {
 		world.ScreenWidth = uint16(outsideWidth)
 		world.ScreenHeight = uint16(outsideHeight)
-		world.InitMouse = false
+		world.MouseDrag = false
 		world.VisDataDirty.Store(true)
 	}
 

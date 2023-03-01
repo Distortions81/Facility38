@@ -94,11 +94,9 @@ var (
 	VisDataDirty atomic.Bool
 
 	/* Mouse vars */
-	MouseX float32 = float32(gv.XYCenter)
-	MouseY float32 = float32(gv.XYCenter)
-
-	/* Setup latches */
-	InitMouse = false
+	MouseX    float32 = float32(gv.XYCenter)
+	MouseY    float32 = float32(gv.XYCenter)
+	MouseDrag bool    = false
 
 	/* Temporary chunk image during draw */
 	TempChunkImage *ebiten.Image

@@ -289,10 +289,10 @@ func moveCamera() {
 	}
 
 	if gMiddleMouseHeld {
-		if !world.InitMouse {
+		if !world.MouseDrag {
 			gPrevMouseX = gMouseX
 			gPrevMouseY = gMouseY
-			world.InitMouse = true
+			world.MouseDrag = true
 		}
 
 		world.CameraX = world.CameraX + (float32(gPrevMouseX-gMouseX) / world.ZoomScale)
@@ -313,6 +313,8 @@ func moveCamera() {
 
 		gPrevMouseX = gMouseX
 		gPrevMouseY = gMouseY
+	} else {
+		world.MouseDrag = false
 	}
 }
 
