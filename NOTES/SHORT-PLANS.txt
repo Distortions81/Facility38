@@ -29,6 +29,7 @@ make totalmined map for quick rendering, rebuild on load.
 Stop recalculating camera/zoom/world mouse, do once per frame.
 
 Other:
+Fix multi-tile objects failing at chunk border.
 *** Add surface ID/Name to XY?, parent/child surfaces.
 eventually set machine times in ms/sec
 Add ground rendering for pixel mode too
