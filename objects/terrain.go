@@ -366,7 +366,7 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 	}
 	sChunk.ResourceLock.Unlock()
 
-	//Fill will bg and grid
+	//Fill with bg and grid
 	for x := 0; x < gv.SuperChunkTotal; x++ {
 		for y := 0; y < gv.SuperChunkTotal; y++ {
 			ppos := 4 * (x + y*gv.SuperChunkTotal)
@@ -391,12 +391,12 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 		}
 
 		/* Draw objects in chunk */
-		for _, obj := range chunk.ObjList {
+		for pos := range chunk.BuildingMap {
 			scX := (((scPos.X) * (gv.MaxSuperChunk)) - gv.XYCenter)
 			scY := (((scPos.Y) * (gv.MaxSuperChunk)) - gv.XYCenter)
 
-			x := int((obj.Pos.X - gv.XYCenter) - scX)
-			y := int((obj.Pos.Y - gv.XYCenter) - scY)
+			x := int((pos.X - gv.XYCenter) - scX)
+			y := int((pos.Y - gv.XYCenter) - scY)
 
 			ppos := 4 * (x + y*gv.SuperChunkTotal)
 			ObjPix[ppos] = 0xff
