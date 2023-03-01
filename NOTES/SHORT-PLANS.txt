@@ -14,6 +14,7 @@ Multi-tile objects, ABCDEF port format. Use modulo rotation.
 Start investigating server/client and tock/tick spreading.
 Show ghost preview when item is selected for placing, turn red if can not place.
 
+Fix windows boot text newlines (bizzare)
 
 Optimizations:
 Carefully look at entire draw() loop, update() loop, and ticks/tocks.
