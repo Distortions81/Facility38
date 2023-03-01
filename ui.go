@@ -185,6 +185,7 @@ func getMouseClicks() {
 	/* Mouse clicks */
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		gMouseHeld = false
+		gLastActionPosition = world.XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		gMouseHeld = true
 		gLastActionPosition.X = 0
@@ -235,7 +236,7 @@ func createWorldObjects() {
 
 		/* Check if object fits */
 		for _, tile := range obj.SubObjs {
-			tchunk := util.GetChunk(pos)
+			tchunk := util.GetChunk(tile)
 			if util.GetObj(tile, tchunk) != nil {
 				return
 			}
@@ -325,6 +326,7 @@ func moveCamera() {
 func getRightMouseClicks() {
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
 		gRightMouseHeld = false
+		gLastActionPosition = world.XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 		gRightMouseHeld = true
 	}
@@ -333,6 +335,7 @@ func getRightMouseClicks() {
 func getMiddleMouseClicks() {
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonMiddle) {
 		gMiddleMouseHeld = false
+		gLastActionPosition = world.XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
 		gMiddleMouseHeld = true
 	}
