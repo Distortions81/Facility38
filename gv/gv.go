@@ -9,12 +9,13 @@ import (
 
 var (
 	/* Build flags */
-	BootBlankMap = true
+	BootBlankMap = false
 	UPSBench     = false
-	LoadTest     = false
-	Debug        = true
-	LogStdOut    = true
-	WASMMode     = false
+	LoadTest     = true
+
+	Debug     = false
+	LogStdOut = true
+	WASMMode  = false
 
 	ResourceLegendImage *ebiten.Image
 )
@@ -60,20 +61,19 @@ const (
 	ToolbarOverlay = 4
 
 	/* Buildings */
-	ObjTypeNone                = 0
-	ObjTypeBasicMiner          = 1
-	ObjTypeBasicBelt           = 2
-	ObjTypeBasicBeltInterRight = 3
-	ObjTypeBasicBeltInterLeft  = 4
-	ObjTypeBasicSplit          = 5
-	ObjTypeBasicBox            = 6
-	ObjTypeBasicSmelter        = 7
-	ObjTypeBasicFuelHopper     = 8
+	ObjTypeBasicMiner          = 0
+	ObjTypeBasicBelt           = 1
+	ObjTypeBasicBeltInterRight = 2
+	ObjTypeBasicBeltInterLeft  = 3
+	ObjTypeBasicSplit          = 4
+	ObjTypeBasicBox            = 5
+	ObjTypeBasicSmelter        = 6
+	ObjTypeBasicFuelHopper     = 7
 
 	/*Disabled, incomplete */
-	ObjTypeBasicIronCaster = 9
-	ObjTypeBasicBoiler     = 10
-	ObjTypeSteamEngine     = 11
+	ObjTypeBasicIronCaster = 8
+	ObjTypeBasicBoiler     = 9
+	ObjTypeSteamEngine     = 10
 
 	/* Materials */
 	MAT_NONE = 0

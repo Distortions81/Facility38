@@ -132,12 +132,12 @@ func handleToolbar(rotate bool) bool {
 					item.Direction = dir
 					DrawToolbar(true, false, ipos)
 					/* Deselect */
-				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI-1 {
+				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI {
 					SelectedItemType = 255
 					DrawToolbar(true, false, ipos)
 				} else {
 					/* Select */
-					SelectedItemType = ToolbarItems[ipos].OType.TypeI - 1
+					SelectedItemType = ToolbarItems[ipos].OType.TypeI
 					DrawToolbar(true, false, ipos)
 				}
 			}

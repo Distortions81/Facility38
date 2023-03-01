@@ -44,6 +44,7 @@ func makeTestMap(skip bool) {
 
 				tx := int(gv.XYCenter) - (columns*(beltLength+hSpace))/2
 				objects.CreateObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicMiner, gv.DIR_EAST)
+				tx++
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {

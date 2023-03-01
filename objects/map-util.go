@@ -93,8 +93,6 @@ func MakeChunk(pos world.XY) bool {
 func ExploreMap(pos world.XY, input int) {
 	/* Explore some map */
 
-	world.MapLoadPercent = 0
-
 	ChunksMade := 0
 	area := input * gv.ChunkSize
 	offx := int(pos.X) - (area / 2)
@@ -104,7 +102,9 @@ func ExploreMap(pos world.XY, input int) {
 			pos := world.XY{X: uint16(offx - x), Y: uint16(offy - y)}
 			MakeChunk(pos)
 			ChunksMade++
-			world.MapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
+			if !gv.LoadTest {
+				world.MapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
+			}
 			if gv.WASMMode {
 				time.Sleep(time.Nanosecond)
 			} else {
@@ -112,5 +112,4 @@ func ExploreMap(pos world.XY, input int) {
 			}
 		}
 	}
-	world.MapLoadPercent = 100
 }

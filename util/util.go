@@ -76,6 +76,9 @@ func Chat(text string) {
 	}(text)
 }
 func ChatDetailed(text string, color color.Color, life time.Duration) {
+	if !world.PlayerReady.Load() {
+		return
+	}
 	go func(text string) {
 		ChatLinesLock.Lock()
 		deleteOldLines()

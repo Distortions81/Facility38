@@ -90,7 +90,7 @@ func DrawToolbar(click, hover bool, index int) {
 
 		if item.SType == gv.ObjSubGame {
 
-			if item.OType.TypeI == SelectedItemType+1 {
+			if item.OType.TypeI == SelectedItemType {
 				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorDarkGray)
 			}
 		}
@@ -117,7 +117,7 @@ func DrawToolbar(click, hover bool, index int) {
 
 		if item.SType == gv.ObjSubGame {
 
-			if item.OType.TypeI == SelectedItemType+1 {
+			if item.OType.TypeI == SelectedItemType {
 				vector.DrawFilledRect(toolbarCache,
 					float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+1,
 					gv.TbOffY,
