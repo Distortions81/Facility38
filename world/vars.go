@@ -96,7 +96,6 @@ var (
 	/* Mouse vars */
 	PrevMouseX float32
 	PrevMouseY float32
-	MouseDrag  bool = false
 
 	/* Temporary chunk image during draw */
 	TempChunkImage *ebiten.Image

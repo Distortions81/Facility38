@@ -21,6 +21,7 @@ var (
 	gRightMouseHeld  bool
 	gShiftPressed    bool
 	gClickCaptured   bool
+	gCameraDrag      bool
 
 	/* Last object we performed an action on */
 	gLastActionPosition world.XY
@@ -282,10 +283,10 @@ func moveCamera() {
 		fmx := float32(mx)
 		fmy := float32(my)
 
-		if !world.MouseDrag {
+		if !gCameraDrag {
 			world.PrevMouseX = fmx
 			world.PrevMouseY = fmy
-			world.MouseDrag = true
+			gCameraDrag = true
 		}
 
 		world.CameraX = world.CameraX + (float32(world.PrevMouseX-fmx) / world.ZoomScale)
@@ -307,7 +308,7 @@ func moveCamera() {
 		world.PrevMouseX = fmx
 		world.PrevMouseY = fmy
 	} else {
-		world.MouseDrag = false
+		gCameraDrag = false
 	}
 }
 
