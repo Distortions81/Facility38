@@ -29,14 +29,14 @@ const (
 	ChatHeightLines = 10
 	ChatFadeTime    = time.Second
 
-	Version = "014"
+	Version = "015"
 
 	/* Files and directories */
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	NumTestObjects = 10000000
+	NumTestObjects = 1000000
 
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0
