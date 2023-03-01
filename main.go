@@ -13,7 +13,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -32,7 +31,6 @@ var (
 )
 
 type Game struct {
-	ui *ebitenui.UI
 }
 
 /* Main function */
