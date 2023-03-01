@@ -17,7 +17,7 @@ Show ghost preview when item is selected for placing, turn red if can not place.
 
 Optimizations:
 Carefully look at entire draw() loop, update() loop, and ticks/tocks.
-Try to remove any unneeded info in objdata
+Try to remove any unneeded info in objdata, port data, and all children.
 Optimize camera and mouse position calculations.
 Get rid of PrevMouseX, add MouseMoved bool.
 optimize object camera x/y calculations, and mouse world and mouse screen calculations
