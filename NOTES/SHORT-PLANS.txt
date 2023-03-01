@@ -39,6 +39,8 @@ MULTI-TILE:
 List of tiles, in local x/y cords. -2,-2 to 2,2 etc.
 Rotation works as expected:  (use 0,0 for center of rotation)
 
+Currently we do not remove/replace sub-obj on rotate (does not support non-square!) fix me
+
 0: x,y
 1: -y, x
 2: -x, -y
