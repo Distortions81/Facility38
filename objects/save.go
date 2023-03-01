@@ -7,7 +7,6 @@ import (
 	"GameTest/world"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 	"runtime"
 	"time"
@@ -55,7 +54,7 @@ func SaveGame() {
 		finalPath := "save.dat"
 
 		//start := time.Now()
-		//("Save starting.")
+		//cwlog.DoLog("Save starting.")
 
 		/* Pause the whole world ... */
 		world.SuperChunkListLock.RLock()
@@ -125,24 +124,24 @@ func SaveGame() {
 				}
 			}
 		}
-		//fmt.Println("WALK COMPLETE:", time.Since(start).String())
+		//cwlog.DoLog("WALK COMPLETE:", time.Since(start).String())
 
 		b, err := json.Marshal(tempList)
 
 		world.SuperChunkListLock.RUnlock()
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
-		//fmt.Println("ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
+		//cwlog.DoLog"ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
 
 		if err != nil {
-			//fmt.Printf("SaveGame: encode error: %v\n", err)
+			//cwlog.DoLog("SaveGame: encode error: %v\n", err)
 			//return
 		}
 
 		_, err = os.Create(tempPath)
 
 		if err != nil {
-			fmt.Printf("SaveGame: os.Create error: %v\n", err)
+			cwlog.DoLog("SaveGame: os.Create error: %v\n", err)
 			return
 		}
 
@@ -151,19 +150,19 @@ func SaveGame() {
 		err = os.WriteFile(tempPath, zip, 0644)
 
 		if err != nil {
-			fmt.Printf("SaveGame: os.WriteFile error: %v\n", err)
+			cwlog.DoLog("SaveGame: os.WriteFile error: %v\n", err)
 		}
 
 		err = os.Rename(tempPath, finalPath)
 
 		if err != nil {
-			fmt.Printf("SaveGame: couldn't rename save file: %v\n", err)
+			cwlog.DoLog("SaveGame: couldn't rename save file: %v\n", err)
 			return
 		}
 
 		util.ChatDetailed("Game save complete.", world.ColorOrange, time.Second*15)
 
-		//fmt.Println("COMPRESS & WRITE COMPLETE:", time.Since(start).String())
+		//cwlog.DoLog("COMPRESS & WRITE COMPLETE:", time.Since(start).String())
 	}()
 }
 
@@ -180,7 +179,7 @@ func LoadGame() {
 
 		b, err := os.ReadFile("save.dat")
 		if err != nil {
-			fmt.Printf("LoadGame: file not found: %v\n", err)
+			cwlog.DoLog("LoadGame: file not found: %v\n", err)
 			return
 		}
 
@@ -198,7 +197,7 @@ func LoadGame() {
 		tempList := gameSave{}
 		err = dec.Decode(&tempList)
 		if err != nil {
-			fmt.Printf("LoadGame: JSON decode error: %v\n", err)
+			cwlog.DoLog("LoadGame: JSON decode error: %v\n", err)
 			return
 		}
 

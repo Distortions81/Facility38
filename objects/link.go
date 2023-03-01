@@ -4,7 +4,6 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
-	"fmt"
 )
 
 /* Link to output in (dir) */
@@ -12,7 +11,6 @@ func LinkObj(b *world.BuildingData) {
 
 	/* Attempt to link ports */
 	for p, port := range b.Obj.Ports {
-		fmt.Println("MEEP LINK")
 
 		/* Make sure port is unoccupied */
 		if port.Obj != nil {
@@ -28,11 +26,8 @@ func LinkObj(b *world.BuildingData) {
 			continue
 		}
 
-		fmt.Println("MEEP FOUND NEIGH")
-
 		/* Neighbor port is available */
 		for n, np := range neighb.Obj.Ports {
-			fmt.Println(np.Type, np.Dir)
 			/* Port is in correct direction */
 			if np.Dir == util.ReverseDirection(port.Dir) &&
 				/* Port is of correct type */
@@ -48,8 +43,6 @@ func LinkObj(b *world.BuildingData) {
 
 				portAlias(b.Obj, p, port.Type)
 				portAlias(neighb.Obj, n, np.Type)
-
-				fmt.Println("MEEP aliased")
 			}
 		}
 	}
@@ -83,6 +76,4 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 		obj.FuelOut = append(obj.FuelOut, &obj.Ports[port])
 		obj.NumFOut++
 	}
-
-	fmt.Println(obj.TypeP.Name, port)
 }

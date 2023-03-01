@@ -27,9 +27,6 @@ var (
  * Write to buffer, async write
  */
 func DoLog(format string, args ...interface{}) {
-	if !LogReady {
-		return
-	}
 
 	/* Get current time */
 	ctime := time.Now()
@@ -41,6 +38,11 @@ func DoLog(format string, args ...interface{}) {
 	date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
 	/* Date, go file, go file line, text */
 	buf := fmt.Sprintf("%v: %15v:%5v: %v\n", date, filepath.Base(filename), line, text)
+
+	if !LogReady {
+		fmt.Print(buf)
+		return
+	}
 
 	/* Add to buffer */
 	LogBufLock.Lock()

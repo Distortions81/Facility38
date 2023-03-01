@@ -4,7 +4,6 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
-	"fmt"
 	"math/rand"
 )
 
@@ -16,7 +15,6 @@ func minerUpdate(obj *world.ObjData) {
 		obj.TickCount++
 		return
 	}
-	fmt.Println("Miner tock")
 	obj.TickCount = 0
 
 	/* Get fuel */
@@ -34,7 +32,6 @@ func minerUpdate(obj *world.ObjData) {
 
 	for p, port := range obj.Outputs {
 
-		fmt.Println("Miner outputting")
 		/* Output full? */
 		if port.Buf.Amount != 0 {
 			obj.Blocked = true
@@ -87,7 +84,6 @@ func minerUpdate(obj *world.ObjData) {
 		/* Burn fuel */
 		obj.KGFuel -= obj.TypeP.KgFuelEach
 
-		fmt.Println("miner tocked")
 		//We should remove ourselves here if we run out of ore
 		break
 	}
@@ -117,7 +113,6 @@ func beltUpdate(obj *world.ObjData) {
 	for _, output := range obj.Outputs {
 		if output.Buf.Amount != 0 {
 			obj.Blocked = true
-			fmt.Println("belt: output blocked")
 			return
 		}
 	}
@@ -133,16 +128,13 @@ func beltUpdate(obj *world.ObjData) {
 
 		/* Does the input contain anything? */
 		if obj.Inputs[x].Buf.Amount == 0 {
-			fmt.Println("belt: input empty")
 			continue
 		} else if obj.Outputs[0].Obj != nil && obj.Outputs[0].Obj.Blocked {
-			fmt.Println("belt: Output obj is blocked")
 			break
 		} else {
 			swapPortBuf(obj.Outputs[0].Buf, obj.Inputs[x].Buf)
 			obj.Inputs[x].Buf.Amount = 0
 			obj.LastInput = x
-			fmt.Println("belt: Object moved")
 			break /* Stop */
 		}
 	}
@@ -207,7 +199,6 @@ func splitterUpdate(obj *world.ObjData) {
 
 func boxUpdate(obj *world.ObjData) {
 	for p, port := range obj.Inputs {
-		fmt.Println("box input")
 		if port.Buf.Amount == 0 {
 
 			/* Go inactive after a while */

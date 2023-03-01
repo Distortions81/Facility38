@@ -4,7 +4,6 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
-	"fmt"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -96,7 +95,6 @@ func tickObj(obj *world.ObjData) {
 
 		/* If there is a link */
 		if port.Link == nil {
-			fmt.Println("tick: no link")
 			continue
 		}
 
@@ -107,11 +105,9 @@ func tickObj(obj *world.ObjData) {
 
 		/* If destination is empty */
 		if port.Link.Buf.Amount != 0 {
-			fmt.Println("tick: buf full")
 			continue
 		}
 
-		fmt.Println("tick")
 		swapPortBuf(port.Link.Buf, port.Buf)
 	}
 }
