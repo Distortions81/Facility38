@@ -125,6 +125,7 @@ type MinerDataType struct {
 	Resources      []float32
 	ResourcesType  []uint8
 	ResourcesCount uint8
+	LastUsed       uint8
 }
 
 /* Object data */
@@ -235,11 +236,11 @@ type ObjType struct {
 	Ports   []ObjPortData
 	SubObjs []XY
 
-	ToolbarAction func()             `json:"-"`
-	UpdateObj     func(Obj *ObjData) `json:"-"`
-	InitObj       func(Obj *ObjData) `json:"-"`
-	DeInitObj     func(Obj *ObjData) `json:"-"`
-	LinkObj       func(Obj *ObjData) `json:"-"`
+	ToolbarAction func()                  `json:"-"`
+	UpdateObj     func(Obj *ObjData)      `json:"-"`
+	InitObj       func(Obj *ObjData) bool `json:"-"`
+	DeInitObj     func(Obj *ObjData)      `json:"-"`
+	LinkObj       func(Obj *ObjData)      `json:"-"`
 }
 
 /* ObjectQueue data */
@@ -280,4 +281,9 @@ type MatData struct {
 /* Int x/y */
 type XY struct {
 	X, Y uint16
+}
+
+/* Int x/y */
+type XYu struct {
+	X, Y int32
 }

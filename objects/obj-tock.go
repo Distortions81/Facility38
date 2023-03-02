@@ -39,18 +39,25 @@ func minerUpdate(obj *world.ObjData) {
 			continue
 		}
 
-		/* Then we are not blocked */
+		/* We are not blocked */
 		obj.Blocked = false
-
-		/* Turn on active status */
 		obj.Active = true
 
-		/* Randomly pick a material from the list */
-		count := int(obj.MinerData.ResourcesCount)
-		if count == 0 {
+		if obj.KGFuel < obj.TypeP.KgFuelEach {
+			/* Not enough fuel */
 			break
 		}
-		pick := rand.Intn(count)
+
+		/* Cycle through available materials */
+		var pick uint8 = 0
+		if obj.MinerData.ResourcesCount > 1 {
+			if obj.MinerData.LastUsed < obj.MinerData.ResourcesCount {
+				obj.MinerData.LastUsed++
+			} else {
+				obj.MinerData.LastUsed = 0
+			}
+			pick = obj.MinerData.LastUsed
+		}
 
 		/* Calculate how much material */
 		amount := obj.TypeP.KgMineEach * float32(obj.MinerData.Resources[pick])
@@ -58,23 +65,11 @@ func minerUpdate(obj *world.ObjData) {
 
 		/* Stop if the amount is extremely small, zero or negative */
 		if amount <= 0.001 {
-			continue
+			break
 		}
 
 		/* Tally the amount taken as well as the type */
 		obj.Tile.MinerData.Mined[pick] += amount
-
-		/* Are we are mining coal?
-		if obj.MinerData.ResourcesType[pick] == gv.MAT_COAL &&
-			obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
-
-			obj.KGFuel += amount
-			continue
-		} */
-		if obj.KGFuel < obj.TypeP.KgFuelEach {
-			/* Not enough fuel */
-			continue
-		}
 
 		/* Otherwise output the material */
 		if obj.Outputs[p].Buf.Amount != amount {

@@ -34,8 +34,6 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		return nil
 	}
 
-	world.VisDataDirty.Store(true)
-
 	b = &world.BuildingData{}
 	b.Obj = &world.ObjData{}
 	b.Obj.Pos = pos
@@ -61,20 +59,23 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		b.Obj.Ports[p].Dir = util.RotDir(dir, port.Dir)
 	}
 
-	LinkObj(b)
-
+	initFail := false
 	/* Init obj if we have a function for it */
 	if b.Obj.TypeP.InitObj != nil {
-		b.Obj.TypeP.InitObj(b.Obj)
+		if !b.Obj.TypeP.InitObj(b.Obj) {
+			initFail = true
+		}
 	}
 
-	/* We should add/remove this based on object links */
-	/* Only add to list if the object calls an update function */
-	if b.Obj.TypeP.UpdateObj != nil {
-		EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TOCK, false)
-	}
+	LinkObj(b)
 
-	EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
+	/* Add to tock/tick lists */
+	if !initFail {
+		if b.Obj.TypeP.UpdateObj != nil {
+			EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TOCK, false)
+		}
+		EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
+	}
 
 	b.Obj.Parent.Lock.Lock()
 
@@ -90,15 +91,20 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		b.Obj.Parent.BuildingMap[pos] = b
 	}
 
+	/* Add to chunk object list */
 	b.Obj.Parent.ObjList =
 		append(b.Obj.Parent.ObjList, b.Obj)
-	b.Obj.Parent.Parent.PixmapDirty = true
 	b.Obj.Parent.NumObjs++
+
+	/* Mark superchunk and visdata dirty */
+	b.Obj.Parent.Parent.PixmapDirty = true
+	world.VisDataDirty.Store(true)
 	b.Obj.Parent.Lock.Unlock()
 
 	return b.Obj
 }
 
+/* Quickly move material by swapping pointers */
 func swapPortBuf(px, py *world.MatData) {
 	*px, *py = *py, *px
 }

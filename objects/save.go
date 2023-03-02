@@ -32,7 +32,7 @@ type MapSeedsData struct {
 }
 
 type saveMObj struct {
-	Pos      world.XY                       `json:"p,omitempty"`
+	Pos      world.XYu                      `json:"p,omitempty"`
 	TypeI    uint8                          `json:"i,omitempty"`
 	Dir      uint8                          `json:"d,omitempty"`
 	Contents [gv.MAT_MAX]*world.MatData     `json:"c,omitempty"`

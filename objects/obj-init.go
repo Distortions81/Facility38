@@ -9,9 +9,9 @@ import (
 	"time"
 )
 
-func initMiner(obj *world.ObjData) {
+func initMiner(obj *world.ObjData) bool {
 	if obj == nil {
-		return
+		return false
 	}
 
 	obj.MinerData = &world.MinerDataType{}
@@ -46,12 +46,14 @@ func initMiner(obj *world.ObjData) {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
 
-		return /* Stop here */
+		return false /* Stop here */
 	}
 
 	/* Init miner data */
 	obj.Parent.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
 	obj.Tile = obj.Parent.TileMap[obj.Pos]
+
+	return true
 }
 
 func deinitMiner(obj *world.ObjData) {
