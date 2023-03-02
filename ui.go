@@ -236,8 +236,9 @@ func createWorldObjects() {
 
 		/* Check if object fits */
 		for _, tile := range obj.SubObjs {
-			tchunk := util.GetChunk(tile)
-			if util.GetObj(tile, tchunk) != nil {
+			subPos := util.AddXY(pos, tile)
+			tchunk := util.GetChunk(subPos)
+			if util.GetObj(subPos, tchunk) != nil {
 				return
 			}
 		}

@@ -94,7 +94,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		drawPixmapMode(screen)
 	}
 
-	drawItemPlace(screen)
+	drawItemPlacement(screen)
 
 	/* Draw toolbar */
 	toolbarCacheLock.RLock()
@@ -111,7 +111,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 }
 
-func drawItemPlace(screen *ebiten.Image) {
+func drawItemPlacement(screen *ebiten.Image) {
 	/* Draw ghost for selected item */
 	if SelectedItemType < 255 {
 		mx, my := ebiten.CursorPosition()
@@ -146,7 +146,31 @@ func drawItemPlace(screen *ebiten.Image) {
 			(float64(item.Size.Y)*float64(world.ZoomScale))/float64(iSize.Max.Y))
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
-		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
+
+		blocked := false
+
+		wPos := world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}
+		/* Check if object fits */
+		if item.SubObjs != nil {
+			for _, tile := range item.SubObjs {
+				subPos := util.AddXY(wPos, tile)
+				tchunk := util.GetChunk(subPos)
+				if util.GetObj(subPos, tchunk) != nil {
+					blocked = true
+				}
+			}
+		} else {
+			tchunk := util.GetChunk(wPos)
+			if util.GetObj(wPos, tchunk) != nil {
+				blocked = true
+			}
+		}
+
+		if blocked {
+			op.ColorScale.Scale(0.5, 0.125, 0.125, 0.5)
+		} else {
+			op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
+		}
 
 		screen.DrawImage(item.Image, op)
 	}
@@ -528,14 +552,12 @@ func drawWorldTooltip(screen *ebiten.Image) {
 							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
 								p.Obj.TypeP.Name,
-								//p.Buf.TypeP.Name,
 								p.Buf.Amount)
 						}
 						if p.Type == gv.PORT_OUT && p.Obj != nil {
 							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %0.2f)\n",
 								util.DirToName(uint8(z)),
 								p.Obj.TypeP.Name,
-								//p.Buf.TypeP.Name,
 								p.Buf.Amount)
 						}
 					}
