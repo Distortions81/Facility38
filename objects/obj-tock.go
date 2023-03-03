@@ -51,12 +51,14 @@ func minerUpdate(obj *world.ObjData) {
 		/* Cycle through available materials */
 		var pick uint8 = 0
 		if obj.MinerData.ResourcesCount > 1 {
-			if obj.MinerData.LastUsed < obj.MinerData.ResourcesCount {
+			if obj.MinerData.LastUsed < (obj.MinerData.ResourcesCount - 1) {
 				obj.MinerData.LastUsed++
 			} else {
 				obj.MinerData.LastUsed = 0
 			}
 			pick = obj.MinerData.LastUsed
+		} else if obj.MinerData.ResourcesCount == 0 {
+			return
 		}
 
 		/* Calculate how much material */

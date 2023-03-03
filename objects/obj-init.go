@@ -32,6 +32,9 @@ func initMiner(obj *world.ObjData) bool {
 			foundRes = true
 		}
 	}
+	/* Init miner data */
+	obj.Parent.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
+	obj.Tile = obj.Parent.TileMap[obj.Pos]
 
 	/* Nothing to mine here, kill all the events for this miner */
 	if !foundRes {
@@ -48,10 +51,6 @@ func initMiner(obj *world.ObjData) bool {
 
 		return false /* Stop here */
 	}
-
-	/* Init miner data */
-	obj.Parent.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
-	obj.Tile = obj.Parent.TileMap[obj.Pos]
 
 	return true
 }

@@ -59,23 +59,23 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		b.Obj.Ports[p].Dir = util.RotDir(dir, port.Dir)
 	}
 
-	initFail := false
+	initOkay := true
 	/* Init obj if we have a function for it */
 	if b.Obj.TypeP.InitObj != nil {
 		if !b.Obj.TypeP.InitObj(b.Obj) {
-			initFail = true
+			initOkay = false
 		}
 	}
 
-	LinkObj(b)
-
 	/* Add to tock/tick lists */
-	if !initFail {
+	if initOkay {
 		if b.Obj.TypeP.UpdateObj != nil {
 			EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TOCK, false)
 		}
 		EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
 	}
+
+	LinkObj(b)
 
 	b.Obj.Parent.Lock.Lock()
 
