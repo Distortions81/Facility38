@@ -7,6 +7,7 @@ import (
 	"image"
 	_ "image/png"
 	"io"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -59,7 +60,7 @@ func GetText(name string) (string, error) {
 
 	if len(txt) > 0 {
 		cwlog.DoLog("GetText: %v", name)
-		return string(txt), nil
+		return strings.ReplaceAll(string(txt), "\r", ""), nil
 	} else {
 		return "Error: length 0!", err
 	}
