@@ -62,7 +62,7 @@ var (
 	ScreenHeight uint16 = 720
 
 	/* Game UPS rate */
-	ObjectUPS            float32 = 4.0
+	ObjectUPS            float32 = 8.0
 	ObjectUPS_ns                 = time.Duration((1000000000.0 / ObjectUPS))
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
 	UPSAvr               ewma.MovingAverage

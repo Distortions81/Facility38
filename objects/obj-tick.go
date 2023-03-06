@@ -20,6 +20,7 @@ func ObjUpdateDaemon() {
 		time.Sleep(time.Millisecond * 10)
 	}
 
+	var tockState bool = true
 	for {
 		start = time.Now()
 
@@ -32,13 +33,17 @@ func ObjUpdateDaemon() {
 			world.TockWorkSize = 1
 		}
 
-		world.TockListLock.Lock()
-		runTocks() //Process objects
-		world.TockListLock.Unlock()
-
-		world.TickListLock.Lock()
-		runTicks() //Move external
-		world.TickListLock.Unlock()
+		if tockState {
+			world.TockListLock.Lock()
+			runTocks() //Process objects
+			world.TockListLock.Unlock()
+			tockState = false
+		} else {
+			world.TickListLock.Lock()
+			runTicks() //Move external
+			world.TickListLock.Unlock()
+			tockState = true
+		}
 
 		world.EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
@@ -62,16 +67,21 @@ func ObjUpdateDaemon() {
 func ObjUpdateDaemonST() {
 	var start time.Time
 
+	var tockState bool = true
 	for {
 		start = time.Now()
 
-		world.TockListLock.Lock()
-		runTocksST() //Process objects
-		world.TockListLock.Unlock()
-
-		world.TickListLock.Lock()
-		runTicksST() //Move external
-		world.TickListLock.Unlock()
+		if tockState {
+			world.TockListLock.Lock()
+			runTocksST() //Process objects
+			world.TockListLock.Unlock()
+			tockState = false
+		} else {
+			world.TickListLock.Lock()
+			runTicksST() //Move external
+			world.TickListLock.Unlock()
+			tockState = true
+		}
 
 		world.EventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events

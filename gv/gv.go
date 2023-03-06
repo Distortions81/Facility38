@@ -9,7 +9,7 @@ import (
 
 var (
 	/* Build flags */
-	UPSBench = true
+	UPSBench = false
 	LoadTest = true
 
 	Debug     = false
