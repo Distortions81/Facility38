@@ -20,8 +20,6 @@ import (
 
 const (
 	cBlockedIndicatorOffset = 0
-	cMAX_RENDER_NS          = 1000000000 / 360 /* 360 FPS */
-	cMAX_RENDER_NS_BOOT     = 1000000000 / 30  /* 30 FPS */
 	cPreCache               = 4
 	WASMTerrainDiv          = 5
 )
