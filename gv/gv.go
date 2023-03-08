@@ -10,10 +10,10 @@ import (
 var (
 	/* Build flags */
 	UPSBench = false
-	LoadTest = true
+	LoadTest = false
 
 	Debug     = false
-	LogStdOut = true
+	LogStdOut = false
 	WASMMode  = false
 
 	ResourceLegendImage *ebiten.Image
@@ -42,7 +42,7 @@ const (
 	RunSpeed  = 16.0
 
 	/* Define world center */
-	XYCenter = 50000.0
+	XYCenter = 32768.0
 	XYMax    = XYCenter * 2.0
 	XYMin    = 1.0
 
