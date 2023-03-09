@@ -193,6 +193,7 @@ var (
 			UpdateObj:    smelterUpdate,
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
 			},
 		},
@@ -209,7 +210,7 @@ var (
 			Symbol:      "FHOP",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_FOUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_FIN},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 			},
 
 			/*		{ImagePath: "world-obj/iron-rod-caster.png",
