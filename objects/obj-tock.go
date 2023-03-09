@@ -241,6 +241,10 @@ func boxUpdate(obj *world.ObjData) {
 
 func smelterUpdate(obj *world.ObjData) {
 
+}
+
+func oldSmelterUpdate(obj *world.ObjData) {
+
 	for p, port := range obj.Ports {
 
 		/* Input? */
