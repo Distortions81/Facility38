@@ -546,19 +546,38 @@ func drawWorldTooltip(screen *ebiten.Image) {
 						if p.Obj == nil {
 							continue
 						}
+						var tstring = "None"
+						var tunit = "?"
+						if p.Buf.TypeP != nil {
+							tstring = p.Buf.TypeP.Name
+							tunit = p.Buf.TypeP.UnitName
+						}
 						if p.Type == gv.PORT_IN && p.Obj != nil {
-							toolTip = toolTip + fmt.Sprintf("(Input: %v: %v: %0.2f)\n",
+							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %0.2f %v\n",
 								util.DirToName(uint8(z)),
 								p.Obj.TypeP.Name,
-								p.Buf.Amount)
+								tstring,
+								p.Buf.Amount,
+								tunit)
 						}
 						if p.Type == gv.PORT_OUT && p.Obj != nil {
-							toolTip = toolTip + fmt.Sprintf("(Output: %v: %v: %0.2f)\n",
+							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %0.2f %v\n",
 								util.DirToName(uint8(z)),
 								p.Obj.TypeP.Name,
-								p.Buf.Amount)
+								tstring,
+								p.Buf.Amount,
+								tunit)
 						}
 					}
+					if o.TypeP != nil {
+						if o.TypeP.MaxContainKG > 0 {
+							toolTip = toolTip + fmt.Sprintf("MaxContainKG: %v\n", o.TypeP.MaxContainKG)
+						}
+						if o.TypeP.KW > 0 {
+							toolTip = toolTip + fmt.Sprintf("KW: %v\n", o.TypeP.KW)
+						}
+					}
+
 				}
 
 				if o.TypeP.Info != "" {

@@ -6,6 +6,7 @@ import (
 	"GameTest/world"
 	"bytes"
 	"compress/zlib"
+	"fmt"
 	"image/color"
 	"io"
 	"log"
@@ -61,6 +62,15 @@ func deleteOldLines() {
 	}
 	ChatLines = newLines
 	ChatLinesTop = newTop
+}
+
+func ObjCD(obj *world.ObjData, text string) {
+	if !gv.Debug {
+		return
+	}
+	lPos := CenterXY(obj.Pos)
+	buf := fmt.Sprintf("%v: %v,%v: %v", obj.TypeP.Name, lPos.X, lPos.Y, text)
+	Chat(buf)
 }
 
 func Chat(text string) {
