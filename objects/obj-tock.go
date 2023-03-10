@@ -241,6 +241,48 @@ func boxUpdate(obj *world.ObjData) {
 
 func smelterUpdate(obj *world.ObjData) {
 
+	if obj.NumOut == 0 || obj.NumIn == 0 {
+		return
+	}
+
+	/* Output full? */
+	for _, output := range obj.Outputs {
+		if output.Buf.Amount != 0 {
+			obj.Blocked = true
+			return
+		}
+	}
+
+	obj.Blocked = false
+
+	/* Check input */
+	for i, input := range obj.Inputs {
+
+		/* Input contains something */
+		if input.Buf.Amount != 0 {
+			/* Is of a type we can smelt */
+			if input.Buf.TypeP.IsSolid {
+				/* If the material will fit */
+				if obj.KGFuel+input.Buf.Amount <= obj.TypeP.MaxFuelKG {
+
+					/* Init content type if needed */
+					if obj.Contents[input.Buf.TypeP.TypeI] == nil {
+						obj.Contents[input.Buf.TypeP.TypeI] = &world.MatData{}
+						obj.Contents[input.Buf.TypeP.TypeI].TypeP = input.Buf.TypeP
+					}
+
+					/* Add contents */
+					obj.Contents[input.Buf.TypeP.TypeI].Amount += input.Buf.Amount
+
+					/* Add to content weight */
+					obj.KGHeld += input.Buf.Amount
+
+					/* Clear input */
+					obj.Inputs[i].Buf.Amount = 0
+				}
+			}
+		}
+	}
 }
 
 func oldSmelterUpdate(obj *world.ObjData) {

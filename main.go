@@ -66,7 +66,8 @@ func main() {
 	detectCPUs()
 
 	/* Set up ebiten and window */
-	ebiten.SetVsyncEnabled(false)
+	ebiten.SetVsyncEnabled(true)
+	ebiten.SetScreenClearedEveryFrame(true)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	setupWindowSize()
