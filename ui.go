@@ -395,7 +395,7 @@ func rotateWorldObjects() {
 				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.Obj.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
 			}
 			o.Obj.Dir = newdir
-			objects.LinkObj(o)
+			objects.LinkObj(o, false)
 		}
 	}
 }

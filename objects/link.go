@@ -7,7 +7,7 @@ import (
 )
 
 /* Link to output in (dir) */
-func LinkObj(b *world.BuildingData) {
+func LinkObj(b *world.BuildingData, fast bool) {
 
 	/* Attempt to link ports */
 	for p, port := range b.Obj.Ports {
@@ -44,18 +44,32 @@ func LinkObj(b *world.BuildingData) {
 				portAlias(b.Obj, p, port.Type)
 				portAlias(neighb.Obj, n, np.Type)
 
-				AutoEvents(neighb.Obj)
+				if !fast {
+					AutoEvents(neighb.Obj, false)
+				}
 			}
 		}
 
 	}
 
-	AutoEvents(b.Obj)
+	if !fast {
+		AutoEvents(b.Obj, false)
+	}
 
 }
 
 /* Add/Remove tick/tock events as needed */
-func AutoEvents(obj *world.ObjData) {
+func AutoEvents(obj *world.ObjData, fast bool) {
+
+	if fast {
+		if obj.NumOut > 0 {
+			ticklistAdd(obj)
+		}
+		if obj.NumIn > 0 {
+			tockListAdd(obj)
+		}
+		return
+	}
 
 	/* Add to tock/tick lists */
 	var foundOutputs, foundInputs bool
