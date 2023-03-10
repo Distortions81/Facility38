@@ -51,3 +51,7 @@ Currently we do not remove/replace sub-obj on rotate (does not support non-squar
 1: -y, x
 2: -x, -y
 3: y, -x
+
+
+eventually sleep/wake objects if blocked or no input.
+already sleep/wake based on link()
