@@ -14,6 +14,7 @@ func makeTestMap(skip bool) {
 	objects.PerlinNoiseInit()
 
 	if !skip {
+		time.Sleep(time.Second)
 		//start := time.Now()
 
 		/* Test load map generator parameters */
@@ -133,7 +134,6 @@ func makeTestMap(skip bool) {
 
 			world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
 		}
-
 	}
 
 	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)

@@ -122,6 +122,9 @@ func minerUpdate(obj *world.ObjData) {
 		}
 
 		/* Calculate how much material */
+		if obj.MinerData.ResourcesCount == 0 {
+			return
+		}
 		amount := obj.TypeP.KgMineEach * float32(obj.MinerData.Resources[pick])
 		kind := MatTypes[obj.MinerData.ResourcesType[pick]]
 

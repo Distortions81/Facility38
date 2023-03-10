@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
 	"fmt"
@@ -35,16 +34,13 @@ func initMiner(obj *world.ObjData) bool {
 		if !NoiseLayers[p].TypeP.IsSolid {
 			continue
 		}
-		if h > 0.01 {
+		if h > 0 {
 			obj.MinerData.Resources = append(obj.MinerData.Resources, h)
 			obj.MinerData.ResourcesType = append(obj.MinerData.ResourcesType, NoiseLayers[p].TypeI)
 			obj.MinerData.ResourcesCount++
 			foundRes = true
 		}
 	}
-	/* Init miner data */
-	obj.Parent.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
-	obj.Tile = obj.Parent.TileMap[obj.Pos]
 
 	/* Nothing to mine here, kill all the events for this miner */
 	if !foundRes {
@@ -56,10 +52,13 @@ func initMiner(obj *world.ObjData) bool {
 
 		obj.Blocked = true
 		obj.Active = false
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-
 		return false /* Stop here */
+
+	} else {
+
+		/* Init miner data */
+		obj.Parent.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
+		obj.Tile = obj.Parent.TileMap[obj.Pos]
 	}
 
 	return true

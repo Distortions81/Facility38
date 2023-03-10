@@ -69,7 +69,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 
 	/* Add to tock/tick lists */
 	if initOkay {
-		LinkObj(b, fast)
+		LinkObj(b)
 	}
 
 	b.Obj.Parent.Lock.Lock()
@@ -95,10 +95,6 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	b.Obj.Parent.Parent.PixmapDirty = true
 	world.VisDataDirty.Store(true)
 	b.Obj.Parent.Lock.Unlock()
-
-	if fast {
-		AutoEvents(b.Obj, true)
-	}
 	return b.Obj
 }
 

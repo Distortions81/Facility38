@@ -7,7 +7,7 @@ import (
 )
 
 /* Link to output in (dir) */
-func LinkObj(b *world.BuildingData, fast bool) {
+func LinkObj(b *world.BuildingData) {
 
 	/* Attempt to link ports */
 	for p, port := range b.Obj.Ports {
@@ -44,32 +44,18 @@ func LinkObj(b *world.BuildingData, fast bool) {
 				portAlias(b.Obj, p, port.Type)
 				portAlias(neighb.Obj, n, np.Type)
 
-				if !fast {
-					AutoEvents(neighb.Obj, false)
-				}
+				AutoEvents(neighb.Obj)
 			}
 		}
 
 	}
 
-	if !fast {
-		AutoEvents(b.Obj, false)
-	}
+	AutoEvents(b.Obj)
 
 }
 
 /* Add/Remove tick/tock events as needed */
-func AutoEvents(obj *world.ObjData, fast bool) {
-
-	if fast {
-		if obj.NumOut > 0 {
-			ticklistAdd(obj)
-		}
-		if obj.NumIn > 0 {
-			tockListAdd(obj)
-		}
-		return
-	}
+func AutoEvents(obj *world.ObjData) {
 
 	/* Add to tock/tick lists */
 	var foundOutputs, foundInputs bool
@@ -83,18 +69,18 @@ func AutoEvents(obj *world.ObjData, fast bool) {
 	/* If we have inputs and outputs object needs, add to tock list */
 	if obj.TypeP.UpdateObj != nil {
 		if obj.TypeP.HasInputs && foundInputs {
-			tockListAdd(obj)
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 		} else if obj.TypeP.HasOutputs && foundOutputs {
-			tockListAdd(obj)
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 		} else {
-			tocklistRemove(obj)
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
 		}
 	}
 	/* Only add to tick list if object has an output */
 	if obj.TypeP.HasOutputs && foundOutputs {
-		ticklistAdd(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	} else {
-		ticklistRemove(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 	}
 }
 

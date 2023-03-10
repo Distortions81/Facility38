@@ -356,7 +356,8 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 		sChunk.PixelMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 	}
 
-	var ObjPix []byte = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
+	maxSize := gv.SuperChunkTotal * gv.SuperChunkTotal * 4
+	var ObjPix []byte = make([]byte, maxSize)
 
 	didCopy := false
 	sChunk.ResourceLock.Lock()
@@ -399,10 +400,12 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 			y := int((pos.Y - gv.XYCenter) - scY)
 
 			ppos := 4 * (x + y*gv.SuperChunkTotal)
-			ObjPix[ppos] = 0xff
-			ObjPix[ppos+1] = 0xff
-			ObjPix[ppos+2] = 0xff
-			ObjPix[ppos+3] = 0xff
+			if ppos < maxSize {
+				ObjPix[ppos] = 0xff
+				ObjPix[ppos+1] = 0xff
+				ObjPix[ppos+2] = 0xff
+				ObjPix[ppos+3] = 0xff
+			}
 		}
 
 	}

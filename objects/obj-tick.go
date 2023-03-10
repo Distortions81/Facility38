@@ -49,7 +49,7 @@ func ObjUpdateDaemon() {
 		}
 
 		world.EventQueueLock.Lock()
-		runEventQueue() //Queue to add/remove events
+		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
 
 		world.ObjQueueLock.Lock()
@@ -88,7 +88,7 @@ func ObjUpdateDaemonST() {
 		}
 
 		world.EventQueueLock.Lock()
-		runEventQueue() //Queue to add/remove events
+		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
 
 		world.ObjQueueLock.Lock()
@@ -241,7 +241,7 @@ func ObjQueueAdd(obj *world.ObjData, otype uint8, pos world.XY, delete bool, dir
 }
 
 /* Add/remove tick/tock events from the lists */
-func runEventQueue() {
+func RunEventQueue() {
 
 	for _, e := range world.EventQueue {
 		if e.Delete {
