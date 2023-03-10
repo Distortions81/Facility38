@@ -119,6 +119,8 @@ func UnlinkObj(obj *world.ObjData) {
 	obj.NumFIn = 0
 	obj.NumFOut = 0
 
+	/* Reset last input var */
+	obj.LastInput = 0
 	/*
 	* Remove outself from tock/tick,
 	* we will be re-added in link if there

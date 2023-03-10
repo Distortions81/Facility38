@@ -154,39 +154,27 @@ func minerUpdate(obj *world.ObjData) {
 }
 
 func beltUpdateInter(obj *world.ObjData) {
-
-	for _, port := range obj.Inputs {
-
-		/* Revese direction */
-		//odir := util.ReverseDirection(uint8(p))
-
-		/* Do we have input and is output is empty */
-		if port.Buf.Amount > 0 && port.Buf.Amount == 0 {
-		}
-	}
-
 }
 
 func beltUpdate(obj *world.ObjData) {
 
-	/* Don't run if no inputs or outputs */
-	/* Move to link */
-	if obj.NumOut == 0 || obj.NumIn == 0 {
-		return
-	}
-
 	/* Output full? */
 	for _, output := range obj.Outputs {
 		if output.Buf.Amount != 0 {
-			obj.Blocked = true
+			if !obj.Blocked {
+				obj.Blocked = true
+			}
 			return
 		}
 	}
 
-	obj.Blocked = false
+	/* Not blocked */
+	if obj.Blocked {
+		obj.Blocked = false
+	}
 
 	/* Loop ports */
-	if obj.LastInput == obj.NumIn {
+	if obj.NumIn > 1 && obj.LastInput == obj.NumIn {
 		obj.LastInput = 0
 	}
 	for x := obj.LastInput; x < obj.NumIn; x++ {
@@ -194,14 +182,16 @@ func beltUpdate(obj *world.ObjData) {
 		/* Does the input contain anything? */
 		if obj.Inputs[x].Buf.Amount == 0 {
 			continue
-			/* If the destination blocked, stop */
 		} else if obj.Outputs[0].Obj != nil && obj.Outputs[0].Obj.Blocked {
+			/* If the destination blocked, stop */
 			break
 		} else {
-			/* Otherwise, do the thing. */
-			swapPortBuf(obj.Outputs[0].Buf, obj.Inputs[x].Buf)
-			obj.Inputs[x].Buf.Amount = 0
-			obj.LastInput = x
+			/* Good to go, swap pointers */
+			*obj.Outputs[0].Buf, *obj.Inputs[x].Buf = *obj.Inputs[x].Buf, *obj.Outputs[0].Buf
+
+			if obj.NumIn > 1 {
+				obj.LastInput = x
+			}
 			break /* Stop */
 		}
 	}
