@@ -4,12 +4,14 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"math/rand"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
 )
 
 var wg sizedwaitgroup.SizedWaitGroup
+var GameTick uint64
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
@@ -41,6 +43,7 @@ func ObjUpdateDaemon() {
 		} else {
 			world.TickListLock.Lock()
 			runTicks() //Move external
+			GameTick++
 			world.TickListLock.Unlock()
 			tockState = true
 		}
@@ -79,6 +82,7 @@ func ObjUpdateDaemonST() {
 		} else {
 			world.TickListLock.Lock()
 			runTicksST() //Move external
+			GameTick++
 			world.TickListLock.Unlock()
 			tockState = true
 		}
@@ -124,6 +128,7 @@ func runTicksST() {
 	if world.TickCount == 0 {
 		return
 	}
+
 	for _, item := range world.TickList {
 		tickObj(item.Target)
 	}
@@ -181,6 +186,9 @@ func ticklistAdd(obj *world.ObjData) {
 /* Lock and append to TockList */
 func tockListAdd(obj *world.ObjData) {
 	if !FindObjTock(obj) {
+		/*Spread out when tock happens */
+		obj.TickCount = uint8(rand.Intn(int(obj.TypeP.Interval)))
+
 		world.TockList = append(world.TockList, world.TickEvent{Target: obj})
 		world.TockCount++
 	}

@@ -15,7 +15,7 @@ func init() {
 	VisDataDirty.Store(true)
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
 
-	UPSAvr = ewma.NewMovingAverage(8)
+	UPSAvr = ewma.NewMovingAverage(gv.GameUPS)
 	FPSAvr = ewma.NewMovingAverage(60)
 }
 
@@ -62,7 +62,7 @@ var (
 	ScreenHeight uint16 = 720
 
 	/* Game UPS rate */
-	ObjectUPS            float32 = 8.0
+	ObjectUPS            float32 = gv.GameUPS
 	ObjectUPS_ns                 = time.Duration((1000000000.0 / ObjectUPS))
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
 	UPSAvr               ewma.MovingAverage

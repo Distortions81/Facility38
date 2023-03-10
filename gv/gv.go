@@ -20,6 +20,9 @@ var (
 )
 
 const (
+	GameUPS          = 8
+	NumTickIntervals = (GameUPS / 2) * 10
+
 	NumResourceTypes = 7
 	NinetyDeg        = math.Pi / 2
 	OneEightyDeg     = math.Pi
