@@ -101,12 +101,15 @@ func UnlinkObj(obj *world.ObjData) {
 			}
 		}
 
+		/* On remote obj, clean up port aliases */
 		portPop(port.Obj)
 
 		/* Break links */
 		obj.Ports[p].Link = nil
 		obj.Ports[p].Obj = nil
 	}
+
+	/* Murder all the port aliases */
 	obj.Inputs = nil
 	obj.Outputs = nil
 	obj.FuelIn = nil
@@ -116,6 +119,11 @@ func UnlinkObj(obj *world.ObjData) {
 	obj.NumFIn = 0
 	obj.NumFOut = 0
 
+	/*
+	* Remove outself from tock/tick,
+	* we will be re-added in link if there
+	* is some need for us to be in there
+	 */
 	tocklistRemove(obj)
 	ticklistRemove(obj)
 }
