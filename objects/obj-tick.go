@@ -177,7 +177,8 @@ func runTicks() {
 
 /* Lock and append to TickList */
 func ticklistAdd(obj *world.ObjData) {
-	if !FindObjTick(obj) {
+	if !obj.HasTick {
+		obj.HasTick = true
 		world.TickList = append(world.TickList, world.TickEvent{Target: obj})
 		world.TickCount++
 	}
@@ -185,7 +186,9 @@ func ticklistAdd(obj *world.ObjData) {
 
 /* Lock and append to TockList */
 func tockListAdd(obj *world.ObjData) {
-	if !FindObjTock(obj) {
+	if !obj.HasTock {
+		obj.HasTock = true
+
 		/*Spread out when tock happens */
 		if obj.TypeP.Interval > 0 {
 			obj.TickCount = uint8(rand.Intn(int(obj.TypeP.Interval)))
@@ -201,30 +204,13 @@ func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
 	world.EventQueue = append(world.EventQueue, &world.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
 }
 
-func FindObjTick(obj *world.ObjData) bool {
-	for _, tick := range world.TickList {
-		if tick.Target.Pos == obj.Pos {
-			return true
-		}
-	}
-	return false
-}
-
-func FindObjTock(obj *world.ObjData) bool {
-	for _, tick := range world.TockList {
-		if tick.Target.Pos == obj.Pos {
-			return true
-		}
-	}
-	return false
-}
-
 /* Lock and remove tick event */
 func ticklistRemove(obj *world.ObjData) {
 
 	for i, e := range world.TickList {
 		if e.Target == obj {
 			world.TickList = append(world.TickList[:i], world.TickList[i+1:]...)
+			obj.HasTick = false
 			world.TickCount--
 			return
 		}
@@ -240,6 +226,7 @@ func tocklistRemove(obj *world.ObjData) {
 	for i, e := range world.TockList {
 		if e.Target == obj {
 			world.TockList = append(world.TockList[:i], world.TockList[i+1:]...)
+			obj.HasTock = false
 			world.TockCount--
 			return
 		}

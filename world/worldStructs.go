@@ -163,6 +163,9 @@ type ObjData struct {
 
 	Blocked bool `json:"-"`
 	Active  bool `json:"-"`
+
+	HasTick bool
+	HasTock bool
 }
 
 type ObjPortData struct {
