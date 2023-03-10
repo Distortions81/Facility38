@@ -97,10 +97,10 @@ func minerUpdate(obj *world.ObjData) {
 
 		/* We are not blocked */
 		obj.Blocked = false
-		obj.Active = true
 
 		if obj.KGFuel < obj.TypeP.KgFuelEach {
 			/* Not enough fuel, exit */
+			obj.Active = false
 			break
 		}
 
@@ -121,6 +121,9 @@ func minerUpdate(obj *world.ObjData) {
 		if amount <= 0.001 {
 			break
 		}
+
+		/* Set as actively working */
+		obj.Active = true
 
 		/* Tally the amount taken as well as the type */
 		obj.Tile.MinerData.Mined[pick] += amount
