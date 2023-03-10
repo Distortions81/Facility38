@@ -296,12 +296,6 @@ func boxUpdate(obj *world.ObjData) {
 
 func smelterUpdate(obj *world.ObjData) {
 
-	/* Don't bother to continue if we don't have inputs or outputs */
-	/* Eventually move this to link */
-	if obj.NumOut == 0 || obj.NumIn == 0 {
-		return
-	}
-
 	/* Output full? */
 	for _, output := range obj.Outputs {
 		if output.Buf.Amount != 0 {

@@ -130,6 +130,7 @@ func UnlinkObj(obj *world.ObjData) {
 	ticklistRemove(obj)
 }
 
+/* Add port to correct alias, increment */
 func portAlias(obj *world.ObjData, port int, ptype uint8) {
 	if obj.Ports[port].Link == nil {
 		return
@@ -151,6 +152,10 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 	}
 }
 
+/*
+ * Remove a port from aliases
+ * Currently very lazy, but simple
+ */
 func portPop(obj *world.ObjData) {
 	obj.Outputs = nil
 	obj.NumOut = 0
@@ -167,4 +172,12 @@ func portPop(obj *world.ObjData) {
 	for p, port := range obj.Ports {
 		portAlias(obj, p, port.Type)
 	}
+}
+
+func objTockSleep(obj *world.ObjData) {
+	tocklistRemove(obj)
+}
+
+func objTockWake(obj *world.ObjData) {
+	tockListAdd(obj)
 }
