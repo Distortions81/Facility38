@@ -109,12 +109,8 @@ func minerUpdate(obj *world.ObjData) {
 		if obj.MinerData.ResourcesCount > 1 {
 			if obj.MinerData.LastUsed < (obj.MinerData.ResourcesCount - 1) {
 				obj.MinerData.LastUsed++
-			} else {
-				obj.MinerData.LastUsed = 0
+				pick = obj.MinerData.LastUsed
 			}
-			pick = obj.MinerData.LastUsed
-		} else if obj.MinerData.ResourcesCount == 0 {
-			return
 		}
 
 		/* Calculate how much material */
@@ -130,9 +126,7 @@ func minerUpdate(obj *world.ObjData) {
 		obj.Tile.MinerData.Mined[pick] += amount
 
 		/* Output the material */
-		if obj.Outputs[p].Buf.Amount != amount {
-			obj.Outputs[p].Buf.Amount = amount
-		}
+		obj.Outputs[p].Buf.Amount = amount
 		if obj.Outputs[p].Buf.TypeP != kind {
 			obj.Outputs[p].Buf.TypeP = kind
 		}
@@ -141,7 +135,7 @@ func minerUpdate(obj *world.ObjData) {
 		/* Burn fuel */
 		obj.KGFuel -= obj.TypeP.KgFuelEach
 
-		//We should remove ourselves here if we run out of ore
+		// TODO: Remove our events if there is nothing left to mine
 		break
 	}
 }
