@@ -15,7 +15,7 @@ func init() {
 	VisDataDirty.Store(true)
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
 
-	UPSAvr = ewma.NewMovingAverage(4)
+	UPSAvr = ewma.NewMovingAverage(8)
 	FPSAvr = ewma.NewMovingAverage(60)
 }
 
