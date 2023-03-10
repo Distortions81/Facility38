@@ -264,17 +264,13 @@ func smelterUpdate(obj *world.ObjData) {
 
 		/* Input contains something */
 		if input.Buf.Amount != 0 {
-			util.ObjCD(obj, "Buffer input contains something.")
 			/* Is of a type we can smelt */
 			if input.Buf.TypeP.IsSolid {
-				util.ObjCD(obj, "Buffer input is a solid.")
 				/* If the material will fit */
 				if input.Buf.Amount <= obj.TypeP.MaxContainKG {
-					util.ObjCD(obj, "We have room for the material")
 					/* Init content type if needed */
 					/* Move this to init */
 					if obj.Contents[input.Buf.TypeP.TypeI] == nil {
-						util.ObjCD(obj, "Mat type init")
 						obj.Contents[input.Buf.TypeP.TypeI] = &world.MatData{}
 						obj.Contents[input.Buf.TypeP.TypeI].TypeP = input.Buf.TypeP
 					}
@@ -287,11 +283,11 @@ func smelterUpdate(obj *world.ObjData) {
 
 					/* Clear input */
 					obj.Inputs[i].Buf.Amount = 0
-					util.ObjCD(obj, "Mat stored.")
 				}
 			}
 		}
 	}
+
 }
 
 func oldSmelterUpdate(obj *world.ObjData) {
