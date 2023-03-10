@@ -9,6 +9,16 @@ import (
 	"time"
 )
 
+func initSmelter(obj *world.ObjData) bool {
+	if obj == nil {
+		return false
+	}
+
+	obj.SContent = &world.MatData{}
+
+	return true
+}
+
 func initMiner(obj *world.ObjData) bool {
 	if obj == nil {
 		return false

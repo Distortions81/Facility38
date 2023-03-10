@@ -191,6 +191,7 @@ var (
 			ToolBarArrow: true,
 			Symbol:       "SMLT",
 			UpdateObj:    smelterUpdate,
+			InitObj:      initSmelter,
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -308,6 +309,9 @@ var (
 
 		{Symbol: "SLG", Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone.png",
 			IsSolid: true, TypeI: gv.MAT_SLAG},
+
+		{Symbol: "MIX", Name: "Mixed Ores", UnitName: " kg", ImagePath: "belt-obj/stone.png",
+			IsSolid: true, TypeI: gv.MAT_MIXORE},
 	}
 
 	/* Toolbar item types, array of array of ObjType */

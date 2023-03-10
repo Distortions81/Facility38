@@ -153,10 +153,11 @@ type ObjData struct {
 
 	//Internal use
 	Contents  [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	KGFuel    float32              `json:"kf,omitempty"`
-	KGHeld    float32              `json:"k,omitempty"`
-	MinerData *MinerDataType       `json:"-"`
-	Tile      *TileData            `json:"-"`
+	SContent  *MatData
+	KGFuel    float32        `json:"kf,omitempty"`
+	KGHeld    float32        `json:"k,omitempty"`
+	MinerData *MinerDataType `json:"-"`
+	Tile      *TileData      `json:"-"`
 
 	TickCount uint8 `json:"t,omitempty"`
 

@@ -268,15 +268,23 @@ func smelterUpdate(obj *world.ObjData) {
 			if input.Buf.TypeP.IsSolid {
 				/* If the material will fit */
 				if input.Buf.Amount <= obj.TypeP.MaxContainKG {
-					/* Init content type if needed */
-					/* Move this to init */
-					if obj.Contents[input.Buf.TypeP.TypeI] == nil {
-						obj.Contents[input.Buf.TypeP.TypeI] = &world.MatData{}
-						obj.Contents[input.Buf.TypeP.TypeI].TypeP = input.Buf.TypeP
+					/* If type is nil, init */
+					if obj.SContent.TypeP == nil {
+						obj.SContent.TypeP = input.Buf.TypeP
+						/* If we already contain ore */
+					} else if obj.SContent.Amount > 0 {
+						/* If of different type, ruin the contents */
+						if input.Buf.TypeP.TypeI != obj.SContent.TypeP.TypeI {
+							util.ObjCD(obj, "Mixed ore types!")
+							obj.SContent.TypeP = MatTypes[gv.MAT_MIXORE]
+						}
+					} else {
+						/* Otherwise, just set the ore type */
+						obj.SContent.TypeP = input.Buf.TypeP
 					}
 
 					/* Add contents */
-					obj.Contents[input.Buf.TypeP.TypeI].Amount += input.Buf.Amount
+					obj.SContent.Amount += input.Buf.Amount
 
 					/* Add to content weight */
 					obj.KGHeld += input.Buf.Amount

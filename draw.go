@@ -535,6 +535,9 @@ func drawWorldTooltip(screen *ebiten.Image) {
 						toolTip = toolTip + "NO FUEL\n"
 					}
 				}
+				if o.SContent != nil && o.SContent.Amount > 0 {
+					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.SContent.Amount, o.SContent.TypeP.UnitName, o.SContent.TypeP.Name)
+				}
 
 				if o.Blocked {
 					toolTip = toolTip + "BLOCKED\n"
