@@ -187,7 +187,9 @@ func ticklistAdd(obj *world.ObjData) {
 func tockListAdd(obj *world.ObjData) {
 	if !FindObjTock(obj) {
 		/*Spread out when tock happens */
-		obj.TickCount = uint8(rand.Intn(int(obj.TypeP.Interval)))
+		if obj.TypeP.Interval > 0 {
+			obj.TickCount = uint8(rand.Intn(int(obj.TypeP.Interval)))
+		}
 
 		world.TockList = append(world.TockList, world.TickEvent{Target: obj})
 		world.TockCount++

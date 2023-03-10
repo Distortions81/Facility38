@@ -158,6 +158,11 @@ func beltUpdateInter(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
+	/* Temporary fix... this shouldn't be happening */
+	if obj.NumOut == 0 {
+		return
+	}
+
 	/* Output full? */
 	for _, output := range obj.Outputs {
 		if output.Buf.Amount != 0 {
