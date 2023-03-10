@@ -9,7 +9,7 @@ import (
 
 var (
 	/* Build flags */
-	UPSBench = true
+	UPSBench = false
 	LoadTest = true
 
 	Debug     = true
@@ -21,8 +21,6 @@ var (
 
 const (
 	GameUPS          = 8
-	NumTickIntervals = (GameUPS / 2) * 10
-
 	NumResourceTypes = 7
 	NinetyDeg        = math.Pi / 2
 	OneEightyDeg     = math.Pi

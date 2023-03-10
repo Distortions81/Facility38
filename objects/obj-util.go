@@ -4,6 +4,7 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"math/rand"
 )
 
 /* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
@@ -70,6 +71,10 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	/* Add to tock/tick lists */
 	if initOkay {
 		LinkObj(b)
+		/*Spread out when tock happens */
+		if b.Obj.TypeP.Interval > 0 {
+			b.Obj.TickCount = uint8(rand.Intn(int(b.Obj.TypeP.Interval)))
+		}
 	}
 
 	b.Obj.Parent.Lock.Lock()

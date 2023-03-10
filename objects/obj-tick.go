@@ -4,7 +4,6 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
-	"math/rand"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -188,11 +187,6 @@ func ticklistAdd(obj *world.ObjData) {
 func tockListAdd(obj *world.ObjData) {
 	if !obj.HasTock {
 		obj.HasTock = true
-
-		/*Spread out when tock happens */
-		if obj.TypeP.Interval > 0 {
-			obj.TickCount = uint8(rand.Intn(int(obj.TypeP.Interval)))
-		}
 
 		world.TockList = append(world.TockList, world.TickEvent{Target: obj})
 		world.TockCount++
