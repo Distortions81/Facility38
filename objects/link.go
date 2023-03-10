@@ -173,11 +173,3 @@ func portPop(obj *world.ObjData) {
 		portAlias(obj, p, port.Type)
 	}
 }
-
-func objTockSleep(obj *world.ObjData) {
-	tocklistRemove(obj)
-}
-
-func objTockWake(obj *world.ObjData) {
-	tockListAdd(obj)
-}
