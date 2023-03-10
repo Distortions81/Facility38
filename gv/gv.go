@@ -10,7 +10,7 @@ import (
 var (
 	/* Build flags */
 	UPSBench = false
-	LoadTest = true
+	LoadTest = false
 
 	Debug     = true
 	LogStdOut = false
@@ -37,7 +37,7 @@ const (
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	NumTestObjects = 10000000
+	NumTestObjects = 15000000
 
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0
