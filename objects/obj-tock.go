@@ -83,13 +83,12 @@ func minerUpdate(obj *world.ObjData) {
 			/* Eat the fuel and increase fuel kg */
 			obj.KGFuel += port.Buf.Amount
 			obj.FuelIn[p].Buf.Amount = 0
-			break
 		}
 	}
 
 	for p, port := range obj.Outputs {
 
-		/* Output full? */
+		/* Output empty? */
 		if port.Buf.Amount != 0 {
 			obj.Blocked = true
 			obj.Active = false
@@ -130,7 +129,7 @@ func minerUpdate(obj *world.ObjData) {
 		/* Tally the amount taken as well as the type */
 		obj.Tile.MinerData.Mined[pick] += amount
 
-		/* Otherwise output the material */
+		/* Output the material */
 		if obj.Outputs[p].Buf.Amount != amount {
 			obj.Outputs[p].Buf.Amount = amount
 		}
