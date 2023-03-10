@@ -104,11 +104,6 @@ func tickObj(obj *world.ObjData) {
 
 	for _, port := range obj.Outputs {
 
-		/* If there is a link */
-		if port.Link == nil {
-			continue
-		}
-
 		/* If we have stuff to send */
 		if port.Buf.Amount == 0 {
 			continue
@@ -174,80 +169,43 @@ func runTicks() {
 	wg.Wait()
 }
 
-/* Run all object tocks (interal) multi-threaded */
-func runTocks() {
-	if world.TockCount == 0 {
-		return
-	}
-
-	l := world.TockCount - 1
-	if l < 1 {
-		return
-	} else if world.TockWorkSize == 0 {
-		return
-	}
-
-	numWorkers := l / world.TockWorkSize
-	if numWorkers < 1 {
-		numWorkers = 1
-	}
-	each := (l / numWorkers)
-	p := 0
-
-	if each < 1 {
-		each = l + 1
-		numWorkers = 1
-	}
-
-	tickNow := time.Now()
-	for n := 0; n < numWorkers; n++ {
-		//Handle remainder on last worker
-		if n == numWorkers-1 {
-			each = l + 1 - p
-		}
-
-		wg.Add()
-		go func(start int, end int, tickNow time.Time) {
-			for i := start; i < end; i++ {
-				world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
-			}
-			wg.Done()
-		}(p, p+each, tickNow)
-		p += each
-
-	}
-	wg.Wait()
-}
-
-/* WASM single-thread: Run all object tocks (interal) */
-func runTocksST() {
-	if world.TockCount == 0 {
-		return
-	}
-
-	for _, item := range world.TockList {
-		item.Target.TypeP.UpdateObj(item.Target)
-	}
-}
-
 /* Lock and append to TickList */
 func ticklistAdd(obj *world.ObjData) {
-
-	world.TickList = append(world.TickList, world.TickEvent{Target: obj})
-	world.TickCount++
+	if !FindObjTick(obj) {
+		world.TickList = append(world.TickList, world.TickEvent{Target: obj})
+		world.TickCount++
+	}
 }
 
 /* Lock and append to TockList */
 func tockListAdd(obj *world.ObjData) {
-
-	world.TockList = append(world.TockList, world.TickEvent{Target: obj})
-	world.TockCount++
+	if !FindObjTock(obj) {
+		world.TockList = append(world.TockList, world.TickEvent{Target: obj})
+		world.TockCount++
+	}
 }
 
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
-
 	world.EventQueue = append(world.EventQueue, &world.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
+}
+
+func FindObjTick(obj *world.ObjData) bool {
+	for _, tick := range world.TickList {
+		if tick.Target.Pos == obj.Pos {
+			return true
+		}
+	}
+	return false
+}
+
+func FindObjTock(obj *world.ObjData) bool {
+	for _, tick := range world.TockList {
+		if tick.Target.Pos == obj.Pos {
+			return true
+		}
+	}
+	return false
 }
 
 /* Lock and remove tick event */
@@ -331,11 +289,6 @@ func runObjQueue() {
 
 func delObj(obj *world.ObjData) {
 	UnlinkObj(obj)
-
-	/* Remove tick and tock events */
-	EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-	EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-
 	removeObj(obj)
 }
 

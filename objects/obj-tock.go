@@ -5,7 +5,64 @@ import (
 	"GameTest/util"
 	"GameTest/world"
 	"math/rand"
+	"time"
 )
+
+/* Run all object tocks (interal) multi-threaded */
+func runTocks() {
+	if world.TockCount == 0 {
+		return
+	}
+
+	l := world.TockCount - 1
+	if l < 1 {
+		return
+	} else if world.TockWorkSize == 0 {
+		return
+	}
+
+	numWorkers := l / world.TockWorkSize
+	if numWorkers < 1 {
+		numWorkers = 1
+	}
+	each := (l / numWorkers)
+	p := 0
+
+	if each < 1 {
+		each = l + 1
+		numWorkers = 1
+	}
+
+	tickNow := time.Now()
+	for n := 0; n < numWorkers; n++ {
+		//Handle remainder on last worker
+		if n == numWorkers-1 {
+			each = l + 1 - p
+		}
+
+		wg.Add()
+		go func(start int, end int, tickNow time.Time) {
+			for i := start; i < end; i++ {
+				world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
+			}
+			wg.Done()
+		}(p, p+each, tickNow)
+		p += each
+
+	}
+	wg.Wait()
+}
+
+/* WASM single-thread: Run all object tocks (interal) */
+func runTocksST() {
+	if world.TockCount == 0 {
+		return
+	}
+
+	for _, item := range world.TockList {
+		item.Target.TypeP.UpdateObj(item.Target)
+	}
+}
 
 func minerUpdate(obj *world.ObjData) {
 

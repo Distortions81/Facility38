@@ -260,13 +260,6 @@ func LoadGame() {
 
 			//LinkObj(obj)
 
-			/* Only add to list if the object calls an update function */
-			if obj.TypeP.UpdateObj != nil {
-				tockListAdd(obj)
-			}
-
-			ticklistAdd(obj)
-
 			if obj.TypeP.InitObj != nil {
 				obj.TypeP.InitObj(obj)
 			}

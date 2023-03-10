@@ -69,13 +69,8 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 
 	/* Add to tock/tick lists */
 	if initOkay {
-		if b.Obj.TypeP.UpdateObj != nil {
-			EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TOCK, false)
-		}
-		EventQueueAdd(b.Obj, gv.QUEUE_TYPE_TICK, false)
+		LinkObj(b)
 	}
-
-	LinkObj(b)
 
 	b.Obj.Parent.Lock.Lock()
 
