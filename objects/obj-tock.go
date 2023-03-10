@@ -126,7 +126,7 @@ func minerUpdate(obj *world.ObjData) {
 		kind := MatTypes[obj.MinerData.ResourcesType[pick]]
 
 		/* Stop if the amount is extremely small, zero or negative */
-		if amount <= 0.001 {
+		if amount < 0.001 {
 			break
 		}
 
