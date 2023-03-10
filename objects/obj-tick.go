@@ -114,7 +114,8 @@ func tickObj(obj *world.ObjData) {
 			continue
 		}
 
-		swapPortBuf(port.Link.Buf, port.Buf)
+		/* Swap pointers */
+		*port.Link.Buf, *port.Buf = *port.Buf, *port.Link.Buf
 	}
 }
 
