@@ -100,7 +100,7 @@ func minerUpdate(obj *world.ObjData) {
 		obj.Active = true
 
 		if obj.KGFuel < obj.TypeP.KgFuelEach {
-			/* Not enough fuel */
+			/* Not enough fuel, exit */
 			break
 		}
 
