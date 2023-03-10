@@ -90,17 +90,25 @@ func minerUpdate(obj *world.ObjData) {
 
 		/* Output empty? */
 		if port.Buf.Amount != 0 {
-			obj.Blocked = true
-			obj.Active = false
+			if !obj.Blocked {
+				obj.Blocked = true
+			}
+			if obj.Active {
+				obj.Active = false
+			}
 			continue
 		}
 
 		/* We are not blocked */
-		obj.Blocked = false
+		if obj.Blocked {
+			obj.Blocked = false
+		}
 
 		if obj.KGFuel < obj.TypeP.KgFuelEach {
 			/* Not enough fuel, exit */
-			obj.Active = false
+			if obj.Active {
+				obj.Active = false
+			}
 			break
 		}
 
@@ -123,7 +131,9 @@ func minerUpdate(obj *world.ObjData) {
 		}
 
 		/* Set as actively working */
-		obj.Active = true
+		if !obj.Active {
+			obj.Active = true
+		}
 
 		/* Tally the amount taken as well as the type */
 		obj.Tile.MinerData.Mined[pick] += amount
