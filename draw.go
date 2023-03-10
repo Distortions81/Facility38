@@ -508,6 +508,9 @@ func drawWorldTooltip(screen *ebiten.Image) {
 		chunk := util.GetChunk(pos)
 
 		toolTip := ""
+		if gv.Debug {
+			toolTip = "(Debug Mode):\n"
+		}
 		found := false
 
 		if chunk != nil {
