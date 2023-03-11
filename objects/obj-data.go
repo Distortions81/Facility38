@@ -44,10 +44,10 @@ func init() {
 		for p := range GameObjTypes[i].Ports {
 			pt := GameObjTypes[i].Ports[p].Type
 
-			if pt == gv.PORT_IN || pt == gv.PORT_FIN {
+			if pt == gv.PORT_IN {
 				GameObjTypes[i].HasInputs = true
 			}
-			if pt == gv.PORT_OUT || pt == gv.PORT_FOUT {
+			if pt == gv.PORT_OUT {
 				GameObjTypes[i].HasOutputs = true
 			}
 			GameObjTypes[i].Ports[p].Index = uint8(p)

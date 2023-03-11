@@ -59,10 +59,10 @@ func AutoEvents(obj *world.ObjData) {
 
 	/* Add to tock/tick lists */
 	var foundOutputs, foundInputs bool
-	if obj.NumOut > 0 || obj.NumFOut > 0 {
+	if obj.NumOut > 0 {
 		foundOutputs = true
 	}
-	if obj.NumIn > 0 || obj.NumFIn > 0 {
+	if obj.NumIn > 0 {
 		foundInputs = true
 	}
 
@@ -76,12 +76,14 @@ func AutoEvents(obj *world.ObjData) {
 			foundOutputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+			util.ObjCD(obj, "Has in and out, added tock/tick.")
 
 			/* Boxes */
 		} else if !obj.TypeP.HasOutputs &&
 			obj.TypeP.HasInputs &&
 			foundInputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+			util.ObjCD(obj, "Has input, added tock")
 
 			/* Not currently used */
 		} else if !obj.TypeP.HasInputs &&
@@ -89,6 +91,9 @@ func AutoEvents(obj *world.ObjData) {
 			foundOutputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+			util.ObjCD(obj, "Has out, added tock/tick.")
+		} else {
+			util.ObjCD(obj, "Failed all checks.")
 		}
 	}
 }

@@ -68,15 +68,6 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		}
 	}
 
-	/* Add to tock/tick lists */
-	if initOkay {
-		LinkObj(b)
-		/*Spread out when tock happens */
-		if b.Obj.TypeP.Interval > 0 {
-			b.Obj.TickCount = uint8(rand.Intn(int(b.Obj.TypeP.Interval)))
-		}
-	}
-
 	b.Obj.Parent.Lock.Lock()
 
 	/* Add sub-objects to map */
@@ -100,6 +91,16 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	b.Obj.Parent.Parent.PixmapDirty = true
 	world.VisDataDirty.Store(true)
 	b.Obj.Parent.Lock.Unlock()
+
+	/* Add to tock/tick lists */
+	if initOkay {
+		LinkObj(b)
+		/*Spread out when tock happens */
+		if b.Obj.TypeP.Interval > 0 {
+			b.Obj.TickCount = uint8(rand.Intn(int(b.Obj.TypeP.Interval)))
+		}
+	}
+
 	return b.Obj
 }
 
