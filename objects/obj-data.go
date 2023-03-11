@@ -54,6 +54,11 @@ func init() {
 
 		}
 	}
+
+	/* Add spaces to unit names */
+	for _, mat := range MatTypes {
+		mat.UnitName = " " + mat.UnitName
+	}
 }
 
 var (
@@ -287,39 +292,39 @@ var (
 		//Materials
 		{Symbol: "NIL", Name: "NONE", TypeI: gv.MAT_NONE},
 
-		{Symbol: "C", Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png",
+		{Symbol: "C", Name: "Coal", UnitName: "kg", ImagePath: "belt-obj/coal-ore.png",
 			IsSolid: true, IsFuel: true, TypeI: gv.MAT_COAL},
 
-		{Symbol: "Oil", Name: "Oil", UnitName: " L",
+		{Symbol: "Oil", Name: "Oil", UnitName: "L",
 			IsFluid: true, IsFuel: true, TypeI: gv.MAT_OIL},
 
-		{Symbol: "Gas", Name: "Natural Gas", UnitName: " cm",
+		{Symbol: "Gas", Name: "Natural Gas", UnitName: "cm",
 			IsGas: true, IsFuel: true, TypeI: gv.MAT_GAS},
 
 		/* Ore */
-		{Symbol: "FEo", Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore.png",
+		{Symbol: "FEo", Name: "Iron Ore", UnitName: "kg", ImagePath: "belt-obj/iron-ore.png",
 			IsSolid: true, Result: gv.MAT_IRON, TypeI: gv.MAT_IRON_ORE},
 
-		{Symbol: "Cuo", Name: "Copper Ore", UnitName: " kg", ImagePath: "belt-obj/copper-ore.png",
+		{Symbol: "Cuo", Name: "Copper Ore", UnitName: "kg", ImagePath: "belt-obj/copper-ore.png",
 			IsSolid: true, Result: gv.MAT_COPPER, TypeI: gv.MAT_COPPER_ORE},
 
-		{Symbol: "STOo", Name: "Stone Ore", UnitName: " kg", ImagePath: "belt-obj/stone-ore.png",
+		{Symbol: "STOo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
 			IsSolid: true, Result: gv.MAT_STONE, TypeI: gv.MAT_STONE_ORE},
 
 		/* Metal */
-		{Symbol: "FE", Name: "Iron Bar", UnitName: " kg", ImagePath: "belt-obj/iron.png",
+		{Symbol: "FE", Name: "Iron Bar", UnitName: "kg", ImagePath: "belt-obj/iron.png",
 			IsSolid: true, TypeI: gv.MAT_IRON},
 
-		{Symbol: "Cu", Name: "Copper Bar", UnitName: " kg", ImagePath: "belt-obj/copper.png",
+		{Symbol: "Cu", Name: "Copper Bar", UnitName: "kg", ImagePath: "belt-obj/copper.png",
 			IsSolid: true, TypeI: gv.MAT_COPPER},
 
-		{Symbol: "STO", Name: "Stone Block", UnitName: " kg", ImagePath: "belt-obj/stone.png",
+		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone.png",
 			IsSolid: true, TypeI: gv.MAT_STONE},
 
-		{Symbol: "SLG", Name: "Slag", UnitName: " kg", ImagePath: "belt-obj/stone.png",
+		{Symbol: "SLG", Name: "Slag", UnitName: "kg", ImagePath: "belt-obj/stone.png",
 			IsSolid: true, TypeI: gv.MAT_SLAG},
 
-		{Symbol: "MIX", Name: "Mixed Ores", UnitName: " kg", ImagePath: "belt-obj/stone.png",
+		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/stone.png",
 			IsSolid: true, TypeI: gv.MAT_MIXORE},
 	}
 
