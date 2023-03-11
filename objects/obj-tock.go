@@ -207,18 +207,39 @@ func beltUpdate(obj *world.ObjData) {
 
 func fuelHopperUpdate(obj *world.ObjData) {
 
-	/* Grab destination object */
-	for _, output := range obj.Outputs {
+	for _, input := range obj.Inputs {
 
-		if output.Obj == nil {
+		/* Input empty? */
+		if input.Buf.Amount == 0 {
 			continue
 		}
-		/* Does it use fuel? */
-		if output.Obj.TypeP.MaxFuelKG == 0 {
-			obj.Blocked = true
-			return
+
+		/* Solids only */
+		if !input.Buf.TypeP.IsSolid {
+			continue
 		}
 
+		/* Fuel only */
+		if !input.Buf.TypeP.IsFuel {
+			continue
+		}
+	}
+
+	if obj.SContent.Amount == 0 {
+		return
+	}
+
+	/* Grab destination object */
+	for _, output := range obj.FuelOut {
+		/* If blocked, stop */
+		if output.Buf.Amount != 0 {
+			if !obj.Blocked {
+				obj.Blocked = true
+				break
+			}
+		}
+		/* Swap pointers */
+		*obj.SContent, *output.Buf = *output.Buf, *obj.SContent
 	}
 }
 
@@ -351,93 +372,6 @@ func smelterUpdate(obj *world.ObjData) {
 		}
 	}
 
-}
-
-func oldSmelterUpdate(obj *world.ObjData) {
-
-	for p, port := range obj.Ports {
-
-		/* Input? */
-		if port.Dir == gv.PORT_IN {
-
-			/* Valid input? */
-			if port.Buf.TypeP == nil {
-				continue
-			}
-
-			/* Is this fuel? */
-			if port.Buf.TypeP.TypeI == gv.MAT_COAL {
-
-				/* Will it fit? */
-				if obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
-					obj.KGFuel += port.Buf.Amount
-					obj.Ports[p].Buf.Amount = 0
-				}
-
-				/* Is this ore? */
-			} else if port.Buf.TypeP.IsSolid {
-				if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
-					continue
-				}
-
-				/* Init content type if needed */
-				if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-					obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
-					obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
-				}
-
-				/* Add contents */
-				obj.Contents[port.Buf.TypeP.TypeI].Amount += port.Buf.Amount
-
-				/* Add to content weight */
-				obj.KGHeld += port.Buf.Amount
-
-				/* Clear input */
-				obj.Ports[p].Buf.Amount = 0
-			}
-		} else {
-
-			/* Is the output empty? */
-			if port.Buf.Amount != 0 {
-				obj.Blocked = true
-				continue
-			}
-			obj.Blocked = false
-
-			/* Do we have enough fuel to mine? */
-			if obj.KGFuel >= obj.TypeP.KgFuelEach {
-				for c, cont := range obj.Contents {
-
-					/* Valid contents? */
-					if cont == nil {
-						continue
-					}
-
-					/* Is it ore, and do we have enough to process? */
-					if cont.TypeP.IsSolid && cont.Amount >= obj.TypeP.KgMineEach {
-						obj.Active = true
-						obj.TickCount++
-
-						/* Are we finished? */
-						if obj.TickCount >= obj.TypeP.Interval {
-							obj.KGFuel -= obj.TypeP.KgFuelEach
-
-							obj.Contents[c].Amount -= obj.TypeP.KgMineEach
-							obj.KGHeld -= obj.TypeP.KgMineEach
-
-							obj.Ports[p].Buf.Amount = obj.TypeP.KgMineEach * gv.ORE_WASTE
-							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
-							obj.Ports[p].Buf.Rot = port.Buf.Rot
-							obj.TickCount = 0
-							obj.Active = false
-						}
-					}
-				}
-
-			}
-		}
-
-	}
 }
 
 func ironCasterUpdate(o *world.ObjData) {

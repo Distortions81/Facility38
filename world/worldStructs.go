@@ -194,6 +194,7 @@ type MaterialType struct {
 	IsSolid bool
 	IsGas   bool
 	IsFluid bool
+	IsFuel  bool
 	Result  uint8
 }
 

@@ -288,13 +288,13 @@ var (
 		{Symbol: "NIL", Name: "NONE", TypeI: gv.MAT_NONE},
 
 		{Symbol: "C", Name: "Coal", UnitName: " kg", ImagePath: "belt-obj/coal-ore.png",
-			IsSolid: true, TypeI: gv.MAT_COAL},
+			IsSolid: true, IsFuel: true, TypeI: gv.MAT_COAL},
 
 		{Symbol: "Oil", Name: "Oil", UnitName: " L",
-			IsFluid: true, TypeI: gv.MAT_OIL},
+			IsFluid: true, IsFuel: true, TypeI: gv.MAT_OIL},
 
 		{Symbol: "Gas", Name: "Natural Gas", UnitName: " cm",
-			IsGas: true, TypeI: gv.MAT_GAS},
+			IsGas: true, IsFuel: true, TypeI: gv.MAT_GAS},
 
 		/* Ore */
 		{Symbol: "FEo", Name: "Iron Ore", UnitName: " kg", ImagePath: "belt-obj/iron-ore.png",
