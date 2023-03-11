@@ -161,11 +161,6 @@ func beltUpdateInter(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
-	/* Temporary fix... this shouldn't be happening */
-	if obj.NumOut == 0 {
-		return
-	}
-
 	/* Output full? */
 	for _, output := range obj.Outputs {
 		if output.Buf.Amount != 0 {
@@ -245,42 +240,37 @@ func fuelHopperUpdate(obj *world.ObjData) {
 
 func splitterUpdate(obj *world.ObjData) {
 
-	/* TODO: Update me for new port system */
-	input := util.ReverseDirection(obj.Dir)
-
-	/* Anything in the input? */
-	if obj.Ports[input].Buf.Amount == 0 {
-		obj.Active = false
+	if obj.Outputs[0].Buf.Amount != 0 {
+		if !obj.Blocked {
+			obj.Blocked = true
+		}
+		if obj.Active {
+			obj.Active = false
+		}
 		return
 	}
 
-	/* Round-robin output */
-	dir := obj.LastInput
-	for x := 0; x < 4; x++ {
-		dir = util.RotCW(dir)
+	var x uint8
+	if obj.LastInput == obj.NumIn {
+		x = 0
+	}
+	for x = 0; x < 3; x++ {
+		xp := obj.LastInput % 3
+		if obj.Inputs[xp].Buf.Amount != 0 {
+			/* Swap pointers */
+			*obj.Outputs[0].Buf, *obj.Inputs[xp].Buf = *obj.Inputs[xp].Buf, *obj.Outputs[0].Buf
+			obj.LastInput = xp
 
-		/* Is this a output? */
-		if obj.Ports[dir].Dir != gv.PORT_OUT {
-			continue
+			if !obj.Active {
+				obj.Active = true
+			}
+			return
 		}
-
-		/* Is the port empty? */
-		if obj.Ports[dir].Buf.Amount != 0 {
-			obj.Active = false
-			continue
-		} else {
-			/* Do the thing */
-			swapPortBuf(obj.Ports[dir].Buf, obj.Ports[input].Buf)
-
-			obj.Ports[input].Buf.Amount = 0
-			obj.LastInput = dir
-			obj.Active = true
-			break
-			/* End */
-		}
-
 	}
 
+	if obj.Active {
+		obj.Active = false
+	}
 }
 
 func boxUpdate(obj *world.ObjData) {

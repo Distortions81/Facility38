@@ -68,19 +68,28 @@ func AutoEvents(obj *world.ObjData) {
 
 	/* If we have inputs and outputs object needs, add to tock list */
 	if obj.TypeP.UpdateObj != nil {
-		if obj.TypeP.HasInputs && foundInputs {
+
+		/* Most objs */
+		if obj.TypeP.HasInputs &&
+			obj.TypeP.HasOutputs &&
+			foundInputs &&
+			foundOutputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		} else if obj.TypeP.HasOutputs && foundOutputs {
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+
+			/* Boxes */
+		} else if !obj.TypeP.HasOutputs &&
+			obj.TypeP.HasInputs &&
+			foundInputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		} else {
-			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+
+			/* Not currently used */
+		} else if !obj.TypeP.HasInputs &&
+			obj.TypeP.HasOutputs &&
+			foundOutputs {
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 		}
-	}
-	/* Only add to tick list if object has an output */
-	if obj.TypeP.HasOutputs && foundOutputs {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 	}
 }
 
