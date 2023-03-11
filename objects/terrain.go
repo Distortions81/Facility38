@@ -285,6 +285,17 @@ func ResouceRenderDaemon() {
 	}
 }
 
+func ResouceRenderDaemonST() {
+
+	for _, sChunk := range world.SuperChunkList {
+		if sChunk.ResourceMap == nil || sChunk.ResouceDirty {
+			drawResource(sChunk)
+			sChunk.ResouceDirty = false
+			break
+		}
+	}
+}
+
 func drawResource(sChunk *world.MapSuperChunk) {
 	if sChunk == nil {
 		return

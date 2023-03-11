@@ -412,7 +412,8 @@ func drawPixmapMode(screen *ebiten.Image) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Single thread render terrain for WASM */
-	if gv.WASMMode {
+	if gv.WASMMode && frameCount%WASMTerrainDiv == 0 {
+		objects.ResouceRenderDaemonST()
 		objects.PixmapRenderST()
 	}
 	/* Draw superchunk images (pixmap mode)*/
