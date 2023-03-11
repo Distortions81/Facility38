@@ -9,11 +9,11 @@ import (
 
 var (
 	/* Build flags */
-	UPSBench = false
-	LoadTest = false
+	UPSBench = true
+	LoadTest = true
 
 	Debug     = true
-	LogStdOut = false
+	LogStdOut = true
 	WASMMode  = false
 
 	ResourceLegendImage *ebiten.Image
@@ -37,7 +37,7 @@ const (
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	NumTestObjects = 15000000
+	NumTestObjects = 10000000
 
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0

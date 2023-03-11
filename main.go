@@ -218,6 +218,7 @@ func detectCPUs() {
 			lCPUs--
 		}
 	}
+	world.NumWorkers = lCPUs
 	cwlog.DoLog("Virtual CPUs: %v", lCPUs)
 
 	/* Logical CPUs */
