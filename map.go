@@ -136,7 +136,7 @@ func makeTestMap(skip bool) {
 		}
 	}
 
-	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
+	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
 
 	world.MapGenerated.Store(true)
 	util.ChatDetailed("Map loaded, click or press any key to continue.", world.ColorGreen, time.Second*15)

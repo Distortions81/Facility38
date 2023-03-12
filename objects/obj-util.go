@@ -25,9 +25,7 @@ func removeObj(obj *world.ObjData) {
 func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 
 	//Make chunk if needed
-	if MakeChunk(pos) && !fast {
-		ExploreMap(pos, 4)
-	}
+	MakeChunk(pos)
 	chunk := util.GetChunk(pos)
 	b := util.GetObj(pos, chunk)
 
@@ -72,6 +70,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	/* Add sub-objects to map */
 	if b.Obj.TypeP.Size.X > 1 ||
 		b.Obj.TypeP.Size.Y > 1 {
+
 		/* Check if object fits */
 		for _, tile := range b.Obj.TypeP.SubObjs {
 			subPos := util.AddXY(pos, tile)
@@ -87,17 +86,20 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 			}
 		}
 
+		/* If space is available, create items */
 		for _, sub := range b.Obj.TypeP.SubObjs {
 			sXY := util.AddXY(sub, b.Obj.Pos)
-			ExploreMap(sXY, 2)
+			MakeChunk(sXY)
 			tchunk := util.GetChunk(sXY)
 			if tchunk != nil {
 				tchunk.BuildingMap[sXY] = b
+				tchunk.BuildingMap[sXY].Pos = sXY
 			}
 		}
 	} else {
 		/* Add object to map */
 		b.Obj.Parent.BuildingMap[pos] = b
+		b.Obj.Parent.BuildingMap[pos].Pos = pos
 	}
 
 	b.Obj.Parent.Lock.Lock()
@@ -121,6 +123,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		}
 	}
 
+	ExploreMap(pos, 6, false)
 	return b.Obj
 }
 

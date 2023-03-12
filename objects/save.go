@@ -343,5 +343,5 @@ func NukeWorld() {
 
 	world.SuperChunkListLock.Unlock()
 
-	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
+	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, false)
 }
