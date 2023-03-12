@@ -237,15 +237,12 @@ func createWorldObjects() {
 		/* Check if object fits */
 		for _, tile := range obj.SubObjs {
 			subPos := util.AddXY(pos, tile)
-			objects.ExploreMap(subPos, 2)
+			objects.MakeChunk(subPos)
 
 			tchunk := util.GetChunk(subPos)
 			if util.GetObj(subPos, tchunk) != nil {
-				csub := util.CenterXY(subPos)
-				util.Chat(
-					fmt.Sprintf(
-						"(%v) Can't fit here: %v,%v", obj.Name, csub.X, csub.Y,
-					))
+				//csub := util.CenterXY(subPos)
+				//util.Chat(fmt.Sprintf("UI: (%v) Can't fit here: %v,%v", obj.Name, csub.X, csub.Y))
 				return
 			}
 		}

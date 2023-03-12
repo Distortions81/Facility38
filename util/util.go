@@ -298,8 +298,7 @@ func GetNeighborObj(src world.XY, dir uint8) *world.BuildingData {
 	if b == nil {
 		return nil
 	}
-	subPos := AddXY(b.Obj.Pos, b.SubPos)
-	if subPos == src {
+	if b.Pos == src {
 		return nil
 	}
 	return b

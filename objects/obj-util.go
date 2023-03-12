@@ -4,6 +4,7 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"fmt"
 	"math/rand"
 )
 
@@ -68,19 +69,38 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		}
 	}
 
-	b.Obj.Parent.Lock.Lock()
-
 	/* Add sub-objects to map */
 	if b.Obj.TypeP.Size.X > 1 ||
 		b.Obj.TypeP.Size.Y > 1 {
+		/* Check if object fits */
+		for _, tile := range b.Obj.TypeP.SubObjs {
+			subPos := util.AddXY(pos, tile)
+			MakeChunk(subPos)
+			tchunk := util.GetChunk(subPos)
+			if util.GetObj(subPos, tchunk) != nil {
+				csub := util.CenterXY(subPos)
+				util.Chat(
+					fmt.Sprintf(
+						"CreateObj: (%v) Can't fit here: %v,%v", b.Obj.TypeP.Name, csub.X, csub.Y,
+					))
+				return nil
+			}
+		}
+
 		for _, sub := range b.Obj.TypeP.SubObjs {
 			sXY := util.AddXY(sub, b.Obj.Pos)
-			b.Obj.Parent.BuildingMap[sXY] = b
+			ExploreMap(sXY, 2)
+			tchunk := util.GetChunk(sXY)
+			if tchunk != nil {
+				tchunk.BuildingMap[sXY] = b
+			}
 		}
 	} else {
 		/* Add object to map */
 		b.Obj.Parent.BuildingMap[pos] = b
 	}
+
+	b.Obj.Parent.Lock.Lock()
 
 	/* Add to chunk object list */
 	b.Obj.Parent.ObjList =
