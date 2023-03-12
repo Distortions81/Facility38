@@ -156,11 +156,11 @@ func ObjListDelete(obj *world.ObjData) {
 
 /* Convert an internal XY (unsigned) to a (0,0) center */
 func CenterXY(pos world.XY) world.XYu {
-	return world.XYu{X: int32(pos.X - gv.XYCenter), Y: int32(pos.Y - gv.XYCenter)}
+	return world.XYu{X: int32(pos.X) - int32(gv.XYCenter), Y: int32(pos.Y) - int32(gv.XYCenter)}
 }
 
 func UnCenterXY(pos world.XYu) world.XY {
-	return world.XY{X: uint16(pos.X + gv.XYCenter), Y: uint16(pos.Y + gv.XYCenter)}
+	return world.XY{X: uint16(int32(pos.X) + int32(gv.XYCenter)), Y: uint16(int32(pos.Y) + int32(gv.XYCenter))}
 }
 
 /* Rotate consts.DIR value clockwise */

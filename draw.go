@@ -399,15 +399,46 @@ func drawIconMode(screen *ebiten.Image) {
 
 				}
 			}
-
 			for p := 0; p < BatchTop; p++ {
 				screen.DrawImage(ImageBatch[p], OpBatch[p])
+			}
+			for _, b := range chunk.BuildingMap {
+				drawItemMap(screen, b)
 			}
 		}
 	}
 	world.SuperChunkListLock.RUnlock()
 }
 
+func drawItemMap(screen *ebiten.Image, b *world.BuildingData) {
+
+	/* camera + object */
+	objOffX := camXPos + (float32(b.Obj.Pos.X))
+	objOffY := camYPos + (float32(b.Obj.Pos.Y))
+
+	/* camera zoom */
+	x := float64(objOffX * world.ZoomScale)
+	y := float64(objOffY * world.ZoomScale)
+
+	/* Draw sprite */
+	if b.Obj.TypeP.Image == nil {
+		return
+	} else {
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+
+		iSize := b.Obj.TypeP.Image.Bounds()
+
+		op.GeoM.Scale(
+			(float64(1)*float64(world.ZoomScale))/float64(iSize.Max.X),
+			(float64(1)*float64(world.ZoomScale))/float64(iSize.Max.Y))
+
+		op.GeoM.Translate(math.Floor(x), math.Floor(y))
+		op.ColorScale.Scale(0.125, 0.125, 0.5, 0.33)
+
+		screen.DrawImage(b.Obj.TypeP.Image, op)
+
+	}
+}
 func drawPixmapMode(screen *ebiten.Image) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
