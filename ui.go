@@ -252,11 +252,13 @@ func createWorldObjects() {
 		} else {
 			go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
 		}
+
+		/* Else destroy objects */
 	} else if b != nil && b.Obj != nil && gRightMouseHeld {
 		if gv.WASMMode {
-			objects.ObjQueueAdd(b.Obj, SelectedItemType, pos, true, 0)
+			objects.ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
 		} else {
-			go objects.ObjQueueAdd(b.Obj, SelectedItemType, pos, true, 0)
+			go objects.ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
 		}
 	}
 

@@ -402,9 +402,14 @@ func drawIconMode(screen *ebiten.Image) {
 			for p := 0; p < BatchTop; p++ {
 				screen.DrawImage(ImageBatch[p], OpBatch[p])
 			}
-			for bpos, b := range chunk.BuildingMap {
+			/*
+			 * Used for debugging map
+			 */
+
+			/*for bpos, b := range chunk.BuildingMap {
 				drawItemMap(screen, b, bpos)
-			}
+			}*/
+
 		}
 	}
 	world.SuperChunkListLock.RUnlock()
