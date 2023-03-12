@@ -402,19 +402,19 @@ func drawIconMode(screen *ebiten.Image) {
 			for p := 0; p < BatchTop; p++ {
 				screen.DrawImage(ImageBatch[p], OpBatch[p])
 			}
-			for _, b := range chunk.BuildingMap {
-				drawItemMap(screen, b)
+			for bpos, b := range chunk.BuildingMap {
+				drawItemMap(screen, b, bpos)
 			}
 		}
 	}
 	world.SuperChunkListLock.RUnlock()
 }
 
-func drawItemMap(screen *ebiten.Image, b *world.BuildingData) {
+func drawItemMap(screen *ebiten.Image, b *world.BuildingData, bpos world.XY) {
 
 	/* camera + object */
-	objOffX := camXPos + (float32(b.Obj.Pos.X))
-	objOffY := camYPos + (float32(b.Obj.Pos.Y))
+	objOffX := camXPos + (float32(bpos.X))
+	objOffY := camYPos + (float32(bpos.Y))
 
 	/* camera zoom */
 	x := float64(objOffX * world.ZoomScale)
