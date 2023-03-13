@@ -4,15 +4,20 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"fmt"
+	"math"
 	"math/rand"
 	"time"
 )
 
 /* Run all object tocks (interal) multi-threaded */
 const (
-	workSize = 10000
-	margin   = 1.3
+	workSize = 1000
+	margin   = 1.1
 	minSleep = 200 //Sleeping for less than this does not appear effective.
+
+	largeThreshold  = workSize
+	blocksPerWorker = 4
 )
 
 func runTocks() {
@@ -22,12 +27,22 @@ func runTocks() {
 	}
 	var lastTock int
 	var sleepFor time.Duration
+	var maxBlocks = world.NumWorkers * blocksPerWorker
 	tockStart := time.Now()
+	wSize := workSize
+
+	if world.TockCount > largeThreshold {
+		wSize = int(math.Ceil(float64(world.TockCount) / float64(maxBlocks)))
+	}
+
 	world.TockListLock.Lock()
 	for {
+		if world.TockCount-lastTock <= 0 {
+			break
+		}
+
 		startTime := time.Now()
 
-		wSize := workSize
 		/* If worksize is larger than remaining work, adjust worksize */
 		if wSize > world.TockCount-lastTock {
 			wSize = world.TockCount - lastTock
@@ -45,8 +60,11 @@ func runTocks() {
 		}(wSize, lastTock)
 
 		lastTock = lastTock + wSize
+		if lastTock == world.TockCount {
+			break
+		}
 
-		sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TockCount)/(workSize/margin))) - time.Since(startTime)
+		sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TockCount)/(float64(wSize)/margin))) - time.Since(startTime)
 		if sleepFor > minSleep*time.Microsecond {
 			time.Sleep(sleepFor)
 		}
@@ -60,8 +78,7 @@ func runTocks() {
 	}
 
 	world.MeasuredObjectUPS_ns = int(time.Since(tockStart).Nanoseconds())
-
-	//fmt.Printf("sleep-per: %v, endSleep: %v, tocks: %v\n", sleepFor.String(), timeLeft.String(), lastTock)
+	fmt.Printf("sleep-per: %v, endSleep: %v, workSize: %v\n", sleepFor.String(), timeLeft.String(), wSize)
 
 }
 

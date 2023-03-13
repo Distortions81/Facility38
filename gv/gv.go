@@ -37,7 +37,7 @@ const (
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	NumTestObjects = 30000000
+	NumTestObjects = 50000000
 
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0
