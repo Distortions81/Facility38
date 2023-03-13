@@ -4,6 +4,8 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"runtime"
+	"strings"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -12,7 +14,13 @@ import (
 var wg sizedwaitgroup.SizedWaitGroup
 var GameTick uint64
 
-const measureCompensate = 170
+var measureCompensate = 170 * time.Microsecond
+
+func init() {
+	if strings.EqualFold(runtime.GOOS, "windows") {
+		measureCompensate = 0 //Windows time resolution sucks
+	}
+}
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {

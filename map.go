@@ -136,14 +136,14 @@ func makeTestMap(skip bool) {
 		}
 	}
 
-	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
+	go objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
 
 	world.MapGenerated.Store(true)
 	util.ChatDetailed("Map loaded, click or press any key to continue.", world.ColorGreen, time.Second*15)
 
 	for !world.SpritesLoaded.Load() ||
 		!world.PlayerReady.Load() {
-		time.Sleep(time.Millisecond * 10)
+		time.Sleep(time.Millisecond)
 	}
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 

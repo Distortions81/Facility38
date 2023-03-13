@@ -5,6 +5,8 @@ github.com/aquilax/go-perlin v1.1.0 h1:Gg+3jQ24wT4Y5GI7TCRLmYarzUG0k+n/JATFqOimb
 github.com/aquilax/go-perlin v1.1.0/go.mod h1:z9Rl7EM4BZY0Ikp2fEN1I5mKSOJ26HQpk0O2TBdN2HE=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/defia/trf v0.0.0-20170307045202-ccb04d6be22b h1:URh+wiFULTzSrMPYczka0y5V9cQTa/J6WISUTKaju/k=
+github.com/defia/trf v0.0.0-20170307045202-ccb04d6be22b/go.mod h1:LGSo6HKl1FWVdggE6nYy/1UGY57aYl/sKd9CjSr3rVU=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/ebitengine/purego v0.0.0-20220905075623-aeed57cda744/go.mod h1:Eh8I3yvknDYZeCuXH9kRNaPuHEwvXDCk378o9xszmHg=
@@ -103,6 +105,8 @@ golang.org/x/exp/shiny v0.0.0-20230224173230-c95f2b4c22f2 h1:olq5Xv4O/fzX5f3w+Lk
 golang.org/x/exp/shiny v0.0.0-20230224173230-c95f2b4c22f2/go.mod h1:UH99kUObWAZkDnWqppdQe5ZhPYESUw8I0zVV1uWBR+0=
 golang.org/x/exp/shiny v0.0.0-20230307190834-24139beb5833 h1:bnxQ47LNDZvxLJ63bfMnEjmve4pS9vFag/3hmh06nIA=
 golang.org/x/exp/shiny v0.0.0-20230307190834-24139beb5833/go.mod h1:UH99kUObWAZkDnWqppdQe5ZhPYESUw8I0zVV1uWBR+0=
+golang.org/x/exp/shiny v0.0.0-20230310171629-522b1b587ee0 h1:u52eL01dzUcz/mt4pOEnDJLMUX8LWM1S/9liZO90y9A=
+golang.org/x/exp/shiny v0.0.0-20230310171629-522b1b587ee0/go.mod h1:UH99kUObWAZkDnWqppdQe5ZhPYESUw8I0zVV1uWBR+0=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/image v0.1.0/go.mod h1:iyPr49SD/G/TBxYVB/9RRtGUT5eNbo2u4NamWeQcD5c=

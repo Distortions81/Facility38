@@ -3,17 +3,25 @@ package objects
 import (
 	"GameTest/world"
 	"math"
+	"runtime"
+	"strings"
 	"time"
 )
 
-const (
+var (
 	minWorkSize = 1000
 	margin      = 1.8
-	minSleep    = 200 //Sleeping for less than this does not appear effective.
 
 	largeThreshold  = minWorkSize
+	minSleep        = 200 * time.Microsecond //Sleeping for less than this does not appear effective.
 	blocksPerWorker = 10
 )
+
+func init() {
+	if strings.EqualFold(runtime.GOOS, "windows") {
+		minSleep = time.Millisecond //Windows time resolution sucks
+	}
+}
 
 /* Process internally in an object, multi-threaded*/
 func runTicks() {
@@ -55,7 +63,7 @@ func runTicks() {
 		}
 
 		sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TickCount)/(float64(wSize)/margin))) - time.Since(startTime)
-		if sleepFor > minSleep*time.Microsecond {
+		if sleepFor > minSleep {
 			time.Sleep(sleepFor)
 		}
 	}
@@ -103,7 +111,7 @@ func runTocks() {
 		}
 
 		sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TockCount)/(float64(wSize)/margin))) - time.Since(startTime)
-		if sleepFor > minSleep*time.Microsecond {
+		if sleepFor > minSleep {
 			time.Sleep(sleepFor)
 		}
 	}
