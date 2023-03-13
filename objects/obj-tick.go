@@ -12,6 +12,8 @@ import (
 var wg sizedwaitgroup.SizedWaitGroup
 var GameTick uint64
 
+const measureCompensate = 170
+
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
 	wg = sizedwaitgroup.New(world.NumWorkers)
@@ -44,7 +46,7 @@ func ObjUpdateDaemon() {
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
-				time.Sleep(sleepFor - time.Microsecond*170)
+				time.Sleep(sleepFor - time.Microsecond*measureCompensate)
 				//fmt.Printf("Sleep: %v ", sleepFor.String())
 			}
 		}
