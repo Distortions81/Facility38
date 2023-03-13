@@ -258,8 +258,6 @@ func LoadGame() {
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjs++
 
-			//LinkObj(obj)
-
 			if obj.TypeP.InitObj != nil {
 				obj.TypeP.InitObj(obj)
 			}

@@ -67,5 +67,5 @@ func initMiner(obj *world.ObjData) bool {
 func deinitMiner(obj *world.ObjData) {
 
 	/* Update resource map on remove */
-	obj.Parent.Parent.ResouceDirty = true
+	obj.Parent.Parent.ResourceDirty = true
 }

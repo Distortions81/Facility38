@@ -47,13 +47,13 @@ func ObjUpdateDaemon() {
 			tockState = true
 		}
 
-		world.EventQueueLock.Lock()
-		RunEventQueue() //Queue to add/remove events
-		world.EventQueueLock.Unlock()
-
 		world.ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
 		world.ObjQueueLock.Unlock()
+
+		world.EventQueueLock.Lock()
+		RunEventQueue() //Queue to add/remove events
+		world.EventQueueLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := world.ObjectUPS_ns - time.Since(start)
@@ -263,7 +263,7 @@ func runObjQueue() {
 
 	for _, item := range world.ObjQueue {
 		if item.Delete {
-			if item.Obj.TypeP.SubObjs != nil {
+			if item.Obj.TypeP.Size.X > 1 || item.Obj.TypeP.Size.Y > 1 {
 				for _, sub := range item.Obj.TypeP.SubObjs {
 					pos := util.AddXY(sub, item.Pos)
 					removePosMap(pos)

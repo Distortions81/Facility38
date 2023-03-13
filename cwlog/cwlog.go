@@ -6,8 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"sync"
 	"time"
+
+	"github.com/sasha-s/go-deadlock"
 )
 
 const MaxBufferLines = 100000
@@ -19,7 +20,7 @@ var (
 
 	LogBuf      []string
 	LogBufLines int
-	LogBufLock  sync.Mutex
+	LogBufLock  deadlock.Mutex
 )
 
 /*

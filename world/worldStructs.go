@@ -4,11 +4,11 @@ import (
 	"GameTest/gv"
 	"image/color"
 	"math/rand"
-	"sync"
 	"time"
 
 	"github.com/aquilax/go-perlin"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/sasha-s/go-deadlock"
 )
 
 type ChatLines struct {
@@ -29,18 +29,18 @@ type MapSuperChunk struct {
 	ChunkList []*MapChunk      `json:"-"`
 	NumChunks uint16           `json:"-"`
 
-	ResouceDirty bool
-	ResourceMap  []byte `json:"-"`
-	ResourceLock sync.Mutex
+	ResourceDirty bool
+	ResourceMap   []byte `json:"-"`
+	ResourceLock  deadlock.Mutex
 
-	PixelMap     *ebiten.Image `json:"-"`
-	PixmapDirty  bool          `json:"-"`
-	PixelMapLock sync.RWMutex  `json:"-"`
-	PixelMapTime time.Time     `json:"-"`
+	PixelMap     *ebiten.Image    `json:"-"`
+	PixmapDirty  bool             `json:"-"`
+	PixelMapLock deadlock.RWMutex `json:"-"`
+	PixelMapTime time.Time        `json:"-"`
 
 	Visible bool `json:"-"`
 
-	Lock sync.RWMutex `json:"-"`
+	Lock deadlock.RWMutex `json:"-"`
 }
 
 type TileData struct {
@@ -76,15 +76,15 @@ type MapChunk struct {
 
 	Parent *MapSuperChunk `json:"-"`
 
-	TerrainLock    sync.RWMutex  `json:"-"`
-	TerrainImage   *ebiten.Image `json:"-"`
-	TerrainTime    time.Time     `json:"-"`
-	UsingTemporary bool          `json:"-"`
-	Precache       bool          `json:"-"`
+	TerrainLock    deadlock.RWMutex `json:"-"`
+	TerrainImage   *ebiten.Image    `json:"-"`
+	TerrainTime    time.Time        `json:"-"`
+	UsingTemporary bool             `json:"-"`
+	Precache       bool             `json:"-"`
 
 	Visible bool `json:"-"`
 
-	Lock sync.RWMutex `json:"-"`
+	Lock deadlock.RWMutex `json:"-"`
 }
 
 type NoiseLayerData struct {

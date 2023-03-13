@@ -21,7 +21,7 @@ const (
 	maxPixmapCacheWASM = 50
 	minPixmapTime      = time.Minute
 	pixmapRenderLoop   = time.Millisecond * 100
-	resouceRenderLoop  = time.Second
+	resourceRenderLoop = time.Second
 )
 
 var (
@@ -266,31 +266,31 @@ func PixmapRenderDaemon() {
 }
 
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
-func ResouceRenderDaemon() {
+func ResourceRenderDaemon() {
 
 	for {
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
 			sChunk.ResourceLock.Lock()
-			if sChunk.ResourceMap == nil || sChunk.ResouceDirty {
+			if sChunk.ResourceMap == nil || sChunk.ResourceDirty {
 				drawResource(sChunk)
-				sChunk.ResouceDirty = false
+				sChunk.ResourceDirty = false
 			}
 			sChunk.ResourceLock.Unlock()
 		}
 		world.SuperChunkListLock.RUnlock()
 
-		time.Sleep(resouceRenderLoop)
+		time.Sleep(resourceRenderLoop)
 	}
 }
 
-func ResouceRenderDaemonST() {
+func ResourceRenderDaemonST() {
 
 	for _, sChunk := range world.SuperChunkList {
-		if sChunk.ResourceMap == nil || sChunk.ResouceDirty {
+		if sChunk.ResourceMap == nil || sChunk.ResourceDirty {
 			drawResource(sChunk)
-			sChunk.ResouceDirty = false
+			sChunk.ResourceDirty = false
 			break
 		}
 	}

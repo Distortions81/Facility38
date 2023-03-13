@@ -11,16 +11,16 @@ import (
 	"io"
 	"log"
 	"math"
-	"sync"
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/sasha-s/go-deadlock"
 )
 
 var (
 	ChatLinesTop  int
 	ChatLines     []world.ChatLines
-	ChatLinesLock sync.Mutex
+	ChatLinesLock deadlock.Mutex
 )
 
 func init() {

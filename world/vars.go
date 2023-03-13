@@ -2,12 +2,12 @@ package world
 
 import (
 	"GameTest/gv"
-	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/VividCortex/ewma"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/sasha-s/go-deadlock"
 	"golang.org/x/image/font"
 )
 
@@ -24,27 +24,27 @@ var (
 
 	/* SuperChunk List */
 	SuperChunkList     []*MapSuperChunk
-	SuperChunkListLock sync.RWMutex
+	SuperChunkListLock deadlock.RWMutex
 
 	/* SuperChunkMap */
 	SuperChunkMap     map[XY]*MapSuperChunk
-	SuperChunkMapLock sync.RWMutex
+	SuperChunkMapLock deadlock.RWMutex
 
 	/* Tick: External inter-object communication */
 	TickList     []TickEvent = []TickEvent{}
-	TickListLock sync.Mutex
+	TickListLock deadlock.Mutex
 
 	/* Tock: buffer/interal events */
 	TockList     []TickEvent = []TickEvent{}
-	TockListLock sync.Mutex
+	TockListLock deadlock.Mutex
 
 	/* ObjQueue: add/del objects at end of tick */
 	ObjQueue     []*ObjectQueueData
-	ObjQueueLock sync.Mutex
+	ObjQueueLock deadlock.Mutex
 
 	/* EventQueue: add/del ticks/tocks at end of tick */
 	EventQueue     []*EventQueueData
-	EventQueueLock sync.Mutex
+	EventQueueLock deadlock.Mutex
 
 	/* Number of tick events */
 	TickCount int
@@ -94,7 +94,7 @@ var (
 
 	/* View layers */
 	ShowResourceLayer     bool
-	ShowResourceLayerLock sync.RWMutex
+	ShowResourceLayerLock deadlock.RWMutex
 
 	/* If position/zoom changed */
 	VisDataDirty atomic.Bool

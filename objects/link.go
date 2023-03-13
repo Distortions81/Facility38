@@ -4,10 +4,17 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+
+	"github.com/sasha-s/go-deadlock"
 )
 
 /* Link to output in (dir) */
+var linkLock deadlock.Mutex
+
 func LinkObj(b *world.BuildingData) {
+
+	linkLock.Lock()
+	defer linkLock.Unlock()
 
 	/* Attempt to link ports */
 	for p, port := range b.Obj.Ports {
@@ -98,6 +105,9 @@ func AutoEvents(obj *world.ObjData) {
 
 /* UnlinkObj an object */
 func UnlinkObj(obj *world.ObjData) {
+
+	linkLock.Lock()
+	defer linkLock.Unlock()
 
 	for p, port := range obj.Ports {
 		/* No obj, skip */
