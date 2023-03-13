@@ -210,13 +210,9 @@ func detectCPUs() {
 	}
 
 	/* Detect logical CPUs, failing that... use numcpu */
-	var lCPUs int = runtime.NumCPU() + 1
+	var lCPUs int = runtime.NumCPU()
 	if lCPUs <= 1 {
 		lCPUs = 1
-	} else if lCPUs > 2 {
-		{
-			lCPUs--
-		}
 	}
 	world.NumWorkers = lCPUs
 	cwlog.DoLog("Virtual CPUs: %v", lCPUs)
@@ -233,6 +229,7 @@ func detectCPUs() {
 		cwlog.DoLog("Logical CPUs: %v", cdat)
 	}
 
+	cwlog.DoLog("Number of workers: %v", lCPUs)
 	world.NumWorkers = lCPUs
 }
 

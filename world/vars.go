@@ -4,7 +4,6 @@ import (
 	"GameTest/gv"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/VividCortex/ewma"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -53,8 +52,6 @@ var (
 	/* Number of ticks per worker */
 	TickWorkSize int
 	/* Number of tocks per worker */
-	TockWorkSize int
-	/* Number of workers/threads */
 	NumWorkers int
 
 	/* Starting resolution */
@@ -63,7 +60,7 @@ var (
 
 	/* Game UPS rate */
 	ObjectUPS            float32 = gv.GameUPS
-	ObjectUPS_ns                 = time.Duration((1000000000.0 / ObjectUPS))
+	ObjectUPS_ns                 = int(1000000000.0 / ObjectUPS)
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
 	UPSAvr               ewma.MovingAverage
 	FPSAvr               ewma.MovingAverage

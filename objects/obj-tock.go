@@ -9,48 +9,60 @@ import (
 )
 
 /* Run all object tocks (interal) multi-threaded */
+const (
+	workSize = 10000
+	margin   = 1.3
+	minSleep = 200 //Sleeping for less than this does not appear effective.
+)
+
 func runTocks() {
 	if world.TockCount == 0 {
+		time.Sleep(time.Millisecond)
 		return
 	}
+	var lastTock int
+	var sleepFor time.Duration
+	tockStart := time.Now()
+	world.TockListLock.Lock()
+	for {
+		startTime := time.Now()
 
-	l := world.TockCount - 1
-	if l < 1 {
-		return
-	} else if world.TockWorkSize == 0 {
-		return
-	}
-
-	numWorkers := l / world.TockWorkSize
-	if numWorkers < 1 {
-		numWorkers = 1
-	}
-	each := (l / numWorkers)
-	p := 0
-
-	if each < 1 {
-		each = l + 1
-		numWorkers = 1
-	}
-
-	tickNow := time.Now()
-	for n := 0; n < numWorkers; n++ {
-		//Handle remainder on last worker
-		if n == numWorkers-1 {
-			each = l + 1 - p
+		wSize := workSize
+		/* If worksize is larger than remaining work, adjust worksize */
+		if wSize > world.TockCount-lastTock {
+			wSize = world.TockCount - lastTock
+		}
+		if lastTock >= world.TockCount {
+			break
 		}
 
 		wg.Add()
-		go func(start int, end int, tickNow time.Time) {
-			for i := start; i < end; i++ {
+		go func(wSize, lastTock int) {
+			for i := lastTock; i < lastTock+wSize; i++ {
 				world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
 			}
 			wg.Done()
-		}(p, p+each, tickNow)
-		p += each
+		}(wSize, lastTock)
 
+		lastTock = lastTock + wSize
+
+		sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TockCount)/(workSize/margin))) - time.Since(startTime)
+		if sleepFor > minSleep*time.Microsecond {
+			time.Sleep(sleepFor)
+		}
 	}
 	wg.Wait()
+	world.TockListLock.Unlock()
+
+	timeLeft := time.Duration(world.ObjectUPS_ns) - time.Since(tockStart)
+	if timeLeft > minSleep {
+		time.Sleep(timeLeft)
+	}
+
+	world.MeasuredObjectUPS_ns = int(time.Since(tockStart).Nanoseconds())
+
+	//fmt.Printf("sleep-per: %v, endSleep: %v, tocks: %v\n", sleepFor.String(), timeLeft.String(), lastTock)
+
 }
 
 /* WASM single-thread: Run all object tocks (interal) */

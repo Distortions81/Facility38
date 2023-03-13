@@ -12,56 +12,46 @@ import (
 var wg sizedwaitgroup.SizedWaitGroup
 var GameTick uint64
 
+const (
+	STATE_TOCK  = 0
+	STATE_TICK  = 1
+	STATE_QUEUE = 2
+)
+
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
 	wg = sizedwaitgroup.New(world.NumWorkers)
-	var start time.Time
 
 	for !world.MapGenerated.Load() {
 		time.Sleep(time.Millisecond * 10)
 	}
 
-	var tockState bool = true
+	var updateState int = STATE_TOCK
 	for {
-		start = time.Now()
+		if updateState == STATE_TOCK {
+			runTocks()
+			updateState = STATE_TICK
+			continue
 
-		world.TickWorkSize = world.TickCount / (world.NumWorkers * world.WorkChunks)
-		if world.TickWorkSize < 1 {
-			world.TickWorkSize = 1
-		}
-		world.TockWorkSize = world.TockCount / (world.NumWorkers * world.WorkChunks)
-		if world.TockWorkSize < 1 {
-			world.TockWorkSize = 1
-		}
-
-		if tockState {
-			world.TockListLock.Lock()
-			runTocks() //Process objects
-			world.TockListLock.Unlock()
-			tockState = false
-		} else {
+		} else if updateState == STATE_TICK {
 			world.TickListLock.Lock()
 			runTicks() //Move external
-			GameTick++
 			world.TickListLock.Unlock()
-			tockState = true
+			GameTick++
+			updateState = STATE_QUEUE
+			continue
+
+		} else if updateState == STATE_QUEUE {
+			world.ObjQueueLock.Lock()
+			runObjQueue() //Queue to add/remove objects
+			world.ObjQueueLock.Unlock()
+
+			world.EventQueueLock.Lock()
+			RunEventQueue() //Queue to add/remove events
+			world.EventQueueLock.Unlock()
+			updateState = STATE_TOCK
+			continue
 		}
-
-		world.ObjQueueLock.Lock()
-		runObjQueue() //Queue to add/remove objects
-		world.ObjQueueLock.Unlock()
-
-		world.EventQueueLock.Lock()
-		RunEventQueue() //Queue to add/remove events
-		world.EventQueueLock.Unlock()
-
-		if !gv.UPSBench {
-			sleepFor := world.ObjectUPS_ns - time.Since(start)
-			time.Sleep(sleepFor)
-		}
-
-		world.MeasuredObjectUPS_ns = time.Since(start)
-		world.UPSAvr.Add(float64(world.MeasuredObjectUPS_ns.Nanoseconds()))
 	}
 }
 
@@ -95,10 +85,10 @@ func ObjUpdateDaemonST() {
 		world.EventQueueLock.Unlock()
 
 		if !gv.UPSBench {
-			sleepFor := world.ObjectUPS_ns - time.Since(start)
+			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			time.Sleep(sleepFor)
 		}
-		world.MeasuredObjectUPS_ns = time.Since(start)
+		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
 	}
 }
 

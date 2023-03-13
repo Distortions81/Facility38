@@ -10,7 +10,7 @@ import (
 var (
 	/* Build flags */
 	UPSBench = false
-	LoadTest = false
+	LoadTest = true
 
 	Debug     = true
 	LogStdOut = true
@@ -20,7 +20,7 @@ var (
 )
 
 const (
-	GameUPS          = 8
+	GameUPS          = 4
 	NumResourceTypes = 7
 	NinetyDeg        = math.Pi / 2
 	OneEightyDeg     = math.Pi
@@ -37,7 +37,7 @@ const (
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	NumTestObjects = 10000000
+	NumTestObjects = 30000000
 
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0

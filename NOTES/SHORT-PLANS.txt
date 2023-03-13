@@ -1,7 +1,6 @@
 #HELPFUL INFO
 -tags=ebitenginedebug
 export EBITENGINE_INTERNAL_IMAGES_KEY=Q
-alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
 
 
 High priority:
