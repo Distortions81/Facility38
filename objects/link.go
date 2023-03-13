@@ -28,9 +28,13 @@ func LinkObj(b *world.BuildingData) {
 		/* Neighbor port is available */
 		for n, np := range neighb.Obj.Ports {
 			/* Port is in correct direction */
-			if np.Dir == util.ReverseDirection(port.Dir) &&
+			if np.Dir == util.ReverseDirection(port.Dir) ||
+				np.Dir == gv.DIR_ANY || port.Dir == gv.DIR_ANY {
+
 				/* Port is of correct type */
-				port.Type == util.ReverseType(np.Type) {
+				if port.Type != util.ReverseType(np.Type) {
+					continue
+				}
 
 				/* Add link to objects */
 				neighb.Obj.Ports[n].Obj = b.Obj

@@ -566,11 +566,15 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					}
 				}
 				if o.TypeP.MaxFuelKG > 0 {
+					toolTip = toolTip + fmt.Sprintf("Max Fuel: %0.2f kg\n", o.TypeP.MaxFuelKG)
 					if o.KGFuel > o.TypeP.KgFuelEach {
 						toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.KGFuel)
 					} else {
 						toolTip = toolTip + "NO FUEL\n"
 					}
+				}
+				if o.TypeP.MaxContainKG > 0 {
+					toolTip = toolTip + fmt.Sprintf("Max contents: %0.2f kg\n", o.TypeP.MaxContainKG)
 				}
 				if o.SContent != nil && o.SContent.Amount > 0 {
 					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.SContent.Amount, o.SContent.TypeP.UnitName, o.SContent.TypeP.Name)
@@ -595,16 +599,30 @@ func drawWorldTooltip(screen *ebiten.Image) {
 							tstring = p.Buf.TypeP.Name
 							tunit = p.Buf.TypeP.UnitName
 						}
-						if p.Type == gv.PORT_IN && p.Obj != nil {
+
+						if p.Type == gv.PORT_IN {
 							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %0.2f %v\n",
 								util.DirToName(uint8(z)),
 								p.Obj.TypeP.Name,
 								tstring,
 								p.Buf.Amount,
 								tunit)
-						}
-						if p.Type == gv.PORT_OUT && p.Obj != nil {
+						} else if p.Type == gv.PORT_OUT {
 							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %0.2f %v\n",
+								util.DirToName(uint8(z)),
+								p.Obj.TypeP.Name,
+								tstring,
+								p.Buf.Amount,
+								tunit)
+						} else if p.Type == gv.PORT_FOUT {
+							toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %0.2f %v\n",
+								util.DirToName(uint8(z)),
+								p.Obj.TypeP.Name,
+								tstring,
+								p.Buf.Amount,
+								tunit)
+						} else if p.Type == gv.PORT_FIN {
+							toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %0.2f %v\n",
 								util.DirToName(uint8(z)),
 								p.Obj.TypeP.Name,
 								tstring,

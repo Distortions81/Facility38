@@ -222,6 +222,7 @@ var (
 			ShowArrow:   false,
 			ShowBlocked: true,
 			UpdateObj:   fuelHopperUpdate,
+			KW:          10,
 			Symbol:      "FHOP",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_FOUT},

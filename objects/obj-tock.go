@@ -208,38 +208,44 @@ func fuelHopperUpdate(obj *world.ObjData) {
 
 	for _, input := range obj.Inputs {
 
-		/* Input empty? */
+		/* Does input contain anything? */
 		if input.Buf.Amount == 0 {
 			continue
 		}
 
-		/* Solids only */
+		/* Is input solid? */
 		if !input.Buf.TypeP.IsSolid {
 			continue
 		}
 
-		/* Fuel only */
+		/* Is input fuel? */
 		if !input.Buf.TypeP.IsFuel {
 			continue
 		}
-	}
 
-	if obj.SContent.Amount == 0 {
-		return
+		/* Do we have room for it? */
+		if (obj.KGFuel + input.Buf.Amount) < obj.TypeP.MaxFuelKG {
+			obj.KGFuel += input.Buf.Amount
+			break
+		}
 	}
 
 	/* Grab destination object */
-	for _, output := range obj.FuelOut {
-		/* If blocked, stop */
-		if output.Buf.Amount != 0 {
-			if !obj.Blocked {
-				obj.Blocked = true
-				break
+	if obj.KGFuel > obj.TypeP.KgFuelEach {
+		for _, output := range obj.FuelOut {
+			/* If blocked, stop */
+			if output.Buf.Amount != 0 {
+				if !obj.Blocked {
+					obj.Blocked = true
+				}
+				continue
 			}
+			output.Buf.Amount = obj.TypeP.KgFuelEach
+			obj.KGFuel -= obj.TypeP.KgFuelEach
+			break
 		}
-		/* Swap pointers */
-		*obj.SContent, *output.Buf = *output.Buf, *obj.SContent
 	}
+
 }
 
 func splitterUpdate(obj *world.ObjData) {
