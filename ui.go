@@ -227,7 +227,9 @@ func createWorldObjects() {
 	chunk := util.GetChunk(pos)
 	b := util.GetObj(pos, chunk)
 
+	/* Left mouse, and tile is empty */
 	if b == nil && gMouseHeld {
+		/* Nothing selected exit */
 		if SelectedItemType == 255 {
 			return
 		}
@@ -245,7 +247,7 @@ func createWorldObjects() {
 			}
 		}
 
-		/* Else destroy objects */
+		/* Else if tile is not empty and RightMouse is held */
 	} else if b != nil && b.Obj != nil && gRightMouseHeld {
 		if gv.WASMMode {
 			objects.ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
