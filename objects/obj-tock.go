@@ -161,6 +161,10 @@ func beltUpdateInter(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
+	if len(obj.Outputs) == 0 || obj.Outputs == nil {
+		return
+	}
+
 	/* Output full? */
 	for _, output := range obj.Outputs {
 		if output.Buf.Amount != 0 {
@@ -185,7 +189,7 @@ func beltUpdate(obj *world.ObjData) {
 		/* Does the input contain anything? */
 		if obj.Inputs[x].Buf.Amount == 0 {
 			continue
-		} else if obj.Outputs[0].Obj != nil && obj.Outputs[0].Obj.Blocked {
+		} else if obj.Outputs[0].Obj.Blocked {
 			/* If the destination blocked, stop */
 			break
 		} else {
