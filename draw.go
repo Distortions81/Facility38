@@ -493,7 +493,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 	/* Draw debug info */
 	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Active Objects: %v Arch: %v Build: %v",
 		world.FPSAvr.Value(),
-		1000000000.0/float64(world.MeasuredObjectUPS_ns),
+		1000000000.0/float64(world.MeasuredObjectUPS_ns)/2,
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		runtime.GOARCH, buildTime)
 

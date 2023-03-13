@@ -12,12 +12,6 @@ import (
 var wg sizedwaitgroup.SizedWaitGroup
 var GameTick uint64
 
-const (
-	STATE_TOCK  = 0
-	STATE_TICK  = 1
-	STATE_QUEUE = 2
-)
-
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
 	wg = sizedwaitgroup.New(world.NumWorkers)
@@ -26,32 +20,24 @@ func ObjUpdateDaemon() {
 		time.Sleep(time.Millisecond * 10)
 	}
 
-	var updateState int = STATE_TOCK
+	var tockState bool = true
 	for {
-		if updateState == STATE_TOCK {
+		if tockState {
 			runTocks()
-			updateState = STATE_TICK
-			continue
-
-		} else if updateState == STATE_TICK {
-			world.TickListLock.Lock()
+			tockState = false
+		} else {
 			runTicks() //Move external
-			world.TickListLock.Unlock()
 			GameTick++
-			updateState = STATE_QUEUE
-			continue
-
-		} else if updateState == STATE_QUEUE {
-			world.ObjQueueLock.Lock()
-			runObjQueue() //Queue to add/remove objects
-			world.ObjQueueLock.Unlock()
-
-			world.EventQueueLock.Lock()
-			RunEventQueue() //Queue to add/remove events
-			world.EventQueueLock.Unlock()
-			updateState = STATE_TOCK
-			continue
+			tockState = true
 		}
+
+		world.ObjQueueLock.Lock()
+		runObjQueue() //Queue to add/remove objects
+		world.ObjQueueLock.Unlock()
+
+		world.EventQueueLock.Lock()
+		RunEventQueue() //Queue to add/remove events
+		world.EventQueueLock.Unlock()
 	}
 }
 
@@ -121,47 +107,6 @@ func runTicksST() {
 	for _, item := range world.TickList {
 		tickObj(item.Target)
 	}
-}
-
-/* Process internally in an object, multi-threaded*/
-func runTicks() {
-
-	l := world.TickCount - 1
-	if l < 1 {
-		return
-	} else if world.TickWorkSize == 0 {
-		return
-	}
-
-	numWorkers := l / world.TickWorkSize
-	if numWorkers < 1 {
-		numWorkers = 1
-	}
-	each := (l / numWorkers)
-	p := 0
-
-	if each < 1 {
-		each = l + 1
-		numWorkers = 1
-	}
-
-	for n := 0; n < numWorkers; n++ {
-		//Handle remainder on last worker
-		if n == numWorkers-1 {
-			each = l + 1 - p
-		}
-
-		wg.Add()
-		go func(start int, end int) {
-			for i := start; i < end; i++ {
-				tickObj(world.TickList[i].Target)
-			}
-			wg.Done()
-		}(p, p+each)
-		p += each
-
-	}
-	wg.Wait()
 }
 
 /* Lock and append to TickList */

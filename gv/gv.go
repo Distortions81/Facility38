@@ -20,7 +20,7 @@ var (
 )
 
 const (
-	GameUPS          = 4
+	GameUPS          = 8
 	NumResourceTypes = 7
 	NinetyDeg        = math.Pi / 2
 	OneEightyDeg     = math.Pi
@@ -37,7 +37,7 @@ const (
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	NumTestObjects = 50000000
+	NumTestObjects = 1000000
 
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0
