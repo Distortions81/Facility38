@@ -86,13 +86,13 @@ func ObjUpdateDaemonST() {
 			tockState = true
 		}
 
-		world.EventQueueLock.Lock()
-		RunEventQueue() //Queue to add/remove events
-		world.EventQueueLock.Unlock()
-
 		world.ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
 		world.ObjQueueLock.Unlock()
+
+		world.EventQueueLock.Lock()
+		RunEventQueue() //Queue to add/remove events
+		world.EventQueueLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := world.ObjectUPS_ns - time.Since(start)
@@ -295,7 +295,7 @@ func removePosMap(pos world.XY) {
 	chunk.Lock.Lock()
 	chunk.NumObjs--
 	delete(chunk.BuildingMap, pos)
+	sChunk.PixmapDirty = true
 	chunk.Lock.Unlock()
 
-	sChunk.PixmapDirty = true
 }

@@ -145,6 +145,8 @@ func PosIntMod(d, m int) int {
 /* Delete an object from a world.ObjData list, does not retain order (fast) */
 func ObjListDelete(obj *world.ObjData) {
 
+	obj.Parent.Lock.Lock()
+	defer obj.Parent.Lock.Unlock()
 	for index, item := range obj.Parent.ObjList {
 		if item.Pos == obj.Pos {
 			obj.Parent.ObjList[index] = obj.Parent.ObjList[len(obj.Parent.ObjList)-1]

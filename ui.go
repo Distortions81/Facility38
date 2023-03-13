@@ -223,6 +223,7 @@ func createWorldObjects() {
 	if pos == gLastActionPosition {
 		return
 	}
+	gLastActionPosition = pos
 
 	chunk := util.GetChunk(pos)
 	b := util.GetObj(pos, chunk)
@@ -250,8 +251,6 @@ func createWorldObjects() {
 			go objects.ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
 		}
 	}
-
-	gLastActionPosition = pos
 }
 
 /* Right-click drag or WASD movement, shift run */
