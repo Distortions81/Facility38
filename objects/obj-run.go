@@ -2,7 +2,6 @@ package objects
 
 import (
 	"GameTest/world"
-	"fmt"
 	"math"
 	"time"
 )
@@ -43,7 +42,6 @@ func runTicks() {
 
 		wg.Add()
 		go func(wSize, lastTick int) {
-			fmt.Printf("start: %v, end: %v\n", lastTick, lastTick+wSize)
 			for i := lastTick; i < lastTick+wSize; i++ {
 				tickObj(world.TickList[i].Target)
 			}
