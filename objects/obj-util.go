@@ -42,6 +42,36 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	b.Obj.TypeP = GameObjTypes[mtype]
 	b.Obj.Dir = dir
 
+	/* Add sub-objects to map */
+	if b.Obj.TypeP.Size.X > 1 ||
+		b.Obj.TypeP.Size.Y > 1 {
+
+		/* Check if obj fits */
+		if SubObjFits(b.Obj.TypeP, true, pos) {
+
+			/* If space is available, create items */
+			for _, sub := range b.Obj.TypeP.SubObjs {
+				sXY := util.AddXY(sub, pos)
+				MakeChunk(sXY)
+				tchunk := util.GetChunk(sXY)
+				if tchunk != nil {
+					tchunk.Lock.Lock()
+					tchunk.BuildingMap[sXY] = b
+					tchunk.BuildingMap[sXY].Pos = sXY
+					tchunk.Lock.Unlock()
+				}
+			}
+		} else {
+			return nil
+		}
+	} else {
+		/* Add object to map */
+		b.Obj.Parent.Lock.Lock()
+		b.Obj.Parent.BuildingMap[pos] = b
+		b.Obj.Parent.BuildingMap[pos].Pos = pos
+		b.Obj.Parent.Lock.Unlock()
+	}
+
 	if b.Obj.TypeP.CanContain {
 		b.Obj.Contents = [gv.MAT_MAX]*world.MatData{}
 	}
@@ -67,32 +97,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		}
 	}
 
-	/* Add sub-objects to map */
-	if b.Obj.TypeP.Size.X > 1 ||
-		b.Obj.TypeP.Size.Y > 1 {
-
-		/* Check if obj fits */
-		if SubObjFits(b.Obj.TypeP, true, pos) {
-
-			/* If space is available, create items */
-			for _, sub := range b.Obj.TypeP.SubObjs {
-				sXY := util.AddXY(sub, b.Obj.Pos)
-				MakeChunk(sXY)
-				tchunk := util.GetChunk(sXY)
-				if tchunk != nil {
-					tchunk.BuildingMap[sXY] = b
-					tchunk.BuildingMap[sXY].Pos = sXY
-				}
-			}
-		}
-	} else {
-		/* Add object to map */
-		b.Obj.Parent.BuildingMap[pos] = b
-		b.Obj.Parent.BuildingMap[pos].Pos = pos
-	}
-
 	b.Obj.Parent.Lock.Lock()
-
 	/* Add to chunk object list */
 	b.Obj.Parent.ObjList =
 		append(b.Obj.Parent.ObjList, b.Obj)
@@ -112,26 +117,29 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		}
 	}
 
-	ExploreMap(pos, 6, false)
 	return b.Obj
 }
 
 func SubObjFits(sub *world.ObjType, report bool, pos world.XY) bool {
+
 	/* Check if object fits */
 	for _, tile := range sub.SubObjs {
 		subPos := util.AddXY(pos, tile)
-		MakeChunk(subPos)
 		tchunk := util.GetChunk(subPos)
+		if tchunk != nil {
+			tchunk.Lock.RLock()
+			defer tchunk.Lock.RUnlock()
 
-		if util.GetObj(subPos, tchunk) != nil {
-			if report {
-				csub := util.CenterXY(subPos)
-				util.Chat(
-					fmt.Sprintf(
-						"CreateObj: (%v) Can't fit here: %v,%v", sub.Name, csub.X, csub.Y,
-					))
+			if util.GetObj(subPos, tchunk) != nil {
+				if report {
+					csub := util.CenterXY(subPos)
+					util.Chat(
+						fmt.Sprintf(
+							"CreateObj: (%v) Can't fit here: %v,%v", sub.Name, csub.X, csub.Y,
+						))
+				}
+				return false
 			}
-			return false
 		}
 	}
 

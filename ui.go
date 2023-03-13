@@ -236,15 +236,10 @@ func createWorldObjects() {
 		obj := objects.GameObjTypes[SelectedItemType]
 		dir := obj.Direction
 
-		/* Check if object fits */
-		if obj.Size.X > 1 || obj.Size.Y > 1 {
-			if objects.SubObjFits(obj, true, pos) {
-				if gv.WASMMode {
-					objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
-				} else {
-					go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
-				}
-			}
+		if gv.WASMMode {
+			objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+		} else {
+			go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
 		}
 
 		/* Else if tile is not empty and RightMouse is held */
