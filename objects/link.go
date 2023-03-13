@@ -4,12 +4,11 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
-
-	"github.com/sasha-s/go-deadlock"
+	"sync"
 )
 
 /* Link to output in (dir) */
-var linkLock deadlock.Mutex
+var linkLock sync.Mutex
 
 func LinkObj(b *world.BuildingData) {
 

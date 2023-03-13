@@ -4,16 +4,16 @@ import (
 	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/world"
+	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/sasha-s/go-deadlock"
 )
 
 var (
 	toolbarCache     *ebiten.Image
-	toolbarCacheLock deadlock.RWMutex
+	toolbarCacheLock sync.RWMutex
 	ToolbarMax       int
 	SelectedItemType uint8 = 255
 	ToolbarItems           = []world.ToolbarItem{}
