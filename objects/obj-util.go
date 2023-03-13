@@ -127,9 +127,6 @@ func SubObjFits(sub *world.ObjType, report bool, pos world.XY) bool {
 		subPos := util.AddXY(pos, tile)
 		tchunk := util.GetChunk(subPos)
 		if tchunk != nil {
-			tchunk.Lock.RLock()
-			defer tchunk.Lock.RUnlock()
-
 			if util.GetObj(subPos, tchunk) != nil {
 				if report {
 					csub := util.CenterXY(subPos)
