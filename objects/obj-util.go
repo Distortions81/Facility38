@@ -12,13 +12,14 @@ import (
 func removeObj(obj *world.ObjData) {
 	/* delete from map */
 	obj.Parent.Lock.Lock()
-	defer obj.Parent.Lock.Unlock()
 
 	obj.Parent.NumObjs--
 	delete(obj.Parent.BuildingMap, obj.Pos)
-	util.ObjListDelete(obj)
 
 	obj.Parent.Parent.PixmapDirty = true
+	obj.Parent.Lock.Unlock()
+	util.ObjListDelete(obj)
+
 }
 
 /* Create a multi-tile object */
