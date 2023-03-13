@@ -402,14 +402,14 @@ func drawIconMode(screen *ebiten.Image) {
 			/*
 			 * Used for debugging map
 			 */
-			if SubObjDebug {
+			/*if SubObjDebug {
 				for bpos, b := range chunk.BuildingMap {
 					if b.Obj.TypeP.Size.X > 1 ||
 						b.Obj.TypeP.Size.Y > 1 {
 						drawSubObjDebug(screen, b, bpos)
 					}
 				}
-			}
+			}*/
 		}
 	}
 	world.SuperChunkListLock.RUnlock()
