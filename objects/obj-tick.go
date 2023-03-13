@@ -17,7 +17,7 @@ var GameTick uint64
 var measureCompensate = 0 * time.Microsecond
 
 func init() {
-	if strings.EqualFold(runtime.GOOS, "windows") {
+	if strings.EqualFold(runtime.GOOS, "windows") || gv.WASMMode {
 		measureCompensate = 0 //Windows time resolution sucks
 	}
 }

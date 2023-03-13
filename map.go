@@ -77,6 +77,9 @@ func makeTestMap(skip bool) {
 				}
 				world.EventQueue = []*world.EventQueueData{}
 				world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
+				if Loaded%10000 == 0 {
+					util.WASMSleep()
+				}
 			}
 		} else {
 			/* Default map generator */
@@ -135,10 +138,14 @@ func makeTestMap(skip bool) {
 			Loaded++
 
 			world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
+			if Loaded%10000 == 0 {
+				util.WASMSleep()
+			}
 		}
 	}
 
-	if strings.EqualFold(runtime.GOOS, "windows") {
+	util.WASMSleep()
+	if strings.EqualFold(runtime.GOOS, "windows") || gv.WASMMode {
 		go objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
 	} else {
 		objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
@@ -159,6 +166,7 @@ func makeTestMap(skip bool) {
 		go objects.ObjUpdateDaemon()
 		go objects.ResourceRenderDaemon()
 	} else {
+		util.WASMSleep()
 		go objects.ObjUpdateDaemonST()
 	}
 }

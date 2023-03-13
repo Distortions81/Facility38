@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"GameTest/gv"
 	"GameTest/world"
 	"math"
 	"runtime"
@@ -18,7 +19,7 @@ var (
 )
 
 func init() {
-	if strings.EqualFold(runtime.GOOS, "windows") {
+	if strings.EqualFold(runtime.GOOS, "windows") || gv.WASMMode {
 		minSleep = time.Millisecond //Windows time resolution sucks
 	}
 }
