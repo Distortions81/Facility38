@@ -7,19 +7,6 @@ import (
 	"math/rand"
 )
 
-/* Run all object tocks (interal) multi-threaded */
-
-/* WASM single-thread: Run all object tocks (interal) */
-func runTocksST() {
-	if world.TockCount == 0 {
-		return
-	}
-
-	for _, item := range world.TockList {
-		item.Target.TypeP.UpdateObj(item.Target)
-	}
-}
-
 func minerUpdate(obj *world.ObjData) {
 
 	/* Is it time to run? */

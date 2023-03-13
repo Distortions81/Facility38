@@ -111,17 +111,6 @@ func tickObj(obj *world.ObjData) {
 	}
 }
 
-/* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
-func runTicksST() {
-	if world.TickCount == 0 {
-		return
-	}
-
-	for _, item := range world.TickList {
-		tickObj(item.Target)
-	}
-}
-
 /* Lock and append to TickList */
 func ticklistAdd(obj *world.ObjData) {
 	if !obj.HasTick {

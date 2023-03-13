@@ -2,6 +2,7 @@ package objects
 
 import (
 	"GameTest/world"
+	"fmt"
 	"math"
 	"time"
 )
@@ -21,7 +22,7 @@ func runTicks() {
 		time.Sleep(time.Millisecond)
 		return
 	}
-	var lastTick int
+	var lastTick int = 0
 	var sleepFor time.Duration
 	var maxBlocks = world.NumWorkers * blocksPerWorker
 	wSize := minWorkSize
@@ -36,23 +37,22 @@ func runTicks() {
 		startTime := time.Now()
 
 		/* If worksize is larger than remaining work, adjust worksize */
-		if wSize > world.TickCount-lastTick {
+		if lastTick+wSize > world.TickCount {
 			wSize = world.TickCount - lastTick
 		}
 
 		wg.Add()
 		go func(wSize, lastTick int) {
+			fmt.Printf("start: %v, end: %v\n", lastTick, lastTick+wSize)
 			for i := lastTick; i < lastTick+wSize; i++ {
-				world.TickList[i].Target.TypeP.UpdateObj(world.TickList[i].Target)
+				tickObj(world.TickList[i].Target)
 			}
 			wg.Done()
 		}(wSize, lastTick)
 
-		lastTick = lastTick + wSize
+		lastTick = lastTick + wSize + 1
+
 		if lastTick >= world.TickCount {
-			break
-		}
-		if world.TickCount-lastTick <= 0 {
 			break
 		}
 
@@ -88,10 +88,9 @@ func runTocks() {
 		startTime := time.Now()
 
 		/* If worksize is larger than remaining work, adjust worksize */
-		if wSize > world.TockCount-lastTock {
+		if lastTock+wSize > world.TockCount {
 			wSize = world.TockCount - lastTock
 		}
-
 		wg.Add()
 		go func(wSize, lastTock int) {
 			for i := lastTock; i < lastTock+wSize; i++ {
@@ -100,11 +99,8 @@ func runTocks() {
 			wg.Done()
 		}(wSize, lastTock)
 
-		lastTock = lastTock + wSize
+		lastTock = lastTock + wSize + 1
 		if lastTock >= world.TockCount {
-			break
-		}
-		if world.TockCount-lastTock <= 0 {
 			break
 		}
 
@@ -118,4 +114,26 @@ func runTocks() {
 
 	//fmt.Printf("TOCK: sleep-per: %v, workSize: %v\n", sleepFor.String(), wSize)
 
+}
+
+/* WASM single-thread: Run all object tocks (interal) */
+func runTocksST() {
+	if world.TockCount == 0 {
+		return
+	}
+
+	for _, item := range world.TockList {
+		item.Target.TypeP.UpdateObj(item.Target)
+	}
+}
+
+/* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
+func runTicksST() {
+	if world.TickCount == 0 {
+		return
+	}
+
+	for _, item := range world.TickList {
+		tickObj(item.Target)
+	}
 }
