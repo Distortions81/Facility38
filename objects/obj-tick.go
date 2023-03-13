@@ -17,11 +17,13 @@ func ObjUpdateDaemon() {
 	wg = sizedwaitgroup.New(world.NumWorkers)
 
 	for !world.MapGenerated.Load() {
-		time.Sleep(time.Millisecond * 10)
+		time.Sleep(time.Millisecond * 100)
 	}
 
 	var tockState bool = true
 	for {
+		start := time.Now()
+
 		if tockState {
 			runTocks()
 			tockState = false
@@ -38,6 +40,15 @@ func ObjUpdateDaemon() {
 		world.EventQueueLock.Lock()
 		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
+
+		if !gv.UPSBench {
+			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
+			if sleepFor > minSleep {
+				time.Sleep(sleepFor - time.Microsecond*170)
+				//fmt.Printf("Sleep: %v ", sleepFor.String())
+			}
+		}
+		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
 	}
 }
 

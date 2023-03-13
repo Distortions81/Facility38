@@ -2,16 +2,11 @@ package objects
 
 import (
 	"GameTest/world"
-	"fmt"
 	"math"
 	"time"
 )
 
 const (
-	STATE_TOCK  = 0
-	STATE_TICK  = 1
-	STATE_QUEUE = 2
-
 	minWorkSize = 1000
 	margin      = 1.8
 	minSleep    = 200 //Sleeping for less than this does not appear effective.
@@ -29,7 +24,6 @@ func runTicks() {
 	var lastTick int
 	var sleepFor time.Duration
 	var maxBlocks = world.NumWorkers * blocksPerWorker
-	tickStart := time.Now()
 	wSize := minWorkSize
 
 	if world.TickCount > largeThreshold {
@@ -58,7 +52,7 @@ func runTicks() {
 		if lastTick >= world.TickCount {
 			break
 		}
-		if world.TockCount-lastTick <= 0 {
+		if world.TickCount-lastTick <= 0 {
 			break
 		}
 
@@ -70,13 +64,7 @@ func runTicks() {
 	wg.Wait()
 	world.TickListLock.Unlock()
 
-	timeLeft := time.Duration(world.ObjectUPS_ns) - time.Since(tickStart)
-	if timeLeft > minSleep {
-		time.Sleep(timeLeft)
-	}
-
-	world.MeasuredObjectUPS_ns = int(time.Since(tickStart).Nanoseconds())
-	fmt.Printf("TICK: sleep-per: %v, endSleep: %v, workSize: %v\n", sleepFor.String(), timeLeft.String(), wSize)
+	//fmt.Printf("TICK: sleep-per: %v, workSize: %v\n", sleepFor.String(), wSize)
 
 }
 
@@ -88,7 +76,6 @@ func runTocks() {
 	var lastTock int = 0
 	var sleepFor time.Duration
 	var maxBlocks = world.NumWorkers * blocksPerWorker
-	tockStart := time.Now()
 	wSize := minWorkSize
 
 	if world.TockCount > largeThreshold {
@@ -129,12 +116,6 @@ func runTocks() {
 	wg.Wait()
 	world.TockListLock.Unlock()
 
-	timeLeft := time.Duration(world.ObjectUPS_ns) - time.Since(tockStart)
-	if timeLeft > minSleep {
-		time.Sleep(timeLeft)
-	}
-
-	world.MeasuredObjectUPS_ns = int(time.Since(tockStart).Nanoseconds())
-	fmt.Printf("TOCK: sleep-per: %v, endSleep: %v, workSize: %v\n", sleepFor.String(), timeLeft.String(), wSize)
+	//fmt.Printf("TOCK: sleep-per: %v, workSize: %v\n", sleepFor.String(), wSize)
 
 }
