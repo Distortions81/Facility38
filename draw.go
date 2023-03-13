@@ -146,17 +146,13 @@ func drawItemPlacement(screen *ebiten.Image) {
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
+		/* Tint red if we can't place item */
 		blocked := false
-
 		wPos := world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}
 		/* Check if object fits */
-		if item.SubObjs != nil {
-			for _, tile := range item.SubObjs {
-				subPos := util.AddXY(wPos, tile)
-				tchunk := util.GetChunk(subPos)
-				if util.GetObj(subPos, tchunk) != nil {
-					blocked = true
-				}
+		if item.Size.X > 1 || item.Size.Y > 1 {
+			if !objects.SubObjFits(item, false, wPos) {
+				blocked = true
 			}
 		} else {
 			tchunk := util.GetChunk(wPos)
@@ -577,15 +573,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 						toolTip = toolTip + "NO FUEL\n"
 					}
 				}
-				if o.TypeP.KgFuelEach > 0 {
-					toolTip = toolTip + fmt.Sprintf("Fuel per tock: %0.2f kg\n", o.TypeP.KgFuelEach)
-				}
-				if o.TypeP.KgMineEach > 0 {
-					toolTip = toolTip + fmt.Sprintf("Mine per tock: %0.2f kg\n", o.TypeP.KgMineEach)
-				}
-				if o.TypeP.MaxContainKG > 0 {
-					toolTip = toolTip + fmt.Sprintf("Max contents: %0.2f kg\n", o.TypeP.MaxContainKG)
-				}
+
 				if o.SContent != nil && o.SContent.Amount > 0 {
 					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.SContent.Amount, o.SContent.TypeP.UnitName, o.SContent.TypeP.Name)
 				}
@@ -598,6 +586,15 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				}
 
 				if gv.Debug {
+					if o.TypeP.KgFuelEach > 0 {
+						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %0.2f kg\n", o.TypeP.KgFuelEach)
+					}
+					if o.TypeP.KgMineEach > 0 {
+						toolTip = toolTip + fmt.Sprintf("Mine per tock: %0.2f kg\n", o.TypeP.KgMineEach)
+					}
+					if o.TypeP.MaxContainKG > 0 {
+						toolTip = toolTip + fmt.Sprintf("Max contents: %0.2f kg\n", o.TypeP.MaxContainKG)
+					}
 
 					for z, p := range o.Ports {
 						if p.Obj == nil {

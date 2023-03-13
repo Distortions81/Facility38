@@ -235,22 +235,14 @@ func createWorldObjects() {
 		dir := obj.Direction
 
 		/* Check if object fits */
-		for _, tile := range obj.SubObjs {
-			subPos := util.AddXY(pos, tile)
-			objects.MakeChunk(subPos)
-
-			tchunk := util.GetChunk(subPos)
-			if util.GetObj(subPos, tchunk) != nil {
-				//csub := util.CenterXY(subPos)
-				//util.Chat(fmt.Sprintf("UI: (%v) Can't fit here: %v,%v", obj.Name, csub.X, csub.Y))
-				return
+		if obj.Size.X > 1 || obj.Size.Y > 1 {
+			if objects.SubObjFits(obj, true, pos) {
+				if gv.WASMMode {
+					objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+				} else {
+					go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+				}
 			}
-		}
-
-		if gv.WASMMode {
-			objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
-		} else {
-			go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
 		}
 
 		/* Else destroy objects */

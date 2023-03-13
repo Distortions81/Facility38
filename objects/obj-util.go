@@ -71,29 +71,18 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	if b.Obj.TypeP.Size.X > 1 ||
 		b.Obj.TypeP.Size.Y > 1 {
 
-		/* Check if object fits */
-		for _, tile := range b.Obj.TypeP.SubObjs {
-			subPos := util.AddXY(pos, tile)
-			MakeChunk(subPos)
-			tchunk := util.GetChunk(subPos)
-			if util.GetObj(subPos, tchunk) != nil {
-				csub := util.CenterXY(subPos)
-				util.Chat(
-					fmt.Sprintf(
-						"CreateObj: (%v) Can't fit here: %v,%v", b.Obj.TypeP.Name, csub.X, csub.Y,
-					))
-				return nil
-			}
-		}
+		/* Check if obj fits */
+		if SubObjFits(b.Obj.TypeP, true, pos) {
 
-		/* If space is available, create items */
-		for _, sub := range b.Obj.TypeP.SubObjs {
-			sXY := util.AddXY(sub, b.Obj.Pos)
-			MakeChunk(sXY)
-			tchunk := util.GetChunk(sXY)
-			if tchunk != nil {
-				tchunk.BuildingMap[sXY] = b
-				tchunk.BuildingMap[sXY].Pos = sXY
+			/* If space is available, create items */
+			for _, sub := range b.Obj.TypeP.SubObjs {
+				sXY := util.AddXY(sub, b.Obj.Pos)
+				MakeChunk(sXY)
+				tchunk := util.GetChunk(sXY)
+				if tchunk != nil {
+					tchunk.BuildingMap[sXY] = b
+					tchunk.BuildingMap[sXY].Pos = sXY
+				}
 			}
 		}
 	} else {
@@ -125,6 +114,28 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 
 	ExploreMap(pos, 6, false)
 	return b.Obj
+}
+
+func SubObjFits(sub *world.ObjType, report bool, pos world.XY) bool {
+	/* Check if object fits */
+	for _, tile := range sub.SubObjs {
+		subPos := util.AddXY(pos, tile)
+		MakeChunk(subPos)
+		tchunk := util.GetChunk(subPos)
+
+		if util.GetObj(subPos, tchunk) != nil {
+			if report {
+				csub := util.CenterXY(subPos)
+				util.Chat(
+					fmt.Sprintf(
+						"CreateObj: (%v) Can't fit here: %v,%v", sub.Name, csub.X, csub.Y,
+					))
+			}
+			return false
+		}
+	}
+
+	return true
 }
 
 /* Quickly move material by swapping pointers */
