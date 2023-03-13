@@ -5,6 +5,8 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"GameTest/world"
+	"runtime"
+	"strings"
 	"time"
 )
 
@@ -136,7 +138,11 @@ func makeTestMap(skip bool) {
 		}
 	}
 
-	go objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
+	if strings.EqualFold(runtime.GOOS, "windows") {
+		go objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
+	} else {
+		objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
+	}
 
 	world.MapGenerated.Store(true)
 	util.ChatDetailed("Map loaded, click or press any key to continue.", world.ColorGreen, time.Second*15)

@@ -14,7 +14,7 @@ import (
 var wg sizedwaitgroup.SizedWaitGroup
 var GameTick uint64
 
-var measureCompensate = 170 * time.Microsecond
+var measureCompensate = 0 * time.Microsecond
 
 func init() {
 	if strings.EqualFold(runtime.GOOS, "windows") {
