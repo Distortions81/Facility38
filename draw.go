@@ -22,6 +22,7 @@ const (
 	cBlockedIndicatorOffset = 0
 	cPreCache               = 4
 	WASMTerrainDiv          = 5
+	SubObjDebug             = true
 )
 
 var (
@@ -405,17 +406,20 @@ func drawIconMode(screen *ebiten.Image) {
 			/*
 			 * Used for debugging map
 			 */
-
-			/*for bpos, b := range chunk.BuildingMap {
-				drawItemMap(screen, b, bpos)
-			}*/
-
+			if SubObjDebug {
+				for bpos, b := range chunk.BuildingMap {
+					if b.Obj.TypeP.Size.X > 1 ||
+						b.Obj.TypeP.Size.Y > 1 {
+						drawSubObjDebug(screen, b, bpos)
+					}
+				}
+			}
 		}
 	}
 	world.SuperChunkListLock.RUnlock()
 }
 
-func drawItemMap(screen *ebiten.Image, b *world.BuildingData, bpos world.XY) {
+func drawSubObjDebug(screen *ebiten.Image, b *world.BuildingData, bpos world.XY) {
 
 	/* camera + object */
 	objOffX := camXPos + (float32(bpos.X))
@@ -572,6 +576,12 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					} else {
 						toolTip = toolTip + "NO FUEL\n"
 					}
+				}
+				if o.TypeP.KgFuelEach > 0 {
+					toolTip = toolTip + fmt.Sprintf("Fuel per tock: %0.2f kg\n", o.TypeP.KgFuelEach)
+				}
+				if o.TypeP.KgMineEach > 0 {
+					toolTip = toolTip + fmt.Sprintf("Mine per tock: %0.2f kg\n", o.TypeP.KgMineEach)
 				}
 				if o.TypeP.MaxContainKG > 0 {
 					toolTip = toolTip + fmt.Sprintf("Max contents: %0.2f kg\n", o.TypeP.MaxContainKG)
