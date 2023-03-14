@@ -182,14 +182,14 @@ func fuelHopperUpdate(obj *world.ObjData) {
 	}
 
 	/* Grab destination object */
-	if obj.KGFuel > obj.TypeP.KgHopperMove {
+	if obj.KGFuel > (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach) {
 		for _, output := range obj.FuelOut {
 			/* If blocked, stop */
 			if output.Buf.Amount != 0 {
 				continue
 			}
 			output.Buf.Amount = obj.TypeP.KgHopperMove
-			obj.KGFuel -= obj.TypeP.KgHopperMove
+			obj.KGFuel -= (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach)
 			break
 		}
 	}
