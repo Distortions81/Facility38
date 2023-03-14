@@ -210,7 +210,7 @@ func runObjQueue() {
 		if item.Delete {
 			if item.Obj.TypeP.Size.X > 1 || item.Obj.TypeP.Size.Y > 1 {
 				for _, sub := range item.Obj.TypeP.SubObjs {
-					pos := util.AddXY(sub, item.Pos)
+					pos := util.GetSubPos(item.Pos, sub)
 					removePosMap(pos)
 				}
 			}

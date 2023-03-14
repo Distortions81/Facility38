@@ -11,23 +11,32 @@ import (
 /* Link to output in (dir) */
 var linkLock sync.Mutex
 
-func LinkObj(b *world.BuildingData) {
+func LinkObj(from world.XY, b *world.BuildingData) {
 
 	linkLock.Lock()
 	defer linkLock.Unlock()
+
+	util.ObjCD(b, fmt.Sprintf("Facing: %v", util.DirToName(b.Obj.Dir)))
 
 	/* Attempt to link ports */
 	for p, port := range b.Obj.Ports {
 
 		/* Make sure port is unoccupied */
 		if port.Obj != nil {
+			util.ObjCD(b, fmt.Sprintf("Port Occupied: %v", util.DirToName(port.Dir)))
 			continue
 		}
 
-		neighb := util.GetNeighborObj(b.Pos, port.Dir)
+		neighb := util.GetNeighborObj(from, port.Dir)
 
 		/* We found one*/
 		if neighb == nil {
+			util.ObjCD(b, fmt.Sprintf("No neighbor: %v", util.DirToName(port.Dir)))
+			continue
+		}
+
+		if neighb.Obj.Pos == b.Obj.Pos {
+			//util.ObjCD(b, fmt.Sprintf("Ignoring link to self: %v", util.DirToName(port.Dir)))
 			continue
 		}
 
@@ -38,6 +47,7 @@ func LinkObj(b *world.BuildingData) {
 
 				/* Port is of correct type */
 				if port.Type != util.ReverseType(np.Type) {
+					util.ObjCD(b, fmt.Sprintf("Port incorrect type: %v", util.DirToName(port.Dir)))
 					continue
 				}
 
@@ -51,22 +61,21 @@ func LinkObj(b *world.BuildingData) {
 
 				if gv.Debug {
 					oName := "none"
-					if b.Obj.Ports[p].Obj != nil {
-						oName = fmt.Sprintf("%v: %v", b.Obj.Ports[p].Obj.TypeP.Name, util.PosToString(b.Pos))
+					if b.Obj != nil {
+						oName = fmt.Sprintf("%v: %v", b.Obj.TypeP.Name, util.PosToString(from))
 					}
-					util.ObjCD(b.Obj, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, util.DirToName(port.Dir), util.DirToArrow(port.Dir), oName))
+					util.ObjCD(b, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, util.DirToName(port.Dir), util.DirToArrow(port.Dir), oName))
 				}
 
 				portAlias(b.Obj, p, port.Type)
 				portAlias(neighb.Obj, n, np.Type)
 
 				AutoEvents(neighb.Obj)
+				AutoEvents(b.Obj)
 			}
 		}
 
 	}
-
-	AutoEvents(b.Obj)
 
 }
 

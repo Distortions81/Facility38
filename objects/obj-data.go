@@ -102,7 +102,7 @@ var (
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
 			},
-			SubObjs: []world.XY{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
+			SubObjs: []world.XYu{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
 
 		{ImagePath: "world-obj/basic-belt.png",

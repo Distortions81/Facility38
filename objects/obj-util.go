@@ -98,15 +98,16 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 
 				/* If space is available, create items */
 				for _, sub := range newObj.TypeP.SubObjs {
-					sXY := util.AddXY(sub, pos)
+					sXY := util.GetSubPos(pos, sub)
 					MakeChunk(sXY)
 					tchunk := util.GetChunk(sXY)
 					if tchunk != nil {
 						tchunk.Lock.Lock()
 						newB := &world.BuildingData{Obj: newObj, Pos: sXY}
+						util.ObjCD(newB, fmt.Sprintf("Created at: %v", util.PosToString(sXY)))
 						tchunk.BuildingMap[sXY] = newB
 						tchunk.Lock.Unlock()
-						LinkObj(newB)
+						LinkObj(sXY, newB)
 					}
 				}
 			} else {
@@ -118,7 +119,7 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 			newBB := &world.BuildingData{Obj: newObj, Pos: newObj.Pos}
 			chunk.BuildingMap[newObj.Pos] = newBB
 			newObj.Parent.Lock.Unlock()
-			LinkObj(newBB)
+			LinkObj(newObj.Pos, newBB)
 		}
 	}
 
@@ -129,7 +130,7 @@ func SubObjFits(sub *world.ObjType, report bool, pos world.XY) bool {
 
 	/* Check if object fits */
 	for _, tile := range sub.SubObjs {
-		subPos := util.AddXY(pos, tile)
+		subPos := util.GetSubPos(pos, tile)
 		tchunk := util.GetChunk(subPos)
 		if tchunk != nil {
 			if util.GetObj(subPos, tchunk) != nil {

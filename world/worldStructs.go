@@ -240,7 +240,7 @@ type ObjType struct {
 	HasInputs  bool
 	HasOutputs bool
 	Ports      []ObjPortData
-	SubObjs    []XY
+	SubObjs    []XYu
 
 	ToolbarAction func()                  `json:"-"`
 	UpdateObj     func(Obj *ObjData)      `json:"-"`

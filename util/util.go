@@ -44,6 +44,10 @@ func AddXY(a world.XY, b world.XY) world.XY {
 	return world.XY{X: a.X + b.X, Y: a.Y + b.Y}
 }
 
+func GetSubPos(a world.XY, b world.XYu) world.XY {
+	return world.XY{X: uint16(int32(a.X) + int32(b.X)), Y: uint16(int32(a.Y) + int32(b.Y))}
+}
+
 func SubXY(a world.XY, b world.XY) world.XY {
 	return world.XY{X: a.X - b.X, Y: a.Y - b.Y}
 }
@@ -64,11 +68,11 @@ func deleteOldLines() {
 	ChatLinesTop = newTop
 }
 
-func ObjCD(obj *world.ObjData, text string) {
+func ObjCD(b *world.BuildingData, text string) {
 	if !gv.Debug {
 		return
 	}
-	buf := fmt.Sprintf("%v: %v: %v", obj.TypeP.Name, PosToString(obj.Pos), text)
+	buf := fmt.Sprintf("%v: %v: %v", b.Obj.TypeP.Name, PosToString(b.Pos), text)
 	ChatDetailed(buf, world.ColorRed, time.Minute)
 }
 

@@ -2,7 +2,6 @@ package objects
 
 import (
 	"GameTest/gv"
-	"GameTest/util"
 	"GameTest/world"
 	"math/rand"
 )
@@ -294,7 +293,6 @@ func smelterUpdate(obj *world.ObjData) {
 					} else if obj.SContent.Amount > 0 {
 						/* If of different type, ruin the contents */
 						if input.Buf.TypeP.TypeI != obj.SContent.TypeP.TypeI {
-							util.ObjCD(obj, "Mixed ore types!")
 							obj.SContent.TypeP = MatTypes[gv.MAT_MIXORE]
 						}
 					} else {
