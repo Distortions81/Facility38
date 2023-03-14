@@ -26,6 +26,7 @@ func removeObj(obj *world.ObjData) {
 func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 
 	//Make chunk if needed
+	ExploreMap(pos, 6, false)
 	MakeChunk(pos)
 	chunk := util.GetChunk(pos)
 	b := util.GetObj(pos, chunk)

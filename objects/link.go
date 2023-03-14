@@ -23,7 +23,6 @@ func LinkObj(b *world.BuildingData) {
 			continue
 		}
 
-		/* Get world obj sub-position */
 		neighb := util.GetNeighborObj(b.Pos, port.Dir)
 
 		/* We found one*/
@@ -34,8 +33,7 @@ func LinkObj(b *world.BuildingData) {
 		/* Neighbor port is available */
 		for n, np := range neighb.Obj.Ports {
 			/* Port is in correct direction */
-			if np.Dir == util.ReverseDirection(port.Dir) ||
-				np.Dir == gv.DIR_ANY || port.Dir == gv.DIR_ANY {
+			if np.Dir == util.ReverseDirection(port.Dir) {
 
 				/* Port is of correct type */
 				if port.Type != util.ReverseType(np.Type) {
@@ -117,12 +115,11 @@ func UnlinkObj(obj *world.ObjData) {
 		/* Delete ourselves from others */
 		for pb, portb := range port.Obj.Ports {
 			if portb.Obj == obj {
+				/* Clean up port aliases */
 				port.Obj.Ports[pb].Link = nil
 				port.Obj.Ports[pb].Obj = nil
 			}
 		}
-
-		/* On remote obj, clean up port aliases */
 		portPop(port.Obj)
 
 		/* Break links */
@@ -131,14 +128,7 @@ func UnlinkObj(obj *world.ObjData) {
 	}
 
 	/* Murder all the port aliases */
-	obj.Inputs = nil
-	obj.Outputs = nil
-	obj.FuelIn = nil
-	obj.FuelOut = nil
-	obj.NumIn = 0
-	obj.NumOut = 0
-	obj.NumFIn = 0
-	obj.NumFOut = 0
+	portPop(obj)
 
 	/* Reset last input var */
 	obj.LastInput = 0
