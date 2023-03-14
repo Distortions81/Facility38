@@ -76,13 +76,15 @@ var (
 	UIObjsTypes = []*world.ObjType{
 		//Ui Only
 		{Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
-			Symbol: "SAVE", ExcludeWASM: true, Info: "Quicksave game.\n(F2)", QKey: ebiten.KeyF2},
+			Symbol: "SAVE", ExcludeWASM: true, Info: "Quicksave game.\n(F2 Key)", QKey: ebiten.KeyF2},
 		{Name: "Load Game", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
-			Symbol: "LOAD", ExcludeWASM: true, Info: "Load quicksave.\n(F3)", QKey: ebiten.KeyF3},
+			Symbol: "LOAD", ExcludeWASM: true, Info: "Load quicksave.\n(F3 Key)", QKey: ebiten.KeyF3},
 		{ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER", Info: "Toggle between the normal and Resource layer.\n(F4)", QKey: ebiten.KeyF4},
+			Symbol: "LAYER", Info: "Toggle between the normal and Resource layer.\n(F4 Key)", QKey: ebiten.KeyF4},
 		{ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
-			Symbol: "OVRLY", Info: "Toggle info overlays on/off\n(ALT Key)", QKey: ebiten.KeyAlt},
+			Symbol: "OVRLY", Info: "Toggle info overlays on/off\n(F1 Key)", QKey: ebiten.KeyF1},
+		{ImagePath: "ui/debug.png", Name: "Debug mode", ToolbarAction: toggleDebug,
+			Symbol: "DBG", Info: "Toggle debug mode\n(F5 Key)", QKey: ebiten.KeyF5},
 	}
 
 	/* World objects and images */

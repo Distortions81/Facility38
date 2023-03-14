@@ -25,7 +25,6 @@ var (
 
 	/* Last object we performed an action on */
 	gLastActionPosition world.XY
-	gLastKey            ebiten.Key
 
 	/* WASM weirdness kludge */
 	lastScroll time.Time
@@ -61,7 +60,6 @@ func (g *Game) Update() error {
 
 	createWorldObjects()
 	moveCamera()
-	toggleOverlays()
 	rotateWorldObjects()
 
 	return nil
@@ -70,14 +68,8 @@ func (g *Game) Update() error {
 func getToolbarKeypress() {
 
 	for _, item := range objects.UIObjsTypes {
-		if item.QKey != 0 {
-			if inpututil.IsKeyJustPressed(item.QKey) {
-				if item.QKey != gLastKey {
-					gLastKey = item.QKey
-
-					item.ToolbarAction()
-				}
-			}
+		if inpututil.IsKeyJustPressed(item.QKey) {
+			item.ToolbarAction()
 		}
 	}
 }
@@ -333,20 +325,6 @@ func getMiddleMouseClicks() {
 		gLastActionPosition = world.XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
 		gMiddleMouseHeld = true
-	}
-}
-
-/* Toggle overylays when ALT is pressed */
-func toggleOverlays() {
-	/* Toggle info overlay */
-	if inpututil.IsKeyJustPressed(objects.UIObjsTypes[gv.ToolbarLayer].QKey) {
-		if world.ShowInfoLayer {
-			world.ShowInfoLayer = false
-			util.ChatDetailed("Info overlay is now off.", world.ColorOrange, time.Second*5)
-		} else {
-			world.ShowInfoLayer = true
-			util.ChatDetailed("Info overlay is now on.", world.ColorOrange, time.Second*5)
-		}
 	}
 }
 
