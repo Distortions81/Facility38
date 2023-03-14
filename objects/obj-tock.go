@@ -148,7 +148,15 @@ func beltUpdate(obj *world.ObjData) {
 
 func fuelHopperUpdate(obj *world.ObjData) {
 
-	for _, input := range obj.Inputs {
+	/* Is it time to run? */
+	if obj.TickCount < obj.TypeP.Interval {
+		/* Increment timer */
+		obj.TickCount++
+		return
+	}
+	obj.TickCount = 0
+
+	for i, input := range obj.Inputs {
 
 		/* Does input contain anything? */
 		if input.Buf.Amount == 0 {
@@ -168,22 +176,20 @@ func fuelHopperUpdate(obj *world.ObjData) {
 		/* Do we have room for it? */
 		if (obj.KGFuel + input.Buf.Amount) < obj.TypeP.MaxFuelKG {
 			obj.KGFuel += input.Buf.Amount
+			obj.Inputs[i].Buf.Amount = 0
 			break
 		}
 	}
 
 	/* Grab destination object */
-	if obj.KGFuel > obj.TypeP.KgFuelEach {
+	if obj.KGFuel > obj.TypeP.KgHopperMove {
 		for _, output := range obj.FuelOut {
 			/* If blocked, stop */
 			if output.Buf.Amount != 0 {
-				if !obj.Blocked {
-					obj.Blocked = true
-				}
 				continue
 			}
-			output.Buf.Amount = obj.TypeP.KgFuelEach
-			obj.KGFuel -= obj.TypeP.KgFuelEach
+			output.Buf.Amount = obj.TypeP.KgHopperMove
+			obj.KGFuel -= obj.TypeP.KgHopperMove
 			break
 		}
 	}

@@ -50,6 +50,12 @@ func init() {
 			if pt == gv.PORT_OUT {
 				GameObjTypes[i].HasOutputs = true
 			}
+			if pt == gv.PORT_FOUT {
+				GameObjTypes[i].HasFOut = true
+			}
+			if pt == gv.PORT_FIN {
+				GameObjTypes[i].HasFIn = true
+			}
 			GameObjTypes[i].Ports[p].Index = uint8(p)
 
 		}
@@ -100,7 +106,10 @@ var (
 			Symbol:       "MINE",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_FIN},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_FIN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_FIN},
 			},
 			SubObjs: []world.XYu{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
@@ -214,19 +223,23 @@ var (
 		},
 
 		{ImagePath: "world-obj/basic-fuel-hopper.png",
-			Name:        "Basic Fuel Hopper",
-			Info:        "Not Yet Implemented, loads fuel into buildings.",
-			TypeI:       gv.ObjTypeBasicFuelHopper,
-			Size:        world.XY{X: 1, Y: 1},
-			Rotatable:   true,
-			ShowArrow:   false,
-			ShowBlocked: true,
-			UpdateObj:   fuelHopperUpdate,
-			KW:          10,
-			Symbol:      "FHOP",
+			Name:         "Basic Fuel Hopper",
+			Info:         "Not Yet Implemented, loads fuel into buildings.",
+			TypeI:        gv.ObjTypeBasicFuelHopper,
+			Size:         world.XY{X: 1, Y: 1},
+			Rotatable:    true,
+			ShowArrow:    false,
+			ShowBlocked:  true,
+			UpdateObj:    fuelHopperUpdate,
+			KW:           10,
+			KgHopperMove: 1,
+			Interval:     uint8(world.ObjectUPS) * 2,
+			Symbol:       "FHOP",
 			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_FOUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_FOUT},
 			},
 
 			/*		{ImagePath: "world-obj/iron-rod-caster.png",

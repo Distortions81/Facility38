@@ -222,9 +222,10 @@ type ObjType struct {
 	Image           *ebiten.Image
 	ImageActive     *ebiten.Image
 
-	KgHourMine float32
-	HP         float32
-	KW         float32
+	KgHourMine   float32
+	KgHopperMove float32
+	HP           float32
+	KW           float32
 
 	KgMineEach float32
 	KgFuelEach float32
@@ -239,6 +240,8 @@ type ObjType struct {
 
 	HasInputs  bool
 	HasOutputs bool
+	HasFIn     bool
+	HasFOut    bool
 	Ports      []ObjPortData
 	SubObjs    []XYu
 

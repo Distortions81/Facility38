@@ -43,7 +43,8 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 		/* Neighbor port is available */
 		for n, np := range neighb.Obj.Ports {
 			/* Port is in correct direction */
-			if np.Dir == util.ReverseDirection(port.Dir) {
+			if np.Dir == util.ReverseDirection(port.Dir) ||
+				np.Dir == gv.DIR_ANY || port.Dir == gv.DIR_ANY {
 
 				/* Port is of correct type */
 				if port.Type != util.ReverseType(np.Type) {
@@ -62,7 +63,7 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				if gv.Debug {
 					oName := "none"
 					if b.Obj != nil {
-						oName = fmt.Sprintf("%v: %v", b.Obj.TypeP.Name, util.PosToString(from))
+						oName = fmt.Sprintf("%v: %v", neighb.Obj.TypeP.Name, util.PosToString(neighb.Pos))
 					}
 					util.ObjCD(b, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, util.DirToName(port.Dir), util.DirToArrow(port.Dir), oName))
 				}
@@ -71,8 +72,8 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				portAlias(neighb.Obj, n, np.Type)
 
 				AutoEvents(neighb.Obj)
-				AutoEvents(b.Obj)
 			}
+			AutoEvents(b.Obj)
 		}
 
 	}
@@ -83,37 +84,37 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 func AutoEvents(obj *world.ObjData) {
 
 	/* Add to tock/tick lists */
-	var foundOutputs, foundInputs bool
+	var foundOutputs, foundInputs, foundFOut, foundFIn bool
 	if obj.NumOut > 0 {
 		foundOutputs = true
 	}
 	if obj.NumIn > 0 {
 		foundInputs = true
 	}
+	if obj.NumFIn > 0 {
+		foundFIn = true
+	}
+	if obj.NumFOut > 0 {
+		foundFOut = true
+	}
 
 	/* If we have inputs and outputs object needs, add to tock list */
 	if obj.TypeP.UpdateObj != nil {
 
-		/* Most objs */
-		if obj.TypeP.HasInputs &&
-			obj.TypeP.HasOutputs &&
-			foundInputs &&
-			foundOutputs {
+		if obj.TypeP.HasInputs && foundInputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		}
+		if obj.TypeP.HasOutputs && foundOutputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-
-			/* Boxes */
-		} else if !obj.TypeP.HasOutputs &&
-			obj.TypeP.HasInputs &&
-			foundInputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		}
 
-			/* Not currently used */
-		} else if !obj.TypeP.HasInputs &&
-			obj.TypeP.HasOutputs &&
-			foundOutputs {
+		if obj.TypeP.HasFIn && foundFIn {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		}
+		if obj.TypeP.HasFOut && foundFOut {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 		}
 	}
 }

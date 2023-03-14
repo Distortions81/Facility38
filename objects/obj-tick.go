@@ -117,6 +117,21 @@ func tickObj(obj *world.ObjData) {
 		/* Swap pointers */
 		*port.Link.Buf, *port.Buf = *port.Buf, *port.Link.Buf
 	}
+	for _, port := range obj.FuelOut {
+
+		/* If we have stuff to send */
+		if port.Buf.Amount == 0 {
+			continue
+		}
+
+		/* If destination is empty */
+		if port.Link.Buf.Amount != 0 {
+			continue
+		}
+
+		/* Swap pointers */
+		*port.Link.Buf, *port.Buf = *port.Buf, *port.Link.Buf
+	}
 }
 
 /* Lock and append to TickList */
