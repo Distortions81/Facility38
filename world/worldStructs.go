@@ -54,9 +54,8 @@ type GroundTileData struct {
 }
 
 type BuildingData struct {
-	Obj   *ObjData
-	Alias bool
-	Pos   XY
+	Obj *ObjData
+	Pos XY
 }
 
 type MinerData struct {

@@ -54,7 +54,7 @@ func LinkObj(b *world.BuildingData) {
 					if b.Obj.Ports[p].Obj != nil {
 						oName = fmt.Sprintf("%v: %v", b.Obj.Ports[p].Obj.TypeP.Name, util.PosToString(b.Pos))
 					}
-					util.ObjCD(b.Obj, fmt.Sprintf("Linked: #%v: (%v) %v to %v", p, util.DirToName(port.Dir), util.DirToArrow(port.Dir), oName))
+					util.ObjCD(b.Obj, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, util.DirToName(port.Dir), util.DirToArrow(port.Dir), oName))
 				}
 
 				portAlias(b.Obj, p, port.Type)
