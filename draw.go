@@ -596,7 +596,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 						toolTip = toolTip + fmt.Sprintf("Max contents: %0.2f kg\n", o.TypeP.MaxContainKG)
 					}
 
-					for z, p := range o.Ports {
+					for _, p := range o.Ports {
 						if p.Obj == nil {
 							continue
 						}
@@ -609,28 +609,28 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 						if p.Type == gv.PORT_IN {
 							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %0.2f %v\n",
-								util.DirToName(uint8(z)),
+								util.DirToName(uint8(p.Dir)),
 								p.Obj.TypeP.Name,
 								tstring,
 								p.Buf.Amount,
 								tunit)
 						} else if p.Type == gv.PORT_OUT {
 							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %0.2f %v\n",
-								util.DirToName(uint8(z)),
+								util.DirToName(uint8(p.Dir)),
 								p.Obj.TypeP.Name,
 								tstring,
 								p.Buf.Amount,
 								tunit)
 						} else if p.Type == gv.PORT_FOUT {
 							toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %0.2f %v\n",
-								util.DirToName(uint8(z)),
+								util.DirToName(uint8(p.Dir)),
 								p.Obj.TypeP.Name,
 								tstring,
 								p.Buf.Amount,
 								tunit)
 						} else if p.Type == gv.PORT_FIN {
 							toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %0.2f %v\n",
-								util.DirToName(uint8(z)),
+								util.DirToName(uint8(p.Dir)),
 								p.Obj.TypeP.Name,
 								tstring,
 								p.Buf.Amount,
