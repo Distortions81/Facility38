@@ -68,9 +68,8 @@ func ObjCD(obj *world.ObjData, text string) {
 	if !gv.Debug {
 		return
 	}
-	lPos := CenterXY(obj.Pos)
-	buf := fmt.Sprintf("%v: %v,%v: %v", obj.TypeP.Name, lPos.X, lPos.Y, text)
-	Chat(buf)
+	buf := fmt.Sprintf("%v: %v: %v", obj.TypeP.Name, PosToString(obj.Pos), text)
+	ChatDetailed(buf, world.ColorRed, time.Minute)
 }
 
 func Chat(text string) {
@@ -154,6 +153,12 @@ func ObjListDelete(obj *world.ObjData) {
 			return
 		}
 	}
+}
+
+func PosToString(pos world.XY) string {
+	centerPos := CenterXY(pos)
+	buf := fmt.Sprintf("(%v,%v)", humanize.Comma(int64((centerPos.X))), humanize.Comma(int64((centerPos.Y))))
+	return buf
 }
 
 /* Convert an internal XY (unsigned) to a (0,0) center */
@@ -317,6 +322,21 @@ func DirToName(dir uint8) string {
 		return "South"
 	case gv.DIR_WEST:
 		return "West"
+	}
+
+	return "Error"
+}
+
+func DirToArrow(dir uint8) string {
+	switch dir {
+	case gv.DIR_NORTH:
+		return "^"
+	case gv.DIR_EAST:
+		return ">"
+	case gv.DIR_SOUTH:
+		return "v"
+	case gv.DIR_WEST:
+		return "<"
 	}
 
 	return "Error"

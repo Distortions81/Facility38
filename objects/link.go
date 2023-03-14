@@ -4,6 +4,7 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"fmt"
 	"sync"
 )
 
@@ -47,6 +48,14 @@ func LinkObj(b *world.BuildingData) {
 				/* Add direct port links */
 				neighb.Obj.Ports[n].Link = &b.Obj.Ports[p]
 				b.Obj.Ports[p].Link = &neighb.Obj.Ports[n]
+
+				if gv.Debug {
+					oName := "none"
+					if b.Obj.Ports[p].Obj != nil {
+						oName = fmt.Sprintf("%v: %v", b.Obj.Ports[p].Obj.TypeP.Name, util.PosToString(b.Pos))
+					}
+					util.ObjCD(b.Obj, fmt.Sprintf("Linked: #%v: (%v) %v to %v", p, util.DirToName(port.Dir), util.DirToArrow(port.Dir), oName))
+				}
 
 				portAlias(b.Obj, p, port.Type)
 				portAlias(neighb.Obj, n, np.Type)

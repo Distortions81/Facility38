@@ -131,10 +131,9 @@ func SubObjFits(sub *world.ObjType, report bool, pos world.XY) bool {
 		if tchunk != nil {
 			if util.GetObj(subPos, tchunk) != nil {
 				if report {
-					csub := util.CenterXY(subPos)
 					util.Chat(
 						fmt.Sprintf(
-							"CreateObj: (%v) Can't fit here: %v,%v", sub.Name, csub.X, csub.Y,
+							"CreateObj: (%v) Can't fit here: %v", sub.Name, util.PosToString(subPos),
 						))
 				}
 				return false

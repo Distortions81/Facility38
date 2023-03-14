@@ -402,14 +402,14 @@ func drawIconMode(screen *ebiten.Image) {
 			/*
 			 * Used for debugging map
 			 */
-			/*if SubObjDebug {
+			if SubObjDebug {
 				for bpos, b := range chunk.BuildingMap {
 					if b.Obj.TypeP.Size.X > 1 ||
 						b.Obj.TypeP.Size.Y > 1 {
 						drawSubObjDebug(screen, b, bpos)
 					}
 				}
-			}*/
+			}
 		}
 	}
 	world.SuperChunkListLock.RUnlock()
@@ -555,10 +555,9 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			if b != nil {
 				o := b.Obj
 				found = true
-				toolTip = fmt.Sprintf("%v: (%v,%v)\n",
+				toolTip = fmt.Sprintf("%v: %v\n",
 					o.TypeP.Name,
-					humanize.Comma(int64((worldMouseX - gv.XYCenter))),
-					humanize.Comma(int64((worldMouseY - gv.XYCenter))))
+					util.PosToString(world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}))
 				for z := 0; z < gv.MAT_MAX; z++ {
 					if o.Contents[z] != nil {
 						toolTip = toolTip + fmt.Sprintf("Contents: %v: %0.2f%v\n",

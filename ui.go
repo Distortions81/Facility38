@@ -379,16 +379,14 @@ func rotateWorldObjects() {
 					o.Obj.Ports[p].Dir = util.RotCCW(port.Dir)
 				}
 
-				oPos := util.CenterXY(o.Obj.Pos)
-				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at (%v,%v)", o.Obj.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
 			} else {
 				newdir = util.RotCW(o.Obj.Dir)
 				for p, port := range o.Obj.Ports {
 					o.Obj.Ports[p].Dir = util.RotCW(port.Dir)
 				}
 
-				oPos := util.CenterXY(o.Obj.Pos)
-				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at (%v,%v)", o.Obj.TypeP.Name, oPos.X, oPos.Y), color.White, time.Second*5)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
 			}
 			o.Obj.Dir = newdir
 			objects.LinkObj(o)
