@@ -103,18 +103,16 @@ func beltUpdateInter(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
-	if len(obj.Outputs) == 0 || obj.Outputs == nil {
+	if obj.NumOut == 0 || obj.NumIn == 0 {
 		return
 	}
 
 	/* Output full? */
-	for _, output := range obj.Outputs {
-		if output.Buf.Amount != 0 {
-			if !obj.Blocked {
-				obj.Blocked = true
-			}
-			return
+	if obj.Outputs[0].Buf.Amount != 0 {
+		if !obj.Blocked {
+			obj.Blocked = true
 		}
+		return
 	}
 
 	/* Not blocked */
@@ -122,27 +120,19 @@ func beltUpdate(obj *world.ObjData) {
 		obj.Blocked = false
 	}
 
-	/* Loop ports */
-	if obj.NumIn > 1 && obj.LastInput == obj.NumIn {
-		obj.LastInput = 0
-	}
-	for x := obj.LastInput; x < obj.NumIn; x++ {
-
-		/* Does the input contain anything? */
-		if obj.Inputs[x].Buf.Amount == 0 {
-			continue
-		} else if obj.Outputs[0].Obj.Blocked {
-			/* If the destination blocked, stop */
-			break
+	/* Loop inputs if there are multiple */
+	if obj.NumIn > 1 {
+		if obj.LastInput == (obj.NumIn - 1) {
+			obj.LastInput = 0
 		} else {
-			/* Good to go, swap pointers */
-			*obj.Outputs[0].Buf, *obj.Inputs[x].Buf = *obj.Inputs[x].Buf, *obj.Outputs[0].Buf
-
-			if obj.NumIn > 1 {
-				obj.LastInput = x
-			}
-			break /* Stop */
+			obj.LastInput++
 		}
+	}
+
+	/* Does the input contain anything? */
+	if obj.Inputs[obj.LastInput].Buf.Amount > 0 {
+		/* Good to go, swap pointers */
+		*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
 	}
 }
 
