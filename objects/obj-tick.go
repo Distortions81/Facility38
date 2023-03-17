@@ -175,6 +175,7 @@ func ticklistRemove(obj *world.ObjData) {
 			if e.Target == obj {
 				world.TickList = append(world.TickList[:i], world.TickList[i+1:]...)
 				obj.HasTick = false
+				obj.Active = false
 				world.TickCount--
 				return
 			}
@@ -192,6 +193,7 @@ func tocklistRemove(obj *world.ObjData) {
 			if e.Target == obj {
 				world.TockList = append(world.TockList[:i], world.TockList[i+1:]...)
 				obj.HasTock = false
+				obj.Active = false
 				world.TockCount--
 				return
 			}
@@ -239,10 +241,10 @@ func runObjQueue() {
 				for _, sub := range item.Obj.TypeP.SubObjs {
 					pos := util.GetSubPos(item.Pos, sub)
 					removePosMap(pos)
-					world.VisDataDirty.Store(true)
 				}
 			}
 			delObj(item.Obj)
+			world.VisDataDirty.Store(true)
 		} else {
 			//Add
 			CreateObj(item.Pos, item.OType, item.Dir, false)
@@ -258,7 +260,7 @@ func delObj(obj *world.ObjData) {
 	removeObj(obj)
 }
 
-/* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
+/* Delete object from ObjMap, decerment NumObjects. Marks PixmapDirty */
 func removePosMap(pos world.XY) {
 	/* delete from map */
 	sChunk := util.GetSuperChunk(pos)

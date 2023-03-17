@@ -139,6 +139,7 @@ var (
 			Size:      world.XY{X: 1, Y: 1},
 			Rotatable: true,
 			UpdateObj: beltUpdateInter,
+			LinkObj:   linkBelt,
 			Symbol:    "iBLT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
@@ -174,6 +175,7 @@ var (
 			Interval:    1,
 			KW:          100,
 			UpdateObj:   splitterUpdate,
+			LinkObj:     linkSplitter,
 			Symbol:      "SPLT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
@@ -192,6 +194,7 @@ var (
 			MaxContainKG: 1000,
 			Symbol:       "BOX",
 			UpdateObj:    boxUpdate,
+			LinkObj:      linkBox,
 			CanContain:   true,
 			ShowBlocked:  false,
 			ToolBarArrow: false,
@@ -218,6 +221,7 @@ var (
 			Symbol:       "SMLT",
 			UpdateObj:    smelterUpdate,
 			InitObj:      initSmelter,
+			LinkObj:      linkSmelter,
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -234,6 +238,7 @@ var (
 			ShowArrow:    false,
 			ShowBlocked:  true,
 			UpdateObj:    fuelHopperUpdate,
+			LinkObj:      linkFuelHopper,
 			KW:           10,
 			KgHopperMove: 1,
 			Interval:     uint8(world.ObjectUPS) * 2,

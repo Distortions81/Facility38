@@ -145,13 +145,24 @@ func UnlinkObj(obj *world.ObjData) {
 		/* Delete ourselves from others */
 		for pb, portb := range port.Obj.Ports {
 			if portb.Obj == obj {
-				/* Clean up port aliases */
-				port.Obj.Ports[pb].Link = nil
-				port.Obj.Ports[pb].Obj = nil
+				pObj := port.Obj
 
 				/* Reset last port to avoid hitting invalid one */
 				if port.Type == gv.PORT_IN {
 					obj.LastInput = 0
+				} else {
+					port.Obj.LastInput = 0
+				}
+
+				/* Clean up port aliases */
+				pObj.Ports[pb].Link = nil
+				pObj.Ports[pb].Obj = nil
+
+				portPop(pObj)
+				if pObj.TypeP.LinkObj != nil {
+					pObj.TypeP.LinkObj(pObj)
+				} else {
+					AutoEvents(pObj)
 				}
 			}
 		}

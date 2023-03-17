@@ -96,6 +96,17 @@ func minerUpdate(obj *world.ObjData) {
 func beltUpdateInter(obj *world.ObjData) {
 }
 
+func linkBelt(obj *world.ObjData) {
+	/* Nothing to do, sleep */
+	if obj.NumOut == 0 || obj.NumIn == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+	} else {
+		tockListAdd(obj)
+		ticklistAdd(obj)
+	}
+}
+
 func beltUpdate(obj *world.ObjData) {
 
 	/* Nothing to do, sleep */
@@ -116,6 +127,16 @@ func beltUpdate(obj *world.ObjData) {
 	if obj.Inputs[obj.LastInput].Buf.Amount > 0 {
 		/* Good to go, swap pointers */
 		*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
+	}
+}
+
+func linkFuelHopper(obj *world.ObjData) {
+	if obj.NumFOut == 0 || obj.NumIn == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+	} else {
+		tockListAdd(obj)
+		ticklistAdd(obj)
 	}
 }
 
@@ -172,6 +193,16 @@ func fuelHopperUpdate(obj *world.ObjData) {
 
 }
 
+func linkSplitter(obj *world.ObjData) {
+	if obj.NumFOut == 0 || obj.NumIn == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+	} else {
+		tockListAdd(obj)
+		ticklistAdd(obj)
+	}
+}
+
 func splitterUpdate(obj *world.ObjData) {
 
 	/* Nothing to do, sleep */
@@ -207,6 +238,14 @@ func splitterUpdate(obj *world.ObjData) {
 
 	if obj.Active {
 		obj.Active = false
+	}
+}
+
+func linkBox(obj *world.ObjData) {
+	if obj.NumIn == 0 {
+		tocklistRemove(obj)
+	} else {
+		tockListAdd(obj)
 	}
 }
 
@@ -252,6 +291,16 @@ func boxUpdate(obj *world.ObjData) {
 		continue
 
 		//Unloader goes here
+	}
+}
+
+func linkSmelter(obj *world.ObjData) {
+	if obj.NumOut == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+	} else {
+		tockListAdd(obj)
+		ticklistAdd(obj)
 	}
 }
 
