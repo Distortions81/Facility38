@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+/* Chat line data */
 type ChatLines struct {
 	Text string
 
@@ -27,7 +28,9 @@ type MapSuperChunk struct {
 
 	ChunkMap  map[XY]*MapChunk `json:"-"`
 	ChunkList []*MapChunk      `json:"-"`
-	NumChunks uint16           `json:"-"`
+
+	/* Here so we don't need to use len() */
+	NumChunks uint16 `json:"-"`
 
 	ResourceDirty bool
 	ResourceMap   []byte `json:"-"`
@@ -43,27 +46,32 @@ type MapSuperChunk struct {
 	Lock sync.RWMutex `json:"-"`
 }
 
+/* XY Location specific data for mining and ground tiles */
 type TileData struct {
 	MinerData  *MinerData
 	GroundTile *GroundTileData
 }
 
+/* Image for ground tile */
 type GroundTileData struct {
 	Img     ebiten.Image
 	ImgPath string
 }
 
+/* XY Specific data */
 type BuildingData struct {
 	Obj *ObjData
 	Pos XY
 }
 
+/* Used to keep track of amount of resources mined */
 type MinerData struct {
 	Mined [gv.NumResourceTypes]float32
 }
 
-/* Objects that contain object map, object list and TerrainImg */
+/* Contain object map, object list and TerrainImg */
 type MapChunk struct {
+	/* Used for finding position from ChunkList */
 	Pos XY `json:"-"`
 
 	BuildingMap map[XY]*BuildingData `json:"-"`
@@ -144,21 +152,21 @@ type ObjData struct {
 	FuelIn  []*ObjPortData
 	FuelOut []*ObjPortData
 
+	//Prevent needing to use len()
 	NumPorts uint8
 	NumOut   uint8
 	NumIn    uint8
 	NumFIn   uint8
 	NumFOut  uint8
 
-	//Internal use
+	//Internal Tock() use
 	Contents  [gv.MAT_MAX]*MatData `json:"c,omitempty"`
 	SContent  *MatData
 	KGFuel    float32        `json:"kf,omitempty"`
 	KGHeld    float32        `json:"k,omitempty"`
 	MinerData *MinerDataType `json:"-"`
 	Tile      *TileData      `json:"-"`
-
-	TickCount uint8 `json:"t,omitempty"`
+	TickCount uint8          `json:"t,omitempty"`
 
 	Blocked bool `json:"-"`
 	Active  bool `json:"-"`
@@ -168,13 +176,8 @@ type ObjData struct {
 }
 
 type ObjPortData struct {
-	Index uint8
-	Dir   uint8 `json:"pd,omitempty"`
-	Type  uint8
-
-	/* Sub-object specific ports*/
-	SubPort bool
-	SubPos  XY
+	Dir  uint8 `json:"pd,omitempty"`
+	Type uint8
 
 	Obj  *ObjData `json:"-"`
 	Buf  *MatData `json:"b,omitempty"`
