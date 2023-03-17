@@ -101,7 +101,7 @@ func runTocks() {
 		wg.Add()
 		go func(wSize, lastTock int) {
 			for i := lastTock; i < lastTock+wSize; i++ {
-				/* Don't tock if we are blocked, or not linked to any other objects */
+				/* Don't tock blocked */
 				if !world.TockList[i].Target.Blocked {
 					world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
 				}
