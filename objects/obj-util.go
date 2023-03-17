@@ -17,6 +17,7 @@ func removeObj(obj *world.ObjData) {
 	delete(obj.Parent.BuildingMap, obj.Pos)
 
 	obj.Parent.Parent.PixmapDirty = true
+
 	obj.Parent.Lock.Unlock()
 	util.ObjListDelete(obj)
 
@@ -63,11 +64,10 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		newObj.Ports[p].Dir = util.RotDir(dir, port.Dir)
 	}
 
-	initOkay := true
 	/* Init obj if we have a function for it */
 	if newObj.TypeP.InitObj != nil {
 		if !newObj.TypeP.InitObj(newObj) {
-			initOkay = false
+			return nil
 		}
 	}
 
@@ -83,44 +83,43 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	newObj.Parent.Lock.Unlock()
 
 	/* Add to tock/tick lists */
-	if initOkay {
-		/*Spread out when tock happens */
-		if newObj.TypeP.Interval > 0 {
-			newObj.TickCount = uint8(rand.Intn(int(newObj.TypeP.Interval)))
-		}
 
-		/* Add sub-objects to map */
-		if newObj.TypeP.Size.X > 1 ||
-			newObj.TypeP.Size.Y > 1 {
+	/*Spread out when tock happens */
+	if newObj.TypeP.Interval > 0 {
+		newObj.TickCount = uint8(rand.Intn(int(newObj.TypeP.Interval)))
+	}
 
-			/* Check if obj fits */
-			if SubObjFits(newObj.TypeP, true, pos) {
+	/* Add sub-objects to map */
+	if newObj.TypeP.Size.X > 1 ||
+		newObj.TypeP.Size.Y > 1 {
 
-				/* If space is available, create items */
-				for _, sub := range newObj.TypeP.SubObjs {
-					sXY := util.GetSubPos(pos, sub)
-					MakeChunk(sXY)
-					tchunk := util.GetChunk(sXY)
-					if tchunk != nil {
-						tchunk.Lock.Lock()
-						newB := &world.BuildingData{Obj: newObj, Pos: sXY}
-						util.ObjCD(newB, fmt.Sprintf("Created at: %v", util.PosToString(sXY)))
-						tchunk.BuildingMap[sXY] = newB
-						tchunk.Lock.Unlock()
-						LinkObj(sXY, newB)
-					}
+		/* Check if obj fits */
+		if SubObjFits(newObj.TypeP, true, pos) {
+
+			/* If space is available, create items */
+			for _, sub := range newObj.TypeP.SubObjs {
+				sXY := util.GetSubPos(pos, sub)
+				MakeChunk(sXY)
+				tchunk := util.GetChunk(sXY)
+				if tchunk != nil {
+					tchunk.Lock.Lock()
+					newB := &world.BuildingData{Obj: newObj, Pos: sXY}
+					util.ObjCD(newB, fmt.Sprintf("Created at: %v", util.PosToString(sXY)))
+					tchunk.BuildingMap[sXY] = newB
+					tchunk.Lock.Unlock()
+					LinkObj(sXY, newB)
 				}
-			} else {
-				return nil
 			}
 		} else {
-			/* Add object to map */
-			newObj.Parent.Lock.Lock()
-			newBB := &world.BuildingData{Obj: newObj, Pos: newObj.Pos}
-			chunk.BuildingMap[newObj.Pos] = newBB
-			newObj.Parent.Lock.Unlock()
-			LinkObj(newObj.Pos, newBB)
+			return nil
 		}
+	} else {
+		/* Add object to map */
+		newObj.Parent.Lock.Lock()
+		newBB := &world.BuildingData{Obj: newObj, Pos: newObj.Pos}
+		chunk.BuildingMap[newObj.Pos] = newBB
+		newObj.Parent.Lock.Unlock()
+		LinkObj(newObj.Pos, newBB)
 	}
 
 	return newObj

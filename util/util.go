@@ -154,6 +154,7 @@ func ObjListDelete(obj *world.ObjData) {
 		if item.Pos == obj.Pos {
 			obj.Parent.ObjList[index] = obj.Parent.ObjList[len(obj.Parent.ObjList)-1]
 			obj.Parent.ObjList = obj.Parent.ObjList[:len(obj.Parent.ObjList)-1]
+			world.VisDataDirty.Store(true)
 			return
 		}
 	}

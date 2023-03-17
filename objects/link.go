@@ -138,6 +138,11 @@ func UnlinkObj(obj *world.ObjData) {
 				/* Clean up port aliases */
 				port.Obj.Ports[pb].Link = nil
 				port.Obj.Ports[pb].Obj = nil
+
+				/* Reset last port to avoid hitting invalid one */
+				if port.Type == gv.PORT_IN {
+					obj.LastInput = 0
+				}
 			}
 		}
 		portPop(port.Obj)
