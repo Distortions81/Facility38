@@ -123,7 +123,6 @@ func runTocks() {
 	world.TockListLock.Unlock()
 
 	//fmt.Printf("TOCK: sleep-per: %v, workSize: %v\n", sleepFor.String(), wSize)
-
 }
 
 /* WASM single-thread: Run all object tocks (interal) */
