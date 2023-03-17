@@ -65,9 +65,10 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	}
 
 	/* Init obj if we have a function for it */
+	initOkay := true
 	if newObj.TypeP.InitObj != nil {
 		if !newObj.TypeP.InitObj(newObj) {
-			return nil
+			initOkay = false
 		}
 	}
 
@@ -107,7 +108,9 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 					util.ObjCD(newB, fmt.Sprintf("Created at: %v", util.PosToString(sXY)))
 					tchunk.BuildingMap[sXY] = newB
 					tchunk.Lock.Unlock()
-					LinkObj(sXY, newB)
+					if initOkay {
+						LinkObj(sXY, newB)
+					}
 				}
 			}
 		} else {
@@ -119,7 +122,10 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		newBB := &world.BuildingData{Obj: newObj, Pos: newObj.Pos}
 		chunk.BuildingMap[newObj.Pos] = newBB
 		newObj.Parent.Lock.Unlock()
-		LinkObj(newObj.Pos, newBB)
+
+		if initOkay {
+			LinkObj(newObj.Pos, newBB)
+		}
 	}
 
 	return newObj
