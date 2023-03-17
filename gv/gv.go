@@ -12,7 +12,7 @@ var (
 	UPSBench = false
 	LoadTest = false
 
-	Debug     = true
+	Debug     = false
 	LogStdOut = true
 	WASMMode  = false
 
