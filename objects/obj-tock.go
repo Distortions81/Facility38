@@ -6,14 +6,18 @@ import (
 	"math/rand"
 )
 
-func minerUpdate(obj *world.ObjData) {
-
+func linkMiner(obj *world.ObjData) {
 	/* Nothing to do, sleep */
 	if obj.NumOut == 0 {
 		tocklistRemove(obj)
 		ticklistRemove(obj)
-		return
+	} else {
+		tockListAdd(obj)
+		ticklistAdd(obj)
 	}
+}
+
+func minerUpdate(obj *world.ObjData) {
 
 	/* Is it time to run? */
 	if obj.TickCount < obj.TypeP.Interval {

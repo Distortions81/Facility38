@@ -99,6 +99,7 @@ var (
 			UpdateObj:    minerUpdate,
 			InitObj:      initMiner,
 			DeInitObj:    deinitMiner,
+			LinkObj:      linkMiner,
 			KgHourMine:   1000,
 			KW:           360,
 			Interval:     uint8(world.ObjectUPS) * 2,

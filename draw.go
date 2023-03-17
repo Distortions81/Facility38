@@ -230,11 +230,9 @@ func updateVisData() {
 					}
 					VisObj = append(VisObj, obj)
 				}
-
-				world.VisDataDirty.Store(false)
-
 			}
 		}
+		world.VisDataDirty.Store(false)
 		world.SuperChunkListLock.RUnlock()
 	}
 }
@@ -663,6 +661,12 @@ func drawWorldTooltip(screen *ebiten.Image) {
 						}
 						if o.TypeP.KW > 0 {
 							toolTip = toolTip + fmt.Sprintf("KW: %v\n", o.TypeP.KW)
+						}
+						if o.HasTock {
+							toolTip = toolTip + "Tocking\n"
+						}
+						if o.HasTick {
+							toolTip = toolTip + "Ticking\n"
 						}
 					}
 

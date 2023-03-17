@@ -72,8 +72,18 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				portAlias(b.Obj, p, port.Type)
 				portAlias(neighb.Obj, n, np.Type)
 
-				AutoEvents(neighb.Obj)
+				/* Run custom link code */
+				if neighb.Obj.TypeP.LinkObj != nil {
+					neighb.Obj.TypeP.LinkObj(neighb.Obj)
+				} else {
+					AutoEvents(neighb.Obj)
+				}
 			}
+		}
+		/* Run custom link code */
+		if b.Obj.TypeP.LinkObj != nil {
+			b.Obj.TypeP.LinkObj(b.Obj)
+		} else {
 			AutoEvents(b.Obj)
 		}
 
