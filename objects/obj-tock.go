@@ -98,6 +98,7 @@ func beltUpdate(obj *world.ObjData) {
 	if obj.NumOut == 0 || obj.NumIn == 0 {
 		tocklistRemove(obj)
 		ticklistRemove(obj)
+		obj.LastInput = 0
 		return
 	} else if obj.NumIn > 1 {
 		if obj.LastInput == (obj.NumIn - 1) {

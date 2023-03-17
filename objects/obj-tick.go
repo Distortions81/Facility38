@@ -239,12 +239,14 @@ func runObjQueue() {
 				for _, sub := range item.Obj.TypeP.SubObjs {
 					pos := util.GetSubPos(item.Pos, sub)
 					removePosMap(pos)
+					world.VisDataDirty.Store(true)
 				}
 			}
 			delObj(item.Obj)
 		} else {
 			//Add
 			CreateObj(item.Pos, item.OType, item.Dir, false)
+			world.VisDataDirty.Store(true)
 		}
 	}
 
