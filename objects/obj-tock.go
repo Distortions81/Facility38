@@ -8,6 +8,12 @@ import (
 
 func minerUpdate(obj *world.ObjData) {
 
+	if obj.NumOut == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+		return
+	}
+
 	/* Is it time to run? */
 	if obj.TickCount < obj.TypeP.Interval {
 		/* Increment timer */
@@ -28,31 +34,15 @@ func minerUpdate(obj *world.ObjData) {
 		}
 	}
 
-	for p, port := range obj.Outputs {
-
-		/* Output empty? */
-		if port.Buf.Amount != 0 {
-			if !obj.Blocked {
-				obj.Blocked = true
-			}
-			if obj.Active {
-				obj.Active = false
-			}
-			continue
+	if obj.KGFuel < obj.TypeP.KgFuelEach {
+		/* Not enough fuel, exit */
+		if obj.Active {
+			obj.Active = false
 		}
+		return
+	}
 
-		/* We are not blocked */
-		if obj.Blocked {
-			obj.Blocked = false
-		}
-
-		if obj.KGFuel < obj.TypeP.KgFuelEach {
-			/* Not enough fuel, exit */
-			if obj.Active {
-				obj.Active = false
-			}
-			break
-		}
+	for p, _ := range obj.Outputs {
 
 		/* Cycle through available materials */
 		var pick uint8 = 0
@@ -104,24 +94,10 @@ func beltUpdateInter(obj *world.ObjData) {
 func beltUpdate(obj *world.ObjData) {
 
 	if obj.NumOut == 0 || obj.NumIn == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
 		return
-	}
-
-	/* Output full? */
-	if obj.Outputs[0].Buf.Amount != 0 {
-		if !obj.Blocked {
-			obj.Blocked = true
-		}
-		return
-	}
-
-	/* Not blocked */
-	if obj.Blocked {
-		obj.Blocked = false
-	}
-
-	/* Loop inputs if there are multiple */
-	if obj.NumIn > 1 {
+	} else if obj.NumIn > 1 {
 		if obj.LastInput == (obj.NumIn - 1) {
 			obj.LastInput = 0
 		} else {
@@ -137,6 +113,12 @@ func beltUpdate(obj *world.ObjData) {
 }
 
 func fuelHopperUpdate(obj *world.ObjData) {
+
+	if obj.NumFOut == 0 || obj.NumIn == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+		return
+	}
 
 	/* Is it time to run? */
 	if obj.TickCount < obj.TypeP.Interval {
@@ -174,10 +156,6 @@ func fuelHopperUpdate(obj *world.ObjData) {
 	/* Grab destination object */
 	if obj.KGFuel > (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach) {
 		for _, output := range obj.FuelOut {
-			/* If blocked, stop */
-			if output.Buf.Amount != 0 {
-				continue
-			}
 			output.Buf.Amount = obj.TypeP.KgHopperMove
 			obj.KGFuel -= (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach)
 			break
@@ -188,10 +166,12 @@ func fuelHopperUpdate(obj *world.ObjData) {
 
 func splitterUpdate(obj *world.ObjData) {
 
+	if obj.NumIn == 0 || obj.NumOut == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+		return
+	}
 	if obj.Outputs[0].Buf.Amount != 0 {
-		if !obj.Blocked {
-			obj.Blocked = true
-		}
 		if obj.Active {
 			obj.Active = false
 		}
@@ -222,6 +202,11 @@ func splitterUpdate(obj *world.ObjData) {
 }
 
 func boxUpdate(obj *world.ObjData) {
+	if obj.NumIn == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+		return
+	}
 	for p, port := range obj.Inputs {
 		if port.Buf.Amount == 0 {
 
@@ -235,13 +220,11 @@ func boxUpdate(obj *world.ObjData) {
 
 		/* Will the input fit? */
 		if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
-			obj.Blocked = true
 			obj.Active = false
 			continue
 		}
 
 		/* Reset counter */
-		obj.Blocked = false
 		obj.Active = true
 		obj.TickCount = 0
 
@@ -263,15 +246,18 @@ func boxUpdate(obj *world.ObjData) {
 
 func smelterUpdate(obj *world.ObjData) {
 
+	if obj.NumIn == 0 || obj.NumOut == 0 {
+		tocklistRemove(obj)
+		ticklistRemove(obj)
+		return
+	}
+
 	/* Output full? */
 	for _, output := range obj.Outputs {
 		if output.Buf.Amount != 0 {
-			obj.Blocked = true
 			return
 		}
 	}
-
-	obj.Blocked = false
 
 	/* Check input */
 	for i, input := range obj.Inputs {
