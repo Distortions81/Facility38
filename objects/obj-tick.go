@@ -111,7 +111,12 @@ func tickObj(obj *world.ObjData) {
 
 		/* If destination is empty */
 		if port.Link.Buf.Amount != 0 {
+			if !obj.Blocked {
+				obj.Blocked = true
+			}
 			continue
+		} else if obj.Blocked {
+			obj.Blocked = false
 		}
 
 		/* Swap pointers */
@@ -126,7 +131,12 @@ func tickObj(obj *world.ObjData) {
 
 		/* If destination is empty */
 		if port.Link.Buf.Amount != 0 {
+			if !obj.Blocked {
+				obj.Blocked = true
+			}
 			continue
+		} else if obj.Blocked {
+			obj.Blocked = false
 		}
 
 		/* Swap pointers */
@@ -160,31 +170,33 @@ func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
 
 /* Lock and remove tick event */
 func ticklistRemove(obj *world.ObjData) {
-
-	for i, e := range world.TickList {
-		if e.Target == obj {
-			world.TickList = append(world.TickList[:i], world.TickList[i+1:]...)
-			obj.HasTick = false
-			world.TickCount--
-			return
+	go func(obj *world.ObjData) {
+		for i, e := range world.TickList {
+			if e.Target == obj {
+				world.TickList = append(world.TickList[:i], world.TickList[i+1:]...)
+				obj.HasTick = false
+				world.TickCount--
+				return
+			}
 		}
-	}
-
+	}(obj)
 }
 
 /* lock and remove tock event */
 func tocklistRemove(obj *world.ObjData) {
-	world.TockListLock.Lock()
-	defer world.TockListLock.Unlock()
+	go func(obj *world.ObjData) {
+		world.TockListLock.Lock()
+		defer world.TockListLock.Unlock()
 
-	for i, e := range world.TockList {
-		if e.Target == obj {
-			world.TockList = append(world.TockList[:i], world.TockList[i+1:]...)
-			obj.HasTock = false
-			world.TockCount--
-			return
+		for i, e := range world.TockList {
+			if e.Target == obj {
+				world.TockList = append(world.TockList[:i], world.TockList[i+1:]...)
+				obj.HasTock = false
+				world.TockCount--
+				return
+			}
 		}
-	}
+	}(obj)
 }
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
