@@ -146,59 +146,63 @@ func tickObj(obj *world.ObjData) {
 
 /* Lock and append to TickList */
 func ticklistAdd(obj *world.ObjData) {
-	if !obj.HasTick {
-		obj.HasTick = true
-		world.TickList = append(world.TickList, world.TickEvent{Target: obj})
-		world.TickCount++
+	if obj.HasTick {
+		return
 	}
+	obj.HasTick = true
+	world.TickList = append(world.TickList, world.TickEvent{Target: obj})
+	world.TickCount++
 }
 
 /* Lock and append to TockList */
 func tockListAdd(obj *world.ObjData) {
-	if !obj.HasTock {
-		obj.HasTock = true
-
-		world.TockList = append(world.TockList, world.TickEvent{Target: obj})
-		world.TockCount++
+	if obj.HasTock {
+		return
 	}
+	obj.HasTock = true
+	world.TockList = append(world.TockList, world.TickEvent{Target: obj})
+	world.TockCount++
 }
 
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
+	world.EventQueueLock.Lock()
 	world.EventQueue = append(world.EventQueue, &world.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
+	world.EventQueueLock.Unlock()
 }
 
 /* Lock and remove tick event */
 func ticklistRemove(obj *world.ObjData) {
-	go func(obj *world.ObjData) {
-		for i, e := range world.TickList {
-			if e.Target == obj {
-				world.TickList = append(world.TickList[:i], world.TickList[i+1:]...)
-				obj.HasTick = false
-				obj.Active = false
-				world.TickCount--
-				return
-			}
+
+	if !obj.HasTick {
+		return
+	}
+	for i, e := range world.TickList {
+		if e.Target == obj {
+			world.TickList = append(world.TickList[:i], world.TickList[i+1:]...)
+			obj.HasTick = false
+			obj.Active = false
+			world.TickCount--
+			return
 		}
-	}(obj)
+	}
 }
 
 /* lock and remove tock event */
 func tocklistRemove(obj *world.ObjData) {
-	go func(obj *world.ObjData) {
-		world.TockListLock.Lock()
-		defer world.TockListLock.Unlock()
 
-		for i, e := range world.TockList {
-			if e.Target == obj {
-				world.TockList = append(world.TockList[:i], world.TockList[i+1:]...)
-				obj.HasTock = false
-				obj.Active = false
-				world.TockCount--
-				return
-			}
+	if !obj.HasTock {
+		return
+	}
+	for i, e := range world.TockList {
+		if e.Target == obj {
+			world.TockList = append(world.TockList[:i], world.TockList[i+1:]...)
+			obj.HasTock = false
+			obj.Active = false
+			world.TockCount--
+			return
 		}
-	}(obj)
+	}
 }
 
 /* Add to ObjQueue (add/delete world object at end of tick) */

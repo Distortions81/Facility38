@@ -179,12 +179,12 @@ func UnlinkObj(obj *world.ObjData) {
 	/* Reset last input var */
 	obj.LastInput = 0
 	/*
-	* Remove outself from tock/tick,
+	* Remove ourself from tock/tick,
 	* we will be re-added in link if there
 	* is some need for us to be in there
 	 */
-	tocklistRemove(obj)
-	ticklistRemove(obj)
+	EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+	EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 }
 
 /* Add port to correct alias, increment */

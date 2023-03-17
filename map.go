@@ -5,19 +5,13 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"GameTest/world"
-	"runtime"
-	"strings"
-	"time"
 )
 
 /* Make a test map, or skip and still start daemons */
-func makeTestMap(skip bool) {
+func makeMap(gen bool) {
 
-	objects.PerlinNoiseInit()
-
-	if !skip {
-		time.Sleep(time.Second)
-		//start := time.Now()
+	if gen {
+		objects.NukeWorld()
 
 		/* Test load map generator parameters */
 		total := 0
@@ -63,23 +57,12 @@ func makeTestMap(skip bool) {
 					ty += vSpace
 					cols = 0
 				}
-				for _, e := range world.EventQueue {
 
-					switch e.QType {
-					case gv.QUEUE_TYPE_TICK:
-						world.TickList = append(world.TickList, world.TickEvent{Target: e.Obj})
-						world.TickCount++
-					case gv.QUEUE_TYPE_TOCK:
-						world.TockList = append(world.TockList, world.TickEvent{Target: e.Obj})
-						world.TockCount++
-					}
-
-				}
-				world.EventQueue = []*world.EventQueueData{}
 				world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
 				if Loaded%10000 == 0 {
 					util.WASMSleep()
 				}
+				objects.RunEventQueue()
 			}
 		} else {
 			/* Default map generator */
@@ -145,28 +128,8 @@ func makeTestMap(skip bool) {
 	}
 
 	util.WASMSleep()
-	if strings.EqualFold(runtime.GOOS, "windows") || gv.WASMMode {
-		go objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
-	} else {
-		objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
-	}
+	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
 
+	world.MapLoadPercent = 100
 	world.MapGenerated.Store(true)
-	util.ChatDetailed("Map loaded, click or press any key to continue.", world.ColorGreen, time.Second*15)
-
-	for !world.SpritesLoaded.Load() ||
-		!world.PlayerReady.Load() {
-		time.Sleep(time.Millisecond)
-	}
-	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
-
-	if !gv.WASMMode {
-		go objects.RenderTerrainDaemon()
-		go objects.PixmapRenderDaemon()
-		go objects.ObjUpdateDaemon()
-		go objects.ResourceRenderDaemon()
-	} else {
-		util.WASMSleep()
-		go objects.ObjUpdateDaemonST()
-	}
 }

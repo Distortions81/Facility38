@@ -89,11 +89,33 @@ func NewGame() *Game {
 	go func() {
 		time.Sleep(time.Millisecond * 700)
 		loadSprites()
-		makeTestMap(!gv.LoadTest)
+		objects.PerlinNoiseInit()
+		makeMap(gv.LoadTest)
+		startGame()
 	}()
 
 	/* Initialize the game */
 	return &Game{}
+}
+
+func startGame() {
+	util.ChatDetailed("Click or press any key to continue.", world.ColorGreen, time.Second*15)
+
+	for !world.SpritesLoaded.Load() ||
+		!world.PlayerReady.Load() {
+		time.Sleep(time.Millisecond)
+	}
+	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
+
+	if !gv.WASMMode {
+		go objects.RenderTerrainDaemon()
+		go objects.PixmapRenderDaemon()
+		go objects.ObjUpdateDaemon()
+		go objects.ResourceRenderDaemon()
+	} else {
+		util.WASMSleep()
+		go objects.ObjUpdateDaemonST()
+	}
 }
 
 /* Load all sprites, sub missing ones */

@@ -9,11 +9,11 @@ import (
 func linkMiner(obj *world.ObjData) {
 	/* Nothing to do, sleep */
 	if obj.NumOut == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 	} else {
-		tockListAdd(obj)
-		ticklistAdd(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 }
 
@@ -99,11 +99,11 @@ func beltUpdateInter(obj *world.ObjData) {
 func linkBelt(obj *world.ObjData) {
 	/* Nothing to do, sleep */
 	if obj.NumOut == 0 || obj.NumIn == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 	} else {
-		tockListAdd(obj)
-		ticklistAdd(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 }
 
@@ -111,8 +111,8 @@ func beltUpdate(obj *world.ObjData) {
 
 	/* Nothing to do, sleep */
 	if obj.NumOut == 0 || obj.NumIn == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 		obj.LastInput = 0
 		return
 	} else if obj.NumIn > 1 {
@@ -132,22 +132,15 @@ func beltUpdate(obj *world.ObjData) {
 
 func linkFuelHopper(obj *world.ObjData) {
 	if obj.NumFOut == 0 || obj.NumIn == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 	} else {
-		tockListAdd(obj)
-		ticklistAdd(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 }
 
 func fuelHopperUpdate(obj *world.ObjData) {
-
-	/* Nothing to do, sleep */
-	if obj.NumFOut == 0 || obj.NumIn == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
-		return
-	}
 
 	/* Is it time to run? */
 	if obj.TickCount < obj.TypeP.Interval {
@@ -195,22 +188,16 @@ func fuelHopperUpdate(obj *world.ObjData) {
 
 func linkSplitter(obj *world.ObjData) {
 	if obj.NumFOut == 0 || obj.NumIn == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 	} else {
-		tockListAdd(obj)
-		ticklistAdd(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 }
 
 func splitterUpdate(obj *world.ObjData) {
 
-	/* Nothing to do, sleep */
-	if obj.NumIn == 0 || obj.NumOut == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
-		return
-	}
 	if obj.Outputs[0].Buf.Amount != 0 {
 		if obj.Active {
 			obj.Active = false
@@ -243,20 +230,14 @@ func splitterUpdate(obj *world.ObjData) {
 
 func linkBox(obj *world.ObjData) {
 	if obj.NumIn == 0 {
-		tocklistRemove(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
 	} else {
-		tockListAdd(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 	}
 }
 
 func boxUpdate(obj *world.ObjData) {
 
-	/* Nothing to do, sleep */
-	if obj.NumIn == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
-		return
-	}
 	for p, port := range obj.Inputs {
 		if port.Buf.Amount == 0 {
 
@@ -296,22 +277,15 @@ func boxUpdate(obj *world.ObjData) {
 
 func linkSmelter(obj *world.ObjData) {
 	if obj.NumOut == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 	} else {
-		tockListAdd(obj)
-		ticklistAdd(obj)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 }
 
 func smelterUpdate(obj *world.ObjData) {
-
-	/* Nothing to do, sleep */
-	if obj.NumIn == 0 || obj.NumOut == 0 {
-		tocklistRemove(obj)
-		ticklistRemove(obj)
-		return
-	}
 
 	/* Output full? */
 	for _, output := range obj.Outputs {
