@@ -8,6 +8,7 @@ import (
 
 func minerUpdate(obj *world.ObjData) {
 
+	/* Nothing to do, sleep */
 	if obj.NumOut == 0 {
 		tocklistRemove(obj)
 		ticklistRemove(obj)
@@ -42,7 +43,7 @@ func minerUpdate(obj *world.ObjData) {
 		return
 	}
 
-	for p, _ := range obj.Outputs {
+	for p := range obj.Outputs {
 
 		/* Cycle through available materials */
 		var pick uint8 = 0
@@ -93,6 +94,7 @@ func beltUpdateInter(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
+	/* Nothing to do, sleep */
 	if obj.NumOut == 0 || obj.NumIn == 0 {
 		tocklistRemove(obj)
 		ticklistRemove(obj)
@@ -114,6 +116,7 @@ func beltUpdate(obj *world.ObjData) {
 
 func fuelHopperUpdate(obj *world.ObjData) {
 
+	/* Nothing to do, sleep */
 	if obj.NumFOut == 0 || obj.NumIn == 0 {
 		tocklistRemove(obj)
 		ticklistRemove(obj)
@@ -166,6 +169,7 @@ func fuelHopperUpdate(obj *world.ObjData) {
 
 func splitterUpdate(obj *world.ObjData) {
 
+	/* Nothing to do, sleep */
 	if obj.NumIn == 0 || obj.NumOut == 0 {
 		tocklistRemove(obj)
 		ticklistRemove(obj)
@@ -202,6 +206,8 @@ func splitterUpdate(obj *world.ObjData) {
 }
 
 func boxUpdate(obj *world.ObjData) {
+
+	/* Nothing to do, sleep */
 	if obj.NumIn == 0 {
 		tocklistRemove(obj)
 		ticklistRemove(obj)
@@ -246,6 +252,7 @@ func boxUpdate(obj *world.ObjData) {
 
 func smelterUpdate(obj *world.ObjData) {
 
+	/* Nothing to do, sleep */
 	if obj.NumIn == 0 || obj.NumOut == 0 {
 		tocklistRemove(obj)
 		ticklistRemove(obj)
