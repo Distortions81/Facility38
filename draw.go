@@ -22,6 +22,7 @@ const (
 	cBlockedIndicatorOffset = 0
 	cPreCache               = 4
 	WASMTerrainDiv          = 5
+	MaxBatch                = 100000
 )
 
 var (
@@ -43,8 +44,8 @@ var (
 	ConsoleActive      bool
 
 	BatchTop   int
-	ImageBatch [gv.ChunkSizeTotal * 3]*ebiten.Image
-	OpBatch    [gv.ChunkSizeTotal * 3]*ebiten.DrawImageOptions
+	ImageBatch [MaxBatch]*ebiten.Image
+	OpBatch    [MaxBatch]*ebiten.DrawImageOptions
 )
 
 /* Setup a few images for later use */
@@ -171,10 +172,15 @@ func drawItemPlacement(screen *ebiten.Image) {
 }
 
 /* Look at camera position, make a list of visible superchunks and chunks. */
+var VisObj []*world.ObjData
+var VisChunk []*world.MapChunk
+
 func updateVisData() {
 
 	/* When needed, make a list of chunks to draw */
 	if world.VisDataDirty.Load() {
+		VisObj = []*world.ObjData{}
+		VisChunk = []*world.MapChunk{}
 
 		/* Calculate viewport */
 		calcScreenCamera()
@@ -213,7 +219,17 @@ func updateVisData() {
 					chunk.Visible = false
 					continue
 				}
+
+				VisChunk = append(VisChunk, chunk)
+
 				chunk.Visible = true
+				for _, obj := range chunk.ObjList {
+					/* Is this object on the screen? */
+					if obj.Pos.X < camStartX || obj.Pos.X > camEndX || obj.Pos.Y < camStartY || obj.Pos.Y > camEndY {
+						continue
+					}
+					VisObj = append(VisObj, obj)
+				}
 
 				world.VisDataDirty.Store(false)
 
@@ -246,172 +262,177 @@ func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image
 
 func drawIconMode(screen *ebiten.Image) {
 
-	world.SuperChunkListLock.RLock()
-	for _, sChunk := range world.SuperChunkList {
-		for _, chunk := range sChunk.ChunkList {
-			if !chunk.Visible {
-				continue
-			}
+	BatchTop = 0
 
-			BatchTop = 0
-
-			/* Draw ground*/
-			op, img := drawTerrain(chunk)
-			if img != nil {
-				OpBatch[BatchTop] = op
-				ImageBatch[BatchTop] = img
+	for _, chunk := range VisChunk {
+		op, img := drawTerrain(chunk)
+		if img != nil {
+			OpBatch[BatchTop] = op
+			ImageBatch[BatchTop] = img
+			if BatchTop < MaxBatch {
 				BatchTop++
-			}
-
-			/* Draw objects in chunk */
-			for _, obj := range chunk.ObjList {
-				if obj == nil {
-					continue
-				}
-				/* Is this object on the screen? */
-				if obj.Pos.X < camStartX || obj.Pos.X > camEndX || obj.Pos.Y < camStartY || obj.Pos.Y > camEndY {
-					continue
-				}
-
-				/* Time to draw it */
-				op, img = drawObject(screen, obj)
-				if img != nil {
-					OpBatch[BatchTop] = op
-					ImageBatch[BatchTop] = img
-					BatchTop++
-				}
-
-				/* Overlays */
-				/* Draw belt overlays */
-				if obj.TypeP.TypeI == gv.ObjTypeBasicBelt {
-
-					/* Draw Input Materials */
-					for _, port := range obj.Ports {
-						if port.Buf.Amount > 0 {
-							op, img = drawMaterials(port.Buf, obj, screen, 1.0)
-							if img != nil {
-								OpBatch[BatchTop] = op
-								ImageBatch[BatchTop] = img
-								BatchTop++
-							}
-							break
-						}
-					}
-				}
-				if obj.TypeP.TypeI == gv.ObjTypeBasicBeltInterRight {
-					op, img = drawMaterials(obj.Ports[2].Buf, obj, screen, 0.5)
-					if img != nil {
-						OpBatch[BatchTop] = op
-						ImageBatch[BatchTop] = img
-						BatchTop++
-					}
-				}
-				if world.ShowInfoLayer {
-
-					if obj.TypeP.TypeI == gv.ObjTypeBasicBox {
-						for _, cont := range obj.Contents {
-							if cont == nil {
-								continue
-							}
-							op, img = drawMaterials(cont, obj, screen, 1.0)
-							if img != nil {
-								OpBatch[BatchTop] = op
-								ImageBatch[BatchTop] = img
-								BatchTop++
-							}
-							break
-						}
-					}
-					/* Info Overlays, such as arrows and blocked indicator */
-
-					/* camera + object */
-					var objOffX float32 = camXPos + (float32(obj.Pos.X))
-					var objOffY float32 = camYPos + (float32(obj.Pos.Y))
-
-					/* camera zoom */
-					objCamPosX := objOffX * world.ZoomScale
-					objCamPosY := objOffY * world.ZoomScale
-
-					/* Show objects with no fuel */
-					if obj.TypeP.MaxFuelKG > 0 && obj.KGFuel < obj.TypeP.KgFuelEach {
-
-						img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Image
-
-						iSize := img.Bounds()
-						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-							((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
-						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
-
-						if img != nil {
-							OpBatch[BatchTop] = op
-							ImageBatch[BatchTop] = img
-							BatchTop++
-						}
-
-					} else if obj.TypeP.ShowArrow {
-						for _, port := range obj.Ports {
-							if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
-
-								img := objects.ObjOverlayTypes[port.Dir].Image
-								iSize := img.Bounds()
-								var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-								op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-									((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
-								op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
-								op.ColorScale.Scale(0.5, 0.5, 0.5, 0.66)
-
-								/* Draw Arrow */
-								if img != nil {
-									OpBatch[BatchTop] = op
-									ImageBatch[BatchTop] = img
-									BatchTop++
-								}
-								break
-							}
-						}
-					}
-					/* Show blocked outputs */
-					if (obj.TypeP.ShowBlocked && obj.Blocked) ||
-						obj.MinerData != nil && obj.MinerData.ResourcesCount == 0 {
-
-						img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
-						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-
-						iSize := img.Bounds()
-						op.GeoM.Translate(
-							cBlockedIndicatorOffset,
-							cBlockedIndicatorOffset)
-						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-							((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
-						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
-
-						if img != nil {
-							OpBatch[BatchTop] = op
-							ImageBatch[BatchTop] = img
-							BatchTop++
-						}
-					}
-
-				}
-			}
-			for p := 0; p < BatchTop; p++ {
-				screen.DrawImage(ImageBatch[p], OpBatch[p])
-			}
-			/*
-			 * Used for debugging map
-			 */
-			if gv.Debug {
-				for bpos, b := range chunk.BuildingMap {
-					if b.Obj.TypeP.Size.X > 1 ||
-						b.Obj.TypeP.Size.Y > 1 {
-						drawSubObjDebug(screen, b, bpos)
-					}
-				}
+			} else {
+				break
 			}
 		}
 	}
-	world.SuperChunkListLock.RUnlock()
+
+	for _, obj := range VisObj {
+
+		op, img := drawObject(screen, obj)
+		if img != nil {
+			OpBatch[BatchTop] = op
+			ImageBatch[BatchTop] = img
+			if BatchTop < MaxBatch {
+				BatchTop++
+			} else {
+				break
+			}
+		}
+
+		/* Overlays */
+		/* Draw belt overlays */
+		if obj.TypeP.TypeI == gv.ObjTypeBasicBelt {
+
+			/* Draw Input Materials */
+			for _, port := range obj.Ports {
+				if port.Buf.Amount > 0 {
+					op, img = drawMaterials(port.Buf, obj, screen, 1.0)
+					if img != nil {
+						OpBatch[BatchTop] = op
+						ImageBatch[BatchTop] = img
+						if BatchTop < MaxBatch {
+							BatchTop++
+						} else {
+							break
+						}
+					}
+					break
+				}
+			}
+		}
+		if obj.TypeP.TypeI == gv.ObjTypeBasicBeltInterRight {
+			op, img = drawMaterials(obj.Ports[2].Buf, obj, screen, 0.5)
+			if img != nil {
+				OpBatch[BatchTop] = op
+				ImageBatch[BatchTop] = img
+				if BatchTop < MaxBatch {
+					BatchTop++
+				} else {
+					break
+				}
+			}
+		}
+		if world.ShowInfoLayer {
+
+			if obj.TypeP.TypeI == gv.ObjTypeBasicBox {
+				for _, cont := range obj.Contents {
+					if cont == nil {
+						continue
+					}
+					op, img = drawMaterials(cont, obj, screen, 1.0)
+					if img != nil {
+						OpBatch[BatchTop] = op
+						ImageBatch[BatchTop] = img
+						if BatchTop < MaxBatch {
+							BatchTop++
+						} else {
+							break
+						}
+					}
+					break
+				}
+			}
+			/* Info Overlays, such as arrows and blocked indicator */
+
+			/* camera + object */
+			var objOffX float32 = camXPos + (float32(obj.Pos.X))
+			var objOffY float32 = camYPos + (float32(obj.Pos.Y))
+
+			/* camera zoom */
+			objCamPosX := objOffX * world.ZoomScale
+			objCamPosY := objOffY * world.ZoomScale
+
+			/* Show objects with no fuel */
+			if obj.TypeP.MaxFuelKG > 0 && obj.KGFuel < obj.TypeP.KgFuelEach {
+
+				img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Image
+
+				iSize := img.Bounds()
+				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
+					((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+
+				if img != nil {
+					OpBatch[BatchTop] = op
+					ImageBatch[BatchTop] = img
+					if BatchTop < MaxBatch {
+						BatchTop++
+					} else {
+						break
+					}
+				}
+
+			} else if obj.TypeP.ShowArrow {
+				for _, port := range obj.Ports {
+					if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
+
+						img := objects.ObjOverlayTypes[port.Dir].Image
+						iSize := img.Bounds()
+						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
+							((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+						op.ColorScale.Scale(0.5, 0.5, 0.5, 0.66)
+
+						/* Draw Arrow */
+						if img != nil {
+							OpBatch[BatchTop] = op
+							ImageBatch[BatchTop] = img
+							if BatchTop < MaxBatch {
+								BatchTop++
+							} else {
+								break
+							}
+						}
+						break
+					}
+				}
+			}
+			/* Show blocked outputs */
+			if (obj.TypeP.ShowBlocked && obj.Blocked) ||
+				obj.MinerData != nil && obj.MinerData.ResourcesCount == 0 {
+
+				img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
+				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+
+				iSize := img.Bounds()
+				op.GeoM.Translate(
+					cBlockedIndicatorOffset,
+					cBlockedIndicatorOffset)
+				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
+					((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+
+				if img != nil {
+					OpBatch[BatchTop] = op
+					ImageBatch[BatchTop] = img
+					if BatchTop < MaxBatch {
+						BatchTop++
+					} else {
+						break
+					}
+				}
+			}
+
+		}
+	}
+
+	/* Batch render everything */
+	for p := 0; p < BatchTop; p++ {
+		screen.DrawImage(ImageBatch[p], OpBatch[p])
+	}
 }
 
 func drawSubObjDebug(screen *ebiten.Image, b *world.BuildingData, bpos world.XY) {
@@ -490,10 +511,11 @@ func drawDebugInfo(screen *ebiten.Image) {
 	world.FPSAvr.Add(ebiten.ActualFPS())
 
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Active Objects: %v Arch: %v Build: %v",
+	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Active Objects: %v Draws: %v, Arch: %v Build: %v",
 		world.FPSAvr.Value(),
 		1000000000.0/float64(world.MeasuredObjectUPS_ns)/2,
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
+		humanize.SIWithDigits(float64(BatchTop), 2, ""),
 		runtime.GOARCH, buildTime)
 
 	DrawText(buf, world.ToolTipFont, color.White, world.ColorDebugBG, world.XY{X: 0, Y: world.ScreenHeight}, 11, screen, true, false, false)
