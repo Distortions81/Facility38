@@ -56,7 +56,6 @@ func init() {
 			if pt == gv.PORT_FIN {
 				GameObjTypes[i].HasFIn = true
 			}
-			GameObjTypes[i].Ports[p].Index = uint8(p)
 
 		}
 	}
