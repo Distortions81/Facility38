@@ -6,16 +6,6 @@ import (
 	"math/rand"
 )
 
-func linkMiner(obj *world.ObjData) {
-	if obj.NumOut == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-	}
-}
-
 func minerUpdate(obj *world.ObjData) {
 
 	/* Time to run? */
@@ -94,16 +84,6 @@ func minerUpdate(obj *world.ObjData) {
 func beltUpdateInter(obj *world.ObjData) {
 }
 
-func linkBelt(obj *world.ObjData) {
-	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-	}
-}
-
 func beltUpdate(obj *world.ObjData) {
 
 	if obj.NumIn > 1 {
@@ -118,16 +98,6 @@ func beltUpdate(obj *world.ObjData) {
 	if obj.Inputs[obj.LastInput].Buf.Amount > 0 {
 		/* Good to go, swap pointers */
 		*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
-	}
-}
-
-func linkFuelHopper(obj *world.ObjData) {
-	if obj.NumFOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 }
 
@@ -177,16 +147,6 @@ func fuelHopperUpdate(obj *world.ObjData) {
 
 }
 
-func linkSplitter(obj *world.ObjData) {
-	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-	}
-}
-
 func splitterUpdate(obj *world.ObjData) {
 
 	if obj.Inputs[0].Buf.Amount > 0 {
@@ -210,14 +170,6 @@ func splitterUpdate(obj *world.ObjData) {
 		if obj.Active {
 			obj.Active = false
 		}
-	}
-}
-
-func linkBox(obj *world.ObjData) {
-	if obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 	}
 }
 
@@ -257,16 +209,6 @@ func boxUpdate(obj *world.ObjData) {
 		continue
 
 		//Unloader goes here
-	}
-}
-
-func linkSmelter(obj *world.ObjData) {
-	if obj.NumOut == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
 }
 
