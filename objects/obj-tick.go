@@ -4,6 +4,8 @@ import (
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
+	"fmt"
+	"image/color"
 	"runtime"
 	"strings"
 	"time"
@@ -34,8 +36,6 @@ func ObjUpdateDaemon() {
 	for {
 		start := time.Now()
 
-		world.RotateLock.Lock()
-
 		if tockState {
 			runTocks()
 			tockState = false
@@ -45,6 +45,8 @@ func ObjUpdateDaemon() {
 			tockState = true
 		}
 
+		runRotates()
+
 		world.ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
 		world.ObjQueueLock.Unlock()
@@ -52,8 +54,6 @@ func ObjUpdateDaemon() {
 		world.EventQueueLock.Lock()
 		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
-
-		world.RotateLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
@@ -78,8 +78,6 @@ func ObjUpdateDaemonST() {
 	for {
 		start = time.Now()
 
-		world.RotateLock.Lock()
-
 		if tockState {
 			world.TockListLock.Lock()
 			runTocksST() //Process objects
@@ -100,8 +98,6 @@ func ObjUpdateDaemonST() {
 		world.EventQueueLock.Lock()
 		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
-
-		world.RotateLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
@@ -160,6 +156,15 @@ func tickObj(obj *world.ObjData) {
 			obj.Blocked = false
 		}
 	}
+}
+
+func RotateListAdd(b *world.BuildingData, cw bool, pos world.XY) {
+	world.RotateListLock.Lock()
+
+	world.RotateList = append(world.RotateList, world.RotateEvent{Build: b, Clockwise: cw})
+	world.RotateCount++
+
+	world.RotateListLock.Unlock()
 }
 
 /* Lock and append to TickList */
@@ -228,6 +233,51 @@ func ObjQueueAdd(obj *world.ObjData, otype uint8, pos world.XY, delete bool, dir
 	world.ObjQueueLock.Lock()
 	world.ObjQueue = append(world.ObjQueue, &world.ObjectQueueData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	world.ObjQueueLock.Unlock()
+}
+
+func runRotates() {
+	world.RotateListLock.Lock()
+	defer world.RotateListLock.Unlock()
+
+	for _, rot := range world.RotateList {
+		if rot.Build != nil {
+			o := rot.Build
+
+			if o != nil {
+				var newdir uint8
+
+				UnlinkObj(o.Obj)
+				if !rot.Clockwise {
+					newdir = util.RotCCW(o.Obj.Dir)
+					for p, port := range o.Obj.Ports {
+						o.Obj.Ports[p].Dir = util.RotCCW(port.Dir)
+					}
+
+					util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
+				} else {
+					newdir = util.RotCW(o.Obj.Dir)
+					for p, port := range o.Obj.Ports {
+						o.Obj.Ports[p].Dir = util.RotCW(port.Dir)
+					}
+
+					util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
+				}
+				o.Obj.Dir = newdir
+
+				if o.Obj.TypeP.Size.X > 1 || o.Obj.TypeP.Size.Y > 1 {
+					for _, subObj := range o.Obj.TypeP.SubObjs {
+						subPos := util.GetSubPos(o.Obj.Pos, subObj)
+						LinkObj(subPos, o)
+					}
+				} else {
+					LinkObj(o.Obj.Pos, o)
+				}
+			}
+		}
+	}
+
+	//Done, erase list.
+	world.RotateList = []world.RotateEvent{}
 }
 
 /* Add/remove tick/tock events from the lists */

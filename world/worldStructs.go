@@ -269,6 +269,13 @@ type ObjectQueueData struct {
 	Dir    uint8
 }
 
+/* Tick Event (target) */
+type RotateEvent struct {
+	Build     *BuildingData
+	Clockwise bool
+	Pos       XY
+}
+
 /* EventQueue data */
 type EventQueueData struct {
 	Delete bool

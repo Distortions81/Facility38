@@ -30,6 +30,10 @@ var (
 	SuperChunkMapLock sync.RWMutex
 
 	/* Tick: External inter-object communication */
+	RotateList     []RotateEvent = []RotateEvent{}
+	RotateListLock sync.Mutex
+
+	/* Tick: External inter-object communication */
 	TickList     []TickEvent = []TickEvent{}
 	TickListLock sync.Mutex
 
@@ -45,8 +49,7 @@ var (
 	EventQueue     []*EventQueueData
 	EventQueueLock sync.Mutex
 
-	RotateLock sync.Mutex
-
+	RotateCount int
 	/* Number of tick events */
 	TickCount int
 	/* Number of tock events */
