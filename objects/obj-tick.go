@@ -238,38 +238,36 @@ func runRotates() {
 	defer world.RotateListLock.Unlock()
 
 	for _, rot := range world.RotateList {
-		if rot.Build != nil {
-			o := rot.Build
+		o := rot.Build
 
-			if o != nil {
-				var newdir uint8
+		if o != nil {
+			var newdir uint8
 
-				UnlinkObj(o.Obj)
-				if !rot.Clockwise {
-					newdir = util.RotCCW(o.Obj.Dir)
-					for p, port := range o.Obj.Ports {
-						o.Obj.Ports[p].Dir = util.RotCCW(port.Dir)
-					}
-
-					util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
-				} else {
-					newdir = util.RotCW(o.Obj.Dir)
-					for p, port := range o.Obj.Ports {
-						o.Obj.Ports[p].Dir = util.RotCW(port.Dir)
-					}
-
-					util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
+			UnlinkObj(o.Obj)
+			if !rot.Clockwise {
+				newdir = util.RotCCW(o.Obj.Dir)
+				for p, port := range o.Obj.Ports {
+					o.Obj.Ports[p].Dir = util.RotCCW(port.Dir)
 				}
-				o.Obj.Dir = newdir
 
-				if o.Obj.TypeP.Size.X > 1 || o.Obj.TypeP.Size.Y > 1 {
-					for _, subObj := range o.Obj.TypeP.SubObjs {
-						subPos := util.GetSubPos(o.Obj.Pos, subObj)
-						LinkObj(subPos, o)
-					}
-				} else {
-					LinkObj(o.Obj.Pos, o)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
+			} else {
+				newdir = util.RotCW(o.Obj.Dir)
+				for p, port := range o.Obj.Ports {
+					o.Obj.Ports[p].Dir = util.RotCW(port.Dir)
 				}
+
+				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
+			}
+			o.Obj.Dir = newdir
+
+			if o.Obj.TypeP.Size.X > 1 || o.Obj.TypeP.Size.Y > 1 {
+				for _, subObj := range o.Obj.TypeP.SubObjs {
+					subPos := util.GetSubPos(o.Obj.Pos, subObj)
+					LinkObj(subPos, o)
+				}
+			} else {
+				LinkObj(o.Obj.Pos, o)
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"GameTest/data"
 	"GameTest/world"
 	"log"
+	"time"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
@@ -12,26 +13,46 @@ import (
 /* Font setup, eventually use ttf files */
 func init() {
 
-	fdata := data.GetFont("Manjari-Bold.otf")
-	collection, err := opentype.ParseCollection(fdata)
-	if err != nil {
-		log.Fatal(err)
-	}
+	now := time.Now()
+	var mono, tt *opentype.Font
+	var err error
 
-	tt, err := collection.Font(0)
-	if err != nil {
-		log.Fatal(err)
-	}
+	if now.Month() == 4 && now.Day() == 1 {
+		fdata := data.GetFont("comici.ttf")
+		collection, err := opentype.ParseCollection(fdata)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	fdata = data.GetFont("NotoSansCJK-Bold.ttc")
-	collection, err = opentype.ParseCollection(fdata)
-	if err != nil {
-		log.Fatal(err)
-	}
+		tt, err = collection.Font(0)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	mono, err := collection.Font(0)
-	if err != nil {
-		log.Fatal(err)
+		mono = tt
+	} else {
+
+		fdata := data.GetFont("Manjari-Bold.otf")
+		collection, err := opentype.ParseCollection(fdata)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		tt, err = collection.Font(0)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fdata = data.GetFont("NotoSansCJK-Bold.ttc")
+		collection, err = opentype.ParseCollection(fdata)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		mono, err = collection.Font(0)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	/*
