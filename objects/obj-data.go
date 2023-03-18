@@ -352,10 +352,10 @@ var (
 		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 1.9,
 			IsSolid: true, TypeI: gv.MAT_STONE},
 
-		{Symbol: "SLG", Name: "Slag", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 6,
+		{Symbol: "SLG", Name: "Slag", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
 			IsSolid: true, TypeI: gv.MAT_SLAG},
 
-		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 6,
+		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
 			IsSolid: true, TypeI: gv.MAT_MIXORE},
 	}
 
