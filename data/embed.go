@@ -7,6 +7,7 @@ import (
 	"image"
 	_ "image/png"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -18,6 +19,15 @@ const cLoadEmbedSprites = true
 //go:embed txt gfx
 
 var f embed.FS
+
+func GetFont(name string) []byte {
+	data, err := f.ReadFile(gv.GfxDir + "fonts/" + name)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return data
+
+}
 
 func GetSpriteImage(name string) (*ebiten.Image, error) {
 

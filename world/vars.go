@@ -73,7 +73,6 @@ var (
 	/* Small images used in game */
 	MiniMapTile *ebiten.Image
 	ToolBG      *ebiten.Image
-	LargeFont   font.Face
 	BeltBlock   *ebiten.Image
 
 	/* Boot status */
@@ -84,6 +83,7 @@ var (
 	/* Fonts */
 	BootFont    font.Face
 	ToolTipFont font.Face
+	MonoFont    font.Face
 	ObjectFont  font.Face
 
 	/* Camera position */

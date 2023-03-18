@@ -509,7 +509,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 	world.FPSAvr.Add(ebiten.ActualFPS())
 
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Tocks: %v Ticks %v Draws: %v, Arch: %v Build: %v",
+	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Tocks: %v Ticks %v Draws: %v Arch: %v Build: %v",
 		world.FPSAvr.Value(),
 		1000000000.0/float64(world.MeasuredObjectUPS_ns)/2,
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
@@ -517,7 +517,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 		humanize.SIWithDigits(float64(BatchTop), 2, ""),
 		runtime.GOARCH, buildTime)
 
-	DrawText(buf, world.ToolTipFont, color.White, world.ColorDebugBG, world.XY{X: 0, Y: world.ScreenHeight}, 11, screen, true, false, false)
+	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XY{X: 0, Y: world.ScreenHeight}, 11, screen, true, false, false)
 }
 
 func drawWorldTooltip(screen *ebiten.Image) {
