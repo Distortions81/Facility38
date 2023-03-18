@@ -239,7 +239,7 @@ var (
 
 		{ImagePath: "world-obj/basic-fuel-hopper.png",
 			Name:         "Basic Fuel Hopper",
-			Info:         "Not Yet Implemented, loads fuel into buildings.",
+			Info:         "Loads soilid fuel into buildings.",
 			TypeI:        gv.ObjTypeBasicFuelHopper,
 			Size:         world.XY{X: 1, Y: 1},
 			Rotatable:    true,
