@@ -13,7 +13,7 @@ func initSmelter(obj *world.ObjData) bool {
 		return false
 	}
 
-	obj.SContent = &world.MatData{}
+	obj.SingleContent = &world.MatData{}
 
 	return true
 }

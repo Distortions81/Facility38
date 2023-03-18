@@ -324,7 +324,7 @@ func drawIconMode(screen *ebiten.Image) {
 		if world.ShowInfoLayer {
 
 			if obj.TypeP.TypeI == gv.ObjTypeBasicBox {
-				for _, cont := range obj.Contents {
+				for _, cont := range obj.Contents.Mats {
 					if cont == nil {
 						continue
 					}
@@ -578,10 +578,12 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				toolTip = fmt.Sprintf("%v: %v\n",
 					o.TypeP.Name,
 					util.PosToString(world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}))
-				for z := 0; z < gv.MAT_MAX; z++ {
-					if o.Contents[z] != nil {
-						toolTip = toolTip + fmt.Sprintf("Contents: %v: %0.2f%v\n",
-							o.Contents[z].TypeP.Name, o.Contents[z].Amount, o.Contents[z].TypeP.UnitName)
+				if o.Contents != nil {
+					for z := 0; z < gv.MAT_MAX; z++ {
+						if o.Contents.Mats[z] != nil {
+							toolTip = toolTip + fmt.Sprintf("Contents: %v: %0.2f%v\n",
+								o.Contents.Mats[z].TypeP.Name, o.Contents.Mats[z].Amount, o.Contents.Mats[z].TypeP.UnitName)
+						}
 					}
 				}
 				if o.TypeP.MaxFuelKG > 0 {
@@ -593,8 +595,8 @@ func drawWorldTooltip(screen *ebiten.Image) {
 					}
 				}
 
-				if o.SContent != nil && o.SContent.Amount > 0 {
-					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.SContent.Amount, o.SContent.TypeP.UnitName, o.SContent.TypeP.Name)
+				if o.SingleContent != nil && o.SingleContent.Amount > 0 {
+					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.SingleContent.Amount, o.SingleContent.TypeP.UnitName, o.SingleContent.TypeP.Name)
 				}
 
 				if o.Blocked {

@@ -60,7 +60,8 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	}
 
 	if newObj.TypeP.CanContain {
-		newObj.Contents = [gv.MAT_MAX]*world.MatData{}
+		newObj.Contents = &world.MaterialContentsType{}
+		newObj.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
 	}
 
 	if newObj.TypeP.MaxFuelKG > 0 {

@@ -26,30 +26,34 @@ type ChatLines struct {
 type MapSuperChunk struct {
 	Pos XY
 
-	ChunkMap  map[XY]*MapChunk `json:"-"`
-	ChunkList []*MapChunk      `json:"-"`
-
+	ChunkMap  map[XY]*MapChunk
+	ChunkList []*MapChunk
 	/* Here so we don't need to use len() */
-	NumChunks uint16 `json:"-"`
+	NumChunks uint16
 
 	ResourceDirty bool
-	ResourceMap   []byte `json:"-"`
+	ResourceMap   []byte
 	ResourceLock  sync.Mutex
 
-	PixelMap     *ebiten.Image `json:"-"`
-	PixmapDirty  bool          `json:"-"`
-	PixelMapLock sync.RWMutex  `json:"-"`
-	PixelMapTime time.Time     `json:"-"`
+	PixelMap     *ebiten.Image
+	PixmapDirty  bool
+	PixelMapLock sync.RWMutex
+	PixelMapTime time.Time
 
-	Visible bool `json:"-"`
+	Visible bool
 
-	Lock sync.RWMutex `json:"-"`
+	Lock sync.RWMutex
+}
+
+type MaterialContentsType struct {
+	Mats [gv.MAT_MAX]*MatData
 }
 
 /* XY Location specific data for mining and ground tiles */
 type TileData struct {
 	MinerData  *MinerData
 	GroundTile *GroundTileData
+	Spilled    *MaterialContentsType
 }
 
 /* Image for ground tile */
@@ -72,26 +76,25 @@ type MinerData struct {
 /* Contain object map, object list and TerrainImg */
 type MapChunk struct {
 	/* Used for finding position from ChunkList */
-	Pos XY `json:"-"`
+	Pos XY
 
-	BuildingMap map[XY]*BuildingData `json:"-"`
-	TileMap     map[XY]*TileData     `json:"-"`
+	BuildingMap map[XY]*BuildingData
+	TileMap     map[XY]*TileData
 
-	ObjList []*ObjData `json:"-"`
-	//TileList []*ObjData `json:"-"`
-	NumObjs uint16 `json:"-"`
+	ObjList []*ObjData
+	NumObjs uint16
 
-	Parent *MapSuperChunk `json:"-"`
+	Parent *MapSuperChunk
 
-	TerrainLock    sync.RWMutex  `json:"-"`
-	TerrainImage   *ebiten.Image `json:"-"`
-	TerrainTime    time.Time     `json:"-"`
-	UsingTemporary bool          `json:"-"`
-	Precache       bool          `json:"-"`
+	TerrainLock    sync.RWMutex
+	TerrainImage   *ebiten.Image
+	TerrainTime    time.Time
+	UsingTemporary bool
+	Precache       bool
 
-	Visible bool `json:"-"`
+	Visible bool
 
-	Lock sync.RWMutex `json:"-"`
+	Lock sync.RWMutex
 }
 
 type NoiseLayerData struct {
@@ -137,11 +140,11 @@ type MinerDataType struct {
 
 /* Object data */
 type ObjData struct {
-	Pos    XY        `json:"xy,omitempty"`
+	Pos    XY
 	Parent *MapChunk `json:"-"`
 	TypeP  *ObjType  `json:"-"`
 
-	Dir        uint8 `json:"d,omitempty"`
+	Dir        uint8
 	LastInput  uint8
 	LastOutput uint8
 
@@ -153,34 +156,33 @@ type ObjData struct {
 	FuelOut []*ObjPortData
 
 	//Prevent needing to use len()
-	NumPorts uint8
-	NumOut   uint8
-	NumIn    uint8
-	NumFIn   uint8
-	NumFOut  uint8
+	NumOut  uint8
+	NumIn   uint8
+	NumFIn  uint8
+	NumFOut uint8
 
 	//Internal Tock() use
-	Contents  [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	SContent  *MatData
-	KGFuel    float32        `json:"kf,omitempty"`
-	KGHeld    float32        `json:"k,omitempty"`
-	MinerData *MinerDataType `json:"-"`
-	Tile      *TileData      `json:"-"`
-	TickCount uint8          `json:"t,omitempty"`
+	Contents      *MaterialContentsType
+	SingleContent *MatData
+	KGFuel        float32
+	KGHeld        float32
+	MinerData     *MinerDataType
+	Tile          *TileData
+	TickCount     uint8
 
-	Blocked bool `json:"-"`
-	Active  bool `json:"-"`
+	Blocked bool
+	Active  bool
 
 	HasTick bool
 	HasTock bool
 }
 
 type ObjPortData struct {
-	Dir  uint8 `json:"pd,omitempty"`
+	Dir  uint8
 	Type uint8
 
-	Obj  *ObjData `json:"-"`
-	Buf  *MatData `json:"b,omitempty"`
+	Obj  *ObjData
+	Buf  *MatData
 	Link *ObjPortData
 }
 
@@ -241,12 +243,14 @@ type ObjType struct {
 	ShowArrow   bool
 	ShowBlocked bool
 
+	/* Quick lookup for auto-events */
 	HasInputs  bool
 	HasOutputs bool
 	HasFIn     bool
 	HasFOut    bool
-	Ports      []ObjPortData
-	SubObjs    []XYu
+
+	Ports   []ObjPortData
+	SubObjs []XYu
 
 	ToolbarAction func()                  `json:"-"`
 	UpdateObj     func(Obj *ObjData)      `json:"-"`
@@ -284,10 +288,10 @@ type TickEvent struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
-	TypeI  uint8         `json:"i,omitempty"`
-	TypeP  *MaterialType `json:"-"`
-	Amount float32       `json:"a,omitempty"`
-	Rot    uint8         `json:"r,omitempty"`
+	TypeI  uint8
+	TypeP  *MaterialType
+	Amount float32
+	Rot    uint8
 }
 
 /* Int x/y */

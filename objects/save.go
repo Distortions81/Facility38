@@ -35,7 +35,7 @@ type saveMObj struct {
 	Pos      world.XYu                      `json:"p,omitempty"`
 	TypeI    uint8                          `json:"i,omitempty"`
 	Dir      uint8                          `json:"d,omitempty"`
-	Contents [gv.MAT_MAX]*world.MatData     `json:"c,omitempty"`
+	Contents *world.MaterialContentsType    `json:"c,omitempty"`
 	KGFuel   float32                        `json:"kf,omitempty"`
 	KGHeld   float32                        `json:"k,omitempty"`
 	Ports    [gv.DIR_MAX]*world.ObjPortData `json:"po,omitempty"`
@@ -99,14 +99,14 @@ func SaveGame() {
 					}
 
 					/* Convert pointer to type int */
-					for c := range tobj.Contents {
-						if tobj.Contents[c] == nil {
+					for c := range tobj.Contents.Mats {
+						if tobj.Contents.Mats[c] == nil {
 							continue
 						}
-						if tobj.Contents[c].TypeP == nil {
+						if tobj.Contents.Mats[c].TypeP == nil {
 							continue
 						}
-						tobj.Contents[c].TypeI = tobj.Contents[c].TypeP.TypeI
+						tobj.Contents.Mats[c].TypeI = tobj.Contents.Mats[c].TypeP.TypeI
 					}
 
 					/* Convert pointer to type int */
@@ -241,11 +241,11 @@ func LoadGame() {
 				TickCount: tempList.Objects[i].Ticks,
 			}
 
-			for c := range obj.Contents {
-				if obj.Contents[c] == nil {
+			for c := range obj.Contents.Mats {
+				if obj.Contents.Mats[c] == nil {
 					continue
 				}
-				obj.Contents[c].TypeP = MatTypes[obj.Contents[c].TypeI]
+				obj.Contents.Mats[c].TypeP = MatTypes[obj.Contents.Mats[c].TypeI]
 			}
 
 			/* Relink */

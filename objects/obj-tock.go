@@ -7,7 +7,6 @@ import (
 )
 
 func linkMiner(obj *world.ObjData) {
-	/* Nothing to do, sleep */
 	if obj.NumOut == 0 {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
@@ -19,9 +18,8 @@ func linkMiner(obj *world.ObjData) {
 
 func minerUpdate(obj *world.ObjData) {
 
-	/* Is it time to run? */
+	/* Time to run? */
 	if obj.TickCount < obj.TypeP.Interval {
-		/* Increment timer */
 		obj.TickCount++
 		return
 	}
@@ -33,7 +31,7 @@ func minerUpdate(obj *world.ObjData) {
 		if port.Buf.Amount > 0 &&
 			obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
 
-			/* Eat the fuel and increase fuel kg */
+			/* Eat the fuel */
 			obj.KGFuel += port.Buf.Amount
 			obj.FuelIn[p].Buf.Amount = 0
 		}
@@ -97,7 +95,6 @@ func beltUpdateInter(obj *world.ObjData) {
 }
 
 func linkBelt(obj *world.ObjData) {
-	/* Nothing to do, sleep */
 	if obj.NumOut == 0 || obj.NumIn == 0 {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
@@ -248,13 +245,13 @@ func boxUpdate(obj *world.ObjData) {
 		obj.TickCount = 0
 
 		/* Init content type if needed */
-		if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-			obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
+		if obj.Contents.Mats[port.Buf.TypeP.TypeI] == nil {
+			obj.Contents.Mats[port.Buf.TypeP.TypeI] = &world.MatData{}
 		}
 
 		/* Add to contents */
-		obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Inputs[p].Buf.Amount
-		obj.Contents[port.Buf.TypeP.TypeI].TypeP = MatTypes[port.Buf.TypeP.TypeI]
+		obj.Contents.Mats[port.Buf.TypeP.TypeI].Amount += obj.Inputs[p].Buf.Amount
+		obj.Contents.Mats[port.Buf.TypeP.TypeI].TypeP = MatTypes[port.Buf.TypeP.TypeI]
 		obj.KGHeld += port.Buf.Amount
 		obj.Inputs[p].Buf.Amount = 0
 		continue
@@ -285,21 +282,21 @@ func smelterUpdate(obj *world.ObjData) {
 				/* If the material will fit */
 				if input.Buf.Amount <= obj.TypeP.MaxContainKG {
 					/* If type is nil, init */
-					if obj.SContent.TypeP == nil {
-						obj.SContent.TypeP = input.Buf.TypeP
+					if obj.SingleContent.TypeP == nil {
+						obj.SingleContent.TypeP = input.Buf.TypeP
 						/* If we already contain ore */
-					} else if obj.SContent.Amount > 0 {
+					} else if obj.SingleContent.Amount > 0 {
 						/* If of different type, ruin the contents */
-						if input.Buf.TypeP.TypeI != obj.SContent.TypeP.TypeI {
-							obj.SContent.TypeP = MatTypes[gv.MAT_MIXORE]
+						if input.Buf.TypeP.TypeI != obj.SingleContent.TypeP.TypeI {
+							obj.SingleContent.TypeP = MatTypes[gv.MAT_MIXORE]
 						}
 					} else {
 						/* Otherwise, just set the ore type */
-						obj.SContent.TypeP = input.Buf.TypeP
+						obj.SingleContent.TypeP = input.Buf.TypeP
 					}
 
 					/* Add contents */
-					obj.SContent.Amount += input.Buf.Amount
+					obj.SingleContent.Amount += input.Buf.Amount
 
 					/* Add to content weight */
 					obj.KGHeld += input.Buf.Amount
