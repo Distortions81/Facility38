@@ -45,6 +45,8 @@ var (
 	EventQueue     []*EventQueueData
 	EventQueueLock sync.Mutex
 
+	RotateLock sync.Mutex
+
 	/* Number of tick events */
 	TickCount int
 	/* Number of tock events */

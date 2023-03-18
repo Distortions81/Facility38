@@ -34,6 +34,8 @@ func ObjUpdateDaemon() {
 	for {
 		start := time.Now()
 
+		world.RotateLock.Lock()
+
 		if tockState {
 			runTocks()
 			tockState = false
@@ -51,6 +53,8 @@ func ObjUpdateDaemon() {
 		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
 
+		world.RotateLock.Unlock()
+
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
@@ -66,9 +70,15 @@ func ObjUpdateDaemon() {
 func ObjUpdateDaemonST() {
 	var start time.Time
 
+	for !world.MapGenerated.Load() {
+		time.Sleep(time.Millisecond * 100)
+	}
+
 	var tockState bool = true
 	for {
 		start = time.Now()
+
+		world.RotateLock.Lock()
 
 		if tockState {
 			world.TockListLock.Lock()
@@ -90,6 +100,8 @@ func ObjUpdateDaemonST() {
 		world.EventQueueLock.Lock()
 		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
+
+		world.RotateLock.Unlock()
 
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
