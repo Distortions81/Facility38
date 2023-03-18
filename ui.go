@@ -5,8 +5,6 @@ import (
 	"GameTest/objects"
 	"GameTest/util"
 	"GameTest/world"
-	"fmt"
-	"image/color"
 	"os"
 	"time"
 
@@ -325,59 +323,6 @@ func getMiddleMouseClicks() {
 		gLastActionPosition = world.XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
 		gMiddleMouseHeld = true
-	}
-}
-
-/* Rotate objects when R or SHIFT-R are pressed */
-func oldRotateWorldObjects() {
-	/* Rotate object */
-	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
-
-		/* Get mouse position on world */
-		mx, my := ebiten.CursorPosition()
-		fmx := float32(mx)
-		fmy := float32(my)
-		worldMouseX := (fmx/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth/2.0) / world.ZoomScale)))
-		worldMouseY := (fmy/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight/2.0))/world.ZoomScale))
-
-		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
-
-		chunk := util.GetChunk(pos)
-		if chunk == nil {
-			return
-		}
-		o := util.GetObj(pos, chunk)
-
-		if o != nil {
-			var newdir uint8
-
-			objects.UnlinkObj(o.Obj)
-			if gShiftPressed {
-				newdir = util.RotCCW(o.Obj.Dir)
-				for p, port := range o.Obj.Ports {
-					o.Obj.Ports[p].Dir = util.RotCCW(port.Dir)
-				}
-
-				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
-			} else {
-				newdir = util.RotCW(o.Obj.Dir)
-				for p, port := range o.Obj.Ports {
-					o.Obj.Ports[p].Dir = util.RotCW(port.Dir)
-				}
-
-				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
-			}
-			o.Obj.Dir = newdir
-
-			if o.Obj.TypeP.Size.X > 1 || o.Obj.TypeP.Size.Y > 1 {
-				for _, subObj := range o.Obj.TypeP.SubObjs {
-					subPos := util.GetSubPos(o.Obj.Pos, subObj)
-					objects.LinkObj(subPos, o)
-				}
-			} else {
-				objects.LinkObj(o.Obj.Pos, o)
-			}
-		}
 	}
 }
 
