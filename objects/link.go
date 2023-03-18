@@ -18,6 +18,7 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 
 	util.ObjCD(b, fmt.Sprintf("Facing: %v", util.DirToName(b.Obj.Dir)))
 	b.Obj.LastInput = 0
+	b.Obj.LastOutput = 0
 
 	/* Attempt to link ports */
 	for p, port := range b.Obj.Ports {

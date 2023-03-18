@@ -124,6 +124,7 @@ var (
 			Size:      world.XY{X: 1, Y: 1},
 			Rotatable: true,
 			UpdateObj: beltUpdate,
+			LinkObj:   linkBelt,
 			Symbol:    "BELT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
@@ -179,10 +180,17 @@ var (
 			Symbol:      "SPLT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+
 				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
+
 				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
+
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 			},
+			SubObjs: []world.XYu{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},w
 		},
 
 		{ImagePath: "world-obj/basic-box.png", ImagePathActive: "world-obj/basic-box-active.png",

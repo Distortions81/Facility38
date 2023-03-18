@@ -109,13 +109,7 @@ func linkBelt(obj *world.ObjData) {
 
 func beltUpdate(obj *world.ObjData) {
 
-	/* Nothing to do, sleep */
-	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-		obj.LastInput = 0
-		return
-	} else if obj.NumIn > 1 {
+	if obj.NumIn > 1 {
 		if obj.LastInput == (obj.NumIn - 1) {
 			obj.LastInput = 0
 		} else {
@@ -187,7 +181,7 @@ func fuelHopperUpdate(obj *world.ObjData) {
 }
 
 func linkSplitter(obj *world.ObjData) {
-	if obj.NumFOut == 0 || obj.NumIn == 0 {
+	if obj.NumOut == 0 || obj.NumIn == 0 {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
 	} else {
@@ -198,33 +192,27 @@ func linkSplitter(obj *world.ObjData) {
 
 func splitterUpdate(obj *world.ObjData) {
 
-	if obj.Outputs[0].Buf.Amount != 0 {
-		if obj.Active {
-			obj.Active = false
+	if obj.Inputs[0].Buf.Amount > 0 {
+		if obj.NumOut > 1 {
+			if obj.LastOutput >= (obj.NumOut - 1) {
+				obj.LastOutput = 0
+			} else {
+				obj.LastOutput++
+			}
 		}
-		return
-	}
 
-	var x uint8
-	if obj.LastInput == obj.NumIn {
-		x = 0
-	}
-	for x = 0; x < 3; x++ {
-		xp := obj.LastInput % 3
-		if obj.Inputs[xp].Buf.Amount != 0 {
-			/* Swap pointers */
-			*obj.Outputs[0].Buf, *obj.Inputs[xp].Buf = *obj.Inputs[xp].Buf, *obj.Outputs[0].Buf
-			obj.LastInput = xp
-
+		if obj.Outputs[obj.LastOutput].Buf.Amount == 0 {
+			/* Good to go, swap pointers */
+			*obj.Inputs[0].Buf, *obj.Outputs[obj.LastOutput].Buf = *obj.Outputs[obj.LastOutput].Buf, *obj.Inputs[0].Buf
 			if !obj.Active {
 				obj.Active = true
 			}
 			return
 		}
-	}
 
-	if obj.Active {
-		obj.Active = false
+		if obj.Active {
+			obj.Active = false
+		}
 	}
 }
 
@@ -286,13 +274,6 @@ func linkSmelter(obj *world.ObjData) {
 }
 
 func smelterUpdate(obj *world.ObjData) {
-
-	/* Output full? */
-	for _, output := range obj.Outputs {
-		if output.Buf.Amount != 0 {
-			return
-		}
-	}
 
 	/* Check input */
 	for i, input := range obj.Inputs {
