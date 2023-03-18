@@ -343,19 +343,19 @@ var (
 			IsSolid: true, Result: gv.MAT_STONE, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
 
 		/* Metal */
-		{Symbol: "FE", Name: "Iron Bar", UnitName: "kg", ImagePath: "belt-obj/iron.png",
+		{Symbol: "FE", Name: "Iron Bar", UnitName: "kg", ImagePath: "belt-obj/iron.png", Density: 7.13,
 			IsSolid: true, TypeI: gv.MAT_IRON},
 
-		{Symbol: "Cu", Name: "Copper Bar", UnitName: "kg", ImagePath: "belt-obj/copper.png",
+		{Symbol: "Cu", Name: "Copper Bar", UnitName: "kg", ImagePath: "belt-obj/copper.png", Density: 8.88,
 			IsSolid: true, TypeI: gv.MAT_COPPER},
 
-		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone.png",
+		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 1.9,
 			IsSolid: true, TypeI: gv.MAT_STONE},
 
-		{Symbol: "SLG", Name: "Slag", UnitName: "kg", ImagePath: "belt-obj/stone.png",
+		{Symbol: "SLG", Name: "Slag", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 6,
 			IsSolid: true, TypeI: gv.MAT_SLAG},
 
-		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/stone.png",
+		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 6,
 			IsSolid: true, TypeI: gv.MAT_MIXORE},
 	}
 
