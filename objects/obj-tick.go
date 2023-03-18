@@ -79,17 +79,15 @@ func ObjUpdateDaemonST() {
 		start = time.Now()
 
 		if tockState {
-			world.TockListLock.Lock()
 			runTocksST() //Process objects
-			world.TockListLock.Unlock()
 			tockState = false
 		} else {
-			world.TickListLock.Lock()
 			runTicksST() //Move external
 			GameTick++
-			world.TickListLock.Unlock()
 			tockState = true
 		}
+
+		runRotates()
 
 		world.ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
