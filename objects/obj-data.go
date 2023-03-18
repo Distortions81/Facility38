@@ -219,7 +219,7 @@ var (
 			Name:         "Basic smelter",
 			Info:         "Bakes solid ores into metal or stone bricks, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicSmelter,
-			Size:         world.XY{X: 1, Y: 1},
+			Size:         world.XY{X: 2, Y: 2},
 			KW:           320,
 			KgHourMine:   40,
 			Interval:     uint8(world.ObjectUPS * 60),
@@ -235,6 +235,7 @@ var (
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
 			},
+			SubObjs: []world.XYu{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
 
 		{ImagePath: "world-obj/basic-fuel-hopper.png",
