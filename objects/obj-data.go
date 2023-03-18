@@ -324,23 +324,23 @@ var (
 		{Symbol: "NIL", Name: "NONE", TypeI: gv.MAT_NONE},
 
 		{Symbol: "C", Name: "Coal", UnitName: "kg", ImagePath: "belt-obj/coal-ore.png",
-			IsSolid: true, IsFuel: true, TypeI: gv.MAT_COAL},
+			IsSolid: true, IsFuel: true, TypeI: gv.MAT_COAL, Density: 1.4},
 
 		{Symbol: "Oil", Name: "Oil", UnitName: "L",
-			IsFluid: true, IsFuel: true, TypeI: gv.MAT_OIL},
+			IsFluid: true, IsFuel: true, TypeI: gv.MAT_OIL, Density: 0.9},
 
 		{Symbol: "Gas", Name: "Natural Gas", UnitName: "cm",
-			IsGas: true, IsFuel: true, TypeI: gv.MAT_GAS},
+			IsGas: true, IsFuel: true, TypeI: gv.MAT_GAS, Density: 0.00068},
 
 		/* Ore */
 		{Symbol: "FEo", Name: "Iron Ore", UnitName: "kg", ImagePath: "belt-obj/iron-ore.png",
-			IsSolid: true, Result: gv.MAT_IRON, TypeI: gv.MAT_IRON_ORE},
+			IsSolid: true, Result: gv.MAT_IRON, TypeI: gv.MAT_IRON_ORE, Density: 2},
 
 		{Symbol: "Cuo", Name: "Copper Ore", UnitName: "kg", ImagePath: "belt-obj/copper-ore.png",
-			IsSolid: true, Result: gv.MAT_COPPER, TypeI: gv.MAT_COPPER_ORE},
+			IsSolid: true, Result: gv.MAT_COPPER, TypeI: gv.MAT_COPPER_ORE, Density: 2.65},
 
 		{Symbol: "STOo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
-			IsSolid: true, Result: gv.MAT_STONE, TypeI: gv.MAT_STONE_ORE},
+			IsSolid: true, Result: gv.MAT_STONE, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
 
 		/* Metal */
 		{Symbol: "FE", Name: "Iron Bar", UnitName: "kg", ImagePath: "belt-obj/iron.png",

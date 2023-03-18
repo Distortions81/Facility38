@@ -190,6 +190,7 @@ type MaterialType struct {
 	Symbol   string
 	Name     string
 	UnitName string
+	Density  float32 /* g/cm3 */
 
 	ImagePath string
 	Image     *ebiten.Image
