@@ -47,6 +47,18 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	newObj.TypeP = GameObjTypes[mtype]
 	newObj.Dir = dir
 
+	multiTile := false
+	subFits := false
+	if newObj.TypeP.Size.X > 1 ||
+		newObj.TypeP.Size.Y > 1 {
+		multiTile = true
+		if SubObjFits(newObj.TypeP, true, pos) {
+			subFits = true
+		} else {
+			return nil
+		}
+	}
+
 	if newObj.TypeP.CanContain {
 		newObj.Contents = [gv.MAT_MAX]*world.MatData{}
 	}
@@ -90,13 +102,9 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		newObj.TickCount = uint8(rand.Intn(int(newObj.TypeP.Interval)))
 	}
 
-	/* Add sub-objects to map */
-	if newObj.TypeP.Size.X > 1 ||
-		newObj.TypeP.Size.Y > 1 {
-
-		/* Check if obj fits */
-		if SubObjFits(newObj.TypeP, true, pos) {
-
+	/* Check if obj fits */
+	if multiTile {
+		if subFits {
 			/* If space is available, create items */
 			for _, sub := range newObj.TypeP.SubObjs {
 				sXY := util.GetSubPos(pos, sub)
@@ -113,9 +121,9 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 					}
 				}
 			}
-		} else {
-			return nil
+			return newObj
 		}
+		return nil
 	} else {
 		/* Add object to map */
 		newObj.Parent.Lock.Lock()
@@ -126,9 +134,8 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		if initOkay {
 			LinkObj(newObj.Pos, newBB)
 		}
+		return newObj
 	}
-
-	return newObj
 }
 
 func SubObjFits(sub *world.ObjType, report bool, pos world.XY) bool {

@@ -42,8 +42,13 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 			continue
 		}
 
-		/* Neighbor port is available */
 		for n, np := range neighb.Obj.Ports {
+
+			/* Neighbor port is available */
+			if np.Obj != nil {
+				continue
+			}
+
 			/* Port is in correct direction */
 			if np.Dir == util.ReverseDirection(port.Dir) ||
 				np.Dir == gv.DIR_ANY || port.Dir == gv.DIR_ANY {

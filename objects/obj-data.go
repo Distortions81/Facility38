@@ -165,7 +165,7 @@ var (
 			},
 		},
 
-		{ImagePath: "world-obj/basic-splitter.png", ImagePathActive: "world-obj/basic-splitter-active.png",
+		{ImagePath: "world-obj/basic-splitter-large.png", ImagePathActive: "world-obj/basic-splitter-large-active.png",
 			Name:        "Basic Splitter",
 			Info:        "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
@@ -190,7 +190,7 @@ var (
 
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 			},
-			SubObjs: []world.XYu{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},w
+			SubObjs: []world.XYu{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
 
 		{ImagePath: "world-obj/basic-box.png", ImagePathActive: "world-obj/basic-box-active.png",

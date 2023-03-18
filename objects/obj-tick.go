@@ -102,6 +102,7 @@ func ObjUpdateDaemonST() {
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
 func tickObj(obj *world.ObjData) {
 
+	var blockedOut uint8 = 0
 	for _, port := range obj.Outputs {
 
 		/* If we have stuff to send */
@@ -111,12 +112,8 @@ func tickObj(obj *world.ObjData) {
 
 		/* If destination is empty */
 		if port.Link.Buf.Amount != 0 {
-			if !obj.Blocked {
-				obj.Blocked = true
-			}
+			blockedOut++
 			continue
-		} else if obj.Blocked {
-			obj.Blocked = false
 		}
 
 		/* Swap pointers */
@@ -129,18 +126,27 @@ func tickObj(obj *world.ObjData) {
 			continue
 		}
 
-		/* If destination is empty */
+		//* If destination is empty */
 		if port.Link.Buf.Amount != 0 {
-			if !obj.Blocked {
-				obj.Blocked = true
-			}
+			blockedOut++
 			continue
-		} else if obj.Blocked {
-			obj.Blocked = false
 		}
 
 		/* Swap pointers */
 		*port.Link.Buf, *port.Buf = *port.Buf, *port.Link.Buf
+	}
+
+	if obj.NumOut+obj.NumFOut == blockedOut {
+		if !obj.Blocked {
+			obj.Blocked = true
+		}
+		if obj.Active {
+			obj.Active = false
+		}
+	} else {
+		if obj.Blocked {
+			obj.Blocked = false
+		}
 	}
 }
 
