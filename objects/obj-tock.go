@@ -95,7 +95,10 @@ func beltUpdate(obj *world.ObjData) {
 	}
 
 	/* Does the input contain anything? */
-	if obj.Inputs[obj.LastInput].Buf.Amount > 0 && obj.Outputs[0].Buf.Amount == 0 {
+	if obj.Inputs[obj.LastInput].Buf.Amount > 0 &&
+		obj.Outputs[0].Buf.Amount == 0 &&
+		obj.Outputs[0].Obj != nil &&
+		!obj.Outputs[0].Obj.Blocked {
 		/* Good to go, swap pointers */
 		*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
 	}
