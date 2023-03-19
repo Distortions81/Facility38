@@ -220,6 +220,7 @@ type ObjType struct {
 	QKey         ebiten.Key
 
 	Size      XY
+	NonSquare bool
 	Rotatable bool
 	Direction uint8
 

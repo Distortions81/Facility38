@@ -15,18 +15,23 @@ func init() {
 
 	/* Pre-calculate some object values */
 	for i := range GameObjTypes {
+
+		/* Convert mining amount to interval */
 		if GameObjTypes[i].KgHourMine > 0 {
 			GameObjTypes[i].KgMineEach = ((GameObjTypes[i].KgHourMine / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
 		}
+		/* Convert Horsepower to solid to KW and solid fuel per interval */
 		if GameObjTypes[i].HP > 0 {
 			KW := GameObjTypes[i].HP * gv.HP_PER_KW
 			COALKG := KW / gv.COAL_KWH_PER_KG
 			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+			/* Convert KW to solid fuel per interval */
 		} else if GameObjTypes[i].KW > 0 {
 			COALKG := GameObjTypes[i].KW / gv.COAL_KWH_PER_KG
 			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
 		}
 
+		/* Auto calculate max fuel from fuel used per interval */
 		if GameObjTypes[i].KgFuelEach > 0 {
 			GameObjTypes[i].MaxFuelKG = (GameObjTypes[i].KgFuelEach * 10)
 			if GameObjTypes[i].MaxFuelKG < 50 {
@@ -34,6 +39,7 @@ func init() {
 			}
 		}
 
+		/* Auto calculate max contain for miners */
 		if GameObjTypes[i].KgMineEach > 0 {
 			GameObjTypes[i].MaxContainKG = (GameObjTypes[i].KgMineEach * 10)
 			if GameObjTypes[i].MaxContainKG < 50 {
@@ -41,6 +47,7 @@ func init() {
 			}
 		}
 
+		/* Flag item ports */
 		for p := range GameObjTypes[i].Ports {
 			pt := GameObjTypes[i].Ports[p].Type
 
@@ -57,6 +64,11 @@ func init() {
 				GameObjTypes[i].HasFIn = true
 			}
 
+		}
+
+		/* Flag non-square items */
+		if GameObjTypes[i].Size.X != GameObjTypes[i].Size.Y {
+			GameObjTypes[i].NonSquare = true
 		}
 	}
 
