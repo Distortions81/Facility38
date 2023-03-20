@@ -399,8 +399,7 @@ func drawIconMode(screen *ebiten.Image) {
 				}
 			}
 			/* Show blocked outputs */
-			if (obj.TypeP.ShowBlocked && obj.Blocked) ||
-				obj.MinerData != nil && obj.MinerData.ResourcesCount == 0 {
+			if obj.TypeP.ShowBlocked && obj.Blocked {
 
 				img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
