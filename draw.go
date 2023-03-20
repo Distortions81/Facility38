@@ -544,8 +544,8 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 			if item.OType.Info != "" {
 				keyName := ""
-				if item.OType.QKey != nil {
-					keyName = "( " + item.OType.QKey.String() + " )"
+				if item.OType.QKey != 0 {
+					keyName = " ( " + item.OType.QKey.String() + " key )"
 				}
 				toolTip = fmt.Sprintf("%v\n%v\n%v", item.OType.Name, item.OType.Info, keyName)
 			} else {
