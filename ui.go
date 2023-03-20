@@ -152,22 +152,48 @@ func zoomHandle() {
 	}
 	lastScroll = time.Now()
 
-	if fsy > 0 || inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
+	mx, my := ebiten.CursorPosition()
+	fmx := float32(mx)
+	fmy := float32(my)
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		world.ZoomScale = world.ZoomScale * 2
+		limitZoom()
 		world.VisDataDirty.Store(true)
-	} else if fsy < 0 || inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
+	} else if inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		world.ZoomScale = world.ZoomScale / 2
+		limitZoom()
+		world.VisDataDirty.Store(true)
+	} else if fsy > 0 {
+		world.ZoomScale = world.ZoomScale * 2
+		if limitZoom() {
+			/* Get mouse position on world */
+			worldMouseX := (fmx/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
+			worldMouseY := (fmy/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
+			world.CameraX = worldMouseX
+			world.CameraY = worldMouseY
+		}
+		world.VisDataDirty.Store(true)
+	} else if fsy < 0 {
+		world.ZoomScale = world.ZoomScale / 2
+		limitZoom()
 		world.VisDataDirty.Store(true)
 	}
 
+}
+
+func limitZoom() bool {
 	if world.ZoomScale < 1 {
 		world.ZoomScale = 1
 		world.VisDataDirty.Store(true)
+		return false
 	} else if world.ZoomScale > 256 {
 		world.ZoomScale = 256
 		world.VisDataDirty.Store(true)
+		return false
 	}
 
+	return true
 }
 
 /* Record mouse clicks, send clicks to toolbar */
