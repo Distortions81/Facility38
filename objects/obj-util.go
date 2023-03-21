@@ -189,8 +189,10 @@ func GetObjSize(obj *world.ObjData, TypeP *world.ObjType) world.XYs {
 		} else {
 			return obj.TypeP.Size
 		}
-	} else {
+	} else if TypeP != nil {
 		return TypeP.Size
+	} else {
+		return world.XYs{X: 0, Y: 0}
 	}
 }
 
