@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"GameTest/cwlog"
 	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
@@ -192,6 +193,7 @@ func GetObjSize(obj *world.ObjData, TypeP *world.ObjType) world.XYs {
 	} else if TypeP != nil {
 		return TypeP.Size
 	} else {
+		cwlog.DoLog(true, "GetObjSize: Obj and TypeP nil.")
 		return world.XYs{X: 0, Y: 0}
 	}
 }
