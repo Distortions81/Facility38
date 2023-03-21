@@ -23,16 +23,18 @@ func removeObj(obj *world.ObjData) {
 	util.ObjListDelete(obj)
 }
 
-func RotateCoord(coord world.XYs, dir uint8) world.XYs {
+func RotateCoord(coord world.XYs, dir uint8, size world.XYs) world.XYs {
 	tempX := coord.X
 	tempY := coord.Y
 
-	if dir == 1 {
-		return world.XYs{X: -tempY, Y: tempX}
+	if dir == 0 {
+		return world.XYs{X: tempX, Y: tempY}
+	} else if dir == 1 {
+		return world.XYs{X: -tempY + (size.X - 1), Y: tempX}
 	} else if dir == 2 {
-		return world.XYs{X: -tempX, Y: -tempY}
+		return world.XYs{X: -tempX + (size.X - 1), Y: -tempY + (size.Y - 1)}
 	} else if dir == 3 {
-		return world.XYs{X: tempY, Y: -tempX}
+		return world.XYs{X: tempY, Y: -tempX + (size.Y - 1)}
 	} else {
 		return world.XYs{X: 0, Y: 0}
 	}
@@ -41,7 +43,10 @@ func RotateCoord(coord world.XYs, dir uint8) world.XYs {
 /* Place and/or create a multi-tile object */
 func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast bool) *world.ObjData {
 
-	//Make chunk if needed
+	/*
+	 * Make chunk if needed.
+	 * If not in "fast mode" then explore map area as well.
+	 */
 	if !fast {
 		ExploreMap(pos, 6, fast)
 	} else {
@@ -131,7 +136,8 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 		if subFits {
 			/* If space is available, create items */
 			for _, sub := range newObj.TypeP.SubObjs {
-				sXY := util.GetSubPos(pos, sub)
+				tile := RotateCoord(sub, dir, GetObjSize(newObj, nil))
+				sXY := util.GetSubPos(pos, tile)
 				MakeChunk(sXY)
 				tchunk := util.GetChunk(sXY)
 				if tchunk != nil {
@@ -164,8 +170,17 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 
 func SubObjFits(obj *world.ObjData, TypeP *world.ObjType, report bool, pos world.XY) bool {
 
+	size := GetObjSize(obj, TypeP)
+	var dir uint8
+	if obj != nil {
+		dir = obj.Dir
+	} else {
+		dir = TypeP.Direction
+	}
 	/* Check if object fits */
-	for _, tile := range TypeP.SubObjs {
+	for _, sub := range TypeP.SubObjs {
+
+		tile := RotateCoord(sub, dir, size)
 		subPos := util.GetSubPos(pos, tile)
 		tchunk := util.GetChunk(subPos)
 		if tchunk != nil {
