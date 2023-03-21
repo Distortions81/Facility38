@@ -55,42 +55,27 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	}
 
 	newObj := &world.ObjData{}
+	/* New object */
 	if obj == nil {
-		newObj.Pos = pos
-		newObj.Parent = chunk
-
 		newObj.TypeP = GameObjTypes[mtype]
-		newObj.Dir = dir
-	} else {
+	} else { /* Placing already existing object */
 		newObj = obj
-
-		newObj.Pos = pos
-		newObj.Parent = chunk
-
-		newObj.Dir = dir
 	}
-	newObj.Size = newObj.TypeP.Size
+
+	newObj.Pos = pos
+	newObj.Parent = chunk
+	newObj.Dir = dir
 
 	multiTile := false
 	subFits := false
-	if newObj.TypeP.Size.X > 1 ||
-		newObj.TypeP.Size.Y > 1 {
+	if newObj.TypeP.MultiTile {
 		multiTile = true
-
-		if dir == 0 || dir == 2 {
-			newObj.Size = newObj.TypeP.Size
-		} else {
-			newObj.Size.X = newObj.TypeP.Size.Y
-			newObj.Size.Y = newObj.TypeP.Size.X
-		}
 
 		if SubObjFits(newObj, newObj.TypeP, true, pos) {
 			subFits = true
 		} else {
 			return nil
 		}
-	} else {
-		newObj.Size = newObj.TypeP.Size
 	}
 
 	initOkay := true
@@ -143,13 +128,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	if multiTile {
 		if subFits {
 			/* If space is available, create items */
-			var sobj []world.XYs
-			if obj != nil && obj.SubObjs != nil {
-				sobj = obj.SubObjs
-			} else {
-				sobj = newObj.TypeP.SubObjs
-			}
-			for _, sub := range sobj {
+			for _, sub := range newObj.TypeP.SubObjs {
 				sXY := util.GetSubPos(pos, sub)
 				MakeChunk(sXY)
 				tchunk := util.GetChunk(sXY)
@@ -183,16 +162,8 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 
 func SubObjFits(obj *world.ObjData, TypeP *world.ObjType, report bool, pos world.XY) bool {
 
-	var subObjs []world.XYs
-
-	if obj != nil && obj.SubObjs != nil {
-		subObjs = obj.SubObjs
-	} else {
-		subObjs = TypeP.SubObjs
-	}
-
 	/* Check if object fits */
-	for _, tile := range subObjs {
+	for _, tile := range TypeP.SubObjs {
 		subPos := util.GetSubPos(pos, tile)
 		tchunk := util.GetChunk(subPos)
 		if tchunk != nil {

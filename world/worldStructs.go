@@ -155,9 +155,6 @@ type ObjData struct {
 	FuelIn  []*ObjPortData
 	FuelOut []*ObjPortData
 
-	SubObjs []XYs
-	Size    XYs
-
 	//Prevent needing to use len()
 	NumOut  uint8
 	NumIn   uint8
@@ -224,6 +221,7 @@ type ObjType struct {
 
 	Size      XYs
 	NonSquare bool
+	MultiTile bool
 	Rotatable bool
 	Direction uint8
 

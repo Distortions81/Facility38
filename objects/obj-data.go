@@ -70,6 +70,9 @@ func init() {
 		if GameObjTypes[i].Size.X != GameObjTypes[i].Size.Y {
 			GameObjTypes[i].NonSquare = true
 		}
+		if GameObjTypes[i].Size.X > 1 || GameObjTypes[i].Size.Y > 1 {
+			GameObjTypes[i].MultiTile = true
+		}
 	}
 
 	/* Add spaces to unit names */
