@@ -6,10 +6,13 @@ import (
 	"GameTest/world"
 	"bytes"
 	"compress/zlib"
+	"fmt"
 	"image/color"
 	"io"
 	"log"
 	"math"
+	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 
@@ -33,6 +36,24 @@ func init() {
 	ChatLinesTop = 1
 }
 
+func WASMSleep() {
+	if gv.WASMMode {
+		time.Sleep(time.Nanosecond)
+	}
+}
+
+func AddXY(a world.XY, b world.XY) world.XY {
+	return world.XY{X: a.X + b.X, Y: a.Y + b.Y}
+}
+
+func GetSubPos(a world.XY, b world.XYs) world.XY {
+	return world.XY{X: uint16(int32(a.X) + int32(b.X)), Y: uint16(int32(a.Y) + int32(b.Y))}
+}
+
+func SubXY(a world.XY, b world.XY) world.XY {
+	return world.XY{X: a.X - b.X, Y: a.Y - b.Y}
+}
+
 func deleteOldLines() {
 
 	var newLines []world.ChatLines
@@ -49,24 +70,54 @@ func deleteOldLines() {
 	ChatLinesTop = newTop
 }
 
+func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
+	if !gv.Debug {
+		return
+	}
+	/* Get current time */
+	ctime := time.Now()
+	/* Get calling function and line */
+	_, filename, line, _ := runtime.Caller(1)
+	/* printf conversion */
+	text := fmt.Sprintf(format, args...)
+	/* Add current date */
+	date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
+
+	/* Add object name and position */
+
+	objData := fmt.Sprintf("%v: %v: %v", b.Obj.TypeP.Name, PosToString(b.Pos), text)
+
+	/* Date, go file, go file line, text */
+	buf := fmt.Sprintf("%v: %15v:%5v: %v", date, filepath.Base(filename), line, objData)
+	ChatDetailed(buf, world.ColorRed, time.Minute)
+}
+
 func Chat(text string) {
 	go func(text string) {
 		ChatLinesLock.Lock()
-		defer ChatLinesLock.Unlock()
 		deleteOldLines()
 
 		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color.White, BGColor: world.ColorToolTipBG, Lifetime: time.Second * 15, Timestamp: time.Now()})
 		ChatLinesTop++
+
+		ChatLinesLock.Unlock()
+		cwlog.DoLog(false, "Chat: "+text)
 	}(text)
 }
 func ChatDetailed(text string, color color.Color, life time.Duration) {
+	/* Don't log until we are loaded into the game */
+	if !world.MapGenerated.Load() {
+		return
+	}
 	go func(text string) {
 		ChatLinesLock.Lock()
-		defer ChatLinesLock.Unlock()
 		deleteOldLines()
 
 		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color, BGColor: world.ColorToolTipBG, Lifetime: life, Timestamp: time.Now()})
 		ChatLinesTop++
+
+		ChatLinesLock.Unlock()
+		cwlog.DoLog(false, "Chat: "+text)
 	}(text)
 }
 
@@ -102,19 +153,6 @@ func MinI(a, b int) int {
 	}
 }
 
-func RotatePortsCW(obj *world.ObjData) {
-	var newPorts [gv.DIR_MAX]world.ObjPortData
-	for i := 0; i < gv.DIR_MAX; i++ {
-		//Copy to array, rotated with modulo
-		p := int(PosIntMod((i + 1), gv.DIR_MAX))
-		newPorts[p] = *obj.Ports[i]
-	}
-	for i := 0; i < gv.DIR_MAX; i++ {
-		//Copy back to object
-		obj.Ports[i] = &newPorts[i]
-	}
-}
-
 func PosIntMod(d, m int) int {
 	var res int = d % m
 	if res < 0 && m > 0 {
@@ -123,47 +161,34 @@ func PosIntMod(d, m int) int {
 	return res
 }
 
-func RotatePortsCCW(obj *world.ObjData) {
-	var newPorts [gv.DIR_MAX]world.ObjPortData
-	for i := 0; i < gv.DIR_MAX; i++ {
-		//Copy to array, rotated with modulo
-		p := int(PosIntMod((i - 1), gv.DIR_MAX))
-		newPorts[p] = *obj.Ports[i]
-	}
-	for i := 0; i < gv.DIR_MAX; i++ {
-		//Copy back to object
-		obj.Ports[i] = &newPorts[i]
-	}
-}
-
-func ObjHasPort(obj *world.ObjData, portDir uint8) bool {
-	for p := range obj.Ports {
-		if obj.TypeP.Ports[p] == portDir {
-			return true
-		}
-	}
-	return false
-}
-
 /* Delete an object from a world.ObjData list, does not retain order (fast) */
 func ObjListDelete(obj *world.ObjData) {
 
+	obj.Parent.Lock.Lock()
+	defer obj.Parent.Lock.Unlock()
 	for index, item := range obj.Parent.ObjList {
 		if item.Pos == obj.Pos {
 			obj.Parent.ObjList[index] = obj.Parent.ObjList[len(obj.Parent.ObjList)-1]
 			obj.Parent.ObjList = obj.Parent.ObjList[:len(obj.Parent.ObjList)-1]
+			world.VisDataDirty.Store(true)
 			return
 		}
 	}
 }
 
-/* Convert an internal XY (unsigned) to a (0,0) center */
-func CenterXY(pos world.XY) world.XY {
-	return world.XY{X: pos.X - gv.XYCenter, Y: pos.Y - gv.XYCenter}
+func PosToString(pos world.XY) string {
+	centerPos := CenterXY(pos)
+	buf := fmt.Sprintf("(%v,%v)", humanize.Comma(int64((centerPos.X))), humanize.Comma(int64((centerPos.Y))))
+	return buf
 }
 
-func UnCenterXY(pos world.XY) world.XY {
-	return world.XY{X: pos.X + gv.XYCenter, Y: pos.Y + gv.XYCenter}
+/* Convert an internal XY (unsigned) to a (0,0) center */
+func CenterXY(pos world.XY) world.XYs {
+	return world.XYs{X: int32(pos.X) - int32(gv.XYCenter), Y: int32(pos.Y) - int32(gv.XYCenter)}
+}
+
+func UnCenterXY(pos world.XYs) world.XY {
+	return world.XY{X: uint16(int32(pos.X) + int32(gv.XYCenter)), Y: uint16(int32(pos.Y) + int32(gv.XYCenter))}
 }
 
 /* Rotate consts.DIR value clockwise */
@@ -174,6 +199,11 @@ func RotCW(dir uint8) uint8 {
 /* Rotate consts.DIR value counter-clockwise */
 func RotCCW(dir uint8) uint8 {
 	return uint8(PosIntMod(int(dir-1), gv.DIR_MAX))
+}
+
+/* Rotate consts.DIR value to x*/
+func RotDir(dir uint8, add uint8) uint8 {
+	return uint8(PosIntMod(int(dir-add), gv.DIR_MAX))
 }
 
 /* give distance between two coordinates */
@@ -189,12 +219,16 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 }
 
 /* Get an object by XY, uses map (hashtable). RLocks the given chunk */
-func GetObj(pos world.XY, chunk *world.MapChunk) *world.ObjData {
+func GetObj(pos world.XY, chunk *world.MapChunk) *world.BuildingData {
 	if chunk != nil {
 		chunk.Lock.RLock()
-		o := chunk.ObjMap[pos]
+		o := chunk.BuildingMap[pos]
 		chunk.Lock.RUnlock()
-		return o
+		if o != nil {
+			return o
+		} else {
+			return nil
+		}
 	} else {
 		return nil
 	}
@@ -221,7 +255,7 @@ func GetChunk(pos world.XY) *world.MapChunk {
 
 /* Get a superchunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
 func GetSuperChunk(pos world.XY) *world.MapSuperChunk {
-	scpos := PosToChunkPos(pos)
+	scpos := PosToSuperChunkPos(pos)
 
 	world.SuperChunkMapLock.RLock()
 	sChunk := world.SuperChunkMap[scpos]
@@ -263,13 +297,13 @@ func SuperChunkPosToChunkPos(pos world.XY) world.XY {
 /* Float (X, Y) to world.XY (int) */
 func FloatXYToPosition(x float32, y float32) world.XY {
 
-	return world.XY{X: int(x), Y: int(y)}
+	return world.XY{X: uint16(x), Y: uint16(y)}
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
-func GetNeighborObj(src *world.ObjData, dir uint8) *world.ObjData {
+func GetNeighborObj(src world.XY, dir uint8) *world.BuildingData {
 
-	pos := src.Pos
+	pos := src
 
 	switch dir {
 	case gv.DIR_NORTH:
@@ -288,11 +322,14 @@ func GetNeighborObj(src *world.ObjData, dir uint8) *world.ObjData {
 	if chunk == nil {
 		return nil
 	}
-	obj := GetObj(pos, chunk)
-	if obj == nil {
+	b := GetObj(pos, chunk)
+	if b == nil {
 		return nil
 	}
-	return obj
+	if b.Pos == src {
+		return nil
+	}
+	return b
 }
 
 /* Convert consts.DIR to text */
@@ -311,6 +348,36 @@ func DirToName(dir uint8) string {
 	return "Error"
 }
 
+func DirToArrow(dir uint8) string {
+	switch dir {
+	case gv.DIR_NORTH:
+		return "^"
+	case gv.DIR_EAST:
+		return ">"
+	case gv.DIR_SOUTH:
+		return "v"
+	case gv.DIR_WEST:
+		return "<"
+	}
+
+	return "Error"
+}
+
+func ReverseType(t uint8) uint8 {
+	switch t {
+	case gv.PORT_OUT:
+		return gv.PORT_IN
+	case gv.PORT_IN:
+		return gv.PORT_OUT
+	case gv.PORT_FIN:
+		return gv.PORT_FOUT
+	case gv.PORT_FOUT:
+		return gv.PORT_FIN
+	default:
+		return gv.PORT_NONE
+	}
+}
+
 /* Flop a consts.DIR */
 func ReverseDirection(dir uint8) uint8 {
 	switch dir {
@@ -325,15 +392,6 @@ func ReverseDirection(dir uint8) uint8 {
 	}
 
 	return gv.DIR_MAX
-}
-
-func ReversePort(port uint8) uint8 {
-	if port == gv.PORT_INPUT {
-		return gv.PORT_OUTPUT
-	} else if port == gv.PORT_OUTPUT {
-		return gv.PORT_INPUT
-	}
-	return gv.PORT_NONE
 }
 
 /* Generic unzip []byte */
@@ -363,7 +421,7 @@ func CompressZip(data []byte) []byte {
 	var b bytes.Buffer
 	w, err := zlib.NewWriterLevel(&b, zlib.BestSpeed)
 	if err != nil {
-		cwlog.DoLog("CompressZip: %v", err)
+		cwlog.DoLog(true, "CompressZip: %v", err)
 	}
 	w.Write(data)
 	w.Close()

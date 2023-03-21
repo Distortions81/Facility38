@@ -6,44 +6,99 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
 	"time"
 )
 
-var LogDesc *os.File
-var LogName string
+const MaxBufferLines = 100000
 
-/* Log this, can use printf arguments */
-func DoLog(format string, args ...interface{}) {
-	if gv.WASMMode || (!gv.Debug && !gv.LogStdOut) {
+var (
+	LogDesc  *os.File
+	LogName  string
+	LogReady bool
+
+	LogBuf      []string
+	LogBufLines int
+	LogBufLock  sync.Mutex
+)
+
+/*
+ * Log this, can use printf arguments
+ * Write to buffer, async write
+ */
+func DoLog(withTrace bool, format string, args ...interface{}) {
+	var buf string
+
+	if withTrace {
+		/* Get current time */
+		ctime := time.Now()
+		/* Get calling function and line */
+		_, filename, line, _ := runtime.Caller(1)
+		/* printf conversion */
+		text := fmt.Sprintf(format, args...)
+		/* Add current date */
+		date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
+		/* Date, go file, go file line, text */
+		buf = fmt.Sprintf("%v: %15v:%5v: %v\n", date, filepath.Base(filename), line, text)
+	} else {
+		/* Get current time */
+		ctime := time.Now()
+		/* printf conversion */
+		text := fmt.Sprintf(format, args...)
+		/* Add current date */
+		date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
+		/* Date, go file, go file line, text */
+		buf = fmt.Sprintf("%v: %v\n", date, text)
+	}
+
+	if !LogReady {
+		fmt.Print(buf)
 		return
 	}
-	ctime := time.Now()
-	_, filename, line, _ := runtime.Caller(1)
 
-	text := fmt.Sprintf(format, args...)
+	/* Add to buffer */
+	LogBufLock.Lock()
+	LogBuf = append(LogBuf, buf)
+	LogBufLines++
+	LogBufLock.Unlock()
+}
 
-	date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
-	buf := fmt.Sprintf("%v: %15v:%5v: %v\n", date, filepath.Base(filename), line, text)
+func LogDaemon() {
 
-	if gv.LogStdOut {
-		fmt.Print(buf)
-	}
-	if gv.LogStdOut {
-		_, err := LogDesc.WriteString(buf)
-		if err != nil {
-			fmt.Println("DoLog: WriteString failure")
-			LogDesc.Close()
-			LogDesc = nil
+	go func() {
+		for {
+			LogBufLock.Lock()
+
+			/* Are there lines to write? */
+			if LogBufLines == 0 {
+				LogBufLock.Unlock()
+				time.Sleep(time.Millisecond * 100)
+				continue
+			}
+
+			/* Write line */
+			_, err := LogDesc.WriteString(LogBuf[0])
+			if err != nil {
+				fmt.Println("DoLog: WriteString failure")
+				LogDesc.Close()
+				LogDesc = nil
+			}
+
+			if gv.LogStdOut {
+				fmt.Print(LogBuf[0])
+			}
+
+			/* Remove line from buffer */
+			LogBuf = LogBuf[1:]
+			LogBufLines--
+
+			LogBufLock.Unlock()
 		}
-	}
-
+	}()
 }
 
 /* Prep logger */
 func StartLog() {
-	if gv.WASMMode || (!gv.Debug && !gv.LogStdOut) {
-		return
-	}
 	t := time.Now()
 
 	/* Create our log file names */
@@ -67,4 +122,5 @@ func StartLog() {
 
 	/* Save descriptors, open/closed elsewhere */
 	LogDesc = bdesc
+	LogReady = true
 }

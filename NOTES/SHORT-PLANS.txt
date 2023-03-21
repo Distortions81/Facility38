@@ -1,33 +1,42 @@
 #HELPFUL INFO
 -tags=ebitenginedebug
 export EBITENGINE_INTERNAL_IMAGES_KEY=Q
-alias gbuild="go build -ldflags=\"-s -w -X main.buildTime=`date -u '+%Y%m%d%H%M%S'`\" && ./GameTest"
 
 
 High priority:
-Hoppers
+
 Timers, pressure switches, item spilling.
-Tile map for mined resources, and spilled items.
+Add TotalMined to save/load
+Multi-tile objects, ABCDEF port format. Use modulo rotation.
+Start investigating server/client and tock/tick spreading.
 
-Make array for input and output ports,
-To reduce testing unlinked ports.
-Write on link.
-add on-link function for objects.
+Optimizations:
+Carefully look at entire draw() loop, update() loop, and ticks/tocks.
 
+Try to remove any unneeded info in objdata, port data, and all children.
+Optimize camera and mouse position calculations.
+optimize object camera x/y calculations, and mouse world and mouse screen calculations
+Stop recalculating camera/zoom/world mouse, do once per frame.
+
+Start inserting objects in-order in chunks.
+Possibly move to 32-row lists.
+Complete unsafe for faster loading, make packed binary format for saves.
+make totalmined map for quick rendering, rebuild on load.
+
+Other:
+Fix multi-tile objects failing at chunk border (draw ground, then items)
+*** Add surface ID/Name to XY?, parent/child surfaces.
+eventually set machine times in ms/sec
+Add ground rendering for pixel mode too
+adjustable miners/furnace speeds
 Add ground water and surface water. Mineralized, fresh and salt.
 Water should get contaminated by dumping.
 
-Multi-tile objects, ABCDEF port format. Use modulo rotation.
-Fix overs not showing mats when rotated (use rotation to get correct input)
-obj-tock.go: Cut down code in tock, move anything we can to init.
 
-Read should be faster than write, because of CPU caches...
-We should always read the material type, and only reset typeP if need be.
-remove unneeded port == nil checks, etc.
+Currently we do not remove/replace sub-obj on rotate (does not support non-square!) fix me
+0: x,y
+1: -y, x
+2: -x, -y
+3: y, -x
 
-Other:
-eventually set machine times in ms/sec
-Add ground rendering for pixel mode too
-Complete unsafe for faster loading, make packed binary format for saves.
-Minimize nested ifs
-adjustable miners/furnace speeds
+eventually sleep/wake objects if blocked or no input.

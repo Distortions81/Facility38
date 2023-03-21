@@ -5,6 +5,7 @@ import (
 	"GameTest/data"
 	"GameTest/gv"
 	"GameTest/objects"
+	"GameTest/util"
 	"GameTest/world"
 	"fmt"
 	"image/color"
@@ -12,7 +13,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/ebitenui/ebitenui"
+	_ "github.com/defia/trf"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -31,7 +32,6 @@ var (
 )
 
 type Game struct {
-	ui *ebitenui.UI
 }
 
 /* Main function */
@@ -40,7 +40,6 @@ func main() {
 
 	if NoDebug == "true" {
 		gv.Debug = false
-		gv.LogFileOut = false
 		gv.LogStdOut = false
 		gv.UPSBench = false
 		gv.LoadTest = false
@@ -48,6 +47,9 @@ func main() {
 	if WASMMode == "true" {
 		gv.WASMMode = true
 		world.WorkChunks = 1
+	} else {
+		cwlog.StartLog()
+		cwlog.LogDaemon()
 	}
 	if UPSBench == "true" {
 		gv.UPSBench = true
@@ -56,7 +58,6 @@ func main() {
 		gv.LoadTest = true
 	}
 	InitToolbar()
-	cwlog.StartLog()
 
 	str, err := data.GetText("intro")
 	if err != nil {
@@ -67,6 +68,7 @@ func main() {
 
 	/* Set up ebiten and window */
 	ebiten.SetVsyncEnabled(false)
+	ebiten.SetScreenClearedEveryFrame(true)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	setupWindowSize()
@@ -84,20 +86,36 @@ func main() {
 
 /* Ebiten game init */
 func NewGame() *Game {
-	if gv.WASMMode {
-		time.Sleep(time.Nanosecond)
-	}
-	go loadSprites()
-	if gv.WASMMode {
-		time.Sleep(time.Nanosecond)
-	}
-	go makeTestMap(gv.BootBlankMap)
-	if gv.WASMMode {
-		time.Sleep(time.Nanosecond)
-	}
+	go func() {
+		time.Sleep(time.Millisecond * 700)
+		loadSprites()
+		objects.PerlinNoiseInit()
+		makeMap(gv.LoadTest)
+		startGame()
+	}()
 
 	/* Initialize the game */
 	return &Game{}
+}
+
+func startGame() {
+	util.ChatDetailed("Click or press any key to continue.", world.ColorGreen, time.Second*15)
+
+	for !world.SpritesLoaded.Load() ||
+		!world.PlayerReady.Load() {
+		time.Sleep(time.Millisecond)
+	}
+	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
+
+	if !gv.WASMMode {
+		go objects.RenderTerrainDaemon()
+		go objects.PixmapRenderDaemon()
+		go objects.ObjUpdateDaemon()
+		go objects.ResourceRenderDaemon()
+	} else {
+		util.WASMSleep()
+		go objects.ObjUpdateDaemonST()
+	}
 }
 
 /* Load all sprites, sub missing ones */
@@ -136,9 +154,7 @@ func loadSprites() {
 				}
 			}
 
-			if gv.WASMMode {
-				time.Sleep(time.Nanosecond)
-			}
+			util.WASMSleep()
 		}
 	}
 
@@ -152,9 +168,7 @@ func loadSprites() {
 				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
 			objects.MatTypes[m].Image = img
-			if gv.WASMMode {
-				time.Sleep(time.Nanosecond)
-			}
+			util.WASMSleep()
 		}
 	}
 
@@ -207,9 +221,7 @@ func bootScreen(screen *ebiten.Image) {
 	}
 	color.G = byte(104 + (world.MapLoadPercent * 1.5))
 	vector.DrawFilledRect(screen, x, y, world.MapLoadPercent*float32(multi), tall, color)
-	if gv.WASMMode {
-		time.Sleep(time.Nanosecond)
-	}
+	util.WASMSleep()
 }
 
 /* Detect logical and virtual CPUs, set number of workers */
@@ -221,15 +233,12 @@ func detectCPUs() {
 	}
 
 	/* Detect logical CPUs, failing that... use numcpu */
-	var lCPUs int = runtime.NumCPU() + 1
+	var lCPUs int = runtime.NumCPU()
 	if lCPUs <= 1 {
 		lCPUs = 1
-	} else if lCPUs > 2 {
-		{
-			lCPUs--
-		}
 	}
-	cwlog.DoLog("Virtual CPUs: %v", lCPUs)
+	world.NumWorkers = lCPUs
+	cwlog.DoLog(true, "Virtual CPUs: %v", lCPUs)
 
 	/* Logical CPUs */
 	cdat, cerr := cpu.Counts(false)
@@ -240,9 +249,10 @@ func detectCPUs() {
 		} else {
 			lCPUs = 1
 		}
-		cwlog.DoLog("Logical CPUs: %v", cdat)
+		cwlog.DoLog(true, "Logical CPUs: %v", cdat)
 	}
 
+	cwlog.DoLog(true, "Number of workers: %v", lCPUs)
 	world.NumWorkers = lCPUs
 }
 
@@ -254,31 +264,30 @@ func setupWindowSize() {
 	if !gv.UPSBench {
 		/* Handle high res displays, 50% window */
 		if xSize > 2560 && ySize > 1600 {
-			world.ScreenWidth = xSize / 2
-			world.ScreenHeight = ySize / 2
+			world.ScreenWidth = uint16(xSize) / 2
+			world.ScreenHeight = uint16(ySize) / 2
 
 			/* Small Screen, just go fullscreen */
 		} else if xSize <= 1280 && ySize <= 800 {
-			world.ScreenWidth = xSize
-			world.ScreenHeight = ySize
+			world.ScreenWidth = uint16(xSize)
+			world.ScreenHeight = uint16(ySize)
 			ebiten.SetFullscreen(true)
 		}
 	}
-	ebiten.SetWindowSize(world.ScreenWidth, world.ScreenHeight)
+	ebiten.SetWindowSize(int(world.ScreenWidth), int(world.ScreenHeight))
 }
 
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
-	if outsideWidth != world.ScreenWidth || outsideHeight != world.ScreenHeight {
-		world.ScreenWidth = outsideWidth
-		world.ScreenHeight = outsideHeight
-		world.InitMouse = false
+	if outsideWidth != int(world.ScreenWidth) || outsideHeight != int(world.ScreenHeight) {
+		world.ScreenWidth = uint16(outsideWidth)
+		world.ScreenHeight = uint16(outsideHeight)
 		world.VisDataDirty.Store(true)
 	}
 
 	windowTitle()
-	return world.ScreenWidth, world.ScreenHeight
+	return int(world.ScreenWidth), int(world.ScreenHeight)
 }
 
 /* Automatic window title update */

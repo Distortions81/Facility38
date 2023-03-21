@@ -14,35 +14,20 @@ const (
 	maxTerrainCache     = 500
 	maxTerrainCacheWASM = 50
 	minTerrainTime      = time.Minute
-	terrainRenderLoop   = time.Nanosecond
+	terrainRenderLoop   = time.Millisecond
 	debugVisualize      = false
 
 	maxPixmapCache     = 500
 	maxPixmapCacheWASM = 50
 	minPixmapTime      = time.Minute
-	pixmapRenderLoop   = time.Nanosecond
+	pixmapRenderLoop   = time.Millisecond * 100
+	resourceRenderLoop = time.Second
 )
 
 var (
 	numTerrainCache int
 	numPixmapCache  int
 )
-
-func SwitchLayer() {
-	world.ShowResourceLayerLock.Lock()
-
-	if world.ShowResourceLayer {
-		world.ShowResourceLayer = false
-		util.ChatDetailed("Switched from resource layer to game.", world.ColorOrange, time.Second*10)
-	} else {
-		world.ShowResourceLayer = true
-		util.ChatDetailed("Switched from game to resource layer.", world.ColorOrange, time.Second*10)
-	}
-	for _, sChunk := range world.SuperChunkList {
-		sChunk.PixmapDirty = true
-	}
-	world.ShowResourceLayerLock.Unlock()
-}
 
 /* Make a 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
@@ -280,12 +265,42 @@ func PixmapRenderDaemon() {
 	}
 }
 
+/* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
+func ResourceRenderDaemon() {
+
+	for {
+
+		world.SuperChunkListLock.RLock()
+		for _, sChunk := range world.SuperChunkList {
+			sChunk.ResourceLock.Lock()
+			if sChunk.ResourceMap == nil || sChunk.ResourceDirty {
+				drawResource(sChunk)
+				sChunk.ResourceDirty = false
+			}
+			sChunk.ResourceLock.Unlock()
+		}
+		world.SuperChunkListLock.RUnlock()
+
+		time.Sleep(resourceRenderLoop)
+	}
+}
+
+func ResourceRenderDaemonST() {
+
+	for _, sChunk := range world.SuperChunkList {
+		if sChunk.ResourceMap == nil || sChunk.ResourceDirty {
+			drawResource(sChunk)
+			sChunk.ResourceDirty = false
+			break
+		}
+	}
+}
+
 func drawResource(sChunk *world.MapSuperChunk) {
 	if sChunk == nil {
 		return
 	}
 
-	sChunk.ResourceLock.Lock()
 	if sChunk.ResourceMap == nil {
 		sChunk.ResourceMap = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
 	}
@@ -294,8 +309,8 @@ func drawResource(sChunk *world.MapSuperChunk) {
 		for y := 0; y < gv.SuperChunkTotal; y++ {
 			ppos := 4 * (x + y*gv.SuperChunkTotal)
 
-			worldX := float32((sChunk.Pos.X * gv.SuperChunkTotal) + x)
-			worldY := float32((sChunk.Pos.Y * gv.SuperChunkTotal) + y)
+			worldX := float32((sChunk.Pos.X * gv.SuperChunkTotal) + uint16(x))
+			worldY := float32((sChunk.Pos.Y * gv.SuperChunkTotal) + uint16(y))
 
 			var r, g, b float32 = 0.01, 0.01, 0.01
 			for p, nl := range NoiseLayers {
@@ -305,6 +320,14 @@ func drawResource(sChunk *world.MapSuperChunk) {
 
 				h := NoiseMap(worldX, worldY, p)
 
+				Chunk := sChunk.ChunkMap[util.PosToChunkPos(world.XY{X: uint16(worldX), Y: uint16(worldY)})]
+				if Chunk != nil {
+					Tile := Chunk.TileMap[world.XY{X: uint16(x), Y: uint16(y)}]
+
+					if Tile != nil {
+						h -= (Tile.MinerData.Mined[p] / 150)
+					}
+				}
 				if nl.ModRed {
 					r += (h * nl.RedMulti)
 				}
@@ -330,8 +353,6 @@ func drawResource(sChunk *world.MapSuperChunk) {
 		}
 	}
 	sChunk.PixmapDirty = true
-	sChunk.ResourceLock.Unlock()
-
 }
 
 /* Draw a superchunk's pixmap, allocates image if needed. */
@@ -346,7 +367,8 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 		sChunk.PixelMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 	}
 
-	var ObjPix []byte = make([]byte, gv.SuperChunkTotal*gv.SuperChunkTotal*4)
+	maxSize := gv.SuperChunkTotal * gv.SuperChunkTotal * 4
+	var ObjPix []byte = make([]byte, maxSize)
 
 	didCopy := false
 	sChunk.ResourceLock.Lock()
@@ -356,7 +378,7 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 	}
 	sChunk.ResourceLock.Unlock()
 
-	//Fill will bg and grid
+	//Fill with bg and grid
 	for x := 0; x < gv.SuperChunkTotal; x++ {
 		for y := 0; y < gv.SuperChunkTotal; y++ {
 			ppos := 4 * (x + y*gv.SuperChunkTotal)
@@ -381,18 +403,20 @@ func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
 		}
 
 		/* Draw objects in chunk */
-		for _, obj := range chunk.ObjList {
+		for pos := range chunk.BuildingMap {
 			scX := (((scPos.X) * (gv.MaxSuperChunk)) - gv.XYCenter)
 			scY := (((scPos.Y) * (gv.MaxSuperChunk)) - gv.XYCenter)
 
-			x := int((obj.Pos.X - gv.XYCenter) - scX)
-			y := int((obj.Pos.Y - gv.XYCenter) - scY)
+			x := int((pos.X - gv.XYCenter) - scX)
+			y := int((pos.Y - gv.XYCenter) - scY)
 
 			ppos := 4 * (x + y*gv.SuperChunkTotal)
-			ObjPix[ppos] = 0xff
-			ObjPix[ppos+1] = 0xff
-			ObjPix[ppos+2] = 0xff
-			ObjPix[ppos+3] = 0xff
+			if ppos < maxSize {
+				ObjPix[ppos] = 0xff
+				ObjPix[ppos+1] = 0xff
+				ObjPix[ppos+2] = 0xff
+				ObjPix[ppos+3] = 0xff
+			}
 		}
 
 	}

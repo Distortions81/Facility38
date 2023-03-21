@@ -9,18 +9,19 @@ import (
 
 var (
 	/* Build flags */
-	BootBlankMap = true
-	UPSBench     = false
-	LoadTest     = false
-	Debug        = false
-	LogStdOut    = false
-	LogFileOut   = false
-	WASMMode     = false
+	UPSBench = false
+	LoadTest = false
+
+	Debug     = false
+	LogStdOut = true
+	WASMMode  = false
 
 	ResourceLegendImage *ebiten.Image
 )
 
 const (
+	MaxItemType      = 255
+	GameUPS          = 8
 	NumResourceTypes = 7
 	NinetyDeg        = math.Pi / 2
 	OneEightyDeg     = math.Pi
@@ -30,20 +31,20 @@ const (
 	ChatHeightLines = 10
 	ChatFadeTime    = time.Second
 
-	Version = "014"
+	Version = "016"
 
 	/* Files and directories */
 	DataDir = "data/"
 	GfxDir  = "gfx/"
 	TxtDir  = "txt/"
 
-	NumTestObjects = 1000000
+	NumTestObjects = 10000000
 
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0
 
 	/* Define world center */
-	XYCenter = 50000.0
+	XYCenter = 32768.0
 	XYMax    = XYCenter * 2.0
 	XYMin    = 1.0
 
@@ -53,21 +54,27 @@ const (
 	ObjSubGame = 1
 	ObjOverlay = 2
 
+	/* Toolbars */
+	ToolbarNone    = 0
+	ToolbarSave    = 1
+	ToolbarLoad    = 2
+	ToolbarLayer   = 3
+	ToolbarOverlay = 4
+
 	/* Buildings */
-	ObjTypeNone                = 0
-	ObjTypeBasicMiner          = 1
-	ObjTypeBasicBelt           = 2
-	ObjTypeBasicBeltInterRight = 3
-	ObjTypeBasicBeltInterLeft  = 4
-	ObjTypeBasicSplit          = 5
-	ObjTypeBasicBox            = 6
-	ObjTypeBasicSmelter        = 7
-	ObjTypeBasicFuelHopper     = 8
+	ObjTypeBasicMiner          = 0
+	ObjTypeBasicBelt           = 1
+	ObjTypeBasicBeltInterRight = 2
+	ObjTypeBasicBeltInterLeft  = 3
+	ObjTypeBasicSplit          = 4
+	ObjTypeBasicBox            = 5
+	ObjTypeBasicSmelter        = 6
+	ObjTypeBasicFuelHopper     = 7
 
 	/*Disabled, incomplete */
-	ObjTypeBasicIronCaster = 9
-	ObjTypeBasicBoiler     = 10
-	ObjTypeSteamEngine     = 11
+	ObjTypeBasicIronCaster = 8
+	ObjTypeBasicBoiler     = 9
+	ObjTypeSteamEngine     = 10
 
 	/* Materials */
 	MAT_NONE = 0
@@ -83,8 +90,9 @@ const (
 	MAT_COPPER = 8
 	MAT_STONE  = 9
 	MAT_SLAG   = 10
+	MAT_MIXORE = 11
 
-	MAT_MAX = 11
+	MAT_MAX = 12
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0
@@ -116,12 +124,14 @@ const (
 	DIR_SOUTH = 2
 	DIR_WEST  = 3
 	DIR_MAX   = 4
+	DIR_ANY   = DIR_MAX
 
 	/* Ports */
-	PORT_NONE   = 0
-	PORT_INPUT  = 1
-	PORT_OUTPUT = 2
-	PORT_BOTH   = 3
+	PORT_NONE = 0
+	PORT_IN   = 1
+	PORT_OUT  = 2
+	PORT_FIN  = 3
+	PORT_FOUT = 4
 
 	/* Overlay Types */
 	ObjOverlayNorth   = 0

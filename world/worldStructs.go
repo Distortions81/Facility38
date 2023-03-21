@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+/* Chat line data */
 type ChatLines struct {
 	Text string
 
@@ -25,48 +26,75 @@ type ChatLines struct {
 type MapSuperChunk struct {
 	Pos XY
 
-	ChunkMap  map[XY]*MapChunk `json:"-"`
-	ChunkList []*MapChunk      `json:"-"`
-	NumChunks uint16           `json:"-"`
+	ChunkMap  map[XY]*MapChunk
+	ChunkList []*MapChunk
+	/* Here so we don't need to use len() */
+	NumChunks uint16
 
-	ResourceMap  []byte `json:"-"`
-	ResourceLock sync.Mutex
+	ResourceDirty bool
+	ResourceMap   []byte
+	ResourceLock  sync.Mutex
 
-	PixelMap     *ebiten.Image `json:"-"`
-	PixmapDirty  bool          `json:"-"`
-	PixelMapLock sync.RWMutex  `json:"-"`
-	PixelMapTime time.Time     `json:"-"`
+	PixelMap     *ebiten.Image
+	PixmapDirty  bool
+	PixelMapLock sync.RWMutex
+	PixelMapTime time.Time
 
-	Visible bool `json:"-"`
+	Visible bool
 
-	Lock sync.RWMutex `json:"-"`
+	Lock sync.RWMutex
 }
 
-type ResUsedData struct {
-	Pos  XY
-	Used [gv.NumResourceTypes]float32
+type MaterialContentsType struct {
+	Mats [gv.MAT_MAX]*MatData
 }
 
-/* Objects that contain object map, object list and TerrainImg */
+/* XY Location specific data for mining and ground tiles */
+type TileData struct {
+	MinerData  *MinerData
+	GroundTile *GroundTileData
+	Spilled    *MaterialContentsType
+}
+
+/* Image for ground tile */
+type GroundTileData struct {
+	Img     ebiten.Image
+	ImgPath string
+}
+
+/* XY Specific data */
+type BuildingData struct {
+	Obj *ObjData
+	Pos XY
+}
+
+/* Used to keep track of amount of resources mined */
+type MinerData struct {
+	Mined [gv.NumResourceTypes]float32
+}
+
+/* Contain object map, object list and TerrainImg */
 type MapChunk struct {
-	Pos XY `json:"-"`
+	/* Used for finding position from ChunkList */
+	Pos XY
 
-	ObjMap         map[XY]*ObjData `json:"-"`
-	ObjList        []*ObjData      `json:"-"`
-	NumObjs        uint16          `json:"-"`
-	ResourcesMined []*ResUsedData  `json:"-"`
+	BuildingMap map[XY]*BuildingData
+	TileMap     map[XY]*TileData
 
-	Parent *MapSuperChunk `json:"-"`
+	ObjList []*ObjData
+	NumObjs uint16
 
-	TerrainLock    sync.RWMutex  `json:"-"`
-	TerrainImage   *ebiten.Image `json:"-"`
-	TerrainTime    time.Time     `json:"-"`
-	UsingTemporary bool          `json:"-"`
-	Precache       bool          `json:"-"`
+	Parent *MapSuperChunk
 
-	Visible bool `json:"-"`
+	TerrainLock    sync.RWMutex
+	TerrainImage   *ebiten.Image
+	TerrainTime    time.Time
+	UsingTemporary bool
+	Precache       bool
 
-	Lock sync.RWMutex `json:"-"`
+	Visible bool
+
+	Lock sync.RWMutex
 }
 
 type NoiseLayerData struct {
@@ -107,49 +135,62 @@ type MinerDataType struct {
 	Resources      []float32
 	ResourcesType  []uint8
 	ResourcesCount uint8
-
-	TotalMined *ResUsedData
+	LastUsed       uint8
 }
 
 /* Object data */
 type ObjData struct {
-	Pos    XY        `json:"xy,omitempty"`
+	Pos    XY
 	Parent *MapChunk `json:"-"`
 	TypeP  *ObjType  `json:"-"`
 
-	Dir uint8 `json:"d,omitempty"`
+	Dir        uint8
+	LastInput  uint8
+	LastOutput uint8
 
-	//Internal use
-	Contents [gv.MAT_MAX]*MatData `json:"c,omitempty"`
-	KGFuel   float32              `json:"kf,omitempty"`
-	KGHeld   float32              `json:"k,omitempty"`
+	//Port aliases, prevent looping all ports
+	Ports   []ObjPortData
+	Outputs []*ObjPortData
+	Inputs  []*ObjPortData
+	FuelIn  []*ObjPortData
+	FuelOut []*ObjPortData
 
-	//Input/Output
-	Ports      [gv.DIR_MAX]*ObjPortData `json:"po,omitempty"`
-	NumInputs  uint8                    `json:"-"`
-	NumOutputs uint8                    `json:"-"`
-	MinerData  *MinerDataType
+	//Prevent needing to use len()
+	NumOut  uint8
+	NumIn   uint8
+	NumFIn  uint8
+	NumFOut uint8
 
-	/* For round-robin */
-	LastUsedInput  uint8 `json:"-"`
-	LastUsedOutput uint8 `json:"-"`
+	//Internal Tock() use
+	Contents      *MaterialContentsType
+	SingleContent *MatData
+	KGFuel        float32
+	KGHeld        float32
+	MinerData     *MinerDataType
+	Tile          *TileData
+	TickCount     uint8
 
-	TickCount uint8 `json:"t,omitempty"`
+	Blocked bool
+	Active  bool
 
-	Blocked bool `json:"-"`
-	Active  bool `json:"-"`
+	HasTick bool
+	HasTock bool
 }
 
 type ObjPortData struct {
-	PortDir uint8    `json:"pd,omitempty"`
-	Obj     *ObjData `json:"-"`
-	Buf     MatData  `json:"b,omitempty"`
+	Dir  uint8
+	Type uint8
+
+	Obj  *ObjData
+	Buf  *MatData
+	Link *ObjPortData
 }
 
 type MaterialType struct {
 	Symbol   string
 	Name     string
 	UnitName string
+	Density  float32 /* g/cm3 */
 
 	ImagePath string
 	Image     *ebiten.Image
@@ -158,6 +199,7 @@ type MaterialType struct {
 	IsSolid bool
 	IsGas   bool
 	IsFluid bool
+	IsFuel  bool
 	Result  uint8
 }
 
@@ -168,24 +210,30 @@ type ObjType struct {
 
 	TypeI uint8
 
-	Symbol      string
-	ExcludeWASM bool
-	Size        XY
-	Rotatable   bool
-	Direction   uint8
+	Symbol string
+
+	/* Toolbar Specific */
+	ExcludeWASM  bool
+	UIPath       string
+	TBarImage    *ebiten.Image
+	ToolBarArrow bool
+	QKey         ebiten.Key
+
+	Size      XYs
+	NonSquare bool
+	MultiTile bool
+	Rotatable bool
+	Direction uint8
 
 	ImagePath       string
 	ImagePathActive string
 	Image           *ebiten.Image
 	ImageActive     *ebiten.Image
 
-	UIPath       string
-	TBarImage    *ebiten.Image
-	ToolBarArrow bool
-
-	KgHourMine float32
-	HP         float32
-	KW         float32
+	KgHourMine   float32
+	KgHopperMove float32
+	HP           float32
+	KW           float32
 
 	KgMineEach float32
 	KgFuelEach float32
@@ -193,16 +241,25 @@ type ObjType struct {
 	MaxContainKG float32
 	MaxFuelKG    float32
 
-	Interval uint8
-
-	Ports       [gv.DIR_MAX]uint8
+	Interval    uint8
 	CanContain  bool
 	ShowArrow   bool
 	ShowBlocked bool
 
-	ToolbarAction func()             `json:"-"`
-	UpdateObj     func(Obj *ObjData) `json:"-"`
-	InitObj       func(Obj *ObjData) `json:"-"`
+	/* Quick lookup for auto-events */
+	HasInputs  bool
+	HasOutputs bool
+	HasFIn     bool
+	HasFOut    bool
+
+	Ports   []ObjPortData
+	SubObjs []XYs
+
+	ToolbarAction func()                  `json:"-"`
+	UpdateObj     func(Obj *ObjData)      `json:"-"`
+	InitObj       func(Obj *ObjData) bool `json:"-"`
+	DeInitObj     func(Obj *ObjData)      `json:"-"`
+	LinkObj       func(Obj *ObjData)      `json:"-"`
 }
 
 /* ObjectQueue data */
@@ -212,6 +269,13 @@ type ObjectQueueData struct {
 	OType  uint8
 	Pos    XY
 	Dir    uint8
+}
+
+/* Tick Event (target) */
+type RotateEvent struct {
+	Build     *BuildingData
+	Clockwise bool
+	Pos       XY
 }
 
 /* EventQueue data */
@@ -234,13 +298,28 @@ type TickEvent struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
-	TypeI  uint8         `json:"i,omitempty"`
-	TypeP  *MaterialType `json:"-"`
-	Amount float32       `json:"a,omitempty"`
-	Rot    uint8         `json:"r,omitempty"`
+	TypeI  uint8
+	TypeP  *MaterialType
+	Amount float32
+	Rot    uint8
 }
 
 /* Int x/y */
 type XY struct {
-	X, Y int
+	X, Y uint16
+}
+
+/* Int x/y */
+type XYs struct {
+	X, Y int32
+}
+
+/* Float32 x/y */
+type XYf32 struct {
+	X, Y float32
+}
+
+/* Float64 x/y */
+type XYf64 struct {
+	X, Y float64
 }

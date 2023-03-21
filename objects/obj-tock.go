@@ -2,345 +2,214 @@ package objects
 
 import (
 	"GameTest/gv"
-	"GameTest/util"
 	"GameTest/world"
-	"fmt"
-	"math"
 	"math/rand"
-	"time"
 )
-
-func toggleOverlay() {
-	if world.ShowInfoLayer {
-		world.ShowInfoLayer = false
-		util.ChatDetailed("Info overlay is now off.", world.ColorOrange, time.Second*5)
-	} else {
-		world.ShowInfoLayer = true
-		util.ChatDetailed("Info overlay is now on.", world.ColorOrange, time.Second*5)
-	}
-}
-
-func initMiner(obj *world.ObjData) {
-	if obj == nil {
-		return
-	}
-
-	/* Init miner data if needed */
-	if obj.MinerData == nil {
-		obj.MinerData = &world.MinerDataType{}
-	}
-
-	foundRes := false
-	/* Check for resources to mine */
-	for p := 1; p < len(NoiseLayers); p++ {
-		var h float32 = float32(math.Abs(float64(NoiseMap(float32(obj.Pos.X), float32(obj.Pos.Y), p))))
-
-		/* We only mine solids */
-		if !NoiseLayers[p].TypeP.IsSolid {
-			continue
-		}
-		if h > 0.01 {
-			obj.MinerData.Resources = append(obj.MinerData.Resources, h)
-			obj.MinerData.ResourcesType = append(obj.MinerData.ResourcesType, NoiseLayers[p].TypeI)
-			obj.MinerData.ResourcesCount++
-			foundRes = true
-		}
-	}
-
-	/* Nothing to mine here, kill all the events for this miner */
-	if !foundRes {
-
-		/* Let user know of this */
-		oPos := util.CenterXY(obj.Pos)
-		util.ChatDetailed(fmt.Sprintf("%v at (%v,%v): No resources to mine here!", obj.TypeP.Name, oPos.X, oPos.Y),
-			world.ColorRed, time.Minute)
-
-		obj.Blocked = true
-		obj.Active = false
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-
-		return /* Stop here */
-	}
-
-	/* Init ResourcesMined if needed */
-	if obj.Parent.ResourcesMined == nil {
-		obj.Parent.ResourcesMined = []*world.ResUsedData{}
-	}
-
-	/*
-	 * Lets check if this chunk and position has ResourcesMined data.
-	 * If it does not:
-	 *
-	 * Init our position in the ResourcesMined list now
-	 * so that threaded access is possible later.
-	 * Also link to the data in obj's MinerData, to avoid lookups
-	 */
-
-	found := false
-	for i, item := range obj.Parent.ResourcesMined {
-		if item.Pos == obj.Pos {
-			//Add a link to our position in the list, for access later
-			obj.MinerData.TotalMined = obj.Parent.ResourcesMined[i]
-			found = true
-			break
-		}
-	}
-
-	/* Not found, add */
-	if !found {
-		insert := &world.ResUsedData{Pos: obj.Pos}
-		obj.Parent.ResourcesMined = append(obj.Parent.ResourcesMined, insert)
-
-		//Add a link to our position in the list, for access later
-		obj.MinerData.TotalMined = insert
-	}
-
-}
 
 func minerUpdate(obj *world.ObjData) {
 
-	/* Cycle all ports */
-	for p, port := range obj.Ports {
-		/* Fuel input */
-		if port.PortDir == gv.PORT_INPUT {
+	/* Time to run? */
+	if obj.TickCount < obj.TypeP.Interval {
+		obj.TickCount++
+		return
+	}
+	obj.TickCount = 0
 
-			/* Valid? */
-			if port.Buf.TypeP == nil {
-				continue
-			}
+	/* Get fuel */
+	for p, port := range obj.FuelIn {
+		/* Will it over fill us? */
+		if port.Buf.Amount > 0 &&
+			obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
 
-			/* Is it fuel? */
-			if port.Buf.TypeP.TypeI != gv.MAT_COAL {
-
-				/* Will it over fill us? */
-				if obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
-
-					/* Eat the fuel and increase fuel kg */
-					obj.KGFuel += port.Buf.Amount
-					obj.Ports[p].Buf.Amount = 0
-				}
-			}
+			/* Eat the fuel */
+			obj.KGFuel += port.Buf.Amount
+			obj.FuelIn[p].Buf.Amount = 0
 		}
+	}
 
-		/* Output full? */
-		if port.Buf.Amount != 0 {
-			obj.Blocked = true
+	if obj.KGFuel < obj.TypeP.KgFuelEach {
+		/* Not enough fuel, exit */
+		if obj.Active {
 			obj.Active = false
-			continue
 		}
+		return
+	}
 
-		/* Then we are not blocked */
-		obj.Blocked = false
+	for p := range obj.Outputs {
 
-		/* Turn on active status */
-		obj.Active = true
-
-		/* Are we ready to output yet? */
-		if obj.TickCount < obj.TypeP.Interval {
-			/* Increment timer */
-			obj.TickCount++
-			continue
+		/* Cycle through available materials */
+		var pick uint8 = 0
+		if obj.MinerData.ResourcesCount > 1 {
+			if obj.MinerData.LastUsed < (obj.MinerData.ResourcesCount - 1) {
+				obj.MinerData.LastUsed++
+				pick = obj.MinerData.LastUsed
+			}
 		}
-
-		/* Randomly pick a material from the list */
-		pick := rand.Intn(int(obj.MinerData.ResourcesCount))
 
 		/* Calculate how much material */
+		if obj.MinerData.ResourcesCount == 0 {
+			return
+		}
 		amount := obj.TypeP.KgMineEach * float32(obj.MinerData.Resources[pick])
 		kind := MatTypes[obj.MinerData.ResourcesType[pick]]
 
-		/* Are we are mining coal? */
-		if obj.MinerData.ResourcesType[pick] == gv.MAT_COAL &&
-			obj.KGFuel+amount <= obj.TypeP.MaxFuelKG {
-
-			/* If we need fuel, fuel ourselves */
-			obj.KGFuel += amount
-			continue
-		}
-		if obj.KGFuel < obj.TypeP.KgFuelEach {
-			/* Not enough fuel */
-			continue
+		/* Stop if the amount is extremely small, zero or negative */
+		if amount < 0.001 {
+			break
 		}
 
-		/* Otherwise output the material */
-		obj.Ports[obj.Dir].Buf.Amount = amount
-		obj.Ports[obj.Dir].Buf.TypeP = kind
-		obj.Ports[obj.Dir].Buf.Rot = uint8(rand.Intn(3))
+		/* Set as actively working */
+		if !obj.Active {
+			obj.Active = true
+		}
+
+		/* Tally the amount taken as well as the type */
+		obj.Tile.MinerData.Mined[pick] += amount
+
+		/* Output the material */
+		obj.Outputs[p].Buf.Amount = amount
+		if obj.Outputs[p].Buf.TypeP != kind {
+			obj.Outputs[p].Buf.TypeP = kind
+		}
+		obj.Outputs[p].Buf.Rot = uint8(rand.Intn(3))
 
 		/* Burn fuel */
 		obj.KGFuel -= obj.TypeP.KgFuelEach
 
-		obj.TickCount = 0
-
-		//We should remove ourselves here if we run out of ore
+		// TODO: Remove our events if there is nothing left to mine
+		break
 	}
 }
 
 func beltUpdateInter(obj *world.ObjData) {
-
-	for p, port := range obj.Ports {
-		/* Valid? */
-		if port == nil {
-			continue
-		}
-
-		/* Input? */
-		if port.PortDir != gv.PORT_INPUT {
-			continue
-		}
-
-		/* Valid output on other side? */
-		odir := util.ReverseDirection(uint8(p))
-		if obj.Ports[odir] == nil {
-			continue
-		}
-
-		/* Do we have input and is output is empty */
-		if obj.Ports[p].Buf.Amount > 0 && obj.Ports[odir].Buf.Amount == 0 {
-			obj.Ports[odir].Buf.Amount = obj.Ports[p].Buf.Amount
-			obj.Ports[odir].Buf.TypeP = obj.Ports[p].Buf.TypeP
-			obj.Ports[odir].Buf.Rot = obj.Ports[p].Buf.Rot
-
-			obj.Ports[p].Buf.Amount = 0
-		}
-	}
-
 }
 
 func beltUpdate(obj *world.ObjData) {
 
-	/* Output full? */
-	if obj.Ports[obj.Dir].Buf.Amount != 0 {
-		obj.Blocked = true
-		obj.Active = false
-		return
-	}
-	obj.Blocked = false
-
-	/* Find all inputs round-robin, send to output */
-	dir := obj.LastUsedInput
-
-	/* Start with last input, then rotate one */
-	found := false
-	for x := 0; x < 4; x++ {
-		dir = util.RotCW(dir)
-
-		/* Is this an input? */
-		if obj.Ports[dir].PortDir != gv.PORT_INPUT {
-			continue
-		}
-
-		/* Does the input contain anything? */
-		if obj.Ports[dir].Buf.Amount == 0 {
-			continue
+	if obj.NumIn > 1 {
+		if obj.LastInput == (obj.NumIn - 1) {
+			obj.LastInput = 0
 		} else {
-			found = true
-			obj.Active = true
-			obj.Ports[obj.Dir].Buf.Amount = obj.Ports[dir].Buf.Amount
-			obj.Ports[obj.Dir].Buf.TypeP = obj.Ports[dir].Buf.TypeP
-			obj.Ports[obj.Dir].Buf.Rot = obj.Ports[dir].Buf.Rot
-			obj.Ports[dir].Buf.Amount = 0
-			obj.LastUsedInput = dir
-			break /* Stop */
+			obj.LastInput++
 		}
 	}
-	if !found {
-		obj.Active = false
+
+	/* Does the input contain anything? */
+	if obj.Inputs[obj.LastInput].Buf.Amount > 0 &&
+		obj.Outputs[0].Buf.Amount == 0 &&
+		obj.Outputs[0].Obj != nil &&
+		!obj.Outputs[0].Obj.Blocked {
+		/* Good to go, swap pointers */
+		*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
 	}
 }
 
 func fuelHopperUpdate(obj *world.ObjData) {
 
-	/* Grab destination object */
-	dest := obj.Ports[obj.Dir].Obj
-
-	/* Does it use fuel? */
-	if dest.TypeP.MaxFuelKG == 0 {
-		obj.Blocked = true
+	/* Is it time to run? */
+	if obj.TickCount < obj.TypeP.Interval {
+		/* Increment timer */
+		obj.TickCount++
 		return
 	}
+	obj.TickCount = 0
+
+	for i, input := range obj.Inputs {
+
+		/* Does input contain anything? */
+		if input.Buf.Amount == 0 {
+			continue
+		}
+
+		/* Is input solid? */
+		if !input.Buf.TypeP.IsSolid {
+			continue
+		}
+
+		/* Is input fuel? */
+		if !input.Buf.TypeP.IsFuel {
+			continue
+		}
+
+		/* Do we have room for it? */
+		if (obj.KGFuel + input.Buf.Amount) < obj.TypeP.MaxFuelKG {
+			obj.KGFuel += input.Buf.Amount
+			obj.Inputs[i].Buf.Amount = 0
+			break
+		}
+	}
+
+	/* Grab destination object */
+	if obj.KGFuel > (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach) {
+		for _, output := range obj.FuelOut {
+			output.Buf.Amount = obj.TypeP.KgHopperMove
+			obj.KGFuel -= (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach)
+			break
+		}
+	}
+
 }
 
 func splitterUpdate(obj *world.ObjData) {
 
-	input := util.ReverseDirection(obj.Dir)
-
-	/* Anything in the input? */
-	if obj.Ports[input].Buf.Amount == 0 {
-		obj.Active = false
-		return
-	}
-
-	/* Round-robin output */
-	dir := obj.LastUsedOutput
-	for x := 0; x < 4; x++ {
-		dir = util.RotCW(dir)
-
-		/* Is this a output? */
-		if obj.Ports[dir].PortDir != gv.PORT_OUTPUT {
-			continue
+	if obj.Inputs[0].Buf.Amount > 0 {
+		if obj.NumOut > 1 {
+			if obj.LastOutput >= (obj.NumOut - 1) {
+				obj.LastOutput = 0
+			} else {
+				obj.LastOutput++
+			}
 		}
 
-		/* Is the port empty? */
-		if obj.Ports[dir].Buf.Amount != 0 {
+		if obj.Outputs[obj.LastOutput].Buf.Amount == 0 {
+			/* Good to go, swap pointers */
+			*obj.Inputs[0].Buf, *obj.Outputs[obj.LastOutput].Buf = *obj.Outputs[obj.LastOutput].Buf, *obj.Inputs[0].Buf
+			if !obj.Active {
+				obj.Active = true
+			}
+			return
+		}
+
+		if obj.Active {
 			obj.Active = false
-			continue
-		} else {
-			/* Output empty, proceed */
-			obj.Ports[dir].Buf.Amount = obj.Ports[input].Buf.Amount
-			obj.Ports[dir].Buf.TypeP = obj.Ports[input].Buf.TypeP
-			obj.Ports[dir].Buf.Rot = obj.Ports[input].Buf.Rot
-			obj.Ports[input].Buf.Amount = 0
-			obj.LastUsedOutput = dir
-			obj.Active = true
-			break
-			/* End */
 		}
-
 	}
-
 }
 
 func boxUpdate(obj *world.ObjData) {
-	for p, port := range obj.Ports {
-		/* Input port? */
-		if port.PortDir == gv.PORT_INPUT {
 
-			if port.Buf.Amount == 0 {
+	for p, port := range obj.Inputs {
+		if port.Buf.Amount == 0 {
 
-				/* Go inactive after a while */
-				if obj.TickCount > uint8(world.ObjectUPS*4) {
-					obj.Active = false
-				}
-				obj.TickCount++
-				continue
-			}
-
-			/* Will the input fit? */
-			if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
-				obj.Blocked = true
+			/* Go inactive after a while */
+			if obj.TickCount > uint8(world.ObjectUPS*4) {
 				obj.Active = false
-				continue
 			}
-
-			/* Reset counter */
-			obj.Blocked = false
-			obj.Active = true
-			obj.TickCount = 0
-
-			/* Init content type if needed */
-			if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-				obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
-			}
-
-			/* Add to contents */
-			obj.Contents[port.Buf.TypeP.TypeI].Amount += obj.Ports[p].Buf.Amount
-			obj.Contents[port.Buf.TypeP.TypeI].TypeP = obj.Ports[p].Buf.TypeP
-			obj.KGHeld += port.Buf.Amount
-			obj.Ports[p].Buf.Amount = 0
+			obj.TickCount++
 			continue
 		}
+
+		/* Will the input fit? */
+		if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
+			obj.Active = false
+			continue
+		}
+
+		/* Reset counter */
+		obj.Active = true
+		obj.TickCount = 0
+
+		/* Init content type if needed */
+		if obj.Contents.Mats[port.Buf.TypeP.TypeI] == nil {
+			obj.Contents.Mats[port.Buf.TypeP.TypeI] = &world.MatData{}
+		}
+
+		/* Add to contents */
+		obj.Contents.Mats[port.Buf.TypeP.TypeI].Amount += obj.Inputs[p].Buf.Amount
+		obj.Contents.Mats[port.Buf.TypeP.TypeI].TypeP = MatTypes[port.Buf.TypeP.TypeI]
+		obj.KGHeld += port.Buf.Amount
+		obj.Inputs[p].Buf.Amount = 0
+		continue
 
 		//Unloader goes here
 	}
@@ -348,94 +217,42 @@ func boxUpdate(obj *world.ObjData) {
 
 func smelterUpdate(obj *world.ObjData) {
 
-	for p, port := range obj.Ports {
+	/* Check input */
+	for i, input := range obj.Inputs {
 
-		/* Valid? */
-		if port == nil {
-			continue
-		}
-
-		/* Input? */
-		if port.PortDir == gv.PORT_INPUT {
-
-			/* Valid input? */
-			if port.Buf.TypeP == nil {
-				continue
-			}
-
-			/* Is this fuel? */
-			if port.Buf.TypeP.TypeI == gv.MAT_COAL {
-
-				/* Will it fit? */
-				if obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
-					obj.KGFuel += port.Buf.Amount
-					obj.Ports[p].Buf.Amount = 0
-				}
-
-				/* Is this ore? */
-			} else if port.Buf.TypeP.IsSolid {
-				if obj.KGHeld+port.Buf.Amount > obj.TypeP.MaxContainKG {
-					continue
-				}
-
-				/* Init content type if needed */
-				if obj.Contents[port.Buf.TypeP.TypeI] == nil {
-					obj.Contents[port.Buf.TypeP.TypeI] = &world.MatData{}
-					obj.Contents[port.Buf.TypeP.TypeI].TypeP = port.Buf.TypeP
-				}
-
-				/* Add contents */
-				obj.Contents[port.Buf.TypeP.TypeI].Amount += port.Buf.Amount
-
-				/* Add to content weight */
-				obj.KGHeld += port.Buf.Amount
-
-				/* Clear input */
-				obj.Ports[p].Buf.Amount = 0
-			}
-		} else {
-
-			/* Is the output empty? */
-			if port.Buf.Amount != 0 {
-				obj.Blocked = true
-				continue
-			}
-			obj.Blocked = false
-
-			/* Do we have enough fuel to mine? */
-			if obj.KGFuel >= obj.TypeP.KgFuelEach {
-				for c, cont := range obj.Contents {
-
-					/* Valid contents? */
-					if cont == nil {
-						continue
-					}
-
-					/* Is it ore, and do we have enough to process? */
-					if cont.TypeP.IsSolid && cont.Amount >= obj.TypeP.KgMineEach {
-						obj.Active = true
-						obj.TickCount++
-
-						/* Are we finished? */
-						if obj.TickCount >= obj.TypeP.Interval {
-							obj.KGFuel -= obj.TypeP.KgFuelEach
-
-							obj.Contents[c].Amount -= obj.TypeP.KgMineEach
-							obj.KGHeld -= obj.TypeP.KgMineEach
-
-							obj.Ports[p].Buf.Amount = obj.TypeP.KgMineEach * gv.ORE_WASTE
-							obj.Ports[p].Buf.TypeP = MatTypes[cont.TypeP.Result]
-							obj.Ports[p].Buf.Rot = port.Buf.Rot
-							obj.TickCount = 0
-							obj.Active = false
+		/* Input contains something */
+		if input.Buf.Amount != 0 {
+			/* Is of a type we can smelt */
+			if input.Buf.TypeP.IsSolid {
+				/* If the material will fit */
+				if input.Buf.Amount <= obj.TypeP.MaxContainKG {
+					/* If type is nil, init */
+					if obj.SingleContent.TypeP == nil {
+						obj.SingleContent.TypeP = input.Buf.TypeP
+						/* If we already contain ore */
+					} else if obj.SingleContent.Amount > 0 {
+						/* If of different type, ruin the contents */
+						if input.Buf.TypeP.TypeI != obj.SingleContent.TypeP.TypeI {
+							obj.SingleContent.TypeP = MatTypes[gv.MAT_MIXORE]
 						}
+					} else {
+						/* Otherwise, just set the ore type */
+						obj.SingleContent.TypeP = input.Buf.TypeP
 					}
-				}
 
+					/* Add contents */
+					obj.SingleContent.Amount += input.Buf.Amount
+
+					/* Add to content weight */
+					obj.KGHeld += input.Buf.Amount
+
+					/* Clear input */
+					obj.Inputs[i].Buf.Amount = 0
+				}
 			}
 		}
-
 	}
+
 }
 
 func ironCasterUpdate(o *world.ObjData) {

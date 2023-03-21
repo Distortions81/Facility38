@@ -4,8 +4,8 @@ import (
 	"GameTest/gv"
 	"sync"
 	"sync/atomic"
-	"time"
 
+	"github.com/VividCortex/ewma"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )
@@ -13,6 +13,9 @@ import (
 func init() {
 	VisDataDirty.Store(true)
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
+
+	UPSAvr = ewma.NewMovingAverage(gv.GameUPS)
+	FPSAvr = ewma.NewMovingAverage(60)
 }
 
 var (
@@ -25,6 +28,10 @@ var (
 	/* SuperChunkMap */
 	SuperChunkMap     map[XY]*MapSuperChunk
 	SuperChunkMapLock sync.RWMutex
+
+	/* Tick: External inter-object communication */
+	RotateList     []RotateEvent = []RotateEvent{}
+	RotateListLock sync.Mutex
 
 	/* Tick: External inter-object communication */
 	TickList     []TickEvent = []TickEvent{}
@@ -42,6 +49,7 @@ var (
 	EventQueue     []*EventQueueData
 	EventQueueLock sync.Mutex
 
+	RotateCount int
 	/* Number of tick events */
 	TickCount int
 	/* Number of tock events */
@@ -49,18 +57,18 @@ var (
 	/* Number of ticks per worker */
 	TickWorkSize int
 	/* Number of tocks per worker */
-	TockWorkSize int
-	/* Number of workers/threads */
 	NumWorkers int
 
 	/* Starting resolution */
-	ScreenWidth  int = 1280
-	ScreenHeight int = 720
+	ScreenWidth  uint16 = 1280
+	ScreenHeight uint16 = 720
 
 	/* Game UPS rate */
-	ObjectUPS            float32 = 4.0
-	ObjectUPS_ns                 = time.Duration((1000000000.0 / ObjectUPS))
+	ObjectUPS            float32 = gv.GameUPS
+	ObjectUPS_ns                 = int(1000000000.0 / ObjectUPS)
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
+	UPSAvr               ewma.MovingAverage
+	FPSAvr               ewma.MovingAverage
 
 	/* Small images used in game */
 	MiniMapTile *ebiten.Image
@@ -75,8 +83,8 @@ var (
 	/* Fonts */
 	BootFont    font.Face
 	ToolTipFont font.Face
+	MonoFont    font.Face
 	ObjectFont  font.Face
-	LargeFont   font.Face
 
 	/* Camera position */
 	CameraX float32 = float32(gv.XYCenter)
@@ -94,11 +102,8 @@ var (
 	VisDataDirty atomic.Bool
 
 	/* Mouse vars */
-	MouseX float32 = float32(gv.XYCenter)
-	MouseY float32 = float32(gv.XYCenter)
-
-	/* Setup latches */
-	InitMouse = false
+	PrevMouseX float32
+	PrevMouseY float32
 
 	/* Temporary chunk image during draw */
 	TempChunkImage *ebiten.Image

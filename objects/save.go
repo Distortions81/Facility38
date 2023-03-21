@@ -7,7 +7,6 @@ import (
 	"GameTest/world"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 	"runtime"
 	"time"
@@ -33,10 +32,10 @@ type MapSeedsData struct {
 }
 
 type saveMObj struct {
-	Pos      world.XY                       `json:"p,omitempty"`
+	Pos      world.XYs                      `json:"p,omitempty"`
 	TypeI    uint8                          `json:"i,omitempty"`
 	Dir      uint8                          `json:"d,omitempty"`
-	Contents [gv.MAT_MAX]*world.MatData     `json:"c,omitempty"`
+	Contents *world.MaterialContentsType    `json:"c,omitempty"`
 	KGFuel   float32                        `json:"kf,omitempty"`
 	KGHeld   float32                        `json:"k,omitempty"`
 	Ports    [gv.DIR_MAX]*world.ObjPortData `json:"po,omitempty"`
@@ -55,7 +54,7 @@ func SaveGame() {
 		finalPath := "save.dat"
 
 		//start := time.Now()
-		//("Save starting.")
+		//cwlog.DoLog("Save starting.")
 
 		/* Pause the whole world ... */
 		world.SuperChunkListLock.RLock()
@@ -96,19 +95,18 @@ func SaveGame() {
 						Contents: mObj.Contents,
 						KGFuel:   mObj.KGFuel,
 						KGHeld:   mObj.KGHeld,
-						Ports:    mObj.Ports,
 						Ticks:    mObj.TickCount,
 					}
 
 					/* Convert pointer to type int */
-					for c := range tobj.Contents {
-						if tobj.Contents[c] == nil {
+					for c := range tobj.Contents.Mats {
+						if tobj.Contents.Mats[c] == nil {
 							continue
 						}
-						if tobj.Contents[c].TypeP == nil {
+						if tobj.Contents.Mats[c].TypeP == nil {
 							continue
 						}
-						tobj.Contents[c].TypeI = tobj.Contents[c].TypeP.TypeI
+						tobj.Contents.Mats[c].TypeI = tobj.Contents.Mats[c].TypeP.TypeI
 					}
 
 					/* Convert pointer to type int */
@@ -126,24 +124,24 @@ func SaveGame() {
 				}
 			}
 		}
-		//fmt.Println("WALK COMPLETE:", time.Since(start).String())
+		//cwlog.DoLog("WALK COMPLETE:", time.Since(start).String())
 
 		b, err := json.Marshal(tempList)
 
 		world.SuperChunkListLock.RUnlock()
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
-		//fmt.Println("ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
+		//cwlog.DoLog"ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
 
 		if err != nil {
-			//fmt.Printf("SaveGame: encode error: %v\n", err)
+			//cwlog.DoLog("SaveGame: encode error: %v\n", err)
 			//return
 		}
 
 		_, err = os.Create(tempPath)
 
 		if err != nil {
-			fmt.Printf("SaveGame: os.Create error: %v\n", err)
+			cwlog.DoLog(true, "SaveGame: os.Create error: %v\n", err)
 			return
 		}
 
@@ -152,19 +150,19 @@ func SaveGame() {
 		err = os.WriteFile(tempPath, zip, 0644)
 
 		if err != nil {
-			fmt.Printf("SaveGame: os.WriteFile error: %v\n", err)
+			cwlog.DoLog(true, "SaveGame: os.WriteFile error: %v\n", err)
 		}
 
 		err = os.Rename(tempPath, finalPath)
 
 		if err != nil {
-			fmt.Printf("SaveGame: couldn't rename save file: %v\n", err)
+			cwlog.DoLog(true, "SaveGame: couldn't rename save file: %v\n", err)
 			return
 		}
 
 		util.ChatDetailed("Game save complete.", world.ColorOrange, time.Second*15)
 
-		//fmt.Println("COMPRESS & WRITE COMPLETE:", time.Since(start).String())
+		//cwlog.DoLog("COMPRESS & WRITE COMPLETE:", time.Since(start).String())
 	}()
 }
 
@@ -181,7 +179,7 @@ func LoadGame() {
 
 		b, err := os.ReadFile("save.dat")
 		if err != nil {
-			fmt.Printf("LoadGame: file not found: %v\n", err)
+			cwlog.DoLog(true, "LoadGame: file not found: %v\n", err)
 			return
 		}
 
@@ -199,12 +197,12 @@ func LoadGame() {
 		tempList := gameSave{}
 		err = dec.Decode(&tempList)
 		if err != nil {
-			fmt.Printf("LoadGame: JSON decode error: %v\n", err)
+			cwlog.DoLog(true, "LoadGame: JSON decode error: %v\n", err)
 			return
 		}
 
 		if tempList.Version != 2 {
-			cwlog.DoLog("LoadGame: Invalid save version.")
+			cwlog.DoLog(true, "LoadGame: Invalid save version.")
 		}
 
 		world.SuperChunkListLock.RUnlock()
@@ -240,22 +238,14 @@ func LoadGame() {
 				Contents:  tempList.Objects[i].Contents,
 				KGFuel:    tempList.Objects[i].KGFuel,
 				KGHeld:    tempList.Objects[i].KGHeld,
-				Ports:     tempList.Objects[i].Ports,
 				TickCount: tempList.Objects[i].Ticks,
 			}
 
-			for c := range obj.Contents {
-				if obj.Contents[c] == nil {
+			for c := range obj.Contents.Mats {
+				if obj.Contents.Mats[c] == nil {
 					continue
 				}
-				obj.Contents[c].TypeP = MatTypes[obj.Contents[c].TypeI]
-			}
-
-			for p := range obj.Ports {
-				if obj.Ports[p] == nil {
-					continue
-				}
-				obj.Ports[p].Buf.TypeP = MatTypes[obj.Ports[p].Buf.TypeI]
+				obj.Contents.Mats[c].TypeP = MatTypes[obj.Contents.Mats[c].TypeI]
 			}
 
 			/* Relink */
@@ -263,21 +253,10 @@ func LoadGame() {
 			chunk := util.GetChunk(util.UnCenterXY(tempList.Objects[i].Pos))
 			obj.Parent = chunk
 
-			obj.Parent.ObjMap[util.UnCenterXY(tempList.Objects[i].Pos)] = obj
+			obj.Parent.BuildingMap[util.UnCenterXY(tempList.Objects[i].Pos)].Obj = obj
 			obj.Parent.ObjList = append(obj.Parent.ObjList, obj)
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjs++
-
-			LinkObj(obj)
-
-			/* Only add to list if the object calls an update function */
-			if obj.TypeP.UpdateObj != nil {
-				tockListAdd(obj)
-			}
-
-			if util.ObjHasPort(obj, gv.PORT_OUTPUT) {
-				ticklistAdd(obj)
-			}
 
 			if obj.TypeP.InitObj != nil {
 				obj.TypeP.InitObj(obj)
@@ -341,7 +320,7 @@ func NukeWorld() {
 			}
 
 			world.SuperChunkList[sc].ChunkList[c].ObjList = nil
-			world.SuperChunkList[sc].ChunkList[c].ObjMap = nil
+			world.SuperChunkList[sc].ChunkList[c].BuildingMap = nil
 		}
 		world.SuperChunkList[sc].ChunkList = nil
 		world.SuperChunkList[sc].ChunkMap = nil
@@ -362,5 +341,5 @@ func NukeWorld() {
 
 	world.SuperChunkListLock.Unlock()
 
-	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16)
+	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, false)
 }
