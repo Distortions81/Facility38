@@ -238,36 +238,59 @@ func runRotates() {
 	defer world.RotateListLock.Unlock()
 
 	for _, rot := range world.RotateList {
-		o := rot.Build
+		var objSave world.ObjData
+		b := rot.Build
 
-		if o != nil {
+		if b != nil {
+
+			obj := b.Obj
+			if obj.TypeP.NonSquare {
+				var newdir uint8
+
+				/* Save a copy of the object */
+				objSave = *obj
+
+				if !rot.Clockwise {
+					newdir = util.RotCCW(objSave.Dir)
+				} else {
+					newdir = util.RotCW(objSave.Dir)
+				}
+				objSave.Dir = newdir
+
+				/* Remove object from the world */
+				removeObj(obj)
+
+				//Recreate object here
+				continue
+			}
+
 			var newdir uint8
 
-			UnlinkObj(o.Obj)
+			UnlinkObj(obj)
 			if !rot.Clockwise {
-				newdir = util.RotCCW(o.Obj.Dir)
-				for p, port := range o.Obj.Ports {
-					o.Obj.Ports[p].Dir = util.RotCCW(port.Dir)
+				newdir = util.RotCCW(obj.Dir)
+				for p, port := range obj.Ports {
+					obj.Ports[p].Dir = util.RotCCW(port.Dir)
 				}
 
-				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", obj.TypeP.Name, util.PosToString(obj.Pos)), color.White, time.Second*5)
 			} else {
-				newdir = util.RotCW(o.Obj.Dir)
-				for p, port := range o.Obj.Ports {
-					o.Obj.Ports[p].Dir = util.RotCW(port.Dir)
+				newdir = util.RotCW(obj.Dir)
+				for p, port := range obj.Ports {
+					obj.Ports[p].Dir = util.RotCW(port.Dir)
 				}
 
-				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", o.Obj.TypeP.Name, util.PosToString(o.Obj.Pos)), color.White, time.Second*5)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", obj.TypeP.Name, util.PosToString(obj.Pos)), color.White, time.Second*5)
 			}
-			o.Obj.Dir = newdir
+			obj.Dir = newdir
 
-			if o.Obj.TypeP.Size.X > 1 || o.Obj.TypeP.Size.Y > 1 {
-				for _, subObj := range o.Obj.TypeP.SubObjs {
-					subPos := util.GetSubPos(o.Obj.Pos, subObj)
-					LinkObj(subPos, o)
+			if obj.TypeP.Size.X > 1 || obj.TypeP.Size.Y > 1 {
+				for _, subObj := range obj.TypeP.SubObjs {
+					subPos := util.GetSubPos(obj.Pos, subObj)
+					LinkObj(subPos, b)
 				}
 			} else {
-				LinkObj(o.Obj.Pos, o)
+				LinkObj(obj.Pos, b)
 			}
 		}
 	}

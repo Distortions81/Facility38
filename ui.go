@@ -366,10 +366,21 @@ func rotateWorldObjects() {
 		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
 
 		chunk := util.GetChunk(pos)
+		/* Valid chunk? */
 		if chunk == nil {
 			return
 		}
+
 		b := util.GetObj(pos, chunk)
+		/* Valid building? */
+		if b == nil {
+			return
+		}
+
+		/* Valid object? */
+		if b.Obj == nil {
+			return
+		}
 
 		objects.RotateListAdd(b, !gShiftPressed, pos)
 	}
