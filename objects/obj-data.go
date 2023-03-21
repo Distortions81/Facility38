@@ -149,7 +149,7 @@ var (
 			},
 		},
 		{ImagePath: "world-obj/belt-over.png",
-			Name:      "Basic Intersection-Right",
+			Name:      "Basic Belt Intersection",
 			Info:      "A belt that has an under-pass.",
 			TypeI:     gv.ObjTypeBasicBeltOver,
 			Size:      world.XYs{X: 1, Y: 3},
