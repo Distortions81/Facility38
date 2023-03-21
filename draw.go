@@ -135,13 +135,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 		if item.Rotatable {
 			var halfObjSize world.XYf64
 
-			var newSize world.XYs
-			if item.Direction == 0 || item.Direction == 2 {
-				newSize = item.Size
-			} else {
-				newSize.X = item.Size.Y
-				newSize.Y = item.Size.X
-			}
+			var newSize world.XYs = objects.GetObjSize(nil, item)
 
 			halfObjSize.X = float64(newSize.X / 2)
 			halfObjSize.Y = float64(newSize.Y / 2)
@@ -366,6 +360,8 @@ func drawIconMode(screen *ebiten.Image) {
 			objCamPosX := objOffX * world.ZoomScale
 			objCamPosY := objOffY * world.ZoomScale
 
+			oSize := objects.GetObjSize(obj, nil)
+
 			/* Show objects with no fuel */
 			if obj.TypeP.MaxFuelKG > 0 && obj.KGFuel < obj.TypeP.KgFuelEach {
 
@@ -373,8 +369,8 @@ func drawIconMode(screen *ebiten.Image) {
 
 				iSize := img.Bounds()
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-					((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+				op.GeoM.Scale(((float64(oSize.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
+					((float64(oSize.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 
 				if img != nil {
@@ -394,8 +390,8 @@ func drawIconMode(screen *ebiten.Image) {
 						img := objects.ObjOverlayTypes[port.Dir].Image
 						iSize := img.Bounds()
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-						op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-							((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+						op.GeoM.Scale(((float64(oSize.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
+							((float64(oSize.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 						op.ColorScale.Scale(0.5, 0.5, 0.5, 0.66)
 
@@ -423,8 +419,8 @@ func drawIconMode(screen *ebiten.Image) {
 				op.GeoM.Translate(
 					cBlockedIndicatorOffset,
 					cBlockedIndicatorOffset)
-				op.GeoM.Scale(((float64(obj.TypeP.Size.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-					((float64(obj.TypeP.Size.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+				op.GeoM.Scale(((float64(oSize.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
+					((float64(oSize.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 
 				if img != nil {
@@ -772,6 +768,8 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 	x := float64(objOffX * world.ZoomScale)
 	y := float64(objOffY * world.ZoomScale)
 
+	oSize := objects.GetObjSize(obj, nil)
+
 	/* Draw sprite */
 	if obj.TypeP.Image == nil {
 		return nil, nil
@@ -789,8 +787,8 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 		}
 
 		op.GeoM.Scale(
-			(float64(obj.TypeP.Size.X)*float64(world.ZoomScale))/float64(iSize.Max.X),
-			(float64(obj.TypeP.Size.Y)*float64(world.ZoomScale))/float64(iSize.Max.Y))
+			(float64(oSize.X)*float64(world.ZoomScale))/float64(iSize.Max.X),
+			(float64(oSize.Y)*float64(world.ZoomScale))/float64(iSize.Max.Y))
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 

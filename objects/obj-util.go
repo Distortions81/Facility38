@@ -182,6 +182,18 @@ func SubObjFits(obj *world.ObjData, TypeP *world.ObjType, report bool, pos world
 	return true
 }
 
+func GetObjSize(obj *world.ObjData, TypeP *world.ObjType) world.XYs {
+	if obj != nil {
+		if obj.Dir == 1 || obj.Dir == 3 {
+			return world.XYs{X: obj.TypeP.Size.Y, Y: obj.TypeP.Size.X}
+		} else {
+			return obj.TypeP.Size
+		}
+	} else {
+		return TypeP.Size
+	}
+}
+
 /* Quickly move material by swapping pointers */
 func swapPortBuf(px, py *world.MatData) {
 	*px, *py = *py, *px
