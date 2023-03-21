@@ -65,10 +65,10 @@ const (
 	ObjTypeBasicMiner      = 0
 	ObjTypeBasicBelt       = 1
 	ObjTypeBasicBeltOver   = 2
-	ObjTypeBasicSplit      = 4
-	ObjTypeBasicBox        = 5
-	ObjTypeBasicSmelter    = 6
-	ObjTypeBasicFuelHopper = 7
+	ObjTypeBasicSplit      = 3
+	ObjTypeBasicBox        = 4
+	ObjTypeBasicSmelter    = 5
+	ObjTypeBasicFuelHopper = 6
 
 	/*Disabled, incomplete */
 	ObjTypeBasicIronCaster = 8

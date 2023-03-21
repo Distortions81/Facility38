@@ -121,9 +121,11 @@ var (
 			ShowArrow:    true,
 			ToolBarArrow: true,
 			ShowBlocked:  true,
-			Symbol:       "MINE",
+			Symbol:       "MIN",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+
+				/* Fuel inputs */
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_FIN},
 				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_FIN},
@@ -140,7 +142,7 @@ var (
 			Rotatable: true,
 			UpdateObj: beltUpdate,
 			LinkObj:   linkBelt,
-			Symbol:    "BELT",
+			Symbol:    "BLT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
@@ -154,12 +156,19 @@ var (
 			TypeI:     gv.ObjTypeBasicBeltOver,
 			Size:      world.XYs{X: 1, Y: 3},
 			Rotatable: true,
-			UpdateObj: beltUpdateInter,
+			UpdateObj: beltUpdateOver,
 			LinkObj:   linkBelt,
-			Symbol:    "iBLT",
+			Symbol:    "BOP",
 			Ports: []world.ObjPortData{
+				/* Overpass is one direction */
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+
+				/* Underpass is bidirectional */
+				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
 			},
 			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 0, Y: 2}},
 		},
@@ -176,7 +185,7 @@ var (
 			KW:          100,
 			UpdateObj:   splitterUpdate,
 			LinkObj:     linkSplitter,
-			Symbol:      "SPLT",
+			Symbol:      "SPT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
@@ -218,7 +227,7 @@ var (
 			ShowArrow:    true,
 			ShowBlocked:  true,
 			ToolBarArrow: true,
-			Symbol:       "SMLT",
+			Symbol:       "SMT",
 			UpdateObj:    smelterUpdate,
 			InitObj:      initSmelter,
 			LinkObj:      linkSmelter,
@@ -227,7 +236,6 @@ var (
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
 			},
-			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
 
 		{ImagePath: "world-obj/basic-fuel-hopper.png",
@@ -243,7 +251,7 @@ var (
 			KW:           10,
 			KgHopperMove: 1,
 			Interval:     uint8(world.ObjectUPS) * 2,
-			Symbol:       "FHOP",
+			Symbol:       "FHP",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_IN},
 				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},

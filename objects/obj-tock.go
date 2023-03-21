@@ -81,7 +81,19 @@ func minerUpdate(obj *world.ObjData) {
 	}
 }
 
-func beltUpdateInter(obj *world.ObjData) {
+func beltUpdateOver(obj *world.ObjData) {
+
+	for i, input := range obj.Inputs {
+		/* Does the input contain anything? */
+		if input.Buf.Amount > 0 &&
+			obj.NumOut >= uint8(i+1) &&
+			obj.Outputs[i].Buf.Amount == 0 &&
+			obj.Outputs[i].Obj != nil &&
+			!obj.Outputs[i].Obj.Blocked {
+			/* Good to go, swap pointers */
+			*obj.Outputs[i].Buf, *obj.Inputs[i].Buf = *obj.Inputs[i].Buf, *obj.Outputs[i].Buf
+		}
+	}
 }
 
 func beltUpdate(obj *world.ObjData) {
