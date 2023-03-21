@@ -11,6 +11,8 @@ import (
 	"io"
 	"log"
 	"math"
+	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 
@@ -68,11 +70,25 @@ func deleteOldLines() {
 	ChatLinesTop = newTop
 }
 
-func ObjCD(b *world.BuildingData, text string) {
+func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
 	if !gv.Debug {
 		return
 	}
-	buf := fmt.Sprintf("%v: %v: %v", b.Obj.TypeP.Name, PosToString(b.Pos), text)
+	/* Get current time */
+	ctime := time.Now()
+	/* Get calling function and line */
+	_, filename, line, _ := runtime.Caller(1)
+	/* printf conversion */
+	text := fmt.Sprintf(format, args...)
+	/* Add current date */
+	date := fmt.Sprintf("%2v:%2v.%2v", ctime.Hour(), ctime.Minute(), ctime.Second())
+
+	/* Add object name and position */
+
+	objData := fmt.Sprintf("%v: %v: %v", b.Obj.TypeP.Name, PosToString(b.Pos), text)
+
+	/* Date, go file, go file line, text */
+	buf := fmt.Sprintf("%v: %15v:%5v: %v", date, filepath.Base(filename), line, objData)
 	ChatDetailed(buf, world.ColorRed, time.Minute)
 }
 
@@ -85,7 +101,7 @@ func Chat(text string) {
 		ChatLinesTop++
 
 		ChatLinesLock.Unlock()
-		cwlog.DoLog("Chat: " + text)
+		cwlog.DoLog(false, "Chat: "+text)
 	}(text)
 }
 func ChatDetailed(text string, color color.Color, life time.Duration) {
@@ -101,7 +117,7 @@ func ChatDetailed(text string, color color.Color, life time.Duration) {
 		ChatLinesTop++
 
 		ChatLinesLock.Unlock()
-		cwlog.DoLog("Chat: " + text)
+		cwlog.DoLog(false, "Chat: "+text)
 	}(text)
 }
 
@@ -405,7 +421,7 @@ func CompressZip(data []byte) []byte {
 	var b bytes.Buffer
 	w, err := zlib.NewWriterLevel(&b, zlib.BestSpeed)
 	if err != nil {
-		cwlog.DoLog("CompressZip: %v", err)
+		cwlog.DoLog(true, "CompressZip: %v", err)
 	}
 	w.Write(data)
 	w.Close()

@@ -238,7 +238,7 @@ func detectCPUs() {
 		lCPUs = 1
 	}
 	world.NumWorkers = lCPUs
-	cwlog.DoLog("Virtual CPUs: %v", lCPUs)
+	cwlog.DoLog(true, "Virtual CPUs: %v", lCPUs)
 
 	/* Logical CPUs */
 	cdat, cerr := cpu.Counts(false)
@@ -249,10 +249,10 @@ func detectCPUs() {
 		} else {
 			lCPUs = 1
 		}
-		cwlog.DoLog("Logical CPUs: %v", cdat)
+		cwlog.DoLog(true, "Logical CPUs: %v", cdat)
 	}
 
-	cwlog.DoLog("Number of workers: %v", lCPUs)
+	cwlog.DoLog(true, "Number of workers: %v", lCPUs)
 	world.NumWorkers = lCPUs
 }
 

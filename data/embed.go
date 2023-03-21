@@ -34,13 +34,13 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 	if cLoadEmbedSprites {
 		gpng, err := f.Open(gv.GfxDir + name)
 		if err != nil {
-			cwlog.DoLog("GetSpriteImage: Embedded: %v", err)
+			cwlog.DoLog(true, "GetSpriteImage: Embedded: %v", err)
 			return nil, err
 		}
 
 		m, _, err := image.Decode(gpng)
 		if err != nil {
-			cwlog.DoLog("GetSpriteImage: Embedded: %v", err)
+			cwlog.DoLog(true, "GetSpriteImage: Embedded: %v", err)
 			return nil, err
 		}
 		img := ebiten.NewImageFromImage(m)
@@ -49,7 +49,7 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 	} else {
 		img, _, err := ebitenutil.NewImageFromFile(gv.DataDir + gv.GfxDir + name)
 		if err != nil {
-			cwlog.DoLog("GetSpriteImage: File: %v", err)
+			cwlog.DoLog(true, "GetSpriteImage: File: %v", err)
 		}
 		return img, err
 	}
@@ -58,18 +58,18 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 func GetText(name string) (string, error) {
 	file, err := f.Open(gv.TxtDir + name + ".txt")
 	if err != nil {
-		cwlog.DoLog("GetText: %v", err)
+		cwlog.DoLog(true, "GetText: %v", err)
 		return "GetText: File: " + name + " not found in embed.", err
 	}
 
 	txt, err := io.ReadAll(file)
 	if err != nil {
-		cwlog.DoLog("GetText: %v", err)
+		cwlog.DoLog(true, "GetText: %v", err)
 		return "Error: Failed read: " + name, err
 	}
 
 	if len(txt) > 0 {
-		cwlog.DoLog("GetText: %v", name)
+		cwlog.DoLog(true, "GetText: %v", name)
 		return strings.ReplaceAll(string(txt), "\r", ""), nil
 	} else {
 		return "Error: length 0!", err

@@ -141,7 +141,7 @@ func SaveGame() {
 		_, err = os.Create(tempPath)
 
 		if err != nil {
-			cwlog.DoLog("SaveGame: os.Create error: %v\n", err)
+			cwlog.DoLog(true, "SaveGame: os.Create error: %v\n", err)
 			return
 		}
 
@@ -150,13 +150,13 @@ func SaveGame() {
 		err = os.WriteFile(tempPath, zip, 0644)
 
 		if err != nil {
-			cwlog.DoLog("SaveGame: os.WriteFile error: %v\n", err)
+			cwlog.DoLog(true, "SaveGame: os.WriteFile error: %v\n", err)
 		}
 
 		err = os.Rename(tempPath, finalPath)
 
 		if err != nil {
-			cwlog.DoLog("SaveGame: couldn't rename save file: %v\n", err)
+			cwlog.DoLog(true, "SaveGame: couldn't rename save file: %v\n", err)
 			return
 		}
 
@@ -179,7 +179,7 @@ func LoadGame() {
 
 		b, err := os.ReadFile("save.dat")
 		if err != nil {
-			cwlog.DoLog("LoadGame: file not found: %v\n", err)
+			cwlog.DoLog(true, "LoadGame: file not found: %v\n", err)
 			return
 		}
 
@@ -197,12 +197,12 @@ func LoadGame() {
 		tempList := gameSave{}
 		err = dec.Decode(&tempList)
 		if err != nil {
-			cwlog.DoLog("LoadGame: JSON decode error: %v\n", err)
+			cwlog.DoLog(true, "LoadGame: JSON decode error: %v\n", err)
 			return
 		}
 
 		if tempList.Version != 2 {
-			cwlog.DoLog("LoadGame: Invalid save version.")
+			cwlog.DoLog(true, "LoadGame: Invalid save version.")
 		}
 
 		world.SuperChunkListLock.RUnlock()

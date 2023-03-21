@@ -181,7 +181,7 @@ var (
 			Name:        "Basic Splitter",
 			Info:        "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
-			Size:        world.XY{X: 2, Y: 2},
+			Size:        world.XY{X: 2, Y: 1},
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
@@ -401,21 +401,21 @@ func DumpItems() bool {
 	enc.SetIndent("", "\t")
 
 	if err := enc.Encode(GameObjTypes); err != nil {
-		cwlog.DoLog("DumpItems: %v", err)
+		cwlog.DoLog(true, "DumpItems: %v", err)
 		return false
 	}
 
 	_, err := os.Create("items.json")
 
 	if err != nil {
-		cwlog.DoLog("DumpItems: %v", err)
+		cwlog.DoLog(true, "DumpItems: %v", err)
 		return false
 	}
 
 	err = os.WriteFile("items.json", outbuf.Bytes(), 0644)
 
 	if err != nil {
-		cwlog.DoLog("DumpItems: %v", err)
+		cwlog.DoLog(true, "DumpItems: %v", err)
 		return false
 	}
 
