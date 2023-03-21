@@ -62,14 +62,13 @@ const (
 	ToolbarOverlay = 4
 
 	/* Buildings */
-	ObjTypeBasicMiner          = 0
-	ObjTypeBasicBelt           = 1
-	ObjTypeBasicBeltInterRight = 2
-	ObjTypeBasicBeltInterLeft  = 3
-	ObjTypeBasicSplit          = 4
-	ObjTypeBasicBox            = 5
-	ObjTypeBasicSmelter        = 6
-	ObjTypeBasicFuelHopper     = 7
+	ObjTypeBasicMiner      = 0
+	ObjTypeBasicBelt       = 1
+	ObjTypeBasicBeltOver   = 2
+	ObjTypeBasicSplit      = 4
+	ObjTypeBasicBox        = 5
+	ObjTypeBasicSmelter    = 6
+	ObjTypeBasicFuelHopper = 7
 
 	/*Disabled, incomplete */
 	ObjTypeBasicIronCaster = 8
