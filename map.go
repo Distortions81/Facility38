@@ -40,17 +40,17 @@ func makeMap(gen bool) {
 				cols++
 
 				tx := int(gv.XYCenter) - (columns*(beltLength+hSpace))/2
-				objects.CreateObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicMiner, gv.DIR_EAST, true)
+				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_EAST, true)
 				tx++
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
 					tx++
-					objects.CreateObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBelt, gv.DIR_EAST, true)
+					objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_EAST, true)
 					Loaded++
 				}
 				tx++
-				objects.CreateObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBox, gv.DIR_EAST, true)
+				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_EAST, true)
 				Loaded++
 
 				if cols%columns == 0 {
@@ -70,54 +70,54 @@ func makeMap(gen bool) {
 			ty := int(gv.XYCenter)
 			total = 16
 
-			objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, gv.DIR_EAST, true)
+			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_EAST, true)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx++
-				objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, gv.DIR_EAST, true)
+				objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_EAST, true)
 				Loaded++
 			}
 			tx++
-			objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, gv.DIR_EAST, true)
+			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_EAST, true)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter - 2)
-			objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, gv.DIR_WEST, true)
+			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_WEST, true)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				tx--
-				objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, gv.DIR_WEST, true)
+				objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_WEST, true)
 				Loaded++
 			}
 			tx--
-			objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, gv.DIR_WEST, true)
+			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_WEST, true)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter + 2)
-			objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, gv.DIR_SOUTH, true)
+			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_SOUTH, true)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty++
-				objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, gv.DIR_SOUTH, true)
+				objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_SOUTH, true)
 				Loaded++
 			}
 			ty++
-			objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, gv.DIR_SOUTH, true)
+			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_SOUTH, true)
 			Loaded++
 
 			tx = int(gv.XYCenter - 5)
 			ty = int(gv.XYCenter - 4)
-			objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, gv.DIR_NORTH, true)
+			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_NORTH, true)
 			Loaded++
 			for i := 0; i < beltLength-hSpace; i++ {
 				ty--
-				objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, gv.DIR_NORTH, true)
+				objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_NORTH, true)
 				Loaded++
 			}
 			ty--
-			objects.CreateObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, gv.DIR_NORTH, true)
+			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_NORTH, true)
 			Loaded++
 
 			world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)

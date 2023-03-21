@@ -155,6 +155,8 @@ type ObjData struct {
 	FuelIn  []*ObjPortData
 	FuelOut []*ObjPortData
 
+	SubObjs []XYu
+
 	//Prevent needing to use len()
 	NumOut  uint8
 	NumIn   uint8

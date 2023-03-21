@@ -20,11 +20,27 @@ func removeObj(obj *world.ObjData) {
 
 	obj.Parent.Lock.Unlock()
 	util.ObjListDelete(obj)
+}
 
+func rotateSub(sub world.XYu, dir uint8) world.XYu {
+	tempX := sub.X
+	tempY := sub.Y
+
+	if dir == 0 {
+		return sub
+	} else if dir == 1 {
+		return world.XYu{X: -tempY, Y: tempX}
+	} else if dir == 2 {
+		return world.XYu{X: -tempX, Y: -tempY}
+	} else if dir == 3 {
+		return world.XYu{X: tempY, Y: -tempX}
+	} else {
+		return world.XYu{X: 0, Y: 0}
+	}
 }
 
 /* Create a multi-tile object */
-func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
+func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast bool) *world.ObjData {
 
 	//Make chunk if needed
 	if !fast {
@@ -41,11 +57,15 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	}
 
 	newObj := &world.ObjData{}
-	newObj.Pos = pos
-	newObj.Parent = chunk
+	if obj == nil {
+		newObj.Pos = pos
+		newObj.Parent = chunk
 
-	newObj.TypeP = GameObjTypes[mtype]
-	newObj.Dir = dir
+		newObj.TypeP = GameObjTypes[mtype]
+		newObj.Dir = dir
+	} else {
+		newObj = obj
+	}
 
 	multiTile := false
 	subFits := false
@@ -59,29 +79,31 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 		}
 	}
 
-	if newObj.TypeP.CanContain {
-		newObj.Contents = &world.MaterialContentsType{}
-		newObj.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
-	}
-
-	if newObj.TypeP.MaxFuelKG > 0 {
-		newObj.KGFuel = newObj.TypeP.MaxFuelKG
-	}
-
-	for p, port := range newObj.TypeP.Ports {
-		newObj.Ports = append(newObj.Ports, port)
-		newObj.Ports[p].Buf = &world.MatData{}
-	}
-
-	for p, port := range newObj.Ports {
-		newObj.Ports[p].Dir = util.RotDir(dir, port.Dir)
-	}
-
-	/* Init obj if we have a function for it */
 	initOkay := true
-	if newObj.TypeP.InitObj != nil {
-		if !newObj.TypeP.InitObj(newObj) {
-			initOkay = false
+	if obj == nil {
+		if newObj.TypeP.CanContain {
+			newObj.Contents = &world.MaterialContentsType{}
+			newObj.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
+		}
+
+		if newObj.TypeP.MaxFuelKG > 0 {
+			newObj.KGFuel = newObj.TypeP.MaxFuelKG
+		}
+
+		for p, port := range newObj.TypeP.Ports {
+			newObj.Ports = append(newObj.Ports, port)
+			newObj.Ports[p].Buf = &world.MatData{}
+		}
+
+		for p, port := range newObj.Ports {
+			newObj.Ports[p].Dir = util.RotDir(dir, port.Dir)
+		}
+
+		/* Init obj if we have a function for it */
+		if newObj.TypeP.InitObj != nil {
+			if !newObj.TypeP.InitObj(newObj) {
+				initOkay = false
+			}
 		}
 	}
 
@@ -107,7 +129,13 @@ func CreateObj(pos world.XY, mtype uint8, dir uint8, fast bool) *world.ObjData {
 	if multiTile {
 		if subFits {
 			/* If space is available, create items */
-			for _, sub := range newObj.TypeP.SubObjs {
+			var sobj []world.XYu
+			if obj != nil && obj.SubObjs != nil {
+				sobj = obj.SubObjs
+			} else {
+				sobj = newObj.TypeP.SubObjs
+			}
+			for _, sub := range sobj {
 				sXY := util.GetSubPos(pos, sub)
 				MakeChunk(sXY)
 				tchunk := util.GetChunk(sXY)

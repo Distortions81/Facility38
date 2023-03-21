@@ -244,7 +244,7 @@ func runRotates() {
 		if b != nil {
 
 			obj := b.Obj
-			if obj.TypeP.NonSquare {
+			if (obj.TypeP.Size.X > 1 || obj.TypeP.Size.Y > 1) && obj.TypeP.NonSquare {
 				var newdir uint8
 
 				/* Save a copy of the object */
@@ -260,7 +260,13 @@ func runRotates() {
 				/* Remove object from the world */
 				removeObj(obj)
 
-				//Recreate object here
+				subObj := objSave.TypeP.SubObjs
+				for s, sub := range subObj {
+					sTemp := rotateSub(sub, objSave.Dir)
+					util.ObjCD(b, fmt.Sprintf("Direction: %v: %v,%v -> %v,%v", objSave.Dir, sub.X, sub.Y, sTemp.X, sTemp.Y))
+					subObj[s] = sTemp
+				}
+				PlaceObj(objSave.Pos, 0, &objSave, newdir, false)
 				continue
 			}
 
@@ -338,7 +344,7 @@ func runObjQueue() {
 			world.VisDataDirty.Store(true)
 		} else {
 			//Add
-			CreateObj(item.Pos, item.OType, item.Dir, false)
+			PlaceObj(item.Pos, item.OType, nil, item.Dir, false)
 			world.VisDataDirty.Store(true)
 		}
 	}
