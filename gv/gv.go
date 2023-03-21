@@ -20,6 +20,7 @@ var (
 )
 
 const (
+	MaxItemType      = 255
 	GameUPS          = 8
 	NumResourceTypes = 7
 	NinetyDeg        = math.Pi / 2

@@ -15,7 +15,7 @@ var (
 	toolbarCache     *ebiten.Image
 	toolbarCacheLock sync.RWMutex
 	ToolbarMax       int
-	SelectedItemType uint8 = 255
+	SelectedItemType uint8 = gv.MaxItemType
 	ToolbarItems           = []world.ToolbarItem{}
 
 	lastClick    time.Time

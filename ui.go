@@ -123,7 +123,7 @@ func handleToolbar(rotate bool) bool {
 					DrawToolbar(true, false, ipos)
 					/* Deselect */
 				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI {
-					SelectedItemType = 255
+					SelectedItemType = gv.MaxItemType
 					DrawToolbar(true, false, ipos)
 				} else {
 					/* Select */
@@ -247,7 +247,7 @@ func createWorldObjects() {
 	/* Left mouse, and tile is empty */
 	if b == nil && gMouseHeld {
 		/* Nothing selected exit */
-		if SelectedItemType == 255 {
+		if SelectedItemType == gv.MaxItemType {
 			return
 		}
 		obj := objects.GameObjTypes[SelectedItemType]

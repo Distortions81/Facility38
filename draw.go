@@ -112,7 +112,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func drawItemPlacement(screen *ebiten.Image) {
 	/* Draw ghost for selected item */
-	if SelectedItemType < 255 {
+	if SelectedItemType < gv.MaxItemType {
 		mx, my := ebiten.CursorPosition()
 
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
