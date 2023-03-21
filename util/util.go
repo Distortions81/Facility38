@@ -46,7 +46,7 @@ func AddXY(a world.XY, b world.XY) world.XY {
 	return world.XY{X: a.X + b.X, Y: a.Y + b.Y}
 }
 
-func GetSubPos(a world.XY, b world.XYu) world.XY {
+func GetSubPos(a world.XY, b world.XYs) world.XY {
 	return world.XY{X: uint16(int32(a.X) + int32(b.X)), Y: uint16(int32(a.Y) + int32(b.Y))}
 }
 
@@ -183,11 +183,11 @@ func PosToString(pos world.XY) string {
 }
 
 /* Convert an internal XY (unsigned) to a (0,0) center */
-func CenterXY(pos world.XY) world.XYu {
-	return world.XYu{X: int32(pos.X) - int32(gv.XYCenter), Y: int32(pos.Y) - int32(gv.XYCenter)}
+func CenterXY(pos world.XY) world.XYs {
+	return world.XYs{X: int32(pos.X) - int32(gv.XYCenter), Y: int32(pos.Y) - int32(gv.XYCenter)}
 }
 
-func UnCenterXY(pos world.XYu) world.XY {
+func UnCenterXY(pos world.XYs) world.XY {
 	return world.XY{X: uint16(int32(pos.X) + int32(gv.XYCenter)), Y: uint16(int32(pos.Y) + int32(gv.XYCenter))}
 }
 

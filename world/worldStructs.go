@@ -155,7 +155,8 @@ type ObjData struct {
 	FuelIn  []*ObjPortData
 	FuelOut []*ObjPortData
 
-	SubObjs []XYu
+	SubObjs []XYs
+	Size    XYs
 
 	//Prevent needing to use len()
 	NumOut  uint8
@@ -221,7 +222,7 @@ type ObjType struct {
 	ToolBarArrow bool
 	QKey         ebiten.Key
 
-	Size      XY
+	Size      XYs
 	NonSquare bool
 	Rotatable bool
 	Direction uint8
@@ -254,7 +255,7 @@ type ObjType struct {
 	HasFOut    bool
 
 	Ports   []ObjPortData
-	SubObjs []XYu
+	SubObjs []XYs
 
 	ToolbarAction func()                  `json:"-"`
 	UpdateObj     func(Obj *ObjData)      `json:"-"`
@@ -311,6 +312,16 @@ type XY struct {
 }
 
 /* Int x/y */
-type XYu struct {
+type XYs struct {
 	X, Y int32
+}
+
+/* Float32 x/y */
+type XYf32 struct {
+	X, Y float32
+}
+
+/* Float64 x/y */
+type XYf64 struct {
+	X, Y float64
 }

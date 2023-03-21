@@ -244,7 +244,7 @@ func runRotates() {
 		if b != nil {
 
 			obj := b.Obj
-			if (obj.TypeP.Size.X > 1 || obj.TypeP.Size.Y > 1) && obj.TypeP.NonSquare {
+			if (obj.Size.X > 1 || obj.Size.Y > 1) && obj.TypeP.NonSquare {
 				var newdir uint8
 
 				/* Save a copy of the object */
@@ -262,7 +262,7 @@ func runRotates() {
 
 				subObj := objSave.TypeP.SubObjs
 				for s, sub := range subObj {
-					sTemp := rotateSub(sub, objSave.Dir)
+					sTemp := RotateCoord(sub, objSave.Dir)
 					util.ObjCD(b, fmt.Sprintf("Direction: %v: %v,%v -> %v,%v", objSave.Dir, sub.X, sub.Y, sTemp.X, sTemp.Y))
 					subObj[s] = sTemp
 				}
@@ -290,7 +290,7 @@ func runRotates() {
 			}
 			obj.Dir = newdir
 
-			if obj.TypeP.Size.X > 1 || obj.TypeP.Size.Y > 1 {
+			if obj.Size.X > 1 || obj.Size.Y > 1 {
 				for _, subObj := range obj.TypeP.SubObjs {
 					subPos := util.GetSubPos(obj.Pos, subObj)
 					LinkObj(subPos, b)
@@ -334,7 +334,7 @@ func runObjQueue() {
 
 	for _, item := range world.ObjQueue {
 		if item.Delete {
-			if item.Obj.TypeP.Size.X > 1 || item.Obj.TypeP.Size.Y > 1 {
+			if item.Obj.Size.X > 1 || item.Obj.Size.Y > 1 {
 				for _, sub := range item.Obj.TypeP.SubObjs {
 					pos := util.GetSubPos(item.Pos, sub)
 					removePosMap(pos)

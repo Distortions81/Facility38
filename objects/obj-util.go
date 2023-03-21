@@ -22,20 +22,18 @@ func removeObj(obj *world.ObjData) {
 	util.ObjListDelete(obj)
 }
 
-func rotateSub(sub world.XYu, dir uint8) world.XYu {
-	tempX := sub.X
-	tempY := sub.Y
+func RotateCoord(coord world.XYs, dir uint8) world.XYs {
+	tempX := coord.X
+	tempY := coord.Y
 
-	if dir == 0 {
-		return sub
-	} else if dir == 1 {
-		return world.XYu{X: -tempY, Y: tempX}
+	if dir == 1 {
+		return world.XYs{X: -tempY, Y: tempX}
 	} else if dir == 2 {
-		return world.XYu{X: -tempX, Y: -tempY}
+		return world.XYs{X: -tempX, Y: -tempY}
 	} else if dir == 3 {
-		return world.XYu{X: tempY, Y: -tempX}
+		return world.XYs{X: tempY, Y: -tempX}
 	} else {
-		return world.XYu{X: 0, Y: 0}
+		return world.XYs{X: 0, Y: 0}
 	}
 }
 
@@ -65,18 +63,34 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 		newObj.Dir = dir
 	} else {
 		newObj = obj
+
+		newObj.Pos = pos
+		newObj.Parent = chunk
+
+		newObj.Dir = dir
 	}
+	newObj.Size = newObj.TypeP.Size
 
 	multiTile := false
 	subFits := false
 	if newObj.TypeP.Size.X > 1 ||
 		newObj.TypeP.Size.Y > 1 {
 		multiTile = true
-		if SubObjFits(newObj.TypeP, true, pos) {
+
+		if dir == 0 || dir == 2 {
+			newObj.Size = newObj.TypeP.Size
+		} else {
+			newObj.Size.X = newObj.TypeP.Size.Y
+			newObj.Size.Y = newObj.TypeP.Size.X
+		}
+
+		if SubObjFits(newObj, newObj.TypeP, true, pos) {
 			subFits = true
 		} else {
 			return nil
 		}
+	} else {
+		newObj.Size = newObj.TypeP.Size
 	}
 
 	initOkay := true
@@ -129,7 +143,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	if multiTile {
 		if subFits {
 			/* If space is available, create items */
-			var sobj []world.XYu
+			var sobj []world.XYs
 			if obj != nil && obj.SubObjs != nil {
 				sobj = obj.SubObjs
 			} else {
@@ -167,10 +181,18 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	}
 }
 
-func SubObjFits(sub *world.ObjType, report bool, pos world.XY) bool {
+func SubObjFits(obj *world.ObjData, TypeP *world.ObjType, report bool, pos world.XY) bool {
+
+	var subObjs []world.XYs
+
+	if obj != nil && obj.SubObjs != nil {
+		subObjs = obj.SubObjs
+	} else {
+		subObjs = TypeP.SubObjs
+	}
 
 	/* Check if object fits */
-	for _, tile := range sub.SubObjs {
+	for _, tile := range subObjs {
 		subPos := util.GetSubPos(pos, tile)
 		tchunk := util.GetChunk(subPos)
 		if tchunk != nil {
@@ -178,7 +200,7 @@ func SubObjFits(sub *world.ObjType, report bool, pos world.XY) bool {
 				if report {
 					util.Chat(
 						fmt.Sprintf(
-							"CreateObj: (%v) Can't fit here: %v", sub.Name, util.PosToString(subPos),
+							"SubObjFits: (%v) Can't fit here: %v", TypeP.Name, util.PosToString(subPos),
 						))
 				}
 				return false
