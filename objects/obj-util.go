@@ -55,11 +55,6 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	chunk := util.GetChunk(pos)
 	g := util.GetObj(pos, chunk)
 
-	/* Obj already at this location */
-	if g != nil {
-		return nil
-	}
-
 	var newObj *world.ObjData
 	/* New object */
 	if obj == nil {
@@ -81,6 +76,11 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 		if SubObjFits(newObj, newObj.TypeP, true, pos) {
 			subFits = true
 		} else {
+			return nil
+		}
+	} else {
+		/* Obj already at this location */
+		if g != nil {
 			return nil
 		}
 	}
@@ -131,7 +131,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 		newObj.TickCount = uint8(rand.Intn(int(newObj.TypeP.Interval)))
 	}
 
-	/* Check if obj fits */
+	/* Place item tiles */
 	if multiTile {
 		if subFits {
 			/* If space is available, create items */

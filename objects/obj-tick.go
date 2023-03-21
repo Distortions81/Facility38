@@ -329,7 +329,8 @@ func runObjQueue() {
 		if item.Delete {
 			if item.Obj.TypeP.MultiTile {
 				for _, sub := range item.Obj.TypeP.SubObjs {
-					pos := util.GetSubPos(item.Pos, sub)
+					tile := RotateCoord(sub, item.Obj.Dir, GetObjSize(item.Obj, nil))
+					pos := util.GetSubPos(item.Pos, tile)
 					removePosMap(pos)
 				}
 			}

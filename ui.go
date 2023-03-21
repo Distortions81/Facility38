@@ -245,7 +245,7 @@ func createWorldObjects() {
 	b := util.GetObj(pos, chunk)
 
 	/* Left mouse, and tile is empty */
-	if b == nil && gMouseHeld {
+	if gMouseHeld {
 		/* Nothing selected exit */
 		if SelectedItemType == gv.MaxItemType {
 			return
