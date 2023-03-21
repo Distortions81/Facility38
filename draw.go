@@ -131,27 +131,18 @@ func drawItemPlacement(screen *ebiten.Image) {
 		y := float64(objOffY * world.ZoomScale)
 
 		iSize := item.Image.Bounds()
-
 		if item.Rotatable {
-			var halfObjSize world.XYf64
-
-			var newSize world.XYs = objects.GetObjSize(nil, item)
-
-			halfObjSize.X = float64(newSize.X / 2)
-			halfObjSize.Y = float64(newSize.Y / 2)
-
-			op.GeoM.Translate(-halfObjSize.X, -halfObjSize.Y)
+			xx := float64(iSize.Size().X / 2)
+			yy := float64(iSize.Size().Y / 2)
+			op.GeoM.Translate(-xx, -yy)
 			op.GeoM.Rotate(gv.NinetyDeg * float64(int(item.Direction)))
-			op.GeoM.Translate(halfObjSize.X, halfObjSize.Y)
-
-			op.GeoM.Scale(
-				(float64(newSize.X)*float64(world.ZoomScale))/float64(iSize.Max.X),
-				(float64(newSize.Y)*float64(world.ZoomScale))/float64(iSize.Max.Y))
-		} else {
-			op.GeoM.Scale(
-				(float64(item.Size.X)*float64(world.ZoomScale))/float64(iSize.Max.X),
-				(float64(item.Size.Y)*float64(world.ZoomScale))/float64(iSize.Max.Y))
+			op.GeoM.Translate(xx, yy)
 		}
+
+		oSize := objects.GetObjSize(nil, item)
+		op.GeoM.Scale(
+			(float64(oSize.X)*float64(world.ZoomScale))/float64(iSize.Max.X),
+			(float64(oSize.Y)*float64(world.ZoomScale))/float64(iSize.Max.Y))
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
@@ -768,8 +759,6 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 	x := float64(objOffX * world.ZoomScale)
 	y := float64(objOffY * world.ZoomScale)
 
-	oSize := objects.GetObjSize(obj, nil)
-
 	/* Draw sprite */
 	if obj.TypeP.Image == nil {
 		return nil, nil
@@ -786,6 +775,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 			op.GeoM.Translate(xx, yy)
 		}
 
+		oSize := objects.GetObjSize(obj, nil)
 		op.GeoM.Scale(
 			(float64(oSize.X)*float64(world.ZoomScale))/float64(iSize.Max.X),
 			(float64(oSize.Y)*float64(world.ZoomScale))/float64(iSize.Max.Y))

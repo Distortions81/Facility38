@@ -38,7 +38,7 @@ func RotateCoord(coord world.XYs, dir uint8) world.XYs {
 	}
 }
 
-/* Create a multi-tile object */
+/* Place and/or create a multi-tile object */
 func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast bool) *world.ObjData {
 
 	//Make chunk if needed
@@ -55,9 +55,10 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 		return nil
 	}
 
-	newObj := &world.ObjData{}
+	var newObj *world.ObjData
 	/* New object */
 	if obj == nil {
+		newObj = &world.ObjData{}
 		newObj.TypeP = GameObjTypes[mtype]
 	} else { /* Placing already existing object */
 		newObj = obj
@@ -191,7 +192,11 @@ func GetObjSize(obj *world.ObjData, TypeP *world.ObjType) world.XYs {
 			return obj.TypeP.Size
 		}
 	} else if TypeP != nil {
-		return TypeP.Size
+		if TypeP.Direction == 1 || TypeP.Direction == 3 {
+			return world.XYs{X: TypeP.Size.Y, Y: TypeP.Size.X}
+		} else {
+			return TypeP.Size
+		}
 	} else {
 		cwlog.DoLog(true, "GetObjSize: Obj and TypeP nil.")
 		return world.XYs{X: 0, Y: 0}
