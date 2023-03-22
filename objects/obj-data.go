@@ -177,7 +177,7 @@ var (
 			Name:        "Basic Splitter",
 			Info:        "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
-			Size:        world.XYs{X: 1, Y: 1},
+			Size:        world.XYs{X: 4, Y: 4},
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
@@ -192,6 +192,9 @@ var (
 				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 			},
+			SubObjs: []world.XYs{
+				{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 0}, {X: 3, Y: 0},
+				{X: 0, Y: 1}, {X: 0, Y: 2}, {X: 0, Y: 3}},
 		},
 
 		{ImagePath: "world-obj/basic-box.png", ImagePathActive: "world-obj/basic-box-active.png",
