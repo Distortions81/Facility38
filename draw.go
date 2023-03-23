@@ -126,6 +126,11 @@ func drawItemPlacement(screen *ebiten.Image) {
 		objOffX := camXPos + (float32((worldMouseX)))
 		objOffY := camYPos + (float32((worldMouseY)))
 
+		if item.Size.Y == 3 && (item.Direction == 1 || item.Direction == 3) {
+			objOffX++
+			objOffY--
+		}
+
 		/* camera zoom */
 		x := float64(objOffX * world.ZoomScale)
 		y := float64(objOffY * world.ZoomScale)
@@ -754,6 +759,13 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 	/* camera + object */
 	objOffX := camXPos + (float32(obj.Pos.X))
 	objOffY := camYPos + (float32(obj.Pos.Y))
+
+	if obj.TypeP.Size.Y == 3 {
+		if obj.Dir == 1 || obj.Dir == 3 {
+			objOffX++
+			objOffY--
+		}
+	}
 
 	/* camera zoom */
 	x := float64(objOffX * world.ZoomScale)

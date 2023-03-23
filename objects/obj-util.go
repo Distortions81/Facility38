@@ -30,11 +30,11 @@ func RotateCoord(coord world.XYs, dir uint8, size world.XYs) world.XYs {
 	if dir == 0 {
 		return world.XYs{X: tempX, Y: tempY}
 	} else if dir == 1 {
-		return world.XYs{X: -tempY + (size.X - 1), Y: tempX} //Broken
+		return world.XYs{X: -tempY + (size.X - 1), Y: tempX}
 	} else if dir == 2 {
 		return world.XYs{X: -tempX + (size.X - 1), Y: -tempY + (size.Y - 1)}
 	} else if dir == 3 {
-		return world.XYs{X: tempY, Y: -tempX + (size.Y - 1)} //Broken
+		return world.XYs{X: tempY, Y: -tempX + (size.Y - 1)}
 	} else {
 		return world.XYs{X: 0, Y: 0}
 	}
