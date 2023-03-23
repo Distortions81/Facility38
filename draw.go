@@ -126,6 +126,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 		objOffX := camXPos + (float32((worldMouseX)))
 		objOffY := camYPos + (float32((worldMouseY)))
 
+		//Quick kludge for 1x3 object
 		if item.Size.Y == 3 && (item.Direction == 1 || item.Direction == 3) {
 			objOffX++
 			objOffY--
@@ -760,6 +761,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 	objOffX := camXPos + (float32(obj.Pos.X))
 	objOffY := camYPos + (float32(obj.Pos.Y))
 
+	//Quick kludge for 1x3 object
 	if obj.TypeP.Size.Y == 3 {
 		if obj.Dir == 1 || obj.Dir == 3 {
 			objOffX++
