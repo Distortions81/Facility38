@@ -190,13 +190,7 @@ func splitterUpdate(obj *world.ObjData) {
 func boxUpdate(obj *world.ObjData) {
 
 	for p, port := range obj.Inputs {
-		if port.Buf.Amount == 0 {
-
-			/* Go inactive after a while */
-			if obj.TickCount > uint8(world.ObjectUPS*4) {
-				obj.Active = false
-			}
-			obj.TickCount++
+		if port.Buf.TypeP == nil {
 			continue
 		}
 
@@ -205,10 +199,6 @@ func boxUpdate(obj *world.ObjData) {
 			obj.Active = false
 			continue
 		}
-
-		/* Reset counter */
-		obj.Active = true
-		obj.TickCount = 0
 
 		/* Init content type if needed */
 		if obj.Contents.Mats[port.Buf.TypeP.TypeI] == nil {
@@ -222,7 +212,6 @@ func boxUpdate(obj *world.ObjData) {
 		obj.Inputs[p].Buf.Amount = 0
 		continue
 
-		//Unloader goes here
 	}
 }
 
