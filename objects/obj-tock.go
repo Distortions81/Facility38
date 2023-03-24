@@ -265,6 +265,50 @@ func smelterUpdate(obj *world.ObjData) {
 		}
 	}
 
+	/* Process ores */
+	/* Valid material type? */
+	if obj.SingleContent.TypeP.TypeI != gv.MAT_MIXORE {
+		/* Enough to process? */
+		if obj.SingleContent.Amount > obj.TypeP.KgMineEach {
+			/* Do we have enough fuel? */
+			if obj.KGFuel > obj.TypeP.KgFuelEach {
+				/* Burn the fuel */
+				obj.KGFuel -= obj.TypeP.KgFuelEach
+			}
+		}
+	}
+
+	/* Process ores */
+
+	/* Do we have valid ore material? */
+	if obj.SingleContent.TypeP.TypeI == gv.MAT_MIXORE {
+		return
+	}
+
+	/* Is there enough ore to process? */
+	if obj.SingleContent.Amount < obj.TypeP.KgMineEach {
+		return
+	}
+
+	/* Do we have enough fuel? */
+	if obj.KGFuel < obj.TypeP.KgFuelEach {
+		return
+	}
+
+	/* Burn fuel */
+	obj.KGFuel -= obj.TypeP.KgFuelEach
+
+	/* Subtract ore */
+	obj.SingleContent.Amount -= obj.TypeP.KgMineEach
+
+	/* Output result */
+	obj.Outputs[0].Buf.Amount = obj.TypeP.KgMineEach
+
+	/* Find and set result type, if needed */
+	result := MatTypes[obj.SingleContent.TypeP.Result]
+	if obj.Outputs[0].Buf.TypeP != result {
+		obj.Outputs[0].Buf.TypeP = result
+	}
 }
 
 func ironCasterUpdate(o *world.ObjData) {
