@@ -156,7 +156,8 @@ var (
 			Size:      world.XYs{X: 1, Y: 3},
 			Rotatable: true,
 			UpdateObj: beltUpdateOver,
-			LinkObj:   linkBelt,
+			InitObj:   initBeltOver,
+			LinkObj:   linkBeltOver,
 			Symbol:    "BOP",
 			Ports: []world.ObjPortData{
 				/* Overpass is one direction */

@@ -300,7 +300,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Draw Input Materials */
 			for _, port := range obj.Ports {
 				if port.Buf.Amount > 0 {
-					op, img = drawMaterials(port.Buf, obj, screen, 1.0, 1.0)
+					op, img = drawMaterials(port.Buf, obj, screen, 1.0, 1.0, nil)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -314,18 +314,54 @@ func drawIconMode(screen *ebiten.Image) {
 				}
 			}
 		}
-		if obj.TypeP.TypeI == gv.ObjTypeBasicBeltOver && obj.NumOut > 0 {
+		if obj.TypeP.TypeI == gv.ObjTypeBasicBeltOver {
 
-			op, img = drawMaterials(obj.Outputs[0].Buf, obj, screen, 0.5, 1.0)
-			if img != nil {
-				OpBatch[BatchTop] = op
-				ImageBatch[BatchTop] = img
-				if BatchTop < MaxBatch {
-					BatchTop++
-				} else {
-					break
+			var start int32 = 32
+			var middle int32 = 16
+			var end int32 = 0
+
+			if obj.BeltOver.OverIn != nil {
+				dir := objects.RotatePosF64(world.XYs{X: 0, Y: start}, obj.Dir, world.XYf64{X: 16, Y: 48})
+				op, img = drawMaterials(obj.BeltOver.OverIn.Buf, obj, screen, 0.75, 1.0, &dir)
+				if img != nil {
+					OpBatch[BatchTop] = op
+					ImageBatch[BatchTop] = img
+					if BatchTop < MaxBatch {
+						BatchTop++
+					} else {
+						break
+					}
 				}
 			}
+
+			if obj.BeltOver.Middle != nil {
+				dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
+				op, img = drawMaterials(obj.BeltOver.Middle, obj, screen, 0.5, 1.0, &dir)
+				if img != nil {
+					OpBatch[BatchTop] = op
+					ImageBatch[BatchTop] = img
+					if BatchTop < MaxBatch {
+						BatchTop++
+					} else {
+						break
+					}
+				}
+			}
+
+			if obj.BeltOver.OverOut != nil {
+				dir := objects.RotatePosF64(world.XYs{X: 0, Y: end}, obj.Dir, world.XYf64{X: 16, Y: 48})
+				op, img = drawMaterials(obj.BeltOver.OverOut.Buf, obj, screen, 0.75, 1.0, &dir)
+				if img != nil {
+					OpBatch[BatchTop] = op
+					ImageBatch[BatchTop] = img
+					if BatchTop < MaxBatch {
+						BatchTop++
+					} else {
+						break
+					}
+				}
+			}
+
 		}
 		if world.ShowInfoLayer {
 
@@ -334,7 +370,7 @@ func drawIconMode(screen *ebiten.Image) {
 					if cont == nil {
 						continue
 					}
-					op, img = drawMaterials(cont, obj, screen, 0.5, 0.5)
+					op, img = drawMaterials(cont, obj, screen, 0.5, 0.5, nil)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -824,7 +860,7 @@ func calcScreenCamera() {
 }
 
 /* Draw materials on belts */
-func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, scale float64, alpha float32) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
+func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, scale float64, alpha float32, pos *world.XYf64) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 
 	if m.Amount > 0 {
 		img := m.TypeP.Image
@@ -844,14 +880,19 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 			yy := float64(iSize.Dy()) / 2.0
 			op.GeoM.Translate(-xx, -yy)
 			op.GeoM.Rotate(float64(m.Rot) * gv.NinetyDeg)
-			op.GeoM.Scale(scale, scale)
+			if scale != 1 {
+				op.GeoM.Scale(scale, scale)
+			}
 			op.GeoM.Translate(xx, yy)
+			if pos != nil {
+				op.GeoM.Translate(pos.X, pos.Y)
+			}
 
 			op.GeoM.Scale(
 				((float64(1))*float64(world.ZoomScale))/float64(iSize.Max.X),
 				((float64(1))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 			op.GeoM.Translate(objCamPosX, objCamPosY)
-			op.ColorScale.Scale(1.0, 1.0, 1.0, alpha)
+			op.ColorScale.ScaleAlpha(alpha)
 			return op, img
 		}
 	}

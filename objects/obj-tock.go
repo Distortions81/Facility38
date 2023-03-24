@@ -82,17 +82,27 @@ func minerUpdate(obj *world.ObjData) {
 
 func beltUpdateOver(obj *world.ObjData) {
 
-	for i, input := range obj.Inputs {
-		/* Does the input contain anything? */
-		if input.Buf.Amount > 0 &&
-			obj.NumOut >= uint8(i+1) &&
-			obj.Outputs[i].Buf.Amount == 0 &&
-			obj.Outputs[i].Obj != nil &&
-			!obj.Outputs[i].Obj.Blocked {
-			/* Good to go, swap pointers */
-			*obj.Outputs[i].Buf, *obj.Inputs[i].Buf = *obj.Inputs[i].Buf, *obj.Outputs[i].Buf
+	/* Underpass */
+	if obj.BeltOver.UnderIn != nil && obj.BeltOver.UnderOut != nil {
+		if obj.BeltOver.UnderIn.Buf.Amount > 0 && obj.BeltOver.UnderOut.Buf.Amount == 0 {
+			*obj.BeltOver.OverOut.Buf, *obj.BeltOver.Middle = *obj.BeltOver.Middle, *obj.BeltOver.OverOut.Buf
 		}
 	}
+
+	/* Overpass to OverOut */
+	if obj.BeltOver.OverOut != nil && obj.BeltOver.Middle != nil {
+		if obj.BeltOver.OverOut.Buf.Amount == 0 && obj.BeltOver.Middle.Amount != 0 {
+			*obj.BeltOver.OverOut.Buf, *obj.BeltOver.Middle = *obj.BeltOver.Middle, *obj.BeltOver.OverOut.Buf
+		}
+	}
+
+	/* OverIn to Overpass */
+	if obj.BeltOver.OverIn != nil && obj.BeltOver.Middle != nil {
+		if obj.BeltOver.OverIn.Buf.Amount > 0 && obj.BeltOver.Middle.Amount == 0 {
+			*obj.BeltOver.Middle, *obj.BeltOver.OverIn.Buf = *obj.BeltOver.OverIn.Buf, *obj.BeltOver.Middle
+		}
+	}
+
 }
 
 func beltUpdate(obj *world.ObjData) {

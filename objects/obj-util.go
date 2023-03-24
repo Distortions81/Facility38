@@ -40,6 +40,24 @@ func RotateCoord(coord world.XYs, dir uint8, size world.XYs) world.XYs {
 	}
 }
 
+func RotatePosF64(coord world.XYs, dir uint8, size world.XYf64) world.XYf64 {
+	tempX := float64(coord.X)
+	tempY := float64(coord.Y)
+
+	if dir == 0 {
+		return world.XYf64{X: tempX, Y: tempY}
+	} else if dir == 1 {
+		return world.XYf64{X: -tempY + (size.Y - size.X), Y: tempX}
+	} else if dir == 2 {
+		return world.XYf64{X: -tempX, Y: -tempY + (size.Y - size.X)}
+	} else if dir == 3 {
+		return world.XYf64{X: tempY, Y: -tempX}
+	} else {
+		return world.XYf64{X: 0, Y: 0}
+	}
+
+}
+
 /* Place and/or create a multi-tile object */
 func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast bool) *world.ObjData {
 

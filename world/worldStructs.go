@@ -49,6 +49,16 @@ type MaterialContentsType struct {
 	Mats [gv.MAT_MAX]*MatData
 }
 
+type BeltOverType struct {
+	Middle *MatData
+
+	OverOut *ObjPortData
+	OverIn  *ObjPortData
+
+	UnderOut *ObjPortData
+	UnderIn  *ObjPortData
+}
+
 /* XY Location specific data for mining and ground tiles */
 type TileData struct {
 	MinerData  *MinerData
@@ -164,6 +174,7 @@ type ObjData struct {
 	//Internal Tock() use
 	Contents      *MaterialContentsType
 	SingleContent *MatData
+	BeltOver      *BeltOverType
 	KGFuel        float32
 	KGHeld        float32
 	MinerData     *MinerDataType

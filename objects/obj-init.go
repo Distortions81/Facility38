@@ -70,3 +70,9 @@ func deinitMiner(obj *world.ObjData) {
 	/* Update resource map on remove */
 	obj.Parent.Parent.ResourceDirty = true
 }
+
+func initBeltOver(obj *world.ObjData) bool {
+	obj.BeltOver = &world.BeltOverType{}
+	obj.BeltOver.Middle = &world.MatData{}
+	return true
+}
