@@ -219,6 +219,8 @@ func GetObjSize(obj *world.ObjData, TypeP *world.ObjType) world.XYs {
 }
 
 /* Quickly move material by swapping pointers */
+/*
 func swapPortBuf(px, py *world.MatData) {
 	*px, *py = *py, *px
 }
+*/

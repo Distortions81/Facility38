@@ -126,19 +126,14 @@ func SaveGame() {
 		}
 		//cwlog.DoLog("WALK COMPLETE:", time.Since(start).String())
 
-		b, err := json.Marshal(tempList)
+		b, _ := json.Marshal(tempList)
 
 		world.SuperChunkListLock.RUnlock()
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
 		//cwlog.DoLog"ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
 
-		if err != nil {
-			//cwlog.DoLog("SaveGame: encode error: %v\n", err)
-			//return
-		}
-
-		_, err = os.Create(tempPath)
+		_, err := os.Create(tempPath)
 
 		if err != nil {
 			cwlog.DoLog(true, "SaveGame: os.Create error: %v\n", err)

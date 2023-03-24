@@ -300,7 +300,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Draw Input Materials */
 			for _, port := range obj.Ports {
 				if port.Buf.Amount > 0 {
-					op, img = drawMaterials(port.Buf, obj, screen, 1.0)
+					op, img = drawMaterials(port.Buf, obj, screen, 1.0, 1.0)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -316,7 +316,7 @@ func drawIconMode(screen *ebiten.Image) {
 		}
 		if obj.TypeP.TypeI == gv.ObjTypeBasicBeltOver && obj.NumOut > 0 {
 
-			op, img = drawMaterials(obj.Outputs[0].Buf, obj, screen, 0.5)
+			op, img = drawMaterials(obj.Outputs[0].Buf, obj, screen, 0.5, 1.0)
 			if img != nil {
 				OpBatch[BatchTop] = op
 				ImageBatch[BatchTop] = img
@@ -334,7 +334,7 @@ func drawIconMode(screen *ebiten.Image) {
 					if cont == nil {
 						continue
 					}
-					op, img = drawMaterials(cont, obj, screen, 1.0)
+					op, img = drawMaterials(cont, obj, screen, 0.5, 0.5)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -824,7 +824,7 @@ func calcScreenCamera() {
 }
 
 /* Draw materials on belts */
-func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, scale float64) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
+func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, scale float64, alpha float32) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 
 	if m.Amount > 0 {
 		img := m.TypeP.Image
@@ -851,6 +851,7 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 				((float64(1))*float64(world.ZoomScale))/float64(iSize.Max.X),
 				((float64(1))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 			op.GeoM.Translate(objCamPosX, objCamPosY)
+			op.ColorScale.Scale(1.0, 1.0, 1.0, alpha)
 			return op, img
 		}
 	}

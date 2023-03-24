@@ -106,7 +106,6 @@ var (
 	GameObjTypes = []*world.ObjType{
 		//Game Objects
 		{ImagePath: "world-obj/basic-miner-64.png", ImagePathActive: "world-obj/basic-miner-active-64.png",
-			UIPath:       "ui/miner.png",
 			Name:         "Basic miner",
 			Info:         "Mines solid resources where placed, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicMiner,
@@ -177,11 +176,10 @@ var (
 			Name:        "Basic Splitter",
 			Info:        "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
-			Size:        world.XYs{X: 4, Y: 4},
+			Size:        world.XYs{X: 1, Y: 1},
 			Rotatable:   true,
 			ShowArrow:   false,
 			ShowBlocked: true,
-			Interval:    1,
 			KW:          100,
 			UpdateObj:   splitterUpdate,
 			LinkObj:     linkSplitter,
@@ -192,14 +190,10 @@ var (
 				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 			},
-			SubObjs: []world.XYs{
-				{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 0}, {X: 3, Y: 0},
-				{X: 0, Y: 1}, {X: 0, Y: 2}, {X: 0, Y: 3}},
 		},
 
 		{ImagePath: "world-obj/basic-box.png", ImagePathActive: "world-obj/basic-box-active.png",
 			Info:         "Currently only stores objects (no unloader yet).",
-			UIPath:       "ui/box.png",
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
 			Size:         world.XYs{X: 1, Y: 1},
@@ -219,7 +213,6 @@ var (
 		},
 
 		{ImagePath: "world-obj/basic-smelter.png", ImagePathActive: "world-obj/basic-smelter-active.png",
-			UIPath:       "ui/smelter.png",
 			Name:         "Basic smelter",
 			Info:         "Bakes solid ores into metal or stone bricks, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicSmelter,
@@ -237,7 +230,9 @@ var (
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
+
+				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_FIN},
 			},
 			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
