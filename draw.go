@@ -282,7 +282,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 	for _, obj := range VisObj {
 
-		op, img := drawObject(screen, obj)
+		op, img := drawObject(screen, obj, false)
 		if img != nil {
 			OpBatch[BatchTop] = op
 			ImageBatch[BatchTop] = img
@@ -320,9 +320,68 @@ func drawIconMode(screen *ebiten.Image) {
 			var middle int32 = 16
 			var end int32 = 0
 
+			found := false
+			drewUnder := false
+
+			/* Draw underpass */
+			if obj.BeltOver.UnderIn != nil {
+
+				if obj.BeltOver.UnderIn.Buf.Amount > 0 {
+					/* Input */
+					dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
+					op, img := drawMaterials(obj.BeltOver.UnderIn.Buf, obj, screen, 1.0, 1.0, &dir)
+					if img != nil {
+						OpBatch[BatchTop] = op
+						ImageBatch[BatchTop] = img
+
+						found = true
+						drewUnder = true
+
+						if BatchTop < MaxBatch {
+							BatchTop++
+						} else {
+							break
+						}
+					}
+				}
+			}
+			if !found && obj.BeltOver.UnderOut != nil {
+
+				/* Output */
+				dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
+				op, img := drawMaterials(obj.BeltOver.UnderOut.Buf, obj, screen, 1.0, 1.0, &dir)
+				if img != nil {
+					OpBatch[BatchTop] = op
+					ImageBatch[BatchTop] = img
+
+					drewUnder = true
+
+					if BatchTop < MaxBatch {
+						BatchTop++
+					} else {
+						break
+					}
+				}
+			}
+
+			/* Draw mask for underpass */
+			if drewUnder {
+				opb, imgb := drawObject(screen, obj, true)
+				if img != nil {
+					OpBatch[BatchTop] = opb
+					ImageBatch[BatchTop] = imgb
+					if BatchTop < MaxBatch {
+						BatchTop++
+					} else {
+						break
+					}
+				}
+			}
+
+			/* Draw overpass input */
 			if obj.BeltOver.OverIn != nil {
 				dir := objects.RotatePosF64(world.XYs{X: 0, Y: start}, obj.Dir, world.XYf64{X: 16, Y: 48})
-				op, img = drawMaterials(obj.BeltOver.OverIn.Buf, obj, screen, 0.75, 1.0, &dir)
+				op, img := drawMaterials(obj.BeltOver.OverIn.Buf, obj, screen, 0.75, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
 					ImageBatch[BatchTop] = img
@@ -334,9 +393,10 @@ func drawIconMode(screen *ebiten.Image) {
 				}
 			}
 
+			/* Draw overpass middle */
 			if obj.BeltOver.Middle != nil {
 				dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
-				op, img = drawMaterials(obj.BeltOver.Middle, obj, screen, 0.5, 1.0, &dir)
+				op, img := drawMaterials(obj.BeltOver.Middle, obj, screen, 0.5, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
 					ImageBatch[BatchTop] = img
@@ -348,9 +408,10 @@ func drawIconMode(screen *ebiten.Image) {
 				}
 			}
 
+			/* Draw overpass output */
 			if obj.BeltOver.OverOut != nil {
 				dir := objects.RotatePosF64(world.XYs{X: 0, Y: end}, obj.Dir, world.XYf64{X: 16, Y: 48})
-				op, img = drawMaterials(obj.BeltOver.OverOut.Buf, obj, screen, 0.75, 1.0, &dir)
+				op, img := drawMaterials(obj.BeltOver.OverOut.Buf, obj, screen, 0.75, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
 					ImageBatch[BatchTop] = img
@@ -361,7 +422,6 @@ func drawIconMode(screen *ebiten.Image) {
 					}
 				}
 			}
-
 		}
 		if world.ShowInfoLayer {
 
@@ -370,7 +430,7 @@ func drawIconMode(screen *ebiten.Image) {
 					if cont == nil {
 						continue
 					}
-					op, img = drawMaterials(cont, obj, screen, 0.5, 0.5, nil)
+					op, img = drawMaterials(cont, obj, screen, 0.5, 0.75, nil)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -791,7 +851,7 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 }
 
 /* Draw world objects */
-func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
+func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 
 	/* camera + object */
 	objOffX := camXPos + (float32(obj.Pos.X))
@@ -833,6 +893,8 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData) (op *ebiten.DrawImageO
 
 		if obj.TypeP.ImagePathActive != "" && obj.Active {
 			return op, obj.TypeP.ImageActive
+		} else if maskOnly {
+			return op, obj.TypeP.ImageMask
 		} else {
 			return op, obj.TypeP.Image
 		}

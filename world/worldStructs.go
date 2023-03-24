@@ -237,9 +237,12 @@ type ObjType struct {
 	Direction uint8
 
 	ImagePath       string
+	ImageMaskPath   string
 	ImagePathActive string
-	Image           *ebiten.Image
-	ImageActive     *ebiten.Image
+
+	Image       *ebiten.Image
+	ImageActive *ebiten.Image
+	ImageMask   *ebiten.Image
 
 	KgHourMine   float32
 	KgHopperMove float32

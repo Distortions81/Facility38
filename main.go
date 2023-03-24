@@ -146,6 +146,17 @@ func loadSprites() {
 				otype[key].ImageActive = img
 			}
 
+			/* For mask on objects */
+			if item.ImageMaskPath != "" {
+				img, err := data.GetSpriteImage(item.ImageMaskPath)
+				if err != nil {
+					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+					img.Fill(world.ColorVeryDarkGray)
+					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
+				}
+				otype[key].ImageMask = img
+			}
+
 			/* Alternate sprite for toolbar */
 			if item.UIPath != "" {
 				img, err := data.GetSpriteImage(item.UIPath)

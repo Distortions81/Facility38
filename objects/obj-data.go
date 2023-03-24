@@ -149,7 +149,7 @@ var (
 				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
 			},
 		},
-		{ImagePath: "world-obj/belt-over.png",
+		{ImagePath: "world-obj/belt-over.png", ImageMaskPath: "world-obj/belt-over-mask.png",
 			Name:      "Basic Belt Intersection",
 			Info:      "A belt that has an under-pass.",
 			TypeI:     gv.ObjTypeBasicBeltOver,
