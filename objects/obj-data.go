@@ -239,6 +239,7 @@ var (
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 				{Dir: gv.DIR_ANY, Type: gv.PORT_FIN},
 			},
+			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
 
 		{ImagePath: "world-obj/basic-fuel-hopper.png",

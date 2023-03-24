@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
 	"fmt"
@@ -14,6 +15,7 @@ func initSmelter(obj *world.ObjData) bool {
 	}
 
 	obj.SingleContent = &world.MatData{}
+	obj.SingleContent.TypeP = MatTypes[gv.MAT_MIXORE]
 
 	return true
 }
