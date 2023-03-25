@@ -877,7 +877,13 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 
 		iSize := obj.TypeP.Image.Bounds()
 
-		if obj.TypeP.Rotatable {
+		if obj.IsCorner {
+			xx := float64(iSize.Size().X / 2)
+			yy := float64(iSize.Size().Y / 2)
+			op.GeoM.Translate(-xx, -yy)
+			op.GeoM.Rotate(gv.NinetyDeg * float64(int(obj.CornerDir)))
+			op.GeoM.Translate(xx, yy)
+		} else if obj.TypeP.Rotatable {
 			xx := float64(iSize.Size().X / 2)
 			yy := float64(iSize.Size().Y / 2)
 			op.GeoM.Translate(-xx, -yy)
@@ -891,7 +897,9 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
-		if obj.TypeP.ImagePathActive != "" && obj.Active {
+		if obj.IsCorner {
+			return op, obj.TypeP.ImageCorner
+		} else if obj.Active {
 			return op, obj.TypeP.ImageActive
 		} else if maskOnly {
 			return op, obj.TypeP.ImageMask

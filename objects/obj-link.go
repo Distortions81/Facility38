@@ -24,6 +24,30 @@ func linkBelt(obj *world.ObjData) {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 	}
+
+	if obj.NumIn == 1 && obj.NumOut == 1 {
+		var in, out uint8 = obj.Inputs[0].Dir, obj.Outputs[0].Dir
+
+		obj.IsCorner = true
+
+		var DrawDir uint8 = gv.DIR_NORTH
+		if in == gv.DIR_SOUTH && out == gv.DIR_EAST ||
+			out == gv.DIR_SOUTH && in == gv.DIR_EAST {
+			DrawDir = 0
+		} else if in == gv.DIR_WEST && out == gv.DIR_SOUTH ||
+			out == gv.DIR_WEST && in == gv.DIR_SOUTH {
+			DrawDir = 1
+		} else if in == gv.DIR_WEST && out == gv.DIR_NORTH ||
+			out == gv.DIR_WEST && in == gv.DIR_NORTH {
+			DrawDir = 2
+		} else if in == gv.DIR_NORTH && out == gv.DIR_WEST ||
+			out == gv.DIR_NORTH && in == gv.DIR_WEST {
+			DrawDir = 3
+		} else {
+			obj.IsCorner = false
+		}
+		obj.CornerDir = DrawDir
+	}
 }
 
 func linkBeltOver(obj *world.ObjData) {

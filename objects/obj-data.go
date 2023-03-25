@@ -105,7 +105,7 @@ var (
 	/* World objects and images */
 	GameObjTypes = []*world.ObjType{
 		//Game Objects
-		{ImagePath: "world-obj/basic-miner-64.png", ImagePathActive: "world-obj/basic-miner-active-64.png",
+		{ImagePath: "world-obj/basic-miner-64.png", ImageActivePath: "world-obj/basic-miner-active-64.png",
 			Name:         "Basic miner",
 			Info:         "Mines solid resources where placed, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicMiner,
@@ -134,14 +134,15 @@ var (
 		},
 
 		{ImagePath: "world-obj/basic-belt.png",
-			Name:      "Basic belt",
-			Info:      "Moves items from rear and sides in direction of arrow.",
-			TypeI:     gv.ObjTypeBasicBelt,
-			Size:      world.XYs{X: 1, Y: 1},
-			Rotatable: true,
-			UpdateObj: beltUpdate,
-			LinkObj:   linkBelt,
-			Symbol:    "BLT",
+			ImageCornerPath: "world-obj/basic-belt-corner.png",
+			Name:            "Basic belt",
+			Info:            "Moves items from rear and sides in direction of arrow.",
+			TypeI:           gv.ObjTypeBasicBelt,
+			Size:            world.XYs{X: 1, Y: 1},
+			Rotatable:       true,
+			UpdateObj:       beltUpdate,
+			LinkObj:         linkBelt,
+			Symbol:          "BLT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
@@ -173,7 +174,7 @@ var (
 			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 0, Y: 2}},
 		},
 
-		{ImagePath: "world-obj/basic-splitter.png", ImagePathActive: "world-obj/basic-splitter-active.png",
+		{ImagePath: "world-obj/basic-splitter.png", ImageActivePath: "world-obj/basic-splitter-active.png",
 			Name:        "Basic Splitter",
 			Info:        "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
@@ -193,7 +194,7 @@ var (
 			},
 		},
 
-		{ImagePath: "world-obj/basic-box.png", ImagePathActive: "world-obj/basic-box-active.png",
+		{ImagePath: "world-obj/basic-box.png", ImageActivePath: "world-obj/basic-box-active.png",
 			Info:         "Currently only stores objects (no unloader yet).",
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
@@ -213,7 +214,7 @@ var (
 			},
 		},
 
-		{ImagePath: "world-obj/basic-smelter.png", ImagePathActive: "world-obj/basic-smelter-active.png",
+		{ImagePath: "world-obj/basic-smelter.png", ImageActivePath: "world-obj/basic-smelter-active.png",
 			Name:         "Basic smelter",
 			Info:         "Bakes solid ores into metal or stone bricks, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicSmelter,

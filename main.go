@@ -135,9 +135,21 @@ func loadSprites() {
 				}
 				otype[key].Image = img
 			}
+
+			/* Corner pieces */
+			if item.ImageCornerPath != "" {
+				img, err := data.GetSpriteImage(item.ImageCornerPath)
+				if err != nil {
+					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+					img.Fill(world.ColorVeryDarkGray)
+					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
+				}
+				otype[key].ImageCorner = img
+			}
+
 			/* For active flag on objects */
-			if item.ImagePathActive != "" {
-				img, err := data.GetSpriteImage(item.ImagePathActive)
+			if item.ImageActivePath != "" {
+				img, err := data.GetSpriteImage(item.ImageActivePath)
 				if err != nil {
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
