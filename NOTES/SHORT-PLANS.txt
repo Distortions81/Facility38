@@ -3,6 +3,8 @@
 export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 
 
+Add windows game mode, vsync option, fullscreen toggle.
+
 High priority:
 
 Timers, pressure switches, item spilling.

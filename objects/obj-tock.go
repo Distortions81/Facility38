@@ -227,6 +227,23 @@ func boxUpdate(obj *world.ObjData) {
 
 func smelterUpdate(obj *world.ObjData) {
 
+	/* Get fuel */
+	for _, fuel := range obj.FuelIn {
+
+		/* Process fuel */
+		if fuel.Buf.TypeP.IsFuel {
+
+			/* Will the fuel fit? */
+			if obj.KGFuel+fuel.Buf.Amount > obj.TypeP.MaxFuelKG {
+				continue
+			}
+
+			obj.KGFuel += fuel.Buf.Amount
+			fuel.Buf.Amount = 0
+			continue
+		}
+	}
+
 	/* Check input */
 	for _, input := range obj.Inputs {
 
@@ -237,19 +254,6 @@ func smelterUpdate(obj *world.ObjData) {
 
 		/* Contents are solid */
 		if !input.Buf.TypeP.IsSolid {
-			continue
-		}
-
-		/* Process fuel */
-		if input.Buf.TypeP.IsFuel {
-
-			/* Will the fuel fit? */
-			if obj.KGFuel+input.Buf.Amount > obj.TypeP.MaxFuelKG {
-				continue
-			}
-
-			obj.KGFuel += input.Buf.Amount
-			input.Buf.Amount = 0
 			continue
 		}
 
