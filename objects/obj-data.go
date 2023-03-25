@@ -165,6 +165,7 @@ var (
 		},
 		{
 			ImagePath:        "world-obj/belt-over.png",
+			UIPath:           "world-obj/belt-over-ui.png",
 			ImagePathOverlay: "world-obj/belt-over-overlay.png",
 			ImageMaskPath:    "world-obj/belt-over-mask.png",
 			Name:             "Basic Belt Intersection",
