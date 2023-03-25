@@ -294,6 +294,11 @@ func detectCPUs() {
 func setupWindowSize() {
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
+	//Recalcualte settings window items
+	if world.SpritesLoaded.Load() {
+		setupSettingItems()
+	}
+
 	/* Skip in benchmark mode */
 	if !gv.UPSBench {
 		/* Handle high res displays, 50% window */

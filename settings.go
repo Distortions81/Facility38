@@ -9,6 +9,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
@@ -42,6 +43,7 @@ type settingType struct {
 	TextBounds image.Rectangle
 	Rect       image.Rectangle
 
+	Action  func()
 	Enabled bool
 }
 
@@ -52,8 +54,12 @@ func init() {
 	bg.Fill(bgcolor)
 
 	settingItems = []settingType{
-		{Text: "Limit FPS (VSYNC)"},
+		{Text: "Limit FPS (VSYNC)", Action: toggleVsync},
 	}
+}
+
+func toggleVsync() {
+
 }
 
 func setupSettingItems() {
@@ -68,7 +74,8 @@ func setupSettingItems() {
 	/* Loop all settings */
 	for i, item := range settingItems {
 		/* Get text bounds */
-		settingItems[i].TextBounds = text.BoundString(font, item.Text)
+		tbound := text.BoundString(font, item.Text)
+		settingItems[i].TextBounds = tbound
 
 		/* Place line */
 		var linePosX int = (halfSWidth) - halfWindow + padding
@@ -79,9 +86,10 @@ func setupSettingItems() {
 		/* Generate button */
 		button := image.Rectangle{}
 		button.Min.X = linePosX
-		button.Max.X = linePosX + item.Rect.Dx() + check.Bounds().Dx() + spritePad
+		button.Max.X = linePosX + tbound.Dx() +
+			check.Bounds().Dx() + spritePad + padding*2
 
-		button.Min.Y = linePosY - item.Rect.Dy()
+		button.Min.Y = linePosY - tbound.Dy()
 		button.Max.Y = linePosY + spritePad/2
 		buttons = append(buttons, button)
 	}
@@ -105,7 +113,8 @@ func drawSettings(screen *ebiten.Image) {
 	text.Draw(screen, txt, font, int(halfSWidth)-(rect.Dx()/2), (halfWindow/2)+padding, world.ColorWhite)
 
 	/* Draw items */
-	for _, item := range settingItems {
+	for i, item := range settingItems {
+		b := buttons[i]
 
 		/* Text */
 		txt = fmt.Sprintf("%v %v", item.Text, util.BoolToOnOff(item.Enabled))
@@ -114,9 +123,17 @@ func drawSettings(screen *ebiten.Image) {
 		itemColor := world.ColorWhite
 		/* Detect hover, change color */
 		mx, my := ebiten.CursorPosition()
-		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, buttons[0], 2) {
+		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, b, 2) {
 			itemColor = world.ColorAqua
 		}
+
+		/* Button debug */
+		ebitenutil.DrawRect(screen,
+			float64(b.Min.X+((b.Max.X-b.Min.X)/2)),
+			float64(b.Min.Y+((b.Max.Y-b.Min.Y)/2)),
+			float64(b.Dx()),
+			float64(b.Dy()),
+			color.NRGBA{R: 255, G: 0, B: 0, A: 64})
 		text.Draw(screen, txt, font, item.TextPosX, item.TextPosY, itemColor)
 
 		/* Get checkmark image */
