@@ -19,6 +19,7 @@ func init() {
 }
 
 var (
+	Vsync        bool
 	SettingsOpen bool
 	WorkChunks   = 100
 

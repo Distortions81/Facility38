@@ -109,7 +109,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	drawChatLines(screen)
 
 	if world.SettingsOpen {
-		drawSettings(screen)
+		drawSettings(screen, false)
 	}
 
 }
@@ -629,6 +629,10 @@ func drawDebugInfo(screen *ebiten.Image) {
 		humanize.SIWithDigits(float64(BatchTop), 2, ""),
 		runtime.GOARCH, gv.Version, buildTime)
 
+	if gv.Debug {
+		mx, my := ebiten.CursorPosition()
+		buf = buf + fmt.Sprintf(" (%v,%v)", mx, my)
+	}
 	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XY{X: 0, Y: world.ScreenHeight}, 11, screen, true, false, false)
 }
 

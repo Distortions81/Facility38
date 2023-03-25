@@ -427,3 +427,11 @@ func CompressZip(data []byte) []byte {
 	w.Close()
 	return b.Bytes()
 }
+
+func BoolToOnOff(input bool) string {
+	if input {
+		return "On"
+	} else {
+		return "Off"
+	}
+}
