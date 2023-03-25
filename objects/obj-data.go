@@ -91,15 +91,15 @@ var (
 		//Ui Only
 		{
 			ImagePath: "ui/settings.png", Name: "Settings", ToolbarAction: settingsToggle,
-			Symbol: "SET", Info: "Open settings.", QKey: ebiten.KeyF1,
+			Symbol: "SET", Info: "Change settings", QKey: ebiten.KeyF1,
 		},
 		{
 			ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
-			Symbol: "OVRLY", Info: "Toggle info overlays on/off", QKey: ebiten.KeyF2,
+			Symbol: "OVRLY", Info: "Turn info overlay on/off", QKey: ebiten.KeyF2,
 		},
 		{
 			ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER", Info: "Toggle between the normal and Resource layer.", QKey: ebiten.KeyF3,
+			Symbol: "LAYER", Info: "Toggle between the build and resource layer.", QKey: ebiten.KeyF3,
 		},
 		{
 			ImagePath: "ui/debug.png", Name: "Debug mode", ToolbarAction: toggleDebug,
@@ -172,8 +172,8 @@ var (
 			UIPath:           "world-obj/belt-over-ui.png",
 			ImagePathOverlay: "world-obj/belt-over-overlay.png",
 			ImageMaskPath:    "world-obj/belt-over-mask.png",
-			Name:             "Basic Belt Intersection",
-			Info:             "A belt that has an under-pass.",
+			Name:             "Basic Belt Overpass",
+			Info:             "A belt that has an underpass.",
 			TypeI:            gv.ObjTypeBasicBeltOver,
 			Size:             world.XYs{X: 1, Y: 3},
 			Rotatable:        true,
@@ -266,7 +266,7 @@ var (
 		{
 			ImagePath:    "world-obj/basic-fuel-hopper.png",
 			Name:         "Basic Fuel Hopper",
-			Info:         "Loads soilid fuel into buildings.",
+			Info:         "Loads soild fuel into machines",
 			TypeI:        gv.ObjTypeBasicFuelHopper,
 			Size:         world.XYs{X: 1, Y: 1},
 			Rotatable:    true,
@@ -333,6 +333,9 @@ var (
 		{Symbol: "STOo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
 			IsSolid: true, Result: gv.MAT_STONE, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
 
+		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
+			IsSolid: true, Result: gv.MAT_SLAG, TypeI: gv.MAT_MIXORE},
+
 		/* Metal */
 		{Symbol: "FE", Name: "Iron Bar", UnitName: "kg", ImagePath: "belt-obj/iron.png", Density: 7.13,
 			IsSolid: true, TypeI: gv.MAT_IRON},
@@ -345,9 +348,6 @@ var (
 
 		{Symbol: "SLG", Name: "Slag", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
 			IsSolid: true, TypeI: gv.MAT_SLAG},
-
-		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
-			IsSolid: true, TypeI: gv.MAT_MIXORE},
 	}
 
 	/* Toolbar item types, array of array of ObjType */

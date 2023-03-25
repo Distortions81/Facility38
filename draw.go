@@ -108,6 +108,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	drawChatLines(screen)
 
+	if world.SettingsOpen {
+		drawSettings(screen)
+	}
+
 }
 
 func drawItemPlacement(screen *ebiten.Image) {
