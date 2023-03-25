@@ -137,7 +137,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		N:     3,
 
 		Contrast:   0.3,
-		Brightness: -1.5,
+		Brightness: -1.0,
 		MaxValue:   5,
 		MinValue:   0,
 
@@ -158,7 +158,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		N:     3,
 
 		Contrast:   0.3,
-		Brightness: -1.5,
+		Brightness: -1.0,
 		MaxValue:   5,
 		MinValue:   0,
 
@@ -179,7 +179,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		N:     3,
 
 		Contrast:   0.4,
-		Brightness: -0.5,
+		Brightness: -0.75,
 		MaxValue:   5,
 		MinValue:   0,
 
