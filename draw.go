@@ -487,8 +487,8 @@ func drawIconMode(screen *ebiten.Image) {
 						img := objects.ObjOverlayTypes[port.Dir].Image
 						iSize := img.Bounds()
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-						op.GeoM.Scale(((float64(oSize.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-							((float64(oSize.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+						op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),
+							((1)*float64(world.ZoomScale))/float64(iSize.Max.Y))
 						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 						op.ColorScale.Scale(0.5, 0.5, 0.5, 0.66)
 
