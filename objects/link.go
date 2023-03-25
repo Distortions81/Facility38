@@ -142,6 +142,10 @@ func UnlinkObj(obj *world.ObjData) {
 	linkLock.Lock()
 	defer linkLock.Unlock()
 
+	/* Reset last input var */
+	obj.LastInput = 0
+	obj.LastOutput = 0
+
 	for p, port := range obj.Ports {
 		/* No obj, skip */
 		if port.Obj == nil {
@@ -182,8 +186,6 @@ func UnlinkObj(obj *world.ObjData) {
 	/* Murder all the port aliases */
 	portPop(obj)
 
-	/* Reset last input var */
-	obj.LastInput = 0
 	/*
 	* Remove ourself from tock/tick,
 	* we will be re-added in link if there

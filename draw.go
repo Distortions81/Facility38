@@ -516,8 +516,9 @@ func drawIconMode(screen *ebiten.Image) {
 				op.GeoM.Translate(
 					cBlockedIndicatorOffset,
 					cBlockedIndicatorOffset)
-				op.GeoM.Scale(((float64(oSize.X))*float64(world.ZoomScale))/float64(iSize.Max.X),
-					((float64(oSize.Y))*float64(world.ZoomScale))/float64(iSize.Max.Y))
+
+				op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),
+					(1*float64(world.ZoomScale))/float64(iSize.Max.Y))
 				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 
 				if img != nil {

@@ -116,12 +116,13 @@ func beltUpdate(obj *world.ObjData) {
 	}
 
 	/* Does the input contain anything? */
-	if obj.Inputs[obj.LastInput].Buf.Amount > 0 &&
-		obj.Outputs[0].Buf.Amount == 0 &&
-		obj.Outputs[0].Obj != nil &&
-		!obj.Outputs[0].Obj.Blocked {
-		/* Good to go, swap pointers */
-		*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
+	if obj.NumOut > 0 {
+		if obj.Inputs[obj.LastInput].Buf.Amount > 0 &&
+			obj.Outputs[0].Buf.Amount == 0 &&
+			!obj.Outputs[0].Obj.Blocked {
+			/* Good to go, swap pointers */
+			*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
+		}
 	}
 }
 
@@ -187,12 +188,22 @@ func splitterUpdate(obj *world.ObjData) {
 			*obj.Inputs[0].Buf, *obj.Outputs[obj.LastOutput].Buf = *obj.Outputs[obj.LastOutput].Buf, *obj.Inputs[0].Buf
 			if !obj.Active {
 				obj.Active = true
+				obj.TickCount = 0
 			}
 			return
 		}
 
-		if obj.Active {
+		obj.TickCount++
+		if obj.TickCount >= uint8(world.ObjectUPS*2) && obj.Active {
 			obj.Active = false
+			obj.TickCount = 0
+		}
+	} else {
+
+		obj.TickCount++
+		if obj.TickCount >= uint8(world.ObjectUPS*2) && obj.Active {
+			obj.Active = false
+			obj.TickCount = 0
 		}
 	}
 }
