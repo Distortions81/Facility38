@@ -5,6 +5,7 @@ export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 High priority:
 Vsync option, fullscreen toggle.
 Timers, pressure switches, item spilling.
+Loaders/Unloaders
 Add TotalMined to save/load
 Start investigating server/client
 
