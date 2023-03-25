@@ -19,7 +19,8 @@ func init() {
 }
 
 var (
-	WorkChunks = 100
+	SettingsOpen bool
+	WorkChunks   = 100
 
 	/* SuperChunk List */
 	SuperChunkList     []*MapSuperChunk

@@ -7,6 +7,14 @@ import (
 	"time"
 )
 
+func settingsToggle() {
+	if world.SettingsOpen {
+		world.SettingsOpen = false
+	} else {
+		world.SettingsOpen = true
+	}
+}
+
 func toggleOverlay() {
 	if world.OverlayMode {
 		world.OverlayMode = false
