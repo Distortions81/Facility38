@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"fmt"
+	"image"
 	"image/color"
 	"io"
 	"log"
@@ -434,4 +435,13 @@ func BoolToOnOff(input bool) string {
 	} else {
 		return "Off"
 	}
+}
+
+func PosWithinRect(pos world.XY, rect image.Rectangle, pad uint16) bool {
+	if int(pos.X-pad) <= rect.Max.X && int(pos.X+pad) >= rect.Min.X {
+		if int(pos.Y-pad) <= rect.Max.Y && int(pos.Y+pad) >= rect.Min.Y {
+			return true
+		}
+	}
+	return false
 }

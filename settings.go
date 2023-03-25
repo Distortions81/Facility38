@@ -17,6 +17,7 @@ const (
 	halfWindow = windowSize / 2
 	padding    = 16
 	linePad    = 4
+	spritePad  = 32
 )
 
 var (
@@ -53,7 +54,12 @@ func drawSettings(screen *ebiten.Image, setup bool) {
 	textHeight = tRect.Dy() + linePad
 
 	if !setup {
-		text.Draw(screen, txt, font, int(halfSWidth)-(tRect.Dx()/2), (halfWindow/2)+padding, color.White)
+		titleColor := world.ColorWhite
+		mx, my := ebiten.CursorPosition()
+		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, buttons[0], 2) {
+			titleColor = world.ColorRed
+		}
+		text.Draw(screen, txt, font, int(halfSWidth)-(tRect.Dx()/2), (halfWindow/2)+padding, titleColor)
 	}
 
 	check := objects.ObjOverlayTypes[6].Image
@@ -69,15 +75,16 @@ func drawSettings(screen *ebiten.Image, setup bool) {
 	}
 
 	op.GeoM.Reset()
-	op.GeoM.Translate(float64(linePosX+tRect.Dx())+32, float64(linePosY)-float64((check.Bounds().Dy())/2))
+	op.GeoM.Translate(float64(linePosX+tRect.Dx())+spritePad, float64(linePosY)-float64((check.Bounds().Dy())/2))
 	if !setup {
 		screen.DrawImage(check, op)
 	}
 
 	button := image.Rectangle{}
 	button.Min.X = linePosX
-	button.Max.X = linePosX + tRect.Dx() + check.Bounds().Dx()
-	button.Min.Y = linePosY
-	button.Max.Y = linePosY + tRect.Dy() + check.Bounds().Dy()
+	button.Max.X = linePosX + tRect.Dx() + check.Bounds().Dx() + spritePad
+
+	button.Min.Y = linePosY - tRect.Dy()
+	button.Max.Y = linePosY + spritePad/2
 	buttons = append(buttons, button)
 }
