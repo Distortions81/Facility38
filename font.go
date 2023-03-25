@@ -43,7 +43,7 @@ func init() {
 			log.Fatal(err)
 		}
 
-		fdata = data.GetFont("NotoSansCJK-Bold.ttc")
+		fdata = data.GetFont("NotoSansMono-Bold.ttf")
 		collection, err = opentype.ParseCollection(fdata)
 		if err != nil {
 			log.Fatal(err)
