@@ -40,8 +40,8 @@ func linkBelt(obj *world.ObjData) {
 		} else if in == gv.DIR_WEST && out == gv.DIR_NORTH ||
 			out == gv.DIR_WEST && in == gv.DIR_NORTH {
 			DrawDir = 2
-		} else if in == gv.DIR_NORTH && out == gv.DIR_WEST ||
-			out == gv.DIR_NORTH && in == gv.DIR_WEST {
+		} else if in == gv.DIR_NORTH && out == gv.DIR_EAST ||
+			out == gv.DIR_NORTH && in == gv.DIR_EAST {
 			DrawDir = 3
 		} else {
 			obj.IsCorner = false
