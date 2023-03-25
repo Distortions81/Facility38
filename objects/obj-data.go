@@ -89,23 +89,34 @@ var (
 	/* Toolbar actions and images */
 	UIObjsTypes = []*world.ObjType{
 		//Ui Only
-		{ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
-			Symbol: "OVRLY", Info: "Toggle info overlays on/off", QKey: ebiten.KeyF1},
-		{ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER", Info: "Toggle between the normal and Resource layer.", QKey: ebiten.KeyF2},
-		{ImagePath: "ui/debug.png", Name: "Debug mode", ToolbarAction: toggleDebug,
-			Symbol: "DBG", Info: "Toggle debug mode", QKey: ebiten.KeyF3},
+		{
+			ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
+			Symbol: "OVRLY", Info: "Toggle info overlays on/off", QKey: ebiten.KeyF1,
+		},
+		{
+			ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
+			Symbol: "LAYER", Info: "Toggle between the normal and Resource layer.", QKey: ebiten.KeyF2,
+		},
+		{
+			ImagePath: "ui/debug.png", Name: "Debug mode", ToolbarAction: toggleDebug,
+			Symbol: "DBG", Info: "Toggle debug mode", QKey: ebiten.KeyF3,
+		},
 
-		{Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
-			Symbol: "SAVE", ExcludeWASM: true, Info: "Quicksave game", QKey: ebiten.KeyF5},
-		{Name: "Load Game", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
-			Symbol: "LOAD", ExcludeWASM: true, Info: "Load quicksave", QKey: ebiten.KeyF6},
+		{
+			Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
+			Symbol: "SAVE", ExcludeWASM: true, Info: "Quicksave game", QKey: ebiten.KeyF5,
+		},
+		{
+			Name: "Load Game", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
+			Symbol: "LOAD", ExcludeWASM: true, Info: "Load quicksave", QKey: ebiten.KeyF6,
+		},
 	}
 
 	/* World objects and images */
 	GameObjTypes = []*world.ObjType{
 		//Game Objects
-		{ImagePath: "world-obj/basic-miner-64.png", ImageActivePath: "world-obj/basic-miner-active-64.png",
+		{
+			ImagePath: "world-obj/basic-miner-64.png", ImageActivePath: "world-obj/basic-miner-active-64.png",
 			Name:         "Basic miner",
 			Info:         "Mines solid resources where placed, requires coal fuel.",
 			TypeI:        gv.ObjTypeBasicMiner,
@@ -133,16 +144,18 @@ var (
 			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
 
-		{ImagePath: "world-obj/basic-belt.png",
-			ImageCornerPath: "world-obj/basic-belt-corner.png",
-			Name:            "Basic belt",
-			Info:            "Moves items from rear and sides in direction of arrow.",
-			TypeI:           gv.ObjTypeBasicBelt,
-			Size:            world.XYs{X: 1, Y: 1},
-			Rotatable:       true,
-			UpdateObj:       beltUpdate,
-			LinkObj:         linkBelt,
-			Symbol:          "BLT",
+		{
+			ImagePath:        "world-obj/basic-belt.png",
+			ImagePathOverlay: "world-obj/basic-belt-overlay.png",
+			ImageCornerPath:  "world-obj/basic-belt-corner.png",
+			Name:             "Basic belt",
+			Info:             "Moves items from rear and sides in direction of arrow.",
+			TypeI:            gv.ObjTypeBasicBelt,
+			Size:             world.XYs{X: 1, Y: 1},
+			Rotatable:        true,
+			UpdateObj:        beltUpdate,
+			LinkObj:          linkBelt,
+			Symbol:           "BLT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
@@ -150,16 +163,19 @@ var (
 				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
 			},
 		},
-		{ImagePath: "world-obj/belt-over.png", ImageMaskPath: "world-obj/belt-over-mask.png",
-			Name:      "Basic Belt Intersection",
-			Info:      "A belt that has an under-pass.",
-			TypeI:     gv.ObjTypeBasicBeltOver,
-			Size:      world.XYs{X: 1, Y: 3},
-			Rotatable: true,
-			UpdateObj: beltUpdateOver,
-			InitObj:   initBeltOver,
-			LinkObj:   linkBeltOver,
-			Symbol:    "BOP",
+		{
+			ImagePath:        "world-obj/belt-over.png",
+			ImagePathOverlay: "world-obj/belt-over-overlay.png",
+			ImageMaskPath:    "world-obj/belt-over-mask.png",
+			Name:             "Basic Belt Intersection",
+			Info:             "A belt that has an under-pass.",
+			TypeI:            gv.ObjTypeBasicBeltOver,
+			Size:             world.XYs{X: 1, Y: 3},
+			Rotatable:        true,
+			UpdateObj:        beltUpdateOver,
+			InitObj:          initBeltOver,
+			LinkObj:          linkBeltOver,
+			Symbol:           "BOP",
 			Ports: []world.ObjPortData{
 				/* Overpass is one direction */
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
@@ -174,7 +190,8 @@ var (
 			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 0, Y: 2}},
 		},
 
-		{ImagePath: "world-obj/basic-splitter.png", ImageActivePath: "world-obj/basic-splitter-active.png",
+		{
+			ImagePath: "world-obj/basic-splitter.png", ImageActivePath: "world-obj/basic-splitter-active.png",
 			Name:        "Basic Splitter",
 			Info:        "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:       gv.ObjTypeBasicSplit,
@@ -194,7 +211,8 @@ var (
 			},
 		},
 
-		{ImagePath: "world-obj/basic-box.png", ImageActivePath: "world-obj/basic-box-active.png",
+		{
+			ImagePath: "world-obj/basic-box.png", ImageActivePath: "world-obj/basic-box-active.png",
 			Info:         "Currently only stores objects (no unloader yet).",
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
@@ -214,21 +232,23 @@ var (
 			},
 		},
 
-		{ImagePath: "world-obj/basic-smelter.png", ImageActivePath: "world-obj/basic-smelter-active.png",
-			Name:         "Basic smelter",
-			Info:         "Bakes solid ores into metal or stone bricks, requires coal fuel.",
-			TypeI:        gv.ObjTypeBasicSmelter,
-			Size:         world.XYs{X: 2, Y: 2},
-			KW:           320,
-			KgHourMine:   40,
-			Interval:     uint8(world.ObjectUPS * 60),
-			ShowArrow:    true,
-			ShowBlocked:  true,
-			ToolBarArrow: true,
-			Symbol:       "SMT",
-			UpdateObj:    smelterUpdate,
-			InitObj:      initSmelter,
-			LinkObj:      linkSmelter,
+		{
+			ImagePath:       "world-obj/basic-smelter.png",
+			ImageActivePath: "world-obj/basic-smelter-active.png",
+			Name:            "Basic smelter",
+			Info:            "Bakes solid ores into metal or stone bricks, requires coal fuel.",
+			TypeI:           gv.ObjTypeBasicSmelter,
+			Size:            world.XYs{X: 2, Y: 2},
+			KW:              320,
+			KgHourMine:      40,
+			Interval:        uint8(world.ObjectUPS * 60),
+			ShowArrow:       true,
+			ShowBlocked:     true,
+			ToolBarArrow:    true,
+			Symbol:          "SMT",
+			UpdateObj:       smelterUpdate,
+			InitObj:         initSmelter,
+			LinkObj:         linkSmelter,
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -239,7 +259,8 @@ var (
 			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
 
-		{ImagePath: "world-obj/basic-fuel-hopper.png",
+		{
+			ImagePath:    "world-obj/basic-fuel-hopper.png",
 			Name:         "Basic Fuel Hopper",
 			Info:         "Loads soilid fuel into buildings.",
 			TypeI:        gv.ObjTypeBasicFuelHopper,

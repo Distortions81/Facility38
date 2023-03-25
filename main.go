@@ -136,6 +136,17 @@ func loadSprites() {
 				otype[key].Image = img
 			}
 
+			/* Overlay versions */
+			if item.ImagePathOverlay != "" {
+				img, err := data.GetSpriteImage(item.ImagePathOverlay)
+				if err != nil {
+					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+					img.Fill(world.ColorVeryDarkGray)
+					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
+				}
+				otype[key].ImageOverlay = img
+			}
+
 			/* Corner pieces */
 			if item.ImageCornerPath != "" {
 				img, err := data.GetSpriteImage(item.ImageCornerPath)

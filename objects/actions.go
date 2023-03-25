@@ -8,11 +8,11 @@ import (
 )
 
 func toggleOverlay() {
-	if world.ShowInfoLayer {
-		world.ShowInfoLayer = false
+	if world.OverlayMode {
+		world.OverlayMode = false
 		util.ChatDetailed("Info overlay is now off.", world.ColorOrange, time.Second*5)
 	} else {
-		world.ShowInfoLayer = true
+		world.OverlayMode = true
 		util.ChatDetailed("Info overlay is now on.", world.ColorOrange, time.Second*5)
 	}
 }

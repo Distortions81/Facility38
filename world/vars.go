@@ -91,8 +91,8 @@ var (
 	CameraY float32 = float32(gv.XYCenter)
 
 	/* Camera states */
-	ZoomScale     float32 = gv.DefaultZoom //Current zoom
-	ShowInfoLayer bool
+	ZoomScale   float32 = gv.DefaultZoom //Current zoom
+	OverlayMode bool
 
 	/* View layers */
 	ShowResourceLayer     bool

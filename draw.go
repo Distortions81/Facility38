@@ -423,7 +423,7 @@ func drawIconMode(screen *ebiten.Image) {
 				}
 			}
 		}
-		if world.ShowInfoLayer {
+		if world.OverlayMode {
 
 			if obj.TypeP.TypeI == gv.ObjTypeBasicBox {
 				for _, cont := range obj.Contents.Mats {
@@ -901,6 +901,8 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 			return op, obj.TypeP.ImageCorner
 		} else if obj.Active {
 			return op, obj.TypeP.ImageActive
+		} else if world.OverlayMode && obj.TypeP.ImagePathOverlay != "" {
+			return op, obj.TypeP.ImageOverlay
 		} else if maskOnly {
 			return op, obj.TypeP.ImageMask
 		} else {

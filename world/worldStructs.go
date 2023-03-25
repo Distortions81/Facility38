@@ -239,15 +239,17 @@ type ObjType struct {
 	Rotatable bool
 	Direction uint8
 
-	ImagePath       string
-	ImageMaskPath   string
-	ImageActivePath string
-	ImageCornerPath string
+	ImagePath        string
+	ImagePathOverlay string
+	ImageMaskPath    string
+	ImageActivePath  string
+	ImageCornerPath  string
 
-	Image       *ebiten.Image
-	ImageActive *ebiten.Image
-	ImageMask   *ebiten.Image
-	ImageCorner *ebiten.Image
+	Image        *ebiten.Image
+	ImageActive  *ebiten.Image
+	ImageMask    *ebiten.Image
+	ImageCorner  *ebiten.Image
+	ImageOverlay *ebiten.Image
 
 	KgHourMine   float32
 	KgHopperMove float32
