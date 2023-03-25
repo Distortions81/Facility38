@@ -54,12 +54,7 @@ func drawSettings(screen *ebiten.Image, setup bool) {
 	textHeight = tRect.Dy() + linePad
 
 	if !setup {
-		titleColor := world.ColorWhite
-		mx, my := ebiten.CursorPosition()
-		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, buttons[0], 2) {
-			titleColor = world.ColorRed
-		}
-		text.Draw(screen, txt, font, int(halfSWidth)-(tRect.Dx()/2), (halfWindow/2)+padding, titleColor)
+		text.Draw(screen, txt, font, int(halfSWidth)-(tRect.Dx()/2), (halfWindow/2)+padding, world.ColorWhite)
 	}
 
 	check := objects.ObjOverlayTypes[6].Image
@@ -71,7 +66,12 @@ func drawSettings(screen *ebiten.Image, setup bool) {
 	var linePosY int = (halfWindow / 2) + textHeight*2
 	tRect = text.BoundString(font, txt)
 	if !setup {
-		text.Draw(screen, txt, font, linePosX, linePosY, color.White)
+		itemColor := world.ColorWhite
+		mx, my := ebiten.CursorPosition()
+		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, buttons[0], 2) {
+			itemColor = world.ColorAqua
+		}
+		text.Draw(screen, txt, font, linePosX, linePosY, itemColor)
 	}
 
 	op.GeoM.Reset()
