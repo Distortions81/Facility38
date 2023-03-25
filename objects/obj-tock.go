@@ -276,16 +276,7 @@ func smelterUpdate(obj *world.ObjData) {
 		input.Buf.Amount = 0
 	}
 
-	/* Is it time to run? */
-	if obj.TickCount < obj.TypeP.Interval {
-		/* Increment timer */
-		obj.TickCount++
-		return
-	}
-	obj.TickCount = 0
-
 	/* Process ores */
-
 	/* Do we have valid ore material? */
 	if obj.SingleContent.TypeP.TypeI == gv.MAT_MIXORE {
 		if obj.Active {
@@ -313,6 +304,14 @@ func smelterUpdate(obj *world.ObjData) {
 	if !obj.Active {
 		obj.Active = true
 	}
+
+	/* Is it time to output? */
+	if obj.TickCount < obj.TypeP.Interval {
+		/* Increment timer */
+		obj.TickCount++
+		return
+	}
+	obj.TickCount = 0
 
 	/* Burn fuel */
 	obj.KGFuel -= obj.TypeP.KgFuelEach

@@ -172,7 +172,11 @@ func drawItemPlacement(screen *ebiten.Image) {
 			op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 		}
 
-		screen.DrawImage(item.Image, op)
+		img := item.Image
+		if item.ImageOverlay != nil {
+			img = item.ImageOverlay
+		}
+		screen.DrawImage(img, op)
 	}
 }
 
