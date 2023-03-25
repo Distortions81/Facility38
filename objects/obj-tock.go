@@ -230,6 +230,10 @@ func smelterUpdate(obj *world.ObjData) {
 	/* Get fuel */
 	for _, fuel := range obj.FuelIn {
 
+		if fuel.Buf.TypeP == nil {
+			continue
+		}
+
 		/* Process fuel */
 		if fuel.Buf.TypeP.IsFuel {
 
