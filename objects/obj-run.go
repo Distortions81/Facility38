@@ -131,90 +131,17 @@ func runTocks() {
 
 /* WASM single-thread: Run all object tocks (interal) */
 func runTocksST() {
-	if world.TockCount == 0 {
-		time.Sleep(time.Millisecond)
-		return
-	}
-	var lastTock int = 0
-	var sleepFor time.Duration
-	var maxBlocks = world.NumWorkers * BlocksPerWorker
-	wSize := minWorkSize
-
-	if world.TockCount > largeThreshold {
-		wSize = int(math.Ceil(float64(world.TockCount)/float64(maxBlocks))) + minWorkSize
-	}
-
-	world.TockListLock.Lock()
-	for {
-		startTime := time.Now()
-
-		/* If worksize is larger than remaining work, adjust worksize */
-		if lastTock+wSize > world.TockCount {
-			wSize = world.TockCount - lastTock
-		}
-
-		for i := lastTock; i < lastTock+wSize; i++ {
-			/* Don't tock if blocked */
-			if !world.TockList[i].Target.Blocked {
-				world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
-			}
-		}
-
-		lastTock = lastTock + wSize + 1
-		if lastTock >= world.TockCount {
-			break
-		}
-
-		if !gv.UPSBench {
-			sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TockCount)/(float64(wSize)/margin))) - time.Since(startTime)
-			if sleepFor > minSleep {
-				time.Sleep(sleepFor)
-			}
+	for i, _ := range world.TockList {
+		/* Don't tock if blocked */
+		if !world.TockList[i].Target.Blocked {
+			world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
 		}
 	}
-	world.TockListLock.Unlock()
 }
 
 /* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
 func runTicksST() {
-	if world.TickCount == 0 {
-		time.Sleep(time.Millisecond)
-		return
+	for i, _ := range world.TickList {
+		tickObj(world.TickList[i].Target)
 	}
-	var lastTick int = 0
-	var sleepFor time.Duration
-	var maxBlocks = world.NumWorkers * BlocksPerWorker
-	wSize := minWorkSize
-
-	if world.TickCount > largeThreshold {
-		wSize = int(math.Ceil(float64(world.TickCount)/float64(maxBlocks))) + minWorkSize
-	}
-
-	world.TickListLock.Lock()
-	for {
-
-		startTime := time.Now()
-
-		/* If worksize is larger than remaining work, adjust worksize */
-		if lastTick+wSize > world.TickCount {
-			wSize = world.TickCount - lastTick
-		}
-		for i := lastTick; i < lastTick+wSize; i++ {
-			tickObj(world.TickList[i].Target)
-		}
-
-		lastTick = lastTick + wSize + 1
-
-		if lastTick >= world.TickCount {
-			break
-		}
-
-		if !gv.UPSBench {
-			sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TickCount)/(float64(wSize)/margin))) - time.Since(startTime)
-			if sleepFor > minSleep {
-				time.Sleep(sleepFor)
-			}
-		}
-	}
-	world.TickListLock.Unlock()
 }

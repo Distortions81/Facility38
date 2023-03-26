@@ -46,7 +46,7 @@ func main() {
 	}
 	if WASMMode == "true" {
 		gv.WASMMode = true
-		objects.BlocksPerWorker = 60
+		objects.BlocksPerWorker = 4
 	} else {
 		cwlog.StartLog()
 		cwlog.LogDaemon()

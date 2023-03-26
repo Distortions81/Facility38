@@ -101,9 +101,8 @@ func ObjUpdateDaemonST() {
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
 			}
-		} else {
-			time.Sleep(time.Microsecond)
 		}
+		time.Sleep(time.Millisecond)
 		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
 	}
 }
