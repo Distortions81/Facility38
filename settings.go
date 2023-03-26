@@ -85,9 +85,9 @@ func toggleTestMap(item int) {
 		util.BoolToOnOff(settingItems[item].Enabled))
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 
-	time.Sleep(time.Millisecond * 100)
 	world.MapGenerated.Store(false)
 	world.MapLoadPercent = 0
+	time.Sleep(time.Millisecond * 100)
 	go MakeMap(gv.LoadTest)
 }
 
