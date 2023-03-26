@@ -61,8 +61,23 @@ func init() {
 
 	settingItems = []settingType{
 		{Text: "Limit FPS (VSYNC)", Action: toggleVsync},
+		{Text: "Full Screen", Action: toggleFullscreen},
 		{Text: "Debug mode", Action: toggleDebug},
 	}
+}
+
+func toggleFullscreen(item int) {
+	if ebiten.IsFullscreen() {
+		ebiten.SetFullscreen(false)
+		settingItems[item].Enabled = false
+	} else {
+		ebiten.SetFullscreen(true)
+		settingItems[item].Enabled = true
+	}
+	buf := fmt.Sprintf("%v is now %v.",
+		settingItems[item].Text,
+		util.BoolToOnOff(settingItems[item].Enabled))
+	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
 func toggleDebug(item int) {
