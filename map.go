@@ -10,8 +10,8 @@ import (
 /* Make a test map, or skip and still start daemons */
 func MakeMap(gen bool) {
 
+	objects.NukeWorld()
 	if gen {
-		objects.NukeWorld()
 
 		/* Test load map generator parameters */
 		total := 0
