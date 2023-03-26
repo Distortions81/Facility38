@@ -84,15 +84,19 @@ func beltUpdateOver(obj *world.ObjData) {
 
 	/* Underpass */
 	if obj.BeltOver.UnderIn != nil && obj.BeltOver.UnderOut != nil {
-		if obj.BeltOver.UnderIn.Buf.Amount != 0 && obj.BeltOver.UnderOut.Buf.Amount == 0 {
-			*obj.BeltOver.UnderOut.Buf, *obj.BeltOver.UnderIn.Buf = *obj.BeltOver.UnderIn.Buf, *obj.BeltOver.UnderOut.Buf
+		if obj.BeltOver.UnderOut.Obj != nil && !obj.BeltOver.UnderOut.Obj.Blocked {
+			if obj.BeltOver.UnderIn.Buf.Amount != 0 && obj.BeltOver.UnderOut.Buf.Amount == 0 {
+				*obj.BeltOver.UnderOut.Buf, *obj.BeltOver.UnderIn.Buf = *obj.BeltOver.UnderIn.Buf, *obj.BeltOver.UnderOut.Buf
+			}
 		}
 	}
 
 	/* Overpass to OverOut */
 	if obj.BeltOver.OverOut != nil && obj.BeltOver.Middle != nil {
-		if obj.BeltOver.Middle.Amount != 0 && obj.BeltOver.OverOut.Buf.Amount == 0 {
-			*obj.BeltOver.OverOut.Buf, *obj.BeltOver.Middle = *obj.BeltOver.Middle, *obj.BeltOver.OverOut.Buf
+		if obj.BeltOver.OverOut.Obj != nil && !obj.BeltOver.OverOut.Obj.Blocked {
+			if obj.BeltOver.Middle.Amount != 0 && obj.BeltOver.OverOut.Buf.Amount == 0 {
+				*obj.BeltOver.OverOut.Buf, *obj.BeltOver.Middle = *obj.BeltOver.Middle, *obj.BeltOver.OverOut.Buf
+			}
 		}
 	}
 
@@ -119,6 +123,7 @@ func beltUpdate(obj *world.ObjData) {
 	if obj.NumOut > 0 {
 		if obj.Inputs[obj.LastInput].Buf.Amount > 0 &&
 			obj.Outputs[0].Buf.Amount == 0 &&
+			obj.Outputs[0].Obj != nil &&
 			!obj.Outputs[0].Obj.Blocked {
 			/* Good to go, swap pointers */
 			*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
