@@ -17,6 +17,7 @@ import (
 
 const (
 	padding   = 16
+	itemsPad  = 16
 	linePad   = 10
 	spritePad = 32
 
@@ -30,7 +31,7 @@ var (
 	halfSWidth  = int(world.ScreenWidth / 2)
 	halfSHeight = int(world.ScreenHeight / 2)
 	textHeight  = 16
-	windowSize  = 500
+	windowSize  = 300
 	halfWindow  = windowSize / 2
 
 	buttons      []image.Rectangle
@@ -97,10 +98,10 @@ func toggleVsync(item int) {
 func setupSettingItems() {
 
 	/* Generate base values */
+	halfWindow = windowSize / 2
 	font := world.BootFont
 	base := text.BoundString(font, "abcdefghijklmnopqrstuvwxyz!.0123456789")
 	textHeight = base.Dy() + linePad
-	check := objects.ObjOverlayTypes[7].Image
 	buttons = []image.Rectangle{}
 
 	img := objects.ObjOverlayTypes[8].Image
@@ -118,15 +119,16 @@ func setupSettingItems() {
 
 		/* Place line */
 		var linePosX int = (halfSWidth) - halfWindow + padding
-		var linePosY int = (halfWindow / 2) + textHeight*(i+2) + (linePad * (i + 2))
+		var linePosY int = (halfSHeight - halfWindow) + textHeight*(i+2) +
+			(linePad * (i + 2)) +
+			itemsPad
 		settingItems[i].TextPosX = linePosX
 		settingItems[i].TextPosY = linePosY
 
 		/* Generate button */
 		button := image.Rectangle{}
 		button.Min.X = linePosX
-		button.Max.X = linePosX + tbound.Dx() +
-			check.Bounds().Dx() + spritePad + padding*2
+		button.Max.X = (halfSWidth + halfWindow) - padding
 
 		button.Min.Y = linePosY - tbound.Dy()
 		button.Max.Y = linePosY + spritePad/2
@@ -149,7 +151,10 @@ func drawSettings(screen *ebiten.Image) {
 	font := world.BootFont
 	rect := text.BoundString(font, txt)
 	textHeight = rect.Dy() + linePad
-	text.Draw(screen, txt, font, int(halfSWidth)-(rect.Dx()/2), (halfWindow/2)+padding, world.ColorWhite)
+	text.Draw(screen, txt, font,
+		int(halfSWidth)-(rect.Dx()/2),
+		(halfSHeight-halfWindow)+rect.Dy()+padding,
+		world.ColorWhite)
 
 	/* Close box */
 	op.GeoM.Reset()
@@ -173,7 +178,7 @@ func drawSettings(screen *ebiten.Image) {
 			itemColor = world.ColorAqua
 		}
 
-		if gv.Debug && 1 == 2 {
+		if gv.Debug {
 			/* Button debug */
 			ebitenutil.DrawRect(screen,
 				float64(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
@@ -194,7 +199,7 @@ func drawSettings(screen *ebiten.Image) {
 		}
 		/* Draw checkmark */
 		op.GeoM.Translate(
-			float64(item.TextPosX+item.TextBounds.Dx()+check.Bounds().Dx()+spritePad),
+			float64(halfSWidth+halfWindow-check.Bounds().Dx()-padding),
 			float64(item.TextPosY)-float64((check.Bounds().Dy())/2))
 		screen.DrawImage(check, op)
 
