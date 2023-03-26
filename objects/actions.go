@@ -1,7 +1,6 @@
 package objects
 
 import (
-	"GameTest/gv"
 	"GameTest/util"
 	"GameTest/world"
 	"time"
@@ -22,16 +21,6 @@ func toggleOverlay() {
 	} else {
 		world.OverlayMode = true
 		util.ChatDetailed("Info overlay is now on.", world.ColorOrange, time.Second*5)
-	}
-}
-
-func toggleDebug() {
-	if gv.Debug {
-		gv.Debug = false
-		util.ChatDetailed("Debug mode is now off.", world.ColorOrange, time.Second*5)
-	} else {
-		gv.Debug = true
-		util.ChatDetailed("Debug mode is now on.", world.ColorOrange, time.Second*5)
 	}
 }
 

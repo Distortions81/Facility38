@@ -91,7 +91,7 @@ var (
 		//Ui Only
 		{
 			ImagePath: "ui/settings.png", Name: "Settings", ToolbarAction: settingsToggle,
-			Symbol: "SET", Info: "Change settings", QKey: ebiten.KeyF1,
+			Symbol: "SET", QKey: ebiten.KeyF1,
 		},
 		{
 			ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
@@ -100,10 +100,6 @@ var (
 		{
 			ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
 			Symbol: "LAYER", Info: "Toggle between the build and resource layer.", QKey: ebiten.KeyF3,
-		},
-		{
-			ImagePath: "ui/debug.png", Name: "Debug mode", ToolbarAction: toggleDebug,
-			Symbol: "DBG", Info: "Toggle debug mode", QKey: ebiten.KeyF4,
 		},
 		{
 			Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,

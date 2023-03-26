@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -16,7 +17,7 @@ import (
 
 const (
 	padding   = 16
-	linePad   = 4
+	linePad   = 10
 	spritePad = 32
 
 	TYPE_BOOL = 0
@@ -51,16 +52,33 @@ type settingType struct {
 func init() {
 	bg = ebiten.NewImage(1, 1)
 
-	bgcolor := color.RGBA{R: 0, G: 0, B: 0, A: 128}
+	bgcolor := color.RGBA{R: 0, G: 0, B: 0, A: 170}
 	bg.Fill(bgcolor)
 
 	settingItems = []settingType{
 		{Text: "Limit FPS (VSYNC)", Action: toggleVsync},
+		{Text: "Debug mode", Action: toggleDebug},
+	}
+}
+
+func toggleDebug() {
+	if gv.Debug {
+		gv.Debug = false
+		util.ChatDetailed("Debug mode is now off.", world.ColorOrange, time.Second*5)
+	} else {
+		gv.Debug = true
+		util.ChatDetailed("Debug mode is now on.", world.ColorOrange, time.Second*5)
 	}
 }
 
 func toggleVsync() {
-
+	if world.Vsync {
+		world.Vsync = false
+		ebiten.SetVsyncEnabled(false)
+	} else {
+		world.Vsync = true
+		ebiten.SetVsyncEnabled(true)
+	}
 }
 
 func setupSettingItems() {
@@ -80,7 +98,7 @@ func setupSettingItems() {
 
 		/* Place line */
 		var linePosX int = (halfSWidth) - halfWindow + padding
-		var linePosY int = (halfWindow / 2) + textHeight*(i+2)
+		var linePosY int = (halfWindow / 2) + textHeight*(i+2) + (linePad * (i + 2))
 		settingItems[i].TextPosX = linePosX
 		settingItems[i].TextPosY = linePosY
 
@@ -118,13 +136,13 @@ func drawSettings(screen *ebiten.Image) {
 		b := buttons[i]
 
 		/* Text */
-		txt = fmt.Sprintf("%v %v", item.Text, util.BoolToOnOff(item.Enabled))
+		txt = fmt.Sprintf("%v: %v", item.Text, util.BoolToOnOff(item.Enabled))
 
 		/* Draw text */
 		itemColor := world.ColorWhite
 		/* Detect hover, change color */
 		mx, my := ebiten.CursorPosition()
-		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, b, 2) {
+		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, b, 1) {
 			itemColor = world.ColorAqua
 		}
 
@@ -136,8 +154,8 @@ func drawSettings(screen *ebiten.Image) {
 				float64(b.Dx()),
 				float64(b.Dy()),
 				color.NRGBA{R: 255, G: 0, B: 0, A: 64})
-			text.Draw(screen, txt, font, item.TextPosX, item.TextPosY, itemColor)
 		}
+		text.Draw(screen, txt, font, item.TextPosX, item.TextPosY, itemColor)
 
 		/* Get checkmark image */
 		op.GeoM.Reset()
