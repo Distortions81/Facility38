@@ -35,6 +35,9 @@ var (
 
 	buttons      []image.Rectangle
 	settingItems []settingType
+
+	closeBoxPos  world.XY
+	closeBoxSize world.XY
 )
 
 type settingType struct {
@@ -65,12 +68,14 @@ func toggleDebug(item int) {
 	if gv.Debug {
 		gv.Debug = false
 		settingItems[item].Enabled = false
-		util.ChatDetailed("Debug mode is now off.", world.ColorOrange, time.Second*5)
 	} else {
 		gv.Debug = true
 		settingItems[item].Enabled = true
-		util.ChatDetailed("Debug mode is now on.", world.ColorOrange, time.Second*5)
 	}
+	buf := fmt.Sprintf("%v is now %v.",
+		settingItems[item].Text,
+		util.BoolToOnOff(settingItems[item].Enabled))
+	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
 func toggleVsync(item int) {
@@ -83,6 +88,10 @@ func toggleVsync(item int) {
 		settingItems[item].Enabled = true
 		ebiten.SetVsyncEnabled(true)
 	}
+	buf := fmt.Sprintf("%v is now %v.",
+		settingItems[item].Text,
+		util.BoolToOnOff(settingItems[item].Enabled))
+	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
 func setupSettingItems() {
@@ -93,6 +102,13 @@ func setupSettingItems() {
 	textHeight = base.Dy() + linePad
 	check := objects.ObjOverlayTypes[7].Image
 	buttons = []image.Rectangle{}
+
+	img := objects.ObjOverlayTypes[8].Image
+
+	closeBoxPos.X = uint16(halfSWidth + halfWindow - img.Bounds().Dx() - padding)
+	closeBoxPos.Y = uint16(halfSHeight - halfWindow + padding)
+	closeBoxSize.X = uint16(img.Bounds().Dx())
+	closeBoxSize.Y = uint16(img.Bounds().Dy())
 
 	/* Loop all settings */
 	for i, item := range settingItems {
@@ -134,6 +150,13 @@ func drawSettings(screen *ebiten.Image) {
 	rect := text.BoundString(font, txt)
 	textHeight = rect.Dy() + linePad
 	text.Draw(screen, txt, font, int(halfSWidth)-(rect.Dx()/2), (halfWindow/2)+padding, world.ColorWhite)
+
+	/* Close box */
+	op.GeoM.Reset()
+	img := objects.ObjOverlayTypes[8].Image
+
+	op.GeoM.Translate(float64(closeBoxPos.X), float64(closeBoxPos.Y))
+	screen.DrawImage(img, op)
 
 	/* Draw items */
 	for i, item := range settingItems {
@@ -189,5 +212,14 @@ func handleSettings() bool {
 		}
 	}
 
+	/* Close box */
+	if mx <= int(closeBoxPos.X+(closeBoxSize.X)) &&
+		mx >= int(closeBoxPos.X-(closeBoxSize.X)) &&
+
+		my <= int(closeBoxPos.Y+(closeBoxSize.Y)) &&
+		my >= int(closeBoxPos.Y-(closeBoxSize.Y)) {
+
+		world.SettingsOpen = false
+	}
 	return false
 }

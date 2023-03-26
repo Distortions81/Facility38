@@ -305,6 +305,7 @@ var (
 		{ImagePath: "overlays/nofuel.png", Name: "NO FUEL", Symbol: "&"},
 		{ImagePath: "ui/check-on.png", Name: "Check-On", Symbol: "✓"},
 		{ImagePath: "ui/check-off.png", Name: "Check-Off", Symbol: "X"},
+		{ImagePath: "ui/close.png", Name: "Close", Symbol: "X"},
 	}
 
 	/* Materials and images */
