@@ -105,9 +105,10 @@ func toggleTestMap(item int) {
 
 	world.MapGenerated.Store(false)
 	world.MapLoadPercent = 0
-	time.Sleep(time.Second)
+	time.Sleep(time.Nanosecond)
 	go func() {
 		MakeMap(gv.LoadTest)
+		time.Sleep(time.Nanosecond)
 		startGame()
 	}()
 }

@@ -55,7 +55,6 @@ func ObjUpdateDaemon() {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
-				//fmt.Printf("Sleep: %v ", sleepFor.String())
 			}
 		}
 		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
@@ -99,7 +98,11 @@ func ObjUpdateDaemonST() {
 
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
-			time.Sleep(sleepFor)
+			if sleepFor > minSleep {
+				time.Sleep(sleepFor - time.Microsecond)
+			}
+		} else {
+			time.Sleep(time.Microsecond)
 		}
 		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
 	}
