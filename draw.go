@@ -494,7 +494,7 @@ func drawIconMode(screen *ebiten.Image) {
 						op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),
 							((1)*float64(world.ZoomScale))/float64(iSize.Max.Y))
 						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
-						op.ColorScale.Scale(0.5, 0.5, 0.5, 0.66)
+						op.ColorScale.Scale(0.5, 0.5, 0.5, 0.7)
 
 						/* Draw Arrow */
 						if img != nil {
@@ -524,6 +524,7 @@ func drawIconMode(screen *ebiten.Image) {
 				op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),
 					(1*float64(world.ZoomScale))/float64(iSize.Max.Y))
 				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+				op.ColorScale.ScaleAlpha(0.5)
 
 				if img != nil {
 					OpBatch[BatchTop] = op

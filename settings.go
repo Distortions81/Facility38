@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
@@ -31,8 +31,10 @@ var (
 	halfSWidth  = int(world.ScreenWidth / 2)
 	halfSHeight = int(world.ScreenHeight / 2)
 	textHeight  = 16
-	windowSize  = 300
-	halfWindow  = windowSize / 2
+	windowSizeW = 300
+	windowSizeH = 400
+	halfWindowW = windowSizeW / 2
+	halfWindowH = windowSizeH / 2
 
 	buttons      []image.Rectangle
 	settingItems []settingType
@@ -51,6 +53,7 @@ type settingType struct {
 
 	Action  func(item int)
 	Enabled bool
+	NoCheck bool
 }
 
 func init() {
@@ -65,7 +68,16 @@ func init() {
 		{Text: "Uncap UPS", Action: toggleUPSCap},
 		{Text: "Debug mode", Action: toggleDebug},
 		{Text: "Load test map", Action: toggleTestMap},
+		{Text: "Quit game", Action: quitGame, NoCheck: true},
 	}
+}
+
+func quitGame(item int) {
+	go func() {
+		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
+		time.Sleep(time.Second * 1)
+		os.Exit(0)
+	}()
 }
 
 func toggleTestMap(item int) {
@@ -152,7 +164,9 @@ func toggleVsync(item int) {
 func setupSettingItems() {
 
 	/* Generate base values */
-	halfWindow = windowSize / 2
+	halfWindowW = windowSizeW / 2
+	halfWindowH = windowSizeH / 2
+
 	font := world.BootFont
 	base := text.BoundString(font, "abcdefghijklmnopqrstuvwxyz!.0123456789")
 	textHeight = base.Dy() + linePad
@@ -160,8 +174,8 @@ func setupSettingItems() {
 
 	img := objects.ObjOverlayTypes[8].Image
 
-	closeBoxPos.X = uint16(halfSWidth + halfWindow - img.Bounds().Dx() - padding)
-	closeBoxPos.Y = uint16(halfSHeight - halfWindow + padding)
+	closeBoxPos.X = uint16(halfSWidth + halfWindowW - img.Bounds().Dx() - padding)
+	closeBoxPos.Y = uint16(halfSHeight - halfWindowH + padding)
 	closeBoxSize.X = uint16(img.Bounds().Dx())
 	closeBoxSize.Y = uint16(img.Bounds().Dy())
 
@@ -172,8 +186,8 @@ func setupSettingItems() {
 		settingItems[i].TextBounds = tbound
 
 		/* Place line */
-		var linePosX int = (halfSWidth) - halfWindow + padding
-		var linePosY int = (halfSHeight - halfWindow) + textHeight*(i+2) +
+		var linePosX int = (halfSWidth) - halfWindowW + padding
+		var linePosY int = (halfSHeight - halfWindowH) + textHeight*(i+2) +
 			(linePad * (i + 2)) +
 			itemsPad
 		settingItems[i].TextPosX = linePosX
@@ -182,7 +196,7 @@ func setupSettingItems() {
 		/* Generate button */
 		button := image.Rectangle{}
 		button.Min.X = linePosX
-		button.Max.X = (halfSWidth + halfWindow) - padding
+		button.Max.X = (halfSWidth + halfWindowW) - padding
 
 		button.Min.Y = linePosY - tbound.Dy()
 		button.Max.Y = linePosY + spritePad/2
@@ -196,18 +210,18 @@ func drawSettings(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 
 	/* Draw window bg */
-	op.GeoM.Scale(float64(windowSize), float64(windowSize))
-	op.GeoM.Translate(float64(halfSWidth-halfWindow), float64(halfSHeight-halfWindow))
+	op.GeoM.Scale(float64(windowSizeW), float64(windowSizeH))
+	op.GeoM.Translate(float64(halfSWidth-halfWindowW), float64(halfSHeight-halfWindowH))
 	screen.DrawImage(bg, op)
 
 	/* Draw title */
-	txt := "Settings:"
+	txt := "Options:"
 	font := world.BootFont
 	rect := text.BoundString(font, txt)
 	textHeight = rect.Dy() + linePad
 	text.Draw(screen, txt, font,
 		int(halfSWidth)-(rect.Dx()/2),
-		(halfSHeight-halfWindow)+rect.Dy()+padding,
+		(halfSHeight-halfWindowH)+rect.Dy()+padding,
 		world.ColorWhite)
 
 	/* Close box */
@@ -222,7 +236,11 @@ func drawSettings(screen *ebiten.Image) {
 		b := buttons[i]
 
 		/* Text */
-		txt = fmt.Sprintf("%v: %v", item.Text, util.BoolToOnOff(item.Enabled))
+		if !item.NoCheck {
+			txt = fmt.Sprintf("%v: %v", item.Text, util.BoolToOnOff(item.Enabled))
+		} else {
+			txt = item.Text
+		}
 
 		/* Draw text */
 		itemColor := world.ColorWhite
@@ -232,31 +250,33 @@ func drawSettings(screen *ebiten.Image) {
 			itemColor = world.ColorAqua
 		}
 
-		if gv.Debug {
-			/* Button debug */
-			ebitenutil.DrawRect(screen,
-				float64(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
-				float64(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
-				float64(b.Dx()),
-				float64(b.Dy()),
-				color.NRGBA{R: 255, G: 0, B: 0, A: 64})
-		}
+		/*
+			if gv.Debug {
+				ebitenutil.DrawRect(screen,
+					float64(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
+					float64(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
+					float64(b.Dx()),
+					float64(b.Dy()),
+					color.NRGBA{R: 255, G: 0, B: 0, A: 64})
+			}
+		*/
 		text.Draw(screen, txt, font, item.TextPosX, item.TextPosY, itemColor)
 
-		/* Get checkmark image */
-		op.GeoM.Reset()
-		var check *ebiten.Image
-		if item.Enabled {
-			check = objects.ObjOverlayTypes[6].Image
-		} else {
-			check = objects.ObjOverlayTypes[7].Image
+		if !item.NoCheck {
+			/* Get checkmark image */
+			op.GeoM.Reset()
+			var check *ebiten.Image
+			if item.Enabled {
+				check = objects.ObjOverlayTypes[6].Image
+			} else {
+				check = objects.ObjOverlayTypes[7].Image
+			}
+			/* Draw checkmark */
+			op.GeoM.Translate(
+				float64(halfSWidth+halfWindowW-check.Bounds().Dx()-padding),
+				float64(item.TextPosY)-float64((check.Bounds().Dy())/2))
+			screen.DrawImage(check, op)
 		}
-		/* Draw checkmark */
-		op.GeoM.Translate(
-			float64(halfSWidth+halfWindow-check.Bounds().Dx()-padding),
-			float64(item.TextPosY)-float64((check.Bounds().Dy())/2))
-		screen.DrawImage(check, op)
-
 	}
 }
 

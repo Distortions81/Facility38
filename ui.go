@@ -74,8 +74,7 @@ func getToolbarKeypress() {
 
 /* Quit if alt-f4 or ESC are pressed */
 func handleQuit() {
-	if (inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt)) ||
-		inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt) {
 		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
 		time.Sleep(time.Second * 5)
 		os.Exit(0)

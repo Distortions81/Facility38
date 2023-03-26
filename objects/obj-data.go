@@ -90,7 +90,7 @@ var (
 	UIObjsTypes = []*world.ObjType{
 		//Ui Only
 		{
-			ImagePath: "ui/settings.png", Name: "Settings", ToolbarAction: settingsToggle,
+			ImagePath: "ui/settings.png", Name: "Options", ToolbarAction: settingsToggle,
 			Symbol: "SET", QKey: ebiten.KeyF1,
 		},
 		{
