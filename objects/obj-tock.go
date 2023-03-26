@@ -191,24 +191,7 @@ func splitterUpdate(obj *world.ObjData) {
 		if obj.Outputs[obj.LastOutput].Buf.Amount == 0 {
 			/* Good to go, swap pointers */
 			*obj.Inputs[0].Buf, *obj.Outputs[obj.LastOutput].Buf = *obj.Outputs[obj.LastOutput].Buf, *obj.Inputs[0].Buf
-			if !obj.Active {
-				obj.Active = true
-				obj.TickCount = 0
-			}
 			return
-		}
-
-		obj.TickCount++
-		if obj.TickCount >= uint8(world.ObjectUPS*2) && obj.Active {
-			obj.Active = false
-			obj.TickCount = 0
-		}
-	} else {
-
-		obj.TickCount++
-		if obj.TickCount >= uint8(world.ObjectUPS*2) && obj.Active {
-			obj.Active = false
-			obj.TickCount = 0
 		}
 	}
 }
