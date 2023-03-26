@@ -192,17 +192,18 @@ var (
 		},
 
 		{
-			ImagePath: "world-obj/basic-splitter.png", ImageActivePath: "world-obj/basic-splitter-active.png",
-			Name:        "Basic Splitter",
-			Info:        "Input from back, outputs equally to up to 3 outputs.",
-			TypeI:       gv.ObjTypeBasicSplit,
-			Size:        world.XYs{X: 1, Y: 1},
-			ShowArrow:   true,
-			ShowBlocked: true,
-			KW:          100,
-			UpdateObj:   splitterUpdate,
-			LinkObj:     linkSplitter,
-			Symbol:      "SPT",
+			ImagePath:    "world-obj/basic-splitter.png",
+			Name:         "Basic Splitter",
+			Info:         "Input from back, outputs equally to up to 3 outputs.",
+			TypeI:        gv.ObjTypeBasicSplit,
+			Size:         world.XYs{X: 1, Y: 1},
+			ShowArrow:    true,
+			ShowBlocked:  true,
+			ToolBarArrow: true,
+			KW:           100,
+			UpdateObj:    splitterUpdate,
+			LinkObj:      linkSplitter,
+			Symbol:       "SPT",
 			Ports: []world.ObjPortData{
 				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
@@ -212,7 +213,7 @@ var (
 		},
 
 		{
-			ImagePath: "world-obj/basic-box.png", ImageActivePath: "world-obj/basic-box-active.png",
+			ImagePath:    "world-obj/basic-box.png",
 			Info:         "Currently only stores objects (no unloader yet).",
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
