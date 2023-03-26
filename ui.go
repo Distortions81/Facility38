@@ -103,6 +103,12 @@ func handleToolbar(rotate bool) bool {
 		if fmy <= gv.ToolBarScale {
 
 			ipos := int(fmx / float32(gv.ToolBarScale+gv.ToolBarSpacing))
+			len := len(ToolbarItems) - 1
+			if ipos > len {
+				ipos = len
+			} else if ipos < 0 {
+				ipos = 0
+			}
 			item := ToolbarItems[ipos].OType
 
 			DrawToolbar(true, false, ipos)
