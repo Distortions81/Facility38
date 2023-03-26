@@ -8,7 +8,7 @@ import (
 )
 
 /* Make a test map, or skip and still start daemons */
-func makeMap(gen bool) {
+func MakeMap(gen bool) {
 
 	if gen {
 		objects.NukeWorld()

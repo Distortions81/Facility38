@@ -46,7 +46,6 @@ func main() {
 	}
 	if WASMMode == "true" {
 		gv.WASMMode = true
-		world.WorkChunks = 1
 	} else {
 		cwlog.StartLog()
 		cwlog.LogDaemon()
@@ -90,7 +89,7 @@ func NewGame() *Game {
 		time.Sleep(time.Millisecond * 700)
 		loadSprites()
 		objects.PerlinNoiseInit()
-		makeMap(gv.LoadTest)
+		MakeMap(gv.LoadTest)
 		startGame()
 	}()
 

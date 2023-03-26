@@ -62,8 +62,46 @@ func init() {
 	settingItems = []settingType{
 		{Text: "Limit FPS (VSYNC)", Action: toggleVsync},
 		{Text: "Full Screen", Action: toggleFullscreen},
+		{Text: "Uncap UPS", Action: toggleUPSCap},
 		{Text: "Debug mode", Action: toggleDebug},
+		{Text: "Load test map", Action: toggleTestMap},
 	}
+}
+
+func toggleTestMap(item int) {
+	if gv.LoadTest {
+		gv.LoadTest = false
+		settingItems[item].Enabled = false
+		buf := "Clearing map."
+		util.ChatDetailed(buf, world.ColorOrange, time.Second*10)
+	} else {
+		gv.LoadTest = true
+		settingItems[item].Enabled = true
+		buf := "Loading test map..."
+		util.ChatDetailed(buf, world.ColorOrange, time.Second*30)
+	}
+	buf := fmt.Sprintf("%v is now %v.",
+		settingItems[item].Text,
+		util.BoolToOnOff(settingItems[item].Enabled))
+	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+
+	time.Sleep(time.Millisecond * 100)
+	world.MapGenerated.Store(false)
+	go MakeMap(gv.LoadTest)
+}
+
+func toggleUPSCap(item int) {
+	if gv.UPSBench {
+		gv.UPSBench = false
+		settingItems[item].Enabled = false
+	} else {
+		gv.UPSBench = true
+		settingItems[item].Enabled = true
+	}
+	buf := fmt.Sprintf("%v is now %v.",
+		settingItems[item].Text,
+		util.BoolToOnOff(settingItems[item].Enabled))
+	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
 func toggleFullscreen(item int) {
