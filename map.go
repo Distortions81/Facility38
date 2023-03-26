@@ -9,6 +9,8 @@ import (
 
 /* Make a test map, or skip and still start daemons */
 func MakeMap(gen bool) {
+	objects.GameLock.Lock()
+	defer objects.GameLock.Unlock()
 
 	objects.NukeWorld()
 	if gen {

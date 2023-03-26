@@ -6,8 +6,7 @@ import (
 	"GameTest/world"
 	"fmt"
 	"image/color"
-	"runtime"
-	"strings"
+	"sync"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -15,14 +14,8 @@ import (
 
 var wg sizedwaitgroup.SizedWaitGroup
 var GameTick uint64
-
-var measureCompensate = 0 * time.Microsecond
-
-func init() {
-	if strings.EqualFold(runtime.GOOS, "windows") || gv.WASMMode {
-		measureCompensate = 0 //Windows time resolution sucks
-	}
-}
+var GameRunning bool
+var GameLock sync.Mutex
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
@@ -33,7 +26,10 @@ func ObjUpdateDaemon() {
 	}
 
 	var tockState bool = true
-	for {
+	GameLock.Lock()
+	defer GameLock.Unlock()
+
+	for GameRunning {
 		start := time.Now()
 
 		if tockState {
@@ -58,7 +54,7 @@ func ObjUpdateDaemon() {
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
-				time.Sleep(sleepFor - time.Microsecond*measureCompensate)
+				time.Sleep(sleepFor - time.Microsecond)
 				//fmt.Printf("Sleep: %v ", sleepFor.String())
 			}
 		}
@@ -75,7 +71,11 @@ func ObjUpdateDaemonST() {
 	}
 
 	var tockState bool = true
-	for {
+
+	GameLock.Lock()
+	defer GameLock.Unlock()
+
+	for GameRunning {
 		start = time.Now()
 
 		if tockState {

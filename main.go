@@ -86,7 +86,8 @@ func main() {
 /* Ebiten game init */
 func NewGame() *Game {
 	go func() {
-		time.Sleep(time.Millisecond * 700)
+		objects.GameRunning = false
+		time.Sleep(time.Millisecond * 500)
 		loadSprites()
 		objects.PerlinNoiseInit()
 		MakeMap(gv.LoadTest)
@@ -106,6 +107,7 @@ func startGame() {
 	}
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
+	objects.GameRunning = true
 	if !gv.WASMMode {
 		go objects.RenderTerrainDaemon()
 		go objects.PixmapRenderDaemon()

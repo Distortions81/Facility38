@@ -74,13 +74,19 @@ func init() {
 
 func quitGame(item int) {
 	go func() {
+		objects.GameRunning = false
 		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
-		time.Sleep(time.Second * 1)
+
+		objects.GameLock.Lock()
+		defer objects.GameLock.Unlock()
+
+		time.Sleep(time.Second * 2)
 		os.Exit(0)
 	}()
 }
 
 func toggleTestMap(item int) {
+	objects.GameRunning = false
 	if gv.LoadTest {
 		gv.LoadTest = false
 		settingItems[item].Enabled = false
@@ -99,8 +105,11 @@ func toggleTestMap(item int) {
 
 	world.MapGenerated.Store(false)
 	world.MapLoadPercent = 0
-	time.Sleep(time.Millisecond * 100)
-	go MakeMap(gv.LoadTest)
+	time.Sleep(time.Second)
+	go func() {
+		MakeMap(gv.LoadTest)
+		startGame()
+	}()
 }
 
 func toggleUPSCap(item int) {
