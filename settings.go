@@ -45,7 +45,7 @@ type settingType struct {
 	TextBounds image.Rectangle
 	Rect       image.Rectangle
 
-	Action  func()
+	Action  func(item int)
 	Enabled bool
 }
 
@@ -61,22 +61,26 @@ func init() {
 	}
 }
 
-func toggleDebug() {
+func toggleDebug(item int) {
 	if gv.Debug {
 		gv.Debug = false
+		settingItems[item].Enabled = false
 		util.ChatDetailed("Debug mode is now off.", world.ColorOrange, time.Second*5)
 	} else {
 		gv.Debug = true
+		settingItems[item].Enabled = true
 		util.ChatDetailed("Debug mode is now on.", world.ColorOrange, time.Second*5)
 	}
 }
 
-func toggleVsync() {
+func toggleVsync(item int) {
 	if world.Vsync {
 		world.Vsync = false
+		settingItems[item].Enabled = false
 		ebiten.SetVsyncEnabled(false)
 	} else {
 		world.Vsync = true
+		settingItems[item].Enabled = true
 		ebiten.SetVsyncEnabled(true)
 	}
 }
@@ -146,7 +150,7 @@ func drawSettings(screen *ebiten.Image) {
 			itemColor = world.ColorAqua
 		}
 
-		if gv.Debug {
+		if gv.Debug && 1 == 2 {
 			/* Button debug */
 			ebitenutil.DrawRect(screen,
 				float64(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
@@ -172,4 +176,18 @@ func drawSettings(screen *ebiten.Image) {
 		screen.DrawImage(check, op)
 
 	}
+}
+
+func handleSettings() bool {
+	mx, my := ebiten.CursorPosition()
+
+	for i, item := range settingItems {
+		b := buttons[i]
+		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, b, 1) {
+			item.Action(i)
+			return true
+		}
+	}
+
+	return false
 }

@@ -207,7 +207,12 @@ func getMouseClicks() {
 		gLastActionPosition.X = 0
 		gLastActionPosition.Y = 0
 
-		gClickCaptured = handleToolbar(false)
+		if world.SettingsOpen {
+			gClickCaptured = handleSettings()
+		}
+		if !gClickCaptured {
+			gClickCaptured = handleToolbar(false)
+		}
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		gClickCaptured = handleToolbar(true)
 	}
