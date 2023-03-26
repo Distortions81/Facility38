@@ -63,9 +63,11 @@ func runTicks() {
 			break
 		}
 
-		sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TickCount)/(float64(wSize)/margin))) - time.Since(startTime)
-		if sleepFor > minSleep {
-			time.Sleep(sleepFor)
+		if !gv.UPSBench {
+			sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TickCount)/(float64(wSize)/margin))) - time.Since(startTime)
+			if sleepFor > minSleep {
+				time.Sleep(sleepFor)
+			}
 		}
 	}
 	wg.Wait()
@@ -114,9 +116,11 @@ func runTocks() {
 			break
 		}
 
-		sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TockCount)/(float64(wSize)/margin))) - time.Since(startTime)
-		if sleepFor > minSleep {
-			time.Sleep(sleepFor)
+		if !gv.UPSBench {
+			sleepFor = time.Duration(world.ObjectUPS_ns/int(float64(world.TockCount)/(float64(wSize)/margin))) - time.Since(startTime)
+			if sleepFor > minSleep {
+				time.Sleep(sleepFor)
+			}
 		}
 	}
 	wg.Wait()
