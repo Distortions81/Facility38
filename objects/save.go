@@ -45,6 +45,9 @@ type saveMObj struct {
 /* WIP */
 func SaveGame() {
 
+	util.Chat("Save is current disabled (wip).")
+	return
+
 	if world.WASMMode {
 		return
 	}
@@ -163,6 +166,9 @@ func SaveGame() {
 
 /* WIP */
 func LoadGame() {
+
+	util.Chat("Load is current disabled (wip).")
+	return
 
 	if world.WASMMode {
 		return
