@@ -98,6 +98,16 @@ func linkSplitter(obj *world.ObjData) {
 	}
 }
 
+func linkUnloader(obj *world.ObjData) {
+	if obj.NumOut != 0 || obj.NumIn != 0 {
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+	} else {
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+	}
+}
+
 func linkBox(obj *world.ObjData) {
 	if obj.NumIn == 0 {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)

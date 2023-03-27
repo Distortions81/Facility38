@@ -222,7 +222,8 @@ type ObjType struct {
 	Name string
 	Info string
 
-	TypeI uint8
+	TypeI    uint8
+	Category uint8
 
 	Symbol string
 
@@ -262,10 +263,9 @@ type ObjType struct {
 	MaxContainKG float32
 	MaxFuelKG    float32
 
-	Interval    uint8
-	CanContain  bool
-	ShowArrow   bool
-	ShowBlocked bool
+	Interval   uint8
+	CanContain bool
+	ShowArrow  bool
 
 	/* Quick lookup for auto-events */
 	HasInputs  bool

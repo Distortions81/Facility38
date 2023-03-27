@@ -59,6 +59,14 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 					continue
 				}
 
+				/* Normal objects can only link to loaders */
+				if (b.Obj.TypeP.Category == gv.ObjCatGeneric &&
+					neighb.Obj.TypeP.Category != gv.ObjCatLoader) ||
+					(neighb.Obj.TypeP.Category == gv.ObjCatGeneric &&
+						b.Obj.TypeP.Category != gv.ObjCatLoader) {
+					continue
+				}
+
 				/* Add link to objects */
 				neighb.Obj.Ports[n].Obj = b.Obj
 				b.Obj.Ports[p].Obj = neighb.Obj

@@ -69,11 +69,18 @@ const (
 	ObjTypeBasicBox        = 4
 	ObjTypeBasicSmelter    = 5
 	ObjTypeBasicFuelHopper = 6
+	ObjTypeBasicUnloader   = 7
+	ObjTypeBasicLoader     = 8
 
 	/*Disabled, incomplete */
 	ObjTypeBasicIronCaster = 8
 	ObjTypeBasicBoiler     = 9
 	ObjTypeSteamEngine     = 10
+
+	/* Object catagories */
+	ObjCatGeneric = 0
+	ObjCatBelt    = 1
+	ObjCatLoader  = 2
 
 	/* Materials */
 	MAT_NONE = 0

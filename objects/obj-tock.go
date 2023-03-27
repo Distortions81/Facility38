@@ -184,7 +184,19 @@ func fuelHopperUpdate(obj *world.ObjData) {
 			break
 		}
 	}
+}
 
+func loaderUpdate(obj *world.ObjData) {
+	for i, input := range obj.Inputs {
+		if input.Buf.Amount == 0 {
+			continue
+		}
+		if obj.Outputs[0].Buf.Amount != 0 {
+			continue
+		}
+		*obj.Outputs[0].Buf, *obj.Inputs[i].Buf = *obj.Inputs[i].Buf, *obj.Outputs[0].Buf
+		break
+	}
 }
 
 func splitterUpdate(obj *world.ObjData) {
