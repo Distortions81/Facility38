@@ -19,7 +19,7 @@ func init() {
 }
 
 var (
-	Vsync        bool
+	Vsync        bool = true
 	SettingsOpen bool
 
 	/* SuperChunk List */

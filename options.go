@@ -63,7 +63,7 @@ func init() {
 	bg.Fill(bgcolor)
 
 	settingItems = []settingType{
-		{Text: "Limit FPS (VSYNC)", Action: toggleVsync},
+		{Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
 		{Text: "Full Screen", Action: toggleFullscreen},
 		{Text: "Uncap UPS", Action: toggleUPSCap},
 		{Text: "Debug mode", Action: toggleDebug},
