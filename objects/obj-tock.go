@@ -93,7 +93,7 @@ func beltUpdateOver(obj *world.ObjData) {
 
 	/* Overpass to OverOut */
 	if obj.BeltOver.OverOut != nil && obj.BeltOver.Middle != nil {
-		if obj.BeltOver.OverOut.Obj != nil && !obj.BeltOver.OverOut.Obj.Blocked {
+		if obj.BeltOver.OverOut.Obj != nil {
 			if obj.BeltOver.Middle.Amount != 0 && obj.BeltOver.OverOut.Buf.Amount == 0 {
 				*obj.BeltOver.OverOut.Buf, *obj.BeltOver.Middle = *obj.BeltOver.Middle, *obj.BeltOver.OverOut.Buf
 			}
@@ -243,18 +243,14 @@ func smelterUpdate(obj *world.ObjData) {
 			continue
 		}
 
-		/* Process fuel */
-		if fuel.Buf.TypeP.IsFuel {
-
-			/* Will the fuel fit? */
-			if obj.KGFuel+fuel.Buf.Amount > obj.TypeP.MaxFuelKG {
-				continue
-			}
-
-			obj.KGFuel += fuel.Buf.Amount
-			fuel.Buf.Amount = 0
+		/* Will the fuel fit? */
+		if obj.KGFuel+fuel.Buf.Amount > obj.TypeP.MaxFuelKG {
 			continue
 		}
+
+		obj.KGFuel += fuel.Buf.Amount
+		fuel.Buf.Amount = 0
+		continue
 	}
 
 	/* Check input */
