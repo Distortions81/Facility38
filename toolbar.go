@@ -63,8 +63,8 @@ func DrawToolbar(click, hover bool, index int) {
 		if item.OType.ImageOverlay != nil {
 			img = item.OType.ImageOverlay
 		}
-		if item.OType.TBarImage != nil {
-			img = item.OType.TBarImage
+		if item.OType.ToolbarImage != nil {
+			img = item.OType.ToolbarImage
 		}
 		if img == nil {
 			return

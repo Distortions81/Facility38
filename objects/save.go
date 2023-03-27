@@ -109,7 +109,6 @@ func SaveGame() {
 						if tobj.Contents.Mats[c].TypeP == nil {
 							continue
 						}
-						tobj.Contents.Mats[c].TypeI = tobj.Contents.Mats[c].TypeP.TypeI
 					}
 
 					/* Convert pointer to type int */
@@ -120,7 +119,6 @@ func SaveGame() {
 						if tobj.Ports[p].Buf.TypeP == nil {
 							continue
 						}
-						tobj.Ports[p].Buf.TypeI = tobj.Ports[p].Buf.TypeP.TypeI
 						tobj.Ports[p].Obj = nil
 					}
 					tempList.Objects = append(tempList.Objects, tobj)
@@ -246,7 +244,6 @@ func LoadGame() {
 				if obj.Contents.Mats[c] == nil {
 					continue
 				}
-				obj.Contents.Mats[c].TypeP = MatTypes[obj.Contents.Mats[c].TypeI]
 			}
 
 			/* Relink */

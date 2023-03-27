@@ -95,19 +95,19 @@ var (
 		},
 		{
 			ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
-			Symbol: "OVRLY", Info: "Turn info overlay on/off", QKey: ebiten.KeyF2,
+			Symbol: "OVRLY", Description: "Turn info overlay on/off", QKey: ebiten.KeyF2,
 		},
 		{
 			ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER", Info: "Toggle between the build and resource layer.", QKey: ebiten.KeyF3,
+			Symbol: "LAYER", Description: "Toggle between the build and resource layer.", QKey: ebiten.KeyF3,
 		},
 		{
 			Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
-			Symbol: "SAVE", ExcludeWASM: true, Info: "Quicksave game", QKey: ebiten.KeyF5,
+			Symbol: "SAVE", ExcludeWASM: true, Description: "Quicksave game", QKey: ebiten.KeyF5,
 		},
 		{
 			Name: "Load Game", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
-			Symbol: "LOAD", ExcludeWASM: true, Info: "Load quicksave", QKey: ebiten.KeyF6,
+			Symbol: "LOAD", ExcludeWASM: true, Description: "Load quicksave", QKey: ebiten.KeyF6,
 		},
 	}
 
@@ -118,7 +118,7 @@ var (
 			ImagePath:       "world-obj/basic-miner-64.png",
 			ImageActivePath: "world-obj/basic-miner-active-64.png",
 			Name:            "Basic miner",
-			Info:            "Mines solid resources where placed, requires coal fuel.",
+			Description:     "Mines solid resources where placed, requires coal fuel.",
 			TypeI:           gv.ObjTypeBasicMiner,
 			Category:        gv.ObjCatGeneric,
 			Size:            world.XYs{X: 2, Y: 2},
@@ -146,10 +146,10 @@ var (
 
 		{
 			ImagePath:        "world-obj/basic-belt.png",
-			ImagePathOverlay: "world-obj/basic-belt-overlay.png",
+			ImageOverlayPath: "world-obj/basic-belt-overlay.png",
 			ImageCornerPath:  "world-obj/basic-belt-corner.png",
 			Name:             "Basic belt",
-			Info:             "Moves items from rear and sides in direction of arrow.",
+			Description:      "Moves items from rear and sides in direction of arrow.",
 			TypeI:            gv.ObjTypeBasicBelt,
 			Category:         gv.ObjCatBelt,
 			Size:             world.XYs{X: 1, Y: 1},
@@ -166,11 +166,11 @@ var (
 		},
 		{
 			ImagePath:        "world-obj/belt-over.png",
-			UIPath:           "world-obj/belt-over-ui.png",
-			ImagePathOverlay: "world-obj/belt-over-overlay.png",
+			ToolbarPath:      "world-obj/belt-over-ui.png",
+			ImageOverlayPath: "world-obj/belt-over-overlay.png",
 			ImageMaskPath:    "world-obj/belt-over-mask.png",
 			Name:             "Basic Belt Overpass",
-			Info:             "A belt that has an underpass.",
+			Description:      "A belt that has an underpass.",
 			TypeI:            gv.ObjTypeBasicBeltOver,
 			Category:         gv.ObjCatBelt,
 			Size:             world.XYs{X: 1, Y: 3},
@@ -196,7 +196,7 @@ var (
 		{
 			ImagePath:    "world-obj/basic-splitter.png",
 			Name:         "Basic Splitter",
-			Info:         "Input from back, outputs equally to up to 3 outputs.",
+			Description:  "Input from back, outputs equally to up to 3 outputs.",
 			TypeI:        gv.ObjTypeBasicSplit,
 			Category:     gv.ObjCatBelt,
 			Size:         world.XYs{X: 1, Y: 1},
@@ -216,7 +216,7 @@ var (
 
 		{
 			ImagePath:    "world-obj/basic-box.png",
-			Info:         "Currently only stores objects (no unloader yet).",
+			Description:  "Currently only stores objects (no unloader yet).",
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
 			Category:     gv.ObjCatGeneric,
@@ -245,7 +245,7 @@ var (
 			ImagePath:       "world-obj/basic-smelter.png",
 			ImageActivePath: "world-obj/basic-smelter-active.png",
 			Name:            "Basic smelter",
-			Info:            "Bakes solid ores into metal or stone bricks, requires coal fuel.",
+			Description:     "Bakes solid ores into metal or stone bricks, requires coal fuel.",
 			TypeI:           gv.ObjTypeBasicSmelter,
 			Category:        gv.ObjCatGeneric,
 			Size:            world.XYs{X: 2, Y: 2},
@@ -271,7 +271,7 @@ var (
 		{
 			ImagePath: "world-obj/basic-fuel-hopper.png", ImageActivePath: "world-obj/basic-fuel-hopper-active.png",
 			Name:         "Basic Fuel Hopper",
-			Info:         "Loads soild fuel into machines",
+			Description:  "Loads soild fuel into machines",
 			TypeI:        gv.ObjTypeBasicFuelHopper,
 			Category:     gv.ObjCatLoader,
 			Size:         world.XYs{X: 1, Y: 1},
@@ -293,7 +293,7 @@ var (
 		{
 			ImagePath:    "world-obj/basic-unloader.png",
 			Name:         "Basic Unloader",
-			Info:         "Unloads Material from objects.",
+			Description:  "Unloads Material from objects.",
 			TypeI:        gv.ObjTypeBasicUnloader,
 			Category:     gv.ObjCatLoader,
 			Size:         world.XYs{X: 1, Y: 1},
@@ -313,7 +313,7 @@ var (
 		{
 			ImagePath:    "world-obj/basic-loader.png",
 			Name:         "Basic Loader",
-			Info:         "Loads Material into objects.",
+			Description:  "Loads Material into objects.",
 			TypeI:        gv.ObjTypeBasicLoader,
 			Category:     gv.ObjCatLoader,
 			Size:         world.XYs{X: 1, Y: 1},

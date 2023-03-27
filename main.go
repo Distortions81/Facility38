@@ -139,8 +139,8 @@ func loadSprites() {
 			}
 
 			/* Overlay versions */
-			if item.ImagePathOverlay != "" {
-				img, err := data.GetSpriteImage(item.ImagePathOverlay)
+			if item.ImageOverlayPath != "" {
+				img, err := data.GetSpriteImage(item.ImageOverlayPath)
 				if err != nil {
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
@@ -183,10 +183,10 @@ func loadSprites() {
 			}
 
 			/* Alternate sprite for toolbar */
-			if item.UIPath != "" {
-				img, err := data.GetSpriteImage(item.UIPath)
+			if item.ToolbarPath != "" {
+				img, err := data.GetSpriteImage(item.ToolbarPath)
 				if err == nil {
-					otype[key].TBarImage = img
+					otype[key].ToolbarImage = img
 				}
 			}
 

@@ -661,12 +661,12 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			item := ToolbarItems[pos]
 			var toolTip string
 
-			if item.OType.Info != "" {
+			if item.OType.Description != "" {
 				keyName := ""
 				if item.OType.QKey != 0 {
 					keyName = " ( " + item.OType.QKey.String() + " key )"
 				}
-				toolTip = fmt.Sprintf("%v\n%v\n%v", item.OType.Name, item.OType.Info, keyName)
+				toolTip = fmt.Sprintf("%v\n%v\n%v", item.OType.Name, item.OType.Description, keyName)
 			} else {
 				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
 			}
@@ -798,8 +798,8 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 				}
 
-				if o.TypeP.Info != "" {
-					toolTip = toolTip + o.TypeP.Info + "\n"
+				if o.TypeP.Description != "" {
+					toolTip = toolTip + o.TypeP.Description + "\n"
 				}
 			}
 		}
@@ -917,7 +917,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 			return op, obj.TypeP.ImageCorner
 		} else if obj.Active {
 			return op, obj.TypeP.ImageActive
-		} else if world.OverlayMode && obj.TypeP.ImagePathOverlay != "" {
+		} else if world.OverlayMode && obj.TypeP.ImageOverlayPath != "" {
 			return op, obj.TypeP.ImageOverlay
 		} else if maskOnly {
 			return op, obj.TypeP.ImageMask

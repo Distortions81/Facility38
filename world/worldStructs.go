@@ -219,63 +219,73 @@ type MaterialType struct {
 
 /* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
-	Name string
-	Info string
+	Name        string
+	Description string
 
-	TypeI    uint8
-	Category uint8
-
-	Symbol string
+	TypeI    uint8  //Position in objtype
+	Category uint8  //Currently used during linking objects
+	Symbol   string //Used in case we were unable to find or load the sprite
 
 	/* Toolbar Specific */
-	ExcludeWASM  bool
-	UIPath       string
-	TBarImage    *ebiten.Image
-	ToolBarArrow bool
-	QKey         ebiten.Key
+	ExcludeWASM  bool       //Don't show this object in the toolbar on WASM
+	ToolBarArrow bool       //Show direction arrow in toolbar
+	QKey         ebiten.Key //Toolbar quick-key
 
-	Size      XYs
-	NonSquare bool
-	MultiTile bool
-	Rotatable bool
-	Direction uint8
+	Size XYs //Object size in world
 
-	ImagePath        string
-	ImagePathOverlay string
-	ImageMaskPath    string
-	ImageActivePath  string
-	ImageCornerPath  string
+	/* Set during boot for speed during runtime */
+	NonSquare bool //X/Y size differ
+	MultiTile bool //Larger  than 1x1
 
+	Rotatable bool  //Rotatable: rotate sprite on rotate
+	Direction uint8 //Direction object is facing 0-north
+
+	/* Image paths */
+	ImagePath        string //Main image
+	ToolbarPath      string //Path to toolbar specific sprite
+	ImageOverlayPath string //Optional image for info-overlay
+	ImageMaskPath    string //Image multi-layer objects such as the belt-overpass
+	ImageActivePath  string //Image to show when object is flagged active
+	ImageCornerPath  string //Used for belt corners
+
+	/* Loaded images */
 	Image        *ebiten.Image
-	ImageActive  *ebiten.Image
+	ToolbarImage *ebiten.Image
 	ImageMask    *ebiten.Image
+	ImageActive  *ebiten.Image
 	ImageCorner  *ebiten.Image
 	ImageOverlay *ebiten.Image
 
-	KgHourMine   float32
-	KgHopperMove float32
-	HP           float32
-	KW           float32
+	KgHourMine   float32 //Miner speed
+	KgHopperMove float32 //Hopper speed
+	HP           float32 //Horsepower, used to calculate fuel use and output
+	KW           float32 //Kilowatts, alternate to HP
 
-	KgMineEach float32
-	KgFuelEach float32
-
+	/* Calculated at boot from other values */
+	KgMineEach   float32
+	KgFuelEach   float32
 	MaxContainKG float32
 	MaxFuelKG    float32
 
-	Interval   uint8
-	CanContain bool
-	ShowArrow  bool
+	/* How often object should run, used in obj's tock function */
+	Interval uint8
 
-	/* Quick lookup for auto-events */
+	/* If set, we init obj.Contents when object created */
+	CanContain bool
+	/* If we show direction arrow in info-overlay */
+	ShowArrow bool
+
+	/* Set at boot for speed */
 	HasInputs  bool
 	HasOutputs bool
 	HasFIn     bool
 	HasFOut    bool
 
+	/* Port connections */
 	Ports   []ObjPortData
 	SubObjs []XYs
 
+	/* Function links */
 	ToolbarAction func()                  `json:"-"`
 	UpdateObj     func(Obj *ObjData)      `json:"-"`
 	InitObj       func(Obj *ObjData) bool `json:"-"`
@@ -319,7 +329,6 @@ type TickEvent struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
-	TypeI  uint8
 	TypeP  *MaterialType
 	Amount float32
 	Rot    uint8
