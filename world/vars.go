@@ -19,8 +19,8 @@ func init() {
 }
 
 var (
-	Vsync        bool = true
-	SettingsOpen bool
+	Vsync       bool = true
+	OptionsOpen bool
 
 	/* SuperChunk List */
 	SuperChunkList     []*MapSuperChunk

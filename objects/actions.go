@@ -7,10 +7,10 @@ import (
 )
 
 func settingsToggle() {
-	if world.SettingsOpen {
-		world.SettingsOpen = false
+	if world.OptionsOpen {
+		world.OptionsOpen = false
 	} else {
-		world.SettingsOpen = true
+		world.OptionsOpen = true
 	}
 }
 

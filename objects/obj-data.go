@@ -220,7 +220,7 @@ var (
 			Name:         "Basic box",
 			TypeI:        gv.ObjTypeBasicBox,
 			Category:     gv.ObjCatGeneric,
-			Size:         world.XYs{X: 1, Y: 1},
+			Size:         world.XYs{X: 2, Y: 2},
 			MaxContainKG: 1000,
 			Symbol:       "BOX",
 			UpdateObj:    boxUpdate,
@@ -232,7 +232,13 @@ var (
 				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
 				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
+
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
 			},
+			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 		},
 
 		{

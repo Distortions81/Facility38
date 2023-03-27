@@ -297,6 +297,7 @@ func handleSettings() bool {
 		b := buttons[i]
 		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, b, 1) {
 			item.Action(i)
+			gMouseHeld = false
 			return true
 		}
 	}
@@ -308,7 +309,10 @@ func handleSettings() bool {
 		my <= int(closeBoxPos.Y+(closeBoxSize.Y)) &&
 		my >= int(closeBoxPos.Y-(closeBoxSize.Y)) {
 
-		world.SettingsOpen = false
+		world.OptionsOpen = false
+		gMouseHeld = false
+		return true
 	}
+
 	return false
 }

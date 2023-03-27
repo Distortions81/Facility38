@@ -217,7 +217,7 @@ func getMouseClicks() {
 		gLastActionPosition.X = 0
 		gLastActionPosition.Y = 0
 
-		if world.SettingsOpen {
+		if world.OptionsOpen {
 			gClickCaptured = handleSettings()
 		}
 		if !gClickCaptured {
@@ -237,6 +237,11 @@ func createWorldObjects() {
 
 	/* Has the click already been captured? */
 	if gClickCaptured {
+		return
+	}
+
+	/* Settings open? */
+	if world.OptionsOpen {
 		return
 	}
 
