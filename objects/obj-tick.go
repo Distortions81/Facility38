@@ -148,9 +148,6 @@ func tickObj(obj *world.ObjData) {
 		if !obj.Blocked {
 			obj.Blocked = true
 		}
-		if obj.Active {
-			obj.Active = false
-		}
 	} else {
 		if obj.Blocked {
 			obj.Blocked = false

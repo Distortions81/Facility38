@@ -261,7 +261,7 @@ var (
 		},
 
 		{
-			ImagePath:    "world-obj/basic-fuel-hopper.png",
+			ImagePath: "world-obj/basic-fuel-hopper.png", ImageActivePath: "world-obj/basic-fuel-hopper-active.png",
 			Name:         "Basic Fuel Hopper",
 			Info:         "Loads soild fuel into machines",
 			TypeI:        gv.ObjTypeBasicFuelHopper,

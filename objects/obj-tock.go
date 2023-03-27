@@ -133,6 +133,14 @@ func beltUpdate(obj *world.ObjData) {
 
 func fuelHopperUpdate(obj *world.ObjData) {
 
+	/* Is it time to run? */
+	if obj.TickCount < obj.TypeP.Interval {
+		/* Increment timer */
+		obj.TickCount++
+		return
+	}
+	obj.TickCount = 0
+
 	for i, input := range obj.Inputs {
 
 		/* Does input contain anything? */
@@ -158,13 +166,15 @@ func fuelHopperUpdate(obj *world.ObjData) {
 		}
 	}
 
-	/* Is it time to run? */
-	if obj.TickCount < obj.TypeP.Interval {
-		/* Increment timer */
-		obj.TickCount++
-		return
+	if obj.KGFuel > 0 {
+		if !obj.Active {
+			obj.Active = true
+		}
+	} else {
+		if obj.Active {
+			obj.Active = false
+		}
 	}
-	obj.TickCount = 0
 
 	/* Grab destination object */
 	if obj.KGFuel > (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach) {
