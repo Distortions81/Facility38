@@ -131,7 +131,7 @@ func runTocks() {
 
 /* WASM single-thread: Run all object tocks (interal) */
 func runTocksST() {
-	for i, _ := range world.TockList {
+	for i := range world.TockList {
 		/* Don't tock if blocked */
 		if !world.TockList[i].Target.Blocked {
 			world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
@@ -141,7 +141,7 @@ func runTocksST() {
 
 /* WASM single thread: Put our OutputBuffer to another object's InputBuffer (external)*/
 func runTicksST() {
-	for i, _ := range world.TickList {
+	for i := range world.TickList {
 		tickObj(world.TickList[i].Target)
 	}
 }
