@@ -95,8 +95,8 @@ func SaveGame() {
 						Pos:      util.CenterXY(mObj.Pos),
 						TypeI:    mObj.TypeP.TypeI,
 						Dir:      mObj.Dir,
-						Contents: mObj.Contents,
-						KGFuel:   mObj.KGFuel,
+						Contents: mObj.Unique.Contents,
+						KGFuel:   mObj.Unique.KGFuel,
 						KGHeld:   mObj.KGHeld,
 						Ticks:    mObj.TickCount,
 					}
@@ -231,17 +231,19 @@ func LoadGame() {
 		for i := range tempList.Objects {
 
 			obj := &world.ObjData{
-				Pos:       util.UnCenterXY(tempList.Objects[i].Pos),
-				TypeP:     GameObjTypes[tempList.Objects[i].TypeI],
-				Dir:       tempList.Objects[i].Dir,
-				Contents:  tempList.Objects[i].Contents,
-				KGFuel:    tempList.Objects[i].KGFuel,
+				Pos:   util.UnCenterXY(tempList.Objects[i].Pos),
+				TypeP: GameObjTypes[tempList.Objects[i].TypeI],
+				Dir:   tempList.Objects[i].Dir,
+				Unique: &world.UniqueObject{
+					Contents: tempList.Objects[i].Contents,
+					KGFuel:   tempList.Objects[i].KGFuel,
+				},
 				KGHeld:    tempList.Objects[i].KGHeld,
 				TickCount: tempList.Objects[i].Ticks,
 			}
 
-			for c := range obj.Contents.Mats {
-				if obj.Contents.Mats[c] == nil {
+			for c := range obj.Unique.Contents.Mats {
+				if obj.Unique.Contents.Mats[c] == nil {
 					continue
 				}
 			}

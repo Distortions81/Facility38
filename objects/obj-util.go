@@ -106,12 +106,12 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	initOkay := true
 	if obj == nil {
 		if newObj.TypeP.CanContain {
-			newObj.Contents = &world.MaterialContentsType{}
-			newObj.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
+			newObj.Unique.Contents = &world.MaterialContentsType{}
+			newObj.Unique.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
 		}
 
 		if newObj.TypeP.MaxFuelKG > 0 {
-			newObj.KGFuel = newObj.TypeP.MaxFuelKG
+			newObj.Unique.KGFuel = newObj.TypeP.MaxFuelKG
 		}
 
 		for p, port := range newObj.TypeP.Ports {

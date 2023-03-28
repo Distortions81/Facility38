@@ -438,7 +438,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 			/* Show box conents in overylay mode */
 			if obj.TypeP.TypeI == gv.ObjTypeBasicBox {
-				for _, cont := range obj.Contents.Mats {
+				for _, cont := range obj.Unique.Contents.Mats {
 					if cont == nil {
 						continue
 					}
@@ -466,7 +466,7 @@ func drawIconMode(screen *ebiten.Image) {
 			objCamPosY := objOffY * world.ZoomScale
 
 			/* Show objects with no fuel */
-			if obj.TypeP.MaxFuelKG > 0 && obj.KGFuel < obj.TypeP.KgFuelEach {
+			if obj.TypeP.MaxFuelKG > 0 && obj.Unique.KGFuel < obj.TypeP.KgFuelEach {
 
 				img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Image
 
@@ -701,25 +701,25 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				toolTip = fmt.Sprintf("%v: %v\n",
 					o.TypeP.Name,
 					util.PosToString(world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}))
-				if o.Contents != nil {
+				if o.Unique.Contents != nil {
 					for z := 0; z < gv.MAT_MAX; z++ {
-						if o.Contents.Mats[z] != nil {
+						if o.Unique.Contents.Mats[z] != nil {
 							toolTip = toolTip + fmt.Sprintf("Contents: %v: %0.2f%v\n",
-								o.Contents.Mats[z].TypeP.Name, o.Contents.Mats[z].Amount, o.Contents.Mats[z].TypeP.UnitName)
+								o.Unique.Contents.Mats[z].TypeP.Name, o.Unique.Contents.Mats[z].Amount, o.Unique.Contents.Mats[z].TypeP.UnitName)
 						}
 					}
 				}
 				if o.TypeP.MaxFuelKG > 0 {
 					toolTip = toolTip + fmt.Sprintf("Max Fuel: %0.2f kg\n", o.TypeP.MaxFuelKG)
-					if o.KGFuel > o.TypeP.KgFuelEach {
-						toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.KGFuel)
+					if o.Unique.KGFuel > o.TypeP.KgFuelEach {
+						toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.Unique.KGFuel)
 					} else {
 						toolTip = toolTip + "NO FUEL\n"
 					}
 				}
 
-				if o.SingleContent != nil && o.SingleContent.Amount > 0 {
-					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.SingleContent.Amount, o.SingleContent.TypeP.UnitName, o.SingleContent.TypeP.Name)
+				if o.Unique.SingleContent != nil && o.Unique.SingleContent.Amount > 0 {
+					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.Unique.SingleContent.Amount, o.Unique.SingleContent.TypeP.UnitName, o.Unique.SingleContent.TypeP.Name)
 				}
 
 				if o.Blocked {

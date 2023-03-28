@@ -19,15 +19,15 @@ func minerUpdate(obj *world.ObjData) {
 	for p, port := range obj.FuelIn {
 		/* Will it over fill us? */
 		if port.Buf.Amount > 0 &&
-			obj.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
+			obj.Unique.KGFuel+port.Buf.Amount <= obj.TypeP.MaxFuelKG {
 
 			/* Eat the fuel */
-			obj.KGFuel += port.Buf.Amount
+			obj.Unique.KGFuel += port.Buf.Amount
 			obj.FuelIn[p].Buf.Amount = 0
 		}
 	}
 
-	if obj.KGFuel < obj.TypeP.KgFuelEach {
+	if obj.Unique.KGFuel < obj.TypeP.KgFuelEach {
 		/* Not enough fuel, exit */
 		if obj.Active {
 			obj.Active = false
@@ -76,7 +76,7 @@ func minerUpdate(obj *world.ObjData) {
 	obj.Outputs[0].Buf.Rot = uint8(rand.Intn(3))
 
 	/* Burn fuel */
-	obj.KGFuel -= obj.TypeP.KgFuelEach
+	obj.Unique.KGFuel -= obj.TypeP.KgFuelEach
 
 }
 
@@ -159,14 +159,14 @@ func fuelHopperUpdate(obj *world.ObjData) {
 		}
 
 		/* Do we have room for it? */
-		if (obj.KGFuel + input.Buf.Amount) < obj.TypeP.MaxFuelKG {
-			obj.KGFuel += input.Buf.Amount
+		if (obj.Unique.KGFuel + input.Buf.Amount) < obj.TypeP.MaxFuelKG {
+			obj.Unique.KGFuel += input.Buf.Amount
 			obj.Inputs[i].Buf.Amount = 0
 			break
 		}
 	}
 
-	if obj.KGFuel > 0 {
+	if obj.Unique.KGFuel > 0 {
 		if !obj.Active {
 			obj.Active = true
 		}
@@ -177,10 +177,10 @@ func fuelHopperUpdate(obj *world.ObjData) {
 	}
 
 	/* Grab destination object */
-	if obj.KGFuel > (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach) {
+	if obj.Unique.KGFuel > (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach) {
 		for _, output := range obj.FuelOut {
 			output.Buf.Amount = obj.TypeP.KgHopperMove
-			obj.KGFuel -= (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach)
+			obj.Unique.KGFuel -= (obj.TypeP.KgHopperMove + obj.TypeP.KgFuelEach)
 			break
 		}
 	}
@@ -232,13 +232,13 @@ func boxUpdate(obj *world.ObjData) {
 		}
 
 		/* Init content type if needed */
-		if obj.Contents.Mats[port.Buf.TypeP.TypeI] == nil {
-			obj.Contents.Mats[port.Buf.TypeP.TypeI] = &world.MatData{}
+		if obj.Unique.Contents.Mats[port.Buf.TypeP.TypeI] == nil {
+			obj.Unique.Contents.Mats[port.Buf.TypeP.TypeI] = &world.MatData{}
 		}
 
 		/* Add to contents */
-		obj.Contents.Mats[port.Buf.TypeP.TypeI].Amount += obj.Inputs[p].Buf.Amount
-		obj.Contents.Mats[port.Buf.TypeP.TypeI].TypeP = MatTypes[port.Buf.TypeP.TypeI]
+		obj.Unique.Contents.Mats[port.Buf.TypeP.TypeI].Amount += obj.Inputs[p].Buf.Amount
+		obj.Unique.Contents.Mats[port.Buf.TypeP.TypeI].TypeP = MatTypes[port.Buf.TypeP.TypeI]
 		obj.KGHeld += port.Buf.Amount
 		obj.Inputs[p].Buf.Amount = 0
 		continue
@@ -256,11 +256,11 @@ func smelterUpdate(obj *world.ObjData) {
 		}
 
 		/* Will the fuel fit? */
-		if obj.KGFuel+fuel.Buf.Amount > obj.TypeP.MaxFuelKG {
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.TypeP.MaxFuelKG {
 			continue
 		}
 
-		obj.KGFuel += fuel.Buf.Amount
+		obj.Unique.KGFuel += fuel.Buf.Amount
 		fuel.Buf.Amount = 0
 		continue
 	}
@@ -284,26 +284,26 @@ func smelterUpdate(obj *world.ObjData) {
 		}
 
 		/* Are we mixing materials? */
-		if obj.SingleContent.Amount > 0 &&
-			input.Buf.TypeP != obj.SingleContent.TypeP {
-			obj.SingleContent.TypeP = MatTypes[gv.MAT_MIXORE]
+		if obj.Unique.SingleContent.Amount > 0 &&
+			input.Buf.TypeP != obj.Unique.SingleContent.TypeP {
+			obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_MIXORE]
 
 			/* If not, set material type if needed */
-		} else if obj.SingleContent.TypeP != input.Buf.TypeP {
-			obj.SingleContent.TypeP = input.Buf.TypeP
+		} else if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
+			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
 		}
 
 		/* Add to weight */
 		obj.KGHeld += input.Buf.Amount
 
 		/* Add input to contents */
-		obj.SingleContent.Amount += input.Buf.Amount
+		obj.Unique.SingleContent.Amount += input.Buf.Amount
 		input.Buf.Amount = 0
 	}
 
 	/* Process ores */
 	/* Do we have valid ore material? */
-	if obj.SingleContent.TypeP.TypeI == gv.MAT_MIXORE {
+	if obj.Unique.SingleContent.TypeP.TypeI == gv.MAT_MIXORE {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -311,7 +311,7 @@ func smelterUpdate(obj *world.ObjData) {
 	}
 
 	/* Is there enough ore to process? */
-	if obj.SingleContent.Amount < obj.TypeP.KgMineEach {
+	if obj.Unique.SingleContent.Amount < obj.TypeP.KgMineEach {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -319,7 +319,7 @@ func smelterUpdate(obj *world.ObjData) {
 	}
 
 	/* Do we have enough fuel? */
-	if obj.KGFuel < obj.TypeP.KgFuelEach {
+	if obj.Unique.KGFuel < obj.TypeP.KgFuelEach {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -339,10 +339,10 @@ func smelterUpdate(obj *world.ObjData) {
 	obj.TickCount = 0
 
 	/* Burn fuel */
-	obj.KGFuel -= obj.TypeP.KgFuelEach
+	obj.Unique.KGFuel -= obj.TypeP.KgFuelEach
 
 	/* Subtract ore */
-	obj.SingleContent.Amount -= obj.TypeP.KgMineEach
+	obj.Unique.SingleContent.Amount -= obj.TypeP.KgMineEach
 	/* Subtract ore weight */
 	obj.KGHeld -= obj.TypeP.KgMineEach
 
@@ -350,7 +350,7 @@ func smelterUpdate(obj *world.ObjData) {
 	obj.Outputs[0].Buf.Amount = obj.TypeP.KgMineEach
 
 	/* Find and set result type, if needed */
-	result := MatTypes[obj.SingleContent.TypeP.Result]
+	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
 	if obj.Outputs[0].Buf.TypeP != result {
 		obj.Outputs[0].Buf.TypeP = result
 	}
