@@ -208,6 +208,8 @@ func splitterUpdate(obj *world.ObjData) {
 			} else {
 				obj.LastOutput++
 			}
+		} else {
+			return
 		}
 
 		if obj.Outputs[obj.LastOutput].Buf.Amount == 0 {
