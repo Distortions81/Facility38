@@ -394,6 +394,8 @@ var (
 
 		{Symbol: "SLG", Name: "Slag", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
 			IsSolid: true, TypeI: gv.MAT_SLAG},
+
+		{Symbol: "OBJ", Name: "Object", UnitName: "", TypeI: gv.MAT_OBJ},
 	}
 
 	/* Toolbar item types, array of array of ObjType */

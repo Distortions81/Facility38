@@ -154,6 +154,9 @@ type ObjData struct {
 	Parent *MapChunk `json:"-"`
 	TypeP  *ObjType  `json:"-"`
 
+	/* Data needed for transporting or storing object */
+	Unique *UniqueObject
+
 	Dir        uint8
 	LastInput  uint8
 	LastOutput uint8
@@ -163,6 +166,7 @@ type ObjData struct {
 	Outputs []*ObjPortData
 	Inputs  []*ObjPortData
 	FuelIn  []*ObjPortData
+
 	FuelOut []*ObjPortData
 
 	IsCorner  bool
@@ -175,20 +179,23 @@ type ObjData struct {
 	NumFOut uint8
 
 	//Internal Tock() use
-	Contents      *MaterialContentsType
-	SingleContent *MatData
-	BeltOver      *BeltOverType
-	KGFuel        float32
-	KGHeld        float32
-	MinerData     *MinerDataType
-	Tile          *TileData
-	TickCount     uint8
+	BeltOver  *BeltOverType
+	KGHeld    float32
+	MinerData *MinerDataType
+	Tile      *TileData
+	TickCount uint8
 
 	Blocked bool
 	Active  bool
 
 	HasTick bool
 	HasTock bool
+}
+
+type UniqueObject struct {
+	Contents      *MaterialContentsType
+	SingleContent *MatData
+	KGFuel        float32
 }
 
 type ObjPortData struct {
@@ -332,6 +339,8 @@ type MatData struct {
 	TypeP  *MaterialType
 	Amount float32
 	Rot    uint8
+
+	Obj *UniqueObject
 }
 
 /* Int x/y */

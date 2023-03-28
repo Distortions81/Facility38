@@ -97,8 +97,9 @@ const (
 	MAT_STONE  = 9
 	MAT_SLAG   = 10
 	MAT_MIXORE = 11
+	MAT_OBJ    = 12
 
-	MAT_MAX = 12
+	MAT_MAX = 13
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0
