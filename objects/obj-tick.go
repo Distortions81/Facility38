@@ -243,7 +243,7 @@ func runRotates() {
 		if b != nil {
 
 			obj := b.Obj
-			if obj.TypeP.NonSquare {
+			if obj.Unique.TypeP.NonSquare {
 				var newdir uint8
 
 				/* Save a copy of the object */
@@ -271,19 +271,19 @@ func runRotates() {
 					obj.Ports[p].Dir = util.RotCCW(port.Dir)
 				}
 
-				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", obj.TypeP.Name, util.PosToString(obj.Pos)), color.White, time.Second*5)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), color.White, time.Second*5)
 			} else {
 				newdir = util.RotCW(obj.Dir)
 				for p, port := range obj.Ports {
 					obj.Ports[p].Dir = util.RotCW(port.Dir)
 				}
 
-				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", obj.TypeP.Name, util.PosToString(obj.Pos)), color.White, time.Second*5)
+				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), color.White, time.Second*5)
 			}
 			obj.Dir = newdir
 
-			if obj.TypeP.MultiTile {
-				for _, subObj := range obj.TypeP.SubObjs {
+			if obj.Unique.TypeP.MultiTile {
+				for _, subObj := range obj.Unique.TypeP.SubObjs {
 					subPos := util.GetSubPos(obj.Pos, subObj)
 					LinkObj(subPos, b)
 				}
@@ -326,8 +326,8 @@ func runObjQueue() {
 
 	for _, item := range world.ObjQueue {
 		if item.Delete {
-			if item.Obj.TypeP.MultiTile {
-				for _, sub := range item.Obj.TypeP.SubObjs {
+			if item.Obj.Unique.TypeP.MultiTile {
+				for _, sub := range item.Obj.Unique.TypeP.SubObjs {
 					tile := RotateCoord(sub, item.Obj.Dir, GetObjSize(item.Obj, nil))
 					pos := util.GetSubPos(item.Pos, tile)
 					removePosMap(pos)

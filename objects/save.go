@@ -93,7 +93,7 @@ func SaveGame() {
 				for _, mObj := range chunk.ObjList {
 					tobj := &saveMObj{
 						Pos:      util.CenterXY(mObj.Pos),
-						TypeI:    mObj.TypeP.TypeI,
+						TypeI:    mObj.Unique.TypeP.TypeI,
 						Dir:      mObj.Dir,
 						Contents: mObj.Unique.Contents,
 						KGFuel:   mObj.Unique.KGFuel,
@@ -231,13 +231,13 @@ func LoadGame() {
 		for i := range tempList.Objects {
 
 			obj := &world.ObjData{
-				Pos:   util.UnCenterXY(tempList.Objects[i].Pos),
-				TypeP: GameObjTypes[tempList.Objects[i].TypeI],
-				Dir:   tempList.Objects[i].Dir,
+				Pos: util.UnCenterXY(tempList.Objects[i].Pos),
 				Unique: &world.UniqueObject{
+					TypeP:    GameObjTypes[tempList.Objects[i].TypeI],
 					Contents: tempList.Objects[i].Contents,
 					KGFuel:   tempList.Objects[i].KGFuel,
 				},
+				Dir:       tempList.Objects[i].Dir,
 				KGHeld:    tempList.Objects[i].KGHeld,
 				TickCount: tempList.Objects[i].Ticks,
 			}
@@ -258,8 +258,8 @@ func LoadGame() {
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjs++
 
-			if obj.TypeP.InitObj != nil {
-				obj.TypeP.InitObj(obj)
+			if obj.Unique.TypeP.InitObj != nil {
+				obj.Unique.TypeP.InitObj(obj)
 			}
 
 			chunk.Parent.PixmapDirty = true

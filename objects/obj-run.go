@@ -105,7 +105,7 @@ func runTocks() {
 			for i := lastTock; i < lastTock+wSize; i++ {
 				/* Don't tock if blocked */
 				if !world.TockList[i].Target.Blocked {
-					world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
+					world.TockList[i].Target.Unique.TypeP.UpdateObj(world.TockList[i].Target)
 				}
 			}
 			wg.Done()
@@ -134,7 +134,7 @@ func runTocksST() {
 	for i := range world.TockList {
 		/* Don't tock if blocked */
 		if !world.TockList[i].Target.Blocked {
-			world.TockList[i].Target.TypeP.UpdateObj(world.TockList[i].Target)
+			world.TockList[i].Target.Unique.TypeP.UpdateObj(world.TockList[i].Target)
 		}
 	}
 }

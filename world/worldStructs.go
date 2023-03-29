@@ -152,7 +152,6 @@ type MinerDataType struct {
 type ObjData struct {
 	Pos    XY
 	Parent *MapChunk `json:"-"`
-	TypeP  *ObjType  `json:"-"`
 
 	/* Data needed for transporting or storing object */
 	Unique *UniqueObject
@@ -196,7 +195,7 @@ type UniqueObject struct {
 	Contents      *MaterialContentsType
 	SingleContent *MatData
 	KGFuel        float32
-	TypeI         uint8
+	TypeP         *ObjType
 }
 
 type ObjPortData struct {
