@@ -196,6 +196,7 @@ type UniqueObject struct {
 	Contents      *MaterialContentsType
 	SingleContent *MatData
 	KGFuel        float32
+	TypeI         uint8
 }
 
 type ObjPortData struct {
