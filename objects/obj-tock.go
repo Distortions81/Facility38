@@ -280,6 +280,10 @@ func smelterUpdate(obj *world.ObjData) {
 			continue
 		}
 
+		if input.Buf.TypeP.Result == gv.MAT_NONE {
+			continue
+		}
+
 		/* Contents will fit */
 		if obj.KGHeld+input.Buf.Amount > obj.Unique.TypeP.MaxContainKG {
 			continue
