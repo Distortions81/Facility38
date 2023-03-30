@@ -47,6 +47,7 @@ type MapSuperChunk struct {
 
 type MaterialContentsType struct {
 	Mats [gv.MAT_MAX]*MatData
+	Objs [gv.ObjTypeMax]*StoreObj
 }
 
 type BeltOverType struct {
@@ -189,6 +190,11 @@ type ObjData struct {
 
 	HasTick bool
 	HasTock bool
+}
+
+type StoreObj struct {
+	Unique []*UniqueObject
+	Count  uint64
 }
 
 type UniqueObject struct {
@@ -336,11 +342,10 @@ type TickEvent struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
+	Obj    *UniqueObject
 	TypeP  *MaterialType
 	Amount float32
 	Rot    uint8
-
-	Obj *UniqueObject
 }
 
 /* Int x/y */

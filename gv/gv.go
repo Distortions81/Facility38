@@ -72,10 +72,7 @@ const (
 	ObjTypeBasicUnloader   = 7
 	ObjTypeBasicLoader     = 8
 
-	/*Disabled, incomplete */
-	ObjTypeBasicIronCaster = 8
-	ObjTypeBasicBoiler     = 9
-	ObjTypeSteamEngine     = 10
+	ObjTypeMax = 8
 
 	/* Object catagories */
 	ObjCatGeneric = 0
@@ -99,7 +96,7 @@ const (
 	MAT_MIXORE = 11
 	MAT_OBJ    = 12
 
-	MAT_MAX = 13
+	MAT_MAX = MAT_OBJ
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0
