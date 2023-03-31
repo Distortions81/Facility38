@@ -4,7 +4,6 @@ export EBITENGINE_INTERNAL_IMAGES_KEY=Q
 
 High priority:
 Timers, pressure switches, item spilling.
-Loaders/Unloaders
 Add TotalMined to save/load
 Start investigating server/client
 
