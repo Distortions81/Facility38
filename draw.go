@@ -80,7 +80,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw modes */
-	if world.ZoomScale > gv.MapPixelThreshold && !world.ShowResourceLayer { /* Draw icon mode */
+	if world.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
 		drawIconMode(screen)
 	} else {
 		drawPixmapMode(screen)
@@ -269,15 +269,19 @@ func drawIconMode(screen *ebiten.Image) {
 	BatchTop = 0
 
 	/* Draw ground */
-	for _, chunk := range VisChunk {
-		op, img := drawTerrain(chunk)
-		if img != nil {
-			OpBatch[BatchTop] = op
-			ImageBatch[BatchTop] = img
-			if BatchTop < MaxBatch {
-				BatchTop++
-			} else {
-				break
+	if world.ShowResourceLayer {
+		drawPixmapMode(screen)
+	} else {
+		for _, chunk := range VisChunk {
+			op, img := drawTerrain(chunk)
+			if img != nil {
+				OpBatch[BatchTop] = op
+				ImageBatch[BatchTop] = img
+				if BatchTop < MaxBatch {
+					BatchTop++
+				} else {
+					break
+				}
 			}
 		}
 	}
