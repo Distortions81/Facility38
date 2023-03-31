@@ -180,6 +180,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 /* Look at camera position, make a list of visible superchunks and chunks. */
 var VisObj []*world.ObjData
 var VisChunk []*world.MapChunk
+var VisSChunk []*world.MapSuperChunk
 
 func updateVisData() {
 
@@ -187,6 +188,7 @@ func updateVisData() {
 	if world.VisDataDirty.Load() {
 		VisObj = []*world.ObjData{}
 		VisChunk = []*world.MapChunk{}
+		VisSChunk = []*world.MapSuperChunk{}
 
 		/* Calculate viewport */
 		calcScreenCamera()
@@ -202,6 +204,8 @@ func updateVisData() {
 				sChunk.Visible = false
 				continue
 			}
+
+			VisSChunk = append(VisSChunk, sChunk)
 
 			sChunk.Visible = true
 
@@ -584,11 +588,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 	}
 	/* Draw superchunk images (pixmap mode)*/
 	world.SuperChunkListLock.RLock()
-	for _, sChunk := range world.SuperChunkList {
-		if !sChunk.Visible {
-			continue
-		}
-
+	for _, sChunk := range VisSChunk {
 		sChunk.PixelMapLock.Lock()
 		if sChunk.PixelMap == nil {
 			sChunk.PixelMapLock.Unlock()
