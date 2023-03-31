@@ -383,16 +383,16 @@ var (
 			IsSolid: true, Result: gv.MAT_SLAG, TypeI: gv.MAT_MIXORE},
 
 		/* Metal */
-		{Symbol: "FE", Name: "Iron Bar", UnitName: "kg", ImagePath: "belt-obj/iron.png", Density: 7.13,
+		{Symbol: "FE", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron.png", Density: 7.13,
 			IsSolid: true, TypeI: gv.MAT_IRON},
 
-		{Symbol: "Cu", Name: "Copper Bar", UnitName: "kg", ImagePath: "belt-obj/copper.png", Density: 8.88,
+		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper.png", Density: 8.88,
 			IsSolid: true, TypeI: gv.MAT_COPPER},
 
 		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 1.9,
 			IsSolid: true, TypeI: gv.MAT_STONE},
 
-		{Symbol: "SLG", Name: "Slag", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
+		{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
 			IsSolid: true, TypeI: gv.MAT_SLAG},
 
 		{Symbol: "OBJ", Name: "Object", UnitName: "", TypeI: gv.MAT_OBJ},
