@@ -96,7 +96,7 @@ const (
 	MAT_MIXORE = 11
 	MAT_OBJ    = 12
 
-	MAT_MAX = MAT_OBJ
+	MAT_MAX = 13
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0

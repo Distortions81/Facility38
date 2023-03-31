@@ -363,10 +363,10 @@ var (
 		{Symbol: "C", Name: "Coal", UnitName: "kg", ImagePath: "belt-obj/coal-ore.png",
 			IsSolid: true, IsFuel: true, TypeI: gv.MAT_COAL, Density: 1.4},
 
-		{Symbol: "Oil", Name: "Oil", UnitName: "L",
+		{Symbol: "Oil", Name: "Oil", UnitName: "L", ImagePath: "belt-obj/oil-barrel.png",
 			IsFluid: true, IsFuel: true, TypeI: gv.MAT_OIL, Density: 0.9},
 
-		{Symbol: "Gas", Name: "Natural Gas", UnitName: "cm",
+		{Symbol: "Gas", Name: "Natural Gas", UnitName: "cm", ImagePath: "belt-obj/lng-barrel.png",
 			IsGas: true, IsFuel: true, TypeI: gv.MAT_GAS, Density: 0.00068},
 
 		/* Ore */
@@ -379,23 +379,23 @@ var (
 		{Symbol: "STOo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
 			IsSolid: true, Result: gv.MAT_STONE, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
 
-		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
+		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/mix-ore.png", Density: 2.5,
 			IsSolid: true, Result: gv.MAT_SLAG, TypeI: gv.MAT_MIXORE},
 
 		/* Metal */
-		{Symbol: "FE", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron.png", Density: 7.13,
+		{Symbol: "FE", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
 			IsSolid: true, TypeI: gv.MAT_IRON},
 
-		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper.png", Density: 8.88,
+		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
 			IsSolid: true, TypeI: gv.MAT_COPPER},
 
-		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 1.9,
+		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
 			IsSolid: true, TypeI: gv.MAT_STONE},
 
-		{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/stone.png", Density: 2.5,
+		{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 2.5,
 			IsSolid: true, TypeI: gv.MAT_SLAG},
 
-		{Symbol: "OBJ", Name: "Object", UnitName: "", TypeI: gv.MAT_OBJ},
+		{Symbol: "OBJ", Name: "Object", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
 	}
 
 	/* Toolbar item types, array of array of ObjType */
