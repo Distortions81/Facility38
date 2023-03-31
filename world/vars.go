@@ -5,7 +5,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/VividCortex/ewma"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )
@@ -13,9 +12,6 @@ import (
 func init() {
 	VisDataDirty.Store(true)
 	SuperChunkMap = make(map[XY]*MapSuperChunk)
-
-	UPSAvr = ewma.NewMovingAverage(gv.GameUPS)
-	FPSAvr = ewma.NewMovingAverage(60)
 }
 
 var (
@@ -60,21 +56,17 @@ var (
 	/* Number of tocks per worker */
 	NumWorkers int
 
-	/* Starting resolution */
-	ScreenWidth  uint16 = 1280
-	ScreenHeight uint16 = 720
-
 	/* Game UPS rate */
 	ObjectUPS            float32 = gv.GameUPS
 	ObjectUPS_ns                 = int(1000000000.0 / ObjectUPS)
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
-	UPSAvr               ewma.MovingAverage
-	FPSAvr               ewma.MovingAverage
+
+	/* Starting resolution */
+	ScreenWidth  uint16 = 1280
+	ScreenHeight uint16 = 720
 
 	/* Small images used in game */
 	MiniMapTile *ebiten.Image
-	ToolBG      *ebiten.Image
-	BeltBlock   *ebiten.Image
 
 	/* Boot status */
 	SpritesLoaded atomic.Bool

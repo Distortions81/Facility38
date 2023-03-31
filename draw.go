@@ -50,15 +50,8 @@ var (
 
 /* Setup a few images for later use */
 func init() {
-
 	world.MiniMapTile = ebiten.NewImage(1, 1)
 	world.MiniMapTile.Fill(color.White)
-
-	world.ToolBG = ebiten.NewImage(gv.ToolBarScale, gv.ToolBarScale)
-	world.ToolBG.Fill(world.ColorCharcoalSemi)
-
-	world.BeltBlock = ebiten.NewImage(1, 1)
-	world.BeltBlock.Fill(world.ColorOrange)
 }
 
 /* Ebiten: Draw everything */
@@ -621,11 +614,10 @@ func drawPixmapMode(screen *ebiten.Image) {
 }
 
 func drawDebugInfo(screen *ebiten.Image) {
-	world.FPSAvr.Add(ebiten.ActualFPS())
 
 	/* Draw debug info */
 	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Tocks: %v Ticks %v Draws: %v Arch: %v Build: v%v-%v",
-		world.FPSAvr.Value(),
+		ebiten.ActualFPS(),
 		1000000000.0/float64(world.MeasuredObjectUPS_ns)/2,
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
