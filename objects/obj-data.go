@@ -371,29 +371,29 @@ var (
 
 		/* Ore */
 		{Symbol: "FEo", Name: "Iron Ore", UnitName: "kg", ImagePath: "belt-obj/iron-ore.png",
-			IsSolid: true, Result: gv.MAT_IRON, TypeI: gv.MAT_IRON_ORE, Density: 2},
+			IsSolid: true, Result: gv.MAT_IRON_SHOT, TypeI: gv.MAT_IRON_ORE, Density: 2},
 
 		{Symbol: "Cuo", Name: "Copper Ore", UnitName: "kg", ImagePath: "belt-obj/copper-ore.png",
-			IsSolid: true, Result: gv.MAT_COPPER, TypeI: gv.MAT_COPPER_ORE, Density: 2.65},
+			IsSolid: true, Result: gv.MAT_COPPER_SHOT, TypeI: gv.MAT_COPPER_ORE, Density: 2.65},
 
 		{Symbol: "STOo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
-			IsSolid: true, Result: gv.MAT_STONE, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
+			IsSolid: true, Result: gv.MAT_STONE_BLOCK, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
 
 		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/mix-ore.png", Density: 2.5,
-			IsSolid: true, Result: gv.MAT_SLAG, TypeI: gv.MAT_MIXORE},
+			IsSolid: true, Result: gv.MAT_SLAG_SHOT, TypeI: gv.MAT_MIXORE},
 
 		/* Metal */
 		{Symbol: "FE", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
-			IsSolid: true, TypeI: gv.MAT_IRON},
+			IsSolid: true, TypeI: gv.MAT_IRON_SHOT},
 
 		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
-			IsSolid: true, TypeI: gv.MAT_COPPER},
+			IsSolid: true, TypeI: gv.MAT_COPPER_SHOT},
 
 		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
-			IsSolid: true, TypeI: gv.MAT_STONE},
+			IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
 
 		{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 2.5,
-			IsSolid: true, TypeI: gv.MAT_SLAG},
+			IsSolid: true, TypeI: gv.MAT_SLAG_SHOT},
 
 		{Symbol: "OBJ", Name: "Object", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
 	}

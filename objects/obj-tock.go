@@ -356,7 +356,7 @@ func smelterUpdate(obj *world.ObjData) {
 	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.KgMineEach
 
 	/* Find and set result type, if needed */
-	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
+	result := MatTypes[obj.Unique.SingleContent.TypeP.Result+1]
 	if obj.Outputs[0].Buf.TypeP != result {
 		obj.Outputs[0].Buf.TypeP = result
 	}

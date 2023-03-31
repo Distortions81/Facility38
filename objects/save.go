@@ -77,9 +77,9 @@ func SaveGame() {
 				seeds.Coal = nl.RandomSeed
 			case gv.MAT_IRON_ORE:
 				seeds.Iron = nl.RandomSeed
-			case gv.MAT_COPPER:
+			case gv.MAT_COPPER_SHOT:
 				seeds.Copper = nl.RandomSeed
-			case gv.MAT_STONE:
+			case gv.MAT_STONE_BLOCK:
 				seeds.Stone = nl.RandomSeed
 			}
 		}
@@ -217,9 +217,9 @@ func LoadGame() {
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Coal
 			case gv.MAT_IRON_ORE:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Iron
-			case gv.MAT_COPPER:
+			case gv.MAT_COPPER_SHOT:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Copper
-			case gv.MAT_STONE:
+			case gv.MAT_STONE_BLOCK:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Stone
 			}
 		}
