@@ -77,9 +77,9 @@ func SaveGame() {
 				seeds.Coal = nl.RandomSeed
 			case gv.MAT_IRON_ORE:
 				seeds.Iron = nl.RandomSeed
-			case gv.MAT_COPPER:
+			case gv.MAT_COPPER_SHOT:
 				seeds.Copper = nl.RandomSeed
-			case gv.MAT_STONE:
+			case gv.MAT_STONE_BLOCK:
 				seeds.Stone = nl.RandomSeed
 			}
 		}
@@ -93,10 +93,10 @@ func SaveGame() {
 				for _, mObj := range chunk.ObjList {
 					tobj := &saveMObj{
 						Pos:      util.CenterXY(mObj.Pos),
-						TypeI:    mObj.TypeP.TypeI,
+						TypeI:    mObj.Unique.TypeP.TypeI,
 						Dir:      mObj.Dir,
-						Contents: mObj.Contents,
-						KGFuel:   mObj.KGFuel,
+						Contents: mObj.Unique.Contents,
+						KGFuel:   mObj.Unique.KGFuel,
 						KGHeld:   mObj.KGHeld,
 						Ticks:    mObj.TickCount,
 					}
@@ -217,9 +217,9 @@ func LoadGame() {
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Coal
 			case gv.MAT_IRON_ORE:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Iron
-			case gv.MAT_COPPER:
+			case gv.MAT_COPPER_SHOT:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Copper
-			case gv.MAT_STONE:
+			case gv.MAT_STONE_BLOCK:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Stone
 			}
 		}
@@ -231,17 +231,19 @@ func LoadGame() {
 		for i := range tempList.Objects {
 
 			obj := &world.ObjData{
-				Pos:       util.UnCenterXY(tempList.Objects[i].Pos),
-				TypeP:     GameObjTypes[tempList.Objects[i].TypeI],
+				Pos: util.UnCenterXY(tempList.Objects[i].Pos),
+				Unique: &world.UniqueObject{
+					TypeP:    GameObjTypes[tempList.Objects[i].TypeI],
+					Contents: tempList.Objects[i].Contents,
+					KGFuel:   tempList.Objects[i].KGFuel,
+				},
 				Dir:       tempList.Objects[i].Dir,
-				Contents:  tempList.Objects[i].Contents,
-				KGFuel:    tempList.Objects[i].KGFuel,
 				KGHeld:    tempList.Objects[i].KGHeld,
 				TickCount: tempList.Objects[i].Ticks,
 			}
 
-			for c := range obj.Contents.Mats {
-				if obj.Contents.Mats[c] == nil {
+			for c := range obj.Unique.Contents.Mats {
+				if obj.Unique.Contents.Mats[c] == nil {
 					continue
 				}
 			}
@@ -256,8 +258,8 @@ func LoadGame() {
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjs++
 
-			if obj.TypeP.InitObj != nil {
-				obj.TypeP.InitObj(obj)
+			if obj.Unique.TypeP.InitObj != nil {
+				obj.Unique.TypeP.InitObj(obj)
 			}
 
 			chunk.Parent.PixmapDirty = true

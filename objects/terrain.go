@@ -160,11 +160,8 @@ func RenderTerrainDaemon() {
 
 			world.SuperChunkListLock.RLock()
 			for _, sChunk := range world.SuperChunkList {
-				if !sChunk.Visible {
-					continue
-				}
 				for _, chunk := range sChunk.ChunkList {
-					if chunk.Precache && chunk.UsingTemporary {
+					if chunk.UsingTemporary {
 						renderChunkGround(chunk, true, chunk.Pos)
 					} else if !chunk.Precache {
 						killTerrainCache(chunk, false)
@@ -238,6 +235,9 @@ func PixmapRenderDaemon() {
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
+			if sChunk.NumChunks == 0 {
+				continue
+			}
 
 			if !world.ShowResourceLayer && world.ZoomScale > gv.MapPixelThreshold && !pixmapCacheCleared {
 

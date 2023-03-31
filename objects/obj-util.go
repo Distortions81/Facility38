@@ -77,7 +77,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	/* New object */
 	if obj == nil {
 		newObj = &world.ObjData{}
-		newObj.TypeP = GameObjTypes[mtype]
+		newObj.Unique = &world.UniqueObject{TypeP: GameObjTypes[mtype]}
 	} else { /* Placing already existing object */
 		newObj = obj
 	}
@@ -88,10 +88,10 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 
 	multiTile := false
 	subFits := false
-	if newObj.TypeP.MultiTile {
+	if newObj.Unique.TypeP.MultiTile {
 		multiTile = true
 
-		if SubObjFits(newObj, newObj.TypeP, true, pos) {
+		if SubObjFits(newObj, newObj.Unique.TypeP, true, pos) {
 			subFits = true
 		} else {
 			return nil
@@ -105,16 +105,16 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 
 	initOkay := true
 	if obj == nil {
-		if newObj.TypeP.CanContain {
-			newObj.Contents = &world.MaterialContentsType{}
-			newObj.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
+		if newObj.Unique.TypeP.CanContain {
+			newObj.Unique.Contents = &world.MaterialContentsType{}
+			newObj.Unique.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
 		}
 
-		if newObj.TypeP.MaxFuelKG > 0 {
-			newObj.KGFuel = newObj.TypeP.MaxFuelKG
+		if newObj.Unique.TypeP.MaxFuelKG > 0 {
+			newObj.Unique.KGFuel = newObj.Unique.TypeP.MaxFuelKG
 		}
 
-		for p, port := range newObj.TypeP.Ports {
+		for p, port := range newObj.Unique.TypeP.Ports {
 			newObj.Ports = append(newObj.Ports, port)
 			newObj.Ports[p].Buf = &world.MatData{}
 		}
@@ -124,8 +124,8 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 		}
 
 		/* Init obj if we have a function for it */
-		if newObj.TypeP.InitObj != nil {
-			if !newObj.TypeP.InitObj(newObj) {
+		if newObj.Unique.TypeP.InitObj != nil {
+			if !newObj.Unique.TypeP.InitObj(newObj) {
 				initOkay = false
 			}
 		}
@@ -145,15 +145,15 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	/* Add to tock/tick lists */
 
 	/*Spread out when tock happens */
-	if newObj.TypeP.Interval > 0 {
-		newObj.TickCount = uint8(rand.Intn(int(newObj.TypeP.Interval)))
+	if newObj.Unique.TypeP.Interval > 0 {
+		newObj.TickCount = uint8(rand.Intn(int(newObj.Unique.TypeP.Interval)))
 	}
 
 	/* Place item tiles */
 	if multiTile {
 		if subFits {
 			/* If space is available, create items */
-			for _, sub := range newObj.TypeP.SubObjs {
+			for _, sub := range newObj.Unique.TypeP.SubObjs {
 				tile := RotateCoord(sub, dir, GetObjSize(newObj, nil))
 				sXY := util.GetSubPos(pos, tile)
 				MakeChunk(sXY)
@@ -220,9 +220,9 @@ func SubObjFits(obj *world.ObjData, TypeP *world.ObjType, report bool, pos world
 func GetObjSize(obj *world.ObjData, TypeP *world.ObjType) world.XYs {
 	if obj != nil {
 		if obj.Dir == 1 || obj.Dir == 3 {
-			return world.XYs{X: obj.TypeP.Size.Y, Y: obj.TypeP.Size.X}
+			return world.XYs{X: obj.Unique.TypeP.Size.Y, Y: obj.Unique.TypeP.Size.X}
 		} else {
-			return obj.TypeP.Size
+			return obj.Unique.TypeP.Size
 		}
 	} else if TypeP != nil {
 		if TypeP.Direction == 1 || TypeP.Direction == 3 {

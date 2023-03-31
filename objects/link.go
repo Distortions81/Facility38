@@ -60,10 +60,10 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				}
 
 				/* Normal objects can only link to loaders */
-				if (b.Obj.TypeP.Category == gv.ObjCatGeneric &&
-					neighb.Obj.TypeP.Category != gv.ObjCatLoader) ||
-					(neighb.Obj.TypeP.Category == gv.ObjCatGeneric &&
-						b.Obj.TypeP.Category != gv.ObjCatLoader) {
+				if (b.Obj.Unique.TypeP.Category == gv.ObjCatGeneric &&
+					neighb.Obj.Unique.TypeP.Category != gv.ObjCatLoader) ||
+					(neighb.Obj.Unique.TypeP.Category == gv.ObjCatGeneric &&
+						b.Obj.Unique.TypeP.Category != gv.ObjCatLoader) {
 					continue
 				}
 
@@ -78,7 +78,7 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				if gv.Debug {
 					oName := "none"
 					if b.Obj != nil {
-						oName = fmt.Sprintf("%v: %v", neighb.Obj.TypeP.Name, util.PosToString(neighb.Pos))
+						oName = fmt.Sprintf("%v: %v", neighb.Obj.Unique.TypeP.Name, util.PosToString(neighb.Pos))
 					}
 					util.ObjCD(b, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, util.DirToName(port.Dir), util.DirToArrow(port.Dir), oName))
 				}
@@ -87,16 +87,16 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				portAlias(neighb.Obj, n, np.Type)
 
 				/* Run custom link code */
-				if neighb.Obj.TypeP.LinkObj != nil {
-					neighb.Obj.TypeP.LinkObj(neighb.Obj)
+				if neighb.Obj.Unique.TypeP.LinkObj != nil {
+					neighb.Obj.Unique.TypeP.LinkObj(neighb.Obj)
 				} else {
 					AutoEvents(neighb.Obj)
 				}
 			}
 		}
 		/* Run custom link code */
-		if b.Obj.TypeP.LinkObj != nil {
-			b.Obj.TypeP.LinkObj(b.Obj)
+		if b.Obj.Unique.TypeP.LinkObj != nil {
+			b.Obj.Unique.TypeP.LinkObj(b.Obj)
 		} else {
 			AutoEvents(b.Obj)
 		}
@@ -124,20 +124,20 @@ func AutoEvents(obj *world.ObjData) {
 	}
 
 	/* If we have inputs and outputs object needs, add to tock list */
-	if obj.TypeP.UpdateObj != nil {
+	if obj.Unique.TypeP.UpdateObj != nil {
 
-		if obj.TypeP.HasInputs && foundInputs {
+		if obj.Unique.TypeP.HasInputs && foundInputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 		}
-		if obj.TypeP.HasOutputs && foundOutputs {
+		if obj.Unique.TypeP.HasOutputs && foundOutputs {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 		}
 
-		if obj.TypeP.HasFIn && foundFIn {
+		if obj.Unique.TypeP.HasFIn && foundFIn {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 		}
-		if obj.TypeP.HasFOut && foundFOut {
+		if obj.Unique.TypeP.HasFOut && foundFOut {
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
 			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
 		}
@@ -177,8 +177,8 @@ func UnlinkObj(obj *world.ObjData) {
 				pObj.Ports[pb].Obj = nil
 
 				portPop(pObj)
-				if pObj.TypeP.LinkObj != nil {
-					pObj.TypeP.LinkObj(pObj)
+				if pObj.Unique.TypeP.LinkObj != nil {
+					pObj.Unique.TypeP.LinkObj(pObj)
 				} else {
 					AutoEvents(pObj)
 				}

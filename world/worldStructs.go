@@ -47,6 +47,7 @@ type MapSuperChunk struct {
 
 type MaterialContentsType struct {
 	Mats [gv.MAT_MAX]*MatData
+	Objs [gv.ObjTypeMax]*StoreObj
 }
 
 type BeltOverType struct {
@@ -152,7 +153,9 @@ type MinerDataType struct {
 type ObjData struct {
 	Pos    XY
 	Parent *MapChunk `json:"-"`
-	TypeP  *ObjType  `json:"-"`
+
+	/* Data needed for transporting or storing object */
+	Unique *UniqueObject
 
 	Dir        uint8
 	LastInput  uint8
@@ -163,6 +166,7 @@ type ObjData struct {
 	Outputs []*ObjPortData
 	Inputs  []*ObjPortData
 	FuelIn  []*ObjPortData
+
 	FuelOut []*ObjPortData
 
 	IsCorner  bool
@@ -175,20 +179,29 @@ type ObjData struct {
 	NumFOut uint8
 
 	//Internal Tock() use
-	Contents      *MaterialContentsType
-	SingleContent *MatData
-	BeltOver      *BeltOverType
-	KGFuel        float32
-	KGHeld        float32
-	MinerData     *MinerDataType
-	Tile          *TileData
-	TickCount     uint8
+	BeltOver  *BeltOverType
+	KGHeld    float32
+	MinerData *MinerDataType
+	Tile      *TileData
+	TickCount uint8
 
 	Blocked bool
 	Active  bool
 
 	HasTick bool
 	HasTock bool
+}
+
+type StoreObj struct {
+	Unique []*UniqueObject
+	Count  uint64
+}
+
+type UniqueObject struct {
+	Contents      *MaterialContentsType
+	SingleContent *MatData
+	KGFuel        float32
+	TypeP         *ObjType
 }
 
 type ObjPortData struct {
@@ -329,6 +342,7 @@ type TickEvent struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
+	Obj    *UniqueObject
 	TypeP  *MaterialType
 	Amount float32
 	Rot    uint8

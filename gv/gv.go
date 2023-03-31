@@ -72,10 +72,7 @@ const (
 	ObjTypeBasicUnloader   = 7
 	ObjTypeBasicLoader     = 8
 
-	/*Disabled, incomplete */
-	ObjTypeBasicIronCaster = 8
-	ObjTypeBasicBoiler     = 9
-	ObjTypeSteamEngine     = 10
+	ObjTypeMax = 8
 
 	/* Object catagories */
 	ObjCatGeneric = 0
@@ -92,13 +89,14 @@ const (
 	MAT_COPPER_ORE = 5
 	MAT_STONE_ORE  = 6
 
-	MAT_IRON   = 7
-	MAT_COPPER = 8
-	MAT_STONE  = 9
-	MAT_SLAG   = 10
-	MAT_MIXORE = 11
+	MAT_IRON_SHOT   = 7
+	MAT_COPPER_SHOT = 8
+	MAT_STONE_BLOCK = 9
+	MAT_SLAG_SHOT   = 10
+	MAT_MIXORE      = 11
+	MAT_OBJ         = 12
 
-	MAT_MAX = 12
+	MAT_MAX = 13
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0

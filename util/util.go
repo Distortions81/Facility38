@@ -86,7 +86,7 @@ func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
 
 	/* Add object name and position */
 
-	objData := fmt.Sprintf("%v: %v: %v", b.Obj.TypeP.Name, PosToString(b.Pos), text)
+	objData := fmt.Sprintf("%v: %v: %v", b.Obj.Unique.TypeP.Name, PosToString(b.Pos), text)
 
 	/* Date, go file, go file line, text */
 	buf := fmt.Sprintf("%v: %15v:%5v: %v", date, filepath.Base(filename), line, objData)
