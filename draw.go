@@ -467,7 +467,7 @@ func drawIconMode(screen *ebiten.Image) {
 			objCamPosY := objOffY * world.ZoomScale
 
 			/* Show objects with no fuel */
-			if obj.Unique.TypeP.MaxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.TypeP.KgFuelEach {
+			if obj.Unique.TypeP.MaxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.TypeP.KgFuelPerCycle {
 
 				img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Image
 
@@ -707,7 +707,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				}
 				if o.Unique.TypeP.MaxFuelKG > 0 {
 					toolTip = toolTip + fmt.Sprintf("Max Fuel: %0.2f kg\n", o.Unique.TypeP.MaxFuelKG)
-					if o.Unique.KGFuel > o.Unique.TypeP.KgFuelEach {
+					if o.Unique.KGFuel > o.Unique.TypeP.KgFuelPerCycle {
 						toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.Unique.KGFuel)
 					} else {
 						toolTip = toolTip + "NO FUEL\n"
@@ -726,11 +726,11 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				}
 
 				if gv.Debug {
-					if o.Unique.TypeP.KgFuelEach > 0 {
-						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %0.2f kg\n", o.Unique.TypeP.KgFuelEach)
+					if o.Unique.TypeP.KgFuelPerCycle > 0 {
+						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %0.2f kg\n", o.Unique.TypeP.KgFuelPerCycle)
 					}
-					if o.Unique.TypeP.KgMineEach > 0 {
-						toolTip = toolTip + fmt.Sprintf("Mine per tock: %0.2f kg\n", o.Unique.TypeP.KgMineEach)
+					if o.Unique.TypeP.KgPerCycle > 0 {
+						toolTip = toolTip + fmt.Sprintf("Per Cycle: %0.2f kg\n", o.Unique.TypeP.KgPerCycle)
 					}
 					if o.Unique.TypeP.MaxContainKG > 0 {
 						toolTip = toolTip + fmt.Sprintf("Max contents: %0.2f kg\n", o.Unique.TypeP.MaxContainKG)

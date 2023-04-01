@@ -2,7 +2,6 @@ package objects
 
 import (
 	"GameTest/cwlog"
-	"GameTest/gv"
 	"GameTest/world"
 	"bytes"
 	"encoding/json"
@@ -11,482 +10,65 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-func init() {
-
-	/* Pre-calculate some object values */
-	for i := range GameObjTypes {
-
-		/* Convert mining amount to interval */
-		if GameObjTypes[i].KgHourMine > 0 {
-			GameObjTypes[i].KgMineEach = ((GameObjTypes[i].KgHourMine / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
-		}
-		/* Convert Horsepower to solid to KW and solid fuel per interval */
-		if GameObjTypes[i].HP > 0 {
-			KW := GameObjTypes[i].HP * gv.HP_PER_KW
-			COALKG := KW / gv.COAL_KWH_PER_KG
-			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
-			/* Convert KW to solid fuel per interval */
-		} else if GameObjTypes[i].KW > 0 {
-			COALKG := GameObjTypes[i].KW / gv.COAL_KWH_PER_KG
-			GameObjTypes[i].KgFuelEach = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
-		}
-
-		/* Auto calculate max fuel from fuel used per interval */
-		if GameObjTypes[i].KgFuelEach > 0 {
-			GameObjTypes[i].MaxFuelKG = (GameObjTypes[i].KgFuelEach * 10)
-			if GameObjTypes[i].MaxFuelKG < 50 {
-				GameObjTypes[i].MaxFuelKG = 50
-			}
-		}
-
-		/* Auto calculate max contain for miners */
-		if GameObjTypes[i].KgMineEach > 0 {
-			GameObjTypes[i].MaxContainKG = (GameObjTypes[i].KgMineEach * 10)
-			if GameObjTypes[i].MaxContainKG < 50 {
-				GameObjTypes[i].MaxContainKG = 50
-			}
-		}
-
-		/* Flag item ports */
-		for p := range GameObjTypes[i].Ports {
-			pt := GameObjTypes[i].Ports[p].Type
-
-			if pt == gv.PORT_IN {
-				GameObjTypes[i].HasInputs = true
-			}
-			if pt == gv.PORT_OUT {
-				GameObjTypes[i].HasOutputs = true
-			}
-			if pt == gv.PORT_FOUT {
-				GameObjTypes[i].HasFOut = true
-			}
-			if pt == gv.PORT_FIN {
-				GameObjTypes[i].HasFIn = true
-			}
-
-		}
-
-		/* Flag non-square items */
-		if GameObjTypes[i].Size.X != GameObjTypes[i].Size.Y {
-			GameObjTypes[i].NonSquare = true
-		}
-		if GameObjTypes[i].Size.X > 1 || GameObjTypes[i].Size.Y > 1 {
-			GameObjTypes[i].MultiTile = true
-		}
-	}
-
-	/* Add spaces to unit names */
-	for _, mat := range MatTypes {
-		mat.UnitName = " " + mat.UnitName
-	}
+var GroundTiles = []*world.ObjType{
+	{ImagePath: "gtile/paver.png"},
 }
 
-var (
-	GroundTiles = []*world.ObjType{
-		{ImagePath: "gtile/paver.png"},
-	}
+/* Toolbar actions and images */
+var UIObjsTypes = []*world.ObjType{
+	//Ui Only
+	{
+		ImagePath: "ui/settings.png", Name: "Options", ToolbarAction: settingsToggle,
+		Symbol: "SET", QKey: ebiten.KeyF1,
+	},
+	{
+		ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
+		Symbol: "OVRLY", Description: "Turn info overlay on/off", QKey: ebiten.KeyF2,
+	},
+	{
+		ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
+		Symbol: "LAYER", Description: "Toggle between the build and resource layer.", QKey: ebiten.KeyF3,
+	},
+	{
+		Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
+		Symbol: "SAVE", ExcludeWASM: true, Description: "Quicksave game", QKey: ebiten.KeyF5,
+	},
+	{
+		Name: "Load Game", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
+		Symbol: "LOAD", ExcludeWASM: true, Description: "Load quicksave", QKey: ebiten.KeyF6,
+	},
+}
 
-	/* Toolbar actions and images */
-	UIObjsTypes = []*world.ObjType{
-		//Ui Only
-		{
-			ImagePath: "ui/settings.png", Name: "Options", ToolbarAction: settingsToggle,
-			Symbol: "SET", QKey: ebiten.KeyF1,
-		},
-		{
-			ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
-			Symbol: "OVRLY", Description: "Turn info overlay on/off", QKey: ebiten.KeyF2,
-		},
-		{
-			ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-			Symbol: "LAYER", Description: "Toggle between the build and resource layer.", QKey: ebiten.KeyF3,
-		},
-		{
-			Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,
-			Symbol: "SAVE", ExcludeWASM: true, Description: "Quicksave game", QKey: ebiten.KeyF5,
-		},
-		{
-			Name: "Load Game", ImagePath: "ui/load.png", ToolbarAction: LoadGame,
-			Symbol: "LOAD", ExcludeWASM: true, Description: "Load quicksave", QKey: ebiten.KeyF6,
-		},
-	}
+/* Terrain types and images */
+var TerrainTypes = []*world.ObjType{
+	{ImagePath: "terrain/grass-1.png", Name: "grass",
+		Size:   world.XYs{X: 1, Y: 1},
+		Symbol: "."},
+	{ImagePath: "terrain/dirt-1.png", Name: "dirt",
+		Size:   world.XYs{X: 1, Y: 1},
+		Symbol: "."},
+}
 
-	/* World objects and images */
-	GameObjTypes = []*world.ObjType{
-		//Game Objects
-		{
-			ImagePath:       "world-obj/basic-miner-64.png",
-			ImageActivePath: "world-obj/basic-miner-active-64.png",
-			Name:            "Basic Miner",
-			Description:     "Mines solid resources where placed, requires coal fuel.",
-			TypeI:           gv.ObjTypeBasicMiner,
-			Category:        gv.ObjCatGeneric,
-			Size:            world.XYs{X: 2, Y: 2},
-			UpdateObj:       minerUpdate,
-			InitObj:         initMiner,
-			DeInitObj:       deinitMiner,
-			LinkObj:         linkMiner,
-			KgHourMine:      1000,
-			KW:              360,
-			Interval:        uint8(world.ObjectUPS) * 2,
-			ShowArrow:       true,
-			ToolBarArrow:    true,
-			Symbol:          "MIN",
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+/* Overlay images */
+var ObjOverlayTypes = []*world.ObjType{
+	{ImagePath: "overlays/arrow-north.png", Name: "Arrow North", Symbol: "^"},
+	{ImagePath: "overlays/arrow-east.png", Name: "Arrow East", Symbol: ">"},
+	{ImagePath: "overlays/arrow-south.png", Name: "Arrow South", Symbol: "v"},
+	{ImagePath: "overlays/arrow-west.png", Name: "Arrow West", Symbol: "<"},
+	{ImagePath: "overlays/blocked.png", Name: "Blocked", Symbol: "*"},
+	{ImagePath: "overlays/nofuel.png", Name: "NO FUEL", Symbol: "&"},
+	{ImagePath: "ui/check-on.png", Name: "Check-On", Symbol: "✓"},
+	{ImagePath: "ui/check-off.png", Name: "Check-Off", Symbol: "X"},
+	{ImagePath: "ui/close.png", Name: "Close", Symbol: "X"},
+}
 
-				/* Fuel inputs */
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_FIN},
-				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_FIN},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_FIN},
-			},
-			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
-		},
-
-		{
-			ImagePath:        "world-obj/basic-belt.png",
-			ImageOverlayPath: "world-obj/basic-belt-overlay.png",
-			ImageCornerPath:  "world-obj/basic-belt-corner.png",
-			Name:             "Basic Belt",
-			Description:      "Moves items from rear and sides in direction of arrow.",
-			TypeI:            gv.ObjTypeBasicBelt,
-			Category:         gv.ObjCatBelt,
-			Size:             world.XYs{X: 1, Y: 1},
-			Rotatable:        true,
-			UpdateObj:        beltUpdate,
-			LinkObj:          linkBelt,
-			Symbol:           "BLT",
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
-			},
-		},
-		{
-			ImagePath:        "world-obj/belt-over.png",
-			ToolbarPath:      "world-obj/belt-over-ui.png",
-			ImageOverlayPath: "world-obj/belt-over-overlay.png",
-			ImageMaskPath:    "world-obj/belt-over-mask.png",
-			Name:             "Basic Belt Overpass",
-			Description:      "A belt that has an underpass.",
-			TypeI:            gv.ObjTypeBasicBeltOver,
-			Category:         gv.ObjCatBelt,
-			Size:             world.XYs{X: 1, Y: 3},
-			Rotatable:        true,
-			UpdateObj:        beltUpdateOver,
-			InitObj:          initBeltOver,
-			LinkObj:          linkBeltOver,
-			Symbol:           "BOP",
-			Ports: []world.ObjPortData{
-				/* Overpass is one direction */
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-
-				/* Underpass is bidirectional */
-				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
-				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
-			},
-			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 0, Y: 2}},
-		},
-
-		{
-			ImagePath:    "world-obj/basic-splitter.png",
-			Name:         "Basic Splitter",
-			Description:  "Input from back, outputs equally to up to 3 outputs.",
-			TypeI:        gv.ObjTypeBasicSplit,
-			Category:     gv.ObjCatBelt,
-			Size:         world.XYs{X: 1, Y: 1},
-			ShowArrow:    true,
-			ToolBarArrow: true,
-			KW:           100,
-			UpdateObj:    splitterUpdate,
-			LinkObj:      linkSplitter,
-			Symbol:       "SPT",
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-			},
-		},
-
-		{
-			ImagePath:    "world-obj/basic-box.png",
-			Description:  "Currently only stores objects (no unloader yet).",
-			Name:         "Basic Box",
-			TypeI:        gv.ObjTypeBasicBox,
-			Category:     gv.ObjCatGeneric,
-			Size:         world.XYs{X: 2, Y: 2},
-			MaxContainKG: 1000,
-			Symbol:       "BOX",
-			UpdateObj:    boxUpdate,
-			LinkObj:      linkBox,
-			CanContain:   true,
-			ToolBarArrow: false,
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_IN},
-				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
-
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_EAST, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_OUT},
-			},
-			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
-		},
-
-		{
-			ImagePath:       "world-obj/basic-smelter.png",
-			ImageActivePath: "world-obj/basic-smelter-active.png",
-			Name:            "Basic Smelter",
-			Description:     "Bakes solid ores into metal or stone bricks, requires coal fuel.",
-			TypeI:           gv.ObjTypeBasicSmelter,
-			Category:        gv.ObjCatGeneric,
-			Size:            world.XYs{X: 2, Y: 2},
-			KW:              320,
-			KgHourMine:      40,
-			Interval:        uint8(world.ObjectUPS * 60),
-			ShowArrow:       true,
-			ToolBarArrow:    true,
-			Symbol:          "SMT",
-			UpdateObj:       smelterUpdate,
-			InitObj:         initSmelter,
-			LinkObj:         linkSmelter,
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-
-				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_FIN},
-			},
-			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
-		},
-
-		{
-			ImagePath:       "world-obj/basic-caster.png",
-			ImageActivePath: "world-obj/basic-caster-active.png",
-			Name:            "Basic Caster",
-			Description:     "Casts metal shot into bars.",
-			TypeI:           gv.ObjTypeBasicCaster,
-			Category:        gv.ObjCatGeneric,
-			Size:            world.XYs{X: 2, Y: 2},
-			KW:              320,
-			KgHourMine:      40,
-			Interval:        uint8(world.ObjectUPS * 60),
-			ShowArrow:       true,
-			ToolBarArrow:    true,
-			Symbol:          "CST",
-			UpdateObj:       smelterUpdate,
-			InitObj:         initSmelter,
-			LinkObj:         linkSmelter,
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-
-				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_FIN},
-			},
-			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
-		},
-
-		{
-			ImagePath:       "world-obj/basic-rod-caster.png",
-			ImageActivePath: "world-obj/basic-rod-caster-active.png",
-			Name:            "Basic Rod Caster",
-			Description:     "Casts metal bars into rods.",
-			TypeI:           gv.ObjTypeBasicRodCaster,
-			Category:        gv.ObjCatGeneric,
-			Size:            world.XYs{X: 2, Y: 2},
-			KW:              320,
-			KgHourMine:      40,
-			Interval:        uint8(world.ObjectUPS * 60),
-			ShowArrow:       true,
-			ToolBarArrow:    true,
-			Symbol:          "ROD",
-			UpdateObj:       smelterUpdate,
-			InitObj:         initSmelter,
-			LinkObj:         linkSmelter,
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-
-				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_FIN},
-			},
-			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
-		},
-
-		{
-			ImagePath: "world-obj/basic-fuel-hopper.png", ImageActivePath: "world-obj/basic-fuel-hopper-active.png",
-			Name:         "Basic Fuel Hopper",
-			Description:  "Loads soild fuel into machines",
-			TypeI:        gv.ObjTypeBasicFuelHopper,
-			Category:     gv.ObjCatLoader,
-			Size:         world.XYs{X: 1, Y: 1},
-			Rotatable:    true,
-			ShowArrow:    false,
-			UpdateObj:    fuelHopperUpdate,
-			LinkObj:      linkFuelHopper,
-			KW:           10,
-			KgHopperMove: 1,
-			Interval:     uint8(world.ObjectUPS) * 2,
-			Symbol:       "FHP",
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_IN},
-				{Dir: gv.DIR_EAST, Type: gv.PORT_IN},
-				{Dir: gv.DIR_WEST, Type: gv.PORT_IN},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_FOUT},
-			},
-		},
-		{
-			ImagePath:    "world-obj/basic-unloader.png",
-			Name:         "Basic Unloader",
-			Description:  "Unloads Material from objects.",
-			TypeI:        gv.ObjTypeBasicUnloader,
-			Category:     gv.ObjCatLoader,
-			Size:         world.XYs{X: 1, Y: 1},
-			Rotatable:    true,
-			ShowArrow:    false,
-			UpdateObj:    loaderUpdate,
-			LinkObj:      linkUnloader,
-			KW:           10,
-			KgHopperMove: 1,
-			Interval:     uint8(world.ObjectUPS) * 2,
-			Symbol:       "ULD",
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-			},
-		},
-		{
-			ImagePath:    "world-obj/basic-loader.png",
-			Name:         "Basic Loader",
-			Description:  "Loads Material into objects.",
-			TypeI:        gv.ObjTypeBasicLoader,
-			Category:     gv.ObjCatLoader,
-			Size:         world.XYs{X: 1, Y: 1},
-			Rotatable:    true,
-			ShowArrow:    false,
-			UpdateObj:    loaderUpdate,
-			LinkObj:      linkUnloader,
-			KW:           10,
-			KgHopperMove: 1,
-			Interval:     uint8(world.ObjectUPS) * 2,
-			Symbol:       "LD",
-			Ports: []world.ObjPortData{
-				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
-				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
-			},
-		},
-	}
-
-	/* Terrain types and images */
-	TerrainTypes = []*world.ObjType{
-		{ImagePath: "terrain/grass-1.png", Name: "grass",
-			Size:   world.XYs{X: 1, Y: 1},
-			Symbol: "."},
-		{ImagePath: "terrain/dirt-1.png", Name: "dirt",
-			Size:   world.XYs{X: 1, Y: 1},
-			Symbol: "."},
-	}
-
-	/* Overlay images */
-	ObjOverlayTypes = []*world.ObjType{
-		{ImagePath: "overlays/arrow-north.png", Name: "Arrow North", Symbol: "^"},
-		{ImagePath: "overlays/arrow-east.png", Name: "Arrow East", Symbol: ">"},
-		{ImagePath: "overlays/arrow-south.png", Name: "Arrow South", Symbol: "v"},
-		{ImagePath: "overlays/arrow-west.png", Name: "Arrow West", Symbol: "<"},
-		{ImagePath: "overlays/blocked.png", Name: "Blocked", Symbol: "*"},
-		{ImagePath: "overlays/nofuel.png", Name: "NO FUEL", Symbol: "&"},
-		{ImagePath: "ui/check-on.png", Name: "Check-On", Symbol: "✓"},
-		{ImagePath: "ui/check-off.png", Name: "Check-Off", Symbol: "X"},
-		{ImagePath: "ui/close.png", Name: "Close", Symbol: "X"},
-	}
-
-	/* Materials and images */
-	MatTypes = []*world.MaterialType{
-		//Materials
-		{Symbol: "NIL", Name: "NONE", TypeI: gv.MAT_NONE},
-
-		{Symbol: "C", Name: "Coal", UnitName: "kg", ImagePath: "belt-obj/coal-ore.png",
-			IsSolid: true, IsFuel: true, TypeI: gv.MAT_COAL, Density: 1.4},
-
-		{Symbol: "Oil", Name: "Oil", UnitName: "L", ImagePath: "belt-obj/oil-barrel.png",
-			IsFluid: true, IsFuel: true, TypeI: gv.MAT_OIL, Density: 0.9},
-
-		{Symbol: "LNG", Name: "Natural Gas", UnitName: "cm", ImagePath: "belt-obj/lng-barrel.png",
-			IsGas: true, IsFuel: true, TypeI: gv.MAT_GAS, Density: 0.00068},
-
-		/* Ore */
-		{Symbol: "FEo", Name: "Iron Ore", UnitName: "kg", ImagePath: "belt-obj/iron-ore.png",
-			IsSolid: true, IsOre: true, Result: gv.MAT_IRON_SHOT, TypeI: gv.MAT_IRON_ORE, Density: 2},
-
-		{Symbol: "Cuo", Name: "Copper Ore", UnitName: "kg", ImagePath: "belt-obj/copper-ore.png",
-			IsSolid: true, IsOre: true, Result: gv.MAT_COPPER_SHOT, TypeI: gv.MAT_COPPER_ORE, Density: 2.65},
-
-		{Symbol: "STo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
-			IsSolid: true, IsOre: true, Result: gv.MAT_STONE_BLOCK, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
-
-		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/mix-ore.png", Density: 2.5,
-			IsSolid: true, IsOre: true, Result: gv.MAT_SLAG_SHOT, TypeI: gv.MAT_MIXORE},
-
-		/* Shot */
-		{Symbol: "FES", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
-			IsSolid: true, IsShot: true, TypeI: gv.MAT_IRON_SHOT, Result: gv.MAT_IRON_BAR},
-
-		{Symbol: "CuS", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
-			IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT, Result: gv.MAT_COPPER_BAR},
-
-		{Symbol: "STB", Name: "Stone Block", IsDiscrete: true, UnitName: "blocks", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
-			IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
-
-		{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 2.5,
-			IsSolid: true, TypeI: gv.MAT_SLAG_SHOT},
-
-		/* Object */
-		{Symbol: "OBJ", Name: "Object", IsDiscrete: true, UnitName: "count", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
-
-		/* Bars */
-		{Symbol: "FEB", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13, ResultCount: 1,
-			IsSolid: true, IsBar: true, IsDiscrete: true, UnitName: "bars", TypeI: gv.MAT_IRON_BAR, Result: gv.MAT_IRON_ROD},
-
-		{Symbol: "CuB", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88, ResultCount: 1,
-			IsSolid: true, IsBar: true, IsDiscrete: true, UnitName: "bars", TypeI: gv.MAT_COPPER_BAR, Result: gv.MAT_COPPER_ROD},
-
-		/* Rods */
-		{Symbol: "FER", Name: "Iron Rod", ImagePath: "belt-obj/iron-rod.png", Density: 7.13,
-			IsSolid: true, IsRod: true, IsDiscrete: true, UnitName: "rods", TypeI: gv.MAT_IRON_ROD},
-
-		{Symbol: "CuR", Name: "Copper Rod", ImagePath: "belt-obj/copper-rod.png", Density: 8.88,
-			IsSolid: true, IsRod: true, IsDiscrete: true, UnitName: "rods", TypeI: gv.MAT_COPPER_ROD},
-	}
-
-	/* Toolbar item types, array of array of ObjType */
-	SubTypes = [][]*world.ObjType{
-		UIObjsTypes,
-		GameObjTypes,
-		ObjOverlayTypes,
-		TerrainTypes,
-		GroundTiles,
-	}
-)
-
-func init() {
-	for i := range MatTypes {
-		MatTypes[i].TypeI = uint8(i)
-	}
-	for i := range ObjOverlayTypes {
-		ObjOverlayTypes[i].TypeI = uint8(i)
-	}
-	for i := range UIObjsTypes {
-		UIObjsTypes[i].TypeI = uint8(i)
-	}
+/* Toolbar item types, array of array of ObjType */
+var SubTypes = [][]*world.ObjType{
+	UIObjsTypes,
+	GameObjTypes,
+	ObjOverlayTypes,
+	TerrainTypes,
+	GroundTiles,
 }
 
 /* Debug quick dump GameObjTypes */

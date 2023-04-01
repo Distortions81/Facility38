@@ -101,11 +101,12 @@ const (
 
 	MAT_IRON_BAR   = 13
 	MAT_COPPER_BAR = 14
+	MAT_SLAG_BAR   = 15
 
-	MAT_IRON_ROD   = 15
-	MAT_COPPER_ROD = 16
+	MAT_IRON_ROD   = 16
+	MAT_COPPER_ROD = 17
 
-	MAT_MAX = 17
+	MAT_MAX = 18
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0

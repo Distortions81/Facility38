@@ -218,6 +218,7 @@ type MaterialType struct {
 	Name     string
 	UnitName string
 	Density  float32 /* g/cm3 */
+	KG       float32
 
 	ImagePath string
 	Image     *ebiten.Image
@@ -236,7 +237,8 @@ type MaterialType struct {
 	IsRod  bool
 
 	Result      uint8
-	ResultCount uint8
+	DiscreteIn  uint8
+	DiscreteOut uint8
 }
 
 /* Object type data, includes image, toolbar action, and update handler */
@@ -284,10 +286,10 @@ type ObjType struct {
 	KW           float32 //Kilowatts, alternate to HP
 
 	/* Calculated at boot from other values */
-	KgMineEach   float32
-	KgFuelEach   float32
-	MaxContainKG float32
-	MaxFuelKG    float32
+	KgPerCycle     float32
+	KgFuelPerCycle float32
+	MaxContainKG   float32
+	MaxFuelKG      float32
 
 	/* How often object should run, used in obj's tock function */
 	Interval uint8
