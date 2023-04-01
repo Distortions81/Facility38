@@ -222,16 +222,21 @@ type MaterialType struct {
 	ImagePath string
 	Image     *ebiten.Image
 
-	TypeI   uint8
-	IsSolid bool
-	IsOre   bool
-	IsShot  bool
-	IsGas   bool
-	IsFluid bool
-	IsFuel  bool
-	IsBar   bool
-	IsRod   bool
-	Result  uint8
+	TypeI uint8
+
+	IsDiscrete bool
+	IsSolid    bool
+	IsGas      bool
+	IsFluid    bool
+	IsFuel     bool
+
+	IsOre  bool
+	IsShot bool
+	IsBar  bool
+	IsRod  bool
+
+	Result      uint8
+	ResultCount uint8
 }
 
 /* Object type data, includes image, toolbar action, and update handler */

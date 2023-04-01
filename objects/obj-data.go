@@ -443,28 +443,28 @@ var (
 		{Symbol: "CuS", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
 			IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT, Result: gv.MAT_COPPER_BAR},
 
-		{Symbol: "STB", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
+		{Symbol: "STB", Name: "Stone Block", IsDiscrete: true, UnitName: "blocks", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
 			IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
 
 		{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 2.5,
 			IsSolid: true, TypeI: gv.MAT_SLAG_SHOT},
 
 		/* Object */
-		{Symbol: "OBJ", Name: "Object", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
+		{Symbol: "OBJ", Name: "Object", IsDiscrete: true, UnitName: "count", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
 
 		/* Bars */
-		{Symbol: "FEB", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13,
-			IsSolid: true, IsBar: true, TypeI: gv.MAT_IRON_BAR, Result: gv.MAT_IRON_ROD},
+		{Symbol: "FEB", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13, ResultCount: 1,
+			IsSolid: true, IsBar: true, IsDiscrete: true, UnitName: "bars", TypeI: gv.MAT_IRON_BAR, Result: gv.MAT_IRON_ROD},
 
-		{Symbol: "CuB", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88,
-			IsSolid: true, IsBar: true, TypeI: gv.MAT_COPPER_BAR, Result: gv.MAT_COPPER_ROD},
+		{Symbol: "CuB", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88, ResultCount: 1,
+			IsSolid: true, IsBar: true, IsDiscrete: true, UnitName: "bars", TypeI: gv.MAT_COPPER_BAR, Result: gv.MAT_COPPER_ROD},
 
 		/* Rods */
 		{Symbol: "FER", Name: "Iron Rod", ImagePath: "belt-obj/iron-rod.png", Density: 7.13,
-			IsSolid: true, IsRod: true, TypeI: gv.MAT_IRON_ROD},
+			IsSolid: true, IsRod: true, IsDiscrete: true, UnitName: "rods", TypeI: gv.MAT_IRON_ROD},
 
 		{Symbol: "CuR", Name: "Copper Rod", ImagePath: "belt-obj/copper-rod.png", Density: 8.88,
-			IsSolid: true, IsRod: true, TypeI: gv.MAT_COPPER_ROD},
+			IsSolid: true, IsRod: true, IsDiscrete: true, UnitName: "rods", TypeI: gv.MAT_COPPER_ROD},
 	}
 
 	/* Toolbar item types, array of array of ObjType */

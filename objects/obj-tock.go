@@ -334,7 +334,9 @@ func smelterUpdate(obj *world.ObjData) {
 	}
 
 	/* Is there enough ore to process? */
-	if obj.Unique.SingleContent.Amount < obj.Unique.TypeP.KgMineEach {
+	material := MatTypes[obj.Unique.SingleContent.TypeP.TypeI]
+	if !material.IsDiscrete &&
+		obj.Unique.SingleContent.Amount < obj.Unique.TypeP.KgMineEach {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -370,10 +372,14 @@ func smelterUpdate(obj *world.ObjData) {
 	obj.KGHeld -= obj.Unique.TypeP.KgMineEach
 
 	/* Output result */
-	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.KgMineEach
+	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
+	if result.IsDiscrete {
+		obj.Outputs[0].Buf.Amount = float32(material.ResultCount)
+	} else {
+		obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.KgMineEach
+	}
 
 	/* Find and set result type, if needed */
-	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
 	if obj.Outputs[0].Buf.TypeP != result {
 		obj.Outputs[0].Buf.TypeP = result
 	}
