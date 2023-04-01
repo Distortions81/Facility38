@@ -549,17 +549,15 @@ func drawIconMode(screen *ebiten.Image) {
 	}
 }
 
+/*
 func drawSubObjDebug(screen *ebiten.Image, b *world.BuildingData, bpos world.XY) {
 
-	/* camera + object */
 	objOffX := camXPos + (float32(bpos.X))
 	objOffY := camYPos + (float32(bpos.Y))
 
-	/* camera zoom */
 	x := float64(objOffX * world.ZoomScale)
 	y := float64(objOffY * world.ZoomScale)
 
-	/* Draw sprite */
 	if b.Obj.Unique.TypeP.Image == nil {
 		return
 	} else {
@@ -578,6 +576,8 @@ func drawSubObjDebug(screen *ebiten.Image, b *world.BuildingData, bpos world.XY)
 
 	}
 }
+*/
+
 func drawPixmapMode(screen *ebiten.Image) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
