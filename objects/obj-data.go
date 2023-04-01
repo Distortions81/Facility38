@@ -117,7 +117,7 @@ var (
 		{
 			ImagePath:       "world-obj/basic-miner-64.png",
 			ImageActivePath: "world-obj/basic-miner-active-64.png",
-			Name:            "Basic miner",
+			Name:            "Basic Miner",
 			Description:     "Mines solid resources where placed, requires coal fuel.",
 			TypeI:           gv.ObjTypeBasicMiner,
 			Category:        gv.ObjCatGeneric,
@@ -148,7 +148,7 @@ var (
 			ImagePath:        "world-obj/basic-belt.png",
 			ImageOverlayPath: "world-obj/basic-belt-overlay.png",
 			ImageCornerPath:  "world-obj/basic-belt-corner.png",
-			Name:             "Basic belt",
+			Name:             "Basic Belt",
 			Description:      "Moves items from rear and sides in direction of arrow.",
 			TypeI:            gv.ObjTypeBasicBelt,
 			Category:         gv.ObjCatBelt,
@@ -217,7 +217,7 @@ var (
 		{
 			ImagePath:    "world-obj/basic-box.png",
 			Description:  "Currently only stores objects (no unloader yet).",
-			Name:         "Basic box",
+			Name:         "Basic Box",
 			TypeI:        gv.ObjTypeBasicBox,
 			Category:     gv.ObjCatGeneric,
 			Size:         world.XYs{X: 2, Y: 2},
@@ -244,9 +244,36 @@ var (
 		{
 			ImagePath:       "world-obj/basic-smelter.png",
 			ImageActivePath: "world-obj/basic-smelter-active.png",
-			Name:            "Basic smelter",
+			Name:            "Basic Smelter",
 			Description:     "Bakes solid ores into metal or stone bricks, requires coal fuel.",
 			TypeI:           gv.ObjTypeBasicSmelter,
+			Category:        gv.ObjCatGeneric,
+			Size:            world.XYs{X: 2, Y: 2},
+			KW:              320,
+			KgHourMine:      40,
+			Interval:        uint8(world.ObjectUPS * 60),
+			ShowArrow:       true,
+			ToolBarArrow:    true,
+			Symbol:          "SMT",
+			UpdateObj:       smelterUpdate,
+			InitObj:         initSmelter,
+			LinkObj:         linkSmelter,
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+
+				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_FIN},
+			},
+			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
+		},
+
+		{
+			ImagePath:       "world-obj/basic-caster.png",
+			ImageActivePath: "world-obj/basic-caster-active.png",
+			Name:            "Basic Caster",
+			Description:     "Casts metal shot into bars.",
+			TypeI:           gv.ObjTypeBasicCaster,
 			Category:        gv.ObjCatGeneric,
 			Size:            world.XYs{X: 2, Y: 2},
 			KW:              320,
@@ -371,23 +398,23 @@ var (
 
 		/* Ore */
 		{Symbol: "FEo", Name: "Iron Ore", UnitName: "kg", ImagePath: "belt-obj/iron-ore.png",
-			IsSolid: true, Result: gv.MAT_IRON_SHOT, TypeI: gv.MAT_IRON_ORE, Density: 2},
+			IsSolid: true, IsOre: true, Result: gv.MAT_IRON_SHOT, TypeI: gv.MAT_IRON_ORE, Density: 2},
 
 		{Symbol: "Cuo", Name: "Copper Ore", UnitName: "kg", ImagePath: "belt-obj/copper-ore.png",
-			IsSolid: true, Result: gv.MAT_COPPER_SHOT, TypeI: gv.MAT_COPPER_ORE, Density: 2.65},
+			IsSolid: true, IsOre: true, Result: gv.MAT_COPPER_SHOT, TypeI: gv.MAT_COPPER_ORE, Density: 2.65},
 
 		{Symbol: "STOo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
-			IsSolid: true, Result: gv.MAT_STONE_BLOCK, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
+			IsSolid: true, IsOre: true, Result: gv.MAT_STONE_BLOCK, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
 
 		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/mix-ore.png", Density: 2.5,
-			IsSolid: true, Result: gv.MAT_SLAG_SHOT, TypeI: gv.MAT_MIXORE},
+			IsSolid: true, IsOre: true, Result: gv.MAT_SLAG_SHOT, TypeI: gv.MAT_MIXORE},
 
-		/* Metal */
+		/* Shot */
 		{Symbol: "FE", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
-			IsSolid: true, IsShot: true, TypeI: gv.MAT_IRON_SHOT},
+			IsSolid: true, IsShot: true, TypeI: gv.MAT_IRON_SHOT, Result: gv.MAT_IRON_BAR},
 
 		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
-			IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT},
+			IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT, Result: gv.MAT_COPPER_BAR},
 
 		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
 			IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
@@ -395,12 +422,14 @@ var (
 		{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 2.5,
 			IsSolid: true, TypeI: gv.MAT_SLAG_SHOT},
 
+		/* Object */
 		{Symbol: "OBJ", Name: "Object", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
 
-		{Symbol: "FE", Name: "Iron Bar", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
+		/* Bars */
+		{Symbol: "FE", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13,
 			IsSolid: true, TypeI: gv.MAT_IRON_BAR},
 
-		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
+		{Symbol: "Cu", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88,
 			IsSolid: true, TypeI: gv.MAT_COPPER_BAR},
 	}
 

@@ -68,11 +68,12 @@ const (
 	ObjTypeBasicSplit      = 3
 	ObjTypeBasicBox        = 4
 	ObjTypeBasicSmelter    = 5
-	ObjTypeBasicFuelHopper = 6
-	ObjTypeBasicUnloader   = 7
-	ObjTypeBasicLoader     = 8
+	ObjTypeBasicCaster     = 6
+	ObjTypeBasicFuelHopper = 7
+	ObjTypeBasicUnloader   = 8
+	ObjTypeBasicLoader     = 9
 
-	ObjTypeMax = 8
+	ObjTypeMax = 9
 
 	/* Object catagories */
 	ObjCatGeneric = 0

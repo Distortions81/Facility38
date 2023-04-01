@@ -284,6 +284,19 @@ func smelterUpdate(obj *world.ObjData) {
 			continue
 		}
 
+		/* Check types */
+		if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicSmelter {
+			if !input.Buf.TypeP.IsOre {
+				continue
+			}
+		} else if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicCaster {
+			if !input.Buf.TypeP.IsShot {
+				continue
+			}
+		} else {
+			continue
+		}
+
 		/* Contents will fit */
 		if obj.KGHeld+input.Buf.Amount > obj.Unique.TypeP.MaxContainKG {
 			continue
