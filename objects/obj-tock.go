@@ -293,6 +293,10 @@ func smelterUpdate(obj *world.ObjData) {
 			if !input.Buf.TypeP.IsShot {
 				continue
 			}
+		} else if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicRodCaster {
+			if !input.Buf.TypeP.IsBar {
+				continue
+			}
 		} else {
 			continue
 		}
