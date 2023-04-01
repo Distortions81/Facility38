@@ -311,7 +311,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Draw Input Materials */
 			for _, port := range obj.Ports {
 				if port.Buf.Amount > 0 {
-					op, img = drawMaterials(port.Buf, obj, screen, 1.0, 1.0, nil)
+					op, img = drawMaterials(port.Buf, obj, screen, 0.8, 1.0, nil)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -340,7 +340,7 @@ func drawIconMode(screen *ebiten.Image) {
 				if obj.BeltOver.UnderIn.Buf.Amount > 0 {
 					/* Input */
 					dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
-					op, img := drawMaterials(obj.BeltOver.UnderIn.Buf, obj, screen, 1.0, 1.0, &dir)
+					op, img := drawMaterials(obj.BeltOver.UnderIn.Buf, obj, screen, 0.8, 1.0, &dir)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -360,7 +360,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 				/* Output */
 				dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
-				op, img := drawMaterials(obj.BeltOver.UnderOut.Buf, obj, screen, 1.0, 1.0, &dir)
+				op, img := drawMaterials(obj.BeltOver.UnderOut.Buf, obj, screen, 0.8, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
 					ImageBatch[BatchTop] = img

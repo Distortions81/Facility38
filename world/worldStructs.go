@@ -229,6 +229,8 @@ type MaterialType struct {
 	IsGas   bool
 	IsFluid bool
 	IsFuel  bool
+	IsBar   bool
+	IsRod   bool
 	Result  uint8
 }
 

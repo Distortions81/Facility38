@@ -281,7 +281,34 @@ var (
 			Interval:        uint8(world.ObjectUPS * 60),
 			ShowArrow:       true,
 			ToolBarArrow:    true,
-			Symbol:          "SMT",
+			Symbol:          "CST",
+			UpdateObj:       smelterUpdate,
+			InitObj:         initSmelter,
+			LinkObj:         linkSmelter,
+			Ports: []world.ObjPortData{
+				{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+				{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+
+				{Dir: gv.DIR_EAST, Type: gv.PORT_FIN},
+				{Dir: gv.DIR_WEST, Type: gv.PORT_FIN},
+			},
+			SubObjs: []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
+		},
+
+		{
+			ImagePath:       "world-obj/basic-rod-caster.png",
+			ImageActivePath: "world-obj/basic-rod-caster-active.png",
+			Name:            "Basic Rod Caster",
+			Description:     "Casts metal bars into rods.",
+			TypeI:           gv.ObjTypeBasicRodCaster,
+			Category:        gv.ObjCatGeneric,
+			Size:            world.XYs{X: 2, Y: 2},
+			KW:              320,
+			KgHourMine:      40,
+			Interval:        uint8(world.ObjectUPS * 60),
+			ShowArrow:       true,
+			ToolBarArrow:    true,
+			Symbol:          "ROD",
 			UpdateObj:       smelterUpdate,
 			InitObj:         initSmelter,
 			LinkObj:         linkSmelter,
@@ -393,7 +420,7 @@ var (
 		{Symbol: "Oil", Name: "Oil", UnitName: "L", ImagePath: "belt-obj/oil-barrel.png",
 			IsFluid: true, IsFuel: true, TypeI: gv.MAT_OIL, Density: 0.9},
 
-		{Symbol: "Gas", Name: "Natural Gas", UnitName: "cm", ImagePath: "belt-obj/lng-barrel.png",
+		{Symbol: "LNG", Name: "Natural Gas", UnitName: "cm", ImagePath: "belt-obj/lng-barrel.png",
 			IsGas: true, IsFuel: true, TypeI: gv.MAT_GAS, Density: 0.00068},
 
 		/* Ore */
@@ -403,20 +430,20 @@ var (
 		{Symbol: "Cuo", Name: "Copper Ore", UnitName: "kg", ImagePath: "belt-obj/copper-ore.png",
 			IsSolid: true, IsOre: true, Result: gv.MAT_COPPER_SHOT, TypeI: gv.MAT_COPPER_ORE, Density: 2.65},
 
-		{Symbol: "STOo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
+		{Symbol: "STo", Name: "Stone Ore", UnitName: "kg", ImagePath: "belt-obj/stone-ore.png",
 			IsSolid: true, IsOre: true, Result: gv.MAT_STONE_BLOCK, TypeI: gv.MAT_STONE_ORE, Density: 3.0},
 
 		{Symbol: "MIX", Name: "Mixed Ores", UnitName: "kg", ImagePath: "belt-obj/mix-ore.png", Density: 2.5,
 			IsSolid: true, IsOre: true, Result: gv.MAT_SLAG_SHOT, TypeI: gv.MAT_MIXORE},
 
 		/* Shot */
-		{Symbol: "FE", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
+		{Symbol: "FES", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
 			IsSolid: true, IsShot: true, TypeI: gv.MAT_IRON_SHOT, Result: gv.MAT_IRON_BAR},
 
-		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
+		{Symbol: "CuS", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
 			IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT, Result: gv.MAT_COPPER_BAR},
 
-		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
+		{Symbol: "STB", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
 			IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
 
 		{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 2.5,
@@ -426,11 +453,18 @@ var (
 		{Symbol: "OBJ", Name: "Object", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
 
 		/* Bars */
-		{Symbol: "FE", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13,
-			IsSolid: true, TypeI: gv.MAT_IRON_BAR},
+		{Symbol: "FEB", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13,
+			IsSolid: true, IsBar: true, TypeI: gv.MAT_IRON_BAR, Result: gv.MAT_IRON_ROD},
 
-		{Symbol: "Cu", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88,
-			IsSolid: true, TypeI: gv.MAT_COPPER_BAR},
+		{Symbol: "CuB", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88,
+			IsSolid: true, IsBar: true, TypeI: gv.MAT_COPPER_BAR, Result: gv.MAT_COPPER_ROD},
+
+		/* Rods */
+		{Symbol: "FER", Name: "Iron Rod", ImagePath: "belt-obj/iron-rod.png", Density: 7.13,
+			IsSolid: true, IsRod: true, TypeI: gv.MAT_IRON_ROD},
+
+		{Symbol: "CuR", Name: "Copper Rod", ImagePath: "belt-obj/copper-rod.png", Density: 8.88,
+			IsSolid: true, IsRod: true, TypeI: gv.MAT_COPPER_ROD},
 	}
 
 	/* Toolbar item types, array of array of ObjType */

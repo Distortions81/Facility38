@@ -69,11 +69,12 @@ const (
 	ObjTypeBasicBox        = 4
 	ObjTypeBasicSmelter    = 5
 	ObjTypeBasicCaster     = 6
-	ObjTypeBasicFuelHopper = 7
-	ObjTypeBasicUnloader   = 8
-	ObjTypeBasicLoader     = 9
+	ObjTypeBasicRodCaster  = 7
+	ObjTypeBasicFuelHopper = 8
+	ObjTypeBasicUnloader   = 9
+	ObjTypeBasicLoader     = 10
 
-	ObjTypeMax = 9
+	ObjTypeMax = 11
 
 	/* Object catagories */
 	ObjCatGeneric = 0
@@ -101,7 +102,10 @@ const (
 	MAT_IRON_BAR   = 13
 	MAT_COPPER_BAR = 14
 
-	MAT_MAX = 15
+	MAT_IRON_ROD   = 15
+	MAT_COPPER_ROD = 16
+
+	MAT_MAX = 17
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0
