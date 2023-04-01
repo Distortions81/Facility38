@@ -224,6 +224,8 @@ type MaterialType struct {
 
 	TypeI   uint8
 	IsSolid bool
+	IsOre   bool
+	IsShot  bool
 	IsGas   bool
 	IsFluid bool
 	IsFuel  bool

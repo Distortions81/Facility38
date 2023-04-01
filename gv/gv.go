@@ -96,7 +96,10 @@ const (
 	MAT_MIXORE      = 11
 	MAT_OBJ         = 12
 
-	MAT_MAX = 13
+	MAT_IRON_BAR   = 13
+	MAT_COPPER_BAR = 14
+
+	MAT_MAX = 15
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0

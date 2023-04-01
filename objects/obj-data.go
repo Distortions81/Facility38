@@ -384,10 +384,10 @@ var (
 
 		/* Metal */
 		{Symbol: "FE", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
-			IsSolid: true, TypeI: gv.MAT_IRON_SHOT},
+			IsSolid: true, IsShot: true, TypeI: gv.MAT_IRON_SHOT},
 
 		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
-			IsSolid: true, TypeI: gv.MAT_COPPER_SHOT},
+			IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT},
 
 		{Symbol: "STO", Name: "Stone Block", UnitName: "kg", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
 			IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
@@ -396,6 +396,12 @@ var (
 			IsSolid: true, TypeI: gv.MAT_SLAG_SHOT},
 
 		{Symbol: "OBJ", Name: "Object", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
+
+		{Symbol: "FE", Name: "Iron Bar", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
+			IsSolid: true, TypeI: gv.MAT_IRON_BAR},
+
+		{Symbol: "Cu", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
+			IsSolid: true, TypeI: gv.MAT_COPPER_BAR},
 	}
 
 	/* Toolbar item types, array of array of ObjType */
