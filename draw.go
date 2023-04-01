@@ -632,7 +632,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 		mx, my := ebiten.CursorPosition()
 		buf = buf + fmt.Sprintf(" (%v,%v)", mx, my)
 	}
-	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XY{X: 0, Y: world.ScreenHeight}, 11, screen, true, false, false)
+	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XYf32{X: 0, Y: float32(world.ScreenHeight)}, 11, screen, true, false, false)
 }
 
 func drawWorldTooltip(screen *ebiten.Image) {
@@ -667,7 +667,7 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
 			}
 			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG,
-				world.XY{X: uint16(fmx) + 20, Y: uint16(fmy) + 40}, 11, screen,
+				world.XYf32{X: (fmx) + 20, Y: (fmy) + 40}, 11, screen,
 				true, false, false)
 
 			DrawToolbar(false, true, pos)
@@ -825,15 +825,15 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			if buf != "" {
 				lastResourceString = buf
 				DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
-					world.XY{X: uint16(fmx + 20), Y: uint16(fmy + 20)}, 11, screen, true, false, false)
+					world.XYf32{X: (fmx + 20), Y: (fmy + 20)}, 11, screen, true, false, false)
 			}
 		}
-		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XY{X: world.ScreenWidth, Y: world.ScreenHeight}, 11, screen, false, true, false)
+		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)}, 11, screen, false, true, false)
 
 	}
 }
 
-func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XY,
+func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) {
 	var mx, my float32
 
@@ -1014,6 +1014,6 @@ func drawChatLines(screen *ebiten.Image) {
 			faded = 254
 		}
 		tBgColor.A = byte(faded)
-		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)}, tBgColor, world.XY{X: 0, Y: (world.ScreenHeight - 25) - (lineNum * 26)}, 11, screen, true, false, false)
+		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)}, tBgColor, world.XYf32{X: 0, Y: float32((world.ScreenHeight - 25) - (lineNum * 26))}, 11, screen, true, false, false)
 	}
 }
