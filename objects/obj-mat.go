@@ -33,26 +33,30 @@ var MatTypes = []*world.MaterialType{
 		IsSolid: true, IsOre: true, Result: gv.MAT_SLAG_SHOT, TypeI: gv.MAT_MIXORE},
 
 	/* Shot */
-	{Symbol: "FES", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 7.13,
+	{Symbol: "FES", Name: "Iron Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 4.56,
 		IsSolid: true, IsShot: true, TypeI: gv.MAT_IRON_SHOT, Result: gv.MAT_IRON_BAR},
 
-	{Symbol: "CuS", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 8.88,
+	{Symbol: "CuS", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 5.7,
 		IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT, Result: gv.MAT_COPPER_BAR},
 
-	{Symbol: "STB", Name: "Stone Block", IsDiscrete: true, UnitName: "blocks", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
+	{Symbol: "STB", Name: "Stone Block", UnitName: "blocks", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
+		DIn: 4.5, DOut: 1, KG: 4.5,
 		IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
 
-	{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 2.5,
+	{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 1.6,
 		IsSolid: true, TypeI: gv.MAT_SLAG_SHOT},
 
 	/* Object */
-	{Symbol: "OBJ", Name: "Object", IsDiscrete: true, UnitName: "count", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
+	{Symbol: "OBJ", Name: "Object", UnitName: "count", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
 
 	/* Bars */
-	{Symbol: "FEB", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13, DiscreteIn: 1, DiscreteOut: 1,
-		IsSolid: true, IsBar: true, IsDiscrete: true, UnitName: "bars", TypeI: gv.MAT_IRON_BAR, Result: gv.MAT_IRON_ROD},
+	{Symbol: "FEB", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13,
+		DIn: 4.5, DOut: 1, KG: 10,
+		IsSolid: true, IsBar: true,
+		UnitName: "bars", TypeI: gv.MAT_IRON_BAR, Result: gv.MAT_IRON_ROD},
 
-	{Symbol: "CuB", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88, DiscreteIn: 1, DiscreteOut: 1,
+	{Symbol: "CuB", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88,
+		DIn: 1, DOut: 1,
 		IsSolid: true, IsBar: true, IsDiscrete: true, UnitName: "bars", TypeI: gv.MAT_COPPER_BAR, Result: gv.MAT_COPPER_ROD},
 
 	{Symbol: "MIX", Name: "Slag Bar", UnitName: "kg", ImagePath: "belt-obj/slag-bar.png", Density: 2.5,
