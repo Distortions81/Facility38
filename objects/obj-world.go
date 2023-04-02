@@ -176,7 +176,7 @@ var GameObjTypes = []*world.ObjType{
 		ShowArrow:       true,
 		ToolBarArrow:    true,
 		Symbol:          "CST",
-		UpdateObj:       smelterUpdate,
+		UpdateObj:       casterUpdate,
 		InitObj:         initSmelter,
 		LinkObj:         linkSmelter,
 		Ports: []world.ObjPortData{
@@ -203,7 +203,7 @@ var GameObjTypes = []*world.ObjType{
 		ShowArrow:       true,
 		ToolBarArrow:    true,
 		Symbol:          "ROD",
-		UpdateObj:       smelterUpdate,
+		UpdateObj:       casterUpdate,
 		InitObj:         initSmelter,
 		LinkObj:         linkSmelter,
 		Ports: []world.ObjPortData{

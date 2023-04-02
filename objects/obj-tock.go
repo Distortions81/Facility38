@@ -275,7 +275,7 @@ func smelterUpdate(obj *world.ObjData) {
 			continue
 		}
 
-		/* Input is shot */
+		/* Input is ore */
 		if !input.Buf.TypeP.IsOre {
 			continue
 		}
@@ -376,8 +376,8 @@ func casterUpdate(obj *world.ObjData) {
 			continue
 		}
 
-		/* Contents are solid */
-		if !input.Buf.TypeP.IsSolid || !input.Buf.TypeP.IsDiscrete {
+		/* Contents are shot */
+		if !input.Buf.TypeP.IsShot {
 			continue
 		}
 
@@ -386,11 +386,7 @@ func casterUpdate(obj *world.ObjData) {
 		}
 
 		/* Check types */
-		if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicSmelter {
-			if !input.Buf.TypeP.IsOre {
-				continue
-			}
-		} else if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicCaster {
+		if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicCaster {
 			if !input.Buf.TypeP.IsShot {
 				continue
 			}
