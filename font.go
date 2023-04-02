@@ -10,8 +10,15 @@ import (
 	"golang.org/x/image/font/opentype"
 )
 
-/* Font setup, eventually use ttf files */
-func init() {
+func UpdateFonts() {
+
+	newVal := 72.0 / (1280.0 / float64(world.ScreenWidth))
+	if newVal < 1 {
+		newVal = 1
+	} else if newVal > 300 {
+		newVal = 300
+	}
+	world.FontDPI = newVal
 
 	now := time.Now()
 	var mono, tt *opentype.Font
@@ -59,11 +66,10 @@ func init() {
 	 * Font DPI
 	 * Changes how large the font is for a given point value
 	 */
-	const dpi = 96
 	/* Boot screen font */
 	world.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    15,
-		DPI:     dpi,
+		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
@@ -73,7 +79,7 @@ func init() {
 	/* Missing texture font */
 	world.ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    5,
-		DPI:     dpi,
+		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
@@ -83,7 +89,7 @@ func init() {
 	/* Tooltip font */
 	world.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    11,
-		DPI:     dpi,
+		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
@@ -93,11 +99,10 @@ func init() {
 	/* Mono font */
 	world.MonoFont, err = opentype.NewFace(mono, &opentype.FaceOptions{
 		Size:    11,
-		DPI:     dpi,
+		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }

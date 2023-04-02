@@ -15,7 +15,8 @@ func init() {
 }
 
 var (
-	Vsync       bool = true
+	FontDPI     float64 = gv.FontDPI
+	Vsync       bool    = true
 	OptionsOpen bool
 
 	/* SuperChunk List */
@@ -62,8 +63,9 @@ var (
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
 
 	/* Starting resolution */
-	ScreenWidth  uint16 = 1280
-	ScreenHeight uint16 = 720
+	ScreenSizeLock sync.Mutex
+	ScreenWidth    uint16 = 1280
+	ScreenHeight   uint16 = 720
 
 	/* Small images used in game */
 	MiniMapTile *ebiten.Image

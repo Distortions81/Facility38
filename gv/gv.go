@@ -20,6 +20,7 @@ var (
 )
 
 const (
+	FontDPI          = 96
 	MaxItemType      = 255
 	GameUPS          = 8
 	NumResourceTypes = 7

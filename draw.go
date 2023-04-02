@@ -46,6 +46,8 @@ var (
 	BatchTop   int
 	ImageBatch [MaxBatch]*ebiten.Image
 	OpBatch    [MaxBatch]*ebiten.DrawImageOptions
+	UILayer    *ebiten.Image
+	UIScale    float32 = 0.5
 )
 
 /* Setup a few images for later use */
@@ -632,7 +634,8 @@ func drawDebugInfo(screen *ebiten.Image) {
 		mx, my := ebiten.CursorPosition()
 		buf = buf + fmt.Sprintf(" (%v,%v)", mx, my)
 	}
-	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XYf32{X: 0, Y: float32(world.ScreenHeight)}, 11, screen, true, false, false)
+	var pad float32 = 4
+	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XYf32{X: 0, Y: float32(world.ScreenHeight) - pad}, pad, screen, true, false, false)
 }
 
 func drawWorldTooltip(screen *ebiten.Image) {
@@ -836,28 +839,31 @@ func drawWorldTooltip(screen *ebiten.Image) {
 func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) {
 	var mx, my float32
+	halfPad := pad / 2
 
-	halfPad := (pad / 2)
 	tRect := text.BoundString(face, input)
+	fHeight := text.BoundString(face, "1")
+
 	if justCenter {
 		mx = float32(int(pos.X) - (tRect.Dx() / 2))
 		my = float32(int(pos.Y) - (tRect.Dy() / 2))
 	} else {
 		if justLeft {
-			mx = float32(pos.X) + halfPad
+			mx = float32(pos.X)
 		} else {
-			mx = float32(int(pos.X)-tRect.Dx()) - halfPad
+			mx = float32(int(pos.X) - tRect.Dx())
 		}
 
 		if justUp {
-			my = float32(int(pos.Y)-tRect.Dy()) + halfPad
+			my = float32(int(pos.Y) - tRect.Dy())
 		} else {
-			my = float32(pos.Y) - halfPad
+			my = float32(pos.Y)
 		}
 	}
 	_, _, _, alpha := bgcolor.RGBA()
+
 	if alpha > 0 {
-		vector.DrawFilledRect(screen, mx-halfPad, my-11-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor)
+		vector.DrawFilledRect(screen, mx-halfPad, my-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor)
 	}
 	text.Draw(screen, input, face, int(mx), int(my), color)
 }
@@ -985,7 +991,7 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 
 func drawChatLines(screen *ebiten.Image) {
 
-	var lineNum uint16
+	var lineNum int
 	util.ChatLinesLock.Lock()
 	defer util.ChatLinesLock.Unlock()
 
@@ -1014,6 +1020,10 @@ func drawChatLines(screen *ebiten.Image) {
 			faded = 254
 		}
 		tBgColor.A = byte(faded)
-		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)}, tBgColor, world.XYf32{X: 0, Y: float32((world.ScreenHeight - 25) - (lineNum * 26))}, 11, screen, true, false, false)
+
+		tRect := text.BoundString(world.ToolTipFont, line.Text)
+
+		var pad int = int(world.FontDPI / 10.0)
+		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)}, tBgColor, world.XYf32{X: 0, Y: float32(world.ScreenHeight) - float32(lineNum*(tRect.Dy()+pad))}, float32(pad), screen, true, false, false)
 	}
 }

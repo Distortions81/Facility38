@@ -24,6 +24,9 @@ const (
 	TYPE_BOOL = 0
 	TYPE_INT  = 1
 	TYPE_TEXT = 2
+
+	defaultWindowWidth  = 300
+	defaultWindowHeight = 300
 )
 
 var (
@@ -31,8 +34,8 @@ var (
 	halfSWidth  = int(world.ScreenWidth / 2)
 	halfSHeight = int(world.ScreenHeight / 2)
 	textHeight  = 16
-	windowSizeW = 300
-	windowSizeH = 400
+	windowSizeW = defaultWindowWidth
+	windowSizeH = defaultWindowHeight
 	halfWindowW = windowSizeW / 2
 	halfWindowH = windowSizeH / 2
 
@@ -172,6 +175,19 @@ func toggleVsync(item int) {
 }
 
 func setupSettingItems() {
+
+	halfSWidth = int(world.ScreenWidth / 2)
+	halfSHeight = int(world.ScreenHeight / 2)
+
+	var newVal float32 = 1280.0 / float32(world.ScreenWidth)
+	if newVal < 0.1 {
+		newVal = 0.1
+	} else if newVal > 4 {
+		newVal = 4
+	}
+
+	windowSizeW = int(defaultWindowWidth / newVal)
+	windowSizeH = int(defaultWindowHeight / newVal)
 
 	/* Generate base values */
 	halfWindowW = windowSizeW / 2

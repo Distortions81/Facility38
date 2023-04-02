@@ -7,6 +7,7 @@ import (
 )
 
 func settingsToggle() {
+
 	if world.OptionsOpen {
 		world.OptionsOpen = false
 	} else {

@@ -86,6 +86,7 @@ func main() {
 
 /* Ebiten game init */
 func NewGame() *Game {
+	UpdateFonts()
 	go func() {
 		objects.GameRunning = false
 		time.Sleep(time.Millisecond * 500)
@@ -93,6 +94,7 @@ func NewGame() *Game {
 		objects.PerlinNoiseInit()
 		MakeMap(gv.LoadTest)
 		startGame()
+		setupSettingItems()
 	}()
 
 	/* Initialize the game */
@@ -106,6 +108,7 @@ func startGame() {
 		!world.PlayerReady.Load() {
 		time.Sleep(time.Millisecond)
 	}
+	setupSettingItems()
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
 	objects.GameRunning = true
@@ -215,7 +218,6 @@ func loadSprites() {
 
 	objects.SetupTerrainCache()
 	DrawToolbar(false, false, 0)
-	setupSettingItems()
 	world.SpritesLoaded.Store(true)
 }
 
@@ -290,6 +292,9 @@ func detectCPUs() {
 
 /* Sets up a reasonable sized window depending on diplay resolution */
 func setupWindowSize() {
+	world.ScreenSizeLock.Lock()
+	defer world.ScreenSizeLock.Unlock()
+
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
 	/* Skip in benchmark mode */
@@ -312,15 +317,16 @@ func setupWindowSize() {
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
+	world.ScreenSizeLock.Lock()
+	defer world.ScreenSizeLock.Unlock()
+
 	if outsideWidth != int(world.ScreenWidth) || outsideHeight != int(world.ScreenHeight) {
 		world.ScreenWidth = uint16(outsideWidth)
 		world.ScreenHeight = uint16(outsideHeight)
-		world.VisDataDirty.Store(true)
-	}
-
-	//Recalcualte settings window items
-	if world.SpritesLoaded.Load() {
+		//Recalcualte settings window item
+		UpdateFonts()
 		setupSettingItems()
+		world.VisDataDirty.Store(true)
 	}
 
 	windowTitle()
