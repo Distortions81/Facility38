@@ -11,7 +11,7 @@ import (
 
 var (
 	minWorkSize = 1000
-	margin      = 1.8
+	margin      = 1.2
 
 	largeThreshold  = minWorkSize
 	minSleep        = 200 * time.Microsecond //Sleeping for less than this does not appear effective.
