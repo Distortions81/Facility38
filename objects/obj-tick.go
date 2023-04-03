@@ -26,10 +26,9 @@ func ObjUpdateDaemon() {
 	}
 
 	var tockState bool = true
-	GameLock.Lock()
-	defer GameLock.Unlock()
 
 	for GameRunning {
+		GameLock.Lock()
 		start := time.Now()
 
 		if tockState {
@@ -51,6 +50,8 @@ func ObjUpdateDaemon() {
 		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
 
+		GameLock.Unlock()
+
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
@@ -71,10 +72,9 @@ func ObjUpdateDaemonST() {
 
 	var tockState bool = true
 
-	GameLock.Lock()
-	defer GameLock.Unlock()
-
 	for GameRunning {
+		GameLock.Lock()
+
 		start = time.Now()
 
 		if tockState {
@@ -96,6 +96,8 @@ func ObjUpdateDaemonST() {
 		RunEventQueue() //Queue to add/remove events
 		world.EventQueueLock.Unlock()
 
+		GameLock.Unlock()
+
 		if !gv.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
@@ -103,6 +105,7 @@ func ObjUpdateDaemonST() {
 			}
 		}
 		time.Sleep(time.Millisecond)
+
 		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
 	}
 }

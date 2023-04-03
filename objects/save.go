@@ -282,6 +282,10 @@ func LoadGame() {
 
 func NukeWorld() {
 
+	if world.TockCount == 0 && world.TickCount == 0 {
+		return
+	}
+
 	world.TickListLock.Lock()
 	world.TickList = []world.TickEvent{}
 	world.TickCount = 0
@@ -329,8 +333,6 @@ func NukeWorld() {
 			world.SuperChunkList[sc].PixelMap = nil
 		}
 		world.SuperChunkList[sc].ResourceMap = nil
-
-		runtime.GC()
 	}
 	world.SuperChunkList = []*world.MapSuperChunk{}
 	world.SuperChunkMap = make(map[world.XY]*world.MapSuperChunk)
@@ -340,6 +342,4 @@ func NukeWorld() {
 	world.ZoomScale = gv.DefaultZoom
 
 	world.SuperChunkListLock.Unlock()
-
-	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, false)
 }

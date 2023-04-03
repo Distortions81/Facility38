@@ -19,9 +19,9 @@ func MakeMap(gen bool) {
 		total := 0
 		rows := 0
 		columns := 0
-		hSpace := 4
-		vSpace := 2
-		bLen := 2
+		hSpace := 10
+		vSpace := 4
+		bLen := 3
 		beltLength := hSpace + bLen
 		for i := 0; total < gv.NumTestObjects; i++ {
 			if i%2 == 0 {
@@ -30,7 +30,7 @@ func MakeMap(gen bool) {
 				columns++
 			}
 
-			total = (rows * columns) * (bLen + 2)
+			total = (rows * columns) * (bLen + 4)
 		}
 		Loaded := 0
 
@@ -44,15 +44,26 @@ func MakeMap(gen bool) {
 				tx := int(gv.XYCenter) - (columns*(beltLength+hSpace))/2
 				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_EAST, true)
 				tx++
+				tx++
+				Loaded++
+
+				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicUnloader, nil, gv.DIR_EAST, true)
+				tx++
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
-					tx++
 					objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_EAST, true)
+					tx++
 					Loaded++
 				}
+
+				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicLoader, nil, gv.DIR_EAST, true)
 				tx++
+				Loaded++
+
 				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_EAST, true)
+				tx++
+				tx++
 				Loaded++
 
 				if cols%columns == 0 {
@@ -65,66 +76,6 @@ func MakeMap(gen bool) {
 					util.WASMSleep()
 				}
 				objects.RunEventQueue()
-			}
-		} else {
-			/* Default map generator */
-			tx := int(gv.XYCenter - 5)
-			ty := int(gv.XYCenter)
-			total = 16
-
-			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_EAST, true)
-			Loaded++
-			for i := 0; i < beltLength-hSpace; i++ {
-				tx++
-				objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_EAST, true)
-				Loaded++
-			}
-			tx++
-			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_EAST, true)
-			Loaded++
-
-			tx = int(gv.XYCenter - 5)
-			ty = int(gv.XYCenter - 2)
-			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_WEST, true)
-			Loaded++
-			for i := 0; i < beltLength-hSpace; i++ {
-				tx--
-				objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_WEST, true)
-				Loaded++
-			}
-			tx--
-			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_WEST, true)
-			Loaded++
-
-			tx = int(gv.XYCenter - 5)
-			ty = int(gv.XYCenter + 2)
-			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_SOUTH, true)
-			Loaded++
-			for i := 0; i < beltLength-hSpace; i++ {
-				ty++
-				objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_SOUTH, true)
-				Loaded++
-			}
-			ty++
-			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_SOUTH, true)
-			Loaded++
-
-			tx = int(gv.XYCenter - 5)
-			ty = int(gv.XYCenter - 4)
-			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_NORTH, true)
-			Loaded++
-			for i := 0; i < beltLength-hSpace; i++ {
-				ty--
-				objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_NORTH, true)
-				Loaded++
-			}
-			ty--
-			objects.PlaceObj(world.XY{X: uint16(tx), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_NORTH, true)
-			Loaded++
-
-			world.MapLoadPercent = (float32(Loaded) / float32(total) * 100.0)
-			if Loaded%10000 == 0 {
-				util.WASMSleep()
 			}
 		}
 	}
