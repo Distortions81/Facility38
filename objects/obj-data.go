@@ -19,7 +19,7 @@ var UIObjsTypes = []*world.ObjType{
 	//Ui Only
 	{
 		ImagePath: "ui/settings.png", Name: "Options", ToolbarAction: settingsToggle,
-		Symbol: "SET", QKey: ebiten.KeyF1,
+		Symbol: "SET", Description: "Show game options", QKey: ebiten.KeyF1,
 	},
 	{
 		ImagePath: "ui/overlay.png", Name: "Overlay", ToolbarAction: toggleOverlay,
@@ -27,7 +27,7 @@ var UIObjsTypes = []*world.ObjType{
 	},
 	{
 		ImagePath: "ui/layer.png", Name: "Layer", ToolbarAction: SwitchLayer,
-		Symbol: "LAYER", Description: "Toggle between the build and resource layer.", QKey: ebiten.KeyF3,
+		Symbol: "LAYER", Description: "Toggle between the build and resource layer", QKey: ebiten.KeyF3,
 	},
 	{
 		Name: "Save Game", ImagePath: "ui/save.png", ToolbarAction: SaveGame,

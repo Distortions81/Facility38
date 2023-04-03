@@ -59,7 +59,7 @@ var MatTypes = []*world.MaterialType{
 		DIn: 1, DOut: 1,
 		IsSolid: true, IsBar: true, IsDiscrete: true, UnitName: "bars", TypeI: gv.MAT_COPPER_BAR, Result: gv.MAT_COPPER_ROD},
 
-	{Symbol: "MIX", Name: "Slag Bar", UnitName: "kg", ImagePath: "belt-obj/slag-bar.png", Density: 2.5,
+	{Symbol: "MIX", Name: "Slag Bar", UnitName: "kg", ImagePath: "belt-obj/iron-bar.png", Density: 2.5,
 		IsSolid: true, IsBar: true, TypeI: gv.MAT_SLAG_BAR},
 
 	/* Rods */

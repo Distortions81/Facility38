@@ -176,6 +176,10 @@ func toggleVsync(item int) {
 
 func setupOptionsMenu() {
 
+	if world.BootFont == nil || !world.SpritesLoaded.Load() {
+		return
+	}
+
 	halfSWidth = int(world.ScreenWidth / 2)
 	halfSHeight = int(world.ScreenHeight / 2)
 
@@ -193,8 +197,7 @@ func setupOptionsMenu() {
 	halfWindowW = windowSizeW / 2
 	halfWindowH = windowSizeH / 2
 
-	font := world.BootFont
-	base := text.BoundString(font, "abcdefghijklmnopqrstuvwxyz!.0123456789")
+	base := text.BoundString(world.BootFont, "abcdefghijklmnopqrstuvwxyz!.0123456789")
 	textHeight = base.Dy() + linePad
 	buttons = []image.Rectangle{}
 
@@ -208,7 +211,7 @@ func setupOptionsMenu() {
 	/* Loop all settings */
 	for i, item := range settingItems {
 		/* Get text bounds */
-		tbound := text.BoundString(font, item.Text)
+		tbound := text.BoundString(world.BootFont, item.Text)
 		settingItems[i].TextBounds = tbound
 
 		/* Place line */
