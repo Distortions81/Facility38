@@ -24,7 +24,7 @@ func init() {
 	}
 }
 
-func PerlinNoiseInit() {
+func ResourceMapInit() {
 	for p := range NoiseLayers {
 		if NoiseLayers[p].RandomSeed == 0 {
 			NoiseLayers[p].RandomSeed = time.Now().UnixNano() + int64(rand.Intn(1000))

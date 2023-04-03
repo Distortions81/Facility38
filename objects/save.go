@@ -224,7 +224,7 @@ func LoadGame() {
 			}
 		}
 
-		PerlinNoiseInit()
+		ResourceMapInit()
 
 		/* Needs unsafeCreateObj that can accept a starting data set */
 		count := 0

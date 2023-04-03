@@ -174,7 +174,7 @@ func toggleVsync(item int) {
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
-func setupSettingItems() {
+func setupOptionsMenu() {
 
 	halfSWidth = int(world.ScreenWidth / 2)
 	halfSHeight = int(world.ScreenHeight / 2)

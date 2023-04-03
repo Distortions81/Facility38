@@ -36,34 +36,34 @@ type Game struct {
 
 /* Main function */
 func main() {
-	//debug.SetMemoryLimit(28 * 1024 * 1024 * 1024)
 
-	if NoDebug == "true" {
+	/* Compile flags */
+	if NoDebug == "true" { /* Published build */
 		gv.Debug = false
 		gv.LogStdOut = false
 		gv.UPSBench = false
 		gv.LoadTest = false
 	}
+	/* Web assm builds */
 	if WASMMode == "true" {
 		gv.WASMMode = true
-		objects.BlocksPerWorker = 4
 	} else {
+		/* Functions that will not work in webasm */
 		cwlog.StartLog()
 		cwlog.LogDaemon()
 	}
-	if UPSBench == "true" {
-		gv.UPSBench = true
-	}
-	if LoadTest == "true" {
-		gv.LoadTest = true
-	}
+
+	/* Set up toolbar data */
 	InitToolbar()
 
+	/* Intro text setup, this is temporary */
 	str, err := data.GetText("intro")
 	if err != nil {
 		panic(err)
 	}
 	bootText = str
+
+	/* Detect logical*/
 	detectCPUs()
 
 	/* Set up ebiten and window */
@@ -90,11 +90,12 @@ func NewGame() *Game {
 	go func() {
 		objects.GameRunning = false
 		time.Sleep(time.Millisecond * 500)
+
 		loadSprites()
-		objects.PerlinNoiseInit()
+		objects.ResourceMapInit()
 		MakeMap(gv.LoadTest)
 		startGame()
-		setupSettingItems()
+		setupOptionsMenu()
 	}()
 
 	/* Initialize the game */
@@ -108,7 +109,7 @@ func startGame() {
 		!world.PlayerReady.Load() {
 		time.Sleep(time.Millisecond)
 	}
-	setupSettingItems()
+	setupOptionsMenu()
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
 	objects.GameRunning = true
@@ -325,7 +326,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		world.ScreenHeight = uint16(outsideHeight)
 		//Recalcualte settings window item
 		UpdateFonts()
-		setupSettingItems()
+		setupOptionsMenu()
 		world.VisDataDirty.Store(true)
 	}
 
