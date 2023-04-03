@@ -1,0 +1,1189 @@
+[
+	{
+		"Name": "Basic Miner",
+		"Description": "Mines solid resources where placed, requires coal fuel.",
+		"TypeI": 0,
+		"Category": 0,
+		"Symbol": "MIN",
+		"ExcludeWASM": false,
+		"ToolBarArrow": true,
+		"QKey": "A",
+		"Size": {
+			"X": 2,
+			"Y": 2
+		},
+		"NonSquare": false,
+		"MultiTile": true,
+		"Rotatable": false,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-miner-64.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "world-obj/basic-miner-active-64.png",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 1000,
+			"KgHopperMove": 0,
+			"HP": 0,
+			"KW": 360,
+			"KgPerCycle": 6.666666,
+			"KgFuelPerCycle": 0.3,
+			"MaxContainKG": 66.66666,
+			"MaxFuelKG": 50
+		},
+		"TockInterval": 16,
+		"CanContain": false,
+		"ShowArrow": true,
+		"HasInputs": false,
+		"HasOutputs": true,
+		"HasFIn": true,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 0,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": [
+			{
+				"X": 0,
+				"Y": 0
+			},
+			{
+				"X": 1,
+				"Y": 0
+			},
+			{
+				"X": 0,
+				"Y": 1
+			},
+			{
+				"X": 1,
+				"Y": 1
+			}
+		]
+	},
+	{
+		"Name": "Basic Belt",
+		"Description": "Moves items from rear and sides in direction of arrow.",
+		"TypeI": 1,
+		"Category": 1,
+		"Symbol": "BLT",
+		"ExcludeWASM": false,
+		"ToolBarArrow": false,
+		"QKey": "A",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"NonSquare": false,
+		"MultiTile": false,
+		"Rotatable": true,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-belt.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "world-obj/basic-belt-overlay.png",
+			"ImageMaskPath": "",
+			"ImageActivePath": "",
+			"ImageCornerPath": "world-obj/basic-belt-corner.png"
+		},
+		"MachineSettings": {
+			"KgHourMine": 0,
+			"KgHopperMove": 0,
+			"HP": 0,
+			"KW": 0,
+			"KgPerCycle": 0,
+			"KgFuelPerCycle": 0,
+			"MaxContainKG": 0,
+			"MaxFuelKG": 0
+		},
+		"TockInterval": 0,
+		"CanContain": false,
+		"ShowArrow": false,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": false,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": null
+	},
+	{
+		"Name": "Basic Belt Overpass",
+		"Description": "A belt that has an underpass.",
+		"TypeI": 2,
+		"Category": 1,
+		"Symbol": "BOP",
+		"ExcludeWASM": false,
+		"ToolBarArrow": false,
+		"QKey": "A",
+		"Size": {
+			"X": 1,
+			"Y": 3
+		},
+		"NonSquare": true,
+		"MultiTile": true,
+		"Rotatable": true,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/belt-over.png",
+			"ToolbarPath": "world-obj/belt-over-ui.png",
+			"ImageOverlayPath": "world-obj/belt-over-overlay.png",
+			"ImageMaskPath": "world-obj/belt-over-mask.png",
+			"ImageActivePath": "",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 0,
+			"KgHopperMove": 0,
+			"HP": 0,
+			"KW": 0,
+			"KgPerCycle": 0,
+			"KgFuelPerCycle": 0,
+			"MaxContainKG": 0,
+			"MaxFuelKG": 0
+		},
+		"TockInterval": 0,
+		"CanContain": false,
+		"ShowArrow": false,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": false,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": [
+			{
+				"X": 0,
+				"Y": 0
+			},
+			{
+				"X": 0,
+				"Y": 1
+			},
+			{
+				"X": 0,
+				"Y": 2
+			}
+		]
+	},
+	{
+		"Name": "Basic Splitter",
+		"Description": "Input from back, outputs equally to up to 3 outputs.",
+		"TypeI": 3,
+		"Category": 1,
+		"Symbol": "SPT",
+		"ExcludeWASM": false,
+		"ToolBarArrow": true,
+		"QKey": "A",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"NonSquare": false,
+		"MultiTile": false,
+		"Rotatable": false,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-splitter.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 0,
+			"KgHopperMove": 0,
+			"HP": 0,
+			"KW": 100,
+			"KgPerCycle": 0,
+			"KgFuelPerCycle": 0,
+			"MaxContainKG": 0,
+			"MaxFuelKG": 0
+		},
+		"TockInterval": 0,
+		"CanContain": false,
+		"ShowArrow": true,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": false,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": null
+	},
+	{
+		"Name": "Basic Box",
+		"Description": "Currently only stores objects (no unloader yet).",
+		"TypeI": 4,
+		"Category": 0,
+		"Symbol": "BOX",
+		"ExcludeWASM": false,
+		"ToolBarArrow": false,
+		"QKey": "A",
+		"Size": {
+			"X": 2,
+			"Y": 2
+		},
+		"NonSquare": false,
+		"MultiTile": true,
+		"Rotatable": false,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-box.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 0,
+			"KgHopperMove": 0,
+			"HP": 0,
+			"KW": 0,
+			"KgPerCycle": 0,
+			"KgFuelPerCycle": 0,
+			"MaxContainKG": 1000,
+			"MaxFuelKG": 0
+		},
+		"TockInterval": 0,
+		"CanContain": true,
+		"ShowArrow": false,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": false,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": [
+			{
+				"X": 0,
+				"Y": 0
+			},
+			{
+				"X": 1,
+				"Y": 0
+			},
+			{
+				"X": 0,
+				"Y": 1
+			},
+			{
+				"X": 1,
+				"Y": 1
+			}
+		]
+	},
+	{
+		"Name": "Basic Smelter",
+		"Description": "Bakes solid ores into metal or stone bricks, requires coal fuel.",
+		"TypeI": 5,
+		"Category": 0,
+		"Symbol": "SMT",
+		"ExcludeWASM": false,
+		"ToolBarArrow": true,
+		"QKey": "A",
+		"Size": {
+			"X": 2,
+			"Y": 2
+		},
+		"NonSquare": false,
+		"MultiTile": true,
+		"Rotatable": false,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-smelter.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "world-obj/basic-smelter-active.png",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 40,
+			"KgHopperMove": 0,
+			"HP": 0,
+			"KW": 320,
+			"KgPerCycle": 3.7333336,
+			"KgFuelPerCycle": 3.7333336,
+			"MaxContainKG": 50,
+			"MaxFuelKG": 50
+		},
+		"TockInterval": 224,
+		"CanContain": false,
+		"ShowArrow": true,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": true,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": [
+			{
+				"X": 0,
+				"Y": 0
+			},
+			{
+				"X": 1,
+				"Y": 0
+			},
+			{
+				"X": 0,
+				"Y": 1
+			},
+			{
+				"X": 1,
+				"Y": 1
+			}
+		]
+	},
+	{
+		"Name": "Basic Caster",
+		"Description": "Casts metal shot into bars.",
+		"TypeI": 6,
+		"Category": 0,
+		"Symbol": "CST",
+		"ExcludeWASM": false,
+		"ToolBarArrow": true,
+		"QKey": "A",
+		"Size": {
+			"X": 2,
+			"Y": 2
+		},
+		"NonSquare": false,
+		"MultiTile": true,
+		"Rotatable": false,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-caster.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "world-obj/basic-caster-active.png",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 40,
+			"KgHopperMove": 0,
+			"HP": 0,
+			"KW": 320,
+			"KgPerCycle": 3.7333336,
+			"KgFuelPerCycle": 3.7333336,
+			"MaxContainKG": 50,
+			"MaxFuelKG": 50
+		},
+		"TockInterval": 224,
+		"CanContain": false,
+		"ShowArrow": true,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": true,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": [
+			{
+				"X": 0,
+				"Y": 0
+			},
+			{
+				"X": 1,
+				"Y": 0
+			},
+			{
+				"X": 0,
+				"Y": 1
+			},
+			{
+				"X": 1,
+				"Y": 1
+			}
+		]
+	},
+	{
+		"Name": "Basic Rod Caster",
+		"Description": "Casts metal bars into rods.",
+		"TypeI": 7,
+		"Category": 0,
+		"Symbol": "ROD",
+		"ExcludeWASM": false,
+		"ToolBarArrow": true,
+		"QKey": "A",
+		"Size": {
+			"X": 2,
+			"Y": 2
+		},
+		"NonSquare": false,
+		"MultiTile": true,
+		"Rotatable": false,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-rod-caster.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "world-obj/basic-rod-caster-active.png",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 40,
+			"KgHopperMove": 0,
+			"HP": 0,
+			"KW": 320,
+			"KgPerCycle": 3.7333336,
+			"KgFuelPerCycle": 3.7333336,
+			"MaxContainKG": 50,
+			"MaxFuelKG": 50
+		},
+		"TockInterval": 224,
+		"CanContain": false,
+		"ShowArrow": true,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": true,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 3,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": [
+			{
+				"X": 0,
+				"Y": 0
+			},
+			{
+				"X": 1,
+				"Y": 0
+			},
+			{
+				"X": 0,
+				"Y": 1
+			},
+			{
+				"X": 1,
+				"Y": 1
+			}
+		]
+	},
+	{
+		"Name": "Basic Fuel Hopper",
+		"Description": "Loads soild fuel into machines",
+		"TypeI": 8,
+		"Category": 2,
+		"Symbol": "FHP",
+		"ExcludeWASM": false,
+		"ToolBarArrow": false,
+		"QKey": "A",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"NonSquare": false,
+		"MultiTile": false,
+		"Rotatable": true,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-fuel-hopper.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "world-obj/basic-fuel-hopper-active.png",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 0,
+			"KgHopperMove": 1,
+			"HP": 0,
+			"KW": 10,
+			"KgPerCycle": 0,
+			"KgFuelPerCycle": 0.008333334,
+			"MaxContainKG": 0,
+			"MaxFuelKG": 50
+		},
+		"TockInterval": 16,
+		"CanContain": false,
+		"ShowArrow": false,
+		"HasInputs": true,
+		"HasOutputs": false,
+		"HasFIn": false,
+		"HasFOut": true,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 1,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 3,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 4,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": null
+	},
+	{
+		"Name": "Basic Unloader",
+		"Description": "Unloads Material from objects.",
+		"TypeI": 9,
+		"Category": 2,
+		"Symbol": "ULD",
+		"ExcludeWASM": false,
+		"ToolBarArrow": false,
+		"QKey": "A",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"NonSquare": false,
+		"MultiTile": false,
+		"Rotatable": true,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-unloader.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 0,
+			"KgHopperMove": 1,
+			"HP": 0,
+			"KW": 10,
+			"KgPerCycle": 0,
+			"KgFuelPerCycle": 0.008333334,
+			"MaxContainKG": 0,
+			"MaxFuelKG": 50
+		},
+		"TockInterval": 16,
+		"CanContain": false,
+		"ShowArrow": false,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": false,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": null
+	},
+	{
+		"Name": "Basic Loader",
+		"Description": "Loads Material into objects.",
+		"TypeI": 10,
+		"Category": 2,
+		"Symbol": "LD",
+		"ExcludeWASM": false,
+		"ToolBarArrow": false,
+		"QKey": "A",
+		"Size": {
+			"X": 1,
+			"Y": 1
+		},
+		"NonSquare": false,
+		"MultiTile": false,
+		"Rotatable": true,
+		"Direction": 0,
+		"Images": {
+			"Image": null,
+			"ToolbarImage": null,
+			"ImageMask": null,
+			"ImageActive": null,
+			"ImageCorner": null,
+			"ImageOverlay": null,
+			"ImagePath": "world-obj/basic-loader.png",
+			"ToolbarPath": "",
+			"ImageOverlayPath": "",
+			"ImageMaskPath": "",
+			"ImageActivePath": "",
+			"ImageCornerPath": ""
+		},
+		"MachineSettings": {
+			"KgHourMine": 0,
+			"KgHopperMove": 1,
+			"HP": 0,
+			"KW": 10,
+			"KgPerCycle": 0,
+			"KgFuelPerCycle": 0.008333334,
+			"MaxContainKG": 0,
+			"MaxFuelKG": 50
+		},
+		"TockInterval": 16,
+		"CanContain": false,
+		"ShowArrow": false,
+		"HasInputs": true,
+		"HasOutputs": true,
+		"HasFIn": false,
+		"HasFOut": false,
+		"Ports": [
+			{
+				"Dir": 0,
+				"Type": 2,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			},
+			{
+				"Dir": 2,
+				"Type": 1,
+				"Obj": null,
+				"Buf": null,
+				"Link": null,
+				"SubPos": {
+					"X": 0,
+					"Y": 0
+				}
+			}
+		],
+		"SubObjs": null
+	}
+]

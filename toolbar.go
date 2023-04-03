@@ -59,12 +59,12 @@ func DrawToolbar(click, hover bool, index int) {
 		item := ToolbarItems[pos]
 		x := float64((gv.ToolBarScale + gv.ToolBarSpacing) * int(pos))
 
-		img := item.OType.Image
-		if item.OType.ImageOverlay != nil {
-			img = item.OType.ImageOverlay
+		img := item.OType.Images.Image
+		if item.OType.Images.ImageOverlay != nil {
+			img = item.OType.Images.ImageOverlay
 		}
-		if item.OType.ToolbarImage != nil {
-			img = item.OType.ToolbarImage
+		if item.OType.Images.ToolbarImage != nil {
+			img = item.OType.Images.ToolbarImage
 		}
 		if img == nil {
 			return
@@ -159,7 +159,7 @@ func DrawToolbar(click, hover bool, index int) {
 		if item.OType.ToolBarArrow {
 			var aop *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-			arrow := objects.ObjOverlayTypes[item.OType.Direction].Image
+			arrow := objects.ObjOverlayTypes[item.OType.Direction].Images.Image
 			if arrow != nil {
 				if arrow.Bounds().Max.X != gv.ToolBarScale {
 					aop.GeoM.Scale(1.0/(float64(arrow.Bounds().Max.X)/gv.ToolBarScale), 1.0/(float64(arrow.Bounds().Max.Y)/gv.ToolBarScale))

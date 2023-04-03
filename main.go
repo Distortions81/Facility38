@@ -138,66 +138,66 @@ func loadSprites() {
 		for key, item := range otype {
 
 			/* If there is a image name, attempt to fetch it */
-			if item.ImagePath != "" {
-				img, err := data.GetSpriteImage(item.ImagePath)
+			if item.Images.ImagePath != "" {
+				img, err := data.GetSpriteImage(item.Images.ImagePath)
 				if err != nil {
 					/* If not found, fill texture with text */
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
 					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 				}
-				otype[key].Image = img
+				otype[key].Images.Image = img
 			}
 
 			/* Overlay versions */
-			if item.ImageOverlayPath != "" {
-				img, err := data.GetSpriteImage(item.ImageOverlayPath)
+			if item.Images.ImageOverlayPath != "" {
+				img, err := data.GetSpriteImage(item.Images.ImageOverlayPath)
 				if err != nil {
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
 					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 				}
-				otype[key].ImageOverlay = img
+				otype[key].Images.ImageOverlay = img
 			}
 
 			/* Corner pieces */
-			if item.ImageCornerPath != "" {
-				img, err := data.GetSpriteImage(item.ImageCornerPath)
+			if item.Images.ImageCornerPath != "" {
+				img, err := data.GetSpriteImage(item.Images.ImageCornerPath)
 				if err != nil {
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
 					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 				}
-				otype[key].ImageCorner = img
+				otype[key].Images.ImageCorner = img
 			}
 
 			/* For active flag on objects */
-			if item.ImageActivePath != "" {
-				img, err := data.GetSpriteImage(item.ImageActivePath)
+			if item.Images.ImageActivePath != "" {
+				img, err := data.GetSpriteImage(item.Images.ImageActivePath)
 				if err != nil {
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
 					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 				}
-				otype[key].ImageActive = img
+				otype[key].Images.ImageActive = img
 			}
 
 			/* For mask on objects */
-			if item.ImageMaskPath != "" {
-				img, err := data.GetSpriteImage(item.ImageMaskPath)
+			if item.Images.ImageMaskPath != "" {
+				img, err := data.GetSpriteImage(item.Images.ImageMaskPath)
 				if err != nil {
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
 					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 				}
-				otype[key].ImageMask = img
+				otype[key].Images.ImageMask = img
 			}
 
 			/* Alternate sprite for toolbar */
-			if item.ToolbarPath != "" {
-				img, err := data.GetSpriteImage(item.ToolbarPath)
+			if item.Images.ToolbarPath != "" {
+				img, err := data.GetSpriteImage(item.Images.ToolbarPath)
 				if err == nil {
-					otype[key].ToolbarImage = img
+					otype[key].Images.ToolbarImage = img
 				}
 			}
 

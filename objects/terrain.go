@@ -53,7 +53,7 @@ func SetupTerrainCache() {
 func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 	chunkPix := (gv.SpriteScale * gv.ChunkSize)
 
-	var bg *ebiten.Image = TerrainTypes[0].Image
+	var bg *ebiten.Image = TerrainTypes[0].Images.Image
 	sx := int(float32(bg.Bounds().Size().X))
 	sy := int(float32(bg.Bounds().Size().Y))
 	var tImg *ebiten.Image

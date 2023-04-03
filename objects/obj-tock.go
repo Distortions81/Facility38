@@ -9,7 +9,7 @@ import (
 func minerUpdate(obj *world.ObjData) {
 
 	/* Time to run? */
-	if obj.TickCount < obj.Unique.TypeP.Interval {
+	if obj.TickCount < obj.Unique.TypeP.TockInterval {
 		obj.TickCount++
 		return
 	}
@@ -19,7 +19,7 @@ func minerUpdate(obj *world.ObjData) {
 	for p, port := range obj.FuelIn {
 		/* Will it over fill us? */
 		if port.Buf.Amount > 0 &&
-			obj.Unique.KGFuel+port.Buf.Amount <= obj.Unique.TypeP.MaxFuelKG {
+			obj.Unique.KGFuel+port.Buf.Amount <= obj.Unique.TypeP.MachineSettings.MaxFuelKG {
 
 			/* Eat the fuel */
 			obj.Unique.KGFuel += port.Buf.Amount
@@ -27,7 +27,7 @@ func minerUpdate(obj *world.ObjData) {
 		}
 	}
 
-	if obj.Unique.KGFuel < obj.Unique.TypeP.KgFuelPerCycle {
+	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
 		/* Not enough fuel, exit */
 		if obj.Active {
 			obj.Active = false
@@ -52,7 +52,7 @@ func minerUpdate(obj *world.ObjData) {
 	if obj.MinerData.ResourcesCount == 0 {
 		return
 	}
-	amount := obj.Unique.TypeP.KgPerCycle * float32(obj.MinerData.Resources[pick])
+	amount := obj.Unique.TypeP.MachineSettings.KgPerCycle * float32(obj.MinerData.Resources[pick])
 	kind := MatTypes[obj.MinerData.ResourcesType[pick]]
 
 	/* Stop if the amount is extremely small, zero or negative */
@@ -76,7 +76,7 @@ func minerUpdate(obj *world.ObjData) {
 	obj.Outputs[0].Buf.Rot = uint8(rand.Intn(3))
 
 	/* Burn fuel */
-	obj.Unique.KGFuel -= obj.Unique.TypeP.KgFuelPerCycle
+	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
 
 }
 
@@ -134,7 +134,7 @@ func beltUpdate(obj *world.ObjData) {
 func fuelHopperUpdate(obj *world.ObjData) {
 
 	/* Is it time to run? */
-	if obj.TickCount < obj.Unique.TypeP.Interval {
+	if obj.TickCount < obj.Unique.TypeP.TockInterval {
 		/* Increment timer */
 		obj.TickCount++
 		return
@@ -159,7 +159,7 @@ func fuelHopperUpdate(obj *world.ObjData) {
 		}
 
 		/* Do we have room for it? */
-		if (obj.Unique.KGFuel + input.Buf.Amount) < obj.Unique.TypeP.MaxFuelKG {
+		if (obj.Unique.KGFuel + input.Buf.Amount) < obj.Unique.TypeP.MachineSettings.MaxFuelKG {
 			obj.Unique.KGFuel += input.Buf.Amount
 			obj.Inputs[i].Buf.Amount = 0
 			break
@@ -177,10 +177,10 @@ func fuelHopperUpdate(obj *world.ObjData) {
 	}
 
 	/* Grab destination object */
-	if obj.Unique.KGFuel > (obj.Unique.TypeP.KgHopperMove + obj.Unique.TypeP.KgFuelPerCycle) {
+	if obj.Unique.KGFuel > (obj.Unique.TypeP.MachineSettings.KgHopperMove + obj.Unique.TypeP.MachineSettings.KgFuelPerCycle) {
 		for _, output := range obj.FuelOut {
-			output.Buf.Amount = obj.Unique.TypeP.KgHopperMove
-			obj.Unique.KGFuel -= (obj.Unique.TypeP.KgHopperMove + obj.Unique.TypeP.KgFuelPerCycle)
+			output.Buf.Amount = obj.Unique.TypeP.MachineSettings.KgHopperMove
+			obj.Unique.KGFuel -= (obj.Unique.TypeP.MachineSettings.KgHopperMove + obj.Unique.TypeP.MachineSettings.KgFuelPerCycle)
 			break
 		}
 	}
@@ -228,7 +228,7 @@ func boxUpdate(obj *world.ObjData) {
 		}
 
 		/* Will the input fit? */
-		if obj.KGHeld+port.Buf.Amount > obj.Unique.TypeP.MaxContainKG {
+		if obj.KGHeld+port.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxContainKG {
 			obj.Active = false
 			continue
 		}
@@ -258,7 +258,7 @@ func smelterUpdate(obj *world.ObjData) {
 		}
 
 		/* Will the fuel fit? */
-		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MaxFuelKG {
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
 			continue
 		}
 
@@ -281,7 +281,7 @@ func smelterUpdate(obj *world.ObjData) {
 		}
 
 		/* Contents will fit */
-		if obj.KGHeld+input.Buf.Amount > obj.Unique.TypeP.MaxContainKG {
+		if obj.KGHeld+input.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxContainKG {
 			continue
 		}
 
@@ -304,7 +304,7 @@ func smelterUpdate(obj *world.ObjData) {
 	}
 
 	/* Is there enough ore to process? */
-	if obj.Unique.SingleContent.Amount < obj.Unique.TypeP.KgPerCycle {
+	if obj.Unique.SingleContent.Amount < obj.Unique.TypeP.MachineSettings.KgPerCycle {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -312,7 +312,7 @@ func smelterUpdate(obj *world.ObjData) {
 	}
 
 	/* Do we have enough fuel? */
-	if obj.Unique.KGFuel < obj.Unique.TypeP.KgFuelPerCycle {
+	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -324,7 +324,7 @@ func smelterUpdate(obj *world.ObjData) {
 	}
 
 	/* Is it time to output? */
-	if obj.TickCount < obj.Unique.TypeP.Interval {
+	if obj.TickCount < obj.Unique.TypeP.TockInterval {
 		/* Increment timer */
 		obj.TickCount++
 		return
@@ -332,16 +332,16 @@ func smelterUpdate(obj *world.ObjData) {
 	obj.TickCount = 0
 
 	/* Burn fuel */
-	obj.Unique.KGFuel -= obj.Unique.TypeP.KgFuelPerCycle
+	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
 
 	/* Subtract ore */
-	obj.Unique.SingleContent.Amount -= obj.Unique.TypeP.KgPerCycle
+	obj.Unique.SingleContent.Amount -= obj.Unique.TypeP.MachineSettings.KgPerCycle
 	/* Subtract ore weight */
-	obj.KGHeld -= obj.Unique.TypeP.KgPerCycle
+	obj.KGHeld -= obj.Unique.TypeP.MachineSettings.KgPerCycle
 
 	/* Output result */
 	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
-	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.KgPerCycle
+	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.MachineSettings.KgPerCycle
 
 	/* Find and set result type, if needed */
 	if obj.Outputs[0].Buf.TypeP != result {
@@ -359,7 +359,7 @@ func casterUpdate(obj *world.ObjData) {
 		}
 
 		/* Will the fuel fit? */
-		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MaxFuelKG {
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
 			continue
 		}
 
@@ -399,7 +399,7 @@ func casterUpdate(obj *world.ObjData) {
 		}
 
 		/* Contents will fit */
-		if obj.KGHeld+input.Buf.Amount > obj.Unique.TypeP.MaxContainKG {
+		if obj.KGHeld+input.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxContainKG {
 			continue
 		}
 
@@ -433,7 +433,7 @@ func casterUpdate(obj *world.ObjData) {
 	/* Is there enough ore to process? */
 	material := MatTypes[obj.Unique.SingleContent.TypeP.TypeI]
 	if !material.IsDiscrete &&
-		obj.Unique.SingleContent.Amount < obj.Unique.TypeP.KgPerCycle {
+		obj.Unique.SingleContent.Amount < obj.Unique.TypeP.MachineSettings.KgPerCycle {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -441,7 +441,7 @@ func casterUpdate(obj *world.ObjData) {
 	}
 
 	/* Do we have enough fuel? */
-	if obj.Unique.KGFuel < obj.Unique.TypeP.KgFuelPerCycle {
+	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -453,7 +453,7 @@ func casterUpdate(obj *world.ObjData) {
 	}
 
 	/* Is it time to output? */
-	if obj.TickCount < obj.Unique.TypeP.Interval {
+	if obj.TickCount < obj.Unique.TypeP.TockInterval {
 		/* Increment timer */
 		obj.TickCount++
 		return
@@ -461,17 +461,17 @@ func casterUpdate(obj *world.ObjData) {
 	obj.TickCount = 0
 
 	/* Burn fuel */
-	obj.Unique.KGFuel -= obj.Unique.TypeP.KgFuelPerCycle
+	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
 
 	/* Subtract ore */
-	obj.Unique.SingleContent.Amount -= obj.Unique.TypeP.KgPerCycle
+	obj.Unique.SingleContent.Amount -= obj.Unique.TypeP.MachineSettings.KgPerCycle
 	/* Subtract ore weight */
-	obj.KGHeld -= obj.Unique.TypeP.KgPerCycle
+	obj.KGHeld -= obj.Unique.TypeP.MachineSettings.KgPerCycle
 
 	/* Output result */
 	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
 
-	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.KgPerCycle
+	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.MachineSettings.KgPerCycle
 
 	/* Find and set result type, if needed */
 	if obj.Outputs[0].Buf.TypeP != result {

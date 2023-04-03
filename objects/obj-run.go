@@ -20,11 +20,11 @@ var (
 
 func init() {
 	if strings.EqualFold(runtime.GOOS, "windows") || gv.WASMMode {
-		minSleep = time.Millisecond //Windows time resolution sucks
+		minSleep = (time.Millisecond * 2) //Windows and WASM time resolution sucks
 	}
 }
 
-/* Process internally in an object, multi-threaded*/
+/* Process internally in an object, multi-threaded */
 func runTicks() {
 	if world.TickCount == 0 {
 		time.Sleep(time.Millisecond)

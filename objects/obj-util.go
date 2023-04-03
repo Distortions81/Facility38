@@ -110,8 +110,8 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 			newObj.Unique.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
 		}
 
-		if newObj.Unique.TypeP.MaxFuelKG > 0 {
-			newObj.Unique.KGFuel = newObj.Unique.TypeP.MaxFuelKG
+		if newObj.Unique.TypeP.MachineSettings.MaxFuelKG > 0 {
+			newObj.Unique.KGFuel = newObj.Unique.TypeP.MachineSettings.MaxFuelKG
 		}
 
 		for p, port := range newObj.Unique.TypeP.Ports {
@@ -145,8 +145,8 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	/* Add to tock/tick lists */
 
 	/*Spread out when tock happens */
-	if newObj.Unique.TypeP.Interval > 0 {
-		newObj.TickCount = uint8(rand.Intn(int(newObj.Unique.TypeP.Interval)))
+	if newObj.Unique.TypeP.TockInterval > 0 {
+		newObj.TickCount = uint8(rand.Intn(int(newObj.Unique.TypeP.TockInterval)))
 	}
 
 	/* Place item tiles */

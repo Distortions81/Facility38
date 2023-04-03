@@ -208,9 +208,10 @@ type ObjPortData struct {
 	Dir  uint8
 	Type uint8
 
-	Obj  *ObjData
-	Buf  *MatData
-	Link *ObjPortData
+	Obj    *ObjData
+	Buf    *MatData
+	Link   *ObjPortData
+	SubPos XYs
 }
 
 type MaterialType struct {
@@ -246,6 +247,37 @@ type MaterialType struct {
 	DOut           float32
 }
 
+type ObjectImages struct {
+	/* Loaded images */
+	Image        *ebiten.Image
+	ToolbarImage *ebiten.Image
+	ImageMask    *ebiten.Image
+	ImageActive  *ebiten.Image
+	ImageCorner  *ebiten.Image
+	ImageOverlay *ebiten.Image
+
+	/* Image paths */
+	ImagePath        string //Main image
+	ToolbarPath      string //Path to toolbar specific sprite
+	ImageOverlayPath string //Optional image for info-overlay
+	ImageMaskPath    string //Image multi-layer objects such as the belt-overpass
+	ImageActivePath  string //Image to show when object is flagged active
+	ImageCornerPath  string //Used for belt corners
+}
+
+type MachineData struct {
+	KgHourMine   float32 //Miner speed
+	KgHopperMove float32 //Hopper speed
+	HP           float32 //Horsepower, used to calculate fuel use and output
+	KW           float32 //Kilowatts, alternate to HP
+
+	/* Calculated at boot from other values */
+	KgPerCycle     float32
+	KgFuelPerCycle float32
+	MaxContainKG   float32
+	MaxFuelKG      float32
+}
+
 /* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
 	Name        string
@@ -269,35 +301,11 @@ type ObjType struct {
 	Rotatable bool  //Rotatable: rotate sprite on rotate
 	Direction uint8 //Direction object is facing 0-north
 
-	/* Image paths */
-	ImagePath        string //Main image
-	ToolbarPath      string //Path to toolbar specific sprite
-	ImageOverlayPath string //Optional image for info-overlay
-	ImageMaskPath    string //Image multi-layer objects such as the belt-overpass
-	ImageActivePath  string //Image to show when object is flagged active
-	ImageCornerPath  string //Used for belt corners
-
-	/* Loaded images */
-	Image        *ebiten.Image
-	ToolbarImage *ebiten.Image
-	ImageMask    *ebiten.Image
-	ImageActive  *ebiten.Image
-	ImageCorner  *ebiten.Image
-	ImageOverlay *ebiten.Image
-
-	KgHourMine   float32 //Miner speed
-	KgHopperMove float32 //Hopper speed
-	HP           float32 //Horsepower, used to calculate fuel use and output
-	KW           float32 //Kilowatts, alternate to HP
-
-	/* Calculated at boot from other values */
-	KgPerCycle     float32
-	KgFuelPerCycle float32
-	MaxContainKG   float32
-	MaxFuelKG      float32
+	Images          ObjectImages //All image data
+	MachineSettings MachineData  //Machine-specific data
 
 	/* How often object should run, used in obj's tock function */
-	Interval uint8
+	TockInterval uint8
 
 	/* If set, we init obj.Contents when object created */
 	CanContain bool
@@ -312,7 +320,7 @@ type ObjType struct {
 
 	/* Port connections */
 	Ports   []ObjPortData
-	SubObjs []XYs
+	SubObjs []XYs /* Releative positions of tiles in multi-tile objects */
 
 	/* Function links */
 	ToolbarAction func()                  `json:"-"`

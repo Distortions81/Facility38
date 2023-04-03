@@ -25,33 +25,33 @@ func init() {
 	for i := range GameObjTypes {
 
 		/* Convert mining amount to interval */
-		if GameObjTypes[i].KgHourMine > 0 {
-			GameObjTypes[i].KgPerCycle = ((GameObjTypes[i].KgHourMine / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+		if GameObjTypes[i].MachineSettings.KgHourMine > 0 {
+			GameObjTypes[i].MachineSettings.KgPerCycle = ((GameObjTypes[i].MachineSettings.KgHourMine / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].TockInterval)) * gv.TIMESCALE_MULTI
 		}
 		/* Convert Horsepower to solid to KW and solid fuel per interval */
-		if GameObjTypes[i].HP > 0 {
-			KW := GameObjTypes[i].HP * gv.HP_PER_KW
+		if GameObjTypes[i].MachineSettings.HP > 0 {
+			KW := GameObjTypes[i].MachineSettings.HP * gv.HP_PER_KW
 			COALKG := KW / gv.COAL_KWH_PER_KG
-			GameObjTypes[i].KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+			GameObjTypes[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].TockInterval)) * gv.TIMESCALE_MULTI
 			/* Convert KW to solid fuel per interval */
-		} else if GameObjTypes[i].KW > 0 {
-			COALKG := GameObjTypes[i].KW / gv.COAL_KWH_PER_KG
-			GameObjTypes[i].KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].Interval)) * gv.TIMESCALE_MULTI
+		} else if GameObjTypes[i].MachineSettings.KW > 0 {
+			COALKG := GameObjTypes[i].MachineSettings.KW / gv.COAL_KWH_PER_KG
+			GameObjTypes[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].TockInterval)) * gv.TIMESCALE_MULTI
 		}
 
 		/* Auto calculate max fuel from fuel used per interval */
-		if GameObjTypes[i].KgFuelPerCycle > 0 {
-			GameObjTypes[i].MaxFuelKG = (GameObjTypes[i].KgFuelPerCycle * 10)
-			if GameObjTypes[i].MaxFuelKG < 50 {
-				GameObjTypes[i].MaxFuelKG = 50
+		if GameObjTypes[i].MachineSettings.KgFuelPerCycle > 0 {
+			GameObjTypes[i].MachineSettings.MaxFuelKG = (GameObjTypes[i].MachineSettings.KgFuelPerCycle * 10)
+			if GameObjTypes[i].MachineSettings.MaxFuelKG < 50 {
+				GameObjTypes[i].MachineSettings.MaxFuelKG = 50
 			}
 		}
 
 		/* Auto calculate max contain for miners */
-		if GameObjTypes[i].KgPerCycle > 0 {
-			GameObjTypes[i].MaxContainKG = (GameObjTypes[i].KgPerCycle * 10)
-			if GameObjTypes[i].MaxContainKG < 50 {
-				GameObjTypes[i].MaxContainKG = 50
+		if GameObjTypes[i].MachineSettings.KgPerCycle > 0 {
+			GameObjTypes[i].MachineSettings.MaxContainKG = (GameObjTypes[i].MachineSettings.KgPerCycle * 10)
+			if GameObjTypes[i].MachineSettings.MaxContainKG < 50 {
+				GameObjTypes[i].MachineSettings.MaxContainKG = 50
 			}
 		}
 
@@ -87,6 +87,8 @@ func init() {
 	for _, mat := range MatTypes {
 		mat.UnitName = " " + mat.UnitName
 	}
+
+	DumpItems()
 }
 
 func initSmelter(obj *world.ObjData) bool {

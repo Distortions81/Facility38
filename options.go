@@ -201,7 +201,7 @@ func setupOptionsMenu() {
 	textHeight = base.Dy() + linePad
 	buttons = []image.Rectangle{}
 
-	img := objects.ObjOverlayTypes[8].Image
+	img := objects.ObjOverlayTypes[8].Images.Image
 
 	closeBoxPos.X = uint16(halfSWidth + halfWindowW - img.Bounds().Dx() - padding)
 	closeBoxPos.Y = uint16(halfSHeight - halfWindowH + padding)
@@ -255,7 +255,7 @@ func drawSettings(screen *ebiten.Image) {
 
 	/* Close box */
 	op.GeoM.Reset()
-	img := objects.ObjOverlayTypes[8].Image
+	img := objects.ObjOverlayTypes[8].Images.Image
 
 	op.GeoM.Translate(float64(closeBoxPos.X), float64(closeBoxPos.Y))
 	screen.DrawImage(img, op)
@@ -296,9 +296,9 @@ func drawSettings(screen *ebiten.Image) {
 			op.GeoM.Reset()
 			var check *ebiten.Image
 			if item.Enabled {
-				check = objects.ObjOverlayTypes[6].Image
+				check = objects.ObjOverlayTypes[6].Images.Image
 			} else {
-				check = objects.ObjOverlayTypes[7].Image
+				check = objects.ObjOverlayTypes[7].Images.Image
 			}
 			/* Draw checkmark */
 			op.GeoM.Translate(
