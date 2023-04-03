@@ -79,6 +79,13 @@ func main() {
 
 	windowTitle()
 
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+			UpdateFonts()
+		}
+	}()
+
 	if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
 		log.Fatal(err)
 	}
