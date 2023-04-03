@@ -59,6 +59,7 @@ func ObjUpdateDaemon() {
 			}
 		}
 		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
+		world.UPSAvr.Add(1000000000.0 / float64(world.MeasuredObjectUPS_ns) / 2)
 	}
 }
 
@@ -107,6 +108,7 @@ func ObjUpdateDaemonST() {
 		time.Sleep(time.Millisecond)
 
 		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
+		world.UPSAvr.Add(1000000000.0 / float64(world.MeasuredObjectUPS_ns) / 2)
 	}
 }
 

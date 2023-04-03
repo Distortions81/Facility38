@@ -5,6 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/VividCortex/ewma"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )
@@ -15,6 +16,9 @@ func init() {
 }
 
 var (
+	UPSAvr = ewma.NewMovingAverage(gv.GameUPS * 10)
+	FPSAvr = ewma.NewMovingAverage(60)
+
 	FontDPI     float64 = gv.FontDPI
 	Vsync       bool    = true
 	OptionsOpen bool

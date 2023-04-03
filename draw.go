@@ -622,13 +622,13 @@ func drawPixmapMode(screen *ebiten.Image) {
 func drawDebugInfo(screen *ebiten.Image) {
 
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Tocks: %v Ticks %v Draws: %v Arch: %v Build: v%v-%v",
-		ebiten.ActualFPS(),
-		1000000000.0/float64(world.MeasuredObjectUPS_ns)/2,
+	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Tocks: %v Ticks %v Draws: %v Arch: %v Build: v%v-%v Frame: %v",
+		world.FPSAvr.Value(),
+		world.UPSAvr.Value(),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
 		humanize.SIWithDigits(float64(BatchTop), 2, ""),
-		runtime.GOARCH, gv.Version, buildTime)
+		runtime.GOARCH, gv.Version, buildTime, objects.GameTick)
 
 	if gv.Debug {
 		mx, my := ebiten.CursorPosition()
@@ -636,6 +636,8 @@ func drawDebugInfo(screen *ebiten.Image) {
 	}
 	var pad float32 = 4
 	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XYf32{X: 0, Y: float32(world.ScreenHeight) - pad}, pad, screen, true, false, false)
+
+	world.FPSAvr.Add(ebiten.ActualFPS())
 }
 
 func drawWorldTooltip(screen *ebiten.Image) {
