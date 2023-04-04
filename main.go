@@ -80,7 +80,7 @@ func main() {
 	windowTitle()
 
 	go func() {
-		for {
+		for objects.GameRunning {
 			time.Sleep(time.Minute)
 			UpdateFonts()
 		}

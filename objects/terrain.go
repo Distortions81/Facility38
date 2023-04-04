@@ -140,7 +140,7 @@ func RenderTerrainST() {
 
 /* Loop to automatically render chunk terrain, will also dispose old tiles, useses SuperChunkList*/
 func RenderTerrainDaemon() {
-	for {
+	for GameRunning {
 		time.Sleep(terrainRenderLoop)
 
 		/* If we zoom out, deallocate everything */
@@ -230,7 +230,7 @@ var pixmapCacheCleared bool
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
 
-	for {
+	for GameRunning {
 		time.Sleep(pixmapRenderLoop)
 
 		world.SuperChunkListLock.RLock()
@@ -268,7 +268,7 @@ func PixmapRenderDaemon() {
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func ResourceRenderDaemon() {
 
-	for {
+	for GameRunning {
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {

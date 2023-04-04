@@ -40,7 +40,7 @@ func runTicks() {
 	}
 
 	world.TickListLock.Lock()
-	for {
+	for GameRunning {
 
 		startTime := time.Now()
 
@@ -92,7 +92,7 @@ func runTocks() {
 	}
 
 	world.TockListLock.Lock()
-	for {
+	for GameRunning {
 
 		startTime := time.Now()
 

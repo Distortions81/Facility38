@@ -88,7 +88,7 @@ func init() {
 		mat.UnitName = " " + mat.UnitName
 	}
 
-	DumpItems()
+	//DumpItems()
 }
 
 func initSmelter(obj *world.ObjData) bool {
