@@ -53,6 +53,9 @@ func SaveGame() {
 	}
 
 	go func() {
+		GameLock.Lock()
+		defer GameLock.Unlock()
+
 		tempPath := "save.dat.tmp"
 		finalPath := "save.dat"
 
