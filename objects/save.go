@@ -174,6 +174,9 @@ func LoadGame() {
 
 	go func() {
 
+		GameLock.Lock()
+		defer GameLock.Unlock()
+
 		//start := time.Now()
 
 		b, err := os.ReadFile("save.dat")
