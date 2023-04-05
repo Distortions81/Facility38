@@ -406,7 +406,7 @@ func casterUpdate(obj *world.ObjData) {
 
 	/* Process ores */
 	/* Is there enough ore to process? */
-	if obj.Unique.SingleContent.Amount < obj.Unique.TypeP.MachineSettings.KgPerCycle {
+	if obj.Unique.SingleContent.Amount < obj.Unique.SingleContent.TypeP.KG {
 		if obj.Active {
 			obj.Active = false
 		}

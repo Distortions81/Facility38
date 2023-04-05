@@ -193,10 +193,9 @@ var GameObjTypes = []*world.ObjType{
 		Category:    gv.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
 		MachineSettings: world.MachineData{
-			KW:         320,
-			KgHourMine: 40,
+			KW: 320,
 		},
-		TockInterval: uint8(world.ObjectUPS * 60),
+		TockInterval: uint8(world.ObjectUPS * 30),
 		ShowArrow:    true,
 		ToolBarArrow: true,
 		Symbol:       "CST",

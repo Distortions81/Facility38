@@ -240,11 +240,6 @@ type MaterialType struct {
 
 	/* After processing */
 	Result uint8
-
-	IsDiscrete     bool
-	ResultDiscrete bool
-	DIn            float32
-	DOut           float32
 }
 
 type ObjectImages struct {

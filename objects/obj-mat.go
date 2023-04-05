@@ -39,8 +39,7 @@ var MatTypes = []*world.MaterialType{
 	{Symbol: "CuS", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 5.7,
 		IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT, Result: gv.MAT_COPPER_BAR},
 
-	{Symbol: "STB", Name: "Stone Block", UnitName: "blocks", ImagePath: "belt-obj/stone-block.png", Density: 1.9,
-		DIn: 4.5, DOut: 1, KG: 4.5,
+	{Symbol: "STB", Name: "Stone Block", UnitName: "blocks", ImagePath: "belt-obj/stone-block.png", Density: 1.9, KG: 4.5,
 		IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
 
 	{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 1.6,
@@ -64,8 +63,8 @@ var MatTypes = []*world.MaterialType{
 
 	/* Rods */
 	{Symbol: "FER", Name: "Iron Rod", ImagePath: "belt-obj/iron-rod.png", Density: 7.13,
-		IsSolid: true, IsRod: true, IsDiscrete: true, UnitName: "rods", TypeI: gv.MAT_IRON_ROD},
+		IsSolid: true, IsRod: true, UnitName: "rods", TypeI: gv.MAT_IRON_ROD},
 
 	{Symbol: "CuR", Name: "Copper Rod", ImagePath: "belt-obj/copper-rod.png", Density: 8.88,
-		IsSolid: true, IsRod: true, IsDiscrete: true, UnitName: "rods", TypeI: gv.MAT_COPPER_ROD},
+		IsSolid: true, IsRod: true, UnitName: "rods", TypeI: gv.MAT_COPPER_ROD},
 }
