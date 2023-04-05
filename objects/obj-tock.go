@@ -372,29 +372,12 @@ func casterUpdate(obj *world.ObjData) {
 	for _, input := range obj.Inputs {
 
 		/* Input contains something */
-		if input.Buf.Amount < 1 {
+		if input.Buf.Amount == 0 {
 			continue
 		}
 
 		/* Contents are shot */
 		if !input.Buf.TypeP.IsShot {
-			continue
-		}
-
-		if input.Buf.TypeP.Result == gv.MAT_NONE {
-			continue
-		}
-
-		/* Check types */
-		if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicCaster {
-			if !input.Buf.TypeP.IsShot {
-				continue
-			}
-		} else if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicRodCaster {
-			if !input.Buf.TypeP.IsBar {
-				continue
-			}
-		} else {
 			continue
 		}
 
@@ -406,7 +389,7 @@ func casterUpdate(obj *world.ObjData) {
 		/* Are we mixing materials? */
 		if obj.Unique.SingleContent.Amount > 0 &&
 			input.Buf.TypeP != obj.Unique.SingleContent.TypeP {
-			obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_MIXORE]
+			obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_SLAG_SHOT]
 
 			/* If not, set material type if needed */
 		} else if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
@@ -422,18 +405,8 @@ func casterUpdate(obj *world.ObjData) {
 	}
 
 	/* Process ores */
-	/* Do we have valid ore material? */
-	if obj.Unique.SingleContent.TypeP.TypeI == gv.MAT_MIXORE {
-		if obj.Active {
-			obj.Active = false
-		}
-		return
-	}
-
 	/* Is there enough ore to process? */
-	material := MatTypes[obj.Unique.SingleContent.TypeP.TypeI]
-	if !material.IsDiscrete &&
-		obj.Unique.SingleContent.Amount < obj.Unique.TypeP.MachineSettings.KgPerCycle {
+	if obj.Unique.SingleContent.Amount < obj.Unique.TypeP.MachineSettings.KgPerCycle {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -472,6 +445,103 @@ func casterUpdate(obj *world.ObjData) {
 	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
 
 	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.MachineSettings.KgPerCycle
+
+	/* Find and set result type, if needed */
+	if obj.Outputs[0].Buf.TypeP != result {
+		obj.Outputs[0].Buf.TypeP = result
+	}
+}
+
+func rodCasterUpdate(obj *world.ObjData) {
+
+	/* Get fuel */
+	for _, fuel := range obj.FuelIn {
+
+		if fuel.Buf.TypeP == nil {
+			continue
+		}
+
+		/* Will the fuel fit? */
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
+			continue
+		}
+
+		obj.Unique.KGFuel += fuel.Buf.Amount
+		fuel.Buf.Amount = 0
+		continue
+	}
+
+	/* Check input */
+	for _, input := range obj.Inputs {
+
+		/* Input contains something */
+		if input.Buf.Amount < 1 {
+			continue
+		}
+
+		/* Contents is metal bar */
+		if !input.Buf.TypeP.IsBar {
+			continue
+		}
+
+		/* Contents will fit */
+		if obj.KGHeld+(input.Buf.Amount*input.Buf.TypeP.KG) > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+			continue
+		}
+
+		/* Set type if needed */
+		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
+			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+		}
+
+		/* Add to weight */
+		obj.KGHeld += (input.Buf.Amount * input.Buf.TypeP.KG)
+
+		/* Add input to contents */
+		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.TypeP.KG)
+		input.Buf.Amount = 0
+	}
+
+	/* Is there enough ore to process? */
+	if obj.Unique.SingleContent.Amount < 1 {
+		if obj.Active {
+			obj.Active = false
+		}
+		return
+	}
+
+	/* Do we have enough fuel? */
+	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
+		if obj.Active {
+			obj.Active = false
+		}
+		return
+	}
+
+	if !obj.Active {
+		obj.Active = true
+	}
+
+	/* Is it time to output? */
+	if obj.TickCount < obj.Unique.TypeP.TockInterval {
+		/* Increment timer */
+		obj.TickCount++
+		return
+	}
+	obj.TickCount = 0
+
+	/* Burn fuel */
+	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
+
+	/* Subtract ore */
+	obj.Unique.SingleContent.Amount--
+	/* Subtract ore weight */
+	obj.KGHeld -= obj.Unique.SingleContent.TypeP.KG
+
+	/* Output result */
+	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
+
+	obj.Outputs[0].Buf.Amount = 1
 
 	/* Find and set result type, if needed */
 	if obj.Outputs[0].Buf.TypeP != result {

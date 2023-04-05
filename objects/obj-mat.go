@@ -50,17 +50,17 @@ var MatTypes = []*world.MaterialType{
 	{Symbol: "OBJ", Name: "Object", UnitName: "count", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},
 
 	/* Bars */
-	{Symbol: "FEB", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13,
-		DIn: 4.5, DOut: 1, KG: 10,
+	{Symbol: "FEB", Name: "Iron Bar", ImagePath: "belt-obj/iron-bar.png", Density: 7.13, KG: 10,
 		IsSolid: true, IsBar: true,
 		UnitName: "bars", TypeI: gv.MAT_IRON_BAR, Result: gv.MAT_IRON_ROD},
 
-	{Symbol: "CuB", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88,
-		DIn: 1, DOut: 1,
-		IsSolid: true, IsBar: true, IsDiscrete: true, UnitName: "bars", TypeI: gv.MAT_COPPER_BAR, Result: gv.MAT_COPPER_ROD},
+	{Symbol: "CuB", Name: "Copper Bar", ImagePath: "belt-obj/copper-bar.png", Density: 8.88, KG: 10,
+		IsSolid: true, IsBar: true,
+		UnitName: "bars", TypeI: gv.MAT_COPPER_BAR, Result: gv.MAT_COPPER_ROD},
 
-	{Symbol: "MIX", Name: "Slag Bar", UnitName: "kg", ImagePath: "belt-obj/iron-bar.png", Density: 2.5,
-		IsSolid: true, IsBar: true, TypeI: gv.MAT_SLAG_BAR},
+	{Symbol: "MIX", Name: "Slag Bar", UnitName: "kg", ImagePath: "belt-obj/iron-bar.png", Density: 2.5, KG: 10,
+		IsSolid: true, IsBar: true,
+		TypeI: gv.MAT_SLAG_BAR},
 
 	/* Rods */
 	{Symbol: "FER", Name: "Iron Rod", ImagePath: "belt-obj/iron-rod.png", Density: 7.13,
