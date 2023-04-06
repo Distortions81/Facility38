@@ -39,11 +39,11 @@ var MatTypes = []*world.MaterialType{
 	{Symbol: "CuS", Name: "Copper Shot", UnitName: "kg", ImagePath: "belt-obj/copper-shot.png", Density: 5.7,
 		IsSolid: true, IsShot: true, TypeI: gv.MAT_COPPER_SHOT, Result: gv.MAT_COPPER_BAR},
 
+	{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 1.6,
+		IsSolid: true, IsShot: true, TypeI: gv.MAT_SLAG_SHOT, Result: gv.MAT_SLAG_BAR},
+
 	{Symbol: "STB", Name: "Stone Block", UnitName: "blocks", ImagePath: "belt-obj/stone-block.png", Density: 1.9, KG: 4.5,
 		IsSolid: true, TypeI: gv.MAT_STONE_BLOCK},
-
-	{Symbol: "SLG", Name: "Slag Shot", UnitName: "kg", ImagePath: "belt-obj/iron-shot.png", Density: 1.6,
-		IsSolid: true, TypeI: gv.MAT_SLAG_SHOT},
 
 	/* Object */
 	{Symbol: "OBJ", Name: "Object", UnitName: "count", ImagePath: "belt-obj/obj.png", TypeI: gv.MAT_OBJ},

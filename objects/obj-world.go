@@ -193,7 +193,8 @@ var GameObjTypes = []*world.ObjType{
 		Category:    gv.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
 		MachineSettings: world.MachineData{
-			KW: 320,
+			KW:         320,
+			KgHourMine: 40,
 		},
 		TockInterval: uint8(world.ObjectUPS * 30),
 		ShowArrow:    true,
@@ -223,7 +224,8 @@ var GameObjTypes = []*world.ObjType{
 		Category:    gv.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
 		MachineSettings: world.MachineData{
-			KW: 320,
+			KW:         320,
+			KgHourMine: 40,
 		},
 		TockInterval: uint8(world.ObjectUPS * 30),
 		ShowArrow:    true,
