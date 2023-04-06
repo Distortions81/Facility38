@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"GameTest/cwlog"
 	"GameTest/gv"
 	"GameTest/world"
 	"math/rand"
@@ -387,13 +388,14 @@ func casterUpdate(obj *world.ObjData) {
 		}
 
 		/* Are we mixing materials? */
-		if obj.Unique.SingleContent.Amount > 0 &&
-			input.Buf.TypeP != obj.Unique.SingleContent.TypeP {
-			obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_SLAG_SHOT]
-
-			/* If not, set material type if needed */
-		} else if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
-			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+		if input.Buf.TypeP != obj.Unique.SingleContent.TypeP {
+			/* Mixed materials */
+			if obj.Unique.SingleContent.Amount > 0 {
+				cwlog.DoLog(false, "Slag")
+				obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_SLAG_SHOT]
+			} else {
+				obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+			}
 		}
 
 		/* Add to weight */
@@ -406,7 +408,7 @@ func casterUpdate(obj *world.ObjData) {
 
 	/* Process ores */
 	/* Is there enough ore to process? */
-	if obj.Unique.SingleContent.Amount < obj.Unique.SingleContent.TypeP.KG {
+	if obj.Unique.SingleContent.Amount < MatTypes[obj.Unique.SingleContent.TypeP.Result].KG {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -437,14 +439,14 @@ func casterUpdate(obj *world.ObjData) {
 	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
 
 	/* Subtract ore */
-	obj.Unique.SingleContent.Amount -= obj.Unique.TypeP.MachineSettings.KgPerCycle
+	obj.Unique.SingleContent.Amount -= MatTypes[obj.Unique.SingleContent.TypeP.Result].KG
 	/* Subtract ore weight */
-	obj.KGHeld -= obj.Unique.TypeP.MachineSettings.KgPerCycle
+	obj.KGHeld -= MatTypes[obj.Unique.SingleContent.TypeP.Result].KG
 
 	/* Output result */
 	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
 
-	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.MachineSettings.KgPerCycle
+	obj.Outputs[0].Buf.Amount = 1
 
 	/* Find and set result type, if needed */
 	if obj.Outputs[0].Buf.TypeP != result {
