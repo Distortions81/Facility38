@@ -227,10 +227,11 @@ type MaterialType struct {
 	TypeI uint8 /* Place in MatTypes */
 
 	/* Main Types */
-	IsSolid bool
-	IsGas   bool
-	IsFluid bool
-	IsFuel  bool
+	IsDiscrete bool
+	IsSolid    bool
+	IsGas      bool
+	IsFluid    bool
+	IsFuel     bool
 
 	/* Process Types */
 	IsOre  bool

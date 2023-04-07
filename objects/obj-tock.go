@@ -437,7 +437,7 @@ func casterUpdate(obj *world.ObjData) {
 	/* Output result */
 	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
 
-	obj.Outputs[0].Buf.Amount = 1
+	obj.Outputs[0].Buf.Amount = result.KG
 
 	/* Find and set result type, if needed */
 	if obj.Outputs[0].Buf.TypeP != result {
@@ -530,7 +530,7 @@ func rodCasterUpdate(obj *world.ObjData) {
 	/* Output result */
 	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
 
-	obj.Outputs[0].Buf.Amount = 1
+	obj.Outputs[0].Buf.Amount = result.KG
 
 	/* Find and set result type, if needed */
 	if obj.Outputs[0].Buf.TypeP != result {
