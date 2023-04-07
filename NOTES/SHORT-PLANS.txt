@@ -17,3 +17,8 @@ eventually set machine times in ms/sec
 adjustable miners/furnace speeds
 Add ground water and surface water. Mineralized, fresh and salt.
 Water should get contaminated by dumping.
+
+
+Current:
+Finish bar/rod casters
+Discrete/non granular material support.
