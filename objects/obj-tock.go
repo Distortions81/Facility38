@@ -254,10 +254,6 @@ func smelterUpdate(obj *world.ObjData) {
 	/* Get fuel */
 	for _, fuel := range obj.FuelIn {
 
-		if fuel.Buf.TypeP == nil {
-			continue
-		}
-
 		/* Will the fuel fit? */
 		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
 			continue
@@ -265,7 +261,6 @@ func smelterUpdate(obj *world.ObjData) {
 
 		obj.Unique.KGFuel += fuel.Buf.Amount
 		fuel.Buf.Amount = 0
-		continue
 	}
 
 	/* Check input */
@@ -354,10 +349,6 @@ func casterUpdate(obj *world.ObjData) {
 
 	/* Get fuel */
 	for _, fuel := range obj.FuelIn {
-
-		if fuel.Buf.TypeP == nil {
-			continue
-		}
 
 		/* Will the fuel fit? */
 		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
@@ -458,10 +449,6 @@ func rodCasterUpdate(obj *world.ObjData) {
 
 	/* Get fuel */
 	for _, fuel := range obj.FuelIn {
-
-		if fuel.Buf.TypeP == nil {
-			continue
-		}
 
 		/* Will the fuel fit? */
 		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {

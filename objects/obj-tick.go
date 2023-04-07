@@ -139,7 +139,7 @@ func tickObj(obj *world.ObjData) {
 			continue
 		}
 
-		//* If destination is empty */
+		/* If destination is empty */
 		if port.Link.Buf.Amount != 0 {
 			blockedOut++
 			continue
