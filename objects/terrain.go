@@ -82,8 +82,10 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					h := NoiseMap(x, y, 0)
 
 					op.ColorScale.Reset()
-					op.ColorScale.Scale(h, 1, 1, 1)
-
+					op.ColorScale.Scale((h)-1.5, (h)-1.5, (h)-1.5, 1)
+				} else {
+					op.ColorScale.Reset()
+					op.ColorScale.Scale(0.4, 0.4, 0.4, 1)
 				}
 				opList[opPos] = op
 				opPos++

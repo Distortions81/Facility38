@@ -62,20 +62,22 @@ var UIObjsTypes = []*world.ObjType{
 /* Terrain types and images */
 var TerrainTypes = []*world.ObjType{
 	{
+		Images: world.ObjectImages{
+			ImagePath: "terrain/dirt-1.png",
+		},
+		Name:   "dirt",
+		Size:   world.XYs{X: 1, Y: 1},
+		Symbol: ".",
+	},
+	{
 
 		Images: world.ObjectImages{
 			ImagePath: "terrain/grass-1.png",
 		},
 		Name:   "grass",
 		Size:   world.XYs{X: 1, Y: 1},
-		Symbol: "."},
-	{
-		Images: world.ObjectImages{
-			ImagePath: "terrain/dirt-1.png",
-		},
-		Name:   "dirt",
-		Size:   world.XYs{X: 1, Y: 1},
-		Symbol: "."},
+		Symbol: ".",
+	},
 }
 
 /* Overlay images */
