@@ -252,6 +252,13 @@ type ObjectImages struct {
 	Corner  *ebiten.Image
 	Overlay *ebiten.Image
 
+	LightMain    *ebiten.Image
+	LightToolbar *ebiten.Image
+	LightMask    *ebiten.Image
+	LightActive  *ebiten.Image
+	LightCorner  *ebiten.Image
+	LightOverlay *ebiten.Image
+
 	DarkMain    *ebiten.Image
 	DarkToolbar *ebiten.Image
 	DarkMask    *ebiten.Image

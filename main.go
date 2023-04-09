@@ -100,6 +100,10 @@ func NewGame() *Game {
 
 		loadSprites(false)
 		loadSprites(true)
+
+		LinkSprites(false)
+		LinkSprites(true)
+
 		objects.ResourceMapInit()
 		MakeMap(gv.LoadTest)
 		startGame()
@@ -158,7 +162,7 @@ func loadSprites(dark bool) {
 			if dark {
 				otype.List[key].Images.DarkMain = img
 			} else {
-				otype.List[key].Images.Main = img
+				otype.List[key].Images.LightMain = img
 			}
 
 			/* Corner pieces */
@@ -171,7 +175,7 @@ func loadSprites(dark bool) {
 			if dark {
 				otype.List[key].Images.DarkCorner = imgc
 			} else {
-				otype.List[key].Images.Corner = imgc
+				otype.List[key].Images.LightCorner = imgc
 			}
 
 			/* For active flag on objects */
@@ -184,7 +188,7 @@ func loadSprites(dark bool) {
 			if dark {
 				otype.List[key].Images.DarkActive = imga
 			} else {
-				otype.List[key].Images.Active = imga
+				otype.List[key].Images.LightActive = imga
 			}
 
 			/* For mask on objects */
@@ -196,7 +200,7 @@ func loadSprites(dark bool) {
 				text.Draw(imgm, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
 			if dark {
-				otype.List[key].Images.Mask = imgm
+				otype.List[key].Images.LightMask = imgm
 			} else {
 				otype.List[key].Images.DarkMask = imgm
 			}
@@ -227,6 +231,53 @@ func loadSprites(dark bool) {
 	objects.SetupTerrainCache()
 	DrawToolbar(false, false, 0)
 	world.SpritesLoaded.Store(true)
+}
+
+func LinkSprites(dark bool) {
+	for _, otype := range objects.SubTypes {
+		for key, item := range otype.List {
+			if dark {
+				if item.Images.DarkMain != nil {
+					otype.List[key].Images.Main = item.Images.DarkMain
+				}
+				if item.Images.DarkToolbar != nil {
+					otype.List[key].Images.Toolbar = item.Images.DarkToolbar
+				}
+				if item.Images.DarkMask != nil {
+					otype.List[key].Images.Mask = item.Images.DarkMask
+				}
+				if item.Images.DarkActive != nil {
+					otype.List[key].Images.Active = item.Images.DarkActive
+				}
+				if item.Images.DarkCorner != nil {
+					otype.List[key].Images.Corner = item.Images.DarkCorner
+				}
+				if item.Images.DarkOverlay != nil {
+					otype.List[key].Images.Overlay = item.Images.DarkOverlay
+				}
+
+			} else {
+				if item.Images.LightMain != nil {
+					otype.List[key].Images.Main = item.Images.LightMain
+				}
+				if item.Images.LightToolbar != nil {
+					otype.List[key].Images.Toolbar = item.Images.LightToolbar
+				}
+				if item.Images.LightMask != nil {
+					otype.List[key].Images.Mask = item.Images.LightMask
+				}
+				if item.Images.LightActive != nil {
+					otype.List[key].Images.Active = item.Images.LightActive
+				}
+				if item.Images.LightCorner != nil {
+					otype.List[key].Images.Corner = item.Images.LightCorner
+				}
+				if item.Images.LightOverlay != nil {
+					otype.List[key].Images.Overlay = item.Images.LightOverlay
+				}
+			}
+		}
+	}
 }
 
 /* Render boot info to screen */
