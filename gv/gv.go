@@ -17,6 +17,7 @@ var (
 	WASMMode  = false
 
 	ResourceLegendImage *ebiten.Image
+	TitleImage          *ebiten.Image
 )
 
 const (

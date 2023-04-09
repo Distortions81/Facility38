@@ -37,6 +37,11 @@ type Game struct {
 /* Main function */
 func main() {
 
+	imgb, err := data.GetSpriteImage("title.png")
+	if err == nil {
+		gv.TitleImage = imgb
+	}
+
 	/* Compile flags */
 	if NoDebug == "true" { /* Published build */
 		gv.Debug = false
@@ -302,7 +307,16 @@ func bootScreen(screen *ebiten.Image) {
 		}
 		status = status + fmt.Sprintf("Loading map (%.2f%%)", world.MapLoadPercent)
 	}
-	screen.Fill(world.ColorCharcoal)
+	screen.Fill(world.BootColor)
+
+	if gv.TitleImage != nil {
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(float64(world.ScreenWidth/2)-float64(gv.TitleImage.Bounds().Size().X/2),
+			float64(world.ScreenHeight/2)-float64(gv.TitleImage.Bounds().Size().Y/2)-64)
+		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
+		screen.DrawImage(gv.TitleImage, op)
+	}
+
 	if status == "" {
 		status = "Loading complete!\n(Press any key or click to continue)"
 	}
