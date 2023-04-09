@@ -139,6 +139,8 @@ func loadSprites() {
 
 			/* Main */
 			img, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + ".png")
+
+			/* If not found, check subfolder */
 			if err != nil {
 				img, err = data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + ".png")
 				if err != nil {
