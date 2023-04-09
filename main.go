@@ -135,71 +135,45 @@ func startGame() {
 func loadSprites() {
 
 	for _, otype := range objects.SubTypes {
-		for key, item := range otype {
+		for key, item := range otype.List {
 
-			/* If there is a image name, attempt to fetch it */
-			if item.Images.ImagePath != "" {
-				img, err := data.GetSpriteImage(item.Images.ImagePath)
-				if err != nil {
-					/* If not found, fill texture with text */
-					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-					img.Fill(world.ColorVeryDarkGray)
-					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
-				}
-				otype[key].Images.Image = img
+			/* Main */
+			img, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + ".png")
+			if err != nil {
+				/* If not found, fill texture with text */
+				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+				img.Fill(world.ColorVeryDarkGray)
+				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
-
-			/* Overlay versions */
-			if item.Images.ImageOverlayPath != "" {
-				img, err := data.GetSpriteImage(item.Images.ImageOverlayPath)
-				if err != nil {
-					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-					img.Fill(world.ColorVeryDarkGray)
-					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
-				}
-				otype[key].Images.ImageOverlay = img
-			}
+			otype.List[key].Images.Image = img
 
 			/* Corner pieces */
-			if item.Images.ImageCornerPath != "" {
-				img, err := data.GetSpriteImage(item.Images.ImageCornerPath)
-				if err != nil {
-					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-					img.Fill(world.ColorVeryDarkGray)
-					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
-				}
-				otype[key].Images.ImageCorner = img
+			imgc, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + "-corner.png")
+			if err != nil {
+				imgc = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+				imgc.Fill(world.ColorVeryDarkGray)
+				text.Draw(imgc, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
+			otype.List[key].Images.ImageCorner = imgc
 
 			/* For active flag on objects */
-			if item.Images.ImageActivePath != "" {
-				img, err := data.GetSpriteImage(item.Images.ImageActivePath)
-				if err != nil {
-					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-					img.Fill(world.ColorVeryDarkGray)
-					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
-				}
-				otype[key].Images.ImageActive = img
+			imga, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + "-active.png")
+			if err != nil {
+				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+				img.Fill(world.ColorVeryDarkGray)
+				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
+			otype.List[key].Images.ImageActive = imga
 
 			/* For mask on objects */
-			if item.Images.ImageMaskPath != "" {
-				img, err := data.GetSpriteImage(item.Images.ImageMaskPath)
-				if err != nil {
-					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-					img.Fill(world.ColorVeryDarkGray)
-					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
-				}
-				otype[key].Images.ImageMask = img
-			}
 
-			/* Alternate sprite for toolbar */
-			if item.Images.ToolbarPath != "" {
-				img, err := data.GetSpriteImage(item.Images.ToolbarPath)
-				if err == nil {
-					otype[key].Images.ToolbarImage = img
-				}
+			imgm, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + "-mask.png")
+			if err != nil {
+				imgm = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+				imgm.Fill(world.ColorVeryDarkGray)
+				text.Draw(imgm, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
+			otype.List[key].Images.ImageMask = imgm
 
 			util.WASMSleep()
 		}

@@ -65,7 +65,7 @@ func (g *Game) Update() error {
 
 func getToolbarKeypress() {
 
-	for _, item := range objects.UIObjsTypes {
+	for _, item := range objects.UIObjs {
 		if inpututil.IsKeyJustPressed(item.QKey) {
 			item.ToolbarAction()
 		}
@@ -270,7 +270,7 @@ func createWorldObjects() {
 		if SelectedItemType == gv.MaxItemType {
 			return
 		}
-		obj := objects.GameObjTypes[SelectedItemType]
+		obj := objects.WorldObjs[SelectedItemType]
 		dir := obj.Direction
 
 		if gv.WASMMode {

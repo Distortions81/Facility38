@@ -28,7 +28,7 @@ func InitToolbar() {
 	ToolbarMax = 0
 	for spos, stype := range objects.SubTypes {
 		if spos == gv.ObjSubUI || spos == gv.ObjSubGame {
-			for _, otype := range stype {
+			for _, otype := range stype.List {
 				/* Skips some items for WASM */
 				if gv.WASMMode && otype.ExcludeWASM {
 					continue
@@ -159,7 +159,7 @@ func DrawToolbar(click, hover bool, index int) {
 		if item.OType.ToolBarArrow {
 			var aop *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-			arrow := objects.ObjOverlayTypes[item.OType.Direction].Images.Image
+			arrow := objects.WorldOverlays[item.OType.Direction].Images.Image
 			if arrow != nil {
 				if arrow.Bounds().Max.X != gv.ToolBarScale {
 					aop.GeoM.Scale(1.0/(float64(arrow.Bounds().Max.X)/gv.ToolBarScale), 1.0/(float64(arrow.Bounds().Max.Y)/gv.ToolBarScale))

@@ -251,14 +251,6 @@ type ObjectImages struct {
 	ImageActive  *ebiten.Image
 	ImageCorner  *ebiten.Image
 	ImageOverlay *ebiten.Image
-
-	/* Image paths */
-	ImagePath        string //Main image
-	ToolbarPath      string //Path to toolbar specific sprite
-	ImageOverlayPath string //Optional image for info-overlay
-	ImageMaskPath    string //Image multi-layer objects such as the belt-overpass
-	ImageActivePath  string //Image to show when object is flagged active
-	ImageCornerPath  string //Used for belt corners
 }
 
 type MachineData struct {
@@ -276,6 +268,7 @@ type MachineData struct {
 
 /* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
+	Base        string
 	Name        string
 	Description string
 

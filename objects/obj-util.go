@@ -77,7 +77,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	/* New object */
 	if obj == nil {
 		newObj = &world.ObjData{}
-		newObj.Unique = &world.UniqueObject{TypeP: GameObjTypes[mtype]}
+		newObj.Unique = &world.UniqueObject{TypeP: WorldObjs[mtype]}
 	} else { /* Placing already existing object */
 		newObj = obj
 	}

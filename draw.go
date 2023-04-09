@@ -115,7 +115,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 		mx, my := ebiten.CursorPosition()
 
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-		item := objects.GameObjTypes[SelectedItemType]
+		item := objects.WorldObjs[SelectedItemType]
 
 		/* Get mouse position on world */
 		worldMouseX := int(float32(mx)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
@@ -471,7 +471,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Show objects with no fuel */
 			if obj.Unique.TypeP.MachineSettings.MaxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
 
-				img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Images.Image
+				img := objects.WorldOverlays[gv.ObjOverlayNoFuel].Images.Image
 
 				iSize := img.Bounds()
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -520,7 +520,7 @@ func drawIconMode(screen *ebiten.Image) {
 				for _, port := range obj.Ports {
 					if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
 
-						img := objects.ObjOverlayTypes[port.Dir].Images.Image
+						img := objects.WorldOverlays[port.Dir].Images.Image
 						iSize := img.Bounds()
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 						op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),
@@ -921,7 +921,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 			return op, obj.Unique.TypeP.Images.ImageCorner
 		} else if obj.Active {
 			return op, obj.Unique.TypeP.Images.ImageActive
-		} else if world.OverlayMode && obj.Unique.TypeP.Images.ImageOverlayPath != "" {
+		} else if world.OverlayMode {
 			return op, obj.Unique.TypeP.Images.ImageOverlay
 		} else if maskOnly {
 			return op, obj.Unique.TypeP.Images.ImageMask

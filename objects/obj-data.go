@@ -12,68 +12,51 @@ import (
 
 var GroundTiles = []*world.ObjType{
 	{
-		Images: world.ObjectImages{
-			ImagePath: "gtile/paver.png"},
+		Base: "tile",
 	},
 }
 
 /* Toolbar actions and images */
-var UIObjsTypes = []*world.ObjType{
+var UIObjs = []*world.ObjType{
 	//Ui Only
 	{
-		Images: world.ObjectImages{
-			ImagePath: "ui/settings.png",
-		},
+		Base: "settings",
 		Name: "Options", ToolbarAction: settingsToggle,
 		Symbol: "SET", Description: "Show game options", QKey: ebiten.KeyF1,
 	},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "ui/overlay.png",
-		},
+		Base: "overlay",
 		Name: "Overlay", ToolbarAction: toggleOverlay,
 		Symbol: "OVRLY", Description: "Turn info overlay on/off", QKey: ebiten.KeyF2,
 	},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "ui/layer.png",
-		},
+		Base: "layer",
 		Name: "Layer", ToolbarAction: SwitchLayer,
 		Symbol: "LAYER", Description: "Toggle between the build and resource layer", QKey: ebiten.KeyF3,
 	},
 	{
-		Name: "Save Game",
-		Images: world.ObjectImages{
-			ImagePath: "ui/save.png",
-		},
-		ToolbarAction: SaveGame,
-		Symbol:        "SAVE", ExcludeWASM: true, Description: "Quicksave game", QKey: ebiten.KeyF5,
+		Base: "save",
+		Name: "Save Game", ToolbarAction: SaveGame,
+		Symbol: "SAVE", ExcludeWASM: true, Description: "Quicksave game", QKey: ebiten.KeyF5,
 	},
 	{
-		Name: "Load Game",
-		Images: world.ObjectImages{
-			ImagePath: "ui/load.png",
-		},
-		ToolbarAction: LoadGame,
-		Symbol:        "LOAD", ExcludeWASM: true, Description: "Load quicksave", QKey: ebiten.KeyF6,
+		Base: "load",
+		Name: "Load Game", ToolbarAction: LoadGame,
+		Symbol: "LOAD", ExcludeWASM: true, Description: "Load quicksave", QKey: ebiten.KeyF6,
 	},
 }
 
 /* Terrain types and images */
 var TerrainTypes = []*world.ObjType{
 	{
-		Images: world.ObjectImages{
-			ImagePath: "terrain/dirt-1.png",
-		},
+		Base:   "dirt",
 		Name:   "dirt",
 		Size:   world.XYs{X: 1, Y: 1},
 		Symbol: ".",
 	},
 	{
 
-		Images: world.ObjectImages{
-			ImagePath: "terrain/grass-1.png",
-		},
+		Base:   "grass",
 		Name:   "grass",
 		Size:   world.XYs{X: 1, Y: 1},
 		Symbol: ".",
@@ -81,71 +64,74 @@ var TerrainTypes = []*world.ObjType{
 }
 
 /* Overlay images */
-var ObjOverlayTypes = []*world.ObjType{
+var WorldOverlays = []*world.ObjType{
 	{
-		Images: world.ObjectImages{
-			ImagePath: "overlays/arrow-north.png",
-		},
+		Base: "arrow-north",
 		Name: "Arrow North", Symbol: "^"},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "overlays/arrow-east.png",
-		},
+		Base: "arrow-east",
 		Name: "Arrow East", Symbol: ">"},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "overlays/arrow-south.png",
-		},
+		Base: "arrow-south",
 		Name: "Arrow South", Symbol: "v"},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "overlays/arrow-west.png",
-		},
+		Base: "arrow-west",
 		Name: "Arrow West", Symbol: "<"},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "overlays/blocked.png",
-		},
+		Base: "blocked",
 		Name: "Blocked", Symbol: "*"},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "overlays/nofuel.png",
-		},
+		Base: "nofuel",
 		Name: "NO FUEL", Symbol: "&"},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "ui/check-on.png",
-		},
+		Base: "check-on",
 		Name: "Check-On", Symbol: "✓"},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "ui/check-off.png",
-		},
+		Base: "check-off",
 		Name: "Check-Off", Symbol: "X"},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "ui/close.png",
-		},
+		Base: "close",
 		Name: "Close", Symbol: "X"},
 }
 
-/* Toolbar item types, array of array of ObjType */
-var SubTypes = [][]*world.ObjType{
-	UIObjsTypes,
-	GameObjTypes,
-	ObjOverlayTypes,
-	TerrainTypes,
-	GroundTiles,
+type SubTypeData struct {
+	Folder string
+	List   []*world.ObjType
 }
 
-/* Debug quick dump GameObjTypes */
+/* Toolbar item types, array of array of ObjType */
+var SubTypes = []SubTypeData{
+	{
+		Folder: "ui",
+		List:   UIObjs,
+	},
+	{
+		Folder: "world-obj",
+		List:   WorldObjs,
+	},
+	{
+		Folder: "overlays",
+		List:   WorldOverlays,
+	},
+	{
+		Folder: "terrain",
+		List:   TerrainTypes,
+	},
+	{
+		Folder: "ground",
+		List:   GroundTiles,
+	},
+}
+
+/* Debug quick dump GameObjTypes
+ */
 func DumpItems() bool {
 
 	outbuf := new(bytes.Buffer)
 	enc := json.NewEncoder(outbuf)
 	enc.SetIndent("", "\t")
 
-	if err := enc.Encode(GameObjTypes); err != nil {
+	if err := enc.Encode(WorldObjs); err != nil {
 		cwlog.DoLog(true, "DumpItems: %v", err)
 		return false
 	}
