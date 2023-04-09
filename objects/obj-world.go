@@ -58,7 +58,7 @@ var WorldObjs = []*world.ObjType{
 		},
 	},
 	{
-		Base:        "basic-belt-overpass",
+		Base:        "basic-belt-over",
 		Name:        "Basic Belt Overpass",
 		Description: "A belt that has an underpass.",
 		TypeI:       gv.ObjTypeBasicBeltOver,

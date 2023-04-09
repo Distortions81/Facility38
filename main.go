@@ -138,12 +138,15 @@ func loadSprites() {
 		for key, item := range otype.List {
 
 			/* Main */
-			img, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + ".png")
+			img, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + ".png")
 			if err != nil {
-				/* If not found, fill texture with text */
-				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-				img.Fill(world.ColorVeryDarkGray)
-				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
+				img, err = data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + ".png")
+				if err != nil {
+					/* If not found, fill texture with text */
+					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+					img.Fill(world.ColorVeryDarkGray)
+					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
+				}
 			}
 			otype.List[key].Images.Image = img
 
