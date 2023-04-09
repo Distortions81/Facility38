@@ -212,17 +212,24 @@ func loadSprites(dark bool) {
 	}
 
 	for m, item := range objects.MatTypes {
-		if item.ImagePath != "" {
-			img, err := data.GetSpriteImage(item.ImagePath)
+		if !dark {
+			img, err := data.GetSpriteImage("belt-obj/" + item.Base + ".png")
 			if err != nil {
 				/* If not found, fill texture with text */
 				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				img.Fill(world.ColorVeryDarkGray)
 				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
-			objects.MatTypes[m].Image = img
-			util.WASMSleep()
+			objects.MatTypes[m].LightImage = img
+		} else {
+
+			imgd, err := data.GetSpriteImage("belt-obj/" + item.Base + "-dark.png")
+			if err == nil {
+				objects.MatTypes[m].DarkImage = imgd
+				cwlog.DoLog(true, "loaded dark: %v", item.Base)
+			}
 		}
+		util.WASMSleep()
 	}
 
 	img, err := data.GetSpriteImage("ui/resource-legend.png")
@@ -260,7 +267,11 @@ func LinkSprites(dark bool) {
 				if item.Images.DarkOverlay != nil {
 					otype.List[key].Images.Overlay = item.Images.DarkOverlay
 				}
-
+				for m, item := range objects.MatTypes {
+					if item.DarkImage != nil {
+						objects.MatTypes[m].Image = objects.MatTypes[m].DarkImage
+					}
+				}
 			} else {
 				if item.Images.LightMain != nil {
 					otype.List[key].Images.Main = item.Images.LightMain
@@ -279,6 +290,11 @@ func LinkSprites(dark bool) {
 				}
 				if item.Images.LightOverlay != nil {
 					otype.List[key].Images.Overlay = item.Images.LightOverlay
+				}
+				for m, item := range objects.MatTypes {
+					if item.LightImage != nil {
+						objects.MatTypes[m].Image = objects.MatTypes[m].LightImage
+					}
 				}
 			}
 		}

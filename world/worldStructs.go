@@ -217,12 +217,14 @@ type ObjPortData struct {
 type MaterialType struct {
 	Symbol   string
 	Name     string
+	Base     string
 	UnitName string
 	Density  float32 /* g/cm3 */
 	KG       float32
 
-	ImagePath string
-	Image     *ebiten.Image
+	Image      *ebiten.Image
+	LightImage *ebiten.Image
+	DarkImage  *ebiten.Image
 
 	TypeI uint8 /* Place in MatTypes */
 
