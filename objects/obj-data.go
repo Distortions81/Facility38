@@ -85,10 +85,10 @@ var WorldOverlays = []*world.ObjType{
 		Name: "NO FUEL", Symbol: "&"},
 	{
 		Base: "check-on",
-		Name: "Check-On", Symbol: "✓"},
+		Name: "Check-On", Symbol: "1"},
 	{
 		Base: "check-off",
-		Name: "Check-Off", Symbol: "X"},
+		Name: "Check-Off", Symbol: "0"},
 	{
 		Base: "close",
 		Name: "Close", Symbol: "X"},

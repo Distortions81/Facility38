@@ -919,7 +919,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 
 		if obj.IsCorner {
 			return op, obj.Unique.TypeP.Images.Corner
-		} else if obj.Active {
+		} else if obj.Active && obj.Unique.TypeP.Images.Active != nil {
 			return op, obj.Unique.TypeP.Images.Active
 		} else if world.OverlayMode && obj.Unique.TypeP.Images.Overlay != nil {
 			return op, obj.Unique.TypeP.Images.Overlay

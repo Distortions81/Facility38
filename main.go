@@ -168,34 +168,28 @@ func loadSprites(dark bool) {
 			}
 
 			/* Corner pieces */
-			imgc, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-corner.png")
-			if err != nil && !dark {
-				imgc = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-				imgc.Fill(world.ColorVeryDarkGray)
-				text.Draw(imgc, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
-			}
-			if dark {
-				otype.List[key].Images.DarkCorner = imgc
-			} else {
-				otype.List[key].Images.LightCorner = imgc
+			imgc, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + "-corner" + dstr + ".png")
+			if err == nil {
+				if dark {
+					otype.List[key].Images.DarkCorner = imgc
+				} else {
+					otype.List[key].Images.LightCorner = imgc
+				}
 			}
 
-			/* For active flag on objects */
-			imga, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-active.png")
-			if err != nil && !dark {
-				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-				img.Fill(world.ColorVeryDarkGray)
-				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
-			}
-			if dark {
-				otype.List[key].Images.DarkActive = imga
-			} else {
-				otype.List[key].Images.LightActive = imga
+			/* Active*/
+			imga, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + "-active" + dstr + ".png")
+			if err == nil {
+				if dark {
+					otype.List[key].Images.DarkActive = imga
+				} else {
+					otype.List[key].Images.LightActive = imga
+				}
 			}
 
-			/* For active flag on objects */
-			imgo, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-overlay.png")
-			if err == nil && imgo != nil {
+			/* Overlays */
+			imgo, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + "-overlay" + dstr + ".png")
+			if err == nil {
 				if dark {
 					otype.List[key].Images.DarkOverlay = imgo
 				} else {
@@ -203,17 +197,14 @@ func loadSprites(dark bool) {
 				}
 			}
 
-			/* For mask on objects */
-			imgm, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-mask.png")
-			if err != nil && !dark {
-				imgm = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
-				imgm.Fill(world.ColorVeryDarkGray)
-				text.Draw(imgm, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
-			}
-			if dark {
-				otype.List[key].Images.LightMask = imgm
-			} else {
-				otype.List[key].Images.DarkMask = imgm
+			/* Masks */
+			imgm, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + "-mask" + dstr + ".png")
+			if err == nil {
+				if dark {
+					otype.List[key].Images.LightMask = imgm
+				} else {
+					otype.List[key].Images.DarkMask = imgm
+				}
 			}
 
 			util.WASMSleep()
