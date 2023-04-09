@@ -188,8 +188,17 @@ func loadSprites(dark bool) {
 				otype.List[key].Images.LightActive = imga
 			}
 
-			/* For mask on objects */
+			/* For active flag on objects */
+			imgo, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-overlay.png")
+			if err == nil && imgo != nil {
+				if dark {
+					otype.List[key].Images.DarkOverlay = imgo
+				} else {
+					otype.List[key].Images.LightOverlay = imgo
+				}
+			}
 
+			/* For mask on objects */
 			imgm, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-mask.png")
 			if err != nil && !dark {
 				imgm = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))

@@ -921,7 +921,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 			return op, obj.Unique.TypeP.Images.Corner
 		} else if obj.Active {
 			return op, obj.Unique.TypeP.Images.Active
-		} else if world.OverlayMode {
+		} else if world.OverlayMode && obj.Unique.TypeP.Images.Overlay != nil {
 			return op, obj.Unique.TypeP.Images.Overlay
 		} else if maskOnly {
 			return op, obj.Unique.TypeP.Images.Mask
