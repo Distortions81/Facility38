@@ -101,9 +101,6 @@ func NewGame() *Game {
 		loadSprites(false)
 		loadSprites(true)
 
-		LinkSprites(false)
-		LinkSprites(true)
-
 		objects.ResourceMapInit()
 		MakeMap(gv.LoadTest)
 		startGame()
@@ -152,7 +149,7 @@ func loadSprites(dark bool) {
 			/* If not found, check subfolder */
 			if err != nil {
 				img, err = data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + dstr + ".png")
-				if err != nil {
+				if err != nil && !dark {
 					/* If not found, fill texture with text */
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
@@ -167,7 +164,7 @@ func loadSprites(dark bool) {
 
 			/* Corner pieces */
 			imgc, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-corner.png")
-			if err != nil {
+			if err != nil && !dark {
 				imgc = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				imgc.Fill(world.ColorVeryDarkGray)
 				text.Draw(imgc, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
@@ -180,7 +177,7 @@ func loadSprites(dark bool) {
 
 			/* For active flag on objects */
 			imga, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-active.png")
-			if err != nil {
+			if err != nil && !dark {
 				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				img.Fill(world.ColorVeryDarkGray)
 				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
@@ -194,7 +191,7 @@ func loadSprites(dark bool) {
 			/* For mask on objects */
 
 			imgm, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-mask.png")
-			if err != nil {
+			if err != nil && !dark {
 				imgm = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				imgm.Fill(world.ColorVeryDarkGray)
 				text.Draw(imgm, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
@@ -227,6 +224,9 @@ func loadSprites(dark bool) {
 	if err == nil {
 		gv.ResourceLegendImage = img
 	}
+
+	LinkSprites(false)
+	LinkSprites(true)
 
 	objects.SetupTerrainCache()
 	DrawToolbar(false, false, 0)
