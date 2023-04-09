@@ -135,7 +135,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 		x := float64(objOffX * world.ZoomScale)
 		y := float64(objOffY * world.ZoomScale)
 
-		iSize := item.Images.Image.Bounds()
+		iSize := item.Images.Main.Bounds()
 		if item.Rotatable {
 			xx := float64(iSize.Size().X / 2)
 			yy := float64(iSize.Size().Y / 2)
@@ -171,9 +171,9 @@ func drawItemPlacement(screen *ebiten.Image) {
 			op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 		}
 
-		img := item.Images.Image
-		if item.Images.ImageOverlay != nil {
-			img = item.Images.ImageOverlay
+		img := item.Images.Main
+		if item.Images.Overlay != nil {
+			img = item.Images.Overlay
 		}
 		screen.DrawImage(img, op)
 	}
@@ -471,7 +471,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Show objects with no fuel */
 			if obj.Unique.TypeP.MachineSettings.MaxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
 
-				img := objects.WorldOverlays[gv.ObjOverlayNoFuel].Images.Image
+				img := objects.WorldOverlays[gv.ObjOverlayNoFuel].Images.Main
 
 				iSize := img.Bounds()
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -520,7 +520,7 @@ func drawIconMode(screen *ebiten.Image) {
 				for _, port := range obj.Ports {
 					if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
 
-						img := objects.WorldOverlays[port.Dir].Images.Image
+						img := objects.WorldOverlays[port.Dir].Images.Main
 						iSize := img.Bounds()
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 						op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),
@@ -890,12 +890,12 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 	y := float64(objOffY * world.ZoomScale)
 
 	/* Draw sprite */
-	if obj.Unique.TypeP.Images.Image == nil {
+	if obj.Unique.TypeP.Images.Main == nil {
 		return nil, nil
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-		iSize := obj.Unique.TypeP.Images.Image.Bounds()
+		iSize := obj.Unique.TypeP.Images.Main.Bounds()
 
 		if obj.IsCorner {
 			xx := float64(iSize.Size().X / 2)
@@ -918,15 +918,15 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
 		if obj.IsCorner {
-			return op, obj.Unique.TypeP.Images.ImageCorner
+			return op, obj.Unique.TypeP.Images.Corner
 		} else if obj.Active {
-			return op, obj.Unique.TypeP.Images.ImageActive
+			return op, obj.Unique.TypeP.Images.Active
 		} else if world.OverlayMode {
-			return op, obj.Unique.TypeP.Images.ImageOverlay
+			return op, obj.Unique.TypeP.Images.Overlay
 		} else if maskOnly {
-			return op, obj.Unique.TypeP.Images.ImageMask
+			return op, obj.Unique.TypeP.Images.Mask
 		} else {
-			return op, obj.Unique.TypeP.Images.Image
+			return op, obj.Unique.TypeP.Images.Main
 		}
 
 	}

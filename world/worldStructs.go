@@ -245,12 +245,19 @@ type MaterialType struct {
 
 type ObjectImages struct {
 	/* Loaded images */
-	Image        *ebiten.Image
-	ToolbarImage *ebiten.Image
-	ImageMask    *ebiten.Image
-	ImageActive  *ebiten.Image
-	ImageCorner  *ebiten.Image
-	ImageOverlay *ebiten.Image
+	Main    *ebiten.Image
+	Toolbar *ebiten.Image
+	Mask    *ebiten.Image
+	Active  *ebiten.Image
+	Corner  *ebiten.Image
+	Overlay *ebiten.Image
+
+	DarkMain    *ebiten.Image
+	DarkToolbar *ebiten.Image
+	DarkMask    *ebiten.Image
+	DarkActive  *ebiten.Image
+	DarkCorner  *ebiten.Image
+	DarkOverlay *ebiten.Image
 }
 
 type MachineData struct {

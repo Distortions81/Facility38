@@ -98,7 +98,8 @@ func NewGame() *Game {
 		objects.GameRunning = false
 		time.Sleep(time.Millisecond * 500)
 
-		loadSprites()
+		loadSprites(false)
+		loadSprites(true)
 		objects.ResourceMapInit()
 		MakeMap(gv.LoadTest)
 		startGame()
@@ -132,17 +133,21 @@ func startGame() {
 }
 
 /* Load all sprites, sub missing ones */
-func loadSprites() {
+func loadSprites(dark bool) {
+	dstr := ""
+	if dark {
+		dstr = "-dark"
+	}
 
 	for _, otype := range objects.SubTypes {
 		for key, item := range otype.List {
 
 			/* Main */
-			img, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + ".png")
+			img, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + dstr + ".png")
 
 			/* If not found, check subfolder */
 			if err != nil {
-				img, err = data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + ".png")
+				img, err = data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + dstr + ".png")
 				if err != nil {
 					/* If not found, fill texture with text */
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
@@ -150,35 +155,51 @@ func loadSprites() {
 					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 				}
 			}
-			otype.List[key].Images.Image = img
+			if dark {
+				otype.List[key].Images.DarkMain = img
+			} else {
+				otype.List[key].Images.Main = img
+			}
 
 			/* Corner pieces */
-			imgc, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + "-corner.png")
+			imgc, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-corner.png")
 			if err != nil {
 				imgc = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				imgc.Fill(world.ColorVeryDarkGray)
 				text.Draw(imgc, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
-			otype.List[key].Images.ImageCorner = imgc
+			if dark {
+				otype.List[key].Images.DarkCorner = imgc
+			} else {
+				otype.List[key].Images.Corner = imgc
+			}
 
 			/* For active flag on objects */
-			imga, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + "-active.png")
+			imga, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-active.png")
 			if err != nil {
 				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				img.Fill(world.ColorVeryDarkGray)
 				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
-			otype.List[key].Images.ImageActive = imga
+			if dark {
+				otype.List[key].Images.DarkActive = imga
+			} else {
+				otype.List[key].Images.Active = imga
+			}
 
 			/* For mask on objects */
 
-			imgm, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + "-mask.png")
+			imgm, err := data.GetSpriteImage(gv.DataDir + otype.Folder + "/" + item.Base + dstr + "-mask.png")
 			if err != nil {
 				imgm = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
 				imgm.Fill(world.ColorVeryDarkGray)
 				text.Draw(imgm, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
-			otype.List[key].Images.ImageMask = imgm
+			if dark {
+				otype.List[key].Images.Mask = imgm
+			} else {
+				otype.List[key].Images.DarkMask = imgm
+			}
 
 			util.WASMSleep()
 		}
