@@ -34,16 +34,6 @@ var UIObjs = []*world.ObjType{
 		Name: "Layer", ToolbarAction: SwitchLayer,
 		Symbol: "LAYER", Description: "Toggle between the build and resource layer", QKey: ebiten.KeyF3,
 	},
-	{
-		Base: "save",
-		Name: "Save Game", ToolbarAction: SaveGame,
-		Symbol: "SAVE", ExcludeWASM: true, Description: "Quicksave game", QKey: ebiten.KeyF5,
-	},
-	{
-		Base: "load",
-		Name: "Load Game", ToolbarAction: LoadGame,
-		Symbol: "LOAD", ExcludeWASM: true, Description: "Load quicksave", QKey: ebiten.KeyF6,
-	},
 }
 
 /* Terrain types and images */
