@@ -152,7 +152,7 @@ var WorldObjs = []*world.ObjType{
 		Symbol:       "SMT",
 		UpdateObj:    smelterUpdate,
 		InitObj:      initSmelter,
-		LinkObj:      linkSmelter,
+		LinkObj:      linkMachine,
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -180,7 +180,7 @@ var WorldObjs = []*world.ObjType{
 		Symbol:       "CST",
 		UpdateObj:    casterUpdate,
 		InitObj:      initSmelter,
-		LinkObj:      linkSmelter,
+		LinkObj:      linkMachine,
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -208,7 +208,7 @@ var WorldObjs = []*world.ObjType{
 		Symbol:       "ROD",
 		UpdateObj:    rodCasterUpdate,
 		InitObj:      initSmelter,
-		LinkObj:      linkSmelter,
+		LinkObj:      linkMachine,
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -251,7 +251,6 @@ var WorldObjs = []*world.ObjType{
 		Category:    gv.ObjCatLoader,
 		Size:        world.XYs{X: 1, Y: 1},
 		Rotatable:   true,
-		ShowArrow:   false,
 		UpdateObj:   loaderUpdate,
 		LinkObj:     linkUnloader,
 		MachineSettings: world.MachineData{
@@ -282,6 +281,25 @@ var WorldObjs = []*world.ObjType{
 		},
 		TockInterval: uint8(world.ObjectUPS) * 2,
 		Symbol:       "LD",
+		Ports: []world.ObjPortData{
+			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+		},
+	},
+	{
+		Base:        "basic-slip-roller",
+		Name:        "Basic Slip Roller",
+		Description: "Press metal bar into sheets",
+		TypeI:       gv.ObjTypeBasicSlipRoller,
+		Category:    gv.ObjCatGeneric,
+		Size:        world.XYs{X: 2, Y: 2},
+		UpdateObj:   slipRollerUpdate,
+		LinkObj:     linkMachine,
+		MachineSettings: world.MachineData{
+			KW: 10,
+		},
+		TockInterval: uint8(world.ObjectUPS * 15),
+		Symbol:       "SR",
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},

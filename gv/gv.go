@@ -75,8 +75,9 @@ const (
 	ObjTypeBasicFuelHopper = 8
 	ObjTypeBasicUnloader   = 9
 	ObjTypeBasicLoader     = 10
+	ObjTypeBasicSlipRoller = 11
 
-	ObjTypeMax = 11
+	ObjTypeMax = 12
 
 	/* Object catagories */
 	ObjCatGeneric = 0

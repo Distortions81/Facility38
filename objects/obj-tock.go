@@ -537,3 +537,7 @@ func rodCasterUpdate(obj *world.ObjData) {
 		obj.Outputs[0].Buf.TypeP = result
 	}
 }
+
+func slipRollerUpdate(obj *world.ObjData) {
+
+}
