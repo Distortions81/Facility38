@@ -474,7 +474,7 @@ func rodCasterUpdate(obj *world.ObjData) {
 		}
 
 		/* Contents will fit */
-		if obj.KGHeld+(input.Buf.Amount*input.Buf.TypeP.KG) > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+		if obj.KGHeld+(input.Buf.Amount) > obj.Unique.TypeP.MachineSettings.MaxContainKG {
 			continue
 		}
 
