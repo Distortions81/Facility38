@@ -20,7 +20,6 @@ import (
 
 const (
 	cBlockedIndicatorOffset = 0
-	cPreCache               = 4
 	WASMTerrainDiv          = 5
 	MaxBatch                = 100000
 )
@@ -77,8 +76,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	updateVisData()
 
 	/* WASM terrain rendering */
-	if gv.WASMMode && frameCount%WASMTerrainDiv == 0 {
-		objects.RenderTerrainST()
+	if gv.WASMMode {
+		if frameCount%WASMTerrainDiv == 0 {
+			RenderTerrainST()
+		}
+	} else {
+		RenderTerrainST()
 	}
 
 	/* Draw modes */
@@ -212,16 +215,6 @@ func updateVisData() {
 			sChunk.Visible = true
 
 			for _, chunk := range sChunk.ChunkList {
-
-				/* Is this chunk in the prerender area? */
-				if chunk.Pos.X+cPreCache < screenStartX ||
-					chunk.Pos.X-cPreCache > screenEndX ||
-					chunk.Pos.Y+cPreCache < screenStartY ||
-					chunk.Pos.Y-cPreCache > screenEndY {
-					chunk.Precache = false
-					continue
-				}
-				chunk.Precache = true
 
 				/* Is this chunk on the screen? */
 				if chunk.Pos.X < screenStartX ||
@@ -585,8 +578,8 @@ func drawPixmapMode(screen *ebiten.Image) {
 
 	/* Single thread render terrain for WASM */
 	if gv.WASMMode && frameCount%WASMTerrainDiv == 0 {
-		objects.ResourceRenderDaemonST()
-		objects.PixmapRenderST()
+		ResourceRenderDaemonST()
+		PixmapRenderST()
 	}
 	/* Draw superchunk images (pixmap mode)*/
 	world.SuperChunkListLock.RLock()

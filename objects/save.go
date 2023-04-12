@@ -273,10 +273,6 @@ func LoadGame() {
 			count++
 		}
 
-		/* Refresh resources */
-		for _, sChunk := range world.SuperChunkList {
-			drawResource(sChunk)
-		}
 		world.VisDataDirty.Store(true)
 
 		world.TickListLock.Unlock()

@@ -128,10 +128,9 @@ func startGame() {
 
 	objects.GameRunning = true
 	if !gv.WASMMode {
-		go objects.RenderTerrainDaemon()
-		go objects.PixmapRenderDaemon()
+		go PixmapRenderDaemon()
 		go objects.ObjUpdateDaemon()
-		go objects.ResourceRenderDaemon()
+		go ResourceRenderDaemon()
 	} else {
 		util.WASMSleep()
 		go objects.ObjUpdateDaemonST()
@@ -240,7 +239,7 @@ func loadSprites(dark bool) {
 	LinkSprites(false)
 	LinkSprites(true)
 
-	objects.SetupTerrainCache()
+	SetupTerrainCache()
 	DrawToolbar(false, false, 0)
 	world.SpritesLoaded.Store(true)
 }
