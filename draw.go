@@ -865,7 +865,7 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 	_, _, _, alpha := bgcolor.RGBA()
 
 	if alpha > 0 {
-		vector.DrawFilledRect(screen, mx-halfPad, my-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor)
+		vector.DrawFilledRect(screen, mx-halfPad, my-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, true)
 	}
 	text.Draw(screen, input, face, int(mx), int(my), color)
 }
