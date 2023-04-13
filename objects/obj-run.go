@@ -11,11 +11,11 @@ import (
 
 var (
 	minWorkSize = 1000
-	margin      = 1.2
+	margin      = 1.1
 
 	largeThreshold  = minWorkSize
-	minSleep        = 200 * time.Microsecond //Sleeping for less than this does not appear effective.
-	BlocksPerWorker = 10
+	minSleep        = 400 * time.Microsecond //Sleeping for less than this does not appear effective.
+	BlocksPerWorker = 4
 )
 
 func init() {
