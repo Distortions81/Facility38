@@ -698,22 +698,22 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				if o.Unique.Contents != nil {
 					for z := 0; z < gv.MAT_MAX; z++ {
 						if o.Unique.Contents.Mats[z] != nil {
-							toolTip = toolTip + fmt.Sprintf("Contents: %v: %0.2f%v\n",
-								o.Unique.Contents.Mats[z].TypeP.Name, o.Unique.Contents.Mats[z].Amount, o.Unique.Contents.Mats[z].TypeP.UnitName)
+							toolTip = toolTip + fmt.Sprintf("Contents: %v: %v\n",
+								o.Unique.Contents.Mats[z].TypeP.Name, objects.PrintUnit(o.Unique.Contents.Mats[z]))
 						}
 					}
 				}
 				if o.Unique.TypeP.MachineSettings.MaxFuelKG > 0 {
-					toolTip = toolTip + fmt.Sprintf("Max Fuel: %0.2f kg\n", o.Unique.TypeP.MachineSettings.MaxFuelKG)
+					toolTip = toolTip + fmt.Sprintf("Max Fuel: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxFuelKG))
 					if o.Unique.KGFuel > o.Unique.TypeP.MachineSettings.KgFuelPerCycle {
-						toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.Unique.KGFuel)
+						toolTip = toolTip + fmt.Sprintf("Fuel: %v\n", objects.PrintWeight(o.Unique.KGFuel))
 					} else {
 						toolTip = toolTip + "NO FUEL\n"
 					}
 				}
 
 				if o.Unique.SingleContent != nil && o.Unique.SingleContent.Amount > 0 {
-					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.Unique.SingleContent.Amount, o.Unique.SingleContent.TypeP.UnitName, o.Unique.SingleContent.TypeP.Name)
+					toolTip = toolTip + fmt.Sprintf("Contains: %v %v\n", objects.PrintUnit(o.Unique.SingleContent), o.Unique.SingleContent.TypeP.Name)
 				}
 
 				if o.Blocked {
@@ -725,13 +725,13 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 				if gv.Debug {
 					if o.Unique.TypeP.MachineSettings.KgFuelPerCycle > 0 {
-						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %0.2f kg\n", o.Unique.TypeP.MachineSettings.KgFuelPerCycle)
+						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgFuelPerCycle))
 					}
 					if o.Unique.TypeP.MachineSettings.KgPerCycle > 0 {
-						toolTip = toolTip + fmt.Sprintf("Per Cycle: %0.2f kg\n", o.Unique.TypeP.MachineSettings.KgPerCycle)
+						toolTip = toolTip + fmt.Sprintf("Per Cycle: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgPerCycle))
 					}
 					if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
-						toolTip = toolTip + fmt.Sprintf("Max contents: %0.2f kg\n", o.Unique.TypeP.MachineSettings.MaxContainKG)
+						toolTip = toolTip + fmt.Sprintf("Max contents: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
 					}
 
 					for _, p := range o.Ports {
@@ -739,45 +739,44 @@ func drawWorldTooltip(screen *ebiten.Image) {
 							continue
 						}
 						var tstring = "None"
-						var tunit = "?"
 						if p.Buf.TypeP != nil {
 							tstring = p.Buf.TypeP.Name
-							tunit = p.Buf.TypeP.UnitName
 						}
 
 						if p.Type == gv.PORT_IN {
-							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %0.2f %v\n",
+							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %v (%v)\n",
 								util.DirToName(uint8(p.Dir)),
 								p.Obj.Unique.TypeP.Name,
 								tstring,
-								p.Buf.Amount,
-								tunit)
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
 						} else if p.Type == gv.PORT_OUT {
-							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %0.2f %v\n",
+							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %v (%v)\n",
 								util.DirToName(uint8(p.Dir)),
 								p.Obj.Unique.TypeP.Name,
 								tstring,
-								p.Buf.Amount,
-								tunit)
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
 						} else if p.Type == gv.PORT_FOUT {
-							toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %0.2f %v\n",
+							toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %v (%v)\n",
 								util.DirToName(uint8(p.Dir)),
 								p.Obj.Unique.TypeP.Name,
 								tstring,
-								p.Buf.Amount,
-								tunit)
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
 						} else if p.Type == gv.PORT_FIN {
-							toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %0.2f %v\n",
+							toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %v (%v)\n",
 								util.DirToName(uint8(p.Dir)),
 								p.Obj.Unique.TypeP.Name,
 								tstring,
-								p.Buf.Amount,
-								tunit)
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
 						}
 					}
 					if o.Unique.TypeP != nil {
 						if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
-							toolTip = toolTip + fmt.Sprintf("MaxContainKG: %v\n", o.Unique.TypeP.MachineSettings.MaxContainKG)
+							toolTip = toolTip + fmt.Sprintf("MaxContain: %v\n",
+								objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
 						}
 						if o.Unique.TypeP.MachineSettings.KW > 0 {
 							toolTip = toolTip + fmt.Sprintf("KW: %v\n", o.Unique.TypeP.MachineSettings.KW)

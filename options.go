@@ -71,6 +71,7 @@ func init() {
 		{Text: "Uncap UPS", Action: toggleUPSCap},
 		{Text: "Debug mode", Action: toggleDebug},
 		{Text: "Load test map", Action: toggleTestMap},
+		{Text: "Imperial Units", Action: toggleUnits},
 		{Text: "Quit game", Action: quitGame, NoCheck: true},
 	}
 }
@@ -86,6 +87,16 @@ func quitGame(item int) {
 		time.Sleep(time.Second * 2)
 		os.Exit(0)
 	}()
+}
+
+func toggleUnits(item int) {
+	if world.ImperialUnits {
+		world.ImperialUnits = false
+		settingItems[item].Enabled = false
+	} else {
+		world.ImperialUnits = true
+		settingItems[item].Enabled = true
+	}
 }
 
 func toggleTestMap(item int) {
