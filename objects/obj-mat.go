@@ -74,4 +74,15 @@ var MatTypes = []*world.MaterialType{
 		Density: 8.88, KG: 10,
 		IsDiscrete: true, IsSolid: true, IsRod: true,
 		UnitName: "kg", TypeI: gv.MAT_COPPER_ROD},
+
+	/* Sheet Metal */
+	{Symbol: "FES", Name: "Iron Sheet", Base: "iron-sheet",
+		Density: 7.13, KG: 10,
+		IsDiscrete: true, IsSolid: true, IsSheetMetal: true,
+		UnitName: "kg", TypeI: gv.MAT_IRON_SHEET},
+
+	{Symbol: "CuS", Name: "Copper Sheet", Base: "copper-sheet",
+		Density: 8.88, KG: 10,
+		IsDiscrete: true, IsSolid: true, IsSheetMetal: true,
+		UnitName: "kg", TypeI: gv.MAT_COPPER_SHEET},
 }

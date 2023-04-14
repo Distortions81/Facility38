@@ -109,7 +109,10 @@ const (
 	MAT_IRON_ROD   = 16
 	MAT_COPPER_ROD = 17
 
-	MAT_MAX = 18
+	MAT_IRON_SHEET   = 18
+	MAT_COPPER_SHEET = 19
+
+	MAT_MAX = 20
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0

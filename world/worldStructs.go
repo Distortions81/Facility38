@@ -11,6 +11,20 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+type RecipeData struct {
+	Name     string
+	BaseName string
+	TypeI    int
+
+	Requires  []int
+	RequiresP []*MaterialType
+
+	Result  int
+	Resultp []*MaterialType
+
+	MachineType int
+}
+
 /* Chat line data */
 type ChatLines struct {
 	Text string
@@ -236,10 +250,11 @@ type MaterialType struct {
 	IsFuel     bool
 
 	/* Process Types */
-	IsOre  bool
-	IsShot bool
-	IsBar  bool
-	IsRod  bool
+	IsOre        bool
+	IsShot       bool
+	IsBar        bool
+	IsRod        bool
+	IsSheetMetal bool
 
 	/* After processing */
 	Result uint8
