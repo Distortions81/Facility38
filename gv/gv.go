@@ -80,10 +80,20 @@ const (
 	ObjTypeMax = 12
 
 	/* Recipes */
-	RecIronSheet   = 0
-	RecCopperSheet = 1
+	RecIronShot   = 0
+	RecCopperShot = 1
+	RecStoneBlock = 2
 
-	RecMax = 2
+	RecIronBar   = 3
+	RecCopperBar = 4
+
+	RecIronRod   = 5
+	RecCopperRod = 6
+
+	RecIronSheet   = 7
+	RecCopperSheet = 8
+
+	RecMax = 9
 
 	/* Object catagories */
 	ObjCatGeneric = 0
@@ -99,26 +109,28 @@ const (
 	MAT_IRON_ORE   = 4
 	MAT_COPPER_ORE = 5
 	MAT_STONE_ORE  = 6
-	MAT_MIXORE     = 7
+	MAT_MIX_ORE    = 7
 
 	MAT_IRON_SHOT   = 8
 	MAT_COPPER_SHOT = 9
-	MAT_STONE_BLOCK = 10
 	MAT_SLAG_SHOT   = 11
+	MAT_STONE_SHOT  = 12
 
-	MAT_OBJ = 12
+	MAT_IRON_BAR    = 13
+	MAT_COPPER_BAR  = 14
+	MAT_SLAG_BAR    = 15
+	MAT_STONE_BLOCK = 16
 
-	MAT_IRON_BAR   = 13
-	MAT_COPPER_BAR = 14
-	MAT_SLAG_BAR   = 15
+	MAT_IRON_ROD   = 17
+	MAT_COPPER_ROD = 18
+	MAT_SLAG_ROD   = 19
 
-	MAT_IRON_ROD   = 16
-	MAT_COPPER_ROD = 17
+	MAT_IRON_SHEET   = 20
+	MAT_COPPER_SHEET = 21
+	MAT_SLAG_SHEET   = 22
 
-	MAT_IRON_SHEET   = 18
-	MAT_COPPER_SHEET = 19
-
-	MAT_MAX = 20
+	MAT_OBJ = 23
+	MAT_MAX = 24
 
 	/* Placeholder texture words render offset */
 	PlaceholdOffX = 0

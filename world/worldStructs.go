@@ -18,7 +18,7 @@ type RecipeData struct {
 	Requires  []int
 	RequiresP []*MaterialType
 
-	Result  int
+	Result  []int
 	ResultP []*MaterialType
 
 	MachineTypes []int
@@ -254,9 +254,6 @@ type MaterialType struct {
 	IsBar        bool
 	IsRod        bool
 	IsSheetMetal bool
-
-	/* After processing */
-	Result uint8
 }
 
 type ObjectImages struct {
