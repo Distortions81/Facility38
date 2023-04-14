@@ -13,7 +13,7 @@ import (
 
 type RecipeData struct {
 	Name  string
-	TypeI int
+	TypeI uint16
 
 	Requires  []int
 	RequiresP []*MaterialType
@@ -175,21 +175,23 @@ type ObjData struct {
 	LastOutput uint8
 
 	//Port aliases, prevent looping all ports
-	Ports   []ObjPortData
+	Ports []ObjPortData
+
 	Outputs []*ObjPortData
 	Inputs  []*ObjPortData
-	FuelIn  []*ObjPortData
 
+	FuelIn  []*ObjPortData
 	FuelOut []*ObjPortData
 
 	IsCorner  bool
 	CornerDir uint8
 
 	//Prevent needing to use len()
-	NumOut   uint8
-	NumIn    uint8
-	NumFIn   uint8
-	NumFOut  uint8
+	NumOut  uint8
+	NumIn   uint8
+	NumFIn  uint8
+	NumFOut uint8
+
 	Recipies []*RecipeData
 
 	//Internal Tock() use
@@ -235,6 +237,7 @@ type MaterialType struct {
 	UnitName string
 	Density  float32 /* g/cm3 */
 	KG       float32
+	Recipies []*RecipeData
 
 	Image      *ebiten.Image
 	LightImage *ebiten.Image

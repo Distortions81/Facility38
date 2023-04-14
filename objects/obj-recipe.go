@@ -5,7 +5,7 @@ import (
 	"GameTest/world"
 )
 
-/* Link up recipe pointers, assign a typei */
+/* Link up recipe pointers */
 func init() {
 	for rpos, rec := range Recipies {
 		for reqPos, req := range rec.Requires {
