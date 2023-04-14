@@ -6,13 +6,10 @@ import (
 )
 
 /* World objects and images */
-var GameObjTypes = []*world.ObjType{
+var WorldObjs = []*world.ObjType{
 	//Game Objects
 	{
-		Images: world.ObjectImages{
-			ImagePath:       "world-obj/basic-miner-64.png",
-			ImageActivePath: "world-obj/basic-miner-active-64.png",
-		},
+		Base:        "basic-miner",
 		Name:        "Basic Miner",
 		Description: "Mines solid resources where placed, requires coal fuel.",
 		TypeI:       gv.ObjTypeBasicMiner,
@@ -43,11 +40,7 @@ var GameObjTypes = []*world.ObjType{
 	},
 
 	{
-		Images: world.ObjectImages{
-			ImagePath:        "world-obj/basic-belt.png",
-			ImageOverlayPath: "world-obj/basic-belt-overlay.png",
-			ImageCornerPath:  "world-obj/basic-belt-corner.png",
-		},
+		Base:        "basic-belt",
 		Name:        "Basic Belt",
 		Description: "Moves items from rear and sides in direction of arrow.",
 		TypeI:       gv.ObjTypeBasicBelt,
@@ -65,12 +58,7 @@ var GameObjTypes = []*world.ObjType{
 		},
 	},
 	{
-		Images: world.ObjectImages{
-			ImagePath:        "world-obj/belt-over.png",
-			ToolbarPath:      "world-obj/belt-over-ui.png",
-			ImageOverlayPath: "world-obj/belt-over-overlay.png",
-			ImageMaskPath:    "world-obj/belt-over-mask.png",
-		},
+		Base:        "basic-belt-over",
 		Name:        "Basic Belt Overpass",
 		Description: "A belt that has an underpass.",
 		TypeI:       gv.ObjTypeBasicBeltOver,
@@ -96,9 +84,7 @@ var GameObjTypes = []*world.ObjType{
 	},
 
 	{
-		Images: world.ObjectImages{
-			ImagePath: "world-obj/basic-splitter.png",
-		},
+		Base:         "basic-splitter",
 		Name:         "Basic Splitter",
 		Description:  "Input from back, outputs equally to up to 3 outputs.",
 		TypeI:        gv.ObjTypeBasicSplit,
@@ -121,11 +107,9 @@ var GameObjTypes = []*world.ObjType{
 	},
 
 	{
-		Images: world.ObjectImages{
-			ImagePath: "world-obj/basic-box.png",
-		},
-		Description: "Currently only stores objects (no unloader yet).",
+		Base:        "basic-box",
 		Name:        "Basic Box",
+		Description: "Currently only stores objects (no unloader yet).",
 		TypeI:       gv.ObjTypeBasicBox,
 		Category:    gv.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
@@ -152,10 +136,7 @@ var GameObjTypes = []*world.ObjType{
 	},
 
 	{
-		Images: world.ObjectImages{
-			ImagePath:       "world-obj/basic-smelter.png",
-			ImageActivePath: "world-obj/basic-smelter-active.png",
-		},
+		Base:        "basic-smelter",
 		Name:        "Basic Smelter",
 		Description: "Bakes solid ores into metal or stone bricks, requires coal fuel.",
 		TypeI:       gv.ObjTypeBasicSmelter,
@@ -171,7 +152,7 @@ var GameObjTypes = []*world.ObjType{
 		Symbol:       "SMT",
 		UpdateObj:    smelterUpdate,
 		InitObj:      initSmelter,
-		LinkObj:      linkSmelter,
+		LinkObj:      linkMachine,
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -183,10 +164,7 @@ var GameObjTypes = []*world.ObjType{
 	},
 
 	{
-		Images: world.ObjectImages{
-			ImagePath:       "world-obj/basic-caster.png",
-			ImageActivePath: "world-obj/basic-caster-active.png",
-		},
+		Base:        "basic-caster",
 		Name:        "Basic Caster",
 		Description: "Casts metal shot into bars.",
 		TypeI:       gv.ObjTypeBasicCaster,
@@ -202,7 +180,7 @@ var GameObjTypes = []*world.ObjType{
 		Symbol:       "CST",
 		UpdateObj:    casterUpdate,
 		InitObj:      initSmelter,
-		LinkObj:      linkSmelter,
+		LinkObj:      linkMachine,
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -214,10 +192,7 @@ var GameObjTypes = []*world.ObjType{
 	},
 
 	{
-		Images: world.ObjectImages{
-			ImagePath:       "world-obj/basic-rod-caster.png",
-			ImageActivePath: "world-obj/basic-rod-caster-active.png",
-		},
+		Base:        "basic-rod-caster",
 		Name:        "Basic Rod Caster",
 		Description: "Casts metal bars into rods.",
 		TypeI:       gv.ObjTypeBasicRodCaster,
@@ -233,7 +208,7 @@ var GameObjTypes = []*world.ObjType{
 		Symbol:       "ROD",
 		UpdateObj:    rodCasterUpdate,
 		InitObj:      initSmelter,
-		LinkObj:      linkSmelter,
+		LinkObj:      linkMachine,
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
@@ -245,10 +220,7 @@ var GameObjTypes = []*world.ObjType{
 	},
 
 	{
-		Images: world.ObjectImages{
-			ImagePath:       "world-obj/basic-fuel-hopper.png",
-			ImageActivePath: "world-obj/basic-fuel-hopper-active.png",
-		},
+		Base:        "basic-fuel-hopper",
 		Name:        "Basic Fuel Hopper",
 		Description: "Loads soild fuel into machines",
 		TypeI:       gv.ObjTypeBasicFuelHopper,
@@ -272,16 +244,13 @@ var GameObjTypes = []*world.ObjType{
 		},
 	},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "world-obj/basic-unloader.png",
-		},
+		Base:        "basic-unloader",
 		Name:        "Basic Unloader",
 		Description: "Unloads Material from objects.",
 		TypeI:       gv.ObjTypeBasicUnloader,
 		Category:    gv.ObjCatLoader,
 		Size:        world.XYs{X: 1, Y: 1},
 		Rotatable:   true,
-		ShowArrow:   false,
 		UpdateObj:   loaderUpdate,
 		LinkObj:     linkUnloader,
 		MachineSettings: world.MachineData{
@@ -296,9 +265,7 @@ var GameObjTypes = []*world.ObjType{
 		},
 	},
 	{
-		Images: world.ObjectImages{
-			ImagePath: "world-obj/basic-loader.png",
-		},
+		Base:        "basic-loader",
 		Name:        "Basic Loader",
 		Description: "Loads Material into objects.",
 		TypeI:       gv.ObjTypeBasicLoader,
@@ -314,6 +281,25 @@ var GameObjTypes = []*world.ObjType{
 		},
 		TockInterval: uint8(world.ObjectUPS) * 2,
 		Symbol:       "LD",
+		Ports: []world.ObjPortData{
+			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
+			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
+		},
+	},
+	{
+		Base:        "basic-slip-roller",
+		Name:        "Basic Slip Roller",
+		Description: "Press metal bar into sheets",
+		TypeI:       gv.ObjTypeBasicSlipRoller,
+		Category:    gv.ObjCatGeneric,
+		Size:        world.XYs{X: 2, Y: 2},
+		UpdateObj:   slipRollerUpdate,
+		LinkObj:     linkMachine,
+		MachineSettings: world.MachineData{
+			KW: 10,
+		},
+		TockInterval: uint8(world.ObjectUPS * 15),
+		Symbol:       "SR",
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},

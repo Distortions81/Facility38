@@ -48,21 +48,25 @@ func NoiseMap(x, y float32, p int) float32 {
 }
 
 var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
-	{Name: "Grass",
+	{Name: "Ground",
 		TypeI:      gv.MAT_NONE,
 		Scale:      32,
 		Alpha:      2,
 		Beta:       2.0,
 		N:          3,
 		Contrast:   2,
-		Brightness: 1,
+		Brightness: 2,
 		MaxValue:   5,
-		MinValue:   0,
+		MinValue:   -1,
 
-		ModRed: true,
+		ModRed:   true,
+		ModGreen: true,
+		ModBlue:  true,
 
 		ResourceMultiplier: 0,
 		RedMulti:           1,
+		BlueMulti:          1,
+		GreenMulti:         1,
 	},
 
 	/* Resources */

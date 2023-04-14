@@ -474,7 +474,100 @@ func rodCasterUpdate(obj *world.ObjData) {
 		}
 
 		/* Contents will fit */
-		if obj.KGHeld+(input.Buf.Amount*input.Buf.TypeP.KG) > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+		if obj.KGHeld+(input.Buf.Amount) > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+			continue
+		}
+
+		/* Set type if needed */
+		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
+			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+		}
+
+		/* Add to weight */
+		obj.KGHeld += (input.Buf.Amount * input.Buf.TypeP.KG)
+
+		/* Add input to contents */
+		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.TypeP.KG)
+		input.Buf.Amount = 0
+	}
+
+	/* Is there enough ore to process? */
+	if obj.Unique.SingleContent.Amount < 1 {
+		if obj.Active {
+			obj.Active = false
+		}
+		return
+	}
+
+	/* Do we have enough fuel? */
+	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
+		if obj.Active {
+			obj.Active = false
+		}
+		return
+	}
+
+	if !obj.Active {
+		obj.Active = true
+	}
+
+	/* Is it time to output? */
+	if obj.TickCount < obj.Unique.TypeP.TockInterval {
+		/* Increment timer */
+		obj.TickCount++
+		return
+	}
+	obj.TickCount = 0
+
+	/* Burn fuel */
+	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
+
+	/* Subtract ore */
+	obj.Unique.SingleContent.Amount--
+	/* Subtract ore weight */
+	obj.KGHeld -= obj.Unique.SingleContent.TypeP.KG
+
+	/* Output result */
+	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
+
+	obj.Outputs[0].Buf.Amount = result.KG
+
+	/* Find and set result type, if needed */
+	if obj.Outputs[0].Buf.TypeP != result {
+		obj.Outputs[0].Buf.TypeP = result
+	}
+}
+
+func slipRollerUpdate(obj *world.ObjData) {
+
+	/* Get fuel */
+	for _, fuel := range obj.FuelIn {
+
+		/* Will the fuel fit? */
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
+			continue
+		}
+
+		obj.Unique.KGFuel += fuel.Buf.Amount
+		fuel.Buf.Amount = 0
+		continue
+	}
+
+	/* Check input */
+	for _, input := range obj.Inputs {
+
+		/* Input contains something */
+		if input.Buf.Amount < 1 {
+			continue
+		}
+
+		/* Contents is metal bar */
+		if !input.Buf.TypeP.IsBar {
+			continue
+		}
+
+		/* Contents will fit */
+		if obj.KGHeld+(input.Buf.Amount) > obj.Unique.TypeP.MachineSettings.MaxContainKG {
 			continue
 		}
 

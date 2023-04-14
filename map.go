@@ -41,7 +41,7 @@ func MakeMap(gen bool) {
 			for j := 0; j < rows*columns; j++ {
 				cols++
 
-				tx := int(gv.XYCenter) - (columns*(beltLength+hSpace))/2
+				tx := int(gv.XYCenter) - ((columns * (beltLength + hSpace)) / 3)
 				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_EAST, true)
 				tx++
 				tx++

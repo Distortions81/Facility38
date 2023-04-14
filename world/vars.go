@@ -19,9 +19,10 @@ var (
 	UPSAvr = ewma.NewMovingAverage(gv.GameUPS * 10)
 	FPSAvr = ewma.NewMovingAverage(60)
 
-	FontDPI     float64 = gv.FontDPI
-	Vsync       bool    = true
-	OptionsOpen bool
+	FontDPI       float64 = gv.FontDPI
+	Vsync         bool    = true
+	OptionsOpen   bool
+	ImperialUnits bool = false
 
 	/* SuperChunk List */
 	SuperChunkList     []*MapSuperChunk

@@ -20,7 +20,6 @@ import (
 
 const (
 	cBlockedIndicatorOffset = 0
-	cPreCache               = 4
 	WASMTerrainDiv          = 5
 	MaxBatch                = 100000
 )
@@ -77,8 +76,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	updateVisData()
 
 	/* WASM terrain rendering */
-	if gv.WASMMode && frameCount%WASMTerrainDiv == 0 {
-		objects.RenderTerrainST()
+	if gv.WASMMode {
+		if frameCount%WASMTerrainDiv == 0 {
+			RenderTerrainST()
+		}
+	} else {
+		RenderTerrainST()
 	}
 
 	/* Draw modes */
@@ -115,7 +118,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 		mx, my := ebiten.CursorPosition()
 
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-		item := objects.GameObjTypes[SelectedItemType]
+		item := objects.WorldObjs[SelectedItemType]
 
 		/* Get mouse position on world */
 		worldMouseX := int(float32(mx)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
@@ -135,7 +138,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 		x := float64(objOffX * world.ZoomScale)
 		y := float64(objOffY * world.ZoomScale)
 
-		iSize := item.Images.Image.Bounds()
+		iSize := item.Images.Main.Bounds()
 		if item.Rotatable {
 			xx := float64(iSize.Size().X / 2)
 			yy := float64(iSize.Size().Y / 2)
@@ -171,9 +174,9 @@ func drawItemPlacement(screen *ebiten.Image) {
 			op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 		}
 
-		img := item.Images.Image
-		if item.Images.ImageOverlay != nil {
-			img = item.Images.ImageOverlay
+		img := item.Images.Main
+		if item.Images.Overlay != nil {
+			img = item.Images.Overlay
 		}
 		screen.DrawImage(img, op)
 	}
@@ -212,16 +215,6 @@ func updateVisData() {
 			sChunk.Visible = true
 
 			for _, chunk := range sChunk.ChunkList {
-
-				/* Is this chunk in the prerender area? */
-				if chunk.Pos.X+cPreCache < screenStartX ||
-					chunk.Pos.X-cPreCache > screenEndX ||
-					chunk.Pos.Y+cPreCache < screenStartY ||
-					chunk.Pos.Y-cPreCache > screenEndY {
-					chunk.Precache = false
-					continue
-				}
-				chunk.Precache = true
 
 				/* Is this chunk on the screen? */
 				if chunk.Pos.X < screenStartX ||
@@ -471,7 +464,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Show objects with no fuel */
 			if obj.Unique.TypeP.MachineSettings.MaxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
 
-				img := objects.ObjOverlayTypes[gv.ObjOverlayNoFuel].Images.Image
+				img := objects.WorldOverlays[gv.ObjOverlayNoFuel].Images.Main
 
 				iSize := img.Bounds()
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -520,7 +513,7 @@ func drawIconMode(screen *ebiten.Image) {
 				for _, port := range obj.Ports {
 					if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
 
-						img := objects.ObjOverlayTypes[port.Dir].Images.Image
+						img := objects.WorldOverlays[port.Dir].Images.Main
 						iSize := img.Bounds()
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 						op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),
@@ -585,8 +578,8 @@ func drawPixmapMode(screen *ebiten.Image) {
 
 	/* Single thread render terrain for WASM */
 	if gv.WASMMode && frameCount%WASMTerrainDiv == 0 {
-		objects.ResourceRenderDaemonST()
-		objects.PixmapRenderST()
+		ResourceRenderDaemonST()
+		PixmapRenderST()
 	}
 	/* Draw superchunk images (pixmap mode)*/
 	world.SuperChunkListLock.RLock()
@@ -705,22 +698,22 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				if o.Unique.Contents != nil {
 					for z := 0; z < gv.MAT_MAX; z++ {
 						if o.Unique.Contents.Mats[z] != nil {
-							toolTip = toolTip + fmt.Sprintf("Contents: %v: %0.2f%v\n",
-								o.Unique.Contents.Mats[z].TypeP.Name, o.Unique.Contents.Mats[z].Amount, o.Unique.Contents.Mats[z].TypeP.UnitName)
+							toolTip = toolTip + fmt.Sprintf("Contents: %v: %v\n",
+								o.Unique.Contents.Mats[z].TypeP.Name, objects.PrintUnit(o.Unique.Contents.Mats[z]))
 						}
 					}
 				}
 				if o.Unique.TypeP.MachineSettings.MaxFuelKG > 0 {
-					toolTip = toolTip + fmt.Sprintf("Max Fuel: %0.2f kg\n", o.Unique.TypeP.MachineSettings.MaxFuelKG)
+					toolTip = toolTip + fmt.Sprintf("Max Fuel: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxFuelKG))
 					if o.Unique.KGFuel > o.Unique.TypeP.MachineSettings.KgFuelPerCycle {
-						toolTip = toolTip + fmt.Sprintf("Fuel: %0.2f kg\n", o.Unique.KGFuel)
+						toolTip = toolTip + fmt.Sprintf("Fuel: %v\n", objects.PrintWeight(o.Unique.KGFuel))
 					} else {
 						toolTip = toolTip + "NO FUEL\n"
 					}
 				}
 
 				if o.Unique.SingleContent != nil && o.Unique.SingleContent.Amount > 0 {
-					toolTip = toolTip + fmt.Sprintf("Contains: %0.2f%v %v\n", o.Unique.SingleContent.Amount, o.Unique.SingleContent.TypeP.UnitName, o.Unique.SingleContent.TypeP.Name)
+					toolTip = toolTip + fmt.Sprintf("Contains: %v %v\n", objects.PrintUnit(o.Unique.SingleContent), o.Unique.SingleContent.TypeP.Name)
 				}
 
 				if o.Blocked {
@@ -732,13 +725,13 @@ func drawWorldTooltip(screen *ebiten.Image) {
 
 				if gv.Debug {
 					if o.Unique.TypeP.MachineSettings.KgFuelPerCycle > 0 {
-						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %0.2f kg\n", o.Unique.TypeP.MachineSettings.KgFuelPerCycle)
+						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgFuelPerCycle))
 					}
 					if o.Unique.TypeP.MachineSettings.KgPerCycle > 0 {
-						toolTip = toolTip + fmt.Sprintf("Per Cycle: %0.2f kg\n", o.Unique.TypeP.MachineSettings.KgPerCycle)
+						toolTip = toolTip + fmt.Sprintf("Per Cycle: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgPerCycle))
 					}
 					if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
-						toolTip = toolTip + fmt.Sprintf("Max contents: %0.2f kg\n", o.Unique.TypeP.MachineSettings.MaxContainKG)
+						toolTip = toolTip + fmt.Sprintf("Max contents: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
 					}
 
 					for _, p := range o.Ports {
@@ -746,45 +739,44 @@ func drawWorldTooltip(screen *ebiten.Image) {
 							continue
 						}
 						var tstring = "None"
-						var tunit = "?"
 						if p.Buf.TypeP != nil {
 							tstring = p.Buf.TypeP.Name
-							tunit = p.Buf.TypeP.UnitName
 						}
 
 						if p.Type == gv.PORT_IN {
-							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %0.2f %v\n",
+							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %v (%v)\n",
 								util.DirToName(uint8(p.Dir)),
 								p.Obj.Unique.TypeP.Name,
 								tstring,
-								p.Buf.Amount,
-								tunit)
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
 						} else if p.Type == gv.PORT_OUT {
-							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %0.2f %v\n",
+							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %v (%v)\n",
 								util.DirToName(uint8(p.Dir)),
 								p.Obj.Unique.TypeP.Name,
 								tstring,
-								p.Buf.Amount,
-								tunit)
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
 						} else if p.Type == gv.PORT_FOUT {
-							toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %0.2f %v\n",
+							toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %v (%v)\n",
 								util.DirToName(uint8(p.Dir)),
 								p.Obj.Unique.TypeP.Name,
 								tstring,
-								p.Buf.Amount,
-								tunit)
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
 						} else if p.Type == gv.PORT_FIN {
-							toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %0.2f %v\n",
+							toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %v (%v)\n",
 								util.DirToName(uint8(p.Dir)),
 								p.Obj.Unique.TypeP.Name,
 								tstring,
-								p.Buf.Amount,
-								tunit)
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
 						}
 					}
 					if o.Unique.TypeP != nil {
 						if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
-							toolTip = toolTip + fmt.Sprintf("MaxContainKG: %v\n", o.Unique.TypeP.MachineSettings.MaxContainKG)
+							toolTip = toolTip + fmt.Sprintf("MaxContain: %v\n",
+								objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
 						}
 						if o.Unique.TypeP.MachineSettings.KW > 0 {
 							toolTip = toolTip + fmt.Sprintf("KW: %v\n", o.Unique.TypeP.MachineSettings.KW)
@@ -865,7 +857,7 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 	_, _, _, alpha := bgcolor.RGBA()
 
 	if alpha > 0 {
-		vector.DrawFilledRect(screen, mx-halfPad, my-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor)
+		vector.DrawFilledRect(screen, mx-halfPad, my-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, true)
 	}
 	text.Draw(screen, input, face, int(mx), int(my), color)
 }
@@ -890,12 +882,12 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 	y := float64(objOffY * world.ZoomScale)
 
 	/* Draw sprite */
-	if obj.Unique.TypeP.Images.Image == nil {
+	if obj.Unique.TypeP.Images.Main == nil {
 		return nil, nil
 	} else {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-		iSize := obj.Unique.TypeP.Images.Image.Bounds()
+		iSize := obj.Unique.TypeP.Images.Main.Bounds()
 
 		if obj.IsCorner {
 			xx := float64(iSize.Size().X / 2)
@@ -918,15 +910,15 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
 		if obj.IsCorner {
-			return op, obj.Unique.TypeP.Images.ImageCorner
-		} else if obj.Active {
-			return op, obj.Unique.TypeP.Images.ImageActive
-		} else if world.OverlayMode && obj.Unique.TypeP.Images.ImageOverlayPath != "" {
-			return op, obj.Unique.TypeP.Images.ImageOverlay
+			return op, obj.Unique.TypeP.Images.Corner
+		} else if obj.Active && obj.Unique.TypeP.Images.Active != nil {
+			return op, obj.Unique.TypeP.Images.Active
+		} else if world.OverlayMode && obj.Unique.TypeP.Images.Overlay != nil {
+			return op, obj.Unique.TypeP.Images.Overlay
 		} else if maskOnly {
-			return op, obj.Unique.TypeP.Images.ImageMask
+			return op, obj.Unique.TypeP.Images.Mask
 		} else {
-			return op, obj.Unique.TypeP.Images.Image
+			return op, obj.Unique.TypeP.Images.Main
 		}
 
 	}

@@ -116,7 +116,7 @@ func linkBox(obj *world.ObjData) {
 	}
 }
 
-func linkSmelter(obj *world.ObjData) {
+func linkMachine(obj *world.ObjData) {
 	if obj.NumOut == 0 {
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)

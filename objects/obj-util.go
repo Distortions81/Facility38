@@ -6,6 +6,7 @@ import (
 	"GameTest/util"
 	"GameTest/world"
 	"fmt"
+	"math"
 	"math/rand"
 )
 
@@ -58,6 +59,53 @@ func RotatePosF64(coord world.XYs, dir uint8, size world.XYf64) world.XYf64 {
 
 }
 
+func PrintUnit(mat *world.MatData) string {
+	if mat != nil && mat.TypeP != nil {
+		if world.ImperialUnits && mat.TypeP.UnitName == " kg" {
+			buf := fmt.Sprintf("%0.2f lbs", mat.Amount*2.20462262185)
+			return buf
+		} else {
+			buf := fmt.Sprintf("%0.2f%v", mat.Amount, mat.TypeP.UnitName)
+			return buf
+		}
+	} else {
+		return ""
+	}
+}
+
+func PrintWeight(kg float32) string {
+
+	if world.ImperialUnits {
+		buf := fmt.Sprintf("%0.2f lbs", kg*2.20462262185)
+		return buf
+	} else {
+		buf := fmt.Sprintf("%0.2f kg", kg)
+		return buf
+	}
+}
+
+func CalcVolume(mat *world.MatData) string {
+	if mat != nil && mat.TypeP != nil {
+
+		density := mat.TypeP.Density
+		mass := mat.Amount
+		cm3 := ((mass / density) * 1000.0)
+		in3 := cm3 / 16.387064
+		inSide := math.Sqrt(float64(in3))
+		cmSide := math.Sqrt(float64(cm3))
+
+		var buf string
+		if world.ImperialUnits {
+			buf = fmt.Sprintf("%0.2f x %0.2f in", inSide, inSide)
+		} else {
+			buf = fmt.Sprintf("%0.2f x %0.2f cm", cmSide, cmSide)
+		}
+		return buf
+	} else {
+		return ""
+	}
+}
+
 /* Place and/or create a multi-tile object */
 func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast bool) *world.ObjData {
 
@@ -77,7 +125,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	/* New object */
 	if obj == nil {
 		newObj = &world.ObjData{}
-		newObj.Unique = &world.UniqueObject{TypeP: GameObjTypes[mtype]}
+		newObj.Unique = &world.UniqueObject{TypeP: WorldObjs[mtype]}
 	} else { /* Placing already existing object */
 		newObj = obj
 	}

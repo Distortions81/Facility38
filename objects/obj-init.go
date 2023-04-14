@@ -14,72 +14,72 @@ func init() {
 	for i := range MatTypes {
 		MatTypes[i].TypeI = uint8(i)
 	}
-	for i := range ObjOverlayTypes {
-		ObjOverlayTypes[i].TypeI = uint8(i)
+	for i := range WorldOverlays {
+		WorldOverlays[i].TypeI = uint8(i)
 	}
-	for i := range UIObjsTypes {
-		UIObjsTypes[i].TypeI = uint8(i)
+	for i := range UIObjs {
+		UIObjs[i].TypeI = uint8(i)
 	}
 
 	/* Pre-calculate some object values */
-	for i := range GameObjTypes {
+	for i := range WorldObjs {
 
 		/* Convert mining amount to interval */
-		if GameObjTypes[i].MachineSettings.KgHourMine > 0 {
-			GameObjTypes[i].MachineSettings.KgPerCycle = ((GameObjTypes[i].MachineSettings.KgHourMine / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].TockInterval)) * gv.TIMESCALE_MULTI
+		if WorldObjs[i].MachineSettings.KgHourMine > 0 {
+			WorldObjs[i].MachineSettings.KgPerCycle = ((WorldObjs[i].MachineSettings.KgHourMine / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * gv.TIMESCALE_MULTI
 		}
 		/* Convert Horsepower to solid to KW and solid fuel per interval */
-		if GameObjTypes[i].MachineSettings.HP > 0 {
-			KW := GameObjTypes[i].MachineSettings.HP * gv.HP_PER_KW
+		if WorldObjs[i].MachineSettings.HP > 0 {
+			KW := WorldObjs[i].MachineSettings.HP * gv.HP_PER_KW
 			COALKG := KW / gv.COAL_KWH_PER_KG
-			GameObjTypes[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].TockInterval)) * gv.TIMESCALE_MULTI
+			WorldObjs[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * gv.TIMESCALE_MULTI
 			/* Convert KW to solid fuel per interval */
-		} else if GameObjTypes[i].MachineSettings.KW > 0 {
-			COALKG := GameObjTypes[i].MachineSettings.KW / gv.COAL_KWH_PER_KG
-			GameObjTypes[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(GameObjTypes[i].TockInterval)) * gv.TIMESCALE_MULTI
+		} else if WorldObjs[i].MachineSettings.KW > 0 {
+			COALKG := WorldObjs[i].MachineSettings.KW / gv.COAL_KWH_PER_KG
+			WorldObjs[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * gv.TIMESCALE_MULTI
 		}
 
 		/* Auto calculate max fuel from fuel used per interval */
-		if GameObjTypes[i].MachineSettings.KgFuelPerCycle > 0 {
-			GameObjTypes[i].MachineSettings.MaxFuelKG = (GameObjTypes[i].MachineSettings.KgFuelPerCycle * 10)
-			if GameObjTypes[i].MachineSettings.MaxFuelKG < 50 {
-				GameObjTypes[i].MachineSettings.MaxFuelKG = 50
+		if WorldObjs[i].MachineSettings.KgFuelPerCycle > 0 {
+			WorldObjs[i].MachineSettings.MaxFuelKG = (WorldObjs[i].MachineSettings.KgFuelPerCycle * 10)
+			if WorldObjs[i].MachineSettings.MaxFuelKG < 50 {
+				WorldObjs[i].MachineSettings.MaxFuelKG = 50
 			}
 		}
 
 		/* Auto calculate max contain for miners */
-		if GameObjTypes[i].MachineSettings.KgPerCycle > 0 {
-			GameObjTypes[i].MachineSettings.MaxContainKG = (GameObjTypes[i].MachineSettings.KgPerCycle * 10)
-			if GameObjTypes[i].MachineSettings.MaxContainKG < 50 {
-				GameObjTypes[i].MachineSettings.MaxContainKG = 50
+		if WorldObjs[i].MachineSettings.KgPerCycle > 0 {
+			WorldObjs[i].MachineSettings.MaxContainKG = (WorldObjs[i].MachineSettings.KgPerCycle * 10)
+			if WorldObjs[i].MachineSettings.MaxContainKG < 50 {
+				WorldObjs[i].MachineSettings.MaxContainKG = 50
 			}
 		}
 
 		/* Flag item ports */
-		for p := range GameObjTypes[i].Ports {
-			pt := GameObjTypes[i].Ports[p].Type
+		for p := range WorldObjs[i].Ports {
+			pt := WorldObjs[i].Ports[p].Type
 
 			if pt == gv.PORT_IN {
-				GameObjTypes[i].HasInputs = true
+				WorldObjs[i].HasInputs = true
 			}
 			if pt == gv.PORT_OUT {
-				GameObjTypes[i].HasOutputs = true
+				WorldObjs[i].HasOutputs = true
 			}
 			if pt == gv.PORT_FOUT {
-				GameObjTypes[i].HasFOut = true
+				WorldObjs[i].HasFOut = true
 			}
 			if pt == gv.PORT_FIN {
-				GameObjTypes[i].HasFIn = true
+				WorldObjs[i].HasFIn = true
 			}
 
 		}
 
 		/* Flag non-square items */
-		if GameObjTypes[i].Size.X != GameObjTypes[i].Size.Y {
-			GameObjTypes[i].NonSquare = true
+		if WorldObjs[i].Size.X != WorldObjs[i].Size.Y {
+			WorldObjs[i].NonSquare = true
 		}
-		if GameObjTypes[i].Size.X > 1 || GameObjTypes[i].Size.Y > 1 {
-			GameObjTypes[i].MultiTile = true
+		if WorldObjs[i].Size.X > 1 || WorldObjs[i].Size.Y > 1 {
+			WorldObjs[i].MultiTile = true
 		}
 	}
 

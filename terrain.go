@@ -1,7 +1,8 @@
-package objects
+package main
 
 import (
 	"GameTest/gv"
+	"GameTest/objects"
 	"GameTest/util"
 	"GameTest/world"
 	"image"
@@ -53,7 +54,7 @@ func SetupTerrainCache() {
 func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 	chunkPix := (gv.SpriteScale * gv.ChunkSize)
 
-	var bg *ebiten.Image = TerrainTypes[0].Images.Image
+	var bg *ebiten.Image = objects.TerrainTypes[0].Images.Main
 	sx := int(float32(bg.Bounds().Size().X))
 	sy := int(float32(bg.Bounds().Size().Y))
 	var tImg *ebiten.Image
@@ -79,11 +80,13 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
 					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
-					h := NoiseMap(x, y, 0)
+					h := objects.NoiseMap(x, y, 0)
 
 					op.ColorScale.Reset()
-					op.ColorScale.Scale(h, 1, 1, 1)
-
+					op.ColorScale.Scale((h)-1.5, (h)-1.5, (h)-1.5, 1)
+				} else {
+					op.ColorScale.Reset()
+					op.ColorScale.Scale(0.4, 0.4, 0.4, 1)
 				}
 				opList[opPos] = op
 				opPos++
@@ -114,7 +117,7 @@ func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
 	if world.ZoomScale <= gv.MapPixelThreshold {
-		if !clearedCache && gv.WASMMode {
+		if gv.WASMMode && !clearedCache {
 			for _, sChunk := range world.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
 					killTerrainCache(chunk, true)
@@ -125,50 +128,21 @@ func RenderTerrainST() {
 	} else {
 		clearedCache = false
 
+		world.SuperChunkListLock.RLock()
+		for _, chunk := range VisChunk {
+			if chunk.UsingTemporary {
+				renderChunkGround(chunk, true, chunk.Pos)
+			}
+		}
+		world.SuperChunkListLock.RUnlock()
+
+		/* Kill non-visible */
 		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
-				if chunk.Precache && chunk.UsingTemporary {
-					renderChunkGround(chunk, true, chunk.Pos)
-					break
-				} else if !chunk.Precache {
+				if !chunk.Visible && !chunk.UsingTemporary {
 					killTerrainCache(chunk, false)
 				}
 			}
-		}
-	}
-}
-
-/* Loop to automatically render chunk terrain, will also dispose old tiles, useses SuperChunkList*/
-func RenderTerrainDaemon() {
-	for GameRunning {
-		time.Sleep(terrainRenderLoop)
-
-		/* If we zoom out, deallocate everything */
-		if world.ZoomScale <= gv.MapPixelThreshold {
-			if !clearedCache && gv.WASMMode {
-				world.SuperChunkListLock.RLock()
-				for _, sChunk := range world.SuperChunkList {
-					for _, chunk := range sChunk.ChunkList {
-						killTerrainCache(chunk, true)
-					}
-				}
-				world.SuperChunkListLock.RUnlock()
-				clearedCache = true
-			}
-		} else {
-			clearedCache = false
-
-			world.SuperChunkListLock.RLock()
-			for _, sChunk := range world.SuperChunkList {
-				for _, chunk := range sChunk.ChunkList {
-					if chunk.UsingTemporary {
-						renderChunkGround(chunk, true, chunk.Pos)
-					} else if !chunk.Precache {
-						killTerrainCache(chunk, false)
-					}
-				}
-			}
-			world.SuperChunkListLock.RUnlock()
 		}
 	}
 }
@@ -230,7 +204,7 @@ var pixmapCacheCleared bool
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
 
-	for GameRunning {
+	for objects.GameRunning {
 		time.Sleep(pixmapRenderLoop)
 
 		world.SuperChunkListLock.RLock()
@@ -268,7 +242,7 @@ func PixmapRenderDaemon() {
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func ResourceRenderDaemon() {
 
-	for GameRunning {
+	for objects.GameRunning {
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
@@ -313,12 +287,12 @@ func drawResource(sChunk *world.MapSuperChunk) {
 			worldY := float32((sChunk.Pos.Y * gv.SuperChunkTotal) + uint16(y))
 
 			var r, g, b float32 = 0.01, 0.01, 0.01
-			for p, nl := range NoiseLayers {
+			for p, nl := range objects.NoiseLayers {
 				if p == 0 {
 					continue
 				}
 
-				h := NoiseMap(worldX, worldY, p)
+				h := objects.NoiseMap(worldX, worldY, p)
 
 				Chunk := sChunk.ChunkMap[util.PosToChunkPos(world.XY{X: uint16(worldX), Y: uint16(worldY)})]
 				if Chunk != nil {

@@ -217,12 +217,14 @@ type ObjPortData struct {
 type MaterialType struct {
 	Symbol   string
 	Name     string
+	Base     string
 	UnitName string
 	Density  float32 /* g/cm3 */
 	KG       float32
 
-	ImagePath string
-	Image     *ebiten.Image
+	Image      *ebiten.Image
+	LightImage *ebiten.Image
+	DarkImage  *ebiten.Image
 
 	TypeI uint8 /* Place in MatTypes */
 
@@ -245,20 +247,26 @@ type MaterialType struct {
 
 type ObjectImages struct {
 	/* Loaded images */
-	Image        *ebiten.Image
-	ToolbarImage *ebiten.Image
-	ImageMask    *ebiten.Image
-	ImageActive  *ebiten.Image
-	ImageCorner  *ebiten.Image
-	ImageOverlay *ebiten.Image
+	Main    *ebiten.Image
+	Toolbar *ebiten.Image
+	Mask    *ebiten.Image
+	Active  *ebiten.Image
+	Corner  *ebiten.Image
+	Overlay *ebiten.Image
 
-	/* Image paths */
-	ImagePath        string //Main image
-	ToolbarPath      string //Path to toolbar specific sprite
-	ImageOverlayPath string //Optional image for info-overlay
-	ImageMaskPath    string //Image multi-layer objects such as the belt-overpass
-	ImageActivePath  string //Image to show when object is flagged active
-	ImageCornerPath  string //Used for belt corners
+	LightMain    *ebiten.Image
+	LightToolbar *ebiten.Image
+	LightMask    *ebiten.Image
+	LightActive  *ebiten.Image
+	LightCorner  *ebiten.Image
+	LightOverlay *ebiten.Image
+
+	DarkMain    *ebiten.Image
+	DarkToolbar *ebiten.Image
+	DarkMask    *ebiten.Image
+	DarkActive  *ebiten.Image
+	DarkCorner  *ebiten.Image
+	DarkOverlay *ebiten.Image
 }
 
 type MachineData struct {
@@ -276,6 +284,7 @@ type MachineData struct {
 
 /* Object type data, includes image, toolbar action, and update handler */
 type ObjType struct {
+	Base        string
 	Name        string
 	Description string
 

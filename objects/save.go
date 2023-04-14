@@ -239,7 +239,7 @@ func LoadGame() {
 			obj := &world.ObjData{
 				Pos: util.UnCenterXY(tempList.Objects[i].Pos),
 				Unique: &world.UniqueObject{
-					TypeP:    GameObjTypes[tempList.Objects[i].TypeI],
+					TypeP:    WorldObjs[tempList.Objects[i].TypeI],
 					Contents: tempList.Objects[i].Contents,
 					KGFuel:   tempList.Objects[i].KGFuel,
 				},
@@ -273,10 +273,6 @@ func LoadGame() {
 			count++
 		}
 
-		/* Refresh resources */
-		for _, sChunk := range world.SuperChunkList {
-			drawResource(sChunk)
-		}
 		world.VisDataDirty.Store(true)
 
 		world.TickListLock.Unlock()

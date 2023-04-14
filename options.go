@@ -71,6 +71,7 @@ func init() {
 		{Text: "Uncap UPS", Action: toggleUPSCap},
 		{Text: "Debug mode", Action: toggleDebug},
 		{Text: "Load test map", Action: toggleTestMap},
+		{Text: "Imperial Units", Action: toggleUnits},
 		{Text: "Quit game", Action: quitGame, NoCheck: true},
 	}
 }
@@ -86,6 +87,16 @@ func quitGame(item int) {
 		time.Sleep(time.Second * 2)
 		os.Exit(0)
 	}()
+}
+
+func toggleUnits(item int) {
+	if world.ImperialUnits {
+		world.ImperialUnits = false
+		settingItems[item].Enabled = false
+	} else {
+		world.ImperialUnits = true
+		settingItems[item].Enabled = true
+	}
 }
 
 func toggleTestMap(item int) {
@@ -201,7 +212,7 @@ func setupOptionsMenu() {
 	textHeight = base.Dy() + linePad
 	buttons = []image.Rectangle{}
 
-	img := objects.ObjOverlayTypes[8].Images.Image
+	img := objects.WorldOverlays[8].Images.Main
 
 	closeBoxPos.X = uint16(halfSWidth + halfWindowW - img.Bounds().Dx() - padding)
 	closeBoxPos.Y = uint16(halfSHeight - halfWindowH + padding)
@@ -255,7 +266,7 @@ func drawSettings(screen *ebiten.Image) {
 
 	/* Close box */
 	op.GeoM.Reset()
-	img := objects.ObjOverlayTypes[8].Images.Image
+	img := objects.WorldOverlays[8].Images.Main
 
 	op.GeoM.Translate(float64(closeBoxPos.X), float64(closeBoxPos.Y))
 	screen.DrawImage(img, op)
@@ -296,9 +307,9 @@ func drawSettings(screen *ebiten.Image) {
 			op.GeoM.Reset()
 			var check *ebiten.Image
 			if item.Enabled {
-				check = objects.ObjOverlayTypes[6].Images.Image
+				check = objects.WorldOverlays[6].Images.Main
 			} else {
-				check = objects.ObjOverlayTypes[7].Images.Image
+				check = objects.WorldOverlays[7].Images.Main
 			}
 			/* Draw checkmark */
 			op.GeoM.Translate(
