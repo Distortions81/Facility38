@@ -79,6 +79,12 @@ const (
 
 	ObjTypeMax = 12
 
+	/* Recipes */
+	RecIronSheet   = 0
+	RecCopperSheet = 1
+
+	RecMax = 2
+
 	/* Object catagories */
 	ObjCatGeneric = 0
 	ObjCatBelt    = 1

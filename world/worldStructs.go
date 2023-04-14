@@ -12,17 +12,16 @@ import (
 )
 
 type RecipeData struct {
-	Name     string
-	BaseName string
-	TypeI    int
+	Name  string
+	TypeI int
 
 	Requires  []int
 	RequiresP []*MaterialType
 
 	Result  int
-	Resultp []*MaterialType
+	ResultP []*MaterialType
 
-	MachineType int
+	MachineTypes []int
 }
 
 /* Chat line data */
