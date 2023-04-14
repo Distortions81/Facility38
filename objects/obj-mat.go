@@ -49,22 +49,26 @@ var MatTypes = []*world.MaterialType{
 	{Symbol: "FEB", Name: "Iron Bar", Base: "iron-bar",
 		Density: 7.13, KG: 10,
 		IsDiscrete: true, IsSolid: true, IsBar: true,
-		UnitName: "kg", TypeI: gv.MAT_IRON_BAR},
+		UnitName: "kg", TypeI: gv.MAT_IRON_BAR,
+	},
 
 	{Symbol: "CuB", Name: "Copper Bar", Base: "copper-bar",
 		Density: 8.88, KG: 10,
 		IsDiscrete: true, IsSolid: true, IsBar: true,
-		UnitName: "kg", TypeI: gv.MAT_COPPER_BAR},
+		UnitName: "kg", TypeI: gv.MAT_COPPER_BAR,
+	},
 
 	{Symbol: "MIX", Name: "Slag Bar", Base: "slag-bar",
 		Density: 2.5, KG: 10,
 		IsDiscrete: true, IsSolid: true, IsBar: true,
-		UnitName: "kg", TypeI: gv.MAT_SLAG_BAR},
+		UnitName: "kg", TypeI: gv.MAT_SLAG_BAR,
+	},
 
 	{Symbol: "STB", Name: "Stone Block", Base: "stone-block",
 		Density: 1.9, KG: 4.5,
 		IsDiscrete: true, IsSolid: true,
 		UnitName: "kg", TypeI: gv.MAT_STONE_BLOCK,
+	},
 
 	/* Rods */
 	{Symbol: "FER", Name: "Iron Rod", Base: "iron-rod",
@@ -76,8 +80,8 @@ var MatTypes = []*world.MaterialType{
 		Density: 8.88, KG: 10,
 		IsDiscrete: true, IsSolid: true, IsRod: true,
 		UnitName: "kg", TypeI: gv.MAT_COPPER_ROD},
-		
-		{Symbol: "STB", Name: "Slag Rod", Base: "slag-rod",
+
+	{Symbol: "STB", Name: "Slag Rod", Base: "slag-rod",
 		Density: 2.5, KG: 10,
 		IsDiscrete: true, IsSolid: true, IsRod: true,
 		UnitName: "kg", TypeI: gv.MAT_SLAG_ROD},
@@ -93,7 +97,7 @@ var MatTypes = []*world.MaterialType{
 		IsDiscrete: true, IsSolid: true, IsSheetMetal: true,
 		UnitName: "kg", TypeI: gv.MAT_COPPER_SHEET},
 
-		{Symbol: "SLS", Name: "Slag Sheet", Base: "slag-sheet",
+	{Symbol: "SLS", Name: "Slag Sheet", Base: "slag-sheet",
 		Density: 2.5, KG: 10,
 		IsDiscrete: true, IsSolid: true, IsSheetMetal: true,
 		UnitName: "kg", TypeI: gv.MAT_SLAG_SHEET},

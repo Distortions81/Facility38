@@ -97,7 +97,7 @@ func initSmelter(obj *world.ObjData) bool {
 	}
 
 	obj.Unique.SingleContent = &world.MatData{}
-	obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_MIXORE]
+	obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_MIX_ORE]
 
 	return true
 }

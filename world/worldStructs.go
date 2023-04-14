@@ -186,10 +186,11 @@ type ObjData struct {
 	CornerDir uint8
 
 	//Prevent needing to use len()
-	NumOut  uint8
-	NumIn   uint8
-	NumFIn  uint8
-	NumFOut uint8
+	NumOut   uint8
+	NumIn    uint8
+	NumFIn   uint8
+	NumFOut  uint8
+	Recipies []*RecipeData
 
 	//Internal Tock() use
 	BeltOver  *BeltOverType
