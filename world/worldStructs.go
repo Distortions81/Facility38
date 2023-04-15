@@ -15,13 +15,13 @@ type RecipeData struct {
 	Name  string
 	TypeI uint16
 
-	Requires  []uint8
-	RequiresP []*MaterialType
+	Requires  [gv.MAT_MAX]uint8
+	RequiresP [gv.MAT_MAX]*MaterialType
 
-	Result  []uint8
-	ResultP []*MaterialType
+	Result  [gv.MAT_MAX]uint8
+	ResultP [gv.MAT_MAX]*MaterialType
 
-	MachineTypes []uint8
+	MachineTypes [gv.ObjTypeMax]uint8
 }
 
 /* Chat line data */

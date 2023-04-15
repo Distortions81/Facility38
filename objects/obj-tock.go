@@ -281,14 +281,13 @@ func smelterUpdate(obj *world.ObjData) {
 			continue
 		}
 
-		/* Are we mixing materials? */
-		if obj.Unique.SingleContent.Amount > 0 &&
-			input.Buf.TypeP != obj.Unique.SingleContent.TypeP {
-			obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_SLAG_SHOT]
-
-			/* If not, set material type if needed */
-		} else if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
-			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+		/* Set type if needed */
+		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
+			if obj.Unique.SingleContent.Amount > 0 {
+				obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_MIX_ORE]
+			} else {
+				obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+			}
 		}
 
 		/* Add to weight */
@@ -325,6 +324,15 @@ func smelterUpdate(obj *world.ObjData) {
 		obj.TickCount++
 		return
 	}
+
+	/* Look up material */
+	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
+	if rec == nil {
+		cwlog.DoLog(true, "Nil recipie")
+		return
+	}
+	result := rec.ResultP[0]
+
 	obj.TickCount = 0
 
 	/* Burn fuel */
@@ -336,7 +344,6 @@ func smelterUpdate(obj *world.ObjData) {
 	obj.KGHeld -= obj.Unique.TypeP.MachineSettings.KgPerCycle
 
 	/* Output result */
-	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
 	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.MachineSettings.KgPerCycle
 
 	/* Find and set result type, if needed */
@@ -378,15 +385,9 @@ func casterUpdate(obj *world.ObjData) {
 			continue
 		}
 
-		/* Are we mixing materials? */
-		if input.Buf.TypeP != obj.Unique.SingleContent.TypeP {
-			/* Mixed materials */
-			if obj.Unique.SingleContent.Amount > 0 {
-				cwlog.DoLog(false, "Slag")
-				obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_SLAG_SHOT]
-			} else {
-				obj.Unique.SingleContent.TypeP = input.Buf.TypeP
-			}
+		/* Set type if needed */
+		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
+			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
 		}
 
 		/* Add to weight */
@@ -397,9 +398,24 @@ func casterUpdate(obj *world.ObjData) {
 		input.Buf.Amount = 0
 	}
 
+	/* Is there enough ore to process? */
+	if obj.Unique.SingleContent.Amount < 1 {
+		if obj.Active {
+			obj.Active = false
+		}
+		return
+	}
+
 	/* Process ores */
 	/* Is there enough ore to process? */
-	if obj.Unique.SingleContent.Amount < MatTypes[obj.Unique.SingleContent.TypeP.Result].KG {
+	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
+	if rec == nil {
+		cwlog.DoLog(true, "Nil recipie")
+		return
+	}
+	result := rec.ResultP[0]
+
+	if obj.Unique.SingleContent.Amount < result.KG {
 		if obj.Active {
 			obj.Active = false
 		}
@@ -430,13 +446,11 @@ func casterUpdate(obj *world.ObjData) {
 	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
 
 	/* Subtract ore */
-	obj.Unique.SingleContent.Amount -= MatTypes[obj.Unique.SingleContent.TypeP.Result].KG
+	obj.Unique.SingleContent.Amount -= result.KG
 	/* Subtract ore weight */
-	obj.KGHeld -= MatTypes[obj.Unique.SingleContent.TypeP.Result].KG
+	obj.KGHeld -= result.KG
 
 	/* Output result */
-	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
-
 	obj.Outputs[0].Buf.Amount = result.KG
 
 	/* Find and set result type, if needed */
@@ -517,6 +531,14 @@ func rodCasterUpdate(obj *world.ObjData) {
 		obj.TickCount++
 		return
 	}
+
+	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
+	if rec == nil {
+		cwlog.DoLog(true, "Nil recipie")
+		return
+	}
+	result := rec.ResultP[0]
+
 	obj.TickCount = 0
 
 	/* Burn fuel */
@@ -528,8 +550,6 @@ func rodCasterUpdate(obj *world.ObjData) {
 	obj.KGHeld -= obj.Unique.SingleContent.TypeP.KG
 
 	/* Output result */
-	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
-
 	obj.Outputs[0].Buf.Amount = result.KG
 
 	/* Find and set result type, if needed */
@@ -610,6 +630,14 @@ func slipRollerUpdate(obj *world.ObjData) {
 		obj.TickCount++
 		return
 	}
+
+	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
+	if rec == nil {
+		cwlog.DoLog(true, "Nil recipie")
+		return
+	}
+	result := rec.ResultP[0]
+
 	obj.TickCount = 0
 
 	/* Burn fuel */
@@ -621,8 +649,6 @@ func slipRollerUpdate(obj *world.ObjData) {
 	obj.KGHeld -= obj.Unique.SingleContent.TypeP.KG
 
 	/* Output result */
-	result := MatTypes[obj.Unique.SingleContent.TypeP.Result]
-
 	obj.Outputs[0].Buf.Amount = result.KG
 
 	/* Find and set result type, if needed */
