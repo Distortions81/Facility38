@@ -17,7 +17,7 @@ func init() {
 		}
 	}
 
-	cwlog.DoLog(true, "Building recipie material lookup tables.")
+	cwlog.DoLog(true, "Building recipe material lookup tables.")
 	for objPos, obj := range WorldObjs {
 		for recPos, rec := range Recipies {
 			for _, mach := range rec.MachineTypes {
@@ -30,7 +30,6 @@ func init() {
 			}
 		}
 	}
-	cwlog.DoLog(true, "complete")
 
 }
 
