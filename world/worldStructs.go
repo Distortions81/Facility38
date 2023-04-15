@@ -192,8 +192,6 @@ type ObjData struct {
 	NumFIn  uint8
 	NumFOut uint8
 
-	Recipies []*RecipeData
-
 	//Internal Tock() use
 	BeltOver  *BeltOverType
 	KGHeld    float32
@@ -323,6 +321,8 @@ type ObjType struct {
 
 	Images          ObjectImages //All image data
 	MachineSettings MachineData  //Machine-specific data
+
+	RecipieLookup [gv.MAT_MAX]uint8 //Quick recipie lookup
 
 	/* How often object should run, used in obj's tock function */
 	TockInterval uint8

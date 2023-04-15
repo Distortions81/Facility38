@@ -15,6 +15,23 @@ func init() {
 			Recipies[rpos].ResultP[resPos] = MatTypes[result]
 		}
 	}
+
+	/* sudo 
+	range machines
+	range recip
+	range recip->machs Y ?
+	range rec->req Y ?
+	obj->reclook[mat] = *rec
+	*/
+	for opos, obj := range WorldObjs {
+		for rpos, rec := range Recipies {
+			for rmpos, rm := rec.MachineTypes {
+				if rm == opos {
+					for := range rec.
+				}
+			}
+		}
+	}
 }
 
 var Recipies = []*world.RecipeData{
