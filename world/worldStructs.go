@@ -15,13 +15,13 @@ type RecipeData struct {
 	Name  string
 	TypeI uint16
 
-	Requires  []int
+	Requires  []uint8
 	RequiresP []*MaterialType
 
-	Result  []int
+	Result  []uint8
 	ResultP []*MaterialType
 
-	MachineTypes []int
+	MachineTypes []uint8
 }
 
 /* Chat line data */
@@ -322,7 +322,7 @@ type ObjType struct {
 	Images          ObjectImages //All image data
 	MachineSettings MachineData  //Machine-specific data
 
-	RecipieLookup [gv.MAT_MAX]uint8 //Quick recipie lookup
+	RecipieLookup [gv.MAT_MAX]*RecipeData //Quick recipie lookup
 
 	/* How often object should run, used in obj's tock function */
 	TockInterval uint8

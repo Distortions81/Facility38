@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"GameTest/cwlog"
 	"GameTest/gv"
 	"GameTest/world"
 )
@@ -16,22 +17,21 @@ func init() {
 		}
 	}
 
-	/* sudo 
-	range machines
-	range recip
-	range recip->machs Y ?
-	range rec->req Y ?
-	obj->reclook[mat] = *rec
-	*/
-	for opos, obj := range WorldObjs {
-		for rpos, rec := range Recipies {
-			for rmpos, rm := rec.MachineTypes {
-				if rm == opos {
-					for := range rec.
+	cwlog.DoLog(true, "Building recipie material lookup tables.")
+	for objPos, obj := range WorldObjs {
+		for recPos, rec := range Recipies {
+			for _, mach := range rec.MachineTypes {
+				if obj.TypeI == mach {
+					//Found a relevant recipie
+					for _, req := range rec.Requires {
+						WorldObjs[objPos].RecipieLookup[req] = Recipies[recPos]
+					}
 				}
 			}
 		}
 	}
+	cwlog.DoLog(true, "complete")
+
 }
 
 var Recipies = []*world.RecipeData{
@@ -39,119 +39,119 @@ var Recipies = []*world.RecipeData{
 	{
 		TypeI:    gv.RecIronShot,
 		Name:     "Iron Shot",
-		Requires: []int{gv.MAT_IRON_ORE},
+		Requires: []uint8{gv.MAT_IRON_ORE},
 
-		Result:       []int{gv.MAT_IRON_SHOT},
-		MachineTypes: []int{gv.ObjTypeBasicSmelter},
+		Result:       []uint8{gv.MAT_IRON_SHOT},
+		MachineTypes: []uint8{gv.ObjTypeBasicSmelter},
 	},
 	{
 		TypeI:    gv.RecCopperShot,
 		Name:     "Copper Shot",
-		Requires: []int{gv.MAT_COPPER_ORE},
+		Requires: []uint8{gv.MAT_COPPER_ORE},
 
-		Result:       []int{gv.MAT_COPPER_SHOT},
-		MachineTypes: []int{gv.ObjTypeBasicSmelter},
+		Result:       []uint8{gv.MAT_COPPER_SHOT},
+		MachineTypes: []uint8{gv.ObjTypeBasicSmelter},
 	},
 	{
 		TypeI:    gv.RecCopperShot,
 		Name:     "Slag Shot",
-		Requires: []int{gv.MAT_MIX_ORE},
+		Requires: []uint8{gv.MAT_MIX_ORE},
 
-		Result:       []int{gv.MAT_SLAG_SHOT},
-		MachineTypes: []int{gv.ObjTypeBasicSmelter},
+		Result:       []uint8{gv.MAT_SLAG_SHOT},
+		MachineTypes: []uint8{gv.ObjTypeBasicSmelter},
 	},
 	{
 		TypeI:    gv.RecCopperShot,
 		Name:     "Stone Shot",
-		Requires: []int{gv.MAT_STONE_ORE},
+		Requires: []uint8{gv.MAT_STONE_ORE},
 
-		Result:       []int{gv.MAT_SLAG_SHOT},
-		MachineTypes: []int{gv.ObjTypeBasicSmelter},
+		Result:       []uint8{gv.MAT_SLAG_SHOT},
+		MachineTypes: []uint8{gv.ObjTypeBasicSmelter},
 	},
 
 	/* Basic Caster */
 	{
 		TypeI:    gv.RecIronBar,
 		Name:     "Iron Bar",
-		Requires: []int{gv.MAT_IRON_SHOT},
+		Requires: []uint8{gv.MAT_IRON_SHOT},
 
-		Result:       []int{gv.MAT_IRON_BAR},
-		MachineTypes: []int{gv.ObjTypeBasicCaster},
+		Result:       []uint8{gv.MAT_IRON_BAR},
+		MachineTypes: []uint8{gv.ObjTypeBasicCaster},
 	},
 	{
 		TypeI:    gv.RecCopperBar,
 		Name:     "Copper Bar",
-		Requires: []int{gv.MAT_COPPER_SHOT},
+		Requires: []uint8{gv.MAT_COPPER_SHOT},
 
-		Result:       []int{gv.MAT_COPPER_BAR},
-		MachineTypes: []int{gv.ObjTypeBasicCaster},
+		Result:       []uint8{gv.MAT_COPPER_BAR},
+		MachineTypes: []uint8{gv.ObjTypeBasicCaster},
 	},
 	{
 		TypeI:    gv.RecCopperBar,
 		Name:     "Slag Bar",
-		Requires: []int{gv.MAT_SLAG_SHOT},
+		Requires: []uint8{gv.MAT_SLAG_SHOT},
 
-		Result:       []int{gv.MAT_SLAG_BAR},
-		MachineTypes: []int{gv.ObjTypeBasicCaster},
+		Result:       []uint8{gv.MAT_SLAG_BAR},
+		MachineTypes: []uint8{gv.ObjTypeBasicCaster},
 	},
 	{
 		TypeI:    gv.RecCopperBar,
 		Name:     "Stone Block",
-		Requires: []int{gv.MAT_STONE_SHOT},
+		Requires: []uint8{gv.MAT_STONE_SHOT},
 
-		Result:       []int{gv.MAT_STONE_BLOCK},
-		MachineTypes: []int{gv.ObjTypeBasicCaster},
+		Result:       []uint8{gv.MAT_STONE_BLOCK},
+		MachineTypes: []uint8{gv.ObjTypeBasicCaster},
 	},
 
 	/* Basic Rod Caster */
 	{
 		TypeI:    gv.RecIronRod,
 		Name:     "Iron Rod",
-		Requires: []int{gv.MAT_IRON_BAR},
+		Requires: []uint8{gv.MAT_IRON_BAR},
 
-		Result:       []int{gv.MAT_IRON_ROD},
-		MachineTypes: []int{gv.ObjTypeBasicRodCaster},
+		Result:       []uint8{gv.MAT_IRON_ROD},
+		MachineTypes: []uint8{gv.ObjTypeBasicRodCaster},
 	},
 	{
 		TypeI:    gv.RecCopperRod,
 		Name:     "Copper Rod",
-		Requires: []int{gv.MAT_COPPER_BAR},
+		Requires: []uint8{gv.MAT_COPPER_BAR},
 
-		Result:       []int{gv.MAT_COPPER_ROD},
-		MachineTypes: []int{gv.ObjTypeBasicRodCaster},
+		Result:       []uint8{gv.MAT_COPPER_ROD},
+		MachineTypes: []uint8{gv.ObjTypeBasicRodCaster},
 	},
 	{
 		TypeI:    gv.RecCopperRod,
 		Name:     "Slag Rod",
-		Requires: []int{gv.MAT_SLAG_BAR},
+		Requires: []uint8{gv.MAT_SLAG_BAR},
 
-		Result:       []int{gv.MAT_SLAG_ROD},
-		MachineTypes: []int{gv.ObjTypeBasicRodCaster},
+		Result:       []uint8{gv.MAT_SLAG_ROD},
+		MachineTypes: []uint8{gv.ObjTypeBasicRodCaster},
 	},
 
 	/* Slip Roller */
 	{
 		TypeI:    gv.RecIronSheet,
 		Name:     "Iron Sheet",
-		Requires: []int{gv.MAT_IRON_BAR},
+		Requires: []uint8{gv.MAT_IRON_BAR},
 
-		Result:       []int{gv.MAT_IRON_SHEET},
-		MachineTypes: []int{gv.ObjTypeBasicSlipRoller},
+		Result:       []uint8{gv.MAT_IRON_SHEET},
+		MachineTypes: []uint8{gv.ObjTypeBasicSlipRoller},
 	},
 	{
 		TypeI:    gv.RecCopperSheet,
 		Name:     "Copper Sheet",
-		Requires: []int{gv.MAT_COPPER_BAR},
+		Requires: []uint8{gv.MAT_COPPER_BAR},
 
-		Result:       []int{gv.MAT_COPPER_SHEET},
-		MachineTypes: []int{gv.ObjTypeBasicSlipRoller},
+		Result:       []uint8{gv.MAT_COPPER_SHEET},
+		MachineTypes: []uint8{gv.ObjTypeBasicSlipRoller},
 	},
 	{
 		TypeI:    gv.RecCopperSheet,
 		Name:     "Slag Sheet",
-		Requires: []int{gv.MAT_SLAG_BAR},
+		Requires: []uint8{gv.MAT_SLAG_BAR},
 
-		Result:       []int{gv.MAT_SLAG_SHEET},
-		MachineTypes: []int{gv.ObjTypeBasicSlipRoller},
+		Result:       []uint8{gv.MAT_SLAG_SHEET},
+		MachineTypes: []uint8{gv.ObjTypeBasicSlipRoller},
 	},
 }
