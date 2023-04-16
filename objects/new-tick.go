@@ -1,6 +1,9 @@
 package objects
 
-import "GameTest/world"
+import (
+	"GameTest/cwlog"
+	"GameTest/world"
+)
 
 type OffsetData struct {
 	Offset int
@@ -24,27 +27,33 @@ var TickIntervals []TickInterval
 /* Init at boot */
 func init() {
 	for _, ot := range WorldObjs {
-		GetInterval(int(ot.TockInterval))
+		_, new := GetInterval(int(ot.TockInterval))
+		if new {
+			cwlog.DoLog(true, "Object: %v: Interval: %v", ot.Name, ot.TockInterval)
+		}
 	}
+	cwlog.DoLog(true, "%v intervals added.", len(TickIntervals))
 }
 
 /* Return interval data, or create it if needed */
-func GetInterval(interval int) int {
+func GetInterval(interval int) (pos int, created bool) {
 	foundInterval := false
 
 	/* Eventually replace with precalc table */
 	for ipos, inter := range TickIntervals {
 		if inter.Interval == interval {
 			foundInterval = true
-			return ipos
+			return ipos, false
 		}
 	}
 	if !foundInterval {
 		pos := len(TickIntervals)
-		TickIntervals = append(TickIntervals, TickInterval{Interval: interval})
-		return pos
+
+		offsets := make([]OffsetData, interval-1)
+		TickIntervals = append(TickIntervals, TickInterval{Interval: interval, Offsets: offsets})
+		return pos, true
 	}
-	return -1
+	return -1, false
 }
 
 func AddTock(obj *world.ObjData) {
