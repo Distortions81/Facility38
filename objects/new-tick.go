@@ -44,10 +44,12 @@ func GetInterval(interval int) (pos int, created bool) {
 	if !foundInterval {
 		pos := len(TickIntervals)
 
-		offsets := make([]OffsetData, interval-1)
+		offsets := make([]OffsetData, interval)
 		TickIntervals = append(TickIntervals, TickInterval{Interval: interval, Offsets: offsets})
 		return pos, true
 	}
+
+	cwlog.DoLog(true, "Error!")
 	return -1, false
 }
 
@@ -59,6 +61,7 @@ func AddTock(obj *world.ObjData) {
 
 	TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Tocks =
 		append(TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Tocks, obj)
+
 	TickIntervals[i].LastOffset++
 }
 
@@ -70,6 +73,7 @@ func AddTick(obj *world.ObjData) {
 
 	TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Ticks =
 		append(TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Ticks, obj)
+
 	TickIntervals[i].LastOffset++
 }
 
