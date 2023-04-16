@@ -58,7 +58,6 @@ func GetInterval(interval int) (pos int, created bool) {
 
 func AddTock(obj *world.ObjData) {
 	//interval := GetInterval(int(obj.Unique.TypeP.TockInterval))
-
 }
 
 func NewRunTocksST() {
