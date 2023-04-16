@@ -7,13 +7,8 @@ import (
 
 type OffsetData struct {
 	Offset int
-	Ticks  []NewTickEvent
-	Tocks  []NewTickEvent
-}
-
-type NewTickEvent struct {
-	Obj    *world.ObjData
-	Offset uint8
+	Ticks  []*world.ObjData
+	Tocks  []*world.ObjData
 }
 
 type TickInterval struct {
@@ -57,7 +52,25 @@ func GetInterval(interval int) (pos int, created bool) {
 }
 
 func AddTock(obj *world.ObjData) {
-	//interval := GetInterval(int(obj.Unique.TypeP.TockInterval))
+	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+	if TickIntervals[i].LastOffset > TickIntervals[i].Interval {
+		TickIntervals[i].LastOffset = 0
+	}
+
+	TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Tocks =
+		append(TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Tocks, obj)
+	TickIntervals[i].LastOffset++
+}
+
+func AddTick(obj *world.ObjData) {
+	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+	if TickIntervals[i].LastOffset > TickIntervals[i].Interval {
+		TickIntervals[i].LastOffset = 0
+	}
+
+	TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Ticks =
+		append(TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Ticks, obj)
+	TickIntervals[i].LastOffset++
 }
 
 func NewRunTocksST() {
@@ -65,7 +78,7 @@ func NewRunTocksST() {
 		for _, off := range ti.Offsets {
 			if GameTick%uint64(ti.Interval+off.Offset) == 0 {
 				for _, tock := range off.Tocks {
-					tock.Obj.Unique.TypeP.UpdateObj(tock.Obj)
+					tock.Unique.TypeP.UpdateObj(tock)
 				}
 			}
 		}
@@ -77,7 +90,7 @@ func NewRunTicksST() {
 		for _, off := range ti.Offsets {
 			if GameTick%uint64(ti.Interval+off.Offset) == 0 {
 				for _, tock := range off.Tocks {
-					tickObj(tock.Obj)
+					tickObj(tock)
 				}
 			}
 		}
