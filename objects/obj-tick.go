@@ -313,9 +313,9 @@ func RunEventQueue() {
 		if e.Delete {
 			switch e.QType {
 			case gv.QUEUE_TYPE_TICK:
-				//ticklistRemove(e.Obj)
+				RemoveTick(e.Obj)
 			case gv.QUEUE_TYPE_TOCK:
-				//tocklistRemove(e.Obj)
+				RemoveTock(e.Obj)
 			}
 		} else {
 			switch e.QType {

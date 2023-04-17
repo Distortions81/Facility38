@@ -197,7 +197,6 @@ type ObjData struct {
 	KGHeld    float32
 	MinerData *MinerDataType
 	Tile      *TileData
-	TickCount uint8
 
 	Blocked bool
 	Active  bool

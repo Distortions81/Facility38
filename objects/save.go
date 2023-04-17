@@ -101,7 +101,6 @@ func SaveGame() {
 						Contents: mObj.Unique.Contents,
 						KGFuel:   mObj.Unique.KGFuel,
 						KGHeld:   mObj.KGHeld,
-						Ticks:    mObj.TickCount,
 					}
 
 					/* Convert pointer to type int */
@@ -243,9 +242,8 @@ func LoadGame() {
 					Contents: tempList.Objects[i].Contents,
 					KGFuel:   tempList.Objects[i].KGFuel,
 				},
-				Dir:       tempList.Objects[i].Dir,
-				KGHeld:    tempList.Objects[i].KGHeld,
-				TickCount: tempList.Objects[i].Ticks,
+				Dir:    tempList.Objects[i].Dir,
+				KGHeld: tempList.Objects[i].KGHeld,
 			}
 
 			for c := range obj.Unique.Contents.Mats {

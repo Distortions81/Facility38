@@ -7,7 +7,6 @@ import (
 	"GameTest/world"
 	"fmt"
 	"math"
-	"math/rand"
 )
 
 /* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
@@ -189,13 +188,6 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	newObj.Parent.Parent.PixmapDirty = true
 	world.VisDataDirty.Store(true)
 	newObj.Parent.Lock.Unlock()
-
-	/* Add to tock/tick lists */
-
-	/*Spread out when tock happens */
-	if newObj.Unique.TypeP.TockInterval > 0 {
-		newObj.TickCount = uint8(rand.Intn(int(newObj.Unique.TypeP.TockInterval)))
-	}
 
 	/* Place item tiles */
 	if multiTile {

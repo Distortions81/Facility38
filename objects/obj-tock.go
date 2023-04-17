@@ -9,13 +9,6 @@ import (
 
 func minerUpdate(obj *world.ObjData) {
 
-	/* Time to run? */
-	if obj.TickCount < obj.Unique.TypeP.TockInterval {
-		obj.TickCount++
-		return
-	}
-	obj.TickCount = 0
-
 	/* Get fuel */
 	for p, port := range obj.FuelIn {
 		/* Will it over fill us? */
@@ -133,14 +126,6 @@ func beltUpdate(obj *world.ObjData) {
 }
 
 func fuelHopperUpdate(obj *world.ObjData) {
-
-	/* Is it time to run? */
-	if obj.TickCount < obj.Unique.TypeP.TockInterval {
-		/* Increment timer */
-		obj.TickCount++
-		return
-	}
-	obj.TickCount = 0
 
 	for i, input := range obj.Inputs {
 
@@ -318,13 +303,6 @@ func smelterUpdate(obj *world.ObjData) {
 		obj.Active = true
 	}
 
-	/* Is it time to output? */
-	if obj.TickCount < obj.Unique.TypeP.TockInterval {
-		/* Increment timer */
-		obj.TickCount++
-		return
-	}
-
 	/* Look up material */
 	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
 	if rec == nil {
@@ -332,8 +310,6 @@ func smelterUpdate(obj *world.ObjData) {
 		return
 	}
 	result := rec.ResultP[0]
-
-	obj.TickCount = 0
 
 	/* Burn fuel */
 	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
@@ -434,14 +410,6 @@ func casterUpdate(obj *world.ObjData) {
 		obj.Active = true
 	}
 
-	/* Is it time to output? */
-	if obj.TickCount < obj.Unique.TypeP.TockInterval {
-		/* Increment timer */
-		obj.TickCount++
-		return
-	}
-	obj.TickCount = 0
-
 	/* Burn fuel */
 	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
 
@@ -525,21 +493,12 @@ func rodCasterUpdate(obj *world.ObjData) {
 		obj.Active = true
 	}
 
-	/* Is it time to output? */
-	if obj.TickCount < obj.Unique.TypeP.TockInterval {
-		/* Increment timer */
-		obj.TickCount++
-		return
-	}
-
 	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
 	if rec == nil {
 		cwlog.DoLog(true, "Nil recipie")
 		return
 	}
 	result := rec.ResultP[0]
-
-	obj.TickCount = 0
 
 	/* Burn fuel */
 	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
@@ -624,21 +583,12 @@ func slipRollerUpdate(obj *world.ObjData) {
 		obj.Active = true
 	}
 
-	/* Is it time to output? */
-	if obj.TickCount < obj.Unique.TypeP.TockInterval {
-		/* Increment timer */
-		obj.TickCount++
-		return
-	}
-
 	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
 	if rec == nil {
 		cwlog.DoLog(true, "Nil recipie")
 		return
 	}
 	result := rec.ResultP[0]
-
-	obj.TickCount = 0
 
 	/* Burn fuel */
 	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle

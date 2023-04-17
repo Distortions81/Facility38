@@ -55,6 +55,7 @@ func GetInterval(interval int) (pos int, created bool) {
 
 func AddTock(obj *world.ObjData) {
 	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+
 	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
 		TickIntervals[i].LastOffset = 0
 	}
@@ -66,6 +67,29 @@ func AddTock(obj *world.ObjData) {
 	world.TockCount++
 }
 
+func RemoveTock(obj *world.ObjData) {
+	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+
+	for offPos, off := range TickIntervals[i].Offsets {
+		/* Check if this is the correct interval */
+		if uint8(off.Offset) != obj.Unique.TypeP.TockInterval {
+			continue
+		}
+		/* If it is, remove object */
+		for itemPos, item := range off.Tocks {
+			if item == obj {
+				TickIntervals[i].Offsets[offPos].Tocks =
+					append(
+						TickIntervals[i].Offsets[offPos].Tocks[:itemPos],
+						TickIntervals[i].Offsets[offPos].Tocks[itemPos+1:]...)
+
+				world.TockCount--
+				cwlog.DoLog(true, "Tock Removed: %v", obj.Unique.TypeP.Name)
+				break
+			}
+		}
+	}
+}
 func AddTick(obj *world.ObjData) {
 	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
 	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
@@ -77,6 +101,30 @@ func AddTick(obj *world.ObjData) {
 
 	TickIntervals[i].LastOffset++
 	world.TickCount++
+}
+
+func RemoveTick(obj *world.ObjData) {
+	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+
+	for offPos, off := range TickIntervals[i].Offsets {
+		/* Check if this is the correct interval */
+		if uint8(off.Offset) != obj.Unique.TypeP.TockInterval {
+			continue
+		}
+		/* If it is, remove object */
+		for itemPos, item := range off.Ticks {
+			if item == obj {
+				TickIntervals[i].Offsets[offPos].Ticks =
+					append(
+						TickIntervals[i].Offsets[offPos].Ticks[:itemPos],
+						TickIntervals[i].Offsets[offPos].Ticks[itemPos+1:]...)
+
+				world.TickCount--
+				cwlog.DoLog(true, "Tick Removed: %v", obj.Unique.TypeP.Name)
+				break
+			}
+		}
+	}
 }
 
 func NewRunTocksST() {
