@@ -177,7 +177,7 @@ func loaderUpdate(obj *world.ObjData) {
 		if input.Buf.Amount == 0 {
 			continue
 		}
-		if obj.Outputs[0].Buf.Amount != 0 {
+		if obj.NumOut == 0 || obj.Outputs[0].Buf.Amount != 0 {
 			continue
 		}
 		*obj.Outputs[0].Buf, *obj.Inputs[i].Buf = *obj.Inputs[i].Buf, *obj.Outputs[0].Buf

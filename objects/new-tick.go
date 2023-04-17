@@ -22,7 +22,7 @@ var TickIntervals []TickInterval
 /* Init at boot */
 func init() {
 	for _, ot := range WorldObjs {
-		_, new := GetInterval(int(ot.TockInterval))
+		_, new := GetIntervalPos(int(ot.TockInterval))
 		if new {
 			cwlog.DoLog(true, "Object: %v: Interval: %v", ot.Name, ot.TockInterval)
 		}
@@ -31,7 +31,7 @@ func init() {
 }
 
 /* Return interval data, or create it if needed */
-func GetInterval(interval int) (pos int, created bool) {
+func GetIntervalPos(interval int) (pos int, created bool) {
 	foundInterval := false
 
 	/* Eventually replace with precalc table */
@@ -44,7 +44,7 @@ func GetInterval(interval int) (pos int, created bool) {
 	if !foundInterval {
 		pos := len(TickIntervals)
 
-		offsets := make([]OffsetData, interval)
+		offsets := make([]OffsetData, interval+1)
 		TickIntervals = append(TickIntervals, TickInterval{Interval: interval, Offsets: offsets})
 		return pos, true
 	}
@@ -54,7 +54,10 @@ func GetInterval(interval int) (pos int, created bool) {
 }
 
 func AddTock(obj *world.ObjData) {
-	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+	if obj.HasTock {
+		return
+	}
+	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
 
 	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
 		TickIntervals[i].LastOffset = 0
@@ -68,7 +71,10 @@ func AddTock(obj *world.ObjData) {
 }
 
 func RemoveTock(obj *world.ObjData) {
-	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+	if !obj.HasTock {
+		return
+	}
+	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
 
 	for offPos, off := range TickIntervals[i].Offsets {
 		/* Check if this is the correct interval */
@@ -91,7 +97,10 @@ func RemoveTock(obj *world.ObjData) {
 	}
 }
 func AddTick(obj *world.ObjData) {
-	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+	if obj.HasTick {
+		return
+	}
+	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
 	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
 		TickIntervals[i].LastOffset = 0
 	}
@@ -104,7 +113,10 @@ func AddTick(obj *world.ObjData) {
 }
 
 func RemoveTick(obj *world.ObjData) {
-	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
+	if !obj.HasTick {
+		return
+	}
+	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
 
 	for offPos, off := range TickIntervals[i].Offsets {
 		/* Check if this is the correct interval */
@@ -130,7 +142,7 @@ func RemoveTick(obj *world.ObjData) {
 func NewRunTocksST() {
 	for _, ti := range TickIntervals {
 		for _, off := range ti.Offsets {
-			if GameTick%uint64(ti.Interval+off.Offset) == 0 {
+			if ti.Interval == 0 || GameTick%uint64(ti.Interval+off.Offset) == 0 {
 				for _, tock := range off.Tocks {
 					tock.Unique.TypeP.UpdateObj(tock)
 				}
@@ -142,7 +154,7 @@ func NewRunTocksST() {
 func NewRunTicksST() {
 	for _, ti := range TickIntervals {
 		for _, off := range ti.Offsets {
-			if GameTick%uint64(ti.Interval+off.Offset) == 0 {
+			if ti.Interval == 0 || GameTick%uint64(ti.Interval+off.Offset) == 0 {
 				for _, tock := range off.Tocks {
 					tickObj(tock)
 				}
