@@ -55,7 +55,7 @@ func GetInterval(interval int) (pos int, created bool) {
 
 func AddTock(obj *world.ObjData) {
 	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
-	if TickIntervals[i].LastOffset > TickIntervals[i].Interval {
+	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
 		TickIntervals[i].LastOffset = 0
 	}
 
@@ -63,11 +63,12 @@ func AddTock(obj *world.ObjData) {
 		append(TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Tocks, obj)
 
 	TickIntervals[i].LastOffset++
+	world.TockCount++
 }
 
 func AddTick(obj *world.ObjData) {
 	i, _ := GetInterval(int(obj.Unique.TypeP.TockInterval))
-	if TickIntervals[i].LastOffset > TickIntervals[i].Interval {
+	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
 		TickIntervals[i].LastOffset = 0
 	}
 
@@ -75,6 +76,7 @@ func AddTick(obj *world.ObjData) {
 		append(TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Ticks, obj)
 
 	TickIntervals[i].LastOffset++
+	world.TickCount++
 }
 
 func NewRunTocksST() {

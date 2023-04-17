@@ -32,10 +32,10 @@ func ObjUpdateDaemon() {
 		start := time.Now()
 
 		if tockState {
-			runTocks()
+			NewRunTocksST()
 			tockState = false
 		} else {
-			runTicks() //Move external
+			NewRunTicksST() //Move external
 			GameTick++
 			tockState = true
 		}
@@ -325,6 +325,7 @@ func RunEventQueue() {
 				AddTock(e.Obj)
 			}
 		}
+
 	}
 
 	world.EventQueue = []*world.EventQueueData{}
