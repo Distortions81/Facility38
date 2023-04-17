@@ -258,7 +258,7 @@ var WorldObjs = []*world.ObjType{
 			KW:           10,
 			KgHopperMove: 1,
 		},
-		TockInterval: uint8(world.ObjectUPS/2) * 2,
+		TockInterval: 0,
 		Symbol:       "ULD",
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
@@ -280,7 +280,7 @@ var WorldObjs = []*world.ObjType{
 			KW:           10,
 			KgHopperMove: 1,
 		},
-		TockInterval: uint8(world.ObjectUPS/2) * 2,
+		TockInterval: 0,
 		Symbol:       "LD",
 		Ports: []world.ObjPortData{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},

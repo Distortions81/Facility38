@@ -79,10 +79,10 @@ func ObjUpdateDaemonST() {
 		start = time.Now()
 
 		if tockState {
-			runTocksST() //Process objects
+			NewRunTocksST() //Process objects
 			tockState = false
 		} else {
-			runTicksST() //Move external
+			NewRunTicksST() //Move external
 			GameTick++
 			tockState = true
 		}

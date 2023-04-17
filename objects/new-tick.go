@@ -45,6 +45,9 @@ func GetIntervalPos(interval int) (pos int, created bool) {
 		pos := len(TickIntervals)
 
 		offsets := make([]OffsetData, interval+1)
+		for opos, _ := range offsets {
+			offsets[opos].Offset = opos
+		}
 		TickIntervals = append(TickIntervals, TickInterval{Interval: interval, Offsets: offsets})
 		return pos, true
 	}
@@ -142,7 +145,7 @@ func RemoveTick(obj *world.ObjData) {
 func NewRunTocksST() {
 	for _, ti := range TickIntervals {
 		for _, off := range ti.Offsets {
-			if ti.Interval == 0 || GameTick%uint64(ti.Interval+off.Offset) == 0 {
+			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
 				for _, tock := range off.Tocks {
 					tock.Unique.TypeP.UpdateObj(tock)
 				}
@@ -154,7 +157,7 @@ func NewRunTocksST() {
 func NewRunTicksST() {
 	for _, ti := range TickIntervals {
 		for _, off := range ti.Offsets {
-			if ti.Interval == 0 || GameTick%uint64(ti.Interval+off.Offset) == 0 {
+			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
 				for _, tock := range off.Tocks {
 					tickObj(tock)
 				}
