@@ -614,14 +614,19 @@ func drawPixmapMode(screen *ebiten.Image) {
 
 func drawDebugInfo(screen *ebiten.Image) {
 
+	world.CountLock.Lock()
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Tocks: %v Ticks %v Draws: %v Arch: %v Build: v%v-%v Frame: %v",
+	buf := fmt.Sprintf("FPS: %.2f UPS: %0.2f Tocks: %v Ticks %v ActiveTicks: %v ActiveTocks: %v  Draws: %v Arch: %v Build: v%v-%v Frame: %v",
 		world.FPSAvr.Value(),
 		world.UPSAvr.Value(),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
+		humanize.SIWithDigits(float64(world.ActiveTockCount), 2, ""),
+		humanize.SIWithDigits(float64(world.ActiveTickCount), 2, ""),
 		humanize.SIWithDigits(float64(BatchTop), 2, ""),
-		runtime.GOARCH, gv.Version, buildTime, objects.GameTick)
+		runtime.GOARCH, gv.Version, buildTime, objects.GameTick,
+	)
+	world.CountLock.Unlock()
 
 	if gv.Debug {
 		mx, my := ebiten.CursorPosition()

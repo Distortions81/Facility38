@@ -23,6 +23,9 @@ type TickInterval struct {
 var (
 	TickIntervals []TickInterval
 	wg            sizedwaitgroup.SizedWaitGroup
+
+	ActiveTicks int
+	ActiveTocks int
 )
 
 /* Init at boot */
@@ -155,88 +158,124 @@ func RemoveTick(obj *world.ObjData) {
 }
 
 func NewRunTocksST() {
+	ActiveTocks = 0
+
 	for _, ti := range TickIntervals {
 		for _, off := range ti.Offsets {
 			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
 				for _, tock := range off.Tocks {
 					tock.Unique.TypeP.UpdateObj(tock)
 				}
+				ActiveTocks += len(off.Tocks)
 			}
 		}
 	}
+
+	world.ActiveTockCount = ActiveTocks
 }
 
 func NewRunTicksST() {
-	for _, ti := range TickIntervals {
-		for _, off := range ti.Offsets {
-			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
-				for _, tock := range off.Tocks {
-					tickObj(tock)
-				}
-			}
-		}
-	}
-}
-
-var (
-	block []*world.ObjData
-)
-
-func NewRunTocks() {
-
-	numObj := 0
-	block = []*world.ObjData{}
-
-	for _, ti := range TickIntervals {
-		for _, off := range ti.Offsets {
-			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
-				for _, tock := range off.Tocks {
-					block = append(block, tock)
-					numObj++
-					if numObj >= gv.WorkSize {
-						wg.Add()
-						go func(w []*world.ObjData) {
-							for _, obj := range w {
-								obj.Unique.TypeP.UpdateObj(obj)
-							}
-							wg.Done()
-						}(block)
-						numObj = 0
-						block = []*world.ObjData{}
-					}
-				}
-			}
-		}
-	}
-	wg.Wait()
-}
-
-func NewRunTicks() {
-
-	numObj := 0
-	block = []*world.ObjData{}
+	ActiveTicks = 0
 
 	for _, ti := range TickIntervals {
 		for _, off := range ti.Offsets {
 			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
 				for _, tock := range off.Ticks {
-					block = append(block, tock)
-					numObj++
-					if numObj >= gv.WorkSize {
-						numObj = 0
-						wg.Add()
-						go func(w []*world.ObjData) {
-							for _, obj := range w {
-								tickObj(obj)
-							}
-							wg.Done()
-						}(block)
+					tickObj(tock)
+				}
+				ActiveTicks += len(off.Tocks)
+			}
+		}
+	}
 
-						block = []*world.ObjData{}
+	world.ActiveTickCount = ActiveTicks
+}
+
+var (
+	block [gv.WorkSize]*world.ObjData
+)
+
+func NewRunTocks() {
+
+	numObj := 0
+	ActiveTocks = 0
+
+	for _, ti := range TickIntervals {
+		for _, off := range ti.Offsets {
+			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
+				for _, tock := range off.Tocks {
+					block[numObj] = tock
+					numObj++
+					if numObj == gv.WorkSize {
+						runTockBlock(numObj)
+						ActiveTocks += numObj
+						numObj = 0
 					}
 				}
 			}
 		}
 	}
+	if numObj > 0 {
+		runTockBlock(numObj)
+		ActiveTocks += numObj
+	}
 	wg.Wait()
+	world.CountLock.Lock()
+	world.ActiveTockCount = ActiveTocks
+	world.CountLock.Unlock()
+}
+
+func NewRunTicks() {
+
+	numObj := 0
+	ActiveTicks = 0
+
+	for _, ti := range TickIntervals {
+		for _, off := range ti.Offsets {
+			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
+				for _, tick := range off.Ticks {
+					block[numObj] = tick
+					numObj++
+					if numObj == gv.WorkSize {
+						runTickBlock(numObj)
+						ActiveTicks += numObj
+						numObj = 0
+					}
+				}
+			}
+		}
+	}
+	if numObj > 0 {
+		runTickBlock(numObj)
+		ActiveTicks += numObj
+	}
+	wg.Wait()
+
+	world.CountLock.Lock()
+	world.ActiveTickCount = ActiveTicks
+	world.CountLock.Unlock()
+}
+
+func runTickBlock(numObj int) {
+	wg.Add()
+	go func(w [gv.WorkSize]*world.ObjData, nObj int) {
+		for x := 0; x < nObj; x++ {
+			tickObj(w[x])
+		}
+		wg.Done()
+	}(block, numObj)
+
+	block = [gv.WorkSize]*world.ObjData{}
+}
+
+func runTockBlock(numObj int) {
+	wg.Add()
+	go func(w [gv.WorkSize]*world.ObjData, nObj int) {
+		for x := 0; x < nObj; x++ {
+			w[x].Unique.TypeP.UpdateObj(w[x])
+		}
+		wg.Done()
+	}(block, numObj)
+
+	block = [gv.WorkSize]*world.ObjData{}
 }

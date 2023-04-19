@@ -16,8 +16,8 @@ func init() {
 }
 
 var (
-	UPSAvr = ewma.NewMovingAverage(gv.GameUPS * 10)
-	FPSAvr = ewma.NewMovingAverage(60)
+	UPSAvr = ewma.NewMovingAverage(gv.GameUPS * 4)
+	FPSAvr = ewma.NewMovingAverage(30)
 
 	FontDPI       float64 = gv.FontDPI
 	Vsync         bool    = true
@@ -54,9 +54,12 @@ var (
 
 	RotateCount int
 	/* Number of tick events */
-	TickCount int
+	CountLock       sync.Mutex
+	TickCount       int
+	ActiveTickCount int
 	/* Number of tock events */
-	TockCount int
+	TockCount       int
+	ActiveTockCount int
 	/* Number of ticks per worker */
 	TickWorkSize int
 	/* Number of tocks per worker */
