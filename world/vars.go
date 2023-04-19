@@ -23,6 +23,7 @@ var (
 	Vsync         bool    = true
 	OptionsOpen   bool
 	ImperialUnits bool = false
+	UseHyper      bool = false
 
 	/* SuperChunk List */
 	SuperChunkList     []*MapSuperChunk

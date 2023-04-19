@@ -69,7 +69,7 @@ func main() {
 	bootText = str
 
 	/* Detect logical*/
-	detectCPUs()
+	detectCPUs(false)
 	objects.TickInit()
 
 	/* Set up ebiten and window */
@@ -348,7 +348,7 @@ func bootScreen(screen *ebiten.Image) {
 }
 
 /* Detect logical and virtual CPUs, set number of workers */
-func detectCPUs() {
+func detectCPUs(hyper bool) {
 
 	if gv.WASMMode {
 		world.NumWorkers = 1
@@ -362,6 +362,12 @@ func detectCPUs() {
 	}
 	world.NumWorkers = lCPUs
 	cwlog.DoLog(true, "Virtual CPUs: %v", lCPUs)
+
+	if hyper {
+		world.NumWorkers = lCPUs
+		cwlog.DoLog(true, "Number of workers: %v", lCPUs)
+		return
+	}
 
 	/* Logical CPUs */
 	cdat, cerr := cpu.Counts(false)

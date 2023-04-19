@@ -26,7 +26,7 @@ const (
 	TYPE_TEXT = 2
 
 	defaultWindowWidth  = 300
-	defaultWindowHeight = 300
+	defaultWindowHeight = 350
 )
 
 var (
@@ -72,7 +72,20 @@ func init() {
 		{Text: "Debug mode", Action: toggleDebug},
 		{Text: "Load test map", Action: toggleTestMap},
 		{Text: "Imperial Units", Action: toggleUnits},
+		{Text: "Use hyperthreading", Action: toggleHyper},
 		{Text: "Quit game", Action: quitGame, NoCheck: true},
+	}
+}
+
+func toggleHyper(item int) {
+	if world.UseHyper {
+		world.UseHyper = false
+		settingItems[item].Enabled = false
+		detectCPUs(false)
+	} else {
+		world.UseHyper = true
+		settingItems[item].Enabled = true
+		detectCPUs(true)
 	}
 }
 
