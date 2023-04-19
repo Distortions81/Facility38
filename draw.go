@@ -616,7 +616,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 
 	world.CountLock.Lock()
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %4.2f UPS: %4.2f Tocks: %4v Ticks %4v ActiveTocks: %4v ActiveTicks: %4v Draws: %5v Arch: %v Build: v%v-%v Frame: %5v",
+	buf := fmt.Sprintf("FPS: %0.2f UPS: %0.2f Tocks: %8s Ticks %8s ActiveTocks: %8s ActiveTicks: %8s Draws: %6s Arch: %v Build: v%v-%v Frame: %v",
 		world.FPSAvr.Value(),
 		world.UPSAvr.Value(),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
