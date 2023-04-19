@@ -8,18 +8,14 @@ import (
 	"image/color"
 	"sync"
 	"time"
-
-	"github.com/remeh/sizedwaitgroup"
 )
 
-var wg sizedwaitgroup.SizedWaitGroup
 var GameTick uint64
 var GameRunning bool
 var GameLock sync.Mutex
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
-	wg = sizedwaitgroup.New(world.NumWorkers)
 
 	for !world.MapGenerated.Load() {
 		time.Sleep(time.Millisecond * 100)
@@ -32,10 +28,10 @@ func ObjUpdateDaemon() {
 		start := time.Now()
 
 		if tockState {
-			NewRunTocksST()
+			NewRunTocks()
 			tockState = false
 		} else {
-			NewRunTicksST() //Move external
+			NewRunTicks() //Move external
 			GameTick++
 			tockState = true
 		}

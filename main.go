@@ -70,6 +70,7 @@ func main() {
 
 	/* Detect logical*/
 	detectCPUs()
+	objects.TickInit()
 
 	/* Set up ebiten and window */
 	ebiten.SetVsyncEnabled(true)

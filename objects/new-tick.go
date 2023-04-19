@@ -2,7 +2,10 @@ package objects
 
 import (
 	"GameTest/cwlog"
+	"GameTest/gv"
 	"GameTest/world"
+
+	"github.com/remeh/sizedwaitgroup"
 )
 
 type OffsetData struct {
@@ -17,10 +20,16 @@ type TickInterval struct {
 	Offsets    []OffsetData
 }
 
-var TickIntervals []TickInterval
+var (
+	TickIntervals []TickInterval
+	wg            sizedwaitgroup.SizedWaitGroup
+)
 
 /* Init at boot */
-func init() {
+func TickInit() {
+
+	wg = sizedwaitgroup.New(world.NumWorkers)
+
 	for _, ot := range WorldObjs {
 		_, new := GetIntervalPos(int(ot.TockInterval))
 		if new {
@@ -87,6 +96,7 @@ func RemoveTock(obj *world.ObjData) {
 		/* If it is, remove object */
 		for itemPos, item := range off.Tocks {
 			if item == obj {
+
 				TickIntervals[i].Offsets[offPos].Tocks =
 					append(
 						TickIntervals[i].Offsets[offPos].Tocks[:itemPos],
@@ -103,6 +113,7 @@ func AddTick(obj *world.ObjData) {
 	if obj.HasTick {
 		return
 	}
+
 	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
 	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
 		TickIntervals[i].LastOffset = 0
@@ -129,6 +140,7 @@ func RemoveTick(obj *world.ObjData) {
 		/* If it is, remove object */
 		for itemPos, item := range off.Ticks {
 			if item == obj {
+
 				TickIntervals[i].Offsets[offPos].Ticks =
 					append(
 						TickIntervals[i].Offsets[offPos].Ticks[:itemPos],
@@ -164,4 +176,67 @@ func NewRunTicksST() {
 			}
 		}
 	}
+}
+
+var (
+	block []*world.ObjData
+)
+
+func NewRunTocks() {
+
+	numObj := 0
+	block = []*world.ObjData{}
+
+	for _, ti := range TickIntervals {
+		for _, off := range ti.Offsets {
+			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
+				for _, tock := range off.Tocks {
+					block = append(block, tock)
+					numObj++
+					if numObj >= gv.WorkSize {
+						wg.Add()
+						go func(w []*world.ObjData) {
+							for _, obj := range w {
+								obj.Unique.TypeP.UpdateObj(obj)
+							}
+							wg.Done()
+						}(block)
+						numObj = 0
+						block = []*world.ObjData{}
+					}
+				}
+			}
+		}
+	}
+	wg.Wait()
+}
+
+func NewRunTicks() {
+
+	numObj := 0
+	block = []*world.ObjData{}
+
+	for _, ti := range TickIntervals {
+		for _, off := range ti.Offsets {
+			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
+				for _, tock := range off.Ticks {
+					block = append(block, tock)
+					numObj++
+					if numObj >= gv.WorkSize {
+						numObj = 0
+						wg.Add()
+						go func(w []*world.ObjData) {
+							for _, obj := range w {
+								tickObj(obj)
+							}
+							wg.Done()
+						}(block)
+
+						block = []*world.ObjData{}
+					}
+				}
+			}
+		}
+	}
+	wg.Wait()
 }

@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/remeh/sizedwaitgroup"
 )
 
 var (
@@ -40,6 +42,7 @@ func runTicks() {
 	}
 
 	world.TickListLock.Lock()
+	wg := sizedwaitgroup.New(world.NumWorkers)
 	for GameRunning {
 
 		startTime := time.Now()
@@ -92,6 +95,7 @@ func runTocks() {
 	}
 
 	world.TockListLock.Lock()
+	wg := sizedwaitgroup.New(world.NumWorkers)
 	for GameRunning {
 
 		startTime := time.Now()
