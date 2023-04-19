@@ -21,7 +21,7 @@ var (
 )
 
 const (
-	WorkSize         = 200000
+	WorkSize         = 10000
 	FontDPI          = 96
 	MaxItemType      = 255
 	GameUPS          = 8
