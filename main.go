@@ -329,7 +329,7 @@ func bootScreen(screen *ebiten.Image) {
 		screen.DrawImage(gv.TitleImage, op)
 		op.GeoM.Reset()
 		screen.DrawImage(gv.EbitenLogo, op)
-		DrawText("Ebitengine", world.BootFont, world.ColorDarkOrange, color.Transparent, world.XYf32{X: 128, Y: 256 + 16}, 0, screen, false, false, true)
+		DrawText("Ebitengine", world.BootFont, world.ColorDarkOrange, color.Transparent, world.XYf32{X: 128, Y: 256 + 32}, 0, screen, false, false, true)
 	}
 
 	if status == "" {
