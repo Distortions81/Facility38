@@ -24,6 +24,7 @@ var (
 	OptionsOpen   bool
 	ImperialUnits bool = false
 	UseHyper      bool = false
+	InfoLine      bool = false
 
 	/* SuperChunk List */
 	SuperChunkList     []*MapSuperChunk

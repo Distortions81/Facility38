@@ -64,7 +64,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		!world.PlayerReady.Load() {
 
 		bootScreen(screen)
-		drawDebugInfo(screen)
 		drawChatLines(screen)
 		time.Sleep(time.Millisecond)
 		return
@@ -102,7 +101,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	drawWorldTooltip(screen)
 
 	/* Debug info */
-	drawDebugInfo(screen)
+	if world.InfoLine {
+		drawDebugInfo(screen)
+	}
 
 	drawChatLines(screen)
 

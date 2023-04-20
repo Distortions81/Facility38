@@ -26,7 +26,7 @@ const (
 	TYPE_TEXT = 2
 
 	defaultWindowWidth  = 300
-	defaultWindowHeight = 350
+	defaultWindowHeight = 400
 )
 
 var (
@@ -73,7 +73,18 @@ func init() {
 		{Text: "Load test map", Action: toggleTestMap},
 		{Text: "Imperial Units", Action: toggleUnits},
 		{Text: "Use hyperthreading", Action: toggleHyper},
+		{Text: "Debug info-text", Action: toggleInfoLine},
 		{Text: "Quit game", Action: quitGame, NoCheck: true},
+	}
+}
+
+func toggleInfoLine(item int) {
+	if world.InfoLine {
+		world.InfoLine = false
+		settingItems[item].Enabled = false
+	} else {
+		world.InfoLine = true
+		settingItems[item].Enabled = true
 	}
 }
 
