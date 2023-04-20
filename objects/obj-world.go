@@ -295,9 +295,11 @@ var WorldObjs = []*world.ObjType{
 		Category:    gv.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
 		UpdateObj:   slipRollerUpdate,
+		InitObj:     initSlipRoller,
 		LinkObj:     linkMachine,
 		MachineSettings: world.MachineData{
-			KW: 10,
+			KW:         10,
+			KgHourMine: 40,
 		},
 		TockInterval: uint8(world.ObjectUPS/2) * 15,
 		Symbol:       "SR",
@@ -305,5 +307,8 @@ var WorldObjs = []*world.ObjType{
 			{Dir: gv.DIR_NORTH, Type: gv.PORT_OUT},
 			{Dir: gv.DIR_SOUTH, Type: gv.PORT_IN},
 		},
+		ShowArrow:    true,
+		ToolBarArrow: true,
+		SubObjs:      []world.XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 	},
 }

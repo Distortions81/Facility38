@@ -158,3 +158,14 @@ func initBeltOver(obj *world.ObjData) bool {
 	obj.BeltOver.Middle = &world.MatData{}
 	return true
 }
+
+func initSlipRoller(obj *world.ObjData) bool {
+	if obj == nil {
+		return false
+	}
+
+	obj.Unique.SingleContent = &world.MatData{}
+	obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_IRON_SHEET]
+
+	return true
+}

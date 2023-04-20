@@ -114,7 +114,7 @@ func beltUpdate(obj *world.ObjData) {
 	}
 
 	/* Does the input contain anything? */
-	if obj.NumOut > 0 {
+	if obj.NumOut > 0 && obj.NumIn > 0 {
 		if obj.Inputs[obj.LastInput].Buf.Amount > 0 &&
 			obj.Outputs[0].Buf.Amount == 0 &&
 			obj.Outputs[0].Obj != nil &&
