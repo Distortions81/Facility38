@@ -29,7 +29,7 @@ func GetFont(name string) []byte {
 
 }
 
-func GetSpriteImage(name string) (*ebiten.Image, error) {
+func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 
 	if cLoadEmbedSprites {
 		gpng, err := f.Open(gv.GfxDir + name)
@@ -43,7 +43,12 @@ func GetSpriteImage(name string) (*ebiten.Image, error) {
 			cwlog.DoLog(true, "GetSpriteImage: Embedded: %v", err)
 			return nil, err
 		}
-		img := ebiten.NewImageFromImage(m)
+		var img *ebiten.Image
+		if unmananged {
+			img = ebiten.NewImageFromImageWithOptions(m, &ebiten.NewImageFromImageOptions{Unmanaged: true})
+		} else {
+			img = ebiten.NewImageFromImage(m)
+		}
 		return img, nil
 
 	} else {

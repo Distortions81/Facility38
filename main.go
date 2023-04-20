@@ -37,11 +37,11 @@ type Game struct {
 /* Main function */
 func main() {
 
-	imgb, err := data.GetSpriteImage("title.png")
+	imgb, err := data.GetSpriteImage("title.png", true)
 	if err == nil {
 		gv.TitleImage = imgb
 	}
-	imgb, err = data.GetSpriteImage("ebiten.png")
+	imgb, err = data.GetSpriteImage("ebiten.png", true)
 	if err == nil {
 		gv.EbitenLogo = imgb
 	}
@@ -154,11 +154,11 @@ func loadSprites(dark bool) {
 		for key, item := range otype.List {
 
 			/* Main */
-			img, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + dstr + ".png")
+			img, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+dstr+".png", false)
 
 			/* If not found, check subfolder */
 			if err != nil {
-				img, err = data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + dstr + ".png")
+				img, err = data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+dstr+".png", false)
 				if err != nil && !dark {
 					/* If not found, fill texture with text */
 					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
@@ -173,7 +173,7 @@ func loadSprites(dark bool) {
 			}
 
 			/* Corner pieces */
-			imgc, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + "-corner" + dstr + ".png")
+			imgc, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+"-corner"+dstr+".png", false)
 			if err == nil {
 				if dark {
 					otype.List[key].Images.DarkCorner = imgc
@@ -183,7 +183,7 @@ func loadSprites(dark bool) {
 			}
 
 			/* Active*/
-			imga, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + "-active" + dstr + ".png")
+			imga, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+"-active"+dstr+".png", false)
 			if err == nil {
 				if dark {
 					otype.List[key].Images.DarkActive = imga
@@ -193,7 +193,7 @@ func loadSprites(dark bool) {
 			}
 
 			/* Overlays */
-			imgo, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + item.Base + "-overlay" + dstr + ".png")
+			imgo, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+"-overlay"+dstr+".png", false)
 			if err == nil {
 				if dark {
 					otype.List[key].Images.DarkOverlay = imgo
@@ -203,7 +203,7 @@ func loadSprites(dark bool) {
 			}
 
 			/* Masks */
-			imgm, err := data.GetSpriteImage(otype.Folder + "/" + item.Base + "/" + "-mask" + dstr + ".png")
+			imgm, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+"-mask"+dstr+".png", false)
 			if err == nil {
 				if dark {
 					otype.List[key].Images.LightMask = imgm
@@ -218,7 +218,7 @@ func loadSprites(dark bool) {
 
 	for m, item := range objects.MatTypes {
 		if !dark {
-			img, err := data.GetSpriteImage("belt-obj/" + item.Base + ".png")
+			img, err := data.GetSpriteImage("belt-obj/"+item.Base+".png", false)
 			if err != nil {
 				/* If not found, fill texture with text */
 				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
@@ -228,7 +228,7 @@ func loadSprites(dark bool) {
 			objects.MatTypes[m].LightImage = img
 		} else {
 
-			imgd, err := data.GetSpriteImage("belt-obj/" + item.Base + "-dark.png")
+			imgd, err := data.GetSpriteImage("belt-obj/"+item.Base+"-dark.png", false)
 			if err == nil {
 				objects.MatTypes[m].DarkImage = imgd
 				cwlog.DoLog(true, "loaded dark: %v", item.Base)
@@ -237,7 +237,7 @@ func loadSprites(dark bool) {
 		util.WASMSleep()
 	}
 
-	img, err := data.GetSpriteImage("ui/resource-legend.png")
+	img, err := data.GetSpriteImage("ui/resource-legend.png", true)
 	if err == nil {
 		gv.ResourceLegendImage = img
 	}
