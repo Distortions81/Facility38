@@ -122,12 +122,207 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func drawItemInfo(screen *ebiten.Image) {
 
-	if world.HoverObject != nil {
-		vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, true)
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale((1.0/float64(world.HoverObject.Unique.TypeP.Size.X))*8.0, (1.0/float64(world.HoverObject.Unique.TypeP.Size.Y))*8.0)
-		op.GeoM.Translate(float64(world.ScreenWidth)-(infoWidth)-infoSpaceRight, infoSpaceTop+(infoPad/2))
-		screen.DrawImage(world.HoverObject.Unique.TypeP.Images.Main, op)
+	mx, my := ebiten.CursorPosition()
+	fmx := float32(mx)
+	fmy := float32(my)
+
+	/* Get mouse position on world */
+	worldMouseX := (fmx/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
+	worldMouseY := (fmy/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
+
+	/* Toolbar tool tip */
+	uipix := float32((ToolbarMax * int(gv.ToolBarScale+gv.ToolBarScale)))
+
+	val := int(fmx / (gv.ToolBarScale + gv.ToolBarSpacing))
+	if fmx <= uipix && fmy <= gv.ToolBarScale &&
+		val >= 0 && val < ToolbarMax {
+		if fmx != world.PrevMouseX && fmy != world.PrevMouseY {
+
+			pos := int(fmx / float32(gv.ToolBarScale+gv.ToolBarSpacing))
+			item := ToolbarItems[pos]
+			var toolTip string
+
+			if item.OType.Description != "" {
+				keyName := ""
+				if item.OType.QKey != 0 {
+					keyName = " ( " + item.OType.QKey.String() + " key )"
+				}
+				toolTip = fmt.Sprintf("%v\n%v\n%v", item.OType.Name, item.OType.Description, keyName)
+			} else {
+				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
+			}
+			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG,
+				world.XYf32{X: (fmx) + 20, Y: (fmy) + 40}, 11, screen,
+				true, false, false)
+
+			DrawToolbar(false, true, pos)
+		}
+	} else {
+		/* Erase hover highlight when mouse moves off */
+		if ToolbarHover {
+			DrawToolbar(false, false, 0)
+			ToolbarHover = false
+		}
+
+		/* World Obj tool tip */
+		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
+		chunk := util.GetChunk(pos)
+
+		toolTip := ""
+		if gv.Debug {
+			toolTip = "(Debug Mode):\n"
+		}
+		found := false
+
+		if chunk != nil {
+			b := util.GetObj(pos, chunk)
+			if b != nil {
+				o := b.Obj
+
+				found = true
+				toolTip = fmt.Sprintf("%v: %v\n",
+					o.Unique.TypeP.Name,
+					util.PosToString(world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}))
+				if o.Unique.Contents != nil {
+					for z := 0; z < gv.MAT_MAX; z++ {
+						if o.Unique.Contents.Mats[z] != nil {
+							toolTip = toolTip + fmt.Sprintf("Contents: %v: %v\n",
+								o.Unique.Contents.Mats[z].TypeP.Name, objects.PrintUnit(o.Unique.Contents.Mats[z]))
+						}
+					}
+				}
+				if o.Unique.TypeP.MachineSettings.MaxFuelKG > 0 {
+					toolTip = toolTip + fmt.Sprintf("Max Fuel: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxFuelKG))
+					if o.Unique.KGFuel > o.Unique.TypeP.MachineSettings.KgFuelPerCycle {
+						toolTip = toolTip + fmt.Sprintf("Fuel: %v\n", objects.PrintWeight(o.Unique.KGFuel))
+					} else {
+						toolTip = toolTip + "NO FUEL\n"
+					}
+				}
+
+				if o.Unique.SingleContent != nil && o.Unique.SingleContent.Amount > 0 {
+					toolTip = toolTip + fmt.Sprintf("Contains: %v %v\n", objects.PrintUnit(o.Unique.SingleContent), o.Unique.SingleContent.TypeP.Name)
+				}
+
+				if o.Blocked {
+					toolTip = toolTip + "BLOCKED\n"
+				}
+				if o.MinerData != nil && o.MinerData.ResourcesCount == 0 {
+					toolTip = toolTip + "NOTHING TO MINE.\n"
+				}
+
+				if gv.Debug {
+					if o.Unique.TypeP.MachineSettings.KgFuelPerCycle > 0 {
+						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgFuelPerCycle))
+					}
+					if o.Unique.TypeP.MachineSettings.KgPerCycle > 0 {
+						toolTip = toolTip + fmt.Sprintf("Per Cycle: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgPerCycle))
+					}
+					if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
+						toolTip = toolTip + fmt.Sprintf("Max contents: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
+					}
+
+					for _, p := range o.Ports {
+						if p.Obj == nil {
+							continue
+						}
+						var tstring = "None"
+						if p.Buf.TypeP != nil {
+							tstring = p.Buf.TypeP.Name
+						}
+
+						if p.Type == gv.PORT_IN {
+							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %v (%v)\n",
+								util.DirToName(uint8(p.Dir)),
+								p.Obj.Unique.TypeP.Name,
+								tstring,
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
+						} else if p.Type == gv.PORT_OUT {
+							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %v (%v)\n",
+								util.DirToName(uint8(p.Dir)),
+								p.Obj.Unique.TypeP.Name,
+								tstring,
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
+						} else if p.Type == gv.PORT_FOUT {
+							toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %v (%v)\n",
+								util.DirToName(uint8(p.Dir)),
+								p.Obj.Unique.TypeP.Name,
+								tstring,
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
+						} else if p.Type == gv.PORT_FIN {
+							toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %v (%v)\n",
+								util.DirToName(uint8(p.Dir)),
+								p.Obj.Unique.TypeP.Name,
+								tstring,
+								objects.PrintUnit(p.Buf),
+								objects.CalcVolume(p.Buf))
+						}
+					}
+					if o.Unique.TypeP != nil {
+						if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
+							toolTip = toolTip + fmt.Sprintf("MaxContain: %v\n",
+								objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
+						}
+						if o.Unique.TypeP.MachineSettings.KW > 0 {
+							toolTip = toolTip + fmt.Sprintf("KW: %v\n", o.Unique.TypeP.MachineSettings.KW)
+						}
+						if o.HasTock {
+							toolTip = toolTip + "Tocking\n"
+						}
+						if o.HasTick {
+							toolTip = toolTip + "Ticking\n"
+						}
+					}
+
+				}
+
+				vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, true)
+				op := &ebiten.DrawImageOptions{}
+				op.GeoM.Scale((1.0/float64(o.Unique.TypeP.Size.X))*8.0, (1.0/float64(o.Unique.TypeP.Size.Y))*8.0)
+				op.GeoM.Translate(float64(world.ScreenWidth)-(infoWidth)-infoSpaceRight, infoSpaceTop+(infoPad/2))
+				screen.DrawImage(o.Unique.TypeP.Images.Main, op)
+
+				if o.Unique.TypeP.Description != "" {
+					toolTip = toolTip + o.Unique.TypeP.Description + "\n"
+				}
+			} else {
+				world.HoverObject = nil
+			}
+		}
+
+		/* No object contents found, just show x/y */
+		if !found {
+			toolTip = fmt.Sprintf("(%v, %v)",
+				humanize.Comma(int64((worldMouseX - gv.XYCenter))),
+				humanize.Comma(int64((worldMouseY - gv.XYCenter))))
+		}
+
+		/* Tooltip for resources */
+		if world.ShowResourceLayer {
+			buf := ""
+			if fmx != world.PrevMouseX && fmy != world.PrevMouseY {
+				for p := 1; p < len(objects.NoiseLayers); p++ {
+					var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
+
+					if h > 0 {
+						buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
+					}
+				}
+			} else {
+				/* save a bit of processing */
+				buf = lastResourceString
+			}
+			if buf != "" {
+				lastResourceString = buf
+				DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
+					world.XYf32{X: (fmx + 20), Y: (fmy + 20)}, 11, screen, true, false, false)
+			}
+		}
+		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)}, 11, screen, false, true, false)
+
 	}
 }
 
@@ -659,204 +854,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 
 func drawWorldTooltip(screen *ebiten.Image) {
 
-	mx, my := ebiten.CursorPosition()
-	fmx := float32(mx)
-	fmy := float32(my)
-
-	/* Get mouse position on world */
-	worldMouseX := (fmx/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
-	worldMouseY := (fmy/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
-
-	/* Toolbar tool tip */
-	uipix := float32((ToolbarMax * int(gv.ToolBarScale+gv.ToolBarScale)))
-
-	val := int(fmx / (gv.ToolBarScale + gv.ToolBarSpacing))
-	if fmx <= uipix && fmy <= gv.ToolBarScale &&
-		val >= 0 && val < ToolbarMax {
-		if fmx != world.PrevMouseX && fmy != world.PrevMouseY {
-
-			pos := int(fmx / float32(gv.ToolBarScale+gv.ToolBarSpacing))
-			item := ToolbarItems[pos]
-			var toolTip string
-
-			if item.OType.Description != "" {
-				keyName := ""
-				if item.OType.QKey != 0 {
-					keyName = " ( " + item.OType.QKey.String() + " key )"
-				}
-				toolTip = fmt.Sprintf("%v\n%v\n%v", item.OType.Name, item.OType.Description, keyName)
-			} else {
-				toolTip = fmt.Sprintf("%v\n", item.OType.Name)
-			}
-			DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG,
-				world.XYf32{X: (fmx) + 20, Y: (fmy) + 40}, 11, screen,
-				true, false, false)
-
-			DrawToolbar(false, true, pos)
-		}
-	} else {
-		/* Erase hover highlight when mouse moves off */
-		if ToolbarHover {
-			DrawToolbar(false, false, 0)
-			ToolbarHover = false
-		}
-
-		/* World Obj tool tip */
-		pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
-		chunk := util.GetChunk(pos)
-
-		toolTip := ""
-		if gv.Debug {
-			toolTip = "(Debug Mode):\n"
-		}
-		found := false
-
-		if chunk != nil {
-			b := util.GetObj(pos, chunk)
-			if b != nil {
-				o := b.Obj
-				world.HoverObject = b.Obj
-
-				found = true
-				toolTip = fmt.Sprintf("%v: %v\n",
-					o.Unique.TypeP.Name,
-					util.PosToString(world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}))
-				if o.Unique.Contents != nil {
-					for z := 0; z < gv.MAT_MAX; z++ {
-						if o.Unique.Contents.Mats[z] != nil {
-							toolTip = toolTip + fmt.Sprintf("Contents: %v: %v\n",
-								o.Unique.Contents.Mats[z].TypeP.Name, objects.PrintUnit(o.Unique.Contents.Mats[z]))
-						}
-					}
-				}
-				if o.Unique.TypeP.MachineSettings.MaxFuelKG > 0 {
-					toolTip = toolTip + fmt.Sprintf("Max Fuel: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxFuelKG))
-					if o.Unique.KGFuel > o.Unique.TypeP.MachineSettings.KgFuelPerCycle {
-						toolTip = toolTip + fmt.Sprintf("Fuel: %v\n", objects.PrintWeight(o.Unique.KGFuel))
-					} else {
-						toolTip = toolTip + "NO FUEL\n"
-					}
-				}
-
-				if o.Unique.SingleContent != nil && o.Unique.SingleContent.Amount > 0 {
-					toolTip = toolTip + fmt.Sprintf("Contains: %v %v\n", objects.PrintUnit(o.Unique.SingleContent), o.Unique.SingleContent.TypeP.Name)
-				}
-
-				if o.Blocked {
-					toolTip = toolTip + "BLOCKED\n"
-				}
-				if o.MinerData != nil && o.MinerData.ResourcesCount == 0 {
-					toolTip = toolTip + "NOTHING TO MINE.\n"
-				}
-
-				if gv.Debug {
-					if o.Unique.TypeP.MachineSettings.KgFuelPerCycle > 0 {
-						toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgFuelPerCycle))
-					}
-					if o.Unique.TypeP.MachineSettings.KgPerCycle > 0 {
-						toolTip = toolTip + fmt.Sprintf("Per Cycle: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgPerCycle))
-					}
-					if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
-						toolTip = toolTip + fmt.Sprintf("Max contents: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
-					}
-
-					for _, p := range o.Ports {
-						if p.Obj == nil {
-							continue
-						}
-						var tstring = "None"
-						if p.Buf.TypeP != nil {
-							tstring = p.Buf.TypeP.Name
-						}
-
-						if p.Type == gv.PORT_IN {
-							toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %v (%v)\n",
-								util.DirToName(uint8(p.Dir)),
-								p.Obj.Unique.TypeP.Name,
-								tstring,
-								objects.PrintUnit(p.Buf),
-								objects.CalcVolume(p.Buf))
-						} else if p.Type == gv.PORT_OUT {
-							toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %v (%v)\n",
-								util.DirToName(uint8(p.Dir)),
-								p.Obj.Unique.TypeP.Name,
-								tstring,
-								objects.PrintUnit(p.Buf),
-								objects.CalcVolume(p.Buf))
-						} else if p.Type == gv.PORT_FOUT {
-							toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %v (%v)\n",
-								util.DirToName(uint8(p.Dir)),
-								p.Obj.Unique.TypeP.Name,
-								tstring,
-								objects.PrintUnit(p.Buf),
-								objects.CalcVolume(p.Buf))
-						} else if p.Type == gv.PORT_FIN {
-							toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %v (%v)\n",
-								util.DirToName(uint8(p.Dir)),
-								p.Obj.Unique.TypeP.Name,
-								tstring,
-								objects.PrintUnit(p.Buf),
-								objects.CalcVolume(p.Buf))
-						}
-					}
-					if o.Unique.TypeP != nil {
-						if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
-							toolTip = toolTip + fmt.Sprintf("MaxContain: %v\n",
-								objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
-						}
-						if o.Unique.TypeP.MachineSettings.KW > 0 {
-							toolTip = toolTip + fmt.Sprintf("KW: %v\n", o.Unique.TypeP.MachineSettings.KW)
-						}
-						if o.HasTock {
-							toolTip = toolTip + "Tocking\n"
-						}
-						if o.HasTick {
-							toolTip = toolTip + "Ticking\n"
-						}
-					}
-
-				}
-
-				if o.Unique.TypeP.Description != "" {
-					toolTip = toolTip + o.Unique.TypeP.Description + "\n"
-				}
-			} else {
-				world.HoverObject = nil
-			}
-		}
-
-		/* No object contents found, just show x/y */
-		if !found {
-			toolTip = fmt.Sprintf("(%v, %v)",
-				humanize.Comma(int64((worldMouseX - gv.XYCenter))),
-				humanize.Comma(int64((worldMouseY - gv.XYCenter))))
-		}
-
-		/* Tooltip for resources */
-		if world.ShowResourceLayer {
-			buf := ""
-			if fmx != world.PrevMouseX && fmy != world.PrevMouseY {
-				for p := 1; p < len(objects.NoiseLayers); p++ {
-					var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
-
-					if h > 0 {
-						buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
-					}
-				}
-			} else {
-				/* save a bit of processing */
-				buf = lastResourceString
-			}
-			if buf != "" {
-				lastResourceString = buf
-				DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
-					world.XYf32{X: (fmx + 20), Y: (fmy + 20)}, 11, screen, true, false, false)
-			}
-		}
-		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)}, 11, screen, false, true, false)
-
-	}
-}
+	
 
 func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) {
