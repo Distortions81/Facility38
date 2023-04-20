@@ -103,7 +103,10 @@ func loadOptions() {
 		}
 	} else {
 		cwlog.DoLog(true, "loadOptions: ReadFile failure")
+		return
 	}
+
+	cwlog.DoLog(true, "Settings loaded.")
 
 	for wpos, wSetting := range settingItems {
 		for _, fSetting := range tempSettings {
@@ -161,6 +164,8 @@ func saveOptions() {
 		cwlog.DoLog(true, "Couldn't rename settings file.")
 		return
 	}
+
+	cwlog.DoLog(true, "Settings saved.")
 }
 
 func toggleInfoLine(item int) {
@@ -295,8 +300,6 @@ func toggleVsync(item int) {
 }
 
 func setupOptionsMenu() {
-
-	loadOptions()
 
 	if world.BootFont == nil || !world.SpritesLoaded.Load() {
 		return

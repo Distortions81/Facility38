@@ -129,6 +129,7 @@ func startGame() {
 		time.Sleep(time.Millisecond)
 	}
 	setupOptionsMenu()
+	loadOptions()
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
 	objects.GameRunning = true
