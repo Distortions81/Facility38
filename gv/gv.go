@@ -74,10 +74,10 @@ const (
 	ObjTypeBasicSmelter    = 5
 	ObjTypeBasicCaster     = 6
 	ObjTypeBasicRodCaster  = 7
-	ObjTypeBasicFuelHopper = 8
-	ObjTypeBasicUnloader   = 9
-	ObjTypeBasicLoader     = 10
-	ObjTypeBasicSlipRoller = 11
+	ObjTypeBasicSlipRoller = 8
+	ObjTypeBasicFuelHopper = 9
+	ObjTypeBasicUnloader   = 10
+	ObjTypeBasicLoader     = 11
 
 	ObjTypeMax = 12
 
