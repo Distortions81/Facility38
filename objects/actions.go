@@ -1,8 +1,8 @@
 package objects
 
 import (
-	"GameTest/util"
-	"GameTest/world"
+	"Facility38/util"
+	"Facility38/world"
 	"time"
 )
 

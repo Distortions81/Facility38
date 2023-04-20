@@ -2,7 +2,7 @@
 *.gz
 *.exe
 
-GameTest
+Facility38
 internalimages_*/
 out
 log

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"GameTest/data"
-	"GameTest/world"
+	"Facility38/data"
+	"Facility38/world"
 	"log"
 	"time"
 

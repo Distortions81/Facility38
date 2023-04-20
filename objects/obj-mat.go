@@ -1,8 +1,8 @@
 package objects
 
 import (
-	"GameTest/gv"
-	"GameTest/world"
+	"Facility38/gv"
+	"Facility38/world"
 )
 
 /* Materials and images */

@@ -35,7 +35,7 @@ const (
 	ChatHeightLines = 10
 	ChatFadeTime    = time.Second
 
-	Version = "016"
+	Version = "017"
 
 	/* Files and directories */
 	DataDir = "data/"

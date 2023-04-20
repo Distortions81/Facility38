@@ -1,10 +1,10 @@
 package objects
 
 import (
-	"GameTest/cwlog"
-	"GameTest/gv"
-	"GameTest/util"
-	"GameTest/world"
+	"Facility38/cwlog"
+	"Facility38/gv"
+	"Facility38/util"
+	"Facility38/world"
 	"bytes"
 	"encoding/json"
 	"os"

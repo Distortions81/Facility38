@@ -1,8 +1,8 @@
 package objects
 
 import (
-	"GameTest/cwlog"
-	"GameTest/world"
+	"Facility38/cwlog"
+	"Facility38/world"
 	"bytes"
 	"encoding/json"
 	"os"

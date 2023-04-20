@@ -1,10 +1,10 @@
 package main
 
 import (
-	"GameTest/gv"
-	"GameTest/objects"
-	"GameTest/util"
-	"GameTest/world"
+	"Facility38/gv"
+	"Facility38/objects"
+	"Facility38/util"
+	"Facility38/world"
 )
 
 /* Make a test map, or skip and still start daemons */

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"GameTest/cwlog"
-	"GameTest/data"
-	"GameTest/gv"
-	"GameTest/objects"
-	"GameTest/util"
-	"GameTest/world"
+	"Facility38/cwlog"
+	"Facility38/data"
+	"Facility38/gv"
+	"Facility38/objects"
+	"Facility38/util"
+	"Facility38/world"
 	"fmt"
 	"image/color"
 	"log"
@@ -438,5 +438,5 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 /* Automatic window title update */
 func windowTitle() {
-	ebiten.SetWindowTitle(("GameTest: " + "v" + gv.Version + "-" + buildTime + "-" + runtime.GOOS + "-" + runtime.GOARCH + fmt.Sprintf(" %vx%v", world.ScreenWidth, world.ScreenHeight)))
+	ebiten.SetWindowTitle(("Facility38: " + "v" + gv.Version + "-" + buildTime + "-" + runtime.GOOS + "-" + runtime.GOARCH + fmt.Sprintf(" %vx%v", world.ScreenWidth, world.ScreenHeight)))
 }

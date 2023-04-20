@@ -1,7 +1,7 @@
 package world
 
 import (
-	"GameTest/gv"
+	"Facility38/gv"
 	"image/color"
 	"math/rand"
 	"sync"

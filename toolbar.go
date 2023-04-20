@@ -1,9 +1,9 @@
 package main
 
 import (
-	"GameTest/gv"
-	"GameTest/objects"
-	"GameTest/world"
+	"Facility38/gv"
+	"Facility38/objects"
+	"Facility38/world"
 	"sync"
 	"time"
 

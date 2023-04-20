@@ -1,8 +1,8 @@
 package data
 
 import (
-	"GameTest/cwlog"
-	"GameTest/gv"
+	"Facility38/cwlog"
+	"Facility38/gv"
 	"embed"
 	"image"
 	_ "image/png"

@@ -1,4 +1,4 @@
-module GameTest
+module Facility38
 
 go 1.19
 
