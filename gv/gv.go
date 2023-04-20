@@ -18,6 +18,7 @@ var (
 
 	ResourceLegendImage *ebiten.Image
 	TitleImage          *ebiten.Image
+	EbitenLogo          *ebiten.Image
 )
 
 const (

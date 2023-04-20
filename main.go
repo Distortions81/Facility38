@@ -41,6 +41,10 @@ func main() {
 	if err == nil {
 		gv.TitleImage = imgb
 	}
+	imgb, err = data.GetSpriteImage("ebiten.png")
+	if err == nil {
+		gv.EbitenLogo = imgb
+	}
 
 	/* Compile flags */
 	if NoDebug == "true" { /* Published build */
@@ -322,6 +326,9 @@ func bootScreen(screen *ebiten.Image) {
 			float64(world.ScreenHeight/2)-float64(gv.TitleImage.Bounds().Size().Y/2)-64)
 		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 		screen.DrawImage(gv.TitleImage, op)
+		op.GeoM.Reset()
+		screen.DrawImage(gv.EbitenLogo, op)
+		DrawText("Ebitengine\nhttps://ebitengine.org/", world.BootFont, world.ColorDarkOrange, color.Transparent, world.XYf32{X: 128, Y: 256 + 16}, 0, screen, false, false, true)
 	}
 
 	if status == "" {
