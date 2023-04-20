@@ -30,9 +30,6 @@ var (
 
 /* Init at boot */
 func TickInit() {
-
-	wg = sizedwaitgroup.New(world.NumWorkers)
-
 	for _, ot := range WorldObjs {
 		_, new := GetIntervalPos(int(ot.TockInterval))
 		if new {
@@ -200,6 +197,8 @@ func NewRunTocks() {
 	numObj := 0
 	ActiveTocks = 0
 
+	wg = sizedwaitgroup.New(world.NumWorkers)
+
 	for _, ti := range TickIntervals {
 		for _, off := range ti.Offsets {
 			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
@@ -220,9 +219,7 @@ func NewRunTocks() {
 		ActiveTocks += numObj
 	}
 	wg.Wait()
-	world.CountLock.Lock()
 	world.ActiveTockCount = ActiveTocks
-	world.CountLock.Unlock()
 }
 
 func NewRunTicks() {
@@ -251,9 +248,7 @@ func NewRunTicks() {
 	}
 	wg.Wait()
 
-	world.CountLock.Lock()
 	world.ActiveTickCount = ActiveTicks
-	world.CountLock.Unlock()
 }
 
 func runTickBlock(numObj int) {
