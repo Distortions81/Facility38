@@ -1,10 +1,13 @@
 package main
 
 import (
+	"GameTest/cwlog"
 	"GameTest/gv"
 	"GameTest/objects"
 	"GameTest/util"
 	"GameTest/world"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
@@ -27,6 +30,8 @@ const (
 
 	defaultWindowWidth  = 300
 	defaultWindowHeight = 400
+
+	settingsFile = "data/settings.json"
 )
 
 var (
@@ -47,16 +52,17 @@ var (
 )
 
 type settingType struct {
-	Text string
+	Base string
+	Text string `json:"-"`
 
-	TextPosX   int
-	TextPosY   int
-	TextBounds image.Rectangle
-	Rect       image.Rectangle
+	TextPosX   int             `json:"-"`
+	TextPosY   int             `json:"-"`
+	TextBounds image.Rectangle `json:"-"`
+	Rect       image.Rectangle `json:"-"`
 
-	Action  func(item int)
+	Action  func(item int) `json:"-"`
 	Enabled bool
-	NoCheck bool
+	NoCheck bool `json:"-"`
 }
 
 func init() {
@@ -66,15 +72,94 @@ func init() {
 	bg.Fill(bgcolor)
 
 	settingItems = []settingType{
-		{Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
-		{Text: "Full Screen", Action: toggleFullscreen},
-		{Text: "Uncap UPS", Action: toggleUPSCap},
-		{Text: "Debug mode", Action: toggleDebug},
+		{Base: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
+		{Base: "FULLSCREEN", Text: "Full Screen", Action: toggleFullscreen},
+		{Base: "UNCAP-FPS", Text: "Uncap UPS", Action: toggleUPSCap},
+		{Base: "DEBUG", Text: "Debug mode", Action: toggleDebug},
 		{Text: "Load test map", Action: toggleTestMap},
-		{Text: "Imperial Units", Action: toggleUnits},
-		{Text: "Use hyperthreading", Action: toggleHyper},
-		{Text: "Debug info-text", Action: toggleInfoLine},
+		{Base: "FREEDOM-UNITS", Text: "Imperial Units", Action: toggleUnits},
+		{Base: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper},
+		{Base: "DEBUG-TEXT", Text: "Debug info-text", Action: toggleInfoLine},
 		{Text: "Quit game", Action: quitGame, NoCheck: true},
+	}
+}
+
+func loadOptions() {
+
+	if gv.WASMMode {
+		return
+	}
+
+	var tempSettings []settingType
+
+	file, err := os.ReadFile(settingsFile)
+
+	if file != nil && err == nil {
+
+		err := json.Unmarshal([]byte(file), &tempSettings)
+		if err != nil {
+			cwlog.DoLog(true, "loadOptions: Unmarshal failure")
+			cwlog.DoLog(true, err.Error())
+		}
+	} else {
+		cwlog.DoLog(true, "ReadGCfg: ReadFile failure")
+	}
+
+	for wpos, wSetting := range settingItems {
+		for _, fSetting := range tempSettings {
+			if wSetting.Base == fSetting.Base {
+				if fSetting.Enabled != wSetting.Enabled {
+					settingItems[wpos].Action(wpos)
+				}
+			}
+		}
+	}
+
+}
+
+func saveOptions() {
+
+	if gv.WASMMode {
+		return
+	}
+
+	var tempSettings []settingType
+	for _, setting := range settingItems {
+		if setting.Base != "" {
+			tempSettings = append(tempSettings, settingType{Base: setting.Base, Enabled: setting.Enabled})
+		}
+	}
+
+	tempPath := settingsFile + ".tmp"
+	finalPath := settingsFile
+
+	outbuf := new(bytes.Buffer)
+	enc := json.NewEncoder(outbuf)
+	enc.SetIndent("", "\t")
+
+	if err := enc.Encode(&tempSettings); err != nil {
+		cwlog.DoLog(true, "saveOptions: enc.Encode failure")
+		return
+	}
+
+	_, err := os.Create(tempPath)
+
+	if err != nil {
+		cwlog.DoLog(true, "saveOptions: os.Create failure")
+		return
+	}
+
+	err = os.WriteFile(tempPath, outbuf.Bytes(), 0644)
+
+	if err != nil {
+		cwlog.DoLog(true, "saveOptions: WriteFile failure")
+	}
+
+	err = os.Rename(tempPath, finalPath)
+
+	if err != nil {
+		cwlog.DoLog(true, "Couldn't rename Gcfg file.")
+		return
 	}
 }
 
@@ -210,6 +295,8 @@ func toggleVsync(item int) {
 }
 
 func setupOptionsMenu() {
+
+	loadOptions()
 
 	if world.BootFont == nil || !world.SpritesLoaded.Load() {
 		return
@@ -351,6 +438,7 @@ func handleSettings() bool {
 		b := buttons[i]
 		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, b, 1) {
 			item.Action(i)
+			saveOptions()
 			gMouseHeld = false
 			return true
 		}

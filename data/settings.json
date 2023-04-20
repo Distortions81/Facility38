@@ -1,0 +1,30 @@
+[
+	{
+		"Base": "VSYNC",
+		"Enabled": true
+	},
+	{
+		"Base": "FULLSCREEN",
+		"Enabled": false
+	},
+	{
+		"Base": "UNCAP-FPS",
+		"Enabled": false
+	},
+	{
+		"Base": "DEBUG",
+		"Enabled": false
+	},
+	{
+		"Base": "FREEDOM-UNITS",
+		"Enabled": false
+	},
+	{
+		"Base": "HYPERTHREAD",
+		"Enabled": false
+	},
+	{
+		"Base": "DEBUG-TEXT",
+		"Enabled": false
+	}
+]
