@@ -102,7 +102,7 @@ func loadOptions() {
 			cwlog.DoLog(true, err.Error())
 		}
 	} else {
-		cwlog.DoLog(true, "ReadGCfg: ReadFile failure")
+		cwlog.DoLog(true, "loadOptions: ReadFile failure")
 	}
 
 	for wpos, wSetting := range settingItems {
@@ -158,7 +158,7 @@ func saveOptions() {
 	err = os.Rename(tempPath, finalPath)
 
 	if err != nil {
-		cwlog.DoLog(true, "Couldn't rename Gcfg file.")
+		cwlog.DoLog(true, "Couldn't rename settings file.")
 		return
 	}
 }
