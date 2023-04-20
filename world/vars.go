@@ -54,6 +54,9 @@ var (
 	EventQueue     []*EventQueueData
 	EventQueueLock sync.Mutex
 
+	HoverObject    *ObjData
+	SelectedObject *ObjData
+
 	RotateCount int
 	/* Number of tick events */
 	CountLock       sync.Mutex

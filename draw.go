@@ -22,6 +22,11 @@ const (
 	cBlockedIndicatorOffset = 0
 	WASMTerrainDiv          = 5
 	MaxBatch                = 100000
+	infoWidth               = 128
+	infoHeight              = 128
+	infoSpaceRight          = 8
+	infoSpaceTop            = 8
+	infoPad                 = 4
 )
 
 var (
@@ -97,6 +102,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(toolbarCache, nil)
 	toolbarCacheLock.RUnlock()
 
+	drawItemInfo(screen)
+
 	/* Tooltips */
 	drawWorldTooltip(screen)
 
@@ -111,6 +118,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		drawSettings(screen)
 	}
 
+}
+
+func drawItemInfo(screen *ebiten.Image) {
+
+	if world.HoverObject != nil {
+		vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, true)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale((1.0/float64(world.HoverObject.Unique.TypeP.Size.X))*8.0, (1.0/float64(world.HoverObject.Unique.TypeP.Size.Y))*8.0)
+		op.GeoM.Translate(float64(world.ScreenWidth)-(infoWidth)-infoSpaceRight, infoSpaceTop+(infoPad/2))
+		screen.DrawImage(world.HoverObject.Unique.TypeP.Images.Main, op)
+	}
 }
 
 func drawItemPlacement(screen *ebiten.Image) {
@@ -697,6 +715,8 @@ func drawWorldTooltip(screen *ebiten.Image) {
 			b := util.GetObj(pos, chunk)
 			if b != nil {
 				o := b.Obj
+				world.HoverObject = b.Obj
+
 				found = true
 				toolTip = fmt.Sprintf("%v: %v\n",
 					o.Unique.TypeP.Name,
@@ -800,6 +820,8 @@ func drawWorldTooltip(screen *ebiten.Image) {
 				if o.Unique.TypeP.Description != "" {
 					toolTip = toolTip + o.Unique.TypeP.Description + "\n"
 				}
+			} else {
+				world.HoverObject = nil
 			}
 		}
 
@@ -932,15 +954,17 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 
 /* Update local vars with camera position calculations */
 func calcScreenCamera() {
+	var padding float32 = 3 /* Set to max item size */
+
 	/* Adjust cam position for zoom */
 	camXPos = float32(-world.CameraX) + ((float32(world.ScreenWidth) / 2.0) / world.ZoomScale)
 	camYPos = float32(-world.CameraY) + ((float32(world.ScreenHeight) / 2.0) / world.ZoomScale)
 
 	/* Get camera bounds */
-	camStartX = uint16((1/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale)))
-	camStartY = uint16((1/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
-	camEndX = uint16((float32(world.ScreenWidth)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale)))
-	camEndY = uint16((float32(world.ScreenHeight)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
+	camStartX = uint16((1/world.ZoomScale + (world.CameraX - padding - (float32(world.ScreenWidth)/2.0)/world.ZoomScale)))
+	camStartY = uint16((1/world.ZoomScale + (world.CameraY - padding - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
+	camEndX = uint16((float32(world.ScreenWidth)/world.ZoomScale + (world.CameraX + padding - (float32(world.ScreenWidth)/2.0)/world.ZoomScale)))
+	camEndY = uint16((float32(world.ScreenHeight)/world.ZoomScale + (world.CameraY + padding - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
 
 	/* Pre-calc camera chunk position */
 	screenStartX = camStartX / gv.ChunkSize
