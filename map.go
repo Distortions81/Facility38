@@ -81,7 +81,7 @@ func MakeMap(gen bool) {
 	}
 
 	util.WASMSleep()
-	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, true)
+	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, gv.WASMMode)
 
 	world.MapLoadPercent = 100
 	world.MapGenerated.Store(true)
