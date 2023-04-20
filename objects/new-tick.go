@@ -54,7 +54,7 @@ func GetIntervalPos(interval int) (pos int, created bool) {
 		pos := len(TickIntervals)
 
 		offsets := make([]OffsetData, interval+1)
-		for opos, _ := range offsets {
+		for opos := range offsets {
 			offsets[opos].Offset = opos
 		}
 		TickIntervals = append(TickIntervals, TickInterval{Interval: interval, Offsets: offsets})

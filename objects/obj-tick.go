@@ -6,13 +6,24 @@ import (
 	"GameTest/world"
 	"fmt"
 	"image/color"
+	"runtime"
+	"strings"
 	"sync"
 	"time"
 )
 
-var GameTick uint64
-var GameRunning bool
-var GameLock sync.Mutex
+var (
+	GameTick    uint64
+	GameRunning bool
+	GameLock    sync.Mutex
+	minSleep    = 400 * time.Microsecond //Sleeping for less than this does not appear effective.
+)
+
+func init() {
+	if strings.EqualFold(runtime.GOOS, "windows") || gv.WASMMode {
+		minSleep = (time.Millisecond * 2) //Windows and WASM time resolution sucks
+	}
+}
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
@@ -169,65 +180,11 @@ func RotateListAdd(b *world.BuildingData, cw bool, pos world.XY) {
 	world.RotateListLock.Unlock()
 }
 
-/* Lock and append to TickList */
-func ticklistAdd(obj *world.ObjData) {
-	if obj.HasTick {
-		return
-	}
-	obj.HasTick = true
-	world.TickList = append(world.TickList, world.TickEvent{Target: obj})
-	world.TickCount++
-}
-
-/* Lock and append to TockList */
-func tockListAdd(obj *world.ObjData) {
-	if obj.HasTock {
-		return
-	}
-	obj.HasTock = true
-	world.TockList = append(world.TockList, world.TickEvent{Target: obj})
-	world.TockCount++
-}
-
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
 	world.EventQueueLock.Lock()
 	world.EventQueue = append(world.EventQueue, &world.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
 	world.EventQueueLock.Unlock()
-}
-
-/* Lock and remove tick event */
-func ticklistRemove(obj *world.ObjData) {
-
-	if !obj.HasTick {
-		return
-	}
-	for i, e := range world.TickList {
-		if e.Target == obj {
-			world.TickList = append(world.TickList[:i], world.TickList[i+1:]...)
-			obj.HasTick = false
-			obj.Active = false
-			world.TickCount--
-			return
-		}
-	}
-}
-
-/* lock and remove tock event */
-func tocklistRemove(obj *world.ObjData) {
-
-	if !obj.HasTock {
-		return
-	}
-	for i, e := range world.TockList {
-		if e.Target == obj {
-			world.TockList = append(world.TockList[:i], world.TockList[i+1:]...)
-			obj.HasTock = false
-			obj.Active = false
-			world.TockCount--
-			return
-		}
-	}
 }
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
