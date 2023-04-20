@@ -1,30 +1,30 @@
 [
 	{
-		"Base": "VSYNC",
+		"ConfigName": "VSYNC",
 		"Enabled": true
 	},
 	{
-		"Base": "FULLSCREEN",
+		"ConfigName": "FULLSCREEN",
 		"Enabled": false
 	},
 	{
-		"Base": "UNCAP-FPS",
+		"ConfigName": "UNCAP-FPS",
 		"Enabled": false
 	},
 	{
-		"Base": "DEBUG",
+		"ConfigName": "DEBUG",
 		"Enabled": false
 	},
 	{
-		"Base": "FREEDOM-UNITS",
+		"ConfigName": "FREEDOM-UNITS",
 		"Enabled": false
 	},
 	{
-		"Base": "HYPERTHREAD",
+		"ConfigName": "HYPERTHREAD",
 		"Enabled": false
 	},
 	{
-		"Base": "DEBUG-TEXT",
+		"ConfigName": "DEBUG-TEXT",
 		"Enabled": false
 	}
 ]

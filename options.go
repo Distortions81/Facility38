@@ -52,8 +52,8 @@ var (
 )
 
 type settingType struct {
-	Base string
-	Text string `json:"-"`
+	ConfigName string
+	Text       string `json:"-"`
 
 	TextPosX   int             `json:"-"`
 	TextPosY   int             `json:"-"`
@@ -72,14 +72,14 @@ func init() {
 	bg.Fill(bgcolor)
 
 	settingItems = []settingType{
-		{Base: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
-		{Base: "FULLSCREEN", Text: "Full Screen", Action: toggleFullscreen},
-		{Base: "UNCAP-FPS", Text: "Uncap UPS", Action: toggleUPSCap},
-		{Base: "DEBUG", Text: "Debug mode", Action: toggleDebug},
+		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
+		{ConfigName: "FULLSCREEN", Text: "Full Screen", Action: toggleFullscreen},
+		{ConfigName: "UNCAP-FPS", Text: "Uncap UPS", Action: toggleUPSCap},
+		{ConfigName: "DEBUG", Text: "Debug mode", Action: toggleDebug},
 		{Text: "Load test map", Action: toggleTestMap},
-		{Base: "FREEDOM-UNITS", Text: "Imperial Units", Action: toggleUnits},
-		{Base: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper},
-		{Base: "DEBUG-TEXT", Text: "Debug info-text", Action: toggleInfoLine},
+		{ConfigName: "FREEDOM-UNITS", Text: "Imperial Units", Action: toggleUnits},
+		{ConfigName: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper},
+		{ConfigName: "DEBUG-TEXT", Text: "Debug info-text", Action: toggleInfoLine},
 		{Text: "Quit game", Action: quitGame, NoCheck: true},
 	}
 }
@@ -107,7 +107,7 @@ func loadOptions() {
 
 	for wpos, wSetting := range settingItems {
 		for _, fSetting := range tempSettings {
-			if wSetting.Base == fSetting.Base {
+			if wSetting.ConfigName == fSetting.ConfigName {
 				if fSetting.Enabled != wSetting.Enabled {
 					settingItems[wpos].Action(wpos)
 				}
@@ -125,8 +125,8 @@ func saveOptions() {
 
 	var tempSettings []settingType
 	for _, setting := range settingItems {
-		if setting.Base != "" {
-			tempSettings = append(tempSettings, settingType{Base: setting.Base, Enabled: setting.Enabled})
+		if setting.ConfigName != "" {
+			tempSettings = append(tempSettings, settingType{ConfigName: setting.ConfigName, Enabled: setting.Enabled})
 		}
 	}
 
