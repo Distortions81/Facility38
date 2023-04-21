@@ -432,8 +432,10 @@ func updateVisData() {
 		VisChunk = []*world.MapChunk{}
 		VisSChunk = []*world.MapSuperChunk{}
 
-		/* Calculate viewport */
-		//calcScreenCamera()
+		/*
+		 * Calculate viewport
+		 * Moved to Update()
+		 */
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
