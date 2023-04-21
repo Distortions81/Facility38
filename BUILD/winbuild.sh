@@ -1,7 +1,7 @@
 
 #!/bin/bash
 #sudo apt install osslsigncode
-curTime=`date -u '+%Y%m%d%H%M%S'`
+curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
 
 # Check if an argument was passed in
 if [ $# -eq 1 ]; then
