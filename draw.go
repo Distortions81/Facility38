@@ -21,7 +21,7 @@ import (
 const (
 	cBlockedIndicatorOffset = 0
 	WASMTerrainDiv          = 5
-	MaxBatch                = 100000
+	MaxBatch                = 10000
 	infoWidth               = 128
 	infoHeight              = 128
 	infoSpaceRight          = 8
