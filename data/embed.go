@@ -14,11 +14,32 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
+var (
+	//go:embed txt gfx shaders
+	f embed.FS
+
+	//PixelateShader *ebiten.Shader
+)
+
 const cLoadEmbedSprites = true
 
-//go:embed txt gfx
+/*
+func init() {
+	var err error
+	var shaderProgram []byte
+	shaderProgram, err = f.ReadFile(gv.ShadersDir + "pixelate.kage")
+	if err != nil {
+		log.Fatal("Error reading shaders.")
+		return
+	}
 
-var f embed.FS
+	PixelateShader, err = ebiten.NewShader(shaderProgram)
+	if err != nil {
+		log.Fatal("Error compiling shaders.")
+		return
+	}
+}
+*/
 
 func GetFont(name string) []byte {
 	data, err := f.ReadFile(gv.GfxDir + "fonts/" + name)

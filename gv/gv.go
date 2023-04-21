@@ -38,9 +38,10 @@ const (
 	Version = "017"
 
 	/* Files and directories */
-	DataDir = "data/"
-	GfxDir  = "gfx/"
-	TxtDir  = "txt/"
+	DataDir    = "data/"
+	GfxDir     = "gfx/"
+	TxtDir     = "txt/"
+	ShadersDir = "shaders/"
 
 	NumTestObjects = 1000000
 
