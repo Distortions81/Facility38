@@ -828,15 +828,14 @@ func drawDebugInfo(screen *ebiten.Image) {
 
 	world.CountLock.Lock()
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %0.2f UPS: %0.2f Tocks: %8s Ticks %8s ActiveTocks: %8s ActiveTicks: %8s Draws: %6s Arch: %v Build: v%v-%v Frame: %v",
-		world.FPSAvr.Value(),
-		world.UPSAvr.Value(),
+	buf := fmt.Sprintf("FPS: %3d UPS: %3d Objects: %8s(%8s/%8s(%8s) Arch: %v Build: v%v-%v",
+		int(world.FPSAvr.Value()),
+		int(world.UPSAvr.Value()),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
-		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTockCount), 2, ""),
+		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTickCount), 2, ""),
-		humanize.SIWithDigits(float64(BatchTop), 2, ""),
-		runtime.GOARCH, gv.Version, buildTime, objects.GameTick,
+		runtime.GOARCH, gv.Version, buildTime,
 	)
 	world.CountLock.Unlock()
 
