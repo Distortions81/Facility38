@@ -102,10 +102,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(toolbarCache, nil)
 	toolbarCacheLock.RUnlock()
 
-	drawItemInfo(screen)
-
 	/* Tooltips */
-	drawWorldTooltip(screen)
+	drawItemInfo(screen)
 
 	/* Debug info */
 	if world.InfoLine {
@@ -851,10 +849,6 @@ func drawDebugInfo(screen *ebiten.Image) {
 
 	world.FPSAvr.Add(ebiten.ActualFPS())
 }
-
-func drawWorldTooltip(screen *ebiten.Image) {
-
-	
 
 func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) {
