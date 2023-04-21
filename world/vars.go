@@ -54,19 +54,20 @@ var (
 	EventQueue     []*EventQueueData
 	EventQueueLock sync.Mutex
 
-	HoverObject    *ObjData
-	SelectedObject *ObjData
-
+	/* Number of queued object rotations */
 	RotateCount int
+
 	/* Number of tick events */
-	CountLock       sync.Mutex
 	TickCount       int
 	ActiveTickCount int
+
 	/* Number of tock events */
 	TockCount       int
 	ActiveTockCount int
+
 	/* Number of ticks per worker */
 	TickWorkSize int
+
 	/* Number of tocks per worker */
 	NumWorkers int
 
@@ -108,10 +109,6 @@ var (
 
 	/* If position/zoom changed */
 	VisDataDirty atomic.Bool
-
-	/* Mouse vars */
-	PrevMouseX float32
-	PrevMouseY float32
 
 	/* Temporary chunk image during draw */
 	TempChunkImage *ebiten.Image

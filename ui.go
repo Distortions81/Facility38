@@ -26,6 +26,9 @@ var (
 
 	/* WASM weirdness kludge */
 	lastScroll time.Time
+
+	UILastMouseX int
+	UILastMouseY int
 )
 
 func init() {
@@ -60,6 +63,9 @@ func (g *Game) Update() error {
 	moveCamera()
 	rotateWorldObjects()
 
+	mx, my := ebiten.CursorPosition()
+	UILastMouseX = mx
+	UILastMouseY = my
 	return nil
 }
 
@@ -321,17 +327,13 @@ func moveCamera() {
 
 	if gMiddleMouseHeld {
 		mx, my := ebiten.CursorPosition()
-		fmx := float32(mx)
-		fmy := float32(my)
 
 		if !gCameraDrag {
-			world.PrevMouseX = fmx
-			world.PrevMouseY = fmy
 			gCameraDrag = true
 		}
 
-		world.CameraX = world.CameraX + (float32(world.PrevMouseX-fmx) / world.ZoomScale)
-		world.CameraY = world.CameraY + (float32(world.PrevMouseY-fmy) / world.ZoomScale)
+		world.CameraX = world.CameraX + (float32(UILastMouseX-mx) / world.ZoomScale)
+		world.CameraY = world.CameraY + (float32(UILastMouseY-my) / world.ZoomScale)
 		world.VisDataDirty.Store(true)
 
 		/* Don't let camera go beyond a reasonable point */
@@ -345,9 +347,6 @@ func moveCamera() {
 		} else if world.CameraY < gv.XYMin {
 			world.CameraY = gv.XYMin
 		}
-
-		world.PrevMouseX = fmx
-		world.PrevMouseY = fmy
 	} else {
 		gCameraDrag = false
 	}

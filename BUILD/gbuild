@@ -1,0 +1,12 @@
+#!/bin/bash
+curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
+go build -ldflags="-X main.buildTime=$curTime"
+
+#stop on error
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+echo "Build complete, starting game."
+
+./Facility38
