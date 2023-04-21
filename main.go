@@ -7,6 +7,7 @@ import (
 	"Facility38/objects"
 	"Facility38/util"
 	"Facility38/world"
+	"flag"
 	"fmt"
 	"image/color"
 	"log"
@@ -36,6 +37,7 @@ type Game struct {
 
 /* Main function */
 func main() {
+	forceDirectX := flag.Bool("directx", false, "Launch using DirectX on Windows.")
 
 	imgb, err := data.GetSpriteImage("title.png", true)
 	if err == nil {
@@ -96,8 +98,14 @@ func main() {
 		}
 	}()
 
-	if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
-		log.Fatal(err)
+	if *forceDirectX {
+		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryDirectX}); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
