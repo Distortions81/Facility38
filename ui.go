@@ -27,8 +27,11 @@ var (
 	/* WASM weirdness kludge */
 	lastScroll time.Time
 
-	UILastMouseX int
-	UILastMouseY int
+	MouseX int
+	MouseY int
+
+	LastMouseX int
+	LastMouseY int
 )
 
 func init() {
@@ -37,6 +40,8 @@ func init() {
 
 /* Input interface handler */
 func (g *Game) Update() error {
+
+	MouseX, MouseY = ebiten.CursorPosition()
 
 	var keys []ebiten.Key
 	/* Game start screen */
@@ -63,9 +68,13 @@ func (g *Game) Update() error {
 	moveCamera()
 	rotateWorldObjects()
 
-	mx, my := ebiten.CursorPosition()
-	UILastMouseX = mx
-	UILastMouseY = my
+	calcScreenCamera()
+	/* Get mouse position on world */
+	WorldMouseX = (float32(MouseX)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
+	WorldMouseY = (float32(MouseY)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
+
+	LastMouseX = MouseX
+	LastMouseY = MouseY
 	return nil
 }
 
@@ -105,9 +114,8 @@ func getShiftToggle() {
 func handleToolbar(rotate bool) bool {
 	uipix := float32((ToolbarMax * int(gv.ToolBarScale+gv.ToolBarSpacing)))
 
-	mx, my := ebiten.CursorPosition()
-	fmx := float32(mx)
-	fmy := float32(my)
+	fmx := float32(MouseX)
+	fmy := float32(MouseY)
 
 	if fmx <= uipix {
 		if fmy <= gv.ToolBarScale {
@@ -162,38 +170,32 @@ func zoomHandle() {
 	/* WASM kludge */
 	if gv.WASMMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
-			setVisMouseDirty()
+			world.VisDataDirty.Store(true)
 			return
 		}
 	}
 	lastScroll = time.Now()
 
-	mx, my := ebiten.CursorPosition()
-	fmx := float32(mx)
-	fmy := float32(my)
-
 	if inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		world.ZoomScale = world.ZoomScale * 2
 		limitZoom()
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		world.ZoomScale = world.ZoomScale / 2
 		limitZoom()
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 	} else if fsy > 0 {
 		world.ZoomScale = world.ZoomScale * 2
 		if limitZoom() {
 			/* Get mouse position on world */
-			worldMouseX := (fmx/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
-			worldMouseY := (fmy/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
-			world.CameraX = worldMouseX
-			world.CameraY = worldMouseY
+			world.CameraX = WorldMouseX
+			world.CameraY = WorldMouseY
 		}
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 	} else if fsy < 0 {
 		world.ZoomScale = world.ZoomScale / 2
 		limitZoom()
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 	}
 
 }
@@ -201,11 +203,11 @@ func zoomHandle() {
 func limitZoom() bool {
 	if world.ZoomScale < 1 {
 		world.ZoomScale = 1
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 		return false
 	} else if world.ZoomScale > 256 {
 		world.ZoomScale = 256
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 		return false
 	}
 
@@ -251,9 +253,8 @@ func createWorldObjects() {
 		return
 	}
 
-	mx, my := ebiten.CursorPosition()
-	fmx := float32(mx)
-	fmy := float32(my)
+	fmx := float32(MouseX)
+	fmy := float32(MouseY)
 
 	/* Get mouse position on world */
 	worldMouseX := (fmx/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
@@ -306,33 +307,34 @@ func moveCamera() {
 
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		world.CameraY -= speed
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
 		world.CameraX -= speed
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
 		world.CameraY += speed
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		world.CameraX += speed
-		setVisMouseDirty()
+		world.VisDataDirty.Store(true)
 	}
 
 	if gMiddleMouseHeld {
-		mx, my := ebiten.CursorPosition()
 
 		if !gCameraDrag {
 			gCameraDrag = true
 		}
 
-		world.CameraX = world.CameraX + (float32(UILastMouseX-mx) / world.ZoomScale)
-		world.CameraY = world.CameraY + (float32(UILastMouseY-my) / world.ZoomScale)
-		setVisMouseDirty()
+		world.CameraX = world.CameraX + (float32(LastMouseX-MouseX) / world.ZoomScale)
+		world.CameraY = world.CameraY + (float32(LastMouseY-MouseY) / world.ZoomScale)
+		world.VisDataDirty.Store(true)
+		LastMouseX = MouseX
+		LastMouseY = MouseY
 
 		/* Don't let camera go beyond a reasonable point */
 		if world.CameraX > float32(gv.XYMax) {
@@ -374,9 +376,8 @@ func rotateWorldObjects() {
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 
 		/* Get mouse position on world */
-		mx, my := ebiten.CursorPosition()
-		fmx := float32(mx)
-		fmy := float32(my)
+		fmx := float32(MouseX)
+		fmy := float32(MouseY)
 		worldMouseX := (fmx/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth/2.0) / world.ZoomScale)))
 		worldMouseY := (fmy/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight/2.0))/world.ZoomScale))
 

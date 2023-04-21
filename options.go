@@ -399,8 +399,7 @@ func drawSettings(screen *ebiten.Image) {
 		/* Draw text */
 		itemColor := world.ColorWhite
 		/* Detect hover, change color */
-		mx, my := ebiten.CursorPosition()
-		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, b, 1) {
+		if util.PosWithinRect(world.XY{X: uint16(MouseX), Y: uint16(MouseY)}, b, 1) {
 			itemColor = world.ColorAqua
 		}
 
@@ -435,11 +434,10 @@ func drawSettings(screen *ebiten.Image) {
 }
 
 func handleSettings() bool {
-	mx, my := ebiten.CursorPosition()
 
 	for i, item := range settingItems {
 		b := buttons[i]
-		if util.PosWithinRect(world.XY{X: uint16(mx), Y: uint16(my)}, b, 1) {
+		if util.PosWithinRect(world.XY{X: uint16(MouseX), Y: uint16(MouseY)}, b, 1) {
 			item.Action(i)
 			saveOptions()
 			gMouseHeld = false
@@ -448,11 +446,11 @@ func handleSettings() bool {
 	}
 
 	/* Close box */
-	if mx <= int(closeBoxPos.X+(closeBoxSize.X)) &&
-		mx >= int(closeBoxPos.X-(closeBoxSize.X)) &&
+	if MouseX <= int(closeBoxPos.X+(closeBoxSize.X)) &&
+		MouseX >= int(closeBoxPos.X-(closeBoxSize.X)) &&
 
-		my <= int(closeBoxPos.Y+(closeBoxSize.Y)) &&
-		my >= int(closeBoxPos.Y-(closeBoxSize.Y)) {
+		MouseY <= int(closeBoxPos.Y+(closeBoxSize.Y)) &&
+		MouseY >= int(closeBoxPos.Y-(closeBoxSize.Y)) {
 
 		world.OptionsOpen = false
 		gMouseHeld = false

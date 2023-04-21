@@ -44,8 +44,14 @@ var (
 	screenEndY   uint16
 	frameCount   uint64
 
+	WorldMouseX float32
+	WorldMouseY float32
+
 	lastResourceString string
 	ConsoleActive      bool
+
+	lastCamX float32
+	lastCamY float32
 
 	BatchTop   int
 	ImageBatch [MaxBatch]*ebiten.Image
@@ -53,14 +59,6 @@ var (
 	UILayer    *ebiten.Image
 	UIScale    float32 = 0.5
 )
-
-func setVisMouseDirty() {
-	world.VisDataDirty.Store(true)
-	drawLastMouseY = -1
-	drawLastMouseY = -1
-	UILastMouseX = -1
-	UILastMouseY = -1
-}
 
 /* Setup a few images for later use */
 func init() {
@@ -123,7 +121,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if world.OptionsOpen {
 		drawSettings(screen)
 	}
-
 }
 
 var lastVal int
@@ -177,23 +174,13 @@ func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
 	return false
 }
 
-var drawLastMouseX int
-var drawLastMouseY int
-
 func drawItemInfo(screen *ebiten.Image) {
 
-	/* Get mouse position */
-	mx, my := ebiten.CursorPosition()
-
-	/* Get mouse position on world */
-	worldMouseX := (float32(mx)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
-	worldMouseY := (float32(my)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
-
 	/* World Obj tool tip */
-	pos := util.FloatXYToPosition(worldMouseX, worldMouseY)
+	pos := util.FloatXYToPosition(WorldMouseX, WorldMouseY)
 
 	/* Handle toolbar */
-	if toolBarTooltip(screen, mx, my) {
+	if toolBarTooltip(screen, MouseX, MouseY) {
 		/* Mouse on toolbar, stop here */
 		return
 	}
@@ -219,7 +206,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			/* Object name and position */
 			toolTip = fmt.Sprintf("%v: %v\n",
 				o.Unique.TypeP.Name,
-				util.PosToString(world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}))
+				util.PosToString(world.XY{X: uint16(WorldMouseX), Y: uint16(WorldMouseY)}))
 
 			/* Show contents */
 			if o.Unique.Contents != nil {
@@ -337,56 +324,46 @@ func drawItemInfo(screen *ebiten.Image) {
 		} else {
 			/* Otherwise, just show x/y location */
 			toolTip = fmt.Sprintf("(%v, %v)",
-				humanize.Comma(int64((worldMouseX - gv.XYCenter))),
-				humanize.Comma(int64((worldMouseY - gv.XYCenter))))
-		}
-
-		/* Tooltip for resources */
-		if world.ShowResourceLayer {
-			buf := ""
-			/* Only recalculate if mouse moves */
-			if mx != drawLastMouseX || my != drawLastMouseY {
-				drawLastMouseX = mx
-				drawLastMouseY = my
-
-				/* Get info for all layers */
-				for p := 1; p < len(objects.NoiseLayers); p++ {
-					var h float32 = float32(math.Abs(float64(objects.NoiseMap(worldMouseX, worldMouseY, p))))
-
-					if h > 0 {
-						buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
-					}
-				}
-			} else {
-				/* save a bit of processing */
-				buf = lastResourceString
-			}
-			if buf != "" {
-				/* Cache result */
-				lastResourceString = buf
-				DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
-					world.XYf32{X: (float32(mx) + 20), Y: (float32(my) + 20)}, 11, screen, true, false, false)
-			}
+				humanize.Comma(int64((WorldMouseX - gv.XYCenter))),
+				humanize.Comma(int64((WorldMouseY - gv.XYCenter))))
 		}
 		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)}, 11, screen, false, true, false)
+	}
+	/* Tooltip for resources */
+	if world.ShowResourceLayer {
+		buf := ""
+		/* Only recalculate if mouse moves */
+		if MouseX != LastMouseX || MouseY != LastMouseY || camXPos != lastCamX || camYPos != lastCamY {
+
+			/* Get info for all layers */
+			for p := 1; p < len(objects.NoiseLayers); p++ {
+				var h float32 = float32(math.Abs(float64(objects.NoiseMap(WorldMouseX, WorldMouseY, p))))
+
+				if h > 0 {
+					buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
+				}
+			}
+		} else {
+			/* save a bit of processing */
+			buf = lastResourceString
+		}
+		if buf != "" {
+			DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
+				world.XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, false, false)
+			lastResourceString = buf
+		}
 	}
 }
 
 func drawItemPlacement(screen *ebiten.Image) {
 	/* Draw ghost for selected item */
 	if SelectedItemType < gv.MaxItemType {
-		mx, my := ebiten.CursorPosition()
-
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 		item := objects.WorldObjs[SelectedItemType]
 
-		/* Get mouse position on world */
-		worldMouseX := int(float32(mx)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
-		worldMouseY := int(float32(my)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
-
 		/* camera + object */
-		objOffX := camXPos + (float32((worldMouseX)))
-		objOffY := camYPos + (float32((worldMouseY)))
+		objOffX := camXPos + (float32(int(WorldMouseX)))
+		objOffY := camYPos + (float32(int(WorldMouseY)))
 
 		//Quick kludge for 1x3 object
 		if item.Size.Y == 3 && (item.Direction == 1 || item.Direction == 3) {
@@ -415,7 +392,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 
 		/* Tint red if we can't place item */
 		blocked := false
-		wPos := world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}
+		wPos := world.XY{X: uint16(WorldMouseX), Y: uint16(WorldMouseY)}
 		/* Check if object fits */
 		if item.MultiTile {
 			if !objects.SubObjFits(nil, item, false, wPos) {
@@ -456,7 +433,7 @@ func updateVisData() {
 		VisSChunk = []*world.MapSuperChunk{}
 
 		/* Calculate viewport */
-		calcScreenCamera()
+		//calcScreenCamera()
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
@@ -886,8 +863,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 	)
 
 	if gv.Debug {
-		mx, my := ebiten.CursorPosition()
-		buf = buf + fmt.Sprintf(" (%v,%v)", mx, my)
+		buf = buf + fmt.Sprintf(" (%v,%v)", MouseX, MouseY)
 	}
 	var pad float32 = 4
 	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XYf32{X: 0, Y: float32(world.ScreenHeight) - pad}, pad, screen, true, false, false)
@@ -897,34 +873,34 @@ func drawDebugInfo(screen *ebiten.Image) {
 
 func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) {
-	var mx, my float32
+	var tmx, tmy float32
 	halfPad := pad / 2
 
 	tRect := text.BoundString(face, input)
 	fHeight := text.BoundString(face, "1")
 
 	if justCenter {
-		mx = float32(int(pos.X) - (tRect.Dx() / 2))
-		my = float32(int(pos.Y) - (tRect.Dy() / 2))
+		tmx = float32(int(pos.X) - (tRect.Dx() / 2))
+		tmy = float32(int(pos.Y) - (tRect.Dy() / 2))
 	} else {
 		if justLeft {
-			mx = float32(pos.X)
+			tmx = float32(pos.X)
 		} else {
-			mx = float32(int(pos.X) - tRect.Dx())
+			tmx = float32(int(pos.X) - tRect.Dx())
 		}
 
 		if justUp {
-			my = float32(int(pos.Y) - tRect.Dy())
+			tmy = float32(int(pos.Y) - tRect.Dy())
 		} else {
-			my = float32(pos.Y)
+			tmy = float32(pos.Y)
 		}
 	}
 	_, _, _, alpha := bgcolor.RGBA()
 
 	if alpha > 0 {
-		vector.DrawFilledRect(screen, mx-halfPad, my-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, true)
+		vector.DrawFilledRect(screen, tmx-halfPad, tmy-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, true)
 	}
-	text.Draw(screen, input, face, int(mx), int(my), color)
+	text.Draw(screen, input, face, int(tmx), int(tmy), color)
 }
 
 /* Draw world objects */
@@ -992,6 +968,9 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 /* Update local vars with camera position calculations */
 func calcScreenCamera() {
 	var padding float32 = 3 /* Set to max item size */
+
+	lastCamX = camXPos
+	lastCamY = camYPos
 
 	/* Adjust cam position for zoom */
 	camXPos = float32(-world.CameraX) + ((float32(world.ScreenWidth) / 2.0) / world.ZoomScale)
