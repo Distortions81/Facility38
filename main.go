@@ -429,7 +429,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		//Recalcualte settings window item
 		UpdateFonts()
 		setupOptionsMenu()
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 	}
 
 	windowTitle()

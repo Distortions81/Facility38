@@ -162,7 +162,7 @@ func zoomHandle() {
 	/* WASM kludge */
 	if gv.WASMMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
-			world.VisDataDirty.Store(true)
+			setVisMouseDirty()
 			return
 		}
 	}
@@ -175,11 +175,11 @@ func zoomHandle() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		world.ZoomScale = world.ZoomScale * 2
 		limitZoom()
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		world.ZoomScale = world.ZoomScale / 2
 		limitZoom()
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 	} else if fsy > 0 {
 		world.ZoomScale = world.ZoomScale * 2
 		if limitZoom() {
@@ -189,11 +189,11 @@ func zoomHandle() {
 			world.CameraX = worldMouseX
 			world.CameraY = worldMouseY
 		}
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 	} else if fsy < 0 {
 		world.ZoomScale = world.ZoomScale / 2
 		limitZoom()
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 	}
 
 }
@@ -201,11 +201,11 @@ func zoomHandle() {
 func limitZoom() bool {
 	if world.ZoomScale < 1 {
 		world.ZoomScale = 1
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 		return false
 	} else if world.ZoomScale > 256 {
 		world.ZoomScale = 256
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 		return false
 	}
 
@@ -306,23 +306,21 @@ func moveCamera() {
 
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		world.CameraY -= speed
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
 		world.CameraX -= speed
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
 		world.CameraY += speed
-		world.VisDataDirty.Store(true)
-
+		setVisMouseDirty()
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		world.CameraX += speed
-		world.VisDataDirty.Store(true)
-
+		setVisMouseDirty()
 	}
 
 	if gMiddleMouseHeld {
@@ -334,7 +332,7 @@ func moveCamera() {
 
 		world.CameraX = world.CameraX + (float32(UILastMouseX-mx) / world.ZoomScale)
 		world.CameraY = world.CameraY + (float32(UILastMouseY-my) / world.ZoomScale)
-		world.VisDataDirty.Store(true)
+		setVisMouseDirty()
 
 		/* Don't let camera go beyond a reasonable point */
 		if world.CameraX > float32(gv.XYMax) {

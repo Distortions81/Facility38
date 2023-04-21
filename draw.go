@@ -54,6 +54,14 @@ var (
 	UIScale    float32 = 0.5
 )
 
+func setVisMouseDirty() {
+	world.VisDataDirty.Store(true)
+	drawLastMouseY = -1
+	drawLastMouseY = -1
+	UILastMouseX = -1
+	UILastMouseY = -1
+}
+
 /* Setup a few images for later use */
 func init() {
 	world.MiniMapTile = ebiten.NewImage(1, 1)
@@ -201,15 +209,19 @@ func drawItemInfo(screen *ebiten.Image) {
 
 	toolTip := ""
 
+	/* Mouse on world */
 	if chunk != nil {
 		b := util.GetObj(pos, chunk)
 		/* Object found */
 		if b != nil {
 			o := b.Obj
 
+			/* Object name and position */
 			toolTip = fmt.Sprintf("%v: %v\n",
 				o.Unique.TypeP.Name,
 				util.PosToString(world.XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}))
+
+			/* Show contents */
 			if o.Unique.Contents != nil {
 				for z := 0; z < gv.MAT_MAX; z++ {
 					if o.Unique.Contents.Mats[z] != nil {
@@ -218,6 +230,8 @@ func drawItemInfo(screen *ebiten.Image) {
 					}
 				}
 			}
+
+			/* Show fuel */
 			if o.Unique.TypeP.MachineSettings.MaxFuelKG > 0 {
 				toolTip = toolTip + fmt.Sprintf("Max Fuel: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxFuelKG))
 				if o.Unique.KGFuel > o.Unique.TypeP.MachineSettings.KgFuelPerCycle {
@@ -227,17 +241,22 @@ func drawItemInfo(screen *ebiten.Image) {
 				}
 			}
 
+			/* Show single contents */
 			if o.Unique.SingleContent != nil && o.Unique.SingleContent.Amount > 0 {
 				toolTip = toolTip + fmt.Sprintf("Contains: %v %v\n", objects.PrintUnit(o.Unique.SingleContent), o.Unique.SingleContent.TypeP.Name)
 			}
 
+			/* Show if blocked */
 			if o.Blocked {
 				toolTip = toolTip + "BLOCKED\n"
 			}
+
+			/* Show miner on empty tile */
 			if o.MinerData != nil && o.MinerData.ResourcesCount == 0 {
 				toolTip = toolTip + "NOTHING TO MINE.\n"
 			}
 
+			/* Debug info */
 			if gv.Debug {
 				if o.Unique.TypeP.MachineSettings.KgFuelPerCycle > 0 {
 					toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgFuelPerCycle))
@@ -306,15 +325,15 @@ func drawItemInfo(screen *ebiten.Image) {
 
 			}
 
+			if o.Unique.TypeP.Description != "" {
+				toolTip = toolTip + o.Unique.TypeP.Description + "\n"
+			}
+
 			vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, true)
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Scale((1.0/float64(o.Unique.TypeP.Size.X))*8.0, (1.0/float64(o.Unique.TypeP.Size.Y))*8.0)
 			op.GeoM.Translate(float64(world.ScreenWidth)-(infoWidth)-infoSpaceRight, infoSpaceTop+(infoPad/2))
 			screen.DrawImage(o.Unique.TypeP.Images.Main, op)
-
-			if o.Unique.TypeP.Description != "" {
-				toolTip = toolTip + o.Unique.TypeP.Description + "\n"
-			}
 		} else {
 			/* Otherwise, just show x/y location */
 			toolTip = fmt.Sprintf("(%v, %v)",
