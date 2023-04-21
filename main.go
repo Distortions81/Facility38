@@ -37,7 +37,11 @@ type Game struct {
 
 /* Main function */
 func main() {
-	forceDirectX := flag.Bool("directx", false, "Launch using DirectX on Windows.")
+	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on windows (NOT RECOMMENDED!)")
+	forceMetal := flag.Bool("use-metal", false, "Use the Metal graphics API on Macintosh.")
+	forceAuto := flag.Bool("use-auto", false, "Use Auto-detected graphics API.")
+	forceOpengl := flag.Bool("use-opengl", true, "Use OpenGL graphics API (default)")
+	flag.Parse()
 
 	imgb, err := data.GetSpriteImage("title.png", true)
 	if err == nil {
@@ -98,11 +102,23 @@ func main() {
 		}
 	}()
 
-	if *forceDirectX {
+	if *forceMetal {
+		cwlog.DoLog(true, "Starting game with Metal graphics API.")
+		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryMetal}); err != nil {
+			log.Fatal(err)
+		}
+	} else if *forceDirectX {
+		cwlog.DoLog(true, "Starting game with DirectX graphics API.")
 		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryDirectX}); err != nil {
 			log.Fatal(err)
 		}
-	} else {
+	} else if *forceAuto {
+		cwlog.DoLog(true, "Starting game with Automatic graphics API.")
+		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}); err != nil {
+			log.Fatal(err)
+		}
+	} else if *forceOpengl {
+		cwlog.DoLog(true, "Starting game with OpenGL graphics API.")
 		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
 			log.Fatal(err)
 		}
