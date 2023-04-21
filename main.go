@@ -37,10 +37,10 @@ type Game struct {
 
 /* Main function */
 func main() {
-	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on windows (NOT RECOMMENDED!)")
+	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on Windows (NOT RECOMMENDED!)")
 	forceMetal := flag.Bool("use-metal", false, "Use the Metal graphics API on Macintosh.")
 	forceAuto := flag.Bool("use-auto", false, "Use Auto-detected graphics API.")
-	forceOpengl := flag.Bool("use-opengl", true, "Use OpenGL graphics API (default)")
+	forceOpengl := flag.Bool("use-opengl", true, "Use OpenGL graphics API")
 	flag.Parse()
 
 	imgb, err := data.GetSpriteImage("title.png", true)
