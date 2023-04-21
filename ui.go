@@ -40,7 +40,8 @@ func init() {
 
 /* Input interface handler */
 func (g *Game) Update() error {
-
+	LastMouseX = MouseX
+	LastMouseY = MouseY
 	MouseX, MouseY = ebiten.CursorPosition()
 
 	var keys []ebiten.Key
@@ -72,9 +73,6 @@ func (g *Game) Update() error {
 	/* Get mouse position on world */
 	WorldMouseX = (float32(MouseX)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
 	WorldMouseY = (float32(MouseY)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
-
-	LastMouseX = MouseX
-	LastMouseY = MouseY
 	return nil
 }
 

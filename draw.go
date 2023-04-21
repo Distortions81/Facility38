@@ -339,7 +339,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			for p := 1; p < len(objects.NoiseLayers); p++ {
 				var h float32 = float32(math.Abs(float64(objects.NoiseMap(WorldMouseX, WorldMouseY, p))))
 
-				if h > 0 {
+				if h >= 0.0001 {
 					buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
 				}
 			}
@@ -350,8 +350,8 @@ func drawItemInfo(screen *ebiten.Image) {
 		if buf != "" {
 			DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
 				world.XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, false, false)
-			lastResourceString = buf
 		}
+		lastResourceString = buf
 	}
 }
 
