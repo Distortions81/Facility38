@@ -328,30 +328,29 @@ func drawItemInfo(screen *ebiten.Image) {
 				humanize.Comma(int64((WorldMouseY - gv.XYCenter))))
 		}
 		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)}, 11, screen, false, true, false)
+	}
+	/* Tooltip for resources */
+	if world.ShowResourceLayer {
+		buf := ""
+		/* Only recalculate if mouse moves */
+		if MouseX != LastMouseX || MouseY != LastMouseY || camXPos != lastCamX || camYPos != lastCamY {
 
-		/* Tooltip for resources */
-		if world.ShowResourceLayer {
-			buf := ""
-			/* Only recalculate if mouse moves */
-			if MouseX != LastMouseX || MouseY != LastMouseY || camXPos != lastCamX || camYPos != lastCamY {
+			/* Get info for all layers */
+			for p := 1; p < len(objects.NoiseLayers); p++ {
+				var h float32 = float32(math.Abs(float64(objects.NoiseMap(WorldMouseX, WorldMouseY, p))))
 
-				/* Get info for all layers */
-				for p := 1; p < len(objects.NoiseLayers); p++ {
-					var h float32 = float32(math.Abs(float64(objects.NoiseMap(WorldMouseX, WorldMouseY, p))))
-
-					if h > 0 {
-						buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
-					}
+				if h > 0 {
+					buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
 				}
-			} else {
-				/* save a bit of processing */
-				buf = lastResourceString
 			}
-			if buf != "" {
-				DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
-					world.XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, false, false)
-				lastResourceString = buf
-			}
+		} else {
+			/* save a bit of processing */
+			buf = lastResourceString
+		}
+		if buf != "" {
+			DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
+				world.XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, false, false)
+			lastResourceString = buf
 		}
 	}
 }
