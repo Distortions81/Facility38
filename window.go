@@ -63,14 +63,7 @@ type WindowButtonData struct {
 
 func init() {
 	go func() {
-		WindowsLock.Lock()
-		for _, win := range Windows {
-			win.Dirty = true
-		}
-		WindowsLock.Unlock()
-
 		OpenWindow(Windows[0])
-
 		time.Sleep(time.Second * 5)
 		CloseWindow(Windows[0])
 	}()
