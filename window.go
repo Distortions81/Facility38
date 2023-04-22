@@ -1,6 +1,8 @@
 package main
 
 import (
+	"Facility38/cwlog"
+	"Facility38/gv"
 	"Facility38/objects"
 	"Facility38/world"
 	"image/color"
@@ -75,7 +77,6 @@ func init() {
 }
 
 func DrawWindows(screen *ebiten.Image) {
-
 	for _, win := range OpenWindows {
 		DrawWindow(screen, win)
 	}
@@ -92,6 +93,9 @@ func OpenWindow(window *WindowData) {
 	for wpos, win := range Windows {
 		if !win.Active {
 			Windows[wpos].Active = true
+			if gv.Debug {
+				cwlog.DoLog(true, "Window '%v' added to open list.", window.Title)
+			}
 			OpenWindows = append(OpenWindows, Windows[wpos])
 			break
 		}
@@ -107,6 +111,9 @@ func CloseWindow(window *WindowData) {
 	}
 
 	if !window.KeepCache && window.Cache != nil {
+		if gv.Debug {
+			cwlog.DoLog(true, "Window '%v' closed, disposing cache.", window.Title)
+		}
 		window.Cache.Dispose()
 		window.Cache = nil
 	}
@@ -115,6 +122,9 @@ func CloseWindow(window *WindowData) {
 		Windows[wpos].Active = false
 		for wopos := range OpenWindows {
 			if OpenWindows[wopos] == Windows[wpos] {
+				if gv.Debug {
+					cwlog.DoLog(true, "Window '%v' removed from open list.", window.Title)
+				}
 				/* Remove item */
 				OpenWindows = append(OpenWindows[:wopos], OpenWindows[wopos+1:]...)
 				break
@@ -130,6 +140,9 @@ func WindowDirty(window *WindowData) {
 	for wpos := range Windows {
 		if Windows[wpos] == window {
 			Windows[wpos].Dirty = true
+			if gv.Debug {
+				cwlog.DoLog(true, "Window '%v' marked as dirty.", window.Title)
+			}
 			break
 		}
 	}
@@ -164,6 +177,9 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
 	if window.Cache == nil {
 		window.Cache = ebiten.NewImage(int(window.Size.X), int(window.Size.Y))
+		if gv.Debug {
+			cwlog.DoLog(true, "Window '%v' cache initalized.", window.Title)
+		}
 	} else {
 		window.Cache.Clear()
 	}
