@@ -69,7 +69,7 @@ func init() {
 	}()
 }
 
-func DrawWindows(screen *ebiten.Image) {
+func DrawOpenWindows(screen *ebiten.Image) {
 	for _, win := range OpenWindows {
 		DrawWindow(screen, win)
 	}

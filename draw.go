@@ -122,7 +122,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		drawSettings(screen)
 	}
 
-	DrawWindows(screen)
+	DrawOpenWindows(screen)
 }
 
 var lastVal int
