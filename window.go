@@ -30,6 +30,7 @@ type WindowData struct {
 	Scrollable bool
 	Centered   bool
 	Closeable  bool
+	Borderless bool
 
 	WindowButtons WindowButtonData
 
@@ -56,6 +57,7 @@ const halfPad = pad / 2
 
 /*
  * TODO: RESIZE CLOSE X BUTTON!!!
+ * Adjust padding by font size / scale / dpi
  */
 func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
@@ -77,20 +79,22 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		fHeight := text.BoundString(world.BootFont, "1")
 
 		/* Border */
-		vector.DrawFilledRect(
-			screen, float32(winPos.X), float32(winPos.Y)+float32(window.Size.Y),
-			float32(window.Size.X), 1, world.ColorWindowTitle, false,
-		)
-		vector.DrawFilledRect(
-			screen,
-			float32(winPos.X), float32(winPos.Y),
-			1, float32(window.Size.Y),
-			world.ColorWindowTitle, false)
-		vector.DrawFilledRect(
-			screen,
-			float32(winPos.X+window.Size.X), float32(winPos.Y),
-			1, float32(window.Size.Y),
-			world.ColorWindowTitle, false)
+		if !window.Borderless {
+			vector.DrawFilledRect(
+				screen, float32(winPos.X), float32(winPos.Y)+float32(window.Size.Y),
+				float32(window.Size.X), 1, world.ColorWindowTitle, false,
+			)
+			vector.DrawFilledRect(
+				screen,
+				float32(winPos.X), float32(winPos.Y),
+				1, float32(window.Size.Y),
+				world.ColorWindowTitle, false)
+			vector.DrawFilledRect(
+				screen,
+				float32(winPos.X+window.Size.X), float32(winPos.Y),
+				1, float32(window.Size.Y),
+				world.ColorWindowTitle, false)
+		}
 
 		/* Title bar */
 		vector.DrawFilledRect(
