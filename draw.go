@@ -846,7 +846,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 	if world.ShowResourceLayer && gv.ResourceLegendImage != nil {
 		op.GeoM.Reset()
 		op.GeoM.Scale(2, 2)
-		op.GeoM.Translate(8, gv.ToolBarScale)
+		op.GeoM.Translate(8, gv.ToolBarScale*1.5)
 		screen.DrawImage(gv.ResourceLegendImage, op)
 	}
 }
