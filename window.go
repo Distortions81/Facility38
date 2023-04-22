@@ -54,6 +54,9 @@ func DrawWindows(screen *ebiten.Image) {
 const pad = 16
 const halfPad = pad / 2
 
+/*
+ * TODO: RESIZE CLOSE X BUTTON!!!
+ */
 func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
 	var winPos world.XYs
