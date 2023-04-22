@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Facility38/objects"
 	"Facility38/world"
 	"image/color"
 
@@ -11,10 +12,11 @@ import (
 
 var Windows []*WindowData = []*WindowData{
 	{
-		Active:   true,
-		Title:    "Test",
-		Size:     world.XYs{X: 512, Y: 512},
-		Centered: true,
+		Active:    true,
+		Title:     "Test",
+		Size:      world.XYs{X: 512, Y: 512},
+		Centered:  true,
+		Closeable: true,
 	},
 }
 
@@ -27,6 +29,7 @@ type WindowData struct {
 	Opaque     bool
 	Scrollable bool
 	Centered   bool
+	Closeable  bool
 
 	WindowButtons WindowButtonData
 
@@ -49,6 +52,7 @@ func DrawWindows(screen *ebiten.Image) {
 }
 
 const pad = 16
+const halfPad = pad / 2
 
 func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
@@ -72,10 +76,16 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
 		vector.DrawFilledRect(
 			screen, float32(winPos.X), float32(winPos.Y),
-			float32(window.Size.X), float32((fHeight.Dy())+pad), color.Black, false,
+			float32(window.Size.X), float32((fHeight.Dy())+pad), world.ColorVeryDarkGray, false,
 		)
 
-		text.Draw(screen, window.Title, world.BootFont, int(winPos.X)+(pad/2), int(winPos.Y+int32(fHeight.Dy())+(pad/2)), color.White)
+		text.Draw(screen, window.Title, world.BootFont, int(winPos.X)+halfPad, int(winPos.Y+int32(fHeight.Dy())+halfPad), color.White)
 
+		if window.Closeable {
+			img := objects.WorldOverlays[8].Images.Main
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(winPos.X+window.Size.X-int32(img.Bounds().Dx())), float64(winPos.Y))
+			screen.DrawImage(img, op)
+		}
 	}
 }
