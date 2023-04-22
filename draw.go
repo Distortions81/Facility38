@@ -157,7 +157,7 @@ func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
 
 		/* Draw text */
 		DrawText(toolTip, world.ToolTipFont, world.ColorWhite, world.ColorToolTipBG,
-			world.XYf32{X: float32(fmx) + 20, Y: float32(fmy) + 40}, 11, screen,
+			world.XYf32{X: float32(fmx) + 10, Y: float32(fmy) + 10}, 11, screen,
 			true, false, false)
 
 		/* Don't redraw if item has not changed */
@@ -329,7 +329,9 @@ func drawItemInfo(screen *ebiten.Image) {
 				humanize.Comma(int64((WorldMouseX - gv.XYCenter))),
 				humanize.Comma(int64((WorldMouseY - gv.XYCenter))))
 		}
-		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG, world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)}, 11, screen, false, true, false)
+		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG,
+			world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)},
+			11, screen, false, true, false)
 	}
 	/* Tooltip for resources */
 	if world.ShowResourceLayer {
@@ -351,7 +353,7 @@ func drawItemInfo(screen *ebiten.Image) {
 		}
 		if buf != "" {
 			DrawText("Yields:\n"+buf, world.ToolTipFont, world.ColorAqua, world.ColorToolTipBG,
-				world.XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, false, false)
+				world.XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, true, false)
 		}
 		lastResourceString = buf
 	}
@@ -870,13 +872,15 @@ func drawDebugInfo(screen *ebiten.Image) {
 		buf = buf + fmt.Sprintf(" (%v,%v)", MouseX, MouseY)
 	}
 	var pad float32 = 4
-	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG, world.XYf32{X: 0, Y: float32(world.ScreenHeight) - pad}, pad, screen, true, false, false)
+	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG,
+		world.XYf32{X: 0, Y: float32(world.ScreenHeight) - pad},
+		pad, screen, true, true, false)
 
 	world.FPSAvr.Add(ebiten.ActualFPS())
 }
 
 func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XYf32,
-	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) {
+	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) world.XYf32 {
 	var tmx, tmy float32
 	halfPad := pad / 2
 
@@ -894,17 +898,22 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 		}
 
 		if justUp {
-			tmy = float32(int(pos.Y) - tRect.Dy())
+			tmy = float32(int(pos.Y))
 		} else {
-			tmy = float32(pos.Y)
+			tmy = float32(pos.Y + float32(tRect.Dy()))
 		}
 	}
 	_, _, _, alpha := bgcolor.RGBA()
 
 	if alpha > 0 {
-		vector.DrawFilledRect(screen, tmx-halfPad, tmy-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, false)
+		vector.DrawFilledRect(
+			screen, tmx-halfPad, tmy-float32(fHeight.Dy())-halfPad,
+			float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, false,
+		)
 	}
 	text.Draw(screen, input, face, int(tmx), int(tmy), color)
+
+	return world.XYf32{X: float32(tRect.Dx()) + pad, Y: float32(tRect.Dy()) + pad}
 }
 
 /* Draw world objects */
@@ -1068,6 +1077,9 @@ func drawChatLines(screen *ebiten.Image) {
 		tRect := text.BoundString(world.ToolTipFont, line.Text)
 
 		var pad int = int(world.FontDPI / 10.0)
-		DrawText(line.Text, world.ToolTipFont, color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)}, tBgColor, world.XYf32{X: 0, Y: float32(world.ScreenHeight) - float32(lineNum*(tRect.Dy()+pad))}, float32(pad), screen, true, false, false)
+		DrawText(line.Text, world.ToolTipFont,
+			color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)},
+			tBgColor, world.XYf32{X: 0, Y: float32(world.ScreenHeight) - float32(lineNum*(tRect.Dy()+pad))},
+			float32(pad), screen, true, true, false)
 	}
 }

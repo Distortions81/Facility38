@@ -1,11 +1,11 @@
 package main
 
 import (
-	"Facility38/cwlog"
 	"Facility38/world"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
@@ -48,6 +48,8 @@ func DrawWindows(screen *ebiten.Image) {
 	}
 }
 
+const pad = 16
+
 func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
 	var winPos world.XYs
@@ -64,18 +66,16 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		world.ColorToolTipBG, false)
 
 	if window.Title != "" {
-		drawPos := world.XYf32{X: float32(winPos.X - (window.Size.X / 2.0)), Y: float32((window.Size.Y/2.0 - winPos.Y))}
 
-		cwlog.DoLog(true, "drawPos: %v, %v -- winPos: %v, %v -- size: %v, %v",
-			drawPos.X, drawPos.Y,
-			winPos.X, winPos.Y,
-			window.Size.X, window.Size.Y,
+		//tRect := text.BoundString(world.BootFont, window.Title)
+		fHeight := text.BoundString(world.BootFont, "1")
+
+		vector.DrawFilledRect(
+			screen, float32(winPos.X), float32(winPos.Y),
+			float32(window.Size.X), float32((fHeight.Dy())+pad), color.Black, false,
 		)
 
-		DrawText(
-			window.Title, world.BootFont, color.White, world.ColorRed,
-			drawPos,
-			0, screen, false, false, false,
-		)
+		text.Draw(screen, window.Title, world.BootFont, int(winPos.X)+(pad/2), int(winPos.Y+int32(fHeight.Dy())+(pad/2)), color.White)
+
 	}
 }
