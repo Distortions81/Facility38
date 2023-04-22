@@ -28,8 +28,9 @@ var Windows []*WindowData = []*WindowData{
 var OpenWindows []*WindowData
 
 type WindowData struct {
-	Active bool   /* Window is open */
-	Title  string /* Window title */
+	Active  bool   /* Window is open */
+	Focused bool   /* Mouse is on window */
+	Title   string /* Window title */
 
 	Movable    bool /* Can be dragged */
 	Autosized  bool /* Size based on content */
@@ -65,7 +66,7 @@ func init() {
 	go func() {
 		OpenWindow(Windows[0])
 		time.Sleep(time.Second * 5)
-		CloseWindow(Windows[0])
+		//CloseWindow(Windows[0])
 	}()
 }
 
@@ -246,4 +247,35 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	}
 
 	window.Dirty = false
+}
+
+func CollisionWindowsCheck(input world.XYs) bool {
+	for _, win := range OpenWindows {
+		if CollisionWindow(input, win) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func CollisionWindow(input world.XYs, window *WindowData) bool {
+	var winPos world.XYs
+	if window.Centered {
+		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.Size.X/2), int32(world.ScreenHeight/2)-(window.Size.Y/2)
+	} else {
+		winPos = window.Position
+	}
+	if input.X > winPos.X && input.X < winPos.X+window.Size.X &&
+		input.Y > winPos.Y && input.Y < winPos.Y+window.Size.Y {
+		if !window.Focused {
+			window.Focused = true
+		}
+		return true
+	} else {
+		if window.Focused {
+			window.Focused = false
+		}
+		return false
+	}
 }

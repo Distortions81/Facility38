@@ -52,7 +52,11 @@ func (g *Game) Update() error {
 		world.PlayerReady.Store(true)
 		return nil
 	}
-	gClickCaptured = false
+	if CollisionWindowsCheck(world.XYs{X: int32(MouseX), Y: int32(MouseY)}) {
+		gClickCaptured = true
+	} else {
+		gClickCaptured = false
+	}
 
 	getMouseClicks()
 	getMiddleMouseClicks()
