@@ -62,7 +62,6 @@ func (g *Game) Update() error {
 
 	handleQuit()
 
-	//touchScreenHandle()
 	zoomHandle()
 
 	createWorldObjects()

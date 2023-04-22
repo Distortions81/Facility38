@@ -87,14 +87,14 @@ func DrawToolbar(click, hover bool, index int) {
 			op.GeoM.Translate(x, y)
 		}
 
-		vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), float32(gv.TbOffY), float32(gv.ToolBarScale), float32(gv.ToolBarScale), world.ColorToolTipBG, true)
+		vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), float32(gv.TbOffY), float32(gv.ToolBarScale), float32(gv.ToolBarScale), world.ColorToolTipBG, false)
 
 		op.GeoM.Translate(x+(gv.ToolBarScale-gv.ToolBarIcons)-1, (gv.ToolBarSpacing*2)+1)
 
 		if item.SType == gv.ObjSubGame {
 
 			if item.OType.TypeI == SelectedItemType {
-				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorDarkGray, true)
+				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorDarkGray, false)
 			}
 		}
 
@@ -102,7 +102,7 @@ func DrawToolbar(click, hover bool, index int) {
 			if click {
 				lastClick = time.Now()
 
-				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorRed, true)
+				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorRed, false)
 				ToolbarHover = true
 
 				go func() {
@@ -110,7 +110,7 @@ func DrawToolbar(click, hover bool, index int) {
 					DrawToolbar(false, false, 0)
 				}()
 			} else if hover {
-				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorAqua, true)
+				vector.DrawFilledRect(toolbarCache, gv.ToolBarSpacing+float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing), gv.TbOffY, gv.ToolBarScale, gv.ToolBarScale, world.ColorAqua, false)
 				ToolbarHover = true
 			}
 
@@ -127,7 +127,7 @@ func DrawToolbar(click, hover bool, index int) {
 
 					(gv.TBSelThick),
 					gv.ToolBarScale,
-					world.ColorTBSelected, true)
+					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
 					float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+1,
@@ -135,7 +135,7 @@ func DrawToolbar(click, hover bool, index int) {
 
 					gv.ToolBarScale,
 					(gv.TBSelThick),
-					world.ColorTBSelected, true)
+					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
 					float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+1,
@@ -143,7 +143,7 @@ func DrawToolbar(click, hover bool, index int) {
 
 					gv.ToolBarScale,
 					(gv.TBSelThick),
-					world.ColorTBSelected, true)
+					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
 					float32(pos)*(gv.ToolBarScale+gv.ToolBarSpacing)+gv.TbOffY+gv.ToolBarScale-(gv.TBSelThick)+1,
@@ -151,7 +151,7 @@ func DrawToolbar(click, hover bool, index int) {
 
 					(gv.TBSelThick),
 					gv.ToolBarScale,
-					world.ColorTBSelected, true)
+					world.ColorTBSelected, false)
 
 			}
 		}

@@ -121,6 +121,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if world.OptionsOpen {
 		drawSettings(screen)
 	}
+
+	DrawWindows(screen)
 }
 
 var lastVal int
@@ -316,7 +318,7 @@ func drawItemInfo(screen *ebiten.Image) {
 				toolTip = toolTip + o.Unique.TypeP.Description + "\n"
 			}
 
-			vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, true)
+			vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, false)
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Scale((1.0/float64(o.Unique.TypeP.Size.X))*8.0, (1.0/float64(o.Unique.TypeP.Size.Y))*8.0)
 			op.GeoM.Translate(float64(world.ScreenWidth)-(infoWidth)-infoSpaceRight, infoSpaceTop+(infoPad/2))
@@ -900,7 +902,7 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 	_, _, _, alpha := bgcolor.RGBA()
 
 	if alpha > 0 {
-		vector.DrawFilledRect(screen, tmx-halfPad, tmy-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, true)
+		vector.DrawFilledRect(screen, tmx-halfPad, tmy-float32(fHeight.Dy())-halfPad, float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, false)
 	}
 	text.Draw(screen, input, face, int(tmx), int(tmy), color)
 }
