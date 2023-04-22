@@ -71,9 +71,25 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
 	if window.Title != "" {
 
-		//tRect := text.BoundString(world.BootFont, window.Title)
 		fHeight := text.BoundString(world.BootFont, "1")
 
+		/* Border */
+		vector.DrawFilledRect(
+			screen, float32(winPos.X), float32(winPos.Y)+float32(window.Size.Y),
+			float32(window.Size.X), 1, world.ColorVeryDarkGray, false,
+		)
+		vector.DrawFilledRect(
+			screen,
+			float32(winPos.X), float32(winPos.Y),
+			1, float32(window.Size.Y),
+			world.ColorVeryDarkGray, false)
+		vector.DrawFilledRect(
+			screen,
+			float32(winPos.X+window.Size.X), float32(winPos.Y),
+			1, float32(window.Size.Y),
+			world.ColorVeryDarkGray, false)
+
+		/* Title bar */
 		vector.DrawFilledRect(
 			screen, float32(winPos.X), float32(winPos.Y),
 			float32(window.Size.X), float32((fHeight.Dy())+pad), world.ColorVeryDarkGray, false,
