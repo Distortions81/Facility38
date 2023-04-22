@@ -67,7 +67,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		screen,
 		float32(winPos.X), float32(winPos.Y),
 		float32(window.Size.X), float32(window.Size.Y),
-		world.ColorToolTipBG, false)
+		world.ColorWindowBG, false)
 
 	if window.Title != "" {
 
@@ -76,23 +76,23 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		/* Border */
 		vector.DrawFilledRect(
 			screen, float32(winPos.X), float32(winPos.Y)+float32(window.Size.Y),
-			float32(window.Size.X), 1, world.ColorVeryDarkGray, false,
+			float32(window.Size.X), 1, world.ColorWindowTitle, false,
 		)
 		vector.DrawFilledRect(
 			screen,
 			float32(winPos.X), float32(winPos.Y),
 			1, float32(window.Size.Y),
-			world.ColorVeryDarkGray, false)
+			world.ColorWindowTitle, false)
 		vector.DrawFilledRect(
 			screen,
 			float32(winPos.X+window.Size.X), float32(winPos.Y),
 			1, float32(window.Size.Y),
-			world.ColorVeryDarkGray, false)
+			world.ColorWindowTitle, false)
 
 		/* Title bar */
 		vector.DrawFilledRect(
 			screen, float32(winPos.X), float32(winPos.Y),
-			float32(window.Size.X), float32((fHeight.Dy())+pad), world.ColorVeryDarkGray, false,
+			float32(window.Size.X), float32((fHeight.Dy())+pad), world.ColorWindowTitle, false,
 		)
 
 		text.Draw(screen, window.Title, world.BootFont, int(winPos.X)+halfPad, int(winPos.Y+int32(fHeight.Dy())+halfPad), color.White)

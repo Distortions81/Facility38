@@ -3,12 +3,16 @@ package world
 import "image/color"
 
 var (
-	BootColor       = color.NRGBA{28, 27, 32, 255}
-	BGColor         = color.NRGBA{32, 32, 32, 255}
+	BootColor = color.NRGBA{28, 27, 32, 255}
+	BGColor   = color.NRGBA{32, 32, 32, 255}
+
 	ColorToolTipBG  = color.NRGBA{16, 16, 16, 190}
 	ColorDebugBG    = color.NRGBA{16, 16, 16, 128}
 	ColorTBSelected = color.NRGBA{255, 255, 0, 255}
 	GroundColor     = color.NRGBA{51, 78, 38, 255}
+
+	ColorWindowBG    = color.NRGBA{8, 8, 8, 230}
+	ColorWindowTitle = color.NRGBA{32, 32, 32, 255}
 
 	ColorRed         = color.NRGBA{203, 67, 53, 255}
 	ColorGreen       = color.NRGBA{40, 180, 99, 255}
