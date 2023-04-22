@@ -854,9 +854,9 @@ func drawPixmapMode(screen *ebiten.Image) {
 func drawDebugInfo(screen *ebiten.Image) {
 
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %-4v UPS: %-4v Objects: %8v, %-8v/%8v, %-8v Arch: %v Build: v%v-%v",
+	buf := fmt.Sprintf("FPS: %-4v UPS: %4.2f Objects: %8v, %-8v/%8v, %-8v Arch: %v Build: v%v-%v",
 		int(world.FPSAvr.Value()),
-		int(world.UPSAvr.Value()),
+		(world.UPSAvr.Value()),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
