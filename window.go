@@ -26,25 +26,29 @@ var Windows []*WindowData = []*WindowData{
 var OpenWindows []*WindowData
 
 type WindowData struct {
-	Active bool
-	Title  string
+	Active bool   /* Window is open */
+	Title  string /* Window title */
 
-	Movable    bool
-	Autosized  bool
-	Opaque     bool
-	Scrollable bool
-	Centered   bool
-	Closeable  bool
-	Borderless bool
+	Movable    bool /* Can be dragged */
+	Autosized  bool /* Size based on content */
+	Opaque     bool /* Non-semitransparent background */
+	Scrollable bool /* Can have a scroll bar */
+	Centered   bool /* Auto-centered */
+	Closeable  bool /* Has a close-x in title bar */
+	Borderless bool /* Does not draw border */
+	KeepCache  bool /* Draw cache persists when window is closed */
 
-	WindowButtons WindowButtonData
+	WindowButtons WindowButtonData /* Window buttons */
 
-	Size     world.XYs
-	Position world.XYs
+	Size     world.XYs /* Size in pixels */
+	Position world.XYs /* Position on screen */
 
-	BGColor      *color.Color
-	TitleBGColor *color.Color
-	TitleColor   *color.Color
+	BGColor      *color.Color /* Custom BG color */
+	TitleBGColor *color.Color /* Custom titlebar background color */
+	TitleColor   *color.Color /* Custom title text color */
+
+	Dirty bool          /* Needs to be redrawn */
+	Cache *ebiten.Image /* Cache image */
 }
 
 type WindowButtonData struct {
@@ -57,7 +61,14 @@ type WindowButtonData struct {
 
 func init() {
 	go func() {
+		WindowsLock.Lock()
+		for _, win := range Windows {
+			win.Dirty = true
+		}
+		WindowsLock.Unlock()
+
 		OpenWindow(Windows[0])
+
 		time.Sleep(time.Second * 5)
 		CloseWindow(Windows[0])
 	}()
@@ -74,10 +85,15 @@ func OpenWindow(window *WindowData) {
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
+	if window.Active {
+		return
+	}
+
 	for wpos, win := range Windows {
 		if !win.Active {
 			Windows[wpos].Active = true
 			OpenWindows = append(OpenWindows, Windows[wpos])
+			break
 		}
 	}
 }
@@ -86,15 +102,35 @@ func CloseWindow(window *WindowData) {
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
-	for wpos, win := range Windows {
-		if win.Active {
-			Windows[wpos].Active = false
-			for wopos := range OpenWindows {
-				if OpenWindows[wopos] == Windows[wpos] {
-					/* Remove item */
-					OpenWindows = append(OpenWindows[:wopos], OpenWindows[wopos+1:]...)
-				}
+	if !window.Active {
+		return
+	}
+
+	if !window.KeepCache && window.Cache != nil {
+		window.Cache.Dispose()
+		window.Cache = nil
+	}
+
+	for wpos := range Windows {
+		Windows[wpos].Active = false
+		for wopos := range OpenWindows {
+			if OpenWindows[wopos] == Windows[wpos] {
+				/* Remove item */
+				OpenWindows = append(OpenWindows[:wopos], OpenWindows[wopos+1:]...)
+				break
 			}
+		}
+	}
+}
+
+func WindowDirty(window *WindowData) {
+	WindowsLock.Lock()
+	defer WindowsLock.Unlock()
+
+	for wpos := range Windows {
+		if Windows[wpos] == window {
+			Windows[wpos].Dirty = true
+			break
 		}
 	}
 }
@@ -115,6 +151,21 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.Size.X/2), int32(world.ScreenHeight/2)-(window.Size.Y/2)
 	} else {
 		winPos = window.Position
+	}
+
+	if !window.Dirty {
+		if window.Cache != nil {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(winPos.X), float64(winPos.Y))
+			screen.DrawImage(window.Cache, op)
+			return
+		}
+	}
+
+	if window.Cache == nil {
+		window.Cache = ebiten.NewImage(int(window.Size.X), int(window.Size.Y))
+	} else {
+		window.Cache.Clear()
 	}
 
 	/* Custom colors */
@@ -142,8 +193,8 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	}
 
 	vector.DrawFilledRect(
-		screen,
-		float32(winPos.X), float32(winPos.Y),
+		window.Cache,
+		0, 0,
 		float32(window.Size.X), float32(window.Size.Y),
 		winBG, false)
 
@@ -154,34 +205,36 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		/* Border */
 		if !window.Borderless {
 			vector.DrawFilledRect(
-				screen, float32(winPos.X), float32(winPos.Y)+float32(window.Size.Y),
+				window.Cache, 0, +float32(window.Size.Y),
 				float32(window.Size.X), 1, titleBGColor, false,
 			)
 			vector.DrawFilledRect(
-				screen,
-				float32(winPos.X), float32(winPos.Y),
+				window.Cache,
+				0, 0,
 				1, float32(window.Size.Y),
 				titleBGColor, false)
 			vector.DrawFilledRect(
-				screen,
-				float32(winPos.X+window.Size.X), float32(winPos.Y),
+				window.Cache,
+				float32(window.Size.X), 0,
 				1, float32(window.Size.Y),
 				titleBGColor, false)
 		}
 
 		/* Title bar */
 		vector.DrawFilledRect(
-			screen, float32(winPos.X), float32(winPos.Y),
+			window.Cache, 0, 0,
 			float32(window.Size.X), float32((fHeight.Dy())+pad), titleBGColor, false,
 		)
 
-		text.Draw(screen, window.Title, world.BootFont, int(winPos.X)+halfPad, int(winPos.Y+int32(fHeight.Dy())+halfPad), titleColor)
+		text.Draw(window.Cache, window.Title, world.BootFont, halfPad, int(int32(fHeight.Dy())+halfPad), titleColor)
 
 		if window.Closeable {
 			img := objects.WorldOverlays[8].Images.Main
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(winPos.X+window.Size.X-int32(img.Bounds().Dx())), float64(winPos.Y))
-			screen.DrawImage(img, op)
+			op.GeoM.Translate(float64(window.Size.X-int32(img.Bounds().Dx())), 0)
+			window.Cache.DrawImage(img, op)
 		}
 	}
+
+	window.Dirty = false
 }
