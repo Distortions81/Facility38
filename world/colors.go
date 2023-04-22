@@ -12,6 +12,7 @@ var (
 	GroundColor     = color.NRGBA{51, 78, 38, 255}
 
 	ColorWindowBG    = color.NRGBA{8, 8, 8, 230}
+	ColorWindowBGO   = color.NRGBA{8, 8, 8, 255}
 	ColorWindowTitle = color.NRGBA{32, 32, 32, 255}
 
 	ColorRed         = color.NRGBA{203, 67, 53, 255}
