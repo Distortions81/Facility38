@@ -167,6 +167,7 @@ func startGame() {
 		go objects.ObjUpdateDaemonST()
 	}
 
+	InitWindows()
 	OpenWindow(Windows[0])
 }
 

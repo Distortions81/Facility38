@@ -403,16 +403,6 @@ func drawSettings(screen *ebiten.Image) {
 			itemColor = world.ColorAqua
 		}
 
-		/*
-			if gv.Debug {
-				ebitenutil.DrawRect(screen,
-					float64(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
-					float64(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
-					float64(b.Dx()),
-					float64(b.Dy()),
-					color.NRGBA{R: 255, G: 0, B: 0, A: 64})
-			}
-		*/
 		text.Draw(screen, txt, font, item.TextPosX, item.TextPosY, itemColor)
 
 		if !item.NoCheck {

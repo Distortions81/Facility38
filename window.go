@@ -17,6 +17,15 @@ var WindowsLock sync.Mutex
 
 var Windows []*WindowData = []*WindowData{
 	{
+		Title:       "Options",
+		Size:        world.XYs{X: 400, Y: 400},
+		Centered:    true,
+		Closeable:   true,
+		WindowDraw:  drawOptionsWindow,
+		WindowSetup: setupOptionsWindow,
+		Movable:     true,
+	},
+	{
 		Title:      "Test",
 		Size:       world.XYs{X: 512, Y: 512},
 		Centered:   true,
@@ -56,6 +65,7 @@ type WindowData struct {
 	Cache       *ebiten.Image /* Cache image */
 	WindowDraw  func(Window *WindowData)
 	WindowInput func(Window *WindowData)
+	WindowSetup func(Window *WindowData)
 }
 
 type WindowButtonData struct {
@@ -68,6 +78,16 @@ type WindowButtonData struct {
 	Cancel bool
 	Okay   bool
 	Save   bool
+}
+
+func InitWindows() {
+	for _, win := range Windows {
+		//win.Cache = ebiten.NewImage(int(win.Size.X), int(win.Size.Y))
+		if win.WindowSetup != nil {
+			win.WindowSetup(win)
+			win.Dirty = true
+		}
+	}
 }
 
 func DrawOpenWindows(screen *ebiten.Image) {
@@ -223,7 +243,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		/* Border */
 		if !window.Borderless {
 			vector.DrawFilledRect(
-				window.Cache, 0, +float32(window.Size.Y),
+				window.Cache, 0, +float32(window.Size.Y)-1,
 				float32(window.Size.X), 1, titleBGColor, false,
 			)
 			vector.DrawFilledRect(
@@ -233,7 +253,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 				titleBGColor, false)
 			vector.DrawFilledRect(
 				window.Cache,
-				float32(window.Size.X), 0,
+				float32(window.Size.X)-1, 0,
 				1, float32(window.Size.Y),
 				titleBGColor, false)
 		}
