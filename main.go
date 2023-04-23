@@ -166,6 +166,8 @@ func startGame() {
 		util.WASMSleep()
 		go objects.ObjUpdateDaemonST()
 	}
+
+	OpenWindow(Windows[0])
 }
 
 /* Load all sprites, sub missing ones */

@@ -22,6 +22,7 @@ var Windows []*WindowData = []*WindowData{
 		Centered:   true,
 		Closeable:  true,
 		WindowDraw: testWindow,
+		Movable:    true,
 	},
 }
 
@@ -32,14 +33,15 @@ type WindowData struct {
 	Focused bool   /* Mouse is on window */
 	Title   string /* Window title */
 
-	Movable    bool /* Can be dragged */
-	Autosized  bool /* Size based on content */
-	Opaque     bool /* Non-semitransparent background */
-	Scrollable bool /* Can have a scroll bar */
-	Centered   bool /* Auto-centered */
-	Closeable  bool /* Has a close-x in title bar */
-	Borderless bool /* Does not draw border */
-	KeepCache  bool /* Draw cache persists when window is closed */
+	Movable    bool      /* Can be dragged */
+	Autosized  bool      /* Size based on content */
+	Opaque     bool      /* Non-semitransparent background */
+	Scrollable bool      /* Can have a scroll bar */
+	Centered   bool      /* Auto-centered */
+	Closeable  bool      /* Has a close-x in title bar */
+	Borderless bool      /* Does not draw border */
+	KeepCache  bool      /* Draw cache persists when window is closed */
+	DragPos    world.XYs /* Position where window drag began */
 
 	WindowButtons WindowButtonData /* Window buttons */
 
@@ -57,18 +59,15 @@ type WindowData struct {
 }
 
 type WindowButtonData struct {
-	ClosePos  world.XYs
-	CloseSize world.XYs
+	ClosePos       world.XYs
+	CloseSize      world.XYs
+	TitleBarHeight int
 
 	Minimize bool
 
 	Cancel bool
 	Okay   bool
 	Save   bool
-}
-
-func init() {
-	OpenWindow(Windows[0])
 }
 
 func DrawOpenWindows(screen *ebiten.Image) {
@@ -88,6 +87,13 @@ func OpenWindow(window *WindowData) {
 	for wpos := range Windows {
 		if Windows[wpos] == window {
 			Windows[wpos].Active = true
+
+			if window.Centered && window.Movable {
+				Windows[wpos].Position = world.XYs{
+					X: int32(world.ScreenWidth/2) - (window.Size.X / 2),
+					Y: int32(world.ScreenHeight/2) - (window.Size.Y / 2)}
+			}
+
 			if gv.Debug {
 				cwlog.DoLog(true, "Window '%v' added to open list.", window.Title)
 			}
@@ -232,6 +238,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 			window.Cache, 0, 0,
 			float32(window.Size.X), float32((fHeight.Dy())+pad), titleBGColor, false,
 		)
+		window.WindowButtons.TitleBarHeight = fHeight.Dy() + pad
 
 		text.Draw(window.Cache, window.Title, world.BootFont, halfPad, int(int32(fHeight.Dy())+halfPad), titleColor)
 
@@ -257,6 +264,9 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 }
 
 func CollisionWindowsCheck(input world.XYs) bool {
+	if gClickCaptured {
+		return false
+	}
 	for _, win := range OpenWindows {
 		if CollisionWindow(input, win) {
 			return true
@@ -277,6 +287,10 @@ func CollisionWindow(input world.XYs, window *WindowData) bool {
 
 		/* Handle X close */
 		if handleClose(input, window) {
+			return true
+		}
+
+		if handleDrag(input, window) {
 			return true
 		}
 
@@ -307,21 +321,45 @@ func handleClose(input world.XYs, window *WindowData) bool {
 	}
 
 	winPos := getWindowPos(window)
-	if window.Closeable {
-		if input.X > winPos.X+window.Size.X-window.WindowButtons.CloseSize.X &&
-			input.X < winPos.X+window.Size.X &&
-			input.Y > winPos.Y-window.WindowButtons.CloseSize.Y &&
-			input.Y < winPos.Y+window.Size.Y {
-			CloseWindow(window)
-			return true
-		}
+	if input.X > winPos.X+window.Size.X-window.WindowButtons.CloseSize.X &&
+		input.X < winPos.X+window.Size.X &&
+		input.Y > winPos.Y-window.WindowButtons.CloseSize.Y &&
+		input.Y < winPos.Y+window.Size.Y {
+		CloseWindow(window)
+		return true
+	}
+
+	return false
+}
+
+func handleDrag(input world.XYs, window *WindowData) bool {
+
+	if !gMouseHeld {
+		return false
+	}
+	if !window.Movable {
+		return false
+	}
+	if !window.Active {
+		return false
+	}
+
+	winPos := getWindowPos(window)
+	if input.X > winPos.X &&
+		input.X < winPos.X+window.Size.X &&
+		input.Y > winPos.Y &&
+		input.Y < winPos.Y+int32(window.WindowButtons.TitleBarHeight) {
+		gWindowDrag = window
+		gWindowDrag.DragPos = world.XYs{X: input.X - winPos.X, Y: input.Y - winPos.Y}
+		cwlog.DoLog(true, "MEEP DRAG")
+		return true
 	}
 	return false
 }
 
 func getWindowPos(window *WindowData) world.XYs {
 	var winPos world.XYs
-	if window.Centered {
+	if window.Centered && !window.Movable {
 		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.Size.X/2), int32(world.ScreenHeight/2)-(window.Size.Y/2)
 	} else {
 		winPos = window.Position
