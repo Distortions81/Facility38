@@ -112,6 +112,11 @@ func CloseWindow(window *WindowData) {
 		return
 	}
 
+	/* Handle window closed while dragging */
+	if gWindowDrag == window {
+		gWindowDrag = nil
+	}
+
 	for wpos := range Windows {
 		Windows[wpos].Active = false
 		for wopos := range OpenWindows {
@@ -351,7 +356,7 @@ func handleDrag(input world.XYs, window *WindowData) bool {
 		input.Y < winPos.Y+int32(window.WindowButtons.TitleBarHeight) {
 		gWindowDrag = window
 		gWindowDrag.DragPos = world.XYs{X: input.X - winPos.X, Y: input.Y - winPos.Y}
-		cwlog.DoLog(true, "MEEP DRAG")
+		cwlog.DoLog(true, "Started dragging window '%v'", window.Title)
 		return true
 	}
 	return false

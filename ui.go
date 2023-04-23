@@ -56,14 +56,10 @@ func (g *Game) Update() error {
 		MouseY < 0 || MouseY > int(world.ScreenHeight) {
 		MouseX = LastMouseX
 		MouseY = LastMouseY
+
+		/* Stop dragging window if we go off-screen */
 		gWindowDrag = nil
 		return nil
-	}
-
-	/* Handle window drag */
-	if gWindowDrag != nil {
-		gWindowDrag.Position = world.XYs{X: int32(MouseX) - gWindowDrag.DragPos.X, Y: int32(MouseY) - gWindowDrag.DragPos.Y}
-		gClickCaptured = true
 	}
 
 	var keys []ebiten.Key
@@ -74,6 +70,13 @@ func (g *Game) Update() error {
 		world.PlayerReady.Store(true)
 		return nil
 	}
+
+	/* Handle window drag */
+	if gWindowDrag != nil {
+		gWindowDrag.Position = world.XYs{X: int32(MouseX) - gWindowDrag.DragPos.X, Y: int32(MouseY) - gWindowDrag.DragPos.Y}
+		gClickCaptured = true
+	}
+
 	gClickCaptured = CollisionWindowsCheck(world.XYs{X: int32(MouseX), Y: int32(MouseY)})
 
 	getMouseClicks()
@@ -237,7 +240,10 @@ func getMouseClicks() {
 	/* Mouse clicks */
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		gMouseHeld = false
+
+		/* Stop dragging window */
 		gWindowDrag = nil
+
 		gLastActionPosition = world.XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		gMouseHeld = true
