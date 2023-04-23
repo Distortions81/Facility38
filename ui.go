@@ -40,13 +40,23 @@ func init() {
 
 /* Input interface handler */
 func (g *Game) Update() error {
+
+	/* Ignore if not focused */
 	if !ebiten.IsFocused() {
 		return nil
 	}
 
 	LastMouseX = MouseX
 	LastMouseY = MouseY
+
+	/* Clamp to window */
 	MouseX, MouseY = ebiten.CursorPosition()
+	if MouseX < 0 || MouseX > int(world.ScreenWidth) ||
+		MouseY < 0 || MouseY > int(world.ScreenHeight) {
+		MouseX = int(world.ScreenWidth / 2)
+		MouseY = int(world.ScreenHeight / 2)
+		return nil
+	}
 
 	var keys []ebiten.Key
 	/* Game start screen */

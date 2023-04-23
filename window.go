@@ -64,7 +64,7 @@ type WindowButtonData struct {
 
 func init() {
 	go func() {
-		OpenWindow(Windows[0])
+		//OpenWindow(Windows[0])
 		time.Sleep(time.Second * 5)
 		//CloseWindow(Windows[0])
 	}()
