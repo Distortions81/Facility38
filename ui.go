@@ -53,8 +53,8 @@ func (g *Game) Update() error {
 	MouseX, MouseY = ebiten.CursorPosition()
 	if MouseX < 0 || MouseX > int(world.ScreenWidth) ||
 		MouseY < 0 || MouseY > int(world.ScreenHeight) {
-		MouseX = int(world.ScreenWidth / 2)
-		MouseY = int(world.ScreenHeight / 2)
+		MouseX = LastMouseX
+		MouseY = LastMouseY
 		return nil
 	}
 
