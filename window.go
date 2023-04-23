@@ -7,7 +7,6 @@ import (
 	"Facility38/world"
 	"image/color"
 	"sync"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -63,11 +62,7 @@ type WindowButtonData struct {
 }
 
 func init() {
-	go func() {
-		//OpenWindow(Windows[0])
-		time.Sleep(time.Second * 5)
-		//CloseWindow(Windows[0])
-	}()
+	OpenWindow(Windows[0])
 }
 
 func DrawOpenWindows(screen *ebiten.Image) {
@@ -84,13 +79,14 @@ func OpenWindow(window *WindowData) {
 		return
 	}
 
-	for wpos, win := range Windows {
-		if !win.Active {
+	for wpos := range Windows {
+		if Windows[wpos] == window {
 			Windows[wpos].Active = true
 			if gv.Debug {
 				cwlog.DoLog(true, "Window '%v' added to open list.", window.Title)
 			}
 			OpenWindows = append(OpenWindows, Windows[wpos])
+
 			break
 		}
 	}
@@ -266,6 +262,7 @@ func CollisionWindow(input world.XYs, window *WindowData) bool {
 	} else {
 		winPos = window.Position
 	}
+
 	if input.X > winPos.X && input.X < winPos.X+window.Size.X &&
 		input.Y > winPos.Y && input.Y < winPos.Y+window.Size.Y {
 		if !window.Focused {
