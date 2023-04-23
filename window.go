@@ -106,14 +106,6 @@ func CloseWindow(window *WindowData) {
 		return
 	}
 
-	if !window.KeepCache && window.Cache != nil {
-		if gv.Debug {
-			cwlog.DoLog(true, "Window '%v' closed, disposing cache.", window.Title)
-		}
-		window.Cache.Dispose()
-		window.Cache = nil
-	}
-
 	for wpos := range Windows {
 		Windows[wpos].Active = false
 		for wopos := range OpenWindows {
@@ -126,6 +118,14 @@ func CloseWindow(window *WindowData) {
 				break
 			}
 		}
+	}
+
+	if !window.KeepCache && window.Cache != nil {
+		if gv.Debug {
+			cwlog.DoLog(true, "Window '%v' closed, disposing cache.", window.Title)
+		}
+		window.Cache.Dispose()
+		window.Cache = nil
 	}
 }
 
