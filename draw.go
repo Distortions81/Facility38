@@ -117,11 +117,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	drawChatLines(screen)
-
-	if world.OptionsOpen {
-		drawSettings(screen)
-	}
-
 	DrawOpenWindows(screen)
 }
 

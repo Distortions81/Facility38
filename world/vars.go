@@ -21,10 +21,9 @@ var (
 
 	FontDPI       float64 = gv.FontDPI
 	Vsync         bool    = true
-	OptionsOpen   bool
-	ImperialUnits bool = false
-	UseHyper      bool = false
-	InfoLine      bool = false
+	ImperialUnits bool    = false
+	UseHyper      bool    = false
+	InfoLine      bool    = false
 
 	/* SuperChunk List */
 	SuperChunkList     []*MapSuperChunk

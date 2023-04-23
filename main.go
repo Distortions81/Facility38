@@ -139,7 +139,6 @@ func NewGame() *Game {
 		objects.ResourceMapInit()
 		MakeMap(gv.LoadTest)
 		startGame()
-		setupOptionsMenu()
 	}()
 
 	/* Initialize the game */
@@ -153,7 +152,6 @@ func startGame() {
 		!world.PlayerReady.Load() {
 		time.Sleep(time.Millisecond)
 	}
-	setupOptionsMenu()
 	loadOptions()
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
@@ -456,7 +454,6 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		world.ScreenHeight = uint16(outsideHeight)
 		//Recalcualte settings window item
 		UpdateFonts()
-		setupOptionsMenu()
 		world.VisDataDirty.Store(true)
 	}
 

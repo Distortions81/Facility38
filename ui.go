@@ -249,10 +249,6 @@ func getMouseClicks() {
 		gMouseHeld = true
 		gLastActionPosition.X = 0
 		gLastActionPosition.Y = 0
-
-		if world.OptionsOpen {
-			gClickCaptured = handleSettings()
-		}
 		if !gClickCaptured {
 			gClickCaptured = handleToolbar(false)
 		}
@@ -272,12 +268,6 @@ func createWorldObjects() {
 	if gClickCaptured {
 		return
 	}
-
-	/* Settings open? */
-	if world.OptionsOpen {
-		return
-	}
-
 	pos := util.FloatXYToPosition(WorldMouseX, WorldMouseY)
 
 	/* Is this a new position? */

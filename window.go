@@ -18,7 +18,7 @@ var WindowsLock sync.Mutex
 var Windows []*WindowData = []*WindowData{
 	{
 		Title:       "Options",
-		Size:        world.XYs{X: 400, Y: 400},
+		Size:        world.XYs{X: 325, Y: 500},
 		Centered:    true,
 		Closeable:   true,
 		WindowDraw:  drawOptionsWindow,

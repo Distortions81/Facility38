@@ -9,6 +9,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/ebitenui/ebitenui v0.3.2
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+	github.com/hajimehoshi/ebiten v1.12.12
 	github.com/hajimehoshi/ebiten/v2 v2.5.2
 	github.com/remeh/sizedwaitgroup v1.0.0
 	github.com/sasha-s/go-deadlock v0.3.1

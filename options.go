@@ -10,45 +10,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
-	"image/color"
 	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
 const (
-	padding   = 16
-	itemsPad  = 16
-	linePad   = 10
-	spritePad = 32
-
 	TYPE_BOOL = 0
 	TYPE_INT  = 1
 	TYPE_TEXT = 2
-
-	defaultWindowWidth  = 300
-	defaultWindowHeight = 400
 
 	settingsFile = "data/settings.json"
 )
 
 var (
-	bg          *ebiten.Image
-	halfSWidth  = int(world.ScreenWidth / 2)
-	halfSHeight = int(world.ScreenHeight / 2)
-	textHeight  = 16
-	windowSizeW = defaultWindowWidth
-	windowSizeH = defaultWindowHeight
-	halfWindowW = windowSizeW / 2
-	halfWindowH = windowSizeH / 2
+	textHeight = 16
 
 	buttons      []image.Rectangle
 	settingItems []settingType
-
-	closeBoxPos  world.XY
-	closeBoxSize world.XY
 )
 
 type settingType struct {
@@ -66,10 +46,6 @@ type settingType struct {
 }
 
 func init() {
-	bg = ebiten.NewImage(1, 1)
-
-	bgcolor := color.RGBA{R: 0, G: 0, B: 0, A: 170}
-	bg.Fill(bgcolor)
 
 	settingItems = []settingType{
 		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
@@ -299,130 +275,6 @@ func toggleVsync(item int) {
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
-func setupOptionsMenu() {
-
-	if world.BootFont == nil || !world.SpritesLoaded.Load() {
-		return
-	}
-
-	halfSWidth = int(world.ScreenWidth / 2)
-	halfSHeight = int(world.ScreenHeight / 2)
-
-	var newVal float32 = 1280.0 / float32(world.ScreenWidth)
-	if newVal < 0.1 {
-		newVal = 0.1
-	} else if newVal > 4 {
-		newVal = 4
-	}
-
-	windowSizeW = int(defaultWindowWidth / newVal)
-	windowSizeH = int(defaultWindowHeight / newVal)
-
-	/* Generate base values */
-	halfWindowW = windowSizeW / 2
-	halfWindowH = windowSizeH / 2
-
-	base := text.BoundString(world.BootFont, "abcdefghijklmnopqrstuvwxyz!.0123456789")
-	textHeight = base.Dy() + linePad
-	buttons = []image.Rectangle{}
-
-	img := objects.WorldOverlays[8].Images.Main
-
-	closeBoxPos.X = uint16(halfSWidth + halfWindowW - img.Bounds().Dx() - padding)
-	closeBoxPos.Y = uint16(halfSHeight - halfWindowH + padding)
-	closeBoxSize.X = uint16(img.Bounds().Dx())
-	closeBoxSize.Y = uint16(img.Bounds().Dy())
-
-	/* Loop all settings */
-	for i, item := range settingItems {
-		/* Get text bounds */
-		tbound := text.BoundString(world.BootFont, item.Text)
-		settingItems[i].TextBounds = tbound
-
-		/* Place line */
-		var linePosX int = (halfSWidth) - halfWindowW + padding
-		var linePosY int = (halfSHeight - halfWindowH) + textHeight*(i+2) +
-			(linePad * (i + 2)) +
-			itemsPad
-		settingItems[i].TextPosX = linePosX
-		settingItems[i].TextPosY = linePosY
-
-		/* Generate button */
-		button := image.Rectangle{}
-		button.Min.X = linePosX
-		button.Max.X = (halfSWidth + halfWindowW) - padding
-
-		button.Min.Y = linePosY - tbound.Dy()
-		button.Max.Y = linePosY + spritePad/2
-		buttons = append(buttons, button)
-	}
-}
-
-func drawSettings(screen *ebiten.Image) {
-	halfSWidth = int(world.ScreenWidth / 2)
-	halfSHeight = int(world.ScreenHeight / 2)
-	op := &ebiten.DrawImageOptions{}
-
-	/* Draw window bg */
-	op.GeoM.Scale(float64(windowSizeW), float64(windowSizeH))
-	op.GeoM.Translate(float64(halfSWidth-halfWindowW), float64(halfSHeight-halfWindowH))
-	screen.DrawImage(bg, op)
-
-	/* Draw title */
-	txt := "Options:"
-	font := world.BootFont
-	rect := text.BoundString(font, txt)
-	textHeight = rect.Dy() + linePad
-	text.Draw(screen, txt, font,
-		int(halfSWidth)-(rect.Dx()/2),
-		(halfSHeight-halfWindowH)+rect.Dy()+padding,
-		world.ColorWhite)
-
-	/* Close box */
-	op.GeoM.Reset()
-	img := objects.WorldOverlays[8].Images.Main
-
-	op.GeoM.Translate(float64(closeBoxPos.X), float64(closeBoxPos.Y))
-	screen.DrawImage(img, op)
-
-	/* Draw items */
-	for i, item := range settingItems {
-		b := buttons[i]
-
-		/* Text */
-		if !item.NoCheck {
-			txt = fmt.Sprintf("%v: %v", item.Text, util.BoolToOnOff(item.Enabled))
-		} else {
-			txt = item.Text
-		}
-
-		/* Draw text */
-		itemColor := world.ColorWhite
-		/* Detect hover, change color */
-		if util.PosWithinRect(world.XY{X: uint16(MouseX), Y: uint16(MouseY)}, b, 1) {
-			itemColor = world.ColorAqua
-		}
-
-		text.Draw(screen, txt, font, item.TextPosX, item.TextPosY, itemColor)
-
-		if !item.NoCheck {
-			/* Get checkmark image */
-			op.GeoM.Reset()
-			var check *ebiten.Image
-			if item.Enabled {
-				check = objects.WorldOverlays[6].Images.Main
-			} else {
-				check = objects.WorldOverlays[7].Images.Main
-			}
-			/* Draw checkmark */
-			op.GeoM.Translate(
-				float64(halfSWidth+halfWindowW-check.Bounds().Dx()-padding),
-				float64(item.TextPosY)-float64((check.Bounds().Dy())/2))
-			screen.DrawImage(check, op)
-		}
-	}
-}
-
 func handleSettings() bool {
 
 	for i, item := range settingItems {
@@ -433,18 +285,6 @@ func handleSettings() bool {
 			gMouseHeld = false
 			return true
 		}
-	}
-
-	/* Close box */
-	if MouseX <= int(closeBoxPos.X+(closeBoxSize.X)) &&
-		MouseX >= int(closeBoxPos.X-(closeBoxSize.X)) &&
-
-		MouseY <= int(closeBoxPos.Y+(closeBoxSize.Y)) &&
-		MouseY >= int(closeBoxPos.Y-(closeBoxSize.Y)) {
-
-		world.OptionsOpen = false
-		gMouseHeld = false
-		return true
 	}
 
 	return false

@@ -12,7 +12,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
+const (
+	padding = 8
+	linePad = 30
+)
+
 func setupOptionsWindow(window *WindowData) {
+	check := objects.WorldOverlays[6].Images.Main
+
 	/* Loop all settings */
 	for i, item := range settingItems {
 		/* Get text bounds */
@@ -22,8 +29,7 @@ func setupOptionsWindow(window *WindowData) {
 		/* Place line */
 		var linePosX int = padding
 		var linePosY int = textHeight*(i+2) +
-			(linePad * (i + 2)) +
-			itemsPad
+			(linePad * (i + 2))
 		settingItems[i].TextPosX = linePosX
 		settingItems[i].TextPosY = linePosY
 
@@ -32,10 +38,11 @@ func setupOptionsWindow(window *WindowData) {
 		button.Min.X = linePosX
 		button.Max.X = int(window.Size.X) - padding
 
-		button.Min.Y = linePosY - tbound.Dy()
-		button.Max.Y = linePosY + spritePad/2
+		button.Min.Y = linePosY - check.Bounds().Dy()/2
+		button.Max.Y = linePosY + check.Bounds().Dy()/2
 		buttons = append(buttons, button)
 	}
+
 }
 
 func drawOptionsWindow(window *WindowData) {
@@ -43,6 +50,7 @@ func drawOptionsWindow(window *WindowData) {
 
 	/* Draw items */
 	for _, item := range settingItems {
+		//b := buttons[i]
 
 		/* Text */
 		if !item.NoCheck {
@@ -53,6 +61,15 @@ func drawOptionsWindow(window *WindowData) {
 
 		/* Draw text */
 		itemColor := world.ColorWhite
+
+		/*if gv.Debug {
+			vector.DrawFilledRect(window.Cache,
+				float32(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
+				float32(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
+				float32(b.Dx()),
+				float32(b.Dy()),
+				color.NRGBA{R: 255, G: 0, B: 0, A: 64}, false)
+		}*/
 
 		text.Draw(window.Cache, txt, world.BootFont, item.TextPosX, item.TextPosY, itemColor)
 
@@ -67,7 +84,7 @@ func drawOptionsWindow(window *WindowData) {
 			}
 			/* Draw checkmark */
 			op.GeoM.Translate(
-				float64(int(window.Size.X/2)+check.Bounds().Dx()-padding),
+				float64(int(window.Size.X)-check.Bounds().Dx())-padding,
 				float64(item.TextPosY)-float64((check.Bounds().Dy())/2))
 			window.Cache.DrawImage(check, op)
 		}
