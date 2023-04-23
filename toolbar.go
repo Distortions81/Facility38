@@ -111,34 +111,34 @@ func DrawToolbar(click, hover bool, index int) {
 			if item.OType.TypeI == SelectedItemType {
 				vector.DrawFilledRect(toolbarCache,
 					float32(pos)*(ToolBarIconSize+ToolBarSpacing),
-					(ToolBarSpacing / 2),
+					0,
 
 					(gv.TBSelThick),
-					ToolBarIconSize,
+					(ToolBarIconSize + ToolBarSpacing),
 					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
 					float32(pos)*(ToolBarIconSize+ToolBarSpacing),
-					(ToolBarSpacing / 2),
+					0,
 
-					ToolBarIconSize,
+					(ToolBarIconSize + ToolBarSpacing),
 					(gv.TBSelThick),
 					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
 					float32(pos)*(ToolBarIconSize+ToolBarSpacing),
-					(ToolBarSpacing/2)+ToolBarIconSize-(gv.TBSelThick),
+					(ToolBarSpacing)+ToolBarIconSize-gv.TBSelThick,
 
-					ToolBarIconSize,
+					(ToolBarIconSize + ToolBarSpacing),
 					(gv.TBSelThick),
 					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+(ToolBarSpacing/2)+ToolBarIconSize-(gv.TBSelThick)+1,
-					2,
+					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+ToolBarIconSize+ToolBarSpacing-gv.TBSelThick,
+					0,
 
 					(gv.TBSelThick),
-					ToolBarIconSize,
+					(ToolBarIconSize + ToolBarSpacing),
 					world.ColorTBSelected, false)
 
 			}
