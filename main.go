@@ -472,7 +472,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 		if gv.UIScale != oldScale {
 
-			cwlog.DoLog(true, "UIScale: %v", gv.UIScale)
+			//cwlog.DoLog(true, "UIScale: %v", gv.UIScale)
 			oldScale = gv.UIScale
 
 			UpdateFonts()
