@@ -299,6 +299,9 @@ func handleClose(input world.XYs, window *WindowData) bool {
 	if !gMouseHeld {
 		return false
 	}
+	if !window.Closeable {
+		return false
+	}
 	if !window.Active {
 		return false
 	}
