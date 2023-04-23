@@ -446,6 +446,8 @@ func setupWindowSize() {
 
 var oldScale = gv.UIScale
 
+const scaleLockVal = 4
+
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
@@ -459,8 +461,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		//Recalcualte settings window item
 		scale := 1 / (gv.UIBaseResolution / float64(outsideWidth))
 
-		lock := float64(int(scale * 6))
-		scale = lock / 6
+		lock := float64(int(scale * scaleLockVal))
+		scale = lock / scaleLockVal
 
 		if scale < 0.5 {
 			gv.UIScale = 0.5
@@ -472,7 +474,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 		if gv.UIScale != oldScale {
 
-			//cwlog.DoLog(true, "UIScale: %v", gv.UIScale)
+			cwlog.DoLog(true, "UIScale: %v", gv.UIScale)
 			oldScale = gv.UIScale
 
 			UpdateFonts()

@@ -146,8 +146,7 @@ const (
 	ToolBarIconSize = 64
 	ToolBarSpacing  = 2
 	SpriteScale     = 16
-	TBSelThick      = 3
-	TbOffY          = 2
+	TBSelThick      = 2
 
 	/* Draw settings */
 	MaxSuperChunk = SuperChunkSize * SuperChunkSize

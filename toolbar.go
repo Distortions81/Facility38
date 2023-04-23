@@ -42,7 +42,7 @@ func InitToolbar() {
 
 /* Draw toolbar to an image */
 func DrawToolbar(click, hover bool, index int) {
-	ToolBarIconSize := float32(gv.ToolBarIconSize)
+	ToolBarIconSize := float32(gv.UIScale * gv.ToolBarIconSize)
 	ToolBarSpacing := float32(gv.ToolBarIconSize / 8)
 
 	toolbarCacheLock.Lock()
@@ -73,7 +73,9 @@ func DrawToolbar(click, hover bool, index int) {
 
 		op.GeoM.Reset()
 		iSize := img.Bounds()
-		op.GeoM.Scale(gv.UIScale/(float64(iSize.Max.X)/float64(ToolBarIconSize)), gv.UIScale/(float64(iSize.Max.Y)/float64(ToolBarIconSize)))
+		op.GeoM.Scale(
+			gv.UIScale/(float64(iSize.Max.X)/float64(gv.ToolBarIconSize)),
+			gv.UIScale/(float64(iSize.Max.Y)/float64(gv.ToolBarIconSize)))
 
 		if item.OType.Rotatable && item.OType.Direction > 0 {
 			x := float64(ToolBarIconSize / 2)
@@ -82,21 +84,12 @@ func DrawToolbar(click, hover bool, index int) {
 			op.GeoM.Rotate(gv.NinetyDeg * float64(item.OType.Direction))
 			op.GeoM.Translate(x, y)
 		}
-
-		op.GeoM.Translate(x+(float64(ToolBarIconSize)-float64(ToolBarIconSize))-1, float64(ToolBarSpacing*2)+1)
-
-		if item.SType == gv.ObjSubGame {
-
-			if item.OType.TypeI == SelectedItemType {
-				vector.DrawFilledRect(toolbarCache, ToolBarSpacing+float32(pos)*(ToolBarIconSize+ToolBarSpacing),
-					gv.TbOffY, ToolBarIconSize, ToolBarIconSize, world.ColorDarkGray, false)
-			}
-		}
+		op.GeoM.Translate((float64(ToolBarIconSize+(ToolBarSpacing))*float64(pos))+float64(ToolBarSpacing/2), float64(ToolBarSpacing/2))
 
 		if pos == index {
 			if click {
-				vector.DrawFilledRect(toolbarCache, ToolBarSpacing+float32(pos)*(ToolBarIconSize+ToolBarSpacing),
-					gv.TbOffY, ToolBarIconSize, ToolBarIconSize, world.ColorRed, false)
+				vector.DrawFilledRect(toolbarCache, float32(pos)*(ToolBarIconSize+ToolBarSpacing),
+					0, ToolBarIconSize+ToolBarSpacing, ToolBarIconSize+ToolBarSpacing, world.ColorRed, false)
 				ToolbarHover = true
 
 				go func() {
@@ -104,8 +97,8 @@ func DrawToolbar(click, hover bool, index int) {
 					DrawToolbar(false, false, 0)
 				}()
 			} else if hover {
-				vector.DrawFilledRect(toolbarCache, ToolBarSpacing+float32(pos)*(ToolBarIconSize+ToolBarSpacing),
-					gv.TbOffY, ToolBarIconSize, ToolBarIconSize, world.ColorAqua, false)
+				vector.DrawFilledRect(toolbarCache, float32(pos)*(ToolBarIconSize+ToolBarSpacing),
+					0, ToolBarIconSize+ToolBarSpacing, ToolBarIconSize+ToolBarSpacing, world.ColorAqua, false)
 				ToolbarHover = true
 			}
 
@@ -117,31 +110,31 @@ func DrawToolbar(click, hover bool, index int) {
 
 			if item.OType.TypeI == SelectedItemType {
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+1,
-					gv.TbOffY,
+					float32(pos)*(ToolBarIconSize+ToolBarSpacing),
+					(ToolBarSpacing / 2),
 
 					(gv.TBSelThick),
 					ToolBarIconSize,
 					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+1,
-					gv.TbOffY,
+					float32(pos)*(ToolBarIconSize+ToolBarSpacing),
+					(ToolBarSpacing / 2),
 
 					ToolBarIconSize,
 					(gv.TBSelThick),
 					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+1,
-					gv.TbOffY+ToolBarIconSize-(gv.TBSelThick),
+					float32(pos)*(ToolBarIconSize+ToolBarSpacing),
+					(ToolBarSpacing/2)+ToolBarIconSize-(gv.TBSelThick),
 
 					ToolBarIconSize,
 					(gv.TBSelThick),
 					world.ColorTBSelected, false)
 
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+gv.TbOffY+ToolBarIconSize-(gv.TBSelThick)+1,
+					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+(ToolBarSpacing/2)+ToolBarIconSize-(gv.TBSelThick)+1,
 					2,
 
 					(gv.TBSelThick),
