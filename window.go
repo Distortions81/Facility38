@@ -44,7 +44,7 @@ type WindowData struct {
 	WindowButtons WindowButtonData /* Window buttons */
 
 	Size     world.XYs /* Size in pixels */
-	Position world.XYs /* Position on screen */
+	Position world.XYs /* Position */
 
 	BGColor      *color.Color /* Custom BG color */
 	TitleBGColor *color.Color /* Custom titlebar background color */
@@ -57,6 +57,9 @@ type WindowData struct {
 }
 
 type WindowButtonData struct {
+	ClosePos  world.XYs
+	CloseSize world.XYs
+
 	Minimize bool
 
 	Cancel bool
@@ -152,12 +155,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
-	var winPos world.XYs
-	if window.Centered {
-		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.Size.X/2), int32(world.ScreenHeight/2)-(window.Size.Y/2)
-	} else {
-		winPos = window.Position
-	}
+	winPos := getWindowPos(window)
 
 	if !window.Dirty {
 		if window.Cache != nil {
@@ -240,7 +238,12 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		if window.Closeable {
 			img := objects.WorldOverlays[8].Images.Main
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(window.Size.X-int32(img.Bounds().Dx())), 0)
+			closePosX := float64(window.Size.X - int32(img.Bounds().Dx()))
+			op.GeoM.Translate(closePosX, 0)
+
+			/* save button positions */
+			window.WindowButtons.ClosePos = world.XYs{X: int32(closePosX), Y: int32(0)}
+			window.WindowButtons.CloseSize = world.XYs{X: int32(img.Bounds().Dx()), Y: int32(img.Bounds().Dy())}
 			window.Cache.DrawImage(img, op)
 		}
 	}
@@ -264,18 +267,24 @@ func CollisionWindowsCheck(input world.XYs) bool {
 }
 
 func CollisionWindow(input world.XYs, window *WindowData) bool {
-	var winPos world.XYs
-	if window.Centered {
-		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.Size.X/2), int32(world.ScreenHeight/2)-(window.Size.Y/2)
-	} else {
-		winPos = window.Position
-	}
+	winPos := getWindowPos(window)
 
 	if input.X > winPos.X && input.X < winPos.X+window.Size.X &&
 		input.Y > winPos.Y && input.Y < winPos.Y+window.Size.Y {
 		if !window.Focused {
 			window.Focused = true
 		}
+
+		/* Handle X close */
+		if handleClose(input, window) {
+			return true
+		}
+
+		/* Handle input */
+		if window.WindowInput != nil {
+			window.WindowInput(window)
+		}
+
 		return true
 	} else {
 		if window.Focused {
@@ -283,4 +292,36 @@ func CollisionWindow(input world.XYs, window *WindowData) bool {
 		}
 		return false
 	}
+}
+
+func handleClose(input world.XYs, window *WindowData) bool {
+
+	if !gMouseHeld {
+		return false
+	}
+	if !window.Active {
+		return false
+	}
+
+	winPos := getWindowPos(window)
+	if window.Closeable {
+		if input.X > winPos.X+window.Size.X-window.WindowButtons.CloseSize.X &&
+			input.X < winPos.X+window.Size.X &&
+			input.Y > winPos.Y-window.WindowButtons.CloseSize.Y &&
+			input.Y < winPos.Y+window.Size.Y {
+			CloseWindow(window)
+			return true
+		}
+	}
+	return false
+}
+
+func getWindowPos(window *WindowData) world.XYs {
+	var winPos world.XYs
+	if window.Centered {
+		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.Size.X/2), int32(world.ScreenHeight/2)-(window.Size.Y/2)
+	} else {
+		winPos = window.Position
+	}
+	return winPos
 }
