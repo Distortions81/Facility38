@@ -134,15 +134,18 @@ func getShiftToggle() {
 
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
-	uipix := float32((ToolbarMax * int(gv.ToolBarScale+gv.ToolBarSpacing)))
+	ToolBarIconSize := float32(gv.UIScale * gv.ToolBarIconSize)
+	ToolBarSpacing := float32(gv.ToolBarIconSize / gv.ToolBarSpaceRatio)
+
+	uipix := float32((ToolbarMax * int(ToolBarIconSize+ToolBarSpacing)))
 
 	fmx := float32(MouseX)
 	fmy := float32(MouseY)
 
 	if fmx <= uipix {
-		if fmy <= gv.ToolBarScale {
+		if fmy <= ToolBarIconSize {
 
-			ipos := int(fmx / float32(gv.ToolBarScale+gv.ToolBarSpacing))
+			ipos := int(fmx / float32(ToolBarIconSize+ToolBarSpacing))
 			len := len(ToolbarItems) - 1
 			if ipos > len {
 				ipos = len

@@ -43,7 +43,7 @@ func InitToolbar() {
 /* Draw toolbar to an image */
 func DrawToolbar(click, hover bool, index int) {
 	ToolBarIconSize := float32(gv.UIScale * gv.ToolBarIconSize)
-	ToolBarSpacing := float32(gv.ToolBarIconSize / 8)
+	ToolBarSpacing := float32(gv.ToolBarIconSize / gv.ToolBarSpaceRatio)
 
 	toolbarCacheLock.Lock()
 	defer toolbarCacheLock.Unlock()

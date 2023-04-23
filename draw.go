@@ -123,12 +123,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 var lastVal int
 
 func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
+	ToolBarIconSize := float32(gv.UIScale * gv.ToolBarIconSize)
+	ToolBarSpacing := float32(gv.ToolBarIconSize / gv.ToolBarSpaceRatio)
 
 	/* Calculate item */
-	val := int(fmx / (gv.ToolBarScale + gv.ToolBarSpacing))
+	val := int(fmx / int(ToolBarIconSize+ToolBarSpacing))
 
 	/* Check if mouse is on top of the toolbar */
-	if fmy <= gv.ToolBarScale &&
+	if fmy <= int(ToolBarIconSize) &&
 		val < ToolbarMax && val >= 0 {
 
 		/* Calculate toolbar item */
@@ -432,8 +434,8 @@ func updateVisData() {
 		VisSChunk = []*world.MapSuperChunk{}
 
 		/*
-		 * Calculate viewport
-		 * Moved to Update()
+		* Calculate viewport
+		* Moved to Update()
 		 */
 
 		world.SuperChunkListLock.RLock()
@@ -783,32 +785,32 @@ func drawIconMode(screen *ebiten.Image) {
 }
 
 /*
-func drawSubObjDebug(screen *ebiten.Image, b *world.BuildingData, bpos world.XY) {
+	func drawSubObjDebug(screen *ebiten.Image, b *world.BuildingData, bpos world.XY) {
 
-	objOffX := camXPos + (float32(bpos.X))
-	objOffY := camYPos + (float32(bpos.Y))
+		objOffX := camXPos + (float32(bpos.X))
+		objOffY := camYPos + (float32(bpos.Y))
 
-	x := float64(objOffX * world.ZoomScale)
-	y := float64(objOffY * world.ZoomScale)
+		x := float64(objOffX * world.ZoomScale)
+		y := float64(objOffY * world.ZoomScale)
 
-	if b.Obj.Unique.TypeP.Image == nil {
-		return
-	} else {
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+		if b.Obj.Unique.TypeP.Image == nil {
+			return
+		} else {
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-		iSize := b.Obj.Unique.TypeP.Image.Bounds()
+			iSize := b.Obj.Unique.TypeP.Image.Bounds()
 
-		op.GeoM.Scale(
-			(float64(1)*float64(world.ZoomScale))/float64(iSize.Max.X),
-			(float64(1)*float64(world.ZoomScale))/float64(iSize.Max.Y))
+			op.GeoM.Scale(
+				(float64(1)*float64(world.ZoomScale))/float64(iSize.Max.X),
+				(float64(1)*float64(world.ZoomScale))/float64(iSize.Max.Y))
 
-		op.GeoM.Translate(math.Floor(x), math.Floor(y))
-		op.ColorScale.Scale(0.125, 0.125, 0.5, 0.33)
+			op.GeoM.Translate(math.Floor(x), math.Floor(y))
+			op.ColorScale.Scale(0.125, 0.125, 0.5, 0.33)
 
-		screen.DrawImage(b.Obj.Unique.TypeP.Image, op)
+			screen.DrawImage(b.Obj.Unique.TypeP.Image, op)
 
+		}
 	}
-}
 */
 
 func drawPixmapMode(screen *ebiten.Image) {
@@ -845,7 +847,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 	if world.ShowResourceLayer && gv.ResourceLegendImage != nil {
 		op.GeoM.Reset()
 		op.GeoM.Scale(2, 2)
-		op.GeoM.Translate(8, gv.ToolBarScale*1.5)
+		op.GeoM.Translate(8, float64(gv.ToolBarIconSize))
 		screen.DrawImage(gv.ResourceLegendImage, op)
 	}
 }
