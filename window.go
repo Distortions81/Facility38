@@ -17,10 +17,11 @@ var WindowsLock sync.Mutex
 
 var Windows []*WindowData = []*WindowData{
 	{
-		Title:     "Test",
-		Size:      world.XYs{X: 512, Y: 512},
-		Centered:  true,
-		Closeable: true,
+		Title:      "Test",
+		Size:       world.XYs{X: 512, Y: 512},
+		Centered:   true,
+		Closeable:  true,
+		WindowDraw: testWindow,
 	},
 }
 
@@ -49,8 +50,10 @@ type WindowData struct {
 	TitleBGColor *color.Color /* Custom titlebar background color */
 	TitleColor   *color.Color /* Custom title text color */
 
-	Dirty bool          /* Needs to be redrawn */
-	Cache *ebiten.Image /* Cache image */
+	Dirty       bool          /* Needs to be redrawn */
+	Cache       *ebiten.Image /* Cache image */
+	WindowDraw  func(Window *WindowData)
+	WindowInput func(Window *WindowData)
 }
 
 type WindowButtonData struct {
@@ -240,6 +243,11 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 			op.GeoM.Translate(float64(window.Size.X-int32(img.Bounds().Dx())), 0)
 			window.Cache.DrawImage(img, op)
 		}
+	}
+
+	/* Call custom draw function, if it exists */
+	if window.WindowDraw != nil {
+		window.WindowDraw(window)
 	}
 
 	window.Dirty = false
