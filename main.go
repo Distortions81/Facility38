@@ -86,6 +86,7 @@ func main() {
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 	ebiten.SetScreenClearedEveryFrame(true)
+	ebiten.SetWindowSizeLimits(640, 360, 8192, 8192)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	setupWindowSize()
@@ -443,6 +444,8 @@ func setupWindowSize() {
 	ebiten.SetWindowSize(int(world.ScreenWidth), int(world.ScreenHeight))
 }
 
+var oldScale = gv.UIScale
+
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
@@ -452,12 +455,32 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	if outsideWidth != int(world.ScreenWidth) || outsideHeight != int(world.ScreenHeight) {
 		world.ScreenWidth = uint16(outsideWidth)
 		world.ScreenHeight = uint16(outsideHeight)
+
 		//Recalcualte settings window item
-		UpdateFonts()
+		scale := 1 / (gv.UIBaseResolution / float64(outsideWidth))
+
+		lock := float64(int(scale * 6))
+		scale = lock / 6
+
+		if scale < 0.5 {
+			gv.UIScale = 0.5
+		} else if scale > 6.0 {
+			gv.UIScale = 6.0
+		} else {
+			gv.UIScale = scale
+		}
+
+		if gv.UIScale != oldScale {
+
+			cwlog.DoLog(true, "UIScale: %v", gv.UIScale)
+			oldScale = gv.UIScale
+
+			UpdateFonts()
+		}
 		world.VisDataDirty.Store(true)
+		windowTitle()
 	}
 
-	windowTitle()
 	return int(world.ScreenWidth), int(world.ScreenHeight)
 }
 

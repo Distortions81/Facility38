@@ -15,6 +15,7 @@ var (
 	Debug     = false
 	LogStdOut = true
 	WASMMode  = false
+	UIScale   = 1.0
 
 	ResourceLegendImage *ebiten.Image
 	TitleImage          *ebiten.Image
@@ -27,6 +28,7 @@ const (
 	MaxItemType      = 255
 	GameUPS          = 8
 	NumResourceTypes = 7
+	UIBaseResolution = 1280
 	NinetyDeg        = math.Pi / 2
 	OneEightyDeg     = math.Pi
 	ThreeSixtyDeg    = math.Pi * 2

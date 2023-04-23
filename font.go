@@ -2,6 +2,7 @@ package main
 
 import (
 	"Facility38/data"
+	"Facility38/gv"
 	"Facility38/world"
 	"log"
 	"time"
@@ -12,11 +13,11 @@ import (
 
 func UpdateFonts() {
 
-	newVal := 72.0 / (1280.0 / float64(world.ScreenWidth))
+	newVal := 96.0 * gv.UIScale
 	if newVal < 1 {
 		newVal = 1
-	} else if newVal > 300 {
-		newVal = 300
+	} else if newVal > 600 {
+		newVal = 600
 	}
 	world.FontDPI = newVal
 
