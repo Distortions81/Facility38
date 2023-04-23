@@ -40,6 +40,10 @@ func init() {
 
 /* Input interface handler */
 func (g *Game) Update() error {
+	if !ebiten.IsFocused() {
+		return nil
+	}
+
 	LastMouseX = MouseX
 	LastMouseY = MouseY
 	MouseX, MouseY = ebiten.CursorPosition()
