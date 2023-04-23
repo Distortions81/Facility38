@@ -476,6 +476,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 			oldScale = gv.UIScale
 
 			UpdateFonts()
+
+			toolbarCacheLock.Lock()
+			toolbarCache.Dispose()
+			toolbarCache = nil
+			toolbarCacheLock.Unlock()
+			DrawToolbar(false, false, 255)
 		}
 		world.VisDataDirty.Store(true)
 		windowTitle()
