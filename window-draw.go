@@ -17,36 +17,37 @@ const (
 )
 
 func setupOptionsWindow(window *WindowData) {
-	//check := WorldOverlays[6].Images.Main
+
+	buttons = []image.Rectangle{}
 
 	lineHeight := 0
+	lineWidth := 0
 	for _, item := range settingItems {
 		if item.Text != "" {
 			tbound := text.BoundString(world.BootFont, item.Text)
 			if tbound.Size().Y > lineHeight {
 				lineHeight = int(float64(tbound.Size().Y) * 1.75)
 			}
+			if tbound.Size().X > lineWidth {
+				lineWidth = int(float64(tbound.Size().X) * 2)
+			}
 		}
 	}
 	/* Loop all settings */
-	for i, item := range settingItems {
-		/* Get text bounds */
-		tbound := text.BoundString(world.BootFont, item.Text)
-		settingItems[i].TextBounds = tbound
-
+	for i := range settingItems {
 		/* Place line */
 		settingItems[i].TextPosX = padding
 		settingItems[i].TextPosY = (lineHeight * (i + 2))
-
 		/* Generate button */
 		button := image.Rectangle{}
-		button.Min.X = padding
-		button.Max.X = int(window.ScaledSize.X) - padding
+		button.Min.X = 0
+		button.Max.X = lineWidth
 
-		button.Min.Y = lineHeight
-		button.Max.Y = lineHeight
+		button.Min.Y = (lineHeight * (i + 1))
+		button.Max.Y = (lineHeight * (i + 2))
 		buttons = append(buttons, button)
 	}
+	window.LineHeight = lineHeight
 
 }
 
@@ -67,21 +68,16 @@ func drawOptionsWindow(window *WindowData) {
 		/* Draw text */
 		itemColor := world.ColorWhite
 
-		var bgColor color.Color
 		if i%2 == 0 {
-			bgColor = color.NRGBA{R: 255, G: 255, B: 255, A: 24}
-		} else {
-			bgColor = color.NRGBA{R: 255, G: 255, B: 255, A: 8}
+			vector.DrawFilledRect(window.Cache,
+				float32(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
+				float32(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
+				float32(b.Dx()),
+				float32(b.Dy()),
+				color.NRGBA{R: 255, G: 255, B: 255, A: 8}, false)
 		}
 
-		vector.DrawFilledRect(window.Cache,
-			float32(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
-			float32(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
-			float32(b.Dx()),
-			float32(b.Dy()),
-			bgColor, false)
-
-		text.Draw(window.Cache, txt, world.BootFont, item.TextPosX, item.TextPosY+(b.Dy()/4), itemColor)
+		text.Draw(window.Cache, txt, world.BootFont, item.TextPosX, item.TextPosY-(window.LineHeight/3), itemColor)
 
 		if !item.NoCheck {
 			/* Get checkmark image */
@@ -96,7 +92,7 @@ func drawOptionsWindow(window *WindowData) {
 			op.GeoM.Scale(world.UIScale, world.UIScale)
 			op.GeoM.Translate(
 				float64(window.ScaledSize.X)-(float64(check.Bounds().Dx())*world.UIScale)-padding,
-				float64(item.TextPosY)-(float64((check.Bounds().Dy())/2)*world.UIScale))
+				float64(item.TextPosY)-(float64(check.Bounds().Dy())*world.UIScale))
 			window.Cache.DrawImage(check, op)
 		}
 	}

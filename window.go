@@ -55,6 +55,7 @@ type WindowData struct {
 
 	Size       world.XYs /* Size in pixels */
 	ScaledSize world.XYs /* Size with UI scale */
+	LineHeight int
 	Position   world.XYs /* Position */
 
 	BGColor      *color.Color /* Custom BG color */
@@ -174,7 +175,7 @@ func WindowDirty(window *WindowData) {
 	}
 }
 
-const cpad = 16
+const cpad = 18
 
 /*
  * TODO: RESIZE CLOSE X BUTTON!!!
