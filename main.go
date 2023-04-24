@@ -4,7 +4,6 @@ import (
 	"Facility38/cwlog"
 	"Facility38/data"
 	"Facility38/gv"
-	"Facility38/objects"
 	"Facility38/util"
 	"Facility38/world"
 	"flag"
@@ -80,7 +79,7 @@ func main() {
 
 	/* Detect logical*/
 	detectCPUs(false)
-	objects.TickInit()
+	TickInit()
 
 	/* Set up ebiten and window */
 	ebiten.SetVsyncEnabled(true)
@@ -97,7 +96,7 @@ func main() {
 	windowTitle()
 
 	go func() {
-		for objects.GameRunning {
+		for GameRunning {
 			time.Sleep(time.Minute)
 			UpdateFonts()
 		}
@@ -130,13 +129,13 @@ func main() {
 func NewGame() *Game {
 	UpdateFonts()
 	go func() {
-		objects.GameRunning = false
+		GameRunning = false
 		time.Sleep(time.Millisecond * 500)
 
 		loadSprites(false)
 		loadSprites(true)
 
-		objects.ResourceMapInit()
+		ResourceMapInit()
 		MakeMap(gv.LoadTest)
 		startGame()
 	}()
@@ -155,18 +154,17 @@ func startGame() {
 	loadOptions()
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
-	objects.GameRunning = true
+	GameRunning = true
 	if !gv.WASMMode {
 		go PixmapRenderDaemon()
-		go objects.ObjUpdateDaemon()
+		go ObjUpdateDaemon()
 		go ResourceRenderDaemon()
 	} else {
 		util.WASMSleep()
-		go objects.ObjUpdateDaemonST()
+		go ObjUpdateDaemonST()
 	}
 
 	InitWindows()
-	OpenWindow(Windows[0])
 }
 
 /* Load all sprites, sub missing ones */
@@ -176,7 +174,7 @@ func loadSprites(dark bool) {
 		dstr = "-dark"
 	}
 
-	for _, otype := range objects.SubTypes {
+	for _, otype := range SubTypes {
 		for key, item := range otype.List {
 
 			/* Main */
@@ -242,7 +240,7 @@ func loadSprites(dark bool) {
 		}
 	}
 
-	for m, item := range objects.MatTypes {
+	for m, item := range MatTypes {
 		if !dark {
 			img, err := data.GetSpriteImage("belt-obj/"+item.Base+".png", false)
 			if err != nil {
@@ -251,12 +249,12 @@ func loadSprites(dark bool) {
 				img.Fill(world.ColorVeryDarkGray)
 				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
 			}
-			objects.MatTypes[m].LightImage = img
+			MatTypes[m].LightImage = img
 		} else {
 
 			imgd, err := data.GetSpriteImage("belt-obj/"+item.Base+"-dark.png", false)
 			if err == nil {
-				objects.MatTypes[m].DarkImage = imgd
+				MatTypes[m].DarkImage = imgd
 				cwlog.DoLog(true, "loaded dark: %v", item.Base)
 			}
 		}
@@ -277,7 +275,7 @@ func loadSprites(dark bool) {
 }
 
 func LinkSprites(dark bool) {
-	for _, otype := range objects.SubTypes {
+	for _, otype := range SubTypes {
 		for key, item := range otype.List {
 			if dark {
 				if item.Images.DarkMain != nil {
@@ -298,9 +296,9 @@ func LinkSprites(dark bool) {
 				if item.Images.DarkOverlay != nil {
 					otype.List[key].Images.Overlay = item.Images.DarkOverlay
 				}
-				for m, item := range objects.MatTypes {
+				for m, item := range MatTypes {
 					if item.DarkImage != nil {
-						objects.MatTypes[m].Image = objects.MatTypes[m].DarkImage
+						MatTypes[m].Image = MatTypes[m].DarkImage
 					}
 				}
 			} else {
@@ -322,9 +320,9 @@ func LinkSprites(dark bool) {
 				if item.Images.LightOverlay != nil {
 					otype.List[key].Images.Overlay = item.Images.LightOverlay
 				}
-				for m, item := range objects.MatTypes {
+				for m, item := range MatTypes {
 					if item.LightImage != nil {
-						objects.MatTypes[m].Image = objects.MatTypes[m].LightImage
+						MatTypes[m].Image = MatTypes[m].LightImage
 					}
 				}
 			}

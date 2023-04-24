@@ -2,7 +2,6 @@ package main
 
 import (
 	"Facility38/gv"
-	"Facility38/objects"
 	"Facility38/world"
 	"sync"
 	"time"
@@ -25,7 +24,7 @@ var (
 func InitToolbar() {
 
 	ToolbarMax = 0
-	for spos, stype := range objects.SubTypes {
+	for spos, stype := range SubTypes {
 		if spos == gv.ObjSubUI || spos == gv.ObjSubGame {
 			for _, otype := range stype.List {
 				/* Skips some items for WASM */
@@ -151,7 +150,7 @@ func DrawToolbar(click, hover bool, index int) {
 		if item.OType.ToolBarArrow {
 			var aop *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
-			arrow := objects.WorldOverlays[item.OType.Direction].Images.Main
+			arrow := WorldOverlays[item.OType.Direction].Images.Main
 			if arrow != nil {
 				if arrow.Bounds().Max.X != int(ToolBarIconSize) {
 					aop.GeoM.Scale(1.0/(float64(arrow.Bounds().Max.X)/float64(ToolBarIconSize)),

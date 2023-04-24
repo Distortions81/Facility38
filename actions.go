@@ -1,4 +1,4 @@
-package objects
+package main
 
 import (
 	"Facility38/util"
@@ -7,6 +7,11 @@ import (
 )
 
 func settingsToggle() {
+	if Windows[0].Active {
+		CloseWindow(Windows[0])
+	} else {
+		OpenWindow(Windows[0])
+	}
 }
 
 func toggleOverlay() {

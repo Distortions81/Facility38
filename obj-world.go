@@ -1,4 +1,4 @@
-package objects
+package main
 
 import (
 	"Facility38/gv"
@@ -270,7 +270,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-unloader",
 		Name:        "Basic Unloader",
-		Description: "Unloads Material from objects.",
+		Description: "Unloads Material from ",
 		TypeI:       gv.ObjTypeBasicUnloader,
 		Category:    gv.ObjCatLoader,
 		Size:        world.XYs{X: 1, Y: 1},
@@ -291,7 +291,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-loader",
 		Name:        "Basic Loader",
-		Description: "Loads Material into objects.",
+		Description: "Loads Material into ",
 		TypeI:       gv.ObjTypeBasicLoader,
 		Category:    gv.ObjCatLoader,
 		Size:        world.XYs{X: 1, Y: 1},

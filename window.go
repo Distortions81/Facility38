@@ -3,7 +3,6 @@ package main
 import (
 	"Facility38/cwlog"
 	"Facility38/gv"
-	"Facility38/objects"
 	"Facility38/world"
 	"image/color"
 	"sync"
@@ -269,7 +268,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		text.Draw(window.Cache, window.Title, world.BootFont, halfPad, int(int32(fHeight.Dy())+halfPad), titleColor)
 
 		if window.Closeable {
-			img := objects.WorldOverlays[8].Images.Main
+			img := WorldOverlays[8].Images.Main
 			op := &ebiten.DrawImageOptions{}
 			closePosX := float64(window.Size.X - int32(img.Bounds().Dx()))
 			op.GeoM.Translate(closePosX, 0)

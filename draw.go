@@ -2,7 +2,6 @@ package main
 
 import (
 	"Facility38/gv"
-	"Facility38/objects"
 	"Facility38/util"
 	"Facility38/world"
 	"fmt"
@@ -212,16 +211,16 @@ func drawItemInfo(screen *ebiten.Image) {
 				for z := 0; z < gv.MAT_MAX; z++ {
 					if o.Unique.Contents.Mats[z] != nil {
 						toolTip = toolTip + fmt.Sprintf("Contents: %v: %v\n",
-							o.Unique.Contents.Mats[z].TypeP.Name, objects.PrintUnit(o.Unique.Contents.Mats[z]))
+							o.Unique.Contents.Mats[z].TypeP.Name, PrintUnit(o.Unique.Contents.Mats[z]))
 					}
 				}
 			}
 
 			/* Show fuel */
 			if o.Unique.TypeP.MachineSettings.MaxFuelKG > 0 {
-				toolTip = toolTip + fmt.Sprintf("Max Fuel: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxFuelKG))
+				toolTip = toolTip + fmt.Sprintf("Max Fuel: %v\n", PrintWeight(o.Unique.TypeP.MachineSettings.MaxFuelKG))
 				if o.Unique.KGFuel > o.Unique.TypeP.MachineSettings.KgFuelPerCycle {
-					toolTip = toolTip + fmt.Sprintf("Fuel: %v\n", objects.PrintWeight(o.Unique.KGFuel))
+					toolTip = toolTip + fmt.Sprintf("Fuel: %v\n", PrintWeight(o.Unique.KGFuel))
 				} else {
 					toolTip = toolTip + "NO FUEL\n"
 				}
@@ -229,7 +228,7 @@ func drawItemInfo(screen *ebiten.Image) {
 
 			/* Show single contents */
 			if o.Unique.SingleContent != nil && o.Unique.SingleContent.Amount > 0 {
-				toolTip = toolTip + fmt.Sprintf("Contains: %v %v\n", objects.PrintUnit(o.Unique.SingleContent), o.Unique.SingleContent.TypeP.Name)
+				toolTip = toolTip + fmt.Sprintf("Contains: %v %v\n", PrintUnit(o.Unique.SingleContent), o.Unique.SingleContent.TypeP.Name)
 			}
 
 			/* Show if blocked */
@@ -245,13 +244,13 @@ func drawItemInfo(screen *ebiten.Image) {
 			/* Debug info */
 			if gv.Debug {
 				if o.Unique.TypeP.MachineSettings.KgFuelPerCycle > 0 {
-					toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgFuelPerCycle))
+					toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", PrintWeight(o.Unique.TypeP.MachineSettings.KgFuelPerCycle))
 				}
 				if o.Unique.TypeP.MachineSettings.KgPerCycle > 0 {
-					toolTip = toolTip + fmt.Sprintf("Per Cycle: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.KgPerCycle))
+					toolTip = toolTip + fmt.Sprintf("Per Cycle: %v\n", PrintWeight(o.Unique.TypeP.MachineSettings.KgPerCycle))
 				}
 				if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
-					toolTip = toolTip + fmt.Sprintf("Max contents: %v\n", objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
+					toolTip = toolTip + fmt.Sprintf("Max contents: %v\n", PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
 				}
 
 				for _, p := range o.Ports {
@@ -268,35 +267,35 @@ func drawItemInfo(screen *ebiten.Image) {
 							util.DirToName(uint8(p.Dir)),
 							p.Obj.Unique.TypeP.Name,
 							tstring,
-							objects.PrintUnit(p.Buf),
-							objects.CalcVolume(p.Buf))
+							PrintUnit(p.Buf),
+							CalcVolume(p.Buf))
 					} else if p.Type == gv.PORT_OUT {
 						toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %v (%v)\n",
 							util.DirToName(uint8(p.Dir)),
 							p.Obj.Unique.TypeP.Name,
 							tstring,
-							objects.PrintUnit(p.Buf),
-							objects.CalcVolume(p.Buf))
+							PrintUnit(p.Buf),
+							CalcVolume(p.Buf))
 					} else if p.Type == gv.PORT_FOUT {
 						toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %v (%v)\n",
 							util.DirToName(uint8(p.Dir)),
 							p.Obj.Unique.TypeP.Name,
 							tstring,
-							objects.PrintUnit(p.Buf),
-							objects.CalcVolume(p.Buf))
+							PrintUnit(p.Buf),
+							CalcVolume(p.Buf))
 					} else if p.Type == gv.PORT_FIN {
 						toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %v (%v)\n",
 							util.DirToName(uint8(p.Dir)),
 							p.Obj.Unique.TypeP.Name,
 							tstring,
-							objects.PrintUnit(p.Buf),
-							objects.CalcVolume(p.Buf))
+							PrintUnit(p.Buf),
+							CalcVolume(p.Buf))
 					}
 				}
 				if o.Unique.TypeP != nil {
 					if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
 						toolTip = toolTip + fmt.Sprintf("MaxContain: %v\n",
-							objects.PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
+							PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
 					}
 					if o.Unique.TypeP.MachineSettings.KW > 0 {
 						toolTip = toolTip + fmt.Sprintf("KW: %v\n", o.Unique.TypeP.MachineSettings.KW)
@@ -337,11 +336,11 @@ func drawItemInfo(screen *ebiten.Image) {
 		if MouseX != LastMouseX || MouseY != LastMouseY || camXPos != lastCamX || camYPos != lastCamY {
 
 			/* Get info for all layers */
-			for p := 1; p < len(objects.NoiseLayers); p++ {
-				var h float32 = float32(math.Abs(float64(objects.NoiseMap(WorldMouseX, WorldMouseY, p))))
+			for p := 1; p < len(NoiseLayers); p++ {
+				var h float32 = float32(math.Abs(float64(NoiseMap(WorldMouseX, WorldMouseY, p))))
 
 				if h >= 0.0001 {
-					buf = buf + fmt.Sprintf("%v: %0.2f%%\n", objects.NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
+					buf = buf + fmt.Sprintf("%v: %0.2f%%\n", NoiseLayers[p].Name, util.Min(h*100.0, 100.0))
 				}
 			}
 		} else {
@@ -360,7 +359,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 	/* Draw ghost for selected item */
 	if SelectedItemType < gv.MaxItemType {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
-		item := objects.WorldObjs[SelectedItemType]
+		item := WorldObjs[SelectedItemType]
 
 		/* camera + object */
 		objOffX := camXPos + (float32(int(WorldMouseX)))
@@ -396,7 +395,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 		wPos := world.XY{X: uint16(WorldMouseX), Y: uint16(WorldMouseY)}
 		/* Check if object fits */
 		if item.MultiTile {
-			if !objects.SubObjFits(nil, item, false, wPos) {
+			if !SubObjFits(nil, item, false, wPos) {
 				blocked = true
 			}
 		} else {
@@ -574,7 +573,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 				if obj.BeltOver.UnderIn.Buf.Amount > 0 {
 					/* Input */
-					dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
+					dir := RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
 					op, img := drawMaterials(obj.BeltOver.UnderIn.Buf, obj, screen, 0.8, 1.0, &dir)
 					if img != nil {
 						OpBatch[BatchTop] = op
@@ -594,7 +593,7 @@ func drawIconMode(screen *ebiten.Image) {
 			if !found && obj.BeltOver.UnderOut != nil {
 
 				/* Output */
-				dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
+				dir := RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
 				op, img := drawMaterials(obj.BeltOver.UnderOut.Buf, obj, screen, 0.8, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
@@ -626,7 +625,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 			/* Draw overpass input */
 			if obj.BeltOver.OverIn != nil {
-				dir := objects.RotatePosF64(world.XYs{X: 0, Y: start}, obj.Dir, world.XYf64{X: 16, Y: 48})
+				dir := RotatePosF64(world.XYs{X: 0, Y: start}, obj.Dir, world.XYf64{X: 16, Y: 48})
 				op, img := drawMaterials(obj.BeltOver.OverIn.Buf, obj, screen, 0.75, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
@@ -641,7 +640,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 			/* Draw overpass middle */
 			if obj.BeltOver.Middle != nil {
-				dir := objects.RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
+				dir := RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
 				op, img := drawMaterials(obj.BeltOver.Middle, obj, screen, 0.5, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
@@ -656,7 +655,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 			/* Draw overpass output */
 			if obj.BeltOver.OverOut != nil {
-				dir := objects.RotatePosF64(world.XYs{X: 0, Y: end}, obj.Dir, world.XYf64{X: 16, Y: 48})
+				dir := RotatePosF64(world.XYs{X: 0, Y: end}, obj.Dir, world.XYf64{X: 16, Y: 48})
 				op, img := drawMaterials(obj.BeltOver.OverOut.Buf, obj, screen, 0.75, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
@@ -704,7 +703,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Show objects with no fuel */
 			if obj.Unique.TypeP.MachineSettings.MaxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
 
-				img := objects.WorldOverlays[gv.ObjOverlayNoFuel].Images.Main
+				img := WorldOverlays[gv.ObjOverlayNoFuel].Images.Main
 
 				iSize := img.Bounds()
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -725,7 +724,7 @@ func drawIconMode(screen *ebiten.Image) {
 				/*
 					} else if obj.Unique.TypeP.ShowBlocked && obj.Blocked {
 
-						img := objects.ObjOverlayTypes[gv.ObjOverlayBlocked].Image
+						img := ObjOverlayTypes[gv.ObjOverlayBlocked].Image
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 						iSize := img.Bounds()
@@ -753,7 +752,7 @@ func drawIconMode(screen *ebiten.Image) {
 				for _, port := range obj.Ports {
 					if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
 
-						img := objects.WorldOverlays[port.Dir].Images.Main
+						img := WorldOverlays[port.Dir].Images.Main
 						iSize := img.Bounds()
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 						op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),

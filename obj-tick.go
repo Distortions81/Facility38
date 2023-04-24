@@ -1,4 +1,4 @@
-package objects
+package main
 
 import (
 	"Facility38/gv"
@@ -313,7 +313,7 @@ func delObj(obj *world.ObjData) {
 	removeObj(obj)
 }
 
-/* Delete object from ObjMap, decerment NumObjects. Marks PixmapDirty */
+/* Delete object from ObjMap, decerment Num Marks PixmapDirty */
 func removePosMap(pos world.XY) {
 	/* delete from map */
 	sChunk := util.GetSuperChunk(pos)

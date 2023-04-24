@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Facility38/objects"
 	"Facility38/util"
 	"Facility38/world"
 	"fmt"
@@ -19,7 +18,7 @@ const (
 )
 
 func setupOptionsWindow(window *WindowData) {
-	check := objects.WorldOverlays[6].Images.Main
+	check := WorldOverlays[6].Images.Main
 
 	/* Loop all settings */
 	for i, item := range settingItems {
@@ -84,9 +83,9 @@ func drawOptionsWindow(window *WindowData) {
 			op := &ebiten.DrawImageOptions{}
 			var check *ebiten.Image
 			if item.Enabled {
-				check = objects.WorldOverlays[6].Images.Main
+				check = WorldOverlays[6].Images.Main
 			} else {
-				check = objects.WorldOverlays[7].Images.Main
+				check = WorldOverlays[7].Images.Main
 			}
 			/* Draw checkmark */
 			op.GeoM.Translate(

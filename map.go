@@ -2,17 +2,16 @@ package main
 
 import (
 	"Facility38/gv"
-	"Facility38/objects"
 	"Facility38/util"
 	"Facility38/world"
 )
 
 /* Make a test map, or skip and still start daemons */
 func MakeMap(gen bool) {
-	objects.GameLock.Lock()
-	defer objects.GameLock.Unlock()
+	GameLock.Lock()
+	defer GameLock.Unlock()
 
-	objects.NukeWorld()
+	NukeWorld()
 	if gen {
 
 		/* Test load map generator parameters */
@@ -42,26 +41,26 @@ func MakeMap(gen bool) {
 				cols++
 
 				tx := int(gv.XYCenter) - ((columns * (beltLength + hSpace)) / 3)
-				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_EAST, true)
+				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_EAST, true)
 				tx++
 				tx++
 				Loaded++
 
-				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicUnloader, nil, gv.DIR_EAST, true)
+				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicUnloader, nil, gv.DIR_EAST, true)
 				tx++
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
-					objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_EAST, true)
+					PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_EAST, true)
 					tx++
 					Loaded++
 				}
 
-				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicLoader, nil, gv.DIR_EAST, true)
+				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicLoader, nil, gv.DIR_EAST, true)
 				tx++
 				Loaded++
 
-				objects.PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_EAST, true)
+				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_EAST, true)
 				tx++
 				tx++
 				Loaded++
@@ -75,13 +74,13 @@ func MakeMap(gen bool) {
 				if Loaded%10000 == 0 {
 					util.WASMSleep()
 				}
-				objects.RunEventQueue()
+				RunEventQueue()
 			}
 		}
 	}
 
 	util.WASMSleep()
-	objects.ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, gv.WASMMode)
+	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, gv.WASMMode)
 
 	world.MapLoadPercent = 100
 	world.MapGenerated.Store(true)

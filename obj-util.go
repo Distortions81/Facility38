@@ -1,4 +1,4 @@
-package objects
+package main
 
 import (
 	"Facility38/cwlog"
@@ -9,7 +9,7 @@ import (
 	"math"
 )
 
-/* Delete object from ObjMap, ObjList, decerment NumObjects. Marks PixmapDirty */
+/* Delete object from ObjMap, ObjList, decerment Num Marks PixmapDirty */
 func removeObj(obj *world.ObjData) {
 	/* delete from map */
 	obj.Parent.Lock.Lock()

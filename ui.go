@@ -2,7 +2,6 @@ package main
 
 import (
 	"Facility38/gv"
-	"Facility38/objects"
 	"Facility38/util"
 	"Facility38/world"
 	"os"
@@ -102,7 +101,7 @@ func (g *Game) Update() error {
 
 func getToolbarKeypress() {
 
-	for _, item := range objects.UIObjs {
+	for _, item := range UIObjs {
 		if inpututil.IsKeyJustPressed(item.QKey) {
 			item.ToolbarAction()
 		}
@@ -112,11 +111,11 @@ func getToolbarKeypress() {
 /* Quit if alt-f4 or ESC are pressed */
 func handleQuit() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt) {
-		objects.GameRunning = false
+		GameRunning = false
 		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
 
-		objects.GameLock.Lock()
-		defer objects.GameLock.Unlock()
+		GameLock.Lock()
+		defer GameLock.Unlock()
 
 		time.Sleep(time.Second * 2)
 		os.Exit(0)
@@ -288,21 +287,21 @@ func createWorldObjects() {
 		if SelectedItemType == gv.MaxItemType {
 			return
 		}
-		obj := objects.WorldObjs[SelectedItemType]
+		obj := WorldObjs[SelectedItemType]
 		dir := obj.Direction
 
 		if gv.WASMMode {
-			objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+			ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
 		} else {
-			go objects.ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+			go ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
 		}
 
 		/* Else if tile is not empty and RightMouse is held */
 	} else if b != nil && b.Obj != nil && gRightMouseHeld {
 		if gv.WASMMode {
-			objects.ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
+			ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
 		} else {
-			go objects.ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
+			go ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
 		}
 	}
 }
@@ -405,6 +404,6 @@ func rotateWorldObjects() {
 			return
 		}
 
-		objects.RotateListAdd(b, !gShiftPressed, pos)
+		RotateListAdd(b, !gShiftPressed, pos)
 	}
 }

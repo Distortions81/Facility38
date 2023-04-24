@@ -2,7 +2,6 @@ package main
 
 import (
 	"Facility38/gv"
-	"Facility38/objects"
 	"Facility38/util"
 	"Facility38/world"
 	"image"
@@ -54,7 +53,7 @@ func SetupTerrainCache() {
 func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 	chunkPix := (gv.SpriteScale * gv.ChunkSize)
 
-	var bg *ebiten.Image = objects.TerrainTypes[0].Images.Main
+	var bg *ebiten.Image = TerrainTypes[0].Images.Main
 	sx := int(float32(bg.Bounds().Size().X))
 	sy := int(float32(bg.Bounds().Size().Y))
 	var tImg *ebiten.Image
@@ -80,7 +79,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 					x := (float32(cpos.X*gv.ChunkSize) + float32(i))
 					y := (float32(cpos.Y*gv.ChunkSize) + float32(j))
 
-					h := objects.NoiseMap(x, y, 0)
+					h := NoiseMap(x, y, 0)
 
 					op.ColorScale.Reset()
 					op.ColorScale.Scale((h)-1.5, (h)-1.5, (h)-1.5, 1)
@@ -204,7 +203,7 @@ var pixmapCacheCleared bool
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
 
-	for objects.GameRunning {
+	for GameRunning {
 		time.Sleep(pixmapRenderLoop)
 
 		world.SuperChunkListLock.RLock()
@@ -242,7 +241,7 @@ func PixmapRenderDaemon() {
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func ResourceRenderDaemon() {
 
-	for objects.GameRunning {
+	for GameRunning {
 
 		world.SuperChunkListLock.RLock()
 		for _, sChunk := range world.SuperChunkList {
@@ -287,12 +286,12 @@ func drawResource(sChunk *world.MapSuperChunk) {
 			worldY := float32((sChunk.Pos.Y * gv.SuperChunkTotal) + uint16(y))
 
 			var r, g, b float32 = 0.01, 0.01, 0.01
-			for p, nl := range objects.NoiseLayers {
+			for p, nl := range NoiseLayers {
 				if p == 0 {
 					continue
 				}
 
-				h := objects.NoiseMap(worldX, worldY, p)
+				h := NoiseMap(worldX, worldY, p)
 
 				Chunk := sChunk.ChunkMap[util.PosToChunkPos(world.XY{X: uint16(worldX), Y: uint16(worldY)})]
 				if Chunk != nil {

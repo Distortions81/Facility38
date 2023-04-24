@@ -3,7 +3,6 @@ package main
 import (
 	"Facility38/cwlog"
 	"Facility38/gv"
-	"Facility38/objects"
 	"Facility38/util"
 	"Facility38/world"
 	"bytes"
@@ -168,11 +167,11 @@ func toggleHyper(item int) {
 
 func quitGame(item int) {
 	go func() {
-		objects.GameRunning = false
+		GameRunning = false
 		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
 
-		objects.GameLock.Lock()
-		defer objects.GameLock.Unlock()
+		GameLock.Lock()
+		defer GameLock.Unlock()
 
 		time.Sleep(time.Second * 2)
 		os.Exit(0)
@@ -190,7 +189,7 @@ func toggleUnits(item int) {
 }
 
 func toggleTestMap(item int) {
-	objects.GameRunning = false
+	GameRunning = false
 	if gv.LoadTest {
 		gv.LoadTest = false
 		settingItems[item].Enabled = false
