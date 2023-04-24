@@ -4,6 +4,7 @@ import (
 	"Facility38/cwlog"
 	"Facility38/gv"
 	"embed"
+	"fmt"
 	"image"
 	_ "image/png"
 	"io"
@@ -40,6 +41,20 @@ func init() {
 	}
 }
 */
+
+func init() {
+	gpng, err := f.Open(gv.GfxDir + "icon.png")
+	if err != nil {
+		fmt.Println("Game icon file is missing...")
+		return
+	}
+	m, _, err := image.Decode(gpng)
+	if err != nil {
+		fmt.Println("Game icon file is invalid...")
+		return
+	}
+	ebiten.SetWindowIcon([]image.Image{m})
+}
 
 func GetFont(name string) []byte {
 	data, err := f.ReadFile(gv.GfxDir + "fonts/" + name)

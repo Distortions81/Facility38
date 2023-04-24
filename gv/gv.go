@@ -143,7 +143,7 @@ const (
 
 	/* Toolbar settings */
 	ToolBarIconSize   = 48
-	ToolBarSpaceRatio = 8
+	ToolBarSpaceRatio = 4
 	TBSelThick        = 2
 	HalfSelThick      = TBSelThick / 2
 

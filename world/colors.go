@@ -3,7 +3,7 @@ package world
 import "image/color"
 
 var (
-	BootColor = color.NRGBA{28, 27, 32, 255}
+	BootColor = color.NRGBA{25, 26, 28, 255}
 	BGColor   = color.NRGBA{32, 32, 32, 255}
 
 	ColorToolTipBG  = color.NRGBA{16, 16, 16, 190}

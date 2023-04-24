@@ -88,7 +88,6 @@ func main() {
 	ebiten.SetScreenClearedEveryFrame(true)
 	ebiten.SetWindowSizeLimits(640, 360, 8192, 8192)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-
 	setupWindowSize()
 
 	if gv.WASMMode && (gv.LoadTest || gv.UPSBench) {
@@ -349,11 +348,19 @@ func bootScreen(screen *ebiten.Image) {
 	screen.Fill(world.BootColor)
 
 	if gv.TitleImage != nil {
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(world.ScreenWidth/2)-float64(gv.TitleImage.Bounds().Size().X/2),
-			float64(world.ScreenHeight/2)-float64(gv.TitleImage.Bounds().Size().Y/2)-64)
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
+
+		newScaleX := (float64(world.ScreenHeight) / float64(gv.TitleImage.Bounds().Dy()))
+
+		op.GeoM.Scale(newScaleX, newScaleX)
+
+		op.GeoM.Translate(
+			float64(world.ScreenWidth/2)-(float64(gv.TitleImage.Bounds().Size().X)*newScaleX)/2,
+			float64(world.ScreenHeight/2)-(float64(gv.TitleImage.Bounds().Size().Y)*newScaleX)/2,
+		)
 		screen.DrawImage(gv.TitleImage, op)
+
 		op.GeoM.Reset()
 		screen.DrawImage(gv.EbitenLogo, op)
 		DrawText("Ebitengine", world.BootFont, world.ColorDarkOrange, color.Transparent, world.XYf32{X: 128, Y: 256 + 32}, 0, screen, false, false, true)
@@ -494,5 +501,5 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 /* Automatic window title update */
 func windowTitle() {
-	ebiten.SetWindowTitle(("Facility38: " + "v" + gv.Version + "-" + buildTime + "-" + runtime.GOOS + "-" + runtime.GOARCH + fmt.Sprintf(" %vx%v", world.ScreenWidth, world.ScreenHeight)))
+	ebiten.SetWindowTitle("Facility 38")
 }
