@@ -63,14 +63,19 @@ func drawOptionsWindow(window *WindowData) {
 		/* Draw text */
 		itemColor := world.ColorWhite
 
+		var bgColor color.Color
 		if i%2 == 0 {
-			vector.DrawFilledRect(window.Cache,
-				float32(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
-				float32(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
-				float32(b.Dx()),
-				float32(b.Dy()),
-				color.NRGBA{R: 255, G: 255, B: 255, A: 16}, false)
+			bgColor = color.NRGBA{R: 255, G: 255, B: 255, A: 24}
+		} else {
+			bgColor = color.NRGBA{R: 255, G: 255, B: 255, A: 8}
 		}
+
+		vector.DrawFilledRect(window.Cache,
+			float32(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
+			float32(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
+			float32(b.Dx()),
+			float32(b.Dy()),
+			bgColor, false)
 
 		text.Draw(window.Cache, txt, world.BootFont, item.TextPosX, item.TextPosY+(b.Dy()/4), itemColor)
 
