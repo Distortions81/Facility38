@@ -357,8 +357,8 @@ func handleClose(input world.XYs, window *WindowData) bool {
 	winPos := getWindowPos(window)
 	if input.X > winPos.X+window.ScaledSize.X-window.WindowButtons.CloseSize.X &&
 		input.X < winPos.X+window.ScaledSize.X &&
-		input.Y > winPos.Y-window.WindowButtons.CloseSize.Y &&
-		input.Y < winPos.Y+window.ScaledSize.Y {
+		input.Y < winPos.Y+window.WindowButtons.CloseSize.Y &&
+		input.Y > winPos.Y {
 		CloseWindow(window)
 		return true
 	}
