@@ -58,7 +58,6 @@ func (g *Game) Update() error {
 
 		/* Stop dragging window if we go off-screen */
 		gWindowDrag = nil
-		return nil
 	}
 
 	var keys []ebiten.Key

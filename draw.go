@@ -428,6 +428,10 @@ func updateVisData() {
 
 	/* When needed, make a list of chunks to draw */
 	if world.VisDataDirty.Load() {
+		world.ScreenSizeLock.Lock()
+		world.VisDataDirty.Store(false)
+		world.ScreenSizeLock.Unlock()
+
 		VisObj = []*world.ObjData{}
 		VisChunk = []*world.MapChunk{}
 		VisSChunk = []*world.MapSuperChunk{}
@@ -476,7 +480,7 @@ func updateVisData() {
 				}
 			}
 		}
-		world.VisDataDirty.Store(false)
+
 		world.SuperChunkListLock.RUnlock()
 	}
 }

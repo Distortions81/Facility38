@@ -165,7 +165,13 @@ func startGame() {
 	}
 
 	ow, oh := ebiten.WindowSize()
+
+	world.ScreenSizeLock.Lock()
 	handleResize(ow, oh)
+	world.VisDataDirty.Store(true)
+	world.ScreenSizeLock.Unlock()
+
+	InitWindows()
 }
 
 /* Load all sprites, sub missing ones */
@@ -512,5 +518,4 @@ func handleResize(outsideWidth int, outsideHeight int) {
 
 		InitWindows()
 	}
-	world.VisDataDirty.Store(true)
 }
