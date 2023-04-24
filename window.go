@@ -109,6 +109,8 @@ func OpenWindow(window *WindowData) {
 			Windows[wpos].Active = true
 
 			if window.Centered && window.Movable {
+
+				window.ScaledSize = world.XYs{X: int32(float64(window.Size.X) * world.UIScale), Y: int32(float64(window.Size.Y) * world.UIScale)}
 				Windows[wpos].Position = world.XYs{
 					X: int32(world.ScreenWidth/2) - (window.ScaledSize.X / 2),
 					Y: int32(world.ScreenHeight/2) - (window.ScaledSize.Y / 2)}
