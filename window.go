@@ -18,12 +18,13 @@ var WindowsLock sync.Mutex
 var Windows []*WindowData = []*WindowData{
 	{
 		Title:       "Options",
-		Size:        world.XYs{X: 325, Y: 500},
+		Size:        world.XYs{X: 325, Y: 450},
 		Centered:    true,
 		Closeable:   true,
 		WindowDraw:  drawOptionsWindow,
 		WindowSetup: setupOptionsWindow,
 		Movable:     true,
+		WindowInput: handleSettings,
 	},
 	{
 		Title:      "Test",
@@ -64,7 +65,7 @@ type WindowData struct {
 	Dirty       bool          /* Needs to be redrawn */
 	Cache       *ebiten.Image /* Cache image */
 	WindowDraw  func(Window *WindowData)
-	WindowInput func(Window *WindowData)
+	WindowInput func(input world.XYs, Window *WindowData) bool
 	WindowSetup func(Window *WindowData)
 }
 
@@ -286,6 +287,10 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	}
 
 	window.Dirty = false
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(winPos.X), float64(winPos.Y))
+	screen.DrawImage(window.Cache, op)
 }
 
 func CollisionWindowsCheck(input world.XYs) bool {
@@ -321,7 +326,7 @@ func CollisionWindow(input world.XYs, window *WindowData) bool {
 
 		/* Handle input */
 		if window.WindowInput != nil {
-			window.WindowInput(window)
+			window.WindowInput(input, window)
 		}
 
 		return true

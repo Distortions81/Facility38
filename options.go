@@ -274,18 +274,3 @@ func toggleVsync(item int) {
 		util.BoolToOnOff(settingItems[item].Enabled))
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
-
-func handleSettings() bool {
-
-	for i, item := range settingItems {
-		b := buttons[i]
-		if util.PosWithinRect(world.XY{X: uint16(MouseX), Y: uint16(MouseY)}, b, 1) {
-			item.Action(i)
-			saveOptions()
-			gMouseHeld = false
-			return true
-		}
-	}
-
-	return false
-}

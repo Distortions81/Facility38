@@ -10,6 +10,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 const (
@@ -28,8 +29,8 @@ func setupOptionsWindow(window *WindowData) {
 
 		/* Place line */
 		var linePosX int = padding
-		var linePosY int = textHeight*(i+2) +
-			(linePad * (i + 2))
+		var linePosY int = textHeight*(i+1) +
+			(linePad * (i + 1)) + padding
 		settingItems[i].TextPosX = linePosX
 		settingItems[i].TextPosY = linePosY
 
@@ -49,8 +50,8 @@ func drawOptionsWindow(window *WindowData) {
 	var txt string
 
 	/* Draw items */
-	for _, item := range settingItems {
-		//b := buttons[i]
+	for i, item := range settingItems {
+		b := buttons[i]
 
 		/* Text */
 		if !item.NoCheck {
@@ -62,16 +63,16 @@ func drawOptionsWindow(window *WindowData) {
 		/* Draw text */
 		itemColor := world.ColorWhite
 
-		/*if gv.Debug {
+		if i%2 == 0 {
 			vector.DrawFilledRect(window.Cache,
 				float32(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
 				float32(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
 				float32(b.Dx()),
 				float32(b.Dy()),
-				color.NRGBA{R: 255, G: 0, B: 0, A: 64}, false)
-		}*/
+				color.NRGBA{R: 255, G: 255, B: 255, A: 16}, false)
+		}
 
-		text.Draw(window.Cache, txt, world.BootFont, item.TextPosX, item.TextPosY, itemColor)
+		text.Draw(window.Cache, txt, world.BootFont, item.TextPosX, item.TextPosY+(b.Dy()/4), itemColor)
 
 		if !item.NoCheck {
 			/* Get checkmark image */
