@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"os"
@@ -133,8 +133,8 @@ func getShiftToggle() {
 
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
-	ToolBarIconSize := float32(gv.UIScale * gv.ToolBarIconSize)
-	ToolBarSpacing := float32(gv.ToolBarIconSize / gv.ToolBarSpaceRatio)
+	ToolBarIconSize := float32(world.UIScale * def.ToolBarIconSize)
+	ToolBarSpacing := float32(def.ToolBarIconSize / def.ToolBarSpaceRatio)
 
 	uipix := float32((ToolbarMax * int(ToolBarIconSize+ToolBarSpacing)))
 
@@ -171,7 +171,7 @@ func handleToolbar(rotate bool) bool {
 					DrawToolbar(true, false, ipos)
 					/* Deselect */
 				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI {
-					SelectedItemType = gv.MaxItemType
+					SelectedItemType = def.MaxItemType
 					DrawToolbar(true, false, ipos)
 				} else {
 					/* Select */
@@ -192,7 +192,7 @@ func zoomHandle() {
 	_, fsy := ebiten.Wheel()
 
 	/* WASM kludge */
-	if gv.WASMMode && (fsy > 0 && fsy < 0) {
+	if world.WASMMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
 			world.VisDataDirty.Store(true)
 			return
@@ -284,13 +284,13 @@ func createWorldObjects() {
 	/* Left mouse, and tile is empty */
 	if gMouseHeld {
 		/* Nothing selected exit */
-		if SelectedItemType == gv.MaxItemType {
+		if SelectedItemType == def.MaxItemType {
 			return
 		}
 		obj := WorldObjs[SelectedItemType]
 		dir := obj.Direction
 
-		if gv.WASMMode {
+		if world.WASMMode {
 			ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
 		} else {
 			go ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
@@ -298,7 +298,7 @@ func createWorldObjects() {
 
 		/* Else if tile is not empty and RightMouse is held */
 	} else if b != nil && b.Obj != nil && gRightMouseHeld {
-		if gv.WASMMode {
+		if world.WASMMode {
 			ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
 		} else {
 			go ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
@@ -309,9 +309,9 @@ func createWorldObjects() {
 /* Right-click drag or WASD movement, shift run */
 func moveCamera() {
 
-	var base float32 = gv.MoveSpeed
+	var base float32 = def.MoveSpeed
 	if gShiftPressed {
-		base = gv.RunSpeed
+		base = def.RunSpeed
 	}
 	speed := base / (world.ZoomScale / 4.0)
 
@@ -347,15 +347,15 @@ func moveCamera() {
 		LastMouseY = MouseY
 
 		/* Don't let camera go beyond a reasonable point */
-		if world.CameraX > float32(gv.XYMax) {
-			world.CameraX = float32(gv.XYMax)
-		} else if world.CameraX < gv.XYMin {
-			world.CameraX = gv.XYMin
+		if world.CameraX > float32(def.XYMax) {
+			world.CameraX = float32(def.XYMax)
+		} else if world.CameraX < def.XYMin {
+			world.CameraX = def.XYMin
 		}
-		if world.CameraY > float32(gv.XYMax) {
-			world.CameraY = float32(gv.XYMax)
-		} else if world.CameraY < gv.XYMin {
-			world.CameraY = gv.XYMin
+		if world.CameraY > float32(def.XYMax) {
+			world.CameraY = float32(def.XYMax)
+		} else if world.CameraY < def.XYMin {
+			world.CameraY = def.XYMin
 		}
 	} else {
 		gCameraDrag = false

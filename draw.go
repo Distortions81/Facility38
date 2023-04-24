@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"fmt"
@@ -85,7 +85,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	updateVisData()
 
 	/* WASM terrain rendering */
-	if gv.WASMMode {
+	if world.WASMMode {
 		if frameCount%WASMTerrainDiv == 0 {
 			RenderTerrainST()
 		}
@@ -94,7 +94,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw modes */
-	if world.ZoomScale > gv.MapPixelThreshold { /* Draw icon mode */
+	if world.ZoomScale > def.MapPixelThreshold { /* Draw icon mode */
 		drawIconMode(screen)
 	} else {
 		drawPixmapMode(screen)
@@ -122,8 +122,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 var lastVal int
 
 func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
-	ToolBarIconSize := float32(gv.UIScale * gv.ToolBarIconSize)
-	ToolBarSpacing := float32(gv.ToolBarIconSize / gv.ToolBarSpaceRatio)
+	ToolBarIconSize := float32(world.UIScale * def.ToolBarIconSize)
+	ToolBarSpacing := float32(def.ToolBarIconSize / def.ToolBarSpaceRatio)
 
 	/* Calculate item */
 	val := int(fmx / int(ToolBarIconSize+ToolBarSpacing))
@@ -208,7 +208,7 @@ func drawItemInfo(screen *ebiten.Image) {
 
 			/* Show contents */
 			if o.Unique.Contents != nil {
-				for z := 0; z < gv.MAT_MAX; z++ {
+				for z := 0; z < def.MAT_MAX; z++ {
 					if o.Unique.Contents.Mats[z] != nil {
 						toolTip = toolTip + fmt.Sprintf("Contents: %v: %v\n",
 							o.Unique.Contents.Mats[z].TypeP.Name, PrintUnit(o.Unique.Contents.Mats[z]))
@@ -242,7 +242,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			}
 
 			/* Debug info */
-			if gv.Debug {
+			if world.Debug {
 				if o.Unique.TypeP.MachineSettings.KgFuelPerCycle > 0 {
 					toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", PrintWeight(o.Unique.TypeP.MachineSettings.KgFuelPerCycle))
 				}
@@ -262,28 +262,28 @@ func drawItemInfo(screen *ebiten.Image) {
 						tstring = p.Buf.TypeP.Name
 					}
 
-					if p.Type == gv.PORT_IN {
+					if p.Type == def.PORT_IN {
 						toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %v (%v)\n",
 							util.DirToName(uint8(p.Dir)),
 							p.Obj.Unique.TypeP.Name,
 							tstring,
 							PrintUnit(p.Buf),
 							CalcVolume(p.Buf))
-					} else if p.Type == gv.PORT_OUT {
+					} else if p.Type == def.PORT_OUT {
 						toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %v (%v)\n",
 							util.DirToName(uint8(p.Dir)),
 							p.Obj.Unique.TypeP.Name,
 							tstring,
 							PrintUnit(p.Buf),
 							CalcVolume(p.Buf))
-					} else if p.Type == gv.PORT_FOUT {
+					} else if p.Type == def.PORT_FOUT {
 						toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %v (%v)\n",
 							util.DirToName(uint8(p.Dir)),
 							p.Obj.Unique.TypeP.Name,
 							tstring,
 							PrintUnit(p.Buf),
 							CalcVolume(p.Buf))
-					} else if p.Type == gv.PORT_FIN {
+					} else if p.Type == def.PORT_FIN {
 						toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %v (%v)\n",
 							util.DirToName(uint8(p.Dir)),
 							p.Obj.Unique.TypeP.Name,
@@ -322,8 +322,8 @@ func drawItemInfo(screen *ebiten.Image) {
 		} else {
 			/* Otherwise, just show x/y location */
 			toolTip = fmt.Sprintf("(%v, %v)",
-				humanize.Comma(int64((WorldMouseX - gv.XYCenter))),
-				humanize.Comma(int64((WorldMouseY - gv.XYCenter))))
+				humanize.Comma(int64((WorldMouseX - def.XYCenter))),
+				humanize.Comma(int64((WorldMouseY - def.XYCenter))))
 		}
 		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG,
 			world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)},
@@ -357,7 +357,7 @@ func drawItemInfo(screen *ebiten.Image) {
 
 func drawItemPlacement(screen *ebiten.Image) {
 	/* Draw ghost for selected item */
-	if SelectedItemType < gv.MaxItemType {
+	if SelectedItemType < def.MaxItemType {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 		item := WorldObjs[SelectedItemType]
 
@@ -380,7 +380,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 			xx := float64(iSize.Size().X / 2)
 			yy := float64(iSize.Size().Y / 2)
 			op.GeoM.Translate(-xx, -yy)
-			op.GeoM.Rotate(gv.NinetyDeg * float64(int(item.Direction)))
+			op.GeoM.Rotate(def.NinetyDeg * float64(int(item.Direction)))
 			op.GeoM.Translate(xx, yy)
 		}
 
@@ -441,10 +441,10 @@ func updateVisData() {
 		for _, sChunk := range world.SuperChunkList {
 
 			/* Is this super chunk on the screen? */
-			if sChunk.Pos.X < screenStartX/gv.SuperChunkSize ||
-				sChunk.Pos.X > screenEndX/gv.SuperChunkSize ||
-				sChunk.Pos.Y < screenStartY/gv.SuperChunkSize ||
-				sChunk.Pos.Y > screenEndY/gv.SuperChunkSize {
+			if sChunk.Pos.X < screenStartX/def.SuperChunkSize ||
+				sChunk.Pos.X > screenEndX/def.SuperChunkSize ||
+				sChunk.Pos.Y < screenStartY/def.SuperChunkSize ||
+				sChunk.Pos.Y > screenEndY/def.SuperChunkSize {
 				sChunk.Visible = false
 				continue
 			}
@@ -493,10 +493,10 @@ func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image
 
 	iSize := cTmp.Bounds().Size()
 	op.GeoM.Reset()
-	op.GeoM.Scale((gv.ChunkSize*float64(world.ZoomScale))/float64(iSize.X),
-		(gv.ChunkSize*float64(world.ZoomScale))/float64(iSize.Y))
-	op.GeoM.Translate((float64(camXPos)+float64(chunk.Pos.X*gv.ChunkSize))*float64(world.ZoomScale),
-		(float64(camYPos)+float64(chunk.Pos.Y*gv.ChunkSize))*float64(world.ZoomScale))
+	op.GeoM.Scale((def.ChunkSize*float64(world.ZoomScale))/float64(iSize.X),
+		(def.ChunkSize*float64(world.ZoomScale))/float64(iSize.Y))
+	op.GeoM.Translate((float64(camXPos)+float64(chunk.Pos.X*def.ChunkSize))*float64(world.ZoomScale),
+		(float64(camYPos)+float64(chunk.Pos.Y*def.ChunkSize))*float64(world.ZoomScale))
 	chunk.TerrainLock.RUnlock()
 
 	return op, cTmp
@@ -540,7 +540,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 		/* Overlays */
 		/* Draw belt overlays */
-		if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicBelt {
+		if obj.Unique.TypeP.TypeI == def.ObjTypeBasicBelt {
 
 			/* Draw Input Materials */
 			for _, port := range obj.Ports {
@@ -558,7 +558,7 @@ func drawIconMode(screen *ebiten.Image) {
 					break
 				}
 			}
-		} else if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicBeltOver {
+		} else if obj.Unique.TypeP.TypeI == def.ObjTypeBasicBeltOver {
 			/* Overpass belts */
 
 			var start int32 = 32
@@ -672,7 +672,7 @@ func drawIconMode(screen *ebiten.Image) {
 		if world.OverlayMode {
 
 			/* Show box conents in overylay mode */
-			if obj.Unique.TypeP.TypeI == gv.ObjTypeBasicBox {
+			if obj.Unique.TypeP.TypeI == def.ObjTypeBasicBox {
 				for _, cont := range obj.Unique.Contents.Mats {
 					if cont == nil {
 						continue
@@ -703,7 +703,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Show objects with no fuel */
 			if obj.Unique.TypeP.MachineSettings.MaxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
 
-				img := WorldOverlays[gv.ObjOverlayNoFuel].Images.Main
+				img := WorldOverlays[def.ObjOverlayNoFuel].Images.Main
 
 				iSize := img.Bounds()
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -724,7 +724,7 @@ func drawIconMode(screen *ebiten.Image) {
 				/*
 					} else if obj.Unique.TypeP.ShowBlocked && obj.Blocked {
 
-						img := ObjOverlayTypes[gv.ObjOverlayBlocked].Image
+						img := ObjOverlayTypes[def.ObjOverlayBlocked].Image
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 						iSize := img.Bounds()
@@ -750,7 +750,7 @@ func drawIconMode(screen *ebiten.Image) {
 			} else if obj.Unique.TypeP.ShowArrow {
 				/* Output arrows */
 				for _, port := range obj.Ports {
-					if port.Type == gv.PORT_OUT && port.Dir == obj.Dir {
+					if port.Type == def.PORT_OUT && port.Dir == obj.Dir {
 
 						img := WorldOverlays[port.Dir].Images.Main
 						iSize := img.Bounds()
@@ -816,7 +816,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Single thread render terrain for WASM */
-	if gv.WASMMode && frameCount%WASMTerrainDiv == 0 {
+	if world.WASMMode && frameCount%WASMTerrainDiv == 0 {
 		ResourceRenderDaemonST()
 		PixmapRenderST()
 	}
@@ -831,23 +831,23 @@ func drawPixmapMode(screen *ebiten.Image) {
 
 		op.GeoM.Reset()
 		op.GeoM.Scale(
-			(gv.MaxSuperChunk*float64(world.ZoomScale))/float64(gv.MaxSuperChunk),
-			(gv.MaxSuperChunk*float64(world.ZoomScale))/float64(gv.MaxSuperChunk))
+			(def.MaxSuperChunk*float64(world.ZoomScale))/float64(def.MaxSuperChunk),
+			(def.MaxSuperChunk*float64(world.ZoomScale))/float64(def.MaxSuperChunk))
 
 		op.GeoM.Translate(
-			((float64(camXPos)+float64((sChunk.Pos.X))*gv.MaxSuperChunk)*float64(world.ZoomScale))-1,
-			((float64(camYPos)+float64((sChunk.Pos.Y))*gv.MaxSuperChunk)*float64(world.ZoomScale))-1)
+			((float64(camXPos)+float64((sChunk.Pos.X))*def.MaxSuperChunk)*float64(world.ZoomScale))-1,
+			((float64(camYPos)+float64((sChunk.Pos.Y))*def.MaxSuperChunk)*float64(world.ZoomScale))-1)
 
 		screen.DrawImage(sChunk.PixelMap, op)
 		sChunk.PixelMapLock.Unlock()
 	}
 	world.SuperChunkListLock.RUnlock()
 
-	if world.ShowResourceLayer && gv.ResourceLegendImage != nil {
+	if world.ShowResourceLayer && world.ResourceLegendImage != nil {
 		op.GeoM.Reset()
 		op.GeoM.Scale(2, 2)
-		op.GeoM.Translate(8, float64(gv.ToolBarIconSize))
-		screen.DrawImage(gv.ResourceLegendImage, op)
+		op.GeoM.Translate(8, float64(def.ToolBarIconSize))
+		screen.DrawImage(world.ResourceLegendImage, op)
 	}
 }
 
@@ -861,10 +861,10 @@ func drawDebugInfo(screen *ebiten.Image) {
 		humanize.SIWithDigits(float64(world.ActiveTockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTickCount), 2, ""),
-		runtime.GOARCH, gv.Version, buildTime,
+		runtime.GOARCH, def.Version, buildTime,
 	)
 
-	if gv.Debug {
+	if world.Debug {
 		buf = buf + fmt.Sprintf(" (%v,%v)", MouseX, MouseY)
 	}
 	var pad float32 = 4
@@ -943,13 +943,13 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 			xx := float64(iSize.Size().X / 2)
 			yy := float64(iSize.Size().Y / 2)
 			op.GeoM.Translate(-xx, -yy)
-			op.GeoM.Rotate(gv.NinetyDeg * float64(int(obj.CornerDir)))
+			op.GeoM.Rotate(def.NinetyDeg * float64(int(obj.CornerDir)))
 			op.GeoM.Translate(xx, yy)
 		} else if obj.Unique.TypeP.Rotatable {
 			xx := float64(iSize.Size().X / 2)
 			yy := float64(iSize.Size().Y / 2)
 			op.GeoM.Translate(-xx, -yy)
-			op.GeoM.Rotate(gv.NinetyDeg * float64(int(obj.Dir)))
+			op.GeoM.Rotate(def.NinetyDeg * float64(int(obj.Dir)))
 			op.GeoM.Translate(xx, yy)
 		}
 
@@ -992,10 +992,10 @@ func calcScreenCamera() {
 	camEndY = uint16((float32(world.ScreenHeight)/world.ZoomScale + (world.CameraY + padding - (float32(world.ScreenHeight)/2.0)/world.ZoomScale)))
 
 	/* Pre-calc camera chunk position */
-	screenStartX = camStartX / gv.ChunkSize
-	screenStartY = camStartY / gv.ChunkSize
-	screenEndX = camEndX / gv.ChunkSize
-	screenEndY = camEndY / gv.ChunkSize
+	screenStartX = camStartX / def.ChunkSize
+	screenStartY = camStartY / def.ChunkSize
+	screenEndX = camEndX / def.ChunkSize
+	screenEndY = camEndY / def.ChunkSize
 }
 
 /* Draw materials on belts */
@@ -1018,7 +1018,7 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 			xx := float64(iSize.Dx()) / 2.0
 			yy := float64(iSize.Dy()) / 2.0
 			op.GeoM.Translate(-xx, -yy)
-			op.GeoM.Rotate(float64(m.Rot) * gv.NinetyDeg)
+			op.GeoM.Rotate(float64(m.Rot) * def.NinetyDeg)
 			if scale != 1 {
 				op.GeoM.Scale(scale, scale)
 			}
@@ -1044,7 +1044,7 @@ func drawChatLines(screen *ebiten.Image) {
 	util.ChatLinesLock.Lock()
 	defer util.ChatLinesLock.Unlock()
 
-	for x := util.ChatLinesTop; x > 0 && lineNum < gv.ChatHeightLines; x-- {
+	for x := util.ChatLinesTop; x > 0 && lineNum < def.ChatHeightLines; x-- {
 		line := util.ChatLines[x-1]
 		/* Ignore old chat lines */
 		since := time.Since(line.Timestamp)
@@ -1056,8 +1056,8 @@ func drawChatLines(screen *ebiten.Image) {
 		tBgColor := world.ColorToolTipBG
 		r, g, b, _ := line.Color.RGBA()
 		var blend float64 = 0
-		if line.Lifetime-since < gv.ChatFadeTime {
-			blend = (float64(gv.ChatFadeTime-(line.Lifetime-since)) / float64(gv.ChatFadeTime) * 100.0)
+		if line.Lifetime-since < def.ChatFadeTime {
+			blend = (float64(def.ChatFadeTime-(line.Lifetime-since)) / float64(def.ChatFadeTime) * 100.0)
 		}
 		newAlpha := (254.0 - (blend * 2.55))
 

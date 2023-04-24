@@ -1,7 +1,7 @@
 package cwlog
 
 import (
-	"Facility38/gv"
+	"Facility38/world"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -84,7 +84,7 @@ func LogDaemon() {
 				LogDesc = nil
 			}
 
-			if gv.LogStdOut {
+			if world.LogStdOut {
 				fmt.Print(LogBuf[0])
 			}
 

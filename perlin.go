@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/world"
 	"math/rand"
 	"time"
@@ -12,7 +12,7 @@ import (
 func init() {
 
 	for i, nl := range NoiseLayers {
-		if NoiseLayers[i].TypeI == gv.MAT_NONE {
+		if NoiseLayers[i].TypeI == def.MAT_NONE {
 			continue
 		}
 		for j, mt := range MatTypes {
@@ -47,9 +47,9 @@ func NoiseMap(x, y float32, p int) float32 {
 	return val
 }
 
-var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
+var NoiseLayers = [def.NumResourceTypes]world.NoiseLayerData{
 	{Name: "Ground",
-		TypeI:      gv.MAT_NONE,
+		TypeI:      def.MAT_NONE,
 		Scale:      32,
 		Alpha:      2,
 		Beta:       2.0,
@@ -71,7 +71,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 
 	/* Resources */
 	{Name: "Oil",
-		TypeI: gv.MAT_OIL,
+		TypeI: def.MAT_OIL,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
@@ -92,7 +92,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		BlueMulti:          0,
 	},
 	{Name: "Natural Gas",
-		TypeI: gv.MAT_GAS,
+		TypeI: def.MAT_GAS,
 		Scale: 128,
 		Alpha: 2,
 		Beta:  2.0,
@@ -113,7 +113,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		BlueMulti:          0,
 	},
 	{Name: "Coal",
-		TypeI: gv.MAT_COAL,
+		TypeI: def.MAT_COAL,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
@@ -134,7 +134,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		BlueMulti:          0,
 	},
 	{Name: "Iron Ore",
-		TypeI: gv.MAT_IRON_ORE,
+		TypeI: def.MAT_IRON_ORE,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
@@ -155,7 +155,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		BlueMulti:          0,
 	},
 	{Name: "Copper Ore",
-		TypeI: gv.MAT_COPPER_ORE,
+		TypeI: def.MAT_COPPER_ORE,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,
@@ -176,7 +176,7 @@ var NoiseLayers = [gv.NumResourceTypes]world.NoiseLayerData{
 		BlueMulti:          1,
 	},
 	{Name: "Stone Ore",
-		TypeI: gv.MAT_STONE_ORE,
+		TypeI: def.MAT_STONE_ORE,
 		Scale: 256,
 		Alpha: 2,
 		Beta:  2.0,

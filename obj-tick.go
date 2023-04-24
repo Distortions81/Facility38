@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"fmt"
@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	if strings.EqualFold(runtime.GOOS, "windows") || gv.WASMMode {
+	if strings.EqualFold(runtime.GOOS, "windows") || world.WASMMode {
 		minSleep = (time.Millisecond * 2) //Windows and WASM time resolution sucks
 	}
 }
@@ -59,7 +59,7 @@ func ObjUpdateDaemon() {
 
 		GameLock.Unlock()
 
-		if !gv.UPSBench {
+		if !world.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
@@ -106,7 +106,7 @@ func ObjUpdateDaemonST() {
 
 		GameLock.Unlock()
 
-		if !gv.UPSBench {
+		if !world.UPSBench {
 			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
@@ -265,16 +265,16 @@ func RunEventQueue() {
 	for _, e := range world.EventQueue {
 		if e.Delete {
 			switch e.QType {
-			case gv.QUEUE_TYPE_TICK:
+			case def.QUEUE_TYPE_TICK:
 				RemoveTick(e.Obj)
-			case gv.QUEUE_TYPE_TOCK:
+			case def.QUEUE_TYPE_TOCK:
 				RemoveTock(e.Obj)
 			}
 		} else {
 			switch e.QType {
-			case gv.QUEUE_TYPE_TICK:
+			case def.QUEUE_TYPE_TICK:
 				AddTick(e.Obj)
-			case gv.QUEUE_TYPE_TOCK:
+			case def.QUEUE_TYPE_TOCK:
 				AddTock(e.Obj)
 			}
 		}

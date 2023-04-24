@@ -1,25 +1,8 @@
-package gv
+package def
 
 import (
 	"math"
 	"time"
-
-	"github.com/hajimehoshi/ebiten/v2"
-)
-
-var (
-	/* Build flags */
-	UPSBench = false
-	LoadTest = false
-
-	Debug     = false
-	LogStdOut = true
-	WASMMode  = false
-	UIScale   = 1.0
-
-	ResourceLegendImage *ebiten.Image
-	TitleImage          *ebiten.Image
-	EbitenLogo          *ebiten.Image
 )
 
 const (

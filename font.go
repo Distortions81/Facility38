@@ -2,7 +2,6 @@ package main
 
 import (
 	"Facility38/data"
-	"Facility38/gv"
 	"Facility38/world"
 	"log"
 	"time"
@@ -13,7 +12,7 @@ import (
 
 func UpdateFonts() {
 
-	newVal := 96.0 * gv.UIScale
+	newVal := 96.0 * world.UIScale
 	if newVal < 1 {
 		newVal = 1
 	} else if newVal > 600 {

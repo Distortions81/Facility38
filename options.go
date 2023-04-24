@@ -2,7 +2,6 @@ package main
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
 	"Facility38/util"
 	"Facility38/world"
 	"bytes"
@@ -24,8 +23,6 @@ const (
 )
 
 var (
-	textHeight = 16
-
 	buttons      []image.Rectangle
 	settingItems []settingType
 )
@@ -61,7 +58,7 @@ func init() {
 
 func loadOptions() {
 
-	if gv.WASMMode {
+	if world.WASMMode {
 		return
 	}
 
@@ -97,7 +94,7 @@ func loadOptions() {
 
 func saveOptions() {
 
-	if gv.WASMMode {
+	if world.WASMMode {
 		return
 	}
 
@@ -190,13 +187,13 @@ func toggleUnits(item int) {
 
 func toggleTestMap(item int) {
 	GameRunning = false
-	if gv.LoadTest {
-		gv.LoadTest = false
+	if world.LoadTest {
+		world.LoadTest = false
 		settingItems[item].Enabled = false
 		buf := "Clearing map."
 		util.ChatDetailed(buf, world.ColorOrange, time.Second*10)
 	} else {
-		gv.LoadTest = true
+		world.LoadTest = true
 		settingItems[item].Enabled = true
 		buf := "Loading test map..."
 		util.ChatDetailed(buf, world.ColorOrange, time.Second*30)
@@ -210,18 +207,18 @@ func toggleTestMap(item int) {
 	world.MapLoadPercent = 0
 	time.Sleep(time.Nanosecond)
 	go func() {
-		MakeMap(gv.LoadTest)
+		MakeMap(world.LoadTest)
 		time.Sleep(time.Nanosecond)
 		startGame()
 	}()
 }
 
 func toggleUPSCap(item int) {
-	if gv.UPSBench {
-		gv.UPSBench = false
+	if world.UPSBench {
+		world.UPSBench = false
 		settingItems[item].Enabled = false
 	} else {
-		gv.UPSBench = true
+		world.UPSBench = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",
@@ -245,11 +242,11 @@ func toggleFullscreen(item int) {
 }
 
 func toggleDebug(item int) {
-	if gv.Debug {
-		gv.Debug = false
+	if world.Debug {
+		world.Debug = false
 		settingItems[item].Enabled = false
 	} else {
-		gv.Debug = true
+		world.Debug = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",

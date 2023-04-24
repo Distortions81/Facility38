@@ -14,12 +14,20 @@ import (
 
 const (
 	padding = 8
-	linePad = 30
 )
 
 func setupOptionsWindow(window *WindowData) {
-	check := WorldOverlays[6].Images.Main
+	//check := WorldOverlays[6].Images.Main
 
+	lineHeight := 0
+	for _, item := range settingItems {
+		if item.Text != "" {
+			tbound := text.BoundString(world.BootFont, item.Text)
+			if tbound.Size().Y > lineHeight {
+				lineHeight = int(float64(tbound.Size().Y) * 1.75)
+			}
+		}
+	}
 	/* Loop all settings */
 	for i, item := range settingItems {
 		/* Get text bounds */
@@ -27,19 +35,16 @@ func setupOptionsWindow(window *WindowData) {
 		settingItems[i].TextBounds = tbound
 
 		/* Place line */
-		var linePosX int = padding
-		var linePosY int = textHeight*(i+1) +
-			(linePad * (i + 1)) + padding
-		settingItems[i].TextPosX = linePosX
-		settingItems[i].TextPosY = linePosY
+		settingItems[i].TextPosX = padding
+		settingItems[i].TextPosY = (lineHeight * (i + 2))
 
 		/* Generate button */
 		button := image.Rectangle{}
-		button.Min.X = linePosX
-		button.Max.X = int(window.Size.X) - padding
+		button.Min.X = padding
+		button.Max.X = int(window.ScaledSize.X) - padding
 
-		button.Min.Y = linePosY - check.Bounds().Dy()/2
-		button.Max.Y = linePosY + check.Bounds().Dy()/2
+		button.Min.Y = lineHeight
+		button.Max.Y = lineHeight
 		buttons = append(buttons, button)
 	}
 
@@ -88,9 +93,10 @@ func drawOptionsWindow(window *WindowData) {
 				check = WorldOverlays[7].Images.Main
 			}
 			/* Draw checkmark */
+			op.GeoM.Scale(world.UIScale, world.UIScale)
 			op.GeoM.Translate(
-				float64(int(window.Size.X)-check.Bounds().Dx())-padding,
-				float64(item.TextPosY)-float64((check.Bounds().Dy())/2))
+				float64(window.ScaledSize.X)-(float64(check.Bounds().Dx())*world.UIScale)-padding,
+				float64(item.TextPosY)-(float64((check.Bounds().Dy())/2)*world.UIScale))
 			window.Cache.DrawImage(check, op)
 		}
 	}

@@ -2,7 +2,7 @@ package main
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"bytes"
@@ -32,14 +32,14 @@ type MapSeedsData struct {
 }
 
 type saveMObj struct {
-	Pos      world.XYs                      `json:"p,omitempty"`
-	TypeI    uint8                          `json:"i,omitempty"`
-	Dir      uint8                          `json:"d,omitempty"`
-	Contents *world.MaterialContentsType    `json:"c,omitempty"`
-	KGFuel   float32                        `json:"kf,omitempty"`
-	KGHeld   float32                        `json:"k,omitempty"`
-	Ports    [gv.DIR_MAX]*world.ObjPortData `json:"po,omitempty"`
-	Ticks    uint8                          `json:"t,omitempty"`
+	Pos      world.XYs                       `json:"p,omitempty"`
+	TypeI    uint8                           `json:"i,omitempty"`
+	Dir      uint8                           `json:"d,omitempty"`
+	Contents *world.MaterialContentsType     `json:"c,omitempty"`
+	KGFuel   float32                         `json:"kf,omitempty"`
+	KGHeld   float32                         `json:"k,omitempty"`
+	Ports    [def.DIR_MAX]*world.ObjPortData `json:"po,omitempty"`
+	Ticks    uint8                           `json:"t,omitempty"`
 }
 
 /* WIP */
@@ -70,19 +70,19 @@ func SaveGame() {
 		var seeds MapSeedsData
 		for _, nl := range NoiseLayers {
 			switch nl.TypeI {
-			case gv.MAT_NONE:
+			case def.MAT_NONE:
 				seeds.Grass = nl.RandomSeed
-			case gv.MAT_OIL:
+			case def.MAT_OIL:
 				seeds.Oil = nl.RandomSeed
-			case gv.MAT_GAS:
+			case def.MAT_GAS:
 				seeds.Gas = nl.RandomSeed
-			case gv.MAT_COAL:
+			case def.MAT_COAL:
 				seeds.Coal = nl.RandomSeed
-			case gv.MAT_IRON_ORE:
+			case def.MAT_IRON_ORE:
 				seeds.Iron = nl.RandomSeed
-			case gv.MAT_COPPER_SHOT:
+			case def.MAT_COPPER_SHOT:
 				seeds.Copper = nl.RandomSeed
-			case gv.MAT_STONE_BLOCK:
+			case def.MAT_STONE_BLOCK:
 				seeds.Stone = nl.RandomSeed
 			}
 		}
@@ -212,19 +212,19 @@ func LoadGame() {
 		world.SuperChunkListLock.RUnlock()
 		for n, nl := range NoiseLayers {
 			switch nl.TypeI {
-			case gv.MAT_NONE:
+			case def.MAT_NONE:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Grass
-			case gv.MAT_OIL:
+			case def.MAT_OIL:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Oil
-			case gv.MAT_GAS:
+			case def.MAT_GAS:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Gas
-			case gv.MAT_COAL:
+			case def.MAT_COAL:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Coal
-			case gv.MAT_IRON_ORE:
+			case def.MAT_IRON_ORE:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Iron
-			case gv.MAT_COPPER_SHOT:
+			case def.MAT_COPPER_SHOT:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Copper
-			case gv.MAT_STONE_BLOCK:
+			case def.MAT_STONE_BLOCK:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Stone
 			}
 		}
@@ -339,7 +339,7 @@ func NukeWorld() {
 	runtime.GC()
 
 	world.VisDataDirty.Store(true)
-	world.ZoomScale = gv.DefaultZoom
+	world.ZoomScale = def.DefaultZoom
 
 	world.SuperChunkListLock.Unlock()
 }

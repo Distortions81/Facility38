@@ -2,7 +2,7 @@ package main
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/world"
 	"math/rand"
 )
@@ -269,7 +269,7 @@ func smelterUpdate(obj *world.ObjData) {
 		/* Set type if needed */
 		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
 			if obj.Unique.SingleContent.Amount > 0 {
-				obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_MIX_ORE]
+				obj.Unique.SingleContent.TypeP = MatTypes[def.MAT_MIX_ORE]
 			} else {
 				obj.Unique.SingleContent.TypeP = input.Buf.TypeP
 			}

@@ -2,7 +2,7 @@ package util
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/world"
 	"bytes"
 	"compress/zlib"
@@ -38,7 +38,7 @@ func init() {
 }
 
 func WASMSleep() {
-	if gv.WASMMode {
+	if world.WASMMode {
 		time.Sleep(time.Nanosecond)
 	}
 }
@@ -72,7 +72,7 @@ func deleteOldLines() {
 }
 
 func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
-	if !gv.Debug {
+	if !world.Debug {
 		return
 	}
 	/* Get current time */
@@ -185,26 +185,26 @@ func PosToString(pos world.XY) string {
 
 /* Convert an internal XY (unsigned) to a (0,0) center */
 func CenterXY(pos world.XY) world.XYs {
-	return world.XYs{X: int32(pos.X) - int32(gv.XYCenter), Y: int32(pos.Y) - int32(gv.XYCenter)}
+	return world.XYs{X: int32(pos.X) - int32(def.XYCenter), Y: int32(pos.Y) - int32(def.XYCenter)}
 }
 
 func UnCenterXY(pos world.XYs) world.XY {
-	return world.XY{X: uint16(int32(pos.X) + int32(gv.XYCenter)), Y: uint16(int32(pos.Y) + int32(gv.XYCenter))}
+	return world.XY{X: uint16(int32(pos.X) + int32(def.XYCenter)), Y: uint16(int32(pos.Y) + int32(def.XYCenter))}
 }
 
 /* Rotate consts.DIR value clockwise */
 func RotCW(dir uint8) uint8 {
-	return uint8(PosIntMod(int(dir+1), gv.DIR_MAX))
+	return uint8(PosIntMod(int(dir+1), def.DIR_MAX))
 }
 
 /* Rotate consts.DIR value counter-clockwise */
 func RotCCW(dir uint8) uint8 {
-	return uint8(PosIntMod(int(dir-1), gv.DIR_MAX))
+	return uint8(PosIntMod(int(dir-1), def.DIR_MAX))
 }
 
 /* Rotate consts.DIR value to x*/
 func RotDir(dir uint8, add uint8) uint8 {
-	return uint8(PosIntMod(int(dir-add), gv.DIR_MAX))
+	return uint8(PosIntMod(int(dir-add), def.DIR_MAX))
 }
 
 /* give distance between two coordinates */
@@ -267,32 +267,32 @@ func GetSuperChunk(pos world.XY) *world.MapSuperChunk {
 
 /* XY to Chunk XY */
 func PosToChunkPos(pos world.XY) world.XY {
-	return world.XY{X: pos.X / gv.ChunkSize, Y: pos.Y / gv.ChunkSize}
+	return world.XY{X: pos.X / def.ChunkSize, Y: pos.Y / def.ChunkSize}
 }
 
 /* Chunk XY to XY */
 func ChunkPosToPos(pos world.XY) world.XY {
-	return world.XY{X: pos.X * gv.ChunkSize, Y: pos.Y * gv.ChunkSize}
+	return world.XY{X: pos.X * def.ChunkSize, Y: pos.Y * def.ChunkSize}
 }
 
 /* XY to SuperChunk XY */
 func PosToSuperChunkPos(pos world.XY) world.XY {
-	return world.XY{X: pos.X / gv.MaxSuperChunk, Y: pos.Y / gv.MaxSuperChunk}
+	return world.XY{X: pos.X / def.MaxSuperChunk, Y: pos.Y / def.MaxSuperChunk}
 }
 
 /* SuperChunk XY to XY */
 func SuperChunkPosToPos(pos world.XY) world.XY {
-	return world.XY{X: pos.X * gv.MaxSuperChunk, Y: pos.Y * gv.MaxSuperChunk}
+	return world.XY{X: pos.X * def.MaxSuperChunk, Y: pos.Y * def.MaxSuperChunk}
 }
 
 /* Chunk XY to SuperChunk XY */
 func ChunkPosToSuperChunkPos(pos world.XY) world.XY {
-	return world.XY{X: pos.X / gv.SuperChunkSize, Y: pos.Y / gv.SuperChunkSize}
+	return world.XY{X: pos.X / def.SuperChunkSize, Y: pos.Y / def.SuperChunkSize}
 }
 
 /* SuperChunk XY to Chunk XY */
 func SuperChunkPosToChunkPos(pos world.XY) world.XY {
-	return world.XY{X: pos.X * gv.SuperChunkSize, Y: pos.Y * gv.SuperChunkSize}
+	return world.XY{X: pos.X * def.SuperChunkSize, Y: pos.Y * def.SuperChunkSize}
 }
 
 /* Float (X, Y) to world.XY (int) */
@@ -307,13 +307,13 @@ func GetNeighborObj(src world.XY, dir uint8) *world.BuildingData {
 	pos := src
 
 	switch dir {
-	case gv.DIR_NORTH:
+	case def.DIR_NORTH:
 		pos.Y--
-	case gv.DIR_EAST:
+	case def.DIR_EAST:
 		pos.X++
-	case gv.DIR_SOUTH:
+	case def.DIR_SOUTH:
 		pos.Y++
-	case gv.DIR_WEST:
+	case def.DIR_WEST:
 		pos.X--
 	default:
 		return nil
@@ -336,13 +336,13 @@ func GetNeighborObj(src world.XY, dir uint8) *world.BuildingData {
 /* Convert consts.DIR to text */
 func DirToName(dir uint8) string {
 	switch dir {
-	case gv.DIR_NORTH:
+	case def.DIR_NORTH:
 		return "North"
-	case gv.DIR_EAST:
+	case def.DIR_EAST:
 		return "East"
-	case gv.DIR_SOUTH:
+	case def.DIR_SOUTH:
 		return "South"
-	case gv.DIR_WEST:
+	case def.DIR_WEST:
 		return "West"
 	}
 
@@ -351,13 +351,13 @@ func DirToName(dir uint8) string {
 
 func DirToArrow(dir uint8) string {
 	switch dir {
-	case gv.DIR_NORTH:
+	case def.DIR_NORTH:
 		return "^"
-	case gv.DIR_EAST:
+	case def.DIR_EAST:
 		return ">"
-	case gv.DIR_SOUTH:
+	case def.DIR_SOUTH:
 		return "v"
-	case gv.DIR_WEST:
+	case def.DIR_WEST:
 		return "<"
 	}
 
@@ -366,33 +366,33 @@ func DirToArrow(dir uint8) string {
 
 func ReverseType(t uint8) uint8 {
 	switch t {
-	case gv.PORT_OUT:
-		return gv.PORT_IN
-	case gv.PORT_IN:
-		return gv.PORT_OUT
-	case gv.PORT_FIN:
-		return gv.PORT_FOUT
-	case gv.PORT_FOUT:
-		return gv.PORT_FIN
+	case def.PORT_OUT:
+		return def.PORT_IN
+	case def.PORT_IN:
+		return def.PORT_OUT
+	case def.PORT_FIN:
+		return def.PORT_FOUT
+	case def.PORT_FOUT:
+		return def.PORT_FIN
 	default:
-		return gv.PORT_NONE
+		return def.PORT_NONE
 	}
 }
 
 /* Flop a consts.DIR */
 func ReverseDirection(dir uint8) uint8 {
 	switch dir {
-	case gv.DIR_NORTH:
-		return gv.DIR_SOUTH
-	case gv.DIR_EAST:
-		return gv.DIR_WEST
-	case gv.DIR_SOUTH:
-		return gv.DIR_NORTH
-	case gv.DIR_WEST:
-		return gv.DIR_EAST
+	case def.DIR_NORTH:
+		return def.DIR_SOUTH
+	case def.DIR_EAST:
+		return def.DIR_WEST
+	case def.DIR_SOUTH:
+		return def.DIR_NORTH
+	case def.DIR_WEST:
+		return def.DIR_EAST
 	}
 
-	return gv.DIR_MAX
+	return def.DIR_MAX
 }
 
 /* Generic unzip []byte */

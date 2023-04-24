@@ -1,7 +1,7 @@
 package world
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"sync"
 	"sync/atomic"
 
@@ -16,10 +16,22 @@ func init() {
 }
 
 var (
-	UPSAvr = ewma.NewMovingAverage(gv.GameUPS * 4)
+	/* Build flags */
+	UPSBench = false
+	LoadTest = false
+
+	Debug     = false
+	LogStdOut = true
+	UIScale   = 1.0
+
+	ResourceLegendImage *ebiten.Image
+	TitleImage          *ebiten.Image
+	EbitenLogo          *ebiten.Image
+
+	UPSAvr = ewma.NewMovingAverage(def.GameUPS * 4)
 	FPSAvr = ewma.NewMovingAverage(30)
 
-	FontDPI       float64 = gv.FontDPI
+	FontDPI       float64 = def.FontDPI
 	Vsync         bool    = true
 	ImperialUnits bool    = false
 	UseHyper      bool    = false
@@ -71,7 +83,7 @@ var (
 	NumWorkers int
 
 	/* Game UPS rate */
-	ObjectUPS            float32 = gv.GameUPS
+	ObjectUPS            float32 = def.GameUPS
 	ObjectUPS_ns                 = int(1000000000.0 / ObjectUPS)
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
 
@@ -95,11 +107,11 @@ var (
 	ObjectFont  font.Face
 
 	/* Camera position */
-	CameraX float32 = float32(gv.XYCenter)
-	CameraY float32 = float32(gv.XYCenter)
+	CameraX float32 = float32(def.XYCenter)
+	CameraY float32 = float32(def.XYCenter)
 
 	/* Camera states */
-	ZoomScale   float32 = gv.DefaultZoom //Current zoom
+	ZoomScale   float32 = def.DefaultZoom //Current zoom
 	OverlayMode bool
 
 	/* View layers */

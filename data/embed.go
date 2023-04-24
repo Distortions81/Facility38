@@ -2,7 +2,7 @@ package data
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
+	"Facility38/def"
 	"embed"
 	"fmt"
 	"image"
@@ -28,7 +28,7 @@ const cLoadEmbedSprites = true
 func init() {
 	var err error
 	var shaderProgram []byte
-	shaderProgram, err = f.ReadFile(gv.ShadersDir + "pixelate.kage")
+	shaderProgram, err = f.ReadFile(def.ShadersDir + "pixelate.kage")
 	if err != nil {
 		log.Fatal("Error reading shaders.")
 		return
@@ -43,7 +43,7 @@ func init() {
 */
 
 func init() {
-	gpng, err := f.Open(gv.GfxDir + "icon.png")
+	gpng, err := f.Open(def.GfxDir + "icon.png")
 	if err != nil {
 		fmt.Println("Game icon file is missing...")
 		return
@@ -57,7 +57,7 @@ func init() {
 }
 
 func GetFont(name string) []byte {
-	data, err := f.ReadFile(gv.GfxDir + "fonts/" + name)
+	data, err := f.ReadFile(def.GfxDir + "fonts/" + name)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,7 +68,7 @@ func GetFont(name string) []byte {
 func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 
 	if cLoadEmbedSprites {
-		gpng, err := f.Open(gv.GfxDir + name)
+		gpng, err := f.Open(def.GfxDir + name)
 		if err != nil {
 			//cwlog.DoLog(true, "GetSpriteImage: Embedded: %v", err)
 			return nil, err
@@ -88,7 +88,7 @@ func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 		return img, nil
 
 	} else {
-		img, _, err := ebitenutil.NewImageFromFile(gv.DataDir + gv.GfxDir + name)
+		img, _, err := ebitenutil.NewImageFromFile(def.DataDir + def.GfxDir + name)
 		if err != nil {
 			cwlog.DoLog(true, "GetSpriteImage: File: %v", err)
 		}
@@ -97,7 +97,7 @@ func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 }
 
 func GetText(name string) (string, error) {
-	file, err := f.Open(gv.TxtDir + name + ".txt")
+	file, err := f.Open(def.TxtDir + name + ".txt")
 	if err != nil {
 		cwlog.DoLog(true, "GetText: %v", err)
 		return "GetText: File: " + name + " not found in embed.", err

@@ -2,7 +2,6 @@ package main
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
 	"Facility38/world"
 	"image/color"
 	"sync"
@@ -17,7 +16,7 @@ var WindowsLock sync.Mutex
 var Windows []*WindowData = []*WindowData{
 	{
 		Title:       "Options",
-		Size:        world.XYs{X: 325, Y: 450},
+		Size:        world.XYs{X: 325, Y: 350},
 		Centered:    true,
 		Closeable:   true,
 		WindowDraw:  drawOptionsWindow,
@@ -54,8 +53,9 @@ type WindowData struct {
 
 	WindowButtons WindowButtonData /* Window buttons */
 
-	Size     world.XYs /* Size in pixels */
-	Position world.XYs /* Position */
+	Size       world.XYs /* Size in pixels */
+	ScaledSize world.XYs /* Size with UI scale */
+	Position   world.XYs /* Position */
 
 	BGColor      *color.Color /* Custom BG color */
 	TitleBGColor *color.Color /* Custom titlebar background color */
@@ -82,7 +82,6 @@ type WindowButtonData struct {
 
 func InitWindows() {
 	for _, win := range Windows {
-		//win.Cache = ebiten.NewImage(int(win.Size.X), int(win.Size.Y))
 		if win.WindowSetup != nil {
 			win.WindowSetup(win)
 			win.Dirty = true
@@ -110,11 +109,11 @@ func OpenWindow(window *WindowData) {
 
 			if window.Centered && window.Movable {
 				Windows[wpos].Position = world.XYs{
-					X: int32(world.ScreenWidth/2) - (window.Size.X / 2),
-					Y: int32(world.ScreenHeight/2) - (window.Size.Y / 2)}
+					X: int32(world.ScreenWidth/2) - (window.ScaledSize.X / 2),
+					Y: int32(world.ScreenHeight/2) - (window.ScaledSize.Y / 2)}
 			}
 
-			if gv.Debug {
+			if world.Debug {
 				cwlog.DoLog(true, "Window '%v' added to open list.", window.Title)
 			}
 			OpenWindows = append(OpenWindows, Windows[wpos])
@@ -141,7 +140,7 @@ func CloseWindow(window *WindowData) {
 		Windows[wpos].Active = false
 		for wopos := range OpenWindows {
 			if OpenWindows[wopos] == Windows[wpos] {
-				if gv.Debug {
+				if world.Debug {
 					cwlog.DoLog(true, "Window '%v' removed from open list.", window.Title)
 				}
 				/* Remove item */
@@ -152,7 +151,7 @@ func CloseWindow(window *WindowData) {
 	}
 
 	if !window.KeepCache && window.Cache != nil {
-		if gv.Debug {
+		if world.Debug {
 			cwlog.DoLog(true, "Window '%v' closed, disposing cache.", window.Title)
 		}
 		window.Cache.Dispose()
@@ -167,7 +166,7 @@ func WindowDirty(window *WindowData) {
 	for wpos := range Windows {
 		if Windows[wpos] == window {
 			Windows[wpos].Dirty = true
-			if gv.Debug {
+			if world.Debug {
 				cwlog.DoLog(true, "Window '%v' marked as dirty.", window.Title)
 			}
 			break
@@ -175,8 +174,7 @@ func WindowDirty(window *WindowData) {
 	}
 }
 
-const pad = 16
-const halfPad = pad / 2
+const cpad = 16
 
 /*
  * TODO: RESIZE CLOSE X BUTTON!!!
@@ -186,7 +184,11 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
+	pad := int(cpad * world.UIScale)
+	halfPad := int((cpad / 2.0) * world.UIScale)
+
 	winPos := getWindowPos(window)
+	window.ScaledSize = world.XYs{X: int32(float64(window.Size.X) * world.UIScale), Y: int32(float64(window.Size.Y) * world.UIScale)}
 
 	if !window.Dirty {
 		if window.Cache != nil {
@@ -198,8 +200,8 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	}
 
 	if window.Cache == nil {
-		window.Cache = ebiten.NewImage(int(window.Size.X), int(window.Size.Y))
-		if gv.Debug {
+		window.Cache = ebiten.NewImage(int(window.ScaledSize.X), int(window.ScaledSize.Y))
+		if world.Debug {
 			cwlog.DoLog(true, "Window '%v' cache initalized.", window.Title)
 		}
 	} else {
@@ -233,49 +235,51 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	vector.DrawFilledRect(
 		window.Cache,
 		0, 0,
-		float32(window.Size.X), float32(window.Size.Y),
+		float32(window.ScaledSize.X), float32(window.ScaledSize.Y),
 		winBG, false)
 
 	if window.Title != "" {
 
-		fHeight := text.BoundString(world.BootFont, "1")
+		fHeight := text.BoundString(world.BootFont, "!Aa0")
 
 		/* Border */
 		if !window.Borderless {
 			vector.DrawFilledRect(
-				window.Cache, 0, +float32(window.Size.Y)-1,
-				float32(window.Size.X), 1, titleBGColor, false,
+				window.Cache, 0, +float32(window.ScaledSize.Y)-1,
+				float32(window.ScaledSize.X), 2, titleBGColor, false,
 			)
 			vector.DrawFilledRect(
 				window.Cache,
 				0, 0,
-				1, float32(window.Size.Y),
+				2, float32(window.ScaledSize.Y),
 				titleBGColor, false)
 			vector.DrawFilledRect(
 				window.Cache,
-				float32(window.Size.X)-1, 0,
-				1, float32(window.Size.Y),
+				float32(window.ScaledSize.X)-1, 0,
+				2, float32(window.ScaledSize.Y),
 				titleBGColor, false)
 		}
 
 		/* Title bar */
 		vector.DrawFilledRect(
 			window.Cache, 0, 0,
-			float32(window.Size.X), float32((fHeight.Dy())+pad), titleBGColor, false,
+			float32(window.ScaledSize.X), float32(float64(fHeight.Dy()))+float32(pad), titleBGColor, false,
 		)
 		window.WindowButtons.TitleBarHeight = fHeight.Dy() + pad
 
-		text.Draw(window.Cache, window.Title, world.BootFont, halfPad, int(int32(fHeight.Dy())+halfPad), titleColor)
+		text.Draw(window.Cache, window.Title, world.BootFont, halfPad, int(fHeight.Dy()+halfPad), titleColor)
 
 		if window.Closeable {
 			img := WorldOverlays[8].Images.Main
 			op := &ebiten.DrawImageOptions{}
-			closePosX := float64(window.Size.X - int32(img.Bounds().Dx()))
+			closePosX := float64(window.ScaledSize.X - int32(float64(img.Bounds().Dx())*world.UIScale))
+			op.GeoM.Scale(world.UIScale, world.UIScale)
 			op.GeoM.Translate(closePosX, 0)
 
 			/* save button positions */
 			window.WindowButtons.ClosePos = world.XYs{X: int32(closePosX), Y: int32(0)}
-			window.WindowButtons.CloseSize = world.XYs{X: int32(img.Bounds().Dx()), Y: int32(img.Bounds().Dy())}
+			window.WindowButtons.CloseSize = world.XYs{X: int32(float64(img.Bounds().Dx()) * world.UIScale),
+				Y: int32(float64(img.Bounds().Dy()) * world.UIScale)}
 			window.Cache.DrawImage(img, op)
 		}
 	}
@@ -308,8 +312,8 @@ func CollisionWindowsCheck(input world.XYs) bool {
 func CollisionWindow(input world.XYs, window *WindowData) bool {
 	winPos := getWindowPos(window)
 
-	if input.X > winPos.X && input.X < winPos.X+window.Size.X &&
-		input.Y > winPos.Y && input.Y < winPos.Y+window.Size.Y {
+	if input.X > winPos.X && input.X < winPos.X+window.ScaledSize.X &&
+		input.Y > winPos.Y && input.Y < winPos.Y+window.ScaledSize.Y {
 		if !window.Focused {
 			window.Focused = true
 		}
@@ -350,10 +354,10 @@ func handleClose(input world.XYs, window *WindowData) bool {
 	}
 
 	winPos := getWindowPos(window)
-	if input.X > winPos.X+window.Size.X-window.WindowButtons.CloseSize.X &&
-		input.X < winPos.X+window.Size.X &&
+	if input.X > winPos.X+window.ScaledSize.X-window.WindowButtons.CloseSize.X &&
+		input.X < winPos.X+window.ScaledSize.X &&
 		input.Y > winPos.Y-window.WindowButtons.CloseSize.Y &&
-		input.Y < winPos.Y+window.Size.Y {
+		input.Y < winPos.Y+window.ScaledSize.Y {
 		CloseWindow(window)
 		return true
 	}
@@ -375,7 +379,7 @@ func handleDrag(input world.XYs, window *WindowData) bool {
 
 	winPos := getWindowPos(window)
 	if input.X > winPos.X &&
-		input.X < winPos.X+window.Size.X &&
+		input.X < winPos.X+window.ScaledSize.X &&
 		input.Y > winPos.Y &&
 		input.Y < winPos.Y+int32(window.WindowButtons.TitleBarHeight) {
 		gWindowDrag = window
@@ -389,7 +393,7 @@ func handleDrag(input world.XYs, window *WindowData) bool {
 func getWindowPos(window *WindowData) world.XYs {
 	var winPos world.XYs
 	if window.Centered && !window.Movable {
-		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.Size.X/2), int32(world.ScreenHeight/2)-(window.Size.Y/2)
+		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.ScaledSize.X/2), int32(world.ScreenHeight/2)-(window.ScaledSize.Y/2)
 	} else {
 		winPos = window.Position
 	}

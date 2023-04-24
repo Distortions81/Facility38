@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 )
@@ -22,7 +22,7 @@ func MakeMap(gen bool) {
 		vSpace := 4
 		bLen := 3
 		beltLength := hSpace + bLen
-		for i := 0; total < gv.NumTestObjects; i++ {
+		for i := 0; total < def.NumTestObjects; i++ {
 			if i%2 == 0 {
 				rows++
 			} else {
@@ -33,34 +33,34 @@ func MakeMap(gen bool) {
 		}
 		Loaded := 0
 
-		if gv.LoadTest {
+		if world.LoadTest {
 
-			ty := int(gv.XYCenter) - (rows)
+			ty := int(def.XYCenter) - (rows)
 			cols := 0
 			for j := 0; j < rows*columns; j++ {
 				cols++
 
-				tx := int(gv.XYCenter) - ((columns * (beltLength + hSpace)) / 3)
-				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicMiner, nil, gv.DIR_EAST, true)
+				tx := int(def.XYCenter) - ((columns * (beltLength + hSpace)) / 3)
+				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, def.ObjTypeBasicMiner, nil, def.DIR_EAST, true)
 				tx++
 				tx++
 				Loaded++
 
-				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicUnloader, nil, gv.DIR_EAST, true)
+				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, def.ObjTypeBasicUnloader, nil, def.DIR_EAST, true)
 				tx++
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
-					PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBelt, nil, gv.DIR_EAST, true)
+					PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, def.ObjTypeBasicBelt, nil, def.DIR_EAST, true)
 					tx++
 					Loaded++
 				}
 
-				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicLoader, nil, gv.DIR_EAST, true)
+				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, def.ObjTypeBasicLoader, nil, def.DIR_EAST, true)
 				tx++
 				Loaded++
 
-				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, gv.ObjTypeBasicBox, nil, gv.DIR_EAST, true)
+				PlaceObj(world.XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, def.ObjTypeBasicBox, nil, def.DIR_EAST, true)
 				tx++
 				tx++
 				Loaded++
@@ -80,7 +80,7 @@ func MakeMap(gen bool) {
 	}
 
 	util.WASMSleep()
-	ExploreMap(world.XY{X: gv.XYCenter - (gv.ChunkSize / 2), Y: gv.XYCenter - (gv.ChunkSize / 2)}, 16, gv.WASMMode)
+	ExploreMap(world.XY{X: def.XYCenter - (def.ChunkSize / 2), Y: def.XYCenter - (def.ChunkSize / 2)}, 16, world.WASMMode)
 
 	world.MapLoadPercent = 100
 	world.MapGenerated.Store(true)

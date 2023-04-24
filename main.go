@@ -3,7 +3,7 @@ package main
 import (
 	"Facility38/cwlog"
 	"Facility38/data"
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"flag"
@@ -44,23 +44,23 @@ func main() {
 
 	imgb, err := data.GetSpriteImage("title.png", true)
 	if err == nil {
-		gv.TitleImage = imgb
+		world.TitleImage = imgb
 	}
 	imgb, err = data.GetSpriteImage("ebiten.png", true)
 	if err == nil {
-		gv.EbitenLogo = imgb
+		world.EbitenLogo = imgb
 	}
 
 	/* Compile flags */
 	if NoDebug == "true" { /* Published build */
-		gv.Debug = false
-		gv.LogStdOut = false
-		gv.UPSBench = false
-		gv.LoadTest = false
+		world.Debug = false
+		world.LogStdOut = false
+		world.UPSBench = false
+		world.LoadTest = false
 	}
 	/* Web assm builds */
 	if WASMMode == "true" {
-		gv.WASMMode = true
+		world.WASMMode = true
 	} else {
 		/* Functions that will not work in webasm */
 		cwlog.StartLog()
@@ -89,7 +89,7 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	setupWindowSize()
 
-	if gv.WASMMode && (gv.LoadTest || gv.UPSBench) {
+	if world.WASMMode && (world.LoadTest || world.UPSBench) {
 		world.PlayerReady.Store(true)
 	}
 
@@ -136,7 +136,7 @@ func NewGame() *Game {
 		loadSprites(true)
 
 		ResourceMapInit()
-		MakeMap(gv.LoadTest)
+		MakeMap(world.LoadTest)
 		startGame()
 	}()
 
@@ -155,7 +155,7 @@ func startGame() {
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
 	GameRunning = true
-	if !gv.WASMMode {
+	if !world.WASMMode {
 		go PixmapRenderDaemon()
 		go ObjUpdateDaemon()
 		go ResourceRenderDaemon()
@@ -164,7 +164,8 @@ func startGame() {
 		go ObjUpdateDaemonST()
 	}
 
-	InitWindows()
+	ow, oh := ebiten.WindowSize()
+	handleResize(ow, oh)
 }
 
 /* Load all sprites, sub missing ones */
@@ -185,9 +186,9 @@ func loadSprites(dark bool) {
 				img, err = data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+dstr+".png", false)
 				if err != nil && !dark {
 					/* If not found, fill texture with text */
-					img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+					img = ebiten.NewImage(int(def.SpriteScale), int(def.SpriteScale))
 					img.Fill(world.ColorVeryDarkGray)
-					text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
+					text.Draw(img, item.Symbol, world.ObjectFont, def.PlaceholdOffX, def.PlaceholdOffY, world.ColorWhite)
 				}
 			}
 			if dark {
@@ -245,9 +246,9 @@ func loadSprites(dark bool) {
 			img, err := data.GetSpriteImage("belt-obj/"+item.Base+".png", false)
 			if err != nil {
 				/* If not found, fill texture with text */
-				img = ebiten.NewImage(int(gv.SpriteScale), int(gv.SpriteScale))
+				img = ebiten.NewImage(int(def.SpriteScale), int(def.SpriteScale))
 				img.Fill(world.ColorVeryDarkGray)
-				text.Draw(img, item.Symbol, world.ObjectFont, gv.PlaceholdOffX, gv.PlaceholdOffY, world.ColorWhite)
+				text.Draw(img, item.Symbol, world.ObjectFont, def.PlaceholdOffX, def.PlaceholdOffY, world.ColorWhite)
 			}
 			MatTypes[m].LightImage = img
 		} else {
@@ -263,7 +264,7 @@ func loadSprites(dark bool) {
 
 	img, err := data.GetSpriteImage("ui/resource-legend.png", true)
 	if err == nil {
-		gv.ResourceLegendImage = img
+		world.ResourceLegendImage = img
 	}
 
 	LinkSprites(false)
@@ -345,22 +346,22 @@ func bootScreen(screen *ebiten.Image) {
 	}
 	screen.Fill(world.BootColor)
 
-	if gv.TitleImage != nil {
+	if world.TitleImage != nil {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 
-		newScaleX := (float64(world.ScreenHeight) / float64(gv.TitleImage.Bounds().Dy()))
+		newScaleX := (float64(world.ScreenHeight) / float64(world.TitleImage.Bounds().Dy()))
 
 		op.GeoM.Scale(newScaleX, newScaleX)
 
 		op.GeoM.Translate(
-			float64(world.ScreenWidth/2)-(float64(gv.TitleImage.Bounds().Size().X)*newScaleX)/2,
-			float64(world.ScreenHeight/2)-(float64(gv.TitleImage.Bounds().Size().Y)*newScaleX)/2,
+			float64(world.ScreenWidth/2)-(float64(world.TitleImage.Bounds().Size().X)*newScaleX)/2,
+			float64(world.ScreenHeight/2)-(float64(world.TitleImage.Bounds().Size().Y)*newScaleX)/2,
 		)
-		screen.DrawImage(gv.TitleImage, op)
+		screen.DrawImage(world.TitleImage, op)
 
 		op.GeoM.Reset()
-		screen.DrawImage(gv.EbitenLogo, op)
+		screen.DrawImage(world.EbitenLogo, op)
 		DrawText("Ebitengine", world.BootFont, world.ColorDarkOrange, color.Transparent, world.XYf32{X: 128, Y: 256 + 32}, 0, screen, false, false, true)
 	}
 
@@ -390,7 +391,7 @@ func bootScreen(screen *ebiten.Image) {
 /* Detect logical and virtual CPUs, set number of workers */
 func detectCPUs(hyper bool) {
 
-	if gv.WASMMode {
+	if world.WASMMode {
 		world.NumWorkers = 1
 		return
 	}
@@ -433,7 +434,7 @@ func setupWindowSize() {
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
 	/* Skip in benchmark mode */
-	if !gv.UPSBench {
+	if !world.UPSBench {
 		/* Handle high res displays, 50% window */
 		if xSize > 2560 && ySize > 1600 {
 			world.ScreenWidth = uint16(xSize) / 2
@@ -449,7 +450,7 @@ func setupWindowSize() {
 	ebiten.SetWindowSize(int(world.ScreenWidth), int(world.ScreenHeight))
 }
 
-var oldScale = gv.UIScale
+var oldScale = world.UIScale
 
 const scaleLockVal = 4
 
@@ -462,36 +463,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	if outsideWidth != int(world.ScreenWidth) || outsideHeight != int(world.ScreenHeight) {
 		world.ScreenWidth = uint16(outsideWidth)
 		world.ScreenHeight = uint16(outsideHeight)
-
-		//Recalcualte settings window item
-		scale := 1 / (gv.UIBaseResolution / float64(outsideWidth))
-
-		lock := float64(int(scale * scaleLockVal))
-		scale = lock / scaleLockVal
-
-		if scale < 0.5 {
-			gv.UIScale = 0.5
-		} else if scale > 6.0 {
-			gv.UIScale = 6.0
-		} else {
-			gv.UIScale = scale
-		}
-
-		if gv.UIScale != oldScale {
-
-			cwlog.DoLog(true, "UIScale: %v", gv.UIScale)
-			oldScale = gv.UIScale
-
-			UpdateFonts()
-
-			toolbarCacheLock.Lock()
-			toolbarCache.Dispose()
-			toolbarCache = nil
-			toolbarCacheLock.Unlock()
-			DrawToolbar(false, false, 255)
-		}
+		handleResize(outsideWidth, outsideHeight)
 		world.VisDataDirty.Store(true)
-		windowTitle()
 	}
 
 	return int(world.ScreenWidth), int(world.ScreenHeight)
@@ -500,4 +473,44 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 /* Automatic window title update */
 func windowTitle() {
 	ebiten.SetWindowTitle("Facility 38")
+}
+
+func handleResize(outsideWidth int, outsideHeight int) {
+	//Recalcualte settings window item
+	scale := 1 / (def.UIBaseResolution / float64(outsideWidth))
+
+	lock := float64(int(scale * scaleLockVal))
+	scale = lock / scaleLockVal
+
+	if scale < 0.5 {
+		world.UIScale = 0.5
+	} else if scale > 6.0 {
+		world.UIScale = 6.0
+	} else {
+		world.UIScale = scale
+	}
+
+	if world.UIScale != oldScale {
+		/* Kill window caches */
+		for w := range Windows {
+			if Windows[w].Cache != nil {
+				Windows[w].Cache.Dispose()
+				Windows[w].Cache = nil
+			}
+		}
+
+		//cwlog.DoLog(true, "UIScale: %v", world.UIScale)
+		oldScale = world.UIScale
+
+		UpdateFonts()
+
+		toolbarCacheLock.Lock()
+		toolbarCache.Dispose()
+		toolbarCache = nil
+		toolbarCacheLock.Unlock()
+		DrawToolbar(false, false, 255)
+
+		InitWindows()
+	}
+	world.VisDataDirty.Store(true)
 }

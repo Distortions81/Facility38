@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"fmt"
@@ -51,7 +51,7 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 
 			/* Port is in correct direction */
 			if np.Dir == util.ReverseDirection(port.Dir) ||
-				np.Dir == gv.DIR_ANY || port.Dir == gv.DIR_ANY {
+				np.Dir == def.DIR_ANY || port.Dir == def.DIR_ANY {
 
 				/* Port is of correct type */
 				if port.Type != util.ReverseType(np.Type) {
@@ -60,10 +60,10 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				}
 
 				/* Normal objects can only link to loaders */
-				if (b.Obj.Unique.TypeP.Category == gv.ObjCatGeneric &&
-					neighb.Obj.Unique.TypeP.Category != gv.ObjCatLoader) ||
-					(neighb.Obj.Unique.TypeP.Category == gv.ObjCatGeneric &&
-						b.Obj.Unique.TypeP.Category != gv.ObjCatLoader) {
+				if (b.Obj.Unique.TypeP.Category == def.ObjCatGeneric &&
+					neighb.Obj.Unique.TypeP.Category != def.ObjCatLoader) ||
+					(neighb.Obj.Unique.TypeP.Category == def.ObjCatGeneric &&
+						b.Obj.Unique.TypeP.Category != def.ObjCatLoader) {
 					continue
 				}
 
@@ -75,7 +75,7 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				neighb.Obj.Ports[n].Link = &b.Obj.Ports[p]
 				b.Obj.Ports[p].Link = &neighb.Obj.Ports[n]
 
-				if gv.Debug {
+				if world.Debug {
 					oName := "none"
 					if b.Obj != nil {
 						oName = fmt.Sprintf("%v: %v", neighb.Obj.Unique.TypeP.Name, util.PosToString(neighb.Pos))
@@ -127,19 +127,19 @@ func AutoEvents(obj *world.ObjData) {
 	if obj.Unique.TypeP.UpdateObj != nil {
 
 		if obj.Unique.TypeP.HasInputs && foundInputs {
-			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+			EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
 		}
 		if obj.Unique.TypeP.HasOutputs && foundOutputs {
-			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+			EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+			EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
 		}
 
 		if obj.Unique.TypeP.HasFIn && foundFIn {
-			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+			EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
 		}
 		if obj.Unique.TypeP.HasFOut && foundFOut {
-			EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
-			EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+			EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+			EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
 		}
 	}
 }
@@ -166,7 +166,7 @@ func UnlinkObj(obj *world.ObjData) {
 				pObj := port.Obj
 
 				/* Reset last port to avoid hitting invalid one */
-				if port.Type == gv.PORT_IN {
+				if port.Type == def.PORT_IN {
 					obj.LastInput = 0
 				} else {
 					port.Obj.LastInput = 0
@@ -199,8 +199,8 @@ func UnlinkObj(obj *world.ObjData) {
 	* we will be re-added in link if there
 	* is some need for us to be in there
 	 */
-	EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-	EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+	EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+	EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
 }
 
 /* Add port to correct alias, increment */
@@ -210,16 +210,16 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 	}
 
 	switch ptype {
-	case gv.PORT_IN:
+	case def.PORT_IN:
 		obj.Inputs = append(obj.Inputs, &obj.Ports[port])
 		obj.NumIn++
-	case gv.PORT_OUT:
+	case def.PORT_OUT:
 		obj.Outputs = append(obj.Outputs, &obj.Ports[port])
 		obj.NumOut++
-	case gv.PORT_FIN:
+	case def.PORT_FIN:
 		obj.FuelIn = append(obj.FuelIn, &obj.Ports[port])
 		obj.NumFIn++
-	case gv.PORT_FOUT:
+	case def.PORT_FOUT:
 		obj.FuelOut = append(obj.FuelOut, &obj.Ports[port])
 		obj.NumFOut++
 	}

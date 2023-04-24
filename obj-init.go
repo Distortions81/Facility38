@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"fmt"
@@ -26,17 +26,17 @@ func init() {
 
 		/* Convert mining amount to interval */
 		if WorldObjs[i].MachineSettings.KgHourMine > 0 {
-			WorldObjs[i].MachineSettings.KgPerCycle = ((WorldObjs[i].MachineSettings.KgHourMine / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * gv.TIMESCALE_MULTI
+			WorldObjs[i].MachineSettings.KgPerCycle = ((WorldObjs[i].MachineSettings.KgHourMine / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * def.TIMESCALE_MULTI
 		}
 		/* Convert Horsepower to solid to KW and solid fuel per interval */
 		if WorldObjs[i].MachineSettings.HP > 0 {
-			KW := WorldObjs[i].MachineSettings.HP * gv.HP_PER_KW
-			COALKG := KW / gv.COAL_KWH_PER_KG
-			WorldObjs[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * gv.TIMESCALE_MULTI
+			KW := WorldObjs[i].MachineSettings.HP * def.HP_PER_KW
+			COALKG := KW / def.COAL_KWH_PER_KG
+			WorldObjs[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * def.TIMESCALE_MULTI
 			/* Convert KW to solid fuel per interval */
 		} else if WorldObjs[i].MachineSettings.KW > 0 {
-			COALKG := WorldObjs[i].MachineSettings.KW / gv.COAL_KWH_PER_KG
-			WorldObjs[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * gv.TIMESCALE_MULTI
+			COALKG := WorldObjs[i].MachineSettings.KW / def.COAL_KWH_PER_KG
+			WorldObjs[i].MachineSettings.KgFuelPerCycle = ((COALKG / 60 / 60 / world.ObjectUPS) * float32(WorldObjs[i].TockInterval)) * def.TIMESCALE_MULTI
 		}
 
 		/* Auto calculate max fuel from fuel used per interval */
@@ -59,16 +59,16 @@ func init() {
 		for p := range WorldObjs[i].Ports {
 			pt := WorldObjs[i].Ports[p].Type
 
-			if pt == gv.PORT_IN {
+			if pt == def.PORT_IN {
 				WorldObjs[i].HasInputs = true
 			}
-			if pt == gv.PORT_OUT {
+			if pt == def.PORT_OUT {
 				WorldObjs[i].HasOutputs = true
 			}
-			if pt == gv.PORT_FOUT {
+			if pt == def.PORT_FOUT {
 				WorldObjs[i].HasFOut = true
 			}
-			if pt == gv.PORT_FIN {
+			if pt == def.PORT_FIN {
 				WorldObjs[i].HasFIn = true
 			}
 
@@ -97,7 +97,7 @@ func initSmelter(obj *world.ObjData) bool {
 	}
 
 	obj.Unique.SingleContent = &world.MatData{}
-	obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_MIX_ORE]
+	obj.Unique.SingleContent.TypeP = MatTypes[def.MAT_MIX_ORE]
 
 	return true
 }
@@ -165,7 +165,7 @@ func initSlipRoller(obj *world.ObjData) bool {
 	}
 
 	obj.Unique.SingleContent = &world.MatData{}
-	obj.Unique.SingleContent.TypeP = MatTypes[gv.MAT_IRON_SHEET]
+	obj.Unique.SingleContent.TypeP = MatTypes[def.MAT_IRON_SHEET]
 
 	return true
 }

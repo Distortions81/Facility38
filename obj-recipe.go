@@ -2,7 +2,7 @@ package main
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/world"
 )
 
@@ -36,121 +36,121 @@ func init() {
 var Recipies = []*world.RecipeData{
 	/* Basic Smelter */
 	{
-		TypeI:    gv.RecIronShot,
+		TypeI:    def.RecIronShot,
 		Name:     "Iron Shot",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_IRON_ORE},
+		Requires: [def.MAT_MAX]uint8{def.MAT_IRON_ORE},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_IRON_SHOT},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicSmelter},
+		Result:       [def.MAT_MAX]uint8{def.MAT_IRON_SHOT},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicSmelter},
 	},
 	{
-		TypeI:    gv.RecCopperShot,
+		TypeI:    def.RecCopperShot,
 		Name:     "Copper Shot",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_COPPER_ORE},
+		Requires: [def.MAT_MAX]uint8{def.MAT_COPPER_ORE},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_COPPER_SHOT},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicSmelter},
+		Result:       [def.MAT_MAX]uint8{def.MAT_COPPER_SHOT},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicSmelter},
 	},
 	{
-		TypeI:    gv.RecCopperShot,
+		TypeI:    def.RecCopperShot,
 		Name:     "Slag Shot",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_MIX_ORE},
+		Requires: [def.MAT_MAX]uint8{def.MAT_MIX_ORE},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_SLAG_SHOT},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicSmelter},
+		Result:       [def.MAT_MAX]uint8{def.MAT_SLAG_SHOT},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicSmelter},
 	},
 	{
-		TypeI:    gv.RecCopperShot,
+		TypeI:    def.RecCopperShot,
 		Name:     "Stone Shot",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_STONE_ORE},
+		Requires: [def.MAT_MAX]uint8{def.MAT_STONE_ORE},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_SLAG_SHOT},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicSmelter},
+		Result:       [def.MAT_MAX]uint8{def.MAT_SLAG_SHOT},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicSmelter},
 	},
 
 	/* Basic Caster */
 	{
-		TypeI:    gv.RecIronBar,
+		TypeI:    def.RecIronBar,
 		Name:     "Iron Bar",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_IRON_SHOT},
+		Requires: [def.MAT_MAX]uint8{def.MAT_IRON_SHOT},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_IRON_BAR},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicCaster},
+		Result:       [def.MAT_MAX]uint8{def.MAT_IRON_BAR},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicCaster},
 	},
 	{
-		TypeI:    gv.RecCopperBar,
+		TypeI:    def.RecCopperBar,
 		Name:     "Copper Bar",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_COPPER_SHOT},
+		Requires: [def.MAT_MAX]uint8{def.MAT_COPPER_SHOT},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_COPPER_BAR},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicCaster},
+		Result:       [def.MAT_MAX]uint8{def.MAT_COPPER_BAR},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicCaster},
 	},
 	{
-		TypeI:    gv.RecCopperBar,
+		TypeI:    def.RecCopperBar,
 		Name:     "Slag Bar",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_SLAG_SHOT},
+		Requires: [def.MAT_MAX]uint8{def.MAT_SLAG_SHOT},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_SLAG_BAR},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicCaster},
+		Result:       [def.MAT_MAX]uint8{def.MAT_SLAG_BAR},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicCaster},
 	},
 	{
-		TypeI:    gv.RecCopperBar,
+		TypeI:    def.RecCopperBar,
 		Name:     "Stone Block",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_STONE_SHOT},
+		Requires: [def.MAT_MAX]uint8{def.MAT_STONE_SHOT},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_STONE_BLOCK},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicCaster},
+		Result:       [def.MAT_MAX]uint8{def.MAT_STONE_BLOCK},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicCaster},
 	},
 
 	/* Basic Rod Caster */
 	{
-		TypeI:    gv.RecIronRod,
+		TypeI:    def.RecIronRod,
 		Name:     "Iron Rod",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_IRON_BAR},
+		Requires: [def.MAT_MAX]uint8{def.MAT_IRON_BAR},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_IRON_ROD},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicRodCaster},
+		Result:       [def.MAT_MAX]uint8{def.MAT_IRON_ROD},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicRodCaster},
 	},
 	{
-		TypeI:    gv.RecCopperRod,
+		TypeI:    def.RecCopperRod,
 		Name:     "Copper Rod",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_COPPER_BAR},
+		Requires: [def.MAT_MAX]uint8{def.MAT_COPPER_BAR},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_COPPER_ROD},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicRodCaster},
+		Result:       [def.MAT_MAX]uint8{def.MAT_COPPER_ROD},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicRodCaster},
 	},
 	{
-		TypeI:    gv.RecCopperRod,
+		TypeI:    def.RecCopperRod,
 		Name:     "Slag Rod",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_SLAG_BAR},
+		Requires: [def.MAT_MAX]uint8{def.MAT_SLAG_BAR},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_SLAG_ROD},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicRodCaster},
+		Result:       [def.MAT_MAX]uint8{def.MAT_SLAG_ROD},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicRodCaster},
 	},
 
 	/* Slip Roller */
 	{
-		TypeI:    gv.RecIronSheet,
+		TypeI:    def.RecIronSheet,
 		Name:     "Iron Sheet",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_IRON_BAR},
+		Requires: [def.MAT_MAX]uint8{def.MAT_IRON_BAR},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_IRON_SHEET},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicSlipRoller},
+		Result:       [def.MAT_MAX]uint8{def.MAT_IRON_SHEET},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicSlipRoller},
 	},
 	{
-		TypeI:    gv.RecCopperSheet,
+		TypeI:    def.RecCopperSheet,
 		Name:     "Copper Sheet",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_COPPER_BAR},
+		Requires: [def.MAT_MAX]uint8{def.MAT_COPPER_BAR},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_COPPER_SHEET},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicSlipRoller},
+		Result:       [def.MAT_MAX]uint8{def.MAT_COPPER_SHEET},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicSlipRoller},
 	},
 	{
-		TypeI:    gv.RecCopperSheet,
+		TypeI:    def.RecCopperSheet,
 		Name:     "Slag Sheet",
-		Requires: [gv.MAT_MAX]uint8{gv.MAT_SLAG_BAR},
+		Requires: [def.MAT_MAX]uint8{def.MAT_SLAG_BAR},
 
-		Result:       [gv.MAT_MAX]uint8{gv.MAT_SLAG_SHEET},
-		MachineTypes: [gv.ObjTypeMax]uint8{gv.ObjTypeBasicSlipRoller},
+		Result:       [def.MAT_MAX]uint8{def.MAT_SLAG_SHEET},
+		MachineTypes: [def.ObjTypeMax]uint8{def.ObjTypeBasicSlipRoller},
 	},
 }

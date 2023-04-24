@@ -546,10 +546,10 @@
 				return ptr;
 			};
 
-			const argc = this.argv.length;
+			const argc = this.ardef.length;
 
 			const argvPtrs = [];
-			this.argv.forEach((arg) => {
+			this.ardef.forEach((arg) => {
 				argvPtrs.push(strPtr(arg));
 			});
 			argvPtrs.push(0);
@@ -610,13 +610,13 @@
 		stateal.process.versions &&
 		!stateal.process.versions.electron
 	) {
-		if (process.argv.length < 3) {
+		if (process.ardef.length < 3) {
 			console.error("usage: go_js_wasm_exec [wasm binary] [arguments]");
 			process.exit(1);
 		}
 
 		const go = new Go();
-		go.argv = process.argv.slice(2);
+		go.argv = process.ardef.slice(2);
 		go.env = Object.assign({ TMPDIR: require("os").tmpdir() }, process.env);
 		go.exit = process.exit;
 		WebAssembly.instantiate(fs.readFileSync(process.argv[2]), go.importObject).then((result) => {

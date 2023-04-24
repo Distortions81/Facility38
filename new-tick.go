@@ -2,7 +2,7 @@ package main
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/world"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -189,7 +189,7 @@ func NewRunTicksST() {
 }
 
 var (
-	block [gv.WorkSize]*world.ObjData
+	block [def.WorkSize]*world.ObjData
 )
 
 func NewRunTocks() {
@@ -205,7 +205,7 @@ func NewRunTocks() {
 				for _, tock := range off.Tocks {
 					block[numObj] = tock
 					numObj++
-					if numObj == gv.WorkSize {
+					if numObj == def.WorkSize {
 						runTockBlock(numObj)
 						ActiveTocks += numObj
 						numObj = 0
@@ -233,7 +233,7 @@ func NewRunTicks() {
 				for _, tick := range off.Ticks {
 					block[numObj] = tick
 					numObj++
-					if numObj == gv.WorkSize {
+					if numObj == def.WorkSize {
 						runTickBlock(numObj)
 						ActiveTicks += numObj
 						numObj = 0
@@ -253,24 +253,24 @@ func NewRunTicks() {
 
 func runTickBlock(numObj int) {
 	wg.Add()
-	go func(w [gv.WorkSize]*world.ObjData, nObj int) {
+	go func(w [def.WorkSize]*world.ObjData, nObj int) {
 		for x := 0; x < nObj; x++ {
 			tickObj(w[x])
 		}
 		wg.Done()
 	}(block, numObj)
 
-	block = [gv.WorkSize]*world.ObjData{}
+	block = [def.WorkSize]*world.ObjData{}
 }
 
 func runTockBlock(numObj int) {
 	wg.Add()
-	go func(w [gv.WorkSize]*world.ObjData, nObj int) {
+	go func(w [def.WorkSize]*world.ObjData, nObj int) {
 		for x := 0; x < nObj; x++ {
 			w[x].Unique.TypeP.UpdateObj(w[x])
 		}
 		wg.Done()
 	}(block, numObj)
 
-	block = [gv.WorkSize]*world.ObjData{}
+	block = [def.WorkSize]*world.ObjData{}
 }

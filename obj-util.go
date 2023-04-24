@@ -2,7 +2,7 @@ package main
 
 import (
 	"Facility38/cwlog"
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"fmt"
@@ -154,7 +154,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	if obj == nil {
 		if newObj.Unique.TypeP.CanContain {
 			newObj.Unique.Contents = &world.MaterialContentsType{}
-			newObj.Unique.Contents.Mats = [gv.MAT_MAX]*world.MatData{}
+			newObj.Unique.Contents.Mats = [def.MAT_MAX]*world.MatData{}
 		}
 
 		if newObj.Unique.TypeP.MachineSettings.MaxFuelKG > 0 {

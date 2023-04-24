@@ -1,7 +1,7 @@
 package world
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"image/color"
 	"math/rand"
 	"sync"
@@ -15,13 +15,13 @@ type RecipeData struct {
 	Name  string
 	TypeI uint16
 
-	Requires  [gv.MAT_MAX]uint8
-	RequiresP [gv.MAT_MAX]*MaterialType
+	Requires  [def.MAT_MAX]uint8
+	RequiresP [def.MAT_MAX]*MaterialType
 
-	Result  [gv.MAT_MAX]uint8
-	ResultP [gv.MAT_MAX]*MaterialType
+	Result  [def.MAT_MAX]uint8
+	ResultP [def.MAT_MAX]*MaterialType
 
-	MachineTypes [gv.ObjTypeMax]uint8
+	MachineTypes [def.ObjTypeMax]uint8
 }
 
 /* Chat line data */
@@ -59,8 +59,8 @@ type MapSuperChunk struct {
 }
 
 type MaterialContentsType struct {
-	Mats [gv.MAT_MAX]*MatData
-	Objs [gv.ObjTypeMax]*StoreObj
+	Mats [def.MAT_MAX]*MatData
+	Objs [def.ObjTypeMax]*StoreObj
 }
 
 type BeltOverType struct {
@@ -94,7 +94,7 @@ type BuildingData struct {
 
 /* Used to keep track of amount of resources mined */
 type MinerData struct {
-	Mined [gv.NumResourceTypes]float32
+	Mined [def.NumResourceTypes]float32
 }
 
 /* Contain object map, object list and TerrainImg */
@@ -321,7 +321,7 @@ type ObjType struct {
 	Images          ObjectImages //All image data
 	MachineSettings MachineData  //Machine-specific data
 
-	RecipieLookup [gv.MAT_MAX]*RecipeData //Quick recipie lookup
+	RecipieLookup [def.MAT_MAX]*RecipeData //Quick recipie lookup
 
 	/* How often object should run, used in obj's tock function */
 	TockInterval uint8

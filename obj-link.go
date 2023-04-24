@@ -1,28 +1,28 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 )
 
 func linkMiner(obj *world.ObjData) {
 	if obj.NumOut == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
 	}
 }
 
 func linkBelt(obj *world.ObjData) {
 	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
 	}
 
 	if obj.NumIn == 1 && obj.NumOut == 1 {
@@ -30,18 +30,18 @@ func linkBelt(obj *world.ObjData) {
 
 		obj.IsCorner = true
 
-		var DrawDir uint8 = gv.DIR_NORTH
-		if in == gv.DIR_SOUTH && out == gv.DIR_EAST ||
-			out == gv.DIR_SOUTH && in == gv.DIR_EAST {
+		var DrawDir uint8 = def.DIR_NORTH
+		if in == def.DIR_SOUTH && out == def.DIR_EAST ||
+			out == def.DIR_SOUTH && in == def.DIR_EAST {
 			DrawDir = 0
-		} else if in == gv.DIR_WEST && out == gv.DIR_SOUTH ||
-			out == gv.DIR_WEST && in == gv.DIR_SOUTH {
+		} else if in == def.DIR_WEST && out == def.DIR_SOUTH ||
+			out == def.DIR_WEST && in == def.DIR_SOUTH {
 			DrawDir = 1
-		} else if in == gv.DIR_WEST && out == gv.DIR_NORTH ||
-			out == gv.DIR_WEST && in == gv.DIR_NORTH {
+		} else if in == def.DIR_WEST && out == def.DIR_NORTH ||
+			out == def.DIR_WEST && in == def.DIR_NORTH {
 			DrawDir = 2
-		} else if in == gv.DIR_NORTH && out == gv.DIR_EAST ||
-			out == gv.DIR_NORTH && in == gv.DIR_EAST {
+		} else if in == def.DIR_NORTH && out == def.DIR_EAST ||
+			out == def.DIR_NORTH && in == def.DIR_EAST {
 			DrawDir = 3
 		} else {
 			obj.IsCorner = false
@@ -52,11 +52,11 @@ func linkBelt(obj *world.ObjData) {
 
 func linkBeltOver(obj *world.ObjData) {
 	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
 	}
 
 	/* Alias inputs */
@@ -80,48 +80,48 @@ func linkBeltOver(obj *world.ObjData) {
 
 func linkFuelHopper(obj *world.ObjData) {
 	if obj.NumFOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
 	}
 }
 
 func linkSplitter(obj *world.ObjData) {
 	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
 	}
 }
 
 func linkUnloader(obj *world.ObjData) {
 	if obj.NumOut != 0 || obj.NumIn != 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
 	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
 	}
 }
 
 func linkBox(obj *world.ObjData) {
 	if obj.NumIn == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
 	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
 	}
 }
 
 func linkMachine(obj *world.ObjData) {
 	if obj.NumOut == 0 {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, gv.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
 	}
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Facility38/gv"
+	"Facility38/def"
 	"Facility38/world"
 	"sync"
 	"time"
@@ -14,7 +14,7 @@ var (
 	toolbarCache     *ebiten.Image
 	toolbarCacheLock sync.RWMutex
 	ToolbarMax       int
-	SelectedItemType uint8 = gv.MaxItemType
+	SelectedItemType uint8 = def.MaxItemType
 	ToolbarItems           = []world.ToolbarItem{}
 
 	ToolbarHover bool
@@ -25,10 +25,10 @@ func InitToolbar() {
 
 	ToolbarMax = 0
 	for spos, stype := range SubTypes {
-		if spos == gv.ObjSubUI || spos == gv.ObjSubGame {
+		if spos == def.ObjSubUI || spos == def.ObjSubGame {
 			for _, otype := range stype.List {
 				/* Skips some items for WASM */
-				if gv.WASMMode && otype.ExcludeWASM {
+				if world.WASMMode && otype.ExcludeWASM {
 					continue
 				}
 				ToolbarMax++
@@ -41,8 +41,8 @@ func InitToolbar() {
 
 /* Draw toolbar to an image */
 func DrawToolbar(click, hover bool, index int) {
-	ToolBarIconSize := float32(gv.UIScale * gv.ToolBarIconSize)
-	ToolBarSpacing := float32(gv.ToolBarIconSize / gv.ToolBarSpaceRatio)
+	ToolBarIconSize := float32(world.UIScale * def.ToolBarIconSize)
+	ToolBarSpacing := float32(def.ToolBarIconSize / def.ToolBarSpaceRatio)
 
 	toolbarCacheLock.Lock()
 	defer toolbarCacheLock.Unlock()
@@ -73,14 +73,14 @@ func DrawToolbar(click, hover bool, index int) {
 		op.GeoM.Reset()
 		iSize := img.Bounds()
 		op.GeoM.Scale(
-			gv.UIScale/(float64(iSize.Max.X)/float64(gv.ToolBarIconSize)),
-			gv.UIScale/(float64(iSize.Max.Y)/float64(gv.ToolBarIconSize)))
+			world.UIScale/(float64(iSize.Max.X)/float64(def.ToolBarIconSize)),
+			world.UIScale/(float64(iSize.Max.Y)/float64(def.ToolBarIconSize)))
 
 		if item.OType.Rotatable && item.OType.Direction > 0 {
 			x := float64(ToolBarIconSize / 2)
 			y := float64(ToolBarIconSize / 2)
 			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(gv.NinetyDeg * float64(item.OType.Direction))
+			op.GeoM.Rotate(def.NinetyDeg * float64(item.OType.Direction))
 			op.GeoM.Translate(x, y)
 		}
 		op.GeoM.Translate((float64(ToolBarIconSize+(ToolBarSpacing))*float64(pos))+float64(ToolBarSpacing/2), float64(ToolBarSpacing/2))
@@ -105,7 +105,7 @@ func DrawToolbar(click, hover bool, index int) {
 
 		toolbarCache.DrawImage(img, op)
 
-		if item.SType == gv.ObjSubGame {
+		if item.SType == def.ObjSubGame {
 
 			if item.OType.TypeI == SelectedItemType {
 				/* Left */
@@ -113,35 +113,35 @@ func DrawToolbar(click, hover bool, index int) {
 					float32(pos)*(ToolBarIconSize+ToolBarSpacing),
 					0,
 
-					(gv.TBSelThick),
-					(ToolBarIconSize+ToolBarSpacing)-gv.TBSelThick,
+					(def.TBSelThick),
+					(ToolBarIconSize+ToolBarSpacing)-def.TBSelThick,
 					world.ColorTBSelected, false)
 
 				/* Top */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+gv.TBSelThick,
+					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+def.TBSelThick,
 					0,
 
-					(ToolBarIconSize+ToolBarSpacing)-gv.TBSelThick,
-					(gv.TBSelThick),
+					(ToolBarIconSize+ToolBarSpacing)-def.TBSelThick,
+					(def.TBSelThick),
 					world.ColorTBSelected, false)
 
 				/* Bottom */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+gv.TBSelThick,
-					(ToolBarSpacing)+ToolBarIconSize-gv.TBSelThick,
+					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+def.TBSelThick,
+					(ToolBarSpacing)+ToolBarIconSize-def.TBSelThick,
 
-					(ToolBarIconSize+ToolBarSpacing)-gv.TBSelThick,
-					(gv.TBSelThick),
+					(ToolBarIconSize+ToolBarSpacing)-def.TBSelThick,
+					(def.TBSelThick),
 					world.ColorTBSelected, false)
 
 				/* Right */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+ToolBarIconSize+ToolBarSpacing-gv.TBSelThick,
+					float32(pos)*(ToolBarIconSize+ToolBarSpacing)+ToolBarIconSize+ToolBarSpacing-def.TBSelThick,
 					0,
 
-					(gv.TBSelThick),
-					(ToolBarIconSize+ToolBarSpacing)-gv.TBSelThick,
+					(def.TBSelThick),
+					(ToolBarIconSize+ToolBarSpacing)-def.TBSelThick,
 					world.ColorTBSelected, false)
 
 			}
