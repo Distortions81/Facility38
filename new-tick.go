@@ -31,10 +31,7 @@ var (
 /* Init at boot */
 func TickInit() {
 	for _, ot := range WorldObjs {
-		_, new := GetIntervalPos(int(ot.TockInterval))
-		if new {
-			//cwlog.DoLog(true, "Object: %v: Interval: %v", ot.Name, ot.TockInterval)
-		}
+		GetIntervalPos(int(ot.TockInterval))
 	}
 	cwlog.DoLog(true, "%v intervals added.", len(TickIntervals))
 }
