@@ -336,12 +336,12 @@ func NukeWorld() {
 	}
 	world.SuperChunkList = []*world.MapSuperChunk{}
 	world.SuperChunkMap = make(map[world.XY]*world.MapSuperChunk)
-	runtime.GC()
 
 	world.VisDataDirty.Store(true)
 	world.ZoomScale = def.DefaultZoom
 
 	TickIntervals = []TickInterval{}
 
+	runtime.GC()
 	world.SuperChunkListLock.Unlock()
 }
