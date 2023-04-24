@@ -341,5 +341,7 @@ func NukeWorld() {
 	world.VisDataDirty.Store(true)
 	world.ZoomScale = def.DefaultZoom
 
+	TickIntervals = []TickInterval{}
+
 	world.SuperChunkListLock.Unlock()
 }
