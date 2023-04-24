@@ -56,7 +56,6 @@ var (
 	ImageBatch [MaxBatch]*ebiten.Image
 	OpBatch    [MaxBatch]*ebiten.DrawImageOptions
 	UILayer    *ebiten.Image
-	UIScale    float32 = 0.5
 )
 
 /* Setup a few images for later use */
@@ -850,7 +849,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 	if world.ShowResourceLayer && world.ResourceLegendImage != nil {
 		op.GeoM.Reset()
 		op.GeoM.Scale(2, 2)
-		op.GeoM.Translate(8, float64(def.ToolBarIconSize))
+		op.GeoM.Translate(8, float64(def.ToolBarIconSize*world.UIScale)*2)
 		screen.DrawImage(world.ResourceLegendImage, op)
 	}
 }
