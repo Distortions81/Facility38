@@ -164,10 +164,11 @@ func startGame() {
 		go ObjUpdateDaemonST()
 	}
 
-	ow, oh := ebiten.WindowSize()
-
 	world.ScreenSizeLock.Lock()
-	handleResize(ow, oh)
+	ow, oh := ebiten.WindowSize()
+	if ow > 0 && oh > 0 {
+		handleResize(ow, oh)
+	}
 	world.VisDataDirty.Store(true)
 	world.ScreenSizeLock.Unlock()
 
@@ -511,8 +512,10 @@ func handleResize(outsideWidth int, outsideHeight int) {
 		UpdateFonts()
 
 		toolbarCacheLock.Lock()
-		toolbarCache.Dispose()
-		toolbarCache = nil
+		if toolbarCache != nil {
+			toolbarCache.Dispose()
+			toolbarCache = nil
+		}
 		toolbarCacheLock.Unlock()
 		DrawToolbar(false, false, 255)
 
