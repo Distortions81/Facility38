@@ -81,7 +81,7 @@ func drawOptionsWindow(window *WindowData) {
 
 		if !item.NoCheck {
 			/* Get checkmark image */
-			op := &ebiten.DrawImageOptions{}
+			op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 			var check *ebiten.Image
 			if item.Enabled {
 				check = WorldOverlays[6].Images.Main

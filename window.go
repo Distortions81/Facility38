@@ -272,7 +272,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
 		if window.Closeable {
 			img := WorldOverlays[8].Images.Main
-			op := &ebiten.DrawImageOptions{}
+			op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 			closePosX := float64(window.ScaledSize.X - int32(float64(img.Bounds().Dx())*world.UIScale))
 			op.GeoM.Scale(world.UIScale, world.UIScale)
 			op.GeoM.Translate(closePosX, 0)
