@@ -59,7 +59,6 @@ var (
 	ColorDarkBlue     = color.NRGBA{22, 98, 146, 255}
 	ColorDarkYellow   = color.NRGBA{139, 146, 22, 255}
 	ColorDarkGray     = color.NRGBA{111, 111, 111, 255}
-	ColorVeryDarkGray = color.NRGBA{64, 64, 64, 255}
 	ColorCharcoal     = color.NRGBA{16, 16, 16, 255}
 	ColorCharcoalSemi = color.NRGBA{16, 16, 16, 128}
 	ColorDarkOrange   = color.NRGBA{175, 117, 32, 255}
@@ -73,4 +72,8 @@ var (
 	ColorDarkLime     = color.NRGBA{122, 154, 45, 255}
 	ColorDarkFuchsia  = color.NRGBA{154, 45, 141, 255}
 	ColorDarkAqua     = color.NRGBA{45, 154, 154, 255}
+
+	ColorVeryDarkAqua = color.NRGBA{20, 40, 40, 255}
+	ColorVeryDarkGray = color.NRGBA{64, 64, 64, 255}
+	ColorMilkGlass    = color.NRGBA{128, 128, 128, 255}
 )

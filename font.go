@@ -22,6 +22,7 @@ func UpdateFonts() {
 
 	now := time.Now()
 	var mono, tt *opentype.Font
+	var logo *opentype.Font
 	var err error
 
 	if now.Month() == 4 && now.Day() == 1 {
@@ -60,6 +61,17 @@ func UpdateFonts() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		fdata = data.GetFont("Azonix-1VB0.otf")
+		collection, err = opentype.ParseCollection(fdata)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		logo, err = collection.Font(0)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	/*
@@ -70,7 +82,7 @@ func UpdateFonts() {
 	world.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    15,
 		DPI:     world.FontDPI,
-		Hinting: font.HintingFull,
+		Hinting: font.HintingNone,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -101,6 +113,16 @@ func UpdateFonts() {
 		Size:    11,
 		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	/* Mono font */
+	world.LogoFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
+		Size:    70,
+		DPI:     world.FontDPI,
+		Hinting: font.HintingNone,
 	})
 	if err != nil {
 		log.Fatal(err)

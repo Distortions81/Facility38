@@ -104,6 +104,7 @@ var (
 	BootFont    font.Face
 	ToolTipFont font.Face
 	MonoFont    font.Face
+	LogoFont    font.Face
 	ObjectFont  font.Face
 
 	/* Camera position */

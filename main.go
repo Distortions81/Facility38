@@ -368,29 +368,33 @@ func bootScreen(screen *ebiten.Image) {
 		screen.DrawImage(world.TitleImage, op)
 
 		op.GeoM.Reset()
+		op.GeoM.Scale(world.UIScale/4, world.UIScale/4)
+		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 		screen.DrawImage(world.EbitenLogo, op)
-		DrawText("Ebitengine", world.BootFont, world.ColorDarkOrange, color.Transparent, world.XYf32{X: 128, Y: 256 + 32}, 0, screen, false, false, true)
 	}
 
 	if status == "" {
 		status = "Loading complete!\n(Press any key or click to continue)"
 	}
 
-	output := fmt.Sprintf("Welcome to Facility 38\n\nStatus: %v...", status)
+	output := fmt.Sprintf("Status: %v...", status)
 
-	DrawText(output, world.BootFont, world.ColorWhite, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 5.0}, 0, screen, false, false, true)
+	DrawText("Facility 38", world.LogoFont, world.ColorOrange, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 4, Y: (float32(world.ScreenHeight) / 4.0) - 4}, 0, screen, false, true, true)
+	DrawText("Facility 38", world.LogoFont, world.ColorVeryDarkAqua, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 4.0}, 0, screen, false, true, true)
+	DrawText(output, world.BootFont, world.ColorMilkGlass, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 3.0}, 0, screen, false, true, true)
 
 	multi := 5.0
 	pw := float32(100.0 * multi)
 	tall := float32(24.0)
 	x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
-	y := (float32(world.ScreenHeight) / 3.0)
+	y := (float32(world.ScreenHeight) / 4.0)
 	vector.DrawFilledRect(screen, x, y, pw, tall, world.ColorVeryDarkGray, false)
 	color := world.ColorVeryDarkGray
 	if world.MapLoadPercent >= 100 {
 		world.MapLoadPercent = 100
 	}
 	color.G = byte(104 + (world.MapLoadPercent * 1.5))
+	color.A = 128
 	vector.DrawFilledRect(screen, x, y, world.MapLoadPercent*float32(multi), tall, color, false)
 	util.WASMSleep()
 }
