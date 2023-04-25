@@ -313,11 +313,14 @@ func drawItemInfo(screen *ebiten.Image) {
 				toolTip = toolTip + o.Unique.TypeP.Description
 			}
 
-			vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, false)
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Scale((1.0/float64(o.Unique.TypeP.Size.X))*8.0, (1.0/float64(o.Unique.TypeP.Size.Y))*8.0)
-			op.GeoM.Translate(float64(world.ScreenWidth)-(infoWidth)-infoSpaceRight, infoSpaceTop+(infoPad/2))
-			screen.DrawImage(o.Unique.TypeP.Images.Main, op)
+			/* Draw item preview */
+			if world.ZoomScale > def.MapPixelThreshold || world.ShowResourceLayer {
+				vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, false)
+				op := &ebiten.DrawImageOptions{}
+				op.GeoM.Scale((1.0/float64(o.Unique.TypeP.Size.X))*8.0, (1.0/float64(o.Unique.TypeP.Size.Y))*8.0)
+				op.GeoM.Translate(float64(world.ScreenWidth)-(infoWidth)-infoSpaceRight, infoSpaceTop+(infoPad/2))
+				screen.DrawImage(o.Unique.TypeP.Images.Main, op)
+			}
 		} else {
 			/* Otherwise, just show x/y location */
 			toolTip = fmt.Sprintf("(%v, %v)",
