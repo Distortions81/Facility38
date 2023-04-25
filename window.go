@@ -26,18 +26,10 @@ var Windows []*WindowData = []*WindowData{
 	},
 	{
 		Title:      "Help & Controls",
-		Size:       world.XYs{X: 400, Y: 400},
+		Size:       world.XYs{X: 300, Y: 300},
 		Centered:   true,
 		Closeable:  true,
 		WindowDraw: drawHelpWindow,
-		Movable:    true,
-	},
-	{
-		Title:      "Test",
-		Size:       world.XYs{X: 512, Y: 512},
-		Centered:   true,
-		Closeable:  true,
-		WindowDraw: testWindow,
 		Movable:    true,
 	},
 }
