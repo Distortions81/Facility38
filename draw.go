@@ -865,8 +865,8 @@ func drawDebugInfo(screen *ebiten.Image) {
 
 	/* Draw debug info */
 	buf := fmt.Sprintf("FPS: %-4v UPS: %4.2f Objects: %8v, %-8v/%8v, %-8v Arch: %v Build: v%v-%v",
-		int(world.FPSAvr.Value()),
-		(world.UPSAvr.Value()),
+		int(ebiten.ActualFPS()),
+		(world.ActualUPS),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
@@ -882,7 +882,6 @@ func drawDebugInfo(screen *ebiten.Image) {
 		world.XYf32{X: 0, Y: float32(world.ScreenHeight) - pad},
 		pad, screen, true, true, false)
 
-	world.FPSAvr.Add(ebiten.ActualFPS())
 }
 
 func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XYf32,

@@ -306,13 +306,22 @@ func createWorldObjects() {
 }
 
 /* Right-click drag or WASD movement, shift run */
+var lastUpdate time.Time
+
 func moveCamera() {
 
-	var base float32 = def.MoveSpeed
+	var startBase float64 = def.MoveSpeed
 	if gShiftPressed {
-		base = def.RunSpeed
+		startBase = def.RunSpeed
 	}
-	speed := base / (world.ZoomScale / 4.0)
+
+	/* Adjust speed based on high-percision TPS */
+	tps := 1000000000.0 / float64(time.Since(lastUpdate).Nanoseconds())
+	lastUpdate = time.Now()
+	base := startBase / (float64(tps / 60.0))
+
+	/* Base speed on zoom level */
+	speed := float32(base / (float64(world.ZoomScale) / 4.0))
 
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		world.CameraY -= speed

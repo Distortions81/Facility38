@@ -5,7 +5,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/VividCortex/ewma"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )
@@ -27,9 +26,6 @@ var (
 	ResourceLegendImage *ebiten.Image
 	TitleImage          *ebiten.Image
 	EbitenLogo          *ebiten.Image
-
-	UPSAvr = ewma.NewMovingAverage(def.GameUPS * 4)
-	FPSAvr = ewma.NewMovingAverage(30)
 
 	FontDPI       float64 = def.FontDPI
 	Vsync         bool    = true
@@ -86,6 +82,7 @@ var (
 	ObjectUPS            float32 = def.GameUPS
 	ObjectUPS_ns                 = int(1000000000.0 / ObjectUPS)
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
+	ActualUPS            float32
 
 	/* Starting resolution */
 	ScreenSizeLock sync.Mutex
