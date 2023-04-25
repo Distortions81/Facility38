@@ -187,7 +187,7 @@ func loaderUpdate(obj *world.ObjData) {
 
 func splitterUpdate(obj *world.ObjData) {
 
-	if obj.Inputs[0].Buf.Amount > 0 {
+	if obj.NumIn > 0 && obj.Inputs[0].Buf.Amount > 0 {
 		if obj.NumOut > 1 {
 			if obj.LastOutput >= (obj.NumOut - 1) {
 				obj.LastOutput = 0
