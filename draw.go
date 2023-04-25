@@ -911,8 +911,8 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 	if alpha > 0 {
 		fHeight := text.BoundString(face, "gpqabcABC!|_,;^*`")
 		vector.DrawFilledRect(
-			screen, tmx, tmy-float32(fHeight.Dy()),
-			float32(tRect.Dx())+pad, float32(tRect.Dy())+pad, bgcolor, false,
+			screen, tmx-pad, tmy-float32(fHeight.Dy())-pad,
+			float32(tRect.Dx())+pad*2, float32(tRect.Dy())+pad*2, bgcolor, false,
 		)
 	}
 	text.Draw(screen, input, face, int(tmx), int(tmy), color)
@@ -1046,21 +1046,12 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 	return nil, nil
 }
 
-var lineHeight int
-
 func drawChatLines(screen *ebiten.Image) {
 
 	var lineNum int
 	util.ChatLinesLock.Lock()
 	defer util.ChatLinesLock.Unlock()
 
-	for x := util.ChatLinesTop; x > 0 && lineNum < def.ChatHeightLines; x-- {
-		line := util.ChatLines[x-1]
-		tRect := text.BoundString(world.GeneralFont, line.Text)
-		if tRect.Dy() > lineHeight {
-			lineHeight = tRect.Dy()
-		}
-	}
 	for x := util.ChatLinesTop; x > 0 && lineNum < def.ChatHeightLines; x-- {
 		line := util.ChatLines[x-1]
 		/* Ignore old chat lines */
@@ -1092,7 +1083,7 @@ func drawChatLines(screen *ebiten.Image) {
 
 		DrawText(line.Text, world.GeneralFont,
 			color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)},
-			tBgColor, world.XYf32{X: padding, Y: float32(world.ScreenHeight) - (float32(lineNum) * (float32(lineHeight) * 1.2)) - padding},
-			0, screen, true, false, false)
+			tBgColor, world.XYf32{X: padding, Y: float32(world.ScreenHeight) - (float32(lineNum) * (float32(world.GeneralFontH) * 1.2)) - padding},
+			2, screen, true, false, false)
 	}
 }

@@ -20,6 +20,7 @@ var (
 	LoadTest = false
 
 	Debug     = false
+	Magnify   = false
 	LogStdOut = true
 	UIScale   = 1.0
 
@@ -98,12 +99,23 @@ var (
 	MapGenerated  atomic.Bool
 
 	/* Fonts */
-	BootFont    font.Face
-	ToolTipFont font.Face
-	MonoFont    font.Face
-	LogoFont    font.Face
-	GeneralFont font.Face
+	BootFont  font.Face
+	BootFontH int
+
+	ToolTipFont  font.Face
+	ToolTipFontH int
+
+	MonoFont  font.Face
+	MonoFontH int
+
+	LogoFont  font.Face
+	LogoFontH int
+
+	GeneralFont  font.Face
+	GeneralFontH int
+
 	ObjectFont  font.Face
+	ObjectFontH int
 
 	/* Camera position */
 	CameraX float32 = float32(def.XYCenter)

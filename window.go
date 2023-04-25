@@ -16,7 +16,7 @@ var WindowsLock sync.Mutex
 var Windows []*WindowData = []*WindowData{
 	{
 		Title:       "Options",
-		Size:        world.XYs{X: 250, Y: 325},
+		Size:        world.XYs{X: 250, Y: 275},
 		Centered:    true,
 		Closeable:   true,
 		WindowDraw:  drawOptionsWindow,
@@ -55,7 +55,6 @@ type WindowData struct {
 
 	Size       world.XYs /* Size in pixels */
 	ScaledSize world.XYs /* Size with UI scale */
-	LineHeight int
 	Position   world.XYs /* Position */
 
 	BGColor      *color.Color /* Custom BG color */

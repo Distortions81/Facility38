@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
 	"fmt"
@@ -13,41 +14,30 @@ import (
 )
 
 const (
-	padding = 8
+	padding     = 8
+	scalefactor = 1.5
+	linePad     = 2
 )
 
 func setupOptionsWindow(window *WindowData) {
 
 	buttons = []image.Rectangle{}
 
-	lineHeight := 0
-	lineWidth := 0
-	for _, item := range settingItems {
-		if item.Text != "" {
-			tbound := text.BoundString(world.GeneralFont, item.Text)
-			if tbound.Size().Y > lineHeight {
-				lineHeight = int(float64(tbound.Size().Y) * 2)
-			}
-			if tbound.Size().X > lineWidth {
-				lineWidth = int(float64(tbound.Size().X) * 4)
-			}
-		}
-	}
 	/* Loop all settings */
 	for i := range settingItems {
 		/* Place line */
-		settingItems[i].TextPosX = padding
-		settingItems[i].TextPosY = (lineHeight * (i + 2))
+		settingItems[i].TextPosX = int(padding * world.UIScale)
+		settingItems[i].TextPosY = int((float64(world.GeneralFontH)*scalefactor)*float64(i+linePad)) + int(padding*world.UIScale)
+
 		/* Generate button */
 		button := image.Rectangle{}
 		button.Min.X = 0
-		button.Max.X = lineWidth
+		button.Max.X = def.XYMax
 
-		button.Min.Y = (lineHeight * (i + 1))
-		button.Max.Y = (lineHeight * (i + 2))
+		button.Min.Y = int((float64(world.GeneralFontH)*scalefactor)*float64(i)) + int(padding*world.UIScale)
+		button.Max.Y = int((float64(world.GeneralFontH)*scalefactor)*float64(i+linePad)) + int(padding*world.UIScale)
 		buttons = append(buttons, button)
 	}
-	window.LineHeight = lineHeight
 
 }
 
@@ -57,7 +47,7 @@ func drawHelpWindow(window *WindowData) {
 		0, window.Cache, false, false, true)
 }
 
-const checkScale = 0.7
+const checkScale = 0.5
 
 func drawOptionsWindow(window *WindowData) {
 	var txt string
@@ -78,14 +68,14 @@ func drawOptionsWindow(window *WindowData) {
 
 		if i%2 == 0 {
 			vector.DrawFilledRect(window.Cache,
-				float32(b.Min.X+((b.Max.X-b.Min.X)/2)-(b.Dx()/2)),
-				float32(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
-				float32(b.Dx()),
-				float32(b.Dy()),
+				float32(b.Min.X),
+				float32(b.Max.Y),
+				float32(b.Size().X/2),
+				float32(b.Size().Y/2),
 				color.NRGBA{R: 255, G: 255, B: 255, A: 16}, false)
 		}
 
-		text.Draw(window.Cache, txt, world.GeneralFont, item.TextPosX, item.TextPosY-(window.LineHeight/4), itemColor)
+		text.Draw(window.Cache, txt, world.GeneralFont, item.TextPosX, item.TextPosY-(world.GeneralFontH/2), itemColor)
 
 		if !item.NoCheck {
 
@@ -100,14 +90,9 @@ func drawOptionsWindow(window *WindowData) {
 			/* Draw checkmark */
 			op.GeoM.Scale(world.UIScale*checkScale, world.UIScale*checkScale)
 			op.GeoM.Translate(
-				float64(window.ScaledSize.X)-(float64(check.Bounds().Dx())*world.UIScale)-padding,
+				float64(window.ScaledSize.X)-(float64(check.Bounds().Dx())*world.UIScale)-(padding*world.UIScale),
 				float64(item.TextPosY)-(float64(check.Bounds().Dy())*world.UIScale*checkScale))
 			window.Cache.DrawImage(check, op)
 		}
 	}
-}
-
-func testWindow(window *WindowData) {
-	DrawText("Test", world.GeneralFont, world.ColorRed, color.Transparent,
-		world.XYf32{X: float32(window.Size.X / 2), Y: float32(window.Size.Y / 2)}, 0, window.Cache, false, false, false)
 }

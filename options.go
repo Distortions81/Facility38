@@ -46,6 +46,7 @@ func init() {
 	settingItems = []settingType{
 		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
 		{ConfigName: "FULLSCREEN", Text: "Full Screen", Action: toggleFullscreen},
+		{ConfigName: "MAGNIFY", Text: "Magnifiy UI", Action: toggleMagnify},
 		{ConfigName: "UNCAP-FPS", Text: "Uncap UPS", Action: toggleUPSCap},
 		{ConfigName: "DEBUG", Text: "Debug mode", Action: toggleDebug},
 		{Text: "Load test map", Action: toggleTestMap},
@@ -242,6 +243,23 @@ func toggleFullscreen(item int) {
 		settingItems[item].Text,
 		util.BoolToOnOff(settingItems[item].Enabled))
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+}
+
+func toggleMagnify(item int) {
+	if world.Magnify {
+		world.Magnify = false
+		settingItems[item].Enabled = false
+	} else {
+		world.Magnify = true
+		settingItems[item].Enabled = true
+	}
+	buf := fmt.Sprintf("%v is now %v.",
+		settingItems[item].Text,
+		util.BoolToOnOff(settingItems[item].Enabled))
+	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+
+	ow, oh := ebiten.WindowSize()
+	handleResize(ow, oh)
 }
 
 func toggleDebug(item int) {

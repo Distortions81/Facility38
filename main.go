@@ -517,10 +517,12 @@ func handleResize(outsideWidth int, outsideHeight int) {
 
 	if scale < 0.5 {
 		world.UIScale = 0.5
-	} else if scale > 6.0 {
-		world.UIScale = 6.0
 	} else {
 		world.UIScale = scale
+	}
+
+	if world.Magnify {
+		world.UIScale = world.UIScale + 0.33
 	}
 
 	if world.UIScale != oldScale {
