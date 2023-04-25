@@ -165,10 +165,7 @@ func startGame() {
 	}
 
 	world.ScreenSizeLock.Lock()
-	ow, oh := ebiten.WindowSize()
-	if ow > 0 && oh > 0 {
-		handleResize(ow, oh)
-	}
+	handleResize(int(world.ScreenWidth), int(world.ScreenHeight))
 	world.VisDataDirty.Store(true)
 	world.ScreenSizeLock.Unlock()
 

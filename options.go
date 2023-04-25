@@ -253,15 +253,13 @@ func toggleMagnify(item int) {
 		world.Magnify = true
 		settingItems[item].Enabled = true
 	}
+
+	handleResize(int(world.ScreenWidth), int(world.ScreenHeight))
+
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
 		util.BoolToOnOff(settingItems[item].Enabled))
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
-	ow, oh := ebiten.WindowSize()
-	if ow > 0 && oh > 0 {
-		handleResize(ow, oh)
-	}
-
 }
 
 func toggleDebug(item int) {
