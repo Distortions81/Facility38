@@ -147,17 +147,16 @@ func CloseWindow(window *WindowData) {
 		gWindowDrag = nil
 	}
 
-	for wpos := range Windows {
-		Windows[wpos].Active = false
-		for wopos := range OpenWindows {
-			if OpenWindows[wopos] == Windows[wpos] {
-				if world.Debug {
-					cwlog.DoLog(true, "Window '%v' removed from open list.", window.Title)
-				}
-				/* Remove item */
-				OpenWindows = append(OpenWindows[:wopos], OpenWindows[wopos+1:]...)
-				break
+	for wopos := range OpenWindows {
+		if OpenWindows[wopos] == window {
+			window.Active = false
+
+			if world.Debug {
+				cwlog.DoLog(true, "Window '%v' removed from open list.", window.Title)
 			}
+			/* Remove item */
+			OpenWindows = append(OpenWindows[:wopos], OpenWindows[wopos+1:]...)
+			break
 		}
 	}
 

@@ -15,7 +15,7 @@ func settingsToggle() {
 }
 
 func toggleHelp() {
-	if Windows[0].Active {
+	if Windows[1].Active {
 		CloseWindow(Windows[1])
 	} else {
 		OpenWindow(Windows[1])
