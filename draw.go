@@ -310,7 +310,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			}
 
 			if o.Unique.TypeP.Description != "" {
-				toolTip = toolTip + o.Unique.TypeP.Description + "\n"
+				toolTip = toolTip + o.Unique.TypeP.Description
 			}
 
 			vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, false)
@@ -325,8 +325,8 @@ func drawItemInfo(screen *ebiten.Image) {
 				humanize.Comma(int64((WorldMouseY - def.XYCenter))))
 		}
 		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG,
-			world.XYf32{X: float32(world.ScreenWidth), Y: float32(world.ScreenHeight)},
-			11, screen, false, true, false)
+			world.XYf32{X: float32(world.ScreenWidth) - 5, Y: float32(world.ScreenHeight)},
+			8, screen, false, true, false)
 	}
 	/* Tooltip for resources */
 	if world.ShowResourceLayer {
@@ -884,7 +884,7 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 	halfPad := pad / 2
 
 	tRect := text.BoundString(face, input)
-	fHeight := text.BoundString(face, "1")
+	fHeight := text.BoundString(face, "abcdABCD!123|")
 
 	if justCenter {
 		tmx = float32(int(pos.X) - (tRect.Dx() / 2))
@@ -897,7 +897,7 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 		}
 
 		if justUp {
-			tmy = float32(int(pos.Y))
+			tmy = float32(int(pos.Y) - tRect.Dy())
 		} else {
 			tmy = float32(pos.Y + float32(tRect.Dy()))
 		}
