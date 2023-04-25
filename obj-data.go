@@ -20,24 +20,24 @@ var GroundTiles = []*world.ObjType{
 var UIObjs = []*world.ObjType{
 	//Ui Only
 	{
+		Base: "help",
+		Name: "Help", ToolbarAction: toggleHelp,
+		Symbol: "?", Description: "See game controls and help.", QKey: ebiten.KeyF1,
+	},
+	{
 		Base: "settings",
 		Name: "Options", ToolbarAction: settingsToggle,
-		Symbol: "SET", Description: "Show game options", QKey: ebiten.KeyF1,
+		Symbol: "SET", Description: "Show game options", QKey: ebiten.KeyF2,
 	},
 	{
 		Base: "overlay",
 		Name: "Overlay", ToolbarAction: toggleOverlay,
-		Symbol: "OVRLY", Description: "Turn info overlay on/off", QKey: ebiten.KeyF2,
+		Symbol: "OVRLY", Description: "Turn info overlay on/off", QKey: ebiten.KeyF3,
 	},
 	{
 		Base: "layer",
 		Name: "Layer", ToolbarAction: SwitchLayer,
-		Symbol: "LAYER", Description: "Toggle between the build and resource layer", QKey: ebiten.KeyF3,
-	},
-	{
-		Base: "help",
-		Name: "Help", ToolbarAction: toggleHelp,
-		Symbol: "?", Description: "See game controls and help.",
+		Symbol: "LAYER", Description: "Toggle between the build and resource layer", QKey: ebiten.KeyF5,
 	},
 }
 

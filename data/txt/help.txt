@@ -12,6 +12,5 @@ Rotate object or toolbar item: R-Key
 Reverse Rotate (counter-clock): Shift-R
 Quit: alt-F4 or options menu
 
-F1: Options, F2: Toggle Info-Overlay
-F3: Toggle Resource Layer
-F5: Quicksave, F6: Quickload
+F1: Help  F2: Options, F3: Toggle Info-Overlay
+F5: Toggle Resource Layer
