@@ -73,7 +73,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		!world.PlayerReady.Load() {
 
 		bootScreen(screen)
-		drawChatLines(screen)
+		//drawChatLines(screen)
 		time.Sleep(time.Millisecond)
 		return
 	}

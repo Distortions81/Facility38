@@ -73,7 +73,7 @@ var (
 	ColorDarkFuchsia  = color.NRGBA{154, 45, 141, 255}
 	ColorDarkAqua     = color.NRGBA{45, 154, 154, 255}
 
-	ColorVeryDarkAqua = color.NRGBA{20, 40, 40, 255}
+	ColorVeryDarkAqua = color.NRGBA{0, 90, 90, 255}
 	ColorVeryDarkGray = color.NRGBA{64, 64, 64, 255}
 	ColorMilkGlass    = color.NRGBA{128, 128, 128, 255}
 )

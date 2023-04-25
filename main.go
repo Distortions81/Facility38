@@ -145,7 +145,7 @@ func NewGame() *Game {
 }
 
 func startGame() {
-	util.ChatDetailed("Click or press any key to continue.", world.ColorGreen, time.Second*15)
+	//util.ChatDetailed("Click or press any key to continue.", world.ColorGreen, time.Second*15)
 
 	for !world.SpritesLoaded.Load() ||
 		!world.PlayerReady.Load() {
@@ -342,20 +342,13 @@ func LinkSprites(dark bool) {
 func bootScreen(screen *ebiten.Image) {
 
 	status := ""
-	if !world.SpritesLoaded.Load() {
-		status = "Loading Sprites"
-	}
 	if !world.MapGenerated.Load() {
-		if status != "" {
-			status = status + " and "
-		}
-		status = status + fmt.Sprintf("Loading map (%.2f%%)", world.MapLoadPercent)
+		status = status + fmt.Sprintf("Loading: %3.1f%%", world.MapLoadPercent)
 	}
 	screen.Fill(world.BootColor)
 
 	if world.TitleImage != nil {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
-		//op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 
 		newScaleX := (float64(world.ScreenHeight) / float64(world.TitleImage.Bounds().Dy()))
 
@@ -369,19 +362,21 @@ func bootScreen(screen *ebiten.Image) {
 
 		op.GeoM.Reset()
 		op.GeoM.Scale(world.UIScale/4, world.UIScale/4)
-		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 		screen.DrawImage(world.EbitenLogo, op)
 	}
 
 	if status == "" {
-		status = "Loading complete!\n(Press any key or click to continue)"
+		status = "Loading complete\nClick, or any key to continue"
 	}
 
-	output := fmt.Sprintf("Status: %v...", status)
+	output := fmt.Sprintf("Status: %v", status)
 
 	DrawText("Facility 38", world.LogoFont, world.ColorOrange, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 4, Y: (float32(world.ScreenHeight) / 4.0) - 4}, 0, screen, false, true, true)
 	DrawText("Facility 38", world.LogoFont, world.ColorVeryDarkAqua, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 4.0}, 0, screen, false, true, true)
-	DrawText(output, world.BootFont, world.ColorMilkGlass, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 3.0}, 0, screen, false, true, true)
+
+	DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 2, Y: (float32(world.ScreenHeight) / 2.8) - 2}, 0, screen, false, true, true)
+	DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) + 2, Y: (float32(world.ScreenHeight) / 2.8) + 2}, 0, screen, false, true, true)
+	DrawText(output, world.BootFont, world.ColorLightOrange, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 2.8}, 0, screen, false, true, true)
 
 	multi := 5.0
 	pw := float32(100.0 * multi)

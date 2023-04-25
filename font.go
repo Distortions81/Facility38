@@ -78,11 +78,21 @@ func UpdateFonts() {
 	 * Font DPI
 	 * Changes how large the font is for a given point value
 	 */
+
 	/* Boot screen font */
-	world.BootFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    15,
+	world.BootFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
+		Size:    25,
 		DPI:     world.FontDPI,
 		Hinting: font.HintingNone,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	/* General font */
+	world.GeneralFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    15,
+		DPI:     world.FontDPI,
+		Hinting: font.HintingFull,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -118,7 +128,7 @@ func UpdateFonts() {
 		log.Fatal(err)
 	}
 
-	/* Mono font */
+	/* Logo font */
 	world.LogoFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
 		Size:    70,
 		DPI:     world.FontDPI,

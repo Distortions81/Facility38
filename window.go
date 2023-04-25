@@ -250,7 +250,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
 	if window.Title != "" {
 
-		fHeight := text.BoundString(world.BootFont, "!Aa0")
+		fHeight := text.BoundString(world.GeneralFont, "!Aa0")
 
 		/* Border */
 		if !window.Borderless {
@@ -277,7 +277,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		)
 		window.WindowButtons.TitleBarHeight = fHeight.Dy() + pad
 
-		text.Draw(window.Cache, window.Title, world.BootFont, halfPad, int(fHeight.Dy()+halfPad), titleColor)
+		text.Draw(window.Cache, window.Title, world.GeneralFont, halfPad, int(fHeight.Dy()+halfPad), titleColor)
 
 		if window.Closeable {
 			img := WorldOverlays[8].Images.Main

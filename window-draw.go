@@ -24,7 +24,7 @@ func setupOptionsWindow(window *WindowData) {
 	lineWidth := 0
 	for _, item := range settingItems {
 		if item.Text != "" {
-			tbound := text.BoundString(world.BootFont, item.Text)
+			tbound := text.BoundString(world.GeneralFont, item.Text)
 			if tbound.Size().Y > lineHeight {
 				lineHeight = int(float64(tbound.Size().Y) * 1.75)
 			}
@@ -52,7 +52,7 @@ func setupOptionsWindow(window *WindowData) {
 }
 
 func drawHelpWindow(window *WindowData) {
-	DrawText(helpText, world.BootFont, color.White, color.Transparent,
+	DrawText(helpText, world.GeneralFont, color.White, color.Transparent,
 		world.XYf32{X: float32(window.ScaledSize.X / 2), Y: float32(window.ScaledSize.Y / 2)},
 		0, window.Cache, false, false, true)
 }
@@ -83,7 +83,7 @@ func drawOptionsWindow(window *WindowData) {
 				color.NRGBA{R: 255, G: 255, B: 255, A: 8}, false)
 		}
 
-		text.Draw(window.Cache, txt, world.BootFont, item.TextPosX, item.TextPosY-(window.LineHeight/3), itemColor)
+		text.Draw(window.Cache, txt, world.GeneralFont, item.TextPosX, item.TextPosY-(window.LineHeight/3), itemColor)
 
 		if !item.NoCheck {
 			/* Get checkmark image */
@@ -105,6 +105,6 @@ func drawOptionsWindow(window *WindowData) {
 }
 
 func testWindow(window *WindowData) {
-	DrawText("Test", world.BootFont, world.ColorRed, color.Transparent,
+	DrawText("Test", world.GeneralFont, world.ColorRed, color.Transparent,
 		world.XYf32{X: float32(window.Size.X / 2), Y: float32(window.Size.Y / 2)}, 0, window.Cache, false, false, false)
 }
