@@ -14,6 +14,14 @@ func settingsToggle() {
 	}
 }
 
+func toggleHelp() {
+	if Windows[0].Active {
+		CloseWindow(Windows[1])
+	} else {
+		OpenWindow(Windows[1])
+	}
+}
+
 func toggleOverlay() {
 	if world.OverlayMode {
 		world.OverlayMode = false

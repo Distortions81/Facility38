@@ -34,6 +34,11 @@ var UIObjs = []*world.ObjType{
 		Name: "Layer", ToolbarAction: SwitchLayer,
 		Symbol: "LAYER", Description: "Toggle between the build and resource layer", QKey: ebiten.KeyF3,
 	},
+	{
+		Base: "help",
+		Name: "Help", ToolbarAction: toggleHelp,
+		Symbol: "?", Description: "See game controls and help.",
+	},
 }
 
 /* Terrain types and images */

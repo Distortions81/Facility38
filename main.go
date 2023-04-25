@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	bootText string = "Loading..."
+	helpText string = "Loading..."
 
 	/* Compile flags */
 	buildTime string = "Dev Build"
@@ -71,11 +71,11 @@ func main() {
 	InitToolbar()
 
 	/* Intro text setup, this is temporary */
-	str, err := data.GetText("intro")
+	str, err := data.GetText("help")
 	if err != nil {
 		panic(err)
 	}
-	bootText = str
+	helpText = str
 
 	/* Detect logical*/
 	detectCPUs(false)
@@ -376,15 +376,15 @@ func bootScreen(screen *ebiten.Image) {
 		status = "Loading complete!\n(Press any key or click to continue)"
 	}
 
-	output := fmt.Sprintf("%v\n\nStatus: %v...", bootText, status)
+	output := fmt.Sprintf("Welcome to Facility 38\n\nStatus: %v...", status)
 
-	DrawText(output, world.BootFont, world.ColorWhite, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight-64) / 2.0}, 0, screen, false, false, true)
+	DrawText(output, world.BootFont, world.ColorWhite, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 5.0}, 0, screen, false, false, true)
 
 	multi := 5.0
 	pw := float32(100.0 * multi)
 	tall := float32(24.0)
 	x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
-	y := (float32(world.ScreenHeight) / 3.0) * 2.4
+	y := (float32(world.ScreenHeight) / 3.0)
 	vector.DrawFilledRect(screen, x, y, pw, tall, world.ColorVeryDarkGray, false)
 	color := world.ColorVeryDarkGray
 	if world.MapLoadPercent >= 100 {

@@ -51,6 +51,12 @@ func setupOptionsWindow(window *WindowData) {
 
 }
 
+func drawHelpWindow(window *WindowData) {
+	DrawText(helpText, world.BootFont, color.White, color.Transparent,
+		world.XYf32{X: float32(window.ScaledSize.X / 2), Y: float32(window.ScaledSize.Y / 2)},
+		0, window.Cache, false, false, true)
+}
+
 func drawOptionsWindow(window *WindowData) {
 	var txt string
 

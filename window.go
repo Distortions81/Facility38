@@ -25,6 +25,14 @@ var Windows []*WindowData = []*WindowData{
 		WindowInput: handleSettings,
 	},
 	{
+		Title:      "Help & Controls",
+		Size:       world.XYs{X: 512, Y: 512},
+		Centered:   true,
+		Closeable:  true,
+		WindowDraw: drawHelpWindow,
+		Movable:    true,
+	},
+	{
 		Title:      "Test",
 		Size:       world.XYs{X: 512, Y: 512},
 		Centered:   true,
