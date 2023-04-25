@@ -355,7 +355,7 @@ func bootScreen(screen *ebiten.Image) {
 
 	if world.TitleImage != nil {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
-		op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
+		//op.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 
 		newScaleX := (float64(world.ScreenHeight) / float64(world.TitleImage.Bounds().Dy()))
 
