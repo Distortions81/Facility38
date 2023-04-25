@@ -346,7 +346,7 @@ func bootScreen(screen *ebiten.Image) {
 
 	val := world.PlayerReady.Load()
 
-	if val == 0 {
+	if val == 0 || !world.MapGenerated.Load() || !world.SpritesLoaded.Load() {
 
 		status := ""
 		if !world.MapGenerated.Load() {
@@ -402,7 +402,7 @@ func bootScreen(screen *ebiten.Image) {
 
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
-	if world.PlayerReady.Load() != 0 {
+	if world.PlayerReady.Load() != 0 && world.MapGenerated.Load() && world.SpritesLoaded.Load() {
 		alpha := 0.5 - (float32(val) * 0.0169491525424)
 		op.ColorScale.Scale(alpha, alpha, alpha, alpha)
 		world.PlayerReady.Store(val + 1)
