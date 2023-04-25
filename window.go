@@ -158,6 +158,8 @@ func CloseWindow(window *WindowData) {
 		window.Cache.Dispose()
 		window.Cache = nil
 	}
+	gClickCaptured = true
+	gMouseHeld = false
 }
 
 func WindowDirty(window *WindowData) {
@@ -345,6 +347,9 @@ func CollisionWindow(input world.XYs, window *WindowData) bool {
 
 func handleClose(input world.XYs, window *WindowData) bool {
 
+	if gWindowDrag != nil {
+		return false
+	}
 	if !gMouseHeld {
 		return false
 	}
@@ -378,15 +383,20 @@ func handleDrag(input world.XYs, window *WindowData) bool {
 	if !window.Active {
 		return false
 	}
+	if gWindowDrag != nil {
+		return true
+	}
 
 	winPos := getWindowPos(window)
+	winOff := world.XYs{X: input.X - winPos.X, Y: input.Y - winPos.Y}
+
 	if input.X > winPos.X &&
 		input.X < winPos.X+window.ScaledSize.X &&
 		input.Y > winPos.Y &&
 		input.Y < winPos.Y+int32(window.WindowButtons.TitleBarHeight) {
 		gWindowDrag = window
-		gWindowDrag.DragPos = world.XYs{X: input.X - winPos.X, Y: input.Y - winPos.Y}
-		cwlog.DoLog(true, "Started dragging window '%v'", window.Title)
+		gWindowDrag.DragPos = winOff
+		cwlog.DoLog(true, "dragging window '%v'", window.Title)
 		return true
 	}
 	return false

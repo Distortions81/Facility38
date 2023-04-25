@@ -41,6 +41,7 @@ func init() {
 /* Input interface handler */
 func (g *Game) Update() error {
 
+	gClickCaptured = false
 	/* Ignore if not focused */
 	if !ebiten.IsFocused() {
 		return nil
@@ -69,14 +70,6 @@ func (g *Game) Update() error {
 		return nil
 	}
 
-	/* Handle window drag */
-	if gWindowDrag != nil {
-		gWindowDrag.Position = world.XYs{X: int32(MouseX) - gWindowDrag.DragPos.X, Y: int32(MouseY) - gWindowDrag.DragPos.Y}
-		gClickCaptured = true
-	}
-
-	gClickCaptured = CollisionWindowsCheck(world.XYs{X: int32(MouseX), Y: int32(MouseY)})
-
 	getMouseClicks()
 	getMiddleMouseClicks()
 	getRightMouseClicks()
@@ -87,9 +80,18 @@ func (g *Game) Update() error {
 
 	zoomHandle()
 
-	createWorldObjects()
-	moveCamera()
-	rotateWorldObjects()
+	gClickCaptured = CollisionWindowsCheck(world.XYs{X: int32(MouseX), Y: int32(MouseY)})
+
+	/* Handle window drag */
+	if gWindowDrag != nil {
+		gWindowDrag.Position = world.XYs{X: int32(MouseX) - gWindowDrag.DragPos.X, Y: int32(MouseY) - gWindowDrag.DragPos.Y}
+	}
+
+	if gWindowDrag == nil && !gClickCaptured {
+		createWorldObjects()
+		moveCamera()
+		rotateWorldObjects()
+	}
 
 	calcScreenCamera()
 	/* Get mouse position on world */
