@@ -90,7 +90,7 @@ func main() {
 	setupWindowSize()
 
 	if world.WASMMode && (world.LoadTest || world.UPSBench) {
-		world.PlayerReady.Store(true)
+		world.PlayerReady.Store(1)
 	}
 
 	windowTitle()
@@ -148,7 +148,7 @@ func startGame() {
 	//util.ChatDetailed("Click or press any key to continue.", world.ColorGreen, time.Second*15)
 
 	for !world.SpritesLoaded.Load() ||
-		!world.PlayerReady.Load() {
+		world.PlayerReady.Load() == 0 {
 		time.Sleep(time.Millisecond)
 	}
 	loadOptions()
@@ -339,58 +339,83 @@ func LinkSprites(dark bool) {
 }
 
 /* Render boot info to screen */
+var titleBuf *ebiten.Image
+
 func bootScreen(screen *ebiten.Image) {
 
-	status := ""
-	if !world.MapGenerated.Load() {
-		status = status + fmt.Sprintf("Loading: %3.1f%%", world.MapLoadPercent)
-	}
-	screen.Fill(world.BootColor)
-
-	if world.TitleImage != nil {
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
-
-		newScaleX := (float64(world.ScreenHeight) / float64(world.TitleImage.Bounds().Dy()))
-
-		op.GeoM.Scale(newScaleX, newScaleX)
-
-		op.GeoM.Translate(
-			float64(world.ScreenWidth/2)-(float64(world.TitleImage.Bounds().Size().X)*newScaleX)/2,
-			float64(world.ScreenHeight/2)-(float64(world.TitleImage.Bounds().Size().Y)*newScaleX)/2,
-		)
-		screen.DrawImage(world.TitleImage, op)
-
-		op.GeoM.Reset()
-		op.GeoM.Scale(world.UIScale/4, world.UIScale/4)
-		screen.DrawImage(world.EbitenLogo, op)
+	if titleBuf == nil {
+		titleBuf = ebiten.NewImage(int(world.ScreenWidth), int(world.ScreenHeight))
 	}
 
-	if status == "" {
-		status = "Loading complete\nClick, or any key to continue"
+	val := world.PlayerReady.Load()
+
+	if val == 0 {
+
+		status := ""
+		if !world.MapGenerated.Load() {
+			status = status + fmt.Sprintf("Loading: %3.1f%%", world.MapLoadPercent)
+		}
+		titleBuf.Fill(world.BootColor)
+
+		if world.TitleImage != nil {
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
+
+			newScaleX := (float64(world.ScreenHeight) / float64(world.TitleImage.Bounds().Dy()))
+
+			op.GeoM.Scale(newScaleX, newScaleX)
+
+			op.GeoM.Translate(
+				float64(world.ScreenWidth/2)-(float64(world.TitleImage.Bounds().Size().X)*newScaleX)/2,
+				float64(world.ScreenHeight/2)-(float64(world.TitleImage.Bounds().Size().Y)*newScaleX)/2,
+			)
+			titleBuf.DrawImage(world.TitleImage, op)
+
+			op.GeoM.Reset()
+			op.GeoM.Scale(world.UIScale/4, world.UIScale/4)
+			titleBuf.DrawImage(world.EbitenLogo, op)
+		}
+
+		if status == "" {
+			status = "Loading complete\nClick, or any key to continue"
+		}
+
+		output := fmt.Sprintf("Status: %v", status)
+
+		DrawText("Facility 38", world.LogoFont, world.ColorOrange, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 4, Y: (float32(world.ScreenHeight) / 4.0) - 4}, 0, titleBuf, false, true, true)
+		DrawText("Facility 38", world.LogoFont, world.ColorVeryDarkAqua, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 4.0}, 0, titleBuf, false, true, true)
+
+		DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 2, Y: (float32(world.ScreenHeight) / 2.8) - 2}, 0, titleBuf, false, true, true)
+		DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) + 2, Y: (float32(world.ScreenHeight) / 2.8) + 2}, 0, titleBuf, false, true, true)
+		DrawText(output, world.BootFont, world.ColorLightOrange, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 2.8}, 0, titleBuf, false, true, true)
+
+		multi := 5.0
+		pw := float32(100.0 * multi)
+		tall := float32(24.0)
+		x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
+		y := (float32(world.ScreenHeight) / 4.0)
+		vector.DrawFilledRect(screen, x, y, pw, tall, world.ColorVeryDarkGray, false)
+		color := world.ColorVeryDarkGray
+		if world.MapLoadPercent >= 100 {
+			world.MapLoadPercent = 100
+		}
+		color.G = byte(104 + (world.MapLoadPercent * 1.5))
+		color.A = 128
+		vector.DrawFilledRect(titleBuf, x, y, world.MapLoadPercent*float32(multi), tall, color, false)
 	}
 
-	output := fmt.Sprintf("Status: %v", status)
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
-	DrawText("Facility 38", world.LogoFont, world.ColorOrange, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 4, Y: (float32(world.ScreenHeight) / 4.0) - 4}, 0, screen, false, true, true)
-	DrawText("Facility 38", world.LogoFont, world.ColorVeryDarkAqua, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 4.0}, 0, screen, false, true, true)
-
-	DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 2, Y: (float32(world.ScreenHeight) / 2.8) - 2}, 0, screen, false, true, true)
-	DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) + 2, Y: (float32(world.ScreenHeight) / 2.8) + 2}, 0, screen, false, true, true)
-	DrawText(output, world.BootFont, world.ColorLightOrange, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 2.8}, 0, screen, false, true, true)
-
-	multi := 5.0
-	pw := float32(100.0 * multi)
-	tall := float32(24.0)
-	x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
-	y := (float32(world.ScreenHeight) / 4.0)
-	vector.DrawFilledRect(screen, x, y, pw, tall, world.ColorVeryDarkGray, false)
-	color := world.ColorVeryDarkGray
-	if world.MapLoadPercent >= 100 {
-		world.MapLoadPercent = 100
+	if world.PlayerReady.Load() != 0 {
+		alpha := 0.5 - (float32(val) * 0.0169491525424)
+		op.ColorScale.Scale(alpha, alpha, alpha, alpha)
+		world.PlayerReady.Store(val + 1)
 	}
-	color.G = byte(104 + (world.MapLoadPercent * 1.5))
-	color.A = 128
-	vector.DrawFilledRect(screen, x, y, world.MapLoadPercent*float32(multi), tall, color, false)
+
+	screen.DrawImage(titleBuf, op)
+	if val == 59 && titleBuf != nil {
+		titleBuf.Dispose()
+		titleBuf = nil
+	}
 	util.WASMSleep()
 }
 

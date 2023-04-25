@@ -97,7 +97,7 @@ var (
 
 	/* Boot status */
 	SpritesLoaded atomic.Bool
-	PlayerReady   atomic.Bool
+	PlayerReady   atomic.Int32
 	MapGenerated  atomic.Bool
 
 	/* Fonts */

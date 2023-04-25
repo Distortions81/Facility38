@@ -62,10 +62,10 @@ func (g *Game) Update() error {
 
 	var keys []ebiten.Key
 	/* Game start screen */
-	if (!world.PlayerReady.Load() || !world.MapGenerated.Load()) &&
+	if (world.PlayerReady.Load() == 0 || !world.MapGenerated.Load()) &&
 		(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
 			inpututil.AppendPressedKeys(keys) != nil) {
-		world.PlayerReady.Store(true)
+		world.PlayerReady.Store(1)
 		return nil
 	}
 

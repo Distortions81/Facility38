@@ -70,7 +70,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Boot screen */
 	if !world.MapGenerated.Load() ||
 		!world.SpritesLoaded.Load() ||
-		!world.PlayerReady.Load() {
+		world.PlayerReady.Load() == 0 {
 
 		bootScreen(screen)
 		//drawChatLines(screen)
@@ -116,6 +116,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	drawChatLines(screen)
 	DrawOpenWindows(screen)
+
+	if world.PlayerReady.Load() < 60 {
+		bootScreen(screen)
+	}
 }
 
 var lastVal int
