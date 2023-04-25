@@ -11,7 +11,7 @@ const (
 	MaxItemType      = 255
 	GameUPS          = 8
 	NumResourceTypes = 7
-	UIBaseResolution = 1280
+	UIBaseResolution = 1920
 	NinetyDeg        = math.Pi / 2
 	OneEightyDeg     = math.Pi
 	ThreeSixtyDeg    = math.Pi * 2

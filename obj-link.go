@@ -47,6 +47,8 @@ func linkBelt(obj *world.ObjData) {
 			obj.IsCorner = false
 		}
 		obj.CornerDir = DrawDir
+	} else {
+		obj.IsCorner = false
 	}
 }
 

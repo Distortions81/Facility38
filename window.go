@@ -16,7 +16,7 @@ var WindowsLock sync.Mutex
 var Windows []*WindowData = []*WindowData{
 	{
 		Title:       "Options",
-		Size:        world.XYs{X: 325, Y: 350},
+		Size:        world.XYs{X: 250, Y: 325},
 		Centered:    true,
 		Closeable:   true,
 		WindowDraw:  drawOptionsWindow,
@@ -26,7 +26,7 @@ var Windows []*WindowData = []*WindowData{
 	},
 	{
 		Title:      "Help & Controls",
-		Size:       world.XYs{X: 512, Y: 512},
+		Size:       world.XYs{X: 400, Y: 400},
 		Centered:   true,
 		Closeable:  true,
 		WindowDraw: drawHelpWindow,
@@ -185,6 +185,7 @@ func WindowDirty(window *WindowData) {
 }
 
 const cpad = 18
+const closeScale = 0.7
 
 /*
  * TODO: RESIZE CLOSE X BUTTON!!!
@@ -282,8 +283,8 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		if window.Closeable {
 			img := WorldOverlays[8].Images.Main
 			op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
-			closePosX := float64(window.ScaledSize.X - int32(float64(img.Bounds().Dx())*world.UIScale))
-			op.GeoM.Scale(world.UIScale, world.UIScale)
+			closePosX := float64(window.ScaledSize.X - int32(float64(img.Bounds().Dx())*world.UIScale*closeScale))
+			op.GeoM.Scale(world.UIScale*closeScale, world.UIScale*closeScale)
 			op.GeoM.Translate(closePosX, 0)
 
 			/* save button positions */

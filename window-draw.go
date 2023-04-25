@@ -26,10 +26,10 @@ func setupOptionsWindow(window *WindowData) {
 		if item.Text != "" {
 			tbound := text.BoundString(world.GeneralFont, item.Text)
 			if tbound.Size().Y > lineHeight {
-				lineHeight = int(float64(tbound.Size().Y) * 1.75)
+				lineHeight = int(float64(tbound.Size().Y) * 2)
 			}
 			if tbound.Size().X > lineWidth {
-				lineWidth = int(float64(tbound.Size().X) * 2)
+				lineWidth = int(float64(tbound.Size().X) * 4)
 			}
 		}
 	}
@@ -57,6 +57,8 @@ func drawHelpWindow(window *WindowData) {
 		0, window.Cache, false, false, true)
 }
 
+const checkScale = 0.7
+
 func drawOptionsWindow(window *WindowData) {
 	var txt string
 
@@ -80,12 +82,13 @@ func drawOptionsWindow(window *WindowData) {
 				float32(b.Min.Y+((b.Max.Y-b.Min.Y)/2)-(b.Dy()/2)),
 				float32(b.Dx()),
 				float32(b.Dy()),
-				color.NRGBA{R: 255, G: 255, B: 255, A: 8}, false)
+				color.NRGBA{R: 255, G: 255, B: 255, A: 16}, false)
 		}
 
-		text.Draw(window.Cache, txt, world.GeneralFont, item.TextPosX, item.TextPosY-(window.LineHeight/3), itemColor)
+		text.Draw(window.Cache, txt, world.GeneralFont, item.TextPosX, item.TextPosY-(window.LineHeight/4), itemColor)
 
 		if !item.NoCheck {
+
 			/* Get checkmark image */
 			op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 			var check *ebiten.Image
@@ -95,10 +98,10 @@ func drawOptionsWindow(window *WindowData) {
 				check = WorldOverlays[7].Images.Main
 			}
 			/* Draw checkmark */
-			op.GeoM.Scale(world.UIScale, world.UIScale)
+			op.GeoM.Scale(world.UIScale*checkScale, world.UIScale*checkScale)
 			op.GeoM.Translate(
 				float64(window.ScaledSize.X)-(float64(check.Bounds().Dx())*world.UIScale)-padding,
-				float64(item.TextPosY)-(float64(check.Bounds().Dy())*world.UIScale))
+				float64(item.TextPosY)-(float64(check.Bounds().Dy())*world.UIScale*checkScale))
 			window.Cache.DrawImage(check, op)
 		}
 	}

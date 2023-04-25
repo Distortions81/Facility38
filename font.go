@@ -40,7 +40,7 @@ func UpdateFonts() {
 		mono = tt
 	} else {
 
-		fdata := data.GetFont("Manjari-Bold.otf")
+		fdata := data.GetFont("Exo2-Regular.ttf")
 		collection, err := opentype.ParseCollection(fdata)
 		if err != nil {
 			log.Fatal(err)
@@ -51,7 +51,7 @@ func UpdateFonts() {
 			log.Fatal(err)
 		}
 
-		fdata = data.GetFont("NotoSansMono-Bold.ttf")
+		fdata = data.GetFont("Hack-Regular.ttf")
 		collection, err = opentype.ParseCollection(fdata)
 		if err != nil {
 			log.Fatal(err)
@@ -90,7 +90,7 @@ func UpdateFonts() {
 	}
 	/* General font */
 	world.GeneralFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    15,
+		Size:    10,
 		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
 	})
@@ -100,7 +100,7 @@ func UpdateFonts() {
 
 	/* Missing texture font */
 	world.ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    5,
+		Size:    6,
 		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
 	})
@@ -110,7 +110,7 @@ func UpdateFonts() {
 
 	/* Tooltip font */
 	world.ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    11,
+		Size:    8,
 		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
 	})
@@ -120,7 +120,7 @@ func UpdateFonts() {
 
 	/* Mono font */
 	world.MonoFont, err = opentype.NewFace(mono, &opentype.FaceOptions{
-		Size:    11,
+		Size:    8,
 		DPI:     world.FontDPI,
 		Hinting: font.HintingFull,
 	})

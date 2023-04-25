@@ -331,9 +331,9 @@ func drawItemInfo(screen *ebiten.Image) {
 				humanize.Comma(int64((WorldMouseX - def.XYCenter))),
 				humanize.Comma(int64((WorldMouseY - def.XYCenter))))
 		}
-		DrawText(toolTip, world.ToolTipFont, color.White, world.ColorToolTipBG,
-			world.XYf32{X: float32(world.ScreenWidth) - 5, Y: float32(world.ScreenHeight)},
-			8, screen, false, true, false)
+		DrawText(toolTip, world.GeneralFont, color.White, world.ColorToolTipBG,
+			world.XYf32{X: float32(world.ScreenWidth) - 6, Y: float32(world.ScreenHeight)},
+			2, screen, false, true, false)
 	}
 	/* Tooltip for resources */
 	if world.ShowResourceLayer {
@@ -1082,7 +1082,7 @@ func drawChatLines(screen *ebiten.Image) {
 		tRect := text.BoundString(world.ToolTipFont, line.Text)
 
 		var pad int = int(world.FontDPI / 10.0)
-		DrawText(line.Text, world.ToolTipFont,
+		DrawText(line.Text, world.GeneralFont,
 			color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)},
 			tBgColor, world.XYf32{X: 0, Y: float32(world.ScreenHeight) - float32(lineNum*(tRect.Dy()+pad))},
 			float32(pad), screen, true, true, false)

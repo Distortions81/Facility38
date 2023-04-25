@@ -11,7 +11,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-miner",
 		Name:        "Basic Miner",
-		Description: "Mines solid resources where placed, requires coal fuel",
+		Description: "Mines solid resources where placed",
 		TypeI:       def.ObjTypeBasicMiner,
 		Category:    def.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
@@ -42,7 +42,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-belt",
 		Name:        "Basic Belt",
-		Description: "Moves items from rear and sides,\nin direction of arrow",
+		Description: "Moves material from rear and sides forward",
 		TypeI:       def.ObjTypeBasicBelt,
 		Category:    def.ObjCatBelt,
 		Size:        world.XYs{X: 1, Y: 1},
@@ -60,7 +60,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-belt-over",
 		Name:        "Basic Belt Overpass",
-		Description: "A belt with an underpass",
+		Description: "Belt with an underpass",
 		TypeI:       def.ObjTypeBasicBeltOver,
 		Category:    def.ObjCatBelt,
 		Size:        world.XYs{X: 1, Y: 3},
@@ -86,7 +86,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:         "basic-splitter",
 		Name:         "Basic Splitter",
-		Description:  "Input from back outputs\nequally to up to 3 outputs",
+		Description:  "One input to three outputs equally",
 		TypeI:        def.ObjTypeBasicSplit,
 		Category:     def.ObjCatBelt,
 		Size:         world.XYs{X: 1, Y: 1},
@@ -109,7 +109,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-box",
 		Name:        "Basic Box",
-		Description: "Currently only stores objects\n(no unloader yet)",
+		Description: "Stores 1 ton\n(No unloader yet)",
 		TypeI:       def.ObjTypeBasicBox,
 		Category:    def.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
@@ -139,7 +139,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-smelter",
 		Name:        "Basic Smelter",
-		Description: "Bakes solid ores into metal or stone\nbricks, requires coal fuel",
+		Description: "Solid ores into metals or stone",
 		TypeI:       def.ObjTypeBasicSmelter,
 		Category:    def.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
@@ -167,7 +167,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-caster",
 		Name:        "Basic Caster",
-		Description: "Casts metal shot into bars",
+		Description: "Metal shot into bars",
 		TypeI:       def.ObjTypeBasicCaster,
 		Category:    def.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
@@ -195,7 +195,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-rod-caster",
 		Name:        "Basic Rod Caster",
-		Description: "Casts metal bars into rods",
+		Description: "Metal bars into rods",
 		TypeI:       def.ObjTypeBasicRodCaster,
 		Category:    def.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
@@ -222,7 +222,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-slip-roller",
 		Name:        "Basic Slip Roller",
-		Description: "Press metal bar into sheets",
+		Description: "Metal bars into sheets",
 		TypeI:       def.ObjTypeBasicSlipRoller,
 		Category:    def.ObjCatGeneric,
 		Size:        world.XYs{X: 2, Y: 2},
@@ -246,7 +246,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-fuel-hopper",
 		Name:        "Basic Fuel Hopper",
-		Description: "Loads soild fuel into machines",
+		Description: "Solid Fuel loader",
 		TypeI:       def.ObjTypeBasicFuelHopper,
 		Category:    def.ObjCatLoader,
 		Size:        world.XYs{X: 1, Y: 1},
@@ -270,7 +270,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-unloader",
 		Name:        "Basic Unloader",
-		Description: "Unloads Material",
+		Description: "Unloads to belts",
 		TypeI:       def.ObjTypeBasicUnloader,
 		Category:    def.ObjCatLoader,
 		Size:        world.XYs{X: 1, Y: 1},
@@ -291,7 +291,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:        "basic-loader",
 		Name:        "Basic Loader",
-		Description: "Loads Material",
+		Description: "Loads from belts",
 		TypeI:       def.ObjTypeBasicLoader,
 		Category:    def.ObjCatLoader,
 		Size:        world.XYs{X: 1, Y: 1},
