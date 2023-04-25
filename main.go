@@ -475,6 +475,7 @@ func setupWindowSize() {
 
 			/* Small Screen, just go fullscreen */
 		} else if xSize <= 1280 && ySize <= 800 {
+			world.Magnify = true
 			world.ScreenWidth = uint16(xSize)
 			world.ScreenHeight = uint16(ySize)
 			ebiten.SetFullscreen(true)
