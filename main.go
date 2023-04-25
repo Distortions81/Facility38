@@ -467,6 +467,7 @@ func setupWindowSize() {
 	if !world.UPSBench {
 		/* Handle high res displays, 50% window */
 		if xSize > 2560 && ySize > 1600 {
+			world.Magnify = false
 			world.ScreenWidth = uint16(xSize) / 2
 			world.ScreenHeight = uint16(ySize) / 2
 

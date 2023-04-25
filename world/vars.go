@@ -20,7 +20,7 @@ var (
 	LoadTest = false
 
 	Debug     = false
-	Magnify   = false
+	Magnify   = true
 	LogStdOut = true
 	UIScale   = 1.0
 
