@@ -314,7 +314,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			}
 
 			/* Draw item preview */
-			if world.ZoomScale > def.MapPixelThreshold || world.ShowResourceLayer {
+			if world.ZoomScale < def.MapPixelThreshold || world.ShowResourceLayer {
 				vector.DrawFilledRect(screen, float32(world.ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, world.ColorToolTipBG, false)
 				op := &ebiten.DrawImageOptions{}
 				op.GeoM.Scale((1.0/float64(o.Unique.TypeP.Size.X))*8.0, (1.0/float64(o.Unique.TypeP.Size.Y))*8.0)
