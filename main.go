@@ -353,7 +353,7 @@ func bootScreen(screen *ebiten.Image) {
 
 		status := ""
 		if !world.MapGenerated.Load() {
-			status = status + fmt.Sprintf("Loading: %3.1f%%", world.MapLoadPercent)
+			status = status + fmt.Sprintf("Loading: %-4.01f%%", world.MapLoadPercent)
 		}
 		titleBuf.Fill(world.BootColor)
 
@@ -413,8 +413,10 @@ func bootScreen(screen *ebiten.Image) {
 
 	screen.DrawImage(titleBuf, op)
 	if val == 59 && titleBuf != nil {
+		//cwlog.DoLog(true, "Title disposed.")
 		titleBuf.Dispose()
 		titleBuf = nil
+		world.PlayerReady.Store(255)
 	}
 	util.WASMSleep()
 }

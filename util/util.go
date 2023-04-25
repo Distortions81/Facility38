@@ -39,7 +39,7 @@ func init() {
 
 func WASMSleep() {
 	if world.WASMMode {
-		time.Sleep(time.Nanosecond)
+		time.Sleep(time.Millisecond * 10)
 	}
 }
 

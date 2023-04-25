@@ -204,11 +204,14 @@ func toggleTestMap(item int) {
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 
 	world.MapGenerated.Store(false)
+	world.PlayerReady.Store(0)
+
 	world.MapLoadPercent = 0
-	time.Sleep(time.Nanosecond)
+	time.Sleep(time.Millisecond * 10)
 	go func() {
+		time.Sleep(time.Millisecond * 10)
 		MakeMap(world.LoadTest)
-		time.Sleep(time.Nanosecond)
+		time.Sleep(time.Millisecond * 10)
 		startGame()
 	}()
 }
