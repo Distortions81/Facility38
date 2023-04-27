@@ -18,9 +18,9 @@ const (
 	DegToRad         = 6.28319
 
 	ChatHeightLines = 10
-	ChatFadeTime    = time.Second
+	ChatFadeTime    = time.Second * 3
 
-	Version = "017"
+	Version = "018"
 
 	/* Files and directories */
 	DataDir    = "data/"
