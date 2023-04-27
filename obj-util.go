@@ -9,7 +9,7 @@ import (
 	"math"
 )
 
-/* Delete object from ObjMap, ObjList, decerment Num Marks PixmapDirty */
+/* Delete object from ObjMap, ObjList, decerment NumObj, set PixmapDirty */
 func removeObj(obj *world.ObjData) {
 	/* delete from map */
 	obj.Parent.Lock.Lock()

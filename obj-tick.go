@@ -207,6 +207,7 @@ func runRotates() {
 			obj := b.Obj
 			if obj.Unique.TypeP.NonSquare {
 				var newdir uint8
+				var olddir uint8 = obj.Dir
 
 				/* Save a copy of the object */
 				objSave = *obj
@@ -216,11 +217,24 @@ func runRotates() {
 				} else {
 					newdir = util.RotCW(objSave.Dir)
 				}
-				objSave.Dir = newdir
 
 				/* Remove object from the world */
+				UnlinkObj(obj)
 				removeObj(obj)
-				PlaceObj(objSave.Pos, 0, &objSave, newdir, false)
+				for _, sub := range objSave.Unique.TypeP.SubObjs {
+					tile := RotateCoord(sub, objSave.Dir, GetObjSize(&objSave, nil))
+					pos := util.GetSubPos(objSave.Pos, tile)
+					removePosMap(pos)
+				}
+				found := PlaceObj(objSave.Pos, 0, &objSave, newdir, false)
+				if found == nil {
+					/* Unable to rotate, undo */
+					util.ChatDetailed(fmt.Sprintf("Unable to rotate: %v at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), world.ColorRed, time.Second*15)
+					found = PlaceObj(objSave.Pos, 0, &objSave, olddir, false)
+					if found == nil {
+						util.ChatDetailed(fmt.Sprintf("Unable to place item back: %v at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), world.ColorRed, time.Second*15)
+					}
+				}
 				continue
 			}
 
