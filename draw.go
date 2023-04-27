@@ -1009,7 +1009,7 @@ func calcScreenCamera() {
 /* Draw materials on belts */
 func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, scale float64, alpha float32, pos *world.XYf64) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 
-	if m.Amount > 0 {
+	if obj != nil && m.Amount > 0 {
 		img := m.TypeP.Image
 		if img != nil {
 
