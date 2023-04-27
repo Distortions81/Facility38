@@ -381,9 +381,9 @@ func bootScreen(screen *ebiten.Image) {
 		DrawText("Facility 38", world.LogoFont, world.ColorOrange, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 4, Y: (float32(world.ScreenHeight) / 4.0) - 4}, 0, titleBuf, false, true, true)
 		DrawText("Facility 38", world.LogoFont, world.ColorVeryDarkAqua, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 4.0}, 0, titleBuf, false, true, true)
 
-		DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 2, Y: (float32(world.ScreenHeight) / 2.8) - 2}, 0, titleBuf, false, true, true)
-		DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) + 2, Y: (float32(world.ScreenHeight) / 2.8) + 2}, 0, titleBuf, false, true, true)
-		DrawText(output, world.BootFont, world.ColorLightOrange, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 2.8}, 0, titleBuf, false, true, true)
+		DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 2, Y: (float32(world.ScreenHeight) / 2.5) - 2}, 0, titleBuf, false, true, true)
+		DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) + 2, Y: (float32(world.ScreenHeight) / 2.5) + 2}, 0, titleBuf, false, true, true)
+		DrawText(output, world.BootFont, world.ColorLightOrange, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 2.5}, 0, titleBuf, false, true, true)
 
 		multi := 5.0
 		pw := float32(100.0 * multi)

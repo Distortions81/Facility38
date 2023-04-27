@@ -91,22 +91,22 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 				opPos++
 			}
 		}
+
+		chunk.TerrainLock.Lock()
 		/* Batch render */
 		for _, op := range opList {
 			tImg.DrawImage(bg, op)
 		}
+		numTerrainCache++
+		chunk.TerrainImage = tImg
+		chunk.UsingTemporary = false
+		chunk.TerrainTime = time.Now()
+		chunk.TerrainLock.Unlock()
 
 	} else {
 		panic("No valid bg texture.")
 	}
 
-	chunk.TerrainLock.Lock()
-
-	numTerrainCache++
-	chunk.TerrainImage = tImg
-	chunk.UsingTemporary = false
-	chunk.TerrainTime = time.Now()
-	chunk.TerrainLock.Unlock()
 }
 
 var clearedCache bool
@@ -115,7 +115,7 @@ var clearedCache bool
 func RenderTerrainST() {
 
 	/* If we zoom out, decallocate everything */
-	if world.ZoomScale <= def.MapPixelThreshold {
+	if world.WASMMode && world.ZoomScale <= def.MapPixelThreshold {
 		if world.WASMMode && !clearedCache {
 			for _, sChunk := range world.SuperChunkList {
 				for _, chunk := range sChunk.ChunkList {
