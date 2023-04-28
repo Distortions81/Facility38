@@ -2,6 +2,7 @@ package main
 
 import (
 	"Facility38/cwlog"
+	"Facility38/util"
 	"Facility38/world"
 	"image/color"
 	"sync"
@@ -90,12 +91,14 @@ func InitWindows() {
 }
 
 func DrawOpenWindows(screen *ebiten.Image) {
+	defer util.ReportPanic("DrawOpenWindows")
 	for _, win := range OpenWindows {
 		DrawWindow(screen, win)
 	}
 }
 
 func OpenWindow(window *WindowData) {
+	defer util.ReportPanic("OpenWindow")
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
@@ -126,6 +129,7 @@ func OpenWindow(window *WindowData) {
 }
 
 func CloseWindow(window *WindowData) {
+	defer util.ReportPanic("CloseWindow")
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
@@ -163,6 +167,7 @@ func CloseWindow(window *WindowData) {
 }
 
 func WindowDirty(window *WindowData) {
+	defer util.ReportPanic("WindowDirty")
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
@@ -185,6 +190,7 @@ const closeScale = 0.7
  * Adjust padding by font size / scale / dpi
  */
 func DrawWindow(screen *ebiten.Image, window *WindowData) {
+	defer util.ReportPanic("DrawWindow")
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
@@ -302,6 +308,11 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 
 func CollisionWindowsCheck(input world.XYs) bool {
 	if gClickCaptured {
+		return true
+	}
+
+	defer util.ReportPanic("CollisionWindowsCheck")
+	if gClickCaptured {
 		return false
 	}
 	for _, win := range OpenWindows {
@@ -314,6 +325,7 @@ func CollisionWindowsCheck(input world.XYs) bool {
 }
 
 func CollisionWindow(input world.XYs, window *WindowData) bool {
+	defer util.ReportPanic("CollisionWindow")
 	winPos := getWindowPos(window)
 
 	if input.X > winPos.X && input.X < winPos.X+window.ScaledSize.X &&
@@ -346,7 +358,7 @@ func CollisionWindow(input world.XYs, window *WindowData) bool {
 }
 
 func handleClose(input world.XYs, window *WindowData) bool {
-
+	defer util.ReportPanic("handleCLose")
 	if gWindowDrag != nil {
 		return false
 	}
@@ -373,7 +385,7 @@ func handleClose(input world.XYs, window *WindowData) bool {
 }
 
 func handleDrag(input world.XYs, window *WindowData) bool {
-
+	defer util.ReportPanic("handleDrag")
 	if !gMouseHeld {
 		return false
 	}
@@ -403,6 +415,7 @@ func handleDrag(input world.XYs, window *WindowData) bool {
 }
 
 func getWindowPos(window *WindowData) world.XYs {
+	defer util.ReportPanic("getWindowPos")
 	var winPos world.XYs
 	if window.Centered && !window.Movable {
 		winPos.X, winPos.Y = int32(world.ScreenWidth/2)-(window.ScaledSize.X/2), int32(world.ScreenHeight/2)-(window.ScaledSize.Y/2)

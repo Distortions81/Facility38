@@ -27,6 +27,7 @@ func init() {
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
 func ObjUpdateDaemon() {
+	defer util.ReportPanic("ObjUpdateDaemon")
 
 	for !world.MapGenerated.Load() {
 		time.Sleep(time.Millisecond * 100)
@@ -72,6 +73,7 @@ func ObjUpdateDaemon() {
 
 /* WASM single-thread object update */
 func ObjUpdateDaemonST() {
+	defer util.ReportPanic("ObjUpdateDaemonST")
 	var start time.Time
 
 	for !world.MapGenerated.Load() {
@@ -121,6 +123,7 @@ func ObjUpdateDaemonST() {
 
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
 func tickObj(obj *world.ObjData) {
+	defer util.ReportPanic("tickObj")
 
 	var blockedOut uint8 = 0
 	for _, port := range obj.Outputs {
@@ -172,6 +175,7 @@ func tickObj(obj *world.ObjData) {
 }
 
 func RotateListAdd(b *world.BuildingData, cw bool, pos world.XY) {
+	defer util.ReportPanic("RotateListAdd")
 	world.RotateListLock.Lock()
 
 	world.RotateList = append(world.RotateList, world.RotateEvent{Build: b, Clockwise: cw})
@@ -182,6 +186,7 @@ func RotateListAdd(b *world.BuildingData, cw bool, pos world.XY) {
 
 /* Lock and add it EventQueue */
 func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
+	defer util.ReportPanic("EventQueueAdd")
 	world.EventQueueLock.Lock()
 	world.EventQueue = append(world.EventQueue, &world.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
 	world.EventQueueLock.Unlock()
@@ -189,12 +194,14 @@ func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
 func ObjQueueAdd(obj *world.ObjData, otype uint8, pos world.XY, delete bool, dir uint8) {
+	defer util.ReportPanic("ObjQueueAdd")
 	world.ObjQueueLock.Lock()
 	world.ObjQueue = append(world.ObjQueue, &world.ObjectQueueData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
 	world.ObjQueueLock.Unlock()
 }
 
 func runRotates() {
+	defer util.ReportPanic("RunRotates")
 	world.RotateListLock.Lock()
 	defer world.RotateListLock.Unlock()
 
@@ -276,6 +283,8 @@ func runRotates() {
 
 /* TO DO: process if possible, move, or spill */
 func CleanPorts(obj *world.ObjData) {
+	defer util.ReportPanic("CleanPorts")
+
 	for p, port := range obj.Ports {
 		if port.Buf != nil && port.Buf.Amount > 0 {
 			obj.Ports[p].Buf.Amount = 0
@@ -286,6 +295,7 @@ func CleanPorts(obj *world.ObjData) {
 /* Add/remove tick/tock events from the lists
  */
 func RunEventQueue() {
+	defer util.ReportPanic("RunEventQueue")
 
 	for _, e := range world.EventQueue {
 		if e.Delete {
@@ -311,6 +321,7 @@ func RunEventQueue() {
 
 /* Add/remove objects from game world at end of tick/tock cycle */
 func runObjQueue() {
+	defer util.ReportPanic("runObjQueue")
 
 	for _, item := range world.ObjQueue {
 		if item.Delete {
@@ -334,12 +345,15 @@ func runObjQueue() {
 }
 
 func delObj(obj *world.ObjData) {
+	defer util.ReportPanic("delObj")
 	UnlinkObj(obj)
 	removeObj(obj)
 }
 
 /* Delete object from ObjMap, decerment Num Marks PixmapDirty */
 func removePosMap(pos world.XY) {
+	defer util.ReportPanic("removePosMap")
+
 	/* delete from map */
 	sChunk := util.GetSuperChunk(pos)
 	chunk := util.GetChunk(pos)

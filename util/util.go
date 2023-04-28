@@ -37,6 +37,16 @@ func init() {
 	ChatLinesTop = 1
 }
 
+func ReportPanic(format string, args ...interface{}) {
+
+	if r := recover(); r != nil {
+		_, filename, line, _ := runtime.Caller(1)
+		input := fmt.Sprintf(format, args...)
+		buf := fmt.Sprintf("ReportPanic: %v:%v:%v\n%v", input, filename, line, r)
+		cwlog.DoLog(false, buf)
+	}
+}
+
 func WASMSleep() {
 	if world.WASMMode {
 		time.Sleep(time.Millisecond * 10)

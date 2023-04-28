@@ -51,6 +51,7 @@ func SetupTerrainCache() {
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
 func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
+	defer util.ReportPanic("renderChunkGround")
 	chunkPix := (def.SpriteScale * def.ChunkSize)
 
 	var bg *ebiten.Image = TerrainTypes[0].Images.Main
@@ -113,6 +114,7 @@ var clearedCache bool
 
 /* WASM single-thread version, one tile per call */
 func RenderTerrainST() {
+	defer util.ReportPanic("RenderTerrainST")
 
 	/* If we zoom out, decallocate everything */
 	if world.WASMMode && world.ZoomScale <= def.MapPixelThreshold {
@@ -148,7 +150,7 @@ func RenderTerrainST() {
 
 /* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
 func killTerrainCache(chunk *world.MapChunk, force bool) {
-
+	defer util.ReportPanic("killTerrainCache")
 	if chunk.UsingTemporary || chunk.TerrainImage == nil {
 		return
 	}
@@ -202,6 +204,7 @@ var pixmapCacheCleared bool
 
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func PixmapRenderDaemon() {
+	defer util.ReportPanic("PixmapRenderDaemon")
 
 	for GameRunning {
 		time.Sleep(pixmapRenderLoop)
@@ -240,7 +243,7 @@ func PixmapRenderDaemon() {
 
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func ResourceRenderDaemon() {
-
+	defer util.ReportPanic("ResourceRenderDaemon")
 	for GameRunning {
 
 		world.SuperChunkListLock.RLock()
@@ -259,7 +262,7 @@ func ResourceRenderDaemon() {
 }
 
 func ResourceRenderDaemonST() {
-
+	defer util.ReportPanic("ResourceRenderDaemonST")
 	for _, sChunk := range world.SuperChunkList {
 		if sChunk.ResourceMap == nil || sChunk.ResourceDirty {
 			drawResource(sChunk)
@@ -270,6 +273,7 @@ func ResourceRenderDaemonST() {
 }
 
 func drawResource(sChunk *world.MapSuperChunk) {
+	defer util.ReportPanic("drawResource")
 	if sChunk == nil {
 		return
 	}
@@ -330,6 +334,7 @@ func drawResource(sChunk *world.MapSuperChunk) {
 
 /* Draw a superchunk's pixmap, allocates image if needed. */
 func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
+	defer util.ReportPanic("drawPixmap")
 	/* Make Pixelmap images */
 	if sChunk.PixelMap == nil {
 		rect := image.Rectangle{}

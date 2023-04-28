@@ -3,11 +3,13 @@ package main
 import (
 	"Facility38/cwlog"
 	"Facility38/def"
+	"Facility38/util"
 	"Facility38/world"
 	"math/rand"
 )
 
 func minerUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("minerUpdate")
 
 	/* Get fuel */
 	for p, port := range obj.FuelIn {
@@ -75,6 +77,7 @@ func minerUpdate(obj *world.ObjData) {
 }
 
 func beltUpdateOver(obj *world.ObjData) {
+	defer util.ReportPanic("beltUpdateOver")
 
 	/* Underpass */
 	if obj.BeltOver.UnderIn != nil && obj.BeltOver.UnderOut != nil {
@@ -104,6 +107,7 @@ func beltUpdateOver(obj *world.ObjData) {
 }
 
 func beltUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("beltUpdate")
 
 	if obj.NumIn > 1 {
 		if obj.LastInput == (obj.NumIn - 1) {
@@ -126,6 +130,7 @@ func beltUpdate(obj *world.ObjData) {
 }
 
 func fuelHopperUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("fuelHopperUpdate")
 
 	for i, input := range obj.Inputs {
 
@@ -173,6 +178,8 @@ func fuelHopperUpdate(obj *world.ObjData) {
 }
 
 func loaderUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("loaderUpdate")
+
 	for i, input := range obj.Inputs {
 		if input.Buf.Amount == 0 {
 			continue
@@ -186,6 +193,7 @@ func loaderUpdate(obj *world.ObjData) {
 }
 
 func splitterUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("splitterUpdate")
 
 	if obj.NumIn > 0 && obj.Inputs[0].Buf.Amount > 0 {
 		if obj.NumOut > 1 {
@@ -207,6 +215,7 @@ func splitterUpdate(obj *world.ObjData) {
 }
 
 func boxUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("boxUpdate")
 
 	for p, port := range obj.Inputs {
 		if port.Buf.TypeP == nil {
@@ -235,6 +244,7 @@ func boxUpdate(obj *world.ObjData) {
 }
 
 func smelterUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("smelterUpdate")
 
 	/* Get fuel */
 	for _, fuel := range obj.FuelIn {
@@ -329,6 +339,7 @@ func smelterUpdate(obj *world.ObjData) {
 }
 
 func casterUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("casterUpdate")
 
 	/* Get fuel */
 	for _, fuel := range obj.FuelIn {
@@ -428,6 +439,7 @@ func casterUpdate(obj *world.ObjData) {
 }
 
 func rodCasterUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("rodCasterUpdate")
 
 	/* Get fuel */
 	for _, fuel := range obj.FuelIn {
@@ -518,6 +530,7 @@ func rodCasterUpdate(obj *world.ObjData) {
 }
 
 func slipRollerUpdate(obj *world.ObjData) {
+	defer util.ReportPanic("slipRollerUpdate")
 
 	/* Get fuel */
 	for _, fuel := range obj.FuelIn {

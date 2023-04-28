@@ -3,6 +3,7 @@ package main
 import (
 	"Facility38/cwlog"
 	"Facility38/def"
+	"Facility38/util"
 	"Facility38/world"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -223,6 +224,7 @@ func NewRunTicks() {
 
 	numObj := 0
 	ActiveTicks = 0
+	defer util.ReportPanic("NewRunTicks")
 
 	for _, ti := range TickIntervals {
 		for _, off := range ti.Offsets {
@@ -251,6 +253,7 @@ func NewRunTicks() {
 func runTickBlock(numObj int) {
 	wg.Add()
 	go func(w [def.WorkSize]*world.ObjData, nObj int) {
+		defer util.ReportPanic("runTickBlock")
 		for x := 0; x < nObj; x++ {
 			tickObj(w[x])
 		}
@@ -263,7 +266,10 @@ func runTickBlock(numObj int) {
 func runTockBlock(numObj int) {
 	wg.Add()
 	go func(w [def.WorkSize]*world.ObjData, nObj int) {
-		for x := 0; x < nObj; x++ {
+		var x int
+		defer util.ReportPanic("runTockBlock")
+
+		for x = 0; x < nObj; x++ {
 			w[x].Unique.TypeP.UpdateObj(w[x])
 		}
 		wg.Done()

@@ -125,6 +125,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 var lastVal int
 
 func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
+	defer util.ReportPanic("toolBarTooltip")
+
 	ToolBarIconSize := float32(world.UIScale * def.ToolBarIconSize)
 	ToolBarSpacing := float32(def.ToolBarIconSize / def.ToolBarSpaceRatio)
 
@@ -176,6 +178,7 @@ func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
 }
 
 func drawItemInfo(screen *ebiten.Image) {
+	defer util.ReportPanic("drawItemInfo")
 
 	/* World Obj tool tip */
 	pos := util.FloatXYToPosition(WorldMouseX, WorldMouseY)
@@ -362,6 +365,8 @@ func drawItemInfo(screen *ebiten.Image) {
 }
 
 func drawItemPlacement(screen *ebiten.Image) {
+	defer util.ReportPanic("drawItemPlacement")
+
 	/* Draw ghost for selected item */
 	if SelectedItemType < def.MaxItemType {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
@@ -431,6 +436,7 @@ var VisChunk []*world.MapChunk
 var VisSChunk []*world.MapSuperChunk
 
 func updateVisData() {
+	defer util.ReportPanic("updateVisData")
 
 	/* When needed, make a list of chunks to draw */
 	if world.VisDataDirty.Load() {
@@ -492,6 +498,7 @@ func updateVisData() {
 }
 
 func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image) {
+	defer util.ReportPanic("drawTerrain")
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Draw ground */
@@ -513,6 +520,7 @@ func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image
 }
 
 func drawIconMode(screen *ebiten.Image) {
+	defer util.ReportPanic("drawIconMode")
 
 	BatchTop = 0
 
@@ -823,6 +831,7 @@ func drawIconMode(screen *ebiten.Image) {
 */
 
 func drawPixmapMode(screen *ebiten.Image) {
+	defer util.ReportPanic("drawPixmapMode")
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Single thread render terrain for WASM */
@@ -862,6 +871,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 }
 
 func drawDebugInfo(screen *ebiten.Image) {
+	defer util.ReportPanic("drawDebugInfo")
 
 	/* Draw debug info */
 	buf := fmt.Sprintf("FPS: %-4v UPS: %4.2f Objects: %8v, %-8v/%8v, %-8v Arch: %v Build: v%v-%v",
@@ -886,6 +896,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 
 func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos world.XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) world.XYf32 {
+	defer util.ReportPanic("DrawText")
 	var tmx, tmy float32
 
 	tRect := text.BoundString(face, input)
@@ -922,7 +933,7 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 
 /* Draw world objects */
 func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
-
+	defer util.ReportPanic("drawObject")
 	/* camera + object */
 	objOffX := camXPos + (float32(obj.Pos.X))
 	objOffY := camYPos + (float32(obj.Pos.Y))
@@ -984,6 +995,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 
 /* Update local vars with camera position calculations */
 func calcScreenCamera() {
+	defer util.ReportPanic("calcScreenCamera")
 	var padding float32 = 3 /* Set to max item size */
 
 	lastCamX = camXPos
@@ -1008,7 +1020,7 @@ func calcScreenCamera() {
 
 /* Draw materials on belts */
 func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, scale float64, alpha float32, pos *world.XYf64) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
-
+	defer util.ReportPanic("drawMaterials")
 	if obj != nil && m.Amount > 0 {
 		img := m.TypeP.Image
 		if img != nil {
@@ -1047,7 +1059,7 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 }
 
 func drawChatLines(screen *ebiten.Image) {
-
+	defer util.ReportPanic("drawChatLines")
 	var lineNum int
 	util.ChatLinesLock.Lock()
 	defer util.ChatLinesLock.Unlock()

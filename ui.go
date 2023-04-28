@@ -59,6 +59,7 @@ func (g *Game) Update() error {
 
 		/* Stop dragging window if we go off-screen */
 		gWindowDrag = nil
+		gClickCaptured = true
 	}
 
 	var keys []ebiten.Key
@@ -85,6 +86,7 @@ func (g *Game) Update() error {
 	/* Handle window drag */
 	if gWindowDrag != nil {
 		gWindowDrag.Position = world.XYs{X: int32(MouseX) - gWindowDrag.DragPos.X, Y: int32(MouseY) - gWindowDrag.DragPos.Y}
+		gClickCaptured = true
 	}
 
 	if gWindowDrag == nil && !gClickCaptured {
@@ -181,6 +183,7 @@ func handleToolbar(rotate bool) bool {
 				}
 			}
 			gMouseHeld = false
+			gClickCaptured = true
 			return true
 		}
 	}
@@ -252,16 +255,18 @@ func getMouseClicks() {
 		gMouseHeld = true
 		gLastActionPosition.X = 0
 		gLastActionPosition.Y = 0
-		if !gClickCaptured {
-			gClickCaptured = handleToolbar(false)
-		}
+		handleToolbar(false)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-		gClickCaptured = handleToolbar(true)
+		handleToolbar(true)
 	}
 }
 
 /* Look for clicks in window, create or destroy objects */
 func createWorldObjects() {
+	if gClickCaptured {
+		return
+	}
+
 	/* Is mouse held */
 	if !gMouseHeld && !gRightMouseHeld {
 		return
