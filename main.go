@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"os"
 	"runtime"
 	"time"
 
@@ -64,6 +65,7 @@ func main() {
 	} else {
 		/* Functions that will not work in webasm */
 		cwlog.StartLog()
+		os.Stderr = cwlog.LogDesc
 		cwlog.LogDaemon()
 	}
 
