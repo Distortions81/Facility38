@@ -211,12 +211,12 @@ func PosIntMod(d, m int) int {
 /* Delete an object from a world.ObjData list, does not retain order (fast) */
 func ObjListDelete(obj *world.ObjData) {
 	defer ReportPanic("ObjListDelete")
-	obj.Parent.Lock.Lock()
-	defer obj.Parent.Lock.Unlock()
-	for index, item := range obj.Parent.ObjList {
+	obj.Chunk.Lock.Lock()
+	defer obj.Chunk.Lock.Unlock()
+	for index, item := range obj.Chunk.ObjList {
 		if item.Pos == obj.Pos {
-			obj.Parent.ObjList[index] = obj.Parent.ObjList[len(obj.Parent.ObjList)-1]
-			obj.Parent.ObjList = obj.Parent.ObjList[:len(obj.Parent.ObjList)-1]
+			obj.Chunk.ObjList[index] = obj.Chunk.ObjList[len(obj.Chunk.ObjList)-1]
+			obj.Chunk.ObjList = obj.Chunk.ObjList[:len(obj.Chunk.ObjList)-1]
 			world.VisDataDirty.Store(true)
 			return
 		}
@@ -244,18 +244,27 @@ func UnCenterXY(pos world.XYs) world.XY {
 /* Rotate consts.DIR value clockwise */
 func RotCW(dir uint8) uint8 {
 	defer ReportPanic("RotCW")
+	if dir == def.DIR_ANY {
+		return def.DIR_ANY
+	}
 	return uint8(PosIntMod(int(dir+1), def.DIR_MAX))
 }
 
 /* Rotate consts.DIR value counter-clockwise */
 func RotCCW(dir uint8) uint8 {
 	defer ReportPanic("RotCCW")
+	if dir == def.DIR_ANY {
+		return def.DIR_ANY
+	}
 	return uint8(PosIntMod(int(dir-1), def.DIR_MAX))
 }
 
 /* Rotate consts.DIR value to x*/
 func RotDir(dir uint8, add uint8) uint8 {
 	defer ReportPanic("RotDir")
+	if dir == def.DIR_ANY || add == def.DIR_ANY {
+		return def.DIR_ANY
+	}
 	return uint8(PosIntMod(int(dir-add), def.DIR_MAX))
 }
 
@@ -408,6 +417,8 @@ func DirToName(dir uint8) string {
 		return "South"
 	case def.DIR_WEST:
 		return "West"
+	case def.DIR_ANY:
+		return "Any"
 	}
 
 	return "Error"
@@ -424,6 +435,8 @@ func DirToArrow(dir uint8) string {
 		return "v"
 	case def.DIR_WEST:
 		return "<"
+	case def.DIR_ANY:
+		return "*"
 	}
 
 	return "Error"

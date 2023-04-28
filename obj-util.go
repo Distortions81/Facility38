@@ -13,14 +13,14 @@ import (
 func removeObj(obj *world.ObjData) {
 	defer util.ReportPanic("removeObj")
 	/* delete from map */
-	obj.Parent.Lock.Lock()
+	obj.Chunk.Lock.Lock()
 
-	obj.Parent.NumObjs--
-	delete(obj.Parent.BuildingMap, obj.Pos)
+	obj.Chunk.NumObjs--
+	delete(obj.Chunk.BuildingMap, obj.Pos)
 
-	obj.Parent.Parent.PixmapDirty = true
+	obj.Chunk.Parent.PixmapDirty = true
 
-	obj.Parent.Lock.Unlock()
+	obj.Chunk.Lock.Unlock()
 	util.ObjListDelete(obj)
 }
 
@@ -135,7 +135,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	}
 
 	newObj.Pos = pos
-	newObj.Parent = chunk
+	newObj.Chunk = chunk
 	newObj.Dir = dir
 
 	multiTile := false
@@ -183,16 +183,16 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 		}
 	}
 
-	newObj.Parent.Lock.Lock()
+	newObj.Chunk.Lock.Lock()
 	/* Add to chunk object list */
-	newObj.Parent.ObjList =
-		append(newObj.Parent.ObjList, newObj)
-	newObj.Parent.NumObjs++
+	newObj.Chunk.ObjList =
+		append(newObj.Chunk.ObjList, newObj)
+	newObj.Chunk.NumObjs++
 
 	/* Mark superchunk and visdata dirty */
-	newObj.Parent.Parent.PixmapDirty = true
+	newObj.Chunk.Parent.PixmapDirty = true
 	world.VisDataDirty.Store(true)
-	newObj.Parent.Lock.Unlock()
+	newObj.Chunk.Lock.Unlock()
 
 	/* Place item tiles */
 	if multiTile {
@@ -219,10 +219,10 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 		return nil
 	} else {
 		/* Add object to map */
-		newObj.Parent.Lock.Lock()
+		newObj.Chunk.Lock.Lock()
 		newBB := &world.BuildingData{Obj: newObj, Pos: newObj.Pos}
 		chunk.BuildingMap[newObj.Pos] = newBB
-		newObj.Parent.Lock.Unlock()
+		newObj.Chunk.Lock.Unlock()
 
 		if initOkay {
 			LinkObj(newObj.Pos, newBB)

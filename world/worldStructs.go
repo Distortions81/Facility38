@@ -164,8 +164,8 @@ type MinerDataType struct {
 
 /* Object data */
 type ObjData struct {
-	Pos    XY
-	Parent *MapChunk `json:"-"`
+	Pos   XY
+	Chunk *MapChunk `json:"-"`
 
 	/* Data needed for transporting or storing object */
 	Unique *UniqueObject

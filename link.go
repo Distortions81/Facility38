@@ -16,7 +16,7 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 	linkLock.Lock()
 	defer linkLock.Unlock()
 
-	util.ObjCD(b, fmt.Sprintf("Facing: %v", util.DirToName(b.Obj.Dir)))
+	//util.ObjCD(b, fmt.Sprintf("Facing: %v", util.DirToName(b.Obj.Dir)))
 	b.Obj.LastInput = 0
 	b.Obj.LastOutput = 0
 
@@ -25,15 +25,34 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 
 		/* Make sure port is unoccupied */
 		if port.Obj != nil {
-			util.ObjCD(b, fmt.Sprintf("Port Occupied: %v", util.DirToName(port.Dir)))
+			//util.ObjCD(b, fmt.Sprintf("Port Occupied: %v", util.DirToName(port.Dir)))
 			continue
 		}
 
-		neighb := util.GetNeighborObj(from, port.Dir)
+		var neighb *world.BuildingData
+		if port.Dir == def.DIR_ANY {
+			var testPort uint8
+			for testPort = def.DIR_NORTH; testPort <= def.DIR_WEST; testPort++ {
+				//cwlog.DoLog(true, "Looking in all directions: "+util.DirToName(testPort))
+
+				neighb = util.GetNeighborObj(from, testPort)
+				if neighb != nil && neighb.Obj != nil {
+					if neighb.Obj.Pos != b.Obj.Pos {
+						//cwlog.DoLog(true, "found")
+						break
+					}
+				}
+			}
+			if neighb == nil {
+				continue
+			}
+		} else {
+			neighb = util.GetNeighborObj(from, port.Dir)
+		}
 
 		/* We found one*/
 		if neighb == nil {
-			util.ObjCD(b, fmt.Sprintf("No neighbor: %v", util.DirToName(port.Dir)))
+			//util.ObjCD(b, fmt.Sprintf("No neighbor: %v", util.DirToName(port.Dir)))
 			continue
 		}
 
@@ -42,10 +61,13 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 			continue
 		}
 
+		//cwlog.DoLog(true, util.DirToName(port.Dir))
+
 		for n, np := range neighb.Obj.Ports {
 
 			/* Neighbor port is available */
 			if np.Obj != nil {
+				//util.ObjCD(b, fmt.Sprintf("Port occupied: %v", util.DirToName(port.Dir)))
 				continue
 			}
 
@@ -55,7 +77,7 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 
 				/* Port is of correct type */
 				if port.Type != util.ReverseType(np.Type) {
-					util.ObjCD(b, fmt.Sprintf("Port incorrect type: %v", util.DirToName(port.Dir)))
+					//util.ObjCD(b, fmt.Sprintf("Port incorrect type: %v", util.DirToName(port.Dir)))
 					continue
 				}
 
@@ -92,6 +114,8 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				} else {
 					AutoEvents(neighb.Obj)
 				}
+			} else {
+				//util.ObjCD(b, fmt.Sprintf("Port incorrect direction: %v", util.DirToName(port.Dir)))
 			}
 		}
 		/* Run custom link code */

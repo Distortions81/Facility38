@@ -255,10 +255,10 @@ func LoadGame() {
 			/* Relink */
 			MakeChunk(util.UnCenterXY(tempList.Objects[i].Pos))
 			chunk := util.GetChunk(util.UnCenterXY(tempList.Objects[i].Pos))
-			obj.Parent = chunk
+			obj.Chunk = chunk
 
-			obj.Parent.BuildingMap[util.UnCenterXY(tempList.Objects[i].Pos)].Obj = obj
-			obj.Parent.ObjList = append(obj.Parent.ObjList, obj)
+			obj.Chunk.BuildingMap[util.UnCenterXY(tempList.Objects[i].Pos)].Obj = obj
+			obj.Chunk.ObjList = append(obj.Chunk.ObjList, obj)
 			chunk.Parent.PixmapDirty = true
 			chunk.NumObjs++
 
@@ -316,7 +316,7 @@ func NukeWorld() {
 			}
 
 			for o, obj := range chunk.ObjList {
-				world.SuperChunkList[sc].ChunkList[c].ObjList[o].Parent = nil
+				world.SuperChunkList[sc].ChunkList[c].ObjList[o].Chunk = nil
 				for p := range obj.Ports {
 					world.SuperChunkList[sc].ChunkList[c].ObjList[o].Ports[p].Obj = nil
 				}

@@ -143,8 +143,8 @@ func initMiner(obj *world.ObjData) bool {
 	} else {
 
 		/* Init miner data */
-		obj.Parent.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
-		obj.Tile = obj.Parent.TileMap[obj.Pos]
+		obj.Chunk.TileMap[obj.Pos] = &world.TileData{MinerData: &world.MinerData{}}
+		obj.Tile = obj.Chunk.TileMap[obj.Pos]
 	}
 
 	return true
@@ -153,7 +153,7 @@ func initMiner(obj *world.ObjData) bool {
 func deinitMiner(obj *world.ObjData) {
 	defer util.ReportPanic("deinitMiner")
 	/* Update resource map on remove */
-	obj.Parent.Parent.ResourceDirty = true
+	obj.Chunk.Parent.ResourceDirty = true
 }
 
 func initBeltOver(obj *world.ObjData) bool {

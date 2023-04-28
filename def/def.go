@@ -150,7 +150,7 @@ const (
 	DIR_SOUTH = 2
 	DIR_WEST  = 3
 	DIR_MAX   = 4
-	DIR_ANY   = DIR_MAX
+	DIR_ANY   = 255
 
 	/* Ports */
 	PORT_NONE = 0
