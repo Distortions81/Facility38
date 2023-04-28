@@ -42,8 +42,10 @@ func ReportPanic(format string, args ...interface{}) {
 	if r := recover(); r != nil {
 		_, filename, line, _ := runtime.Caller(1)
 		input := fmt.Sprintf(format, args...)
-		buf := fmt.Sprintf("ReportPanic: %v:%v:%v\n%v", input, filename, line, r)
+		buf := fmt.Sprintf("REPORT-PANIC: Label:%v File:%v Line:%v Error:%v", input, filename, line, r)
 		cwlog.DoLog(false, buf)
+		ChatDetailed(buf, world.ColorOrange, time.Second*30)
+		time.Sleep(time.Second)
 	}
 }
 
