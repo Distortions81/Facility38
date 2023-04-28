@@ -196,7 +196,7 @@ func splitterUpdate(obj *world.ObjData) {
 	defer util.ReportPanic("splitterUpdate")
 
 	if obj.NumIn > 0 && obj.Inputs[0].Buf.Amount > 0 {
-		if obj.NumOut > 1 {
+		if obj.NumOut > 0 {
 			if obj.LastOutput >= (obj.NumOut - 1) {
 				obj.LastOutput = 0
 			} else {
@@ -224,7 +224,6 @@ func boxUpdate(obj *world.ObjData) {
 
 		/* Will the input fit? */
 		if obj.KGHeld+port.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxContainKG {
-			obj.Active = false
 			continue
 		}
 

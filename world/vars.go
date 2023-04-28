@@ -21,7 +21,7 @@ var (
 
 	Debug     = false
 	Magnify   = true
-	LogStdOut = false
+	LogStdOut = true
 	UIScale   = 1.0
 
 	ResourceLegendImage *ebiten.Image

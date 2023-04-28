@@ -56,16 +56,16 @@ func ReportPanic(format string, args ...interface{}) {
 			}
 		}
 
-		_, filename, line, _ := runtime.Caller(1)
+		_, filename, line, _ := runtime.Caller(2)
 		input := fmt.Sprintf(format, args...)
 		buf := fmt.Sprintf("REPORT-PANIC: Label:%v File:%v Line:%v Error:%v\nStack:\n%v\n", input, filename, line, r, string(debug.Stack()))
 
 		if !world.WASMMode {
-			os.WriteFile("panic.log", []byte(buf), os.ModeAppend)
+			os.WriteFile("panic.log", []byte(buf), 0660)
 			defer ChatDetailed("wrote panic.log", world.ColorRed, time.Second*30)
 		}
 
-		cwlog.DoLog(false, buf)
+		//cwlog.DoLog(false, buf)
 		ChatDetailed(buf, world.ColorOrange, time.Second*30)
 	}
 }
@@ -146,6 +146,8 @@ func Chat(text string) {
 	}(text)
 }
 func ChatDetailed(text string, color color.Color, life time.Duration) {
+	cwlog.DoLog(false, "Chat: "+text)
+
 	/* Don't log until we are loaded into the game */
 	if !world.MapGenerated.Load() {
 		return
@@ -161,7 +163,6 @@ func ChatDetailed(text string, color color.Color, life time.Duration) {
 		}
 
 		ChatLinesLock.Unlock()
-		cwlog.DoLog(false, "Chat: "+text)
 	}(text)
 }
 

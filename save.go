@@ -45,8 +45,6 @@ type saveMObj struct {
 /* WIP */
 func SaveGame() {
 	defer util.ReportPanic("SaveGame")
-	util.Chat("Save is current disabled (wip).")
-	return
 
 	if world.WASMMode {
 		return
@@ -60,8 +58,8 @@ func SaveGame() {
 		tempPath := "save.dat.tmp"
 		finalPath := "save.dat"
 
-		//start := time.Now()
-		//cwlog.DoLog("Save starting.")
+		start := time.Now()
+		cwlog.DoLog(true, "Save starting.")
 
 		/* Pause the whole world ... */
 		world.SuperChunkListLock.RLock()
@@ -128,14 +126,14 @@ func SaveGame() {
 				}
 			}
 		}
-		//cwlog.DoLog("WALK COMPLETE:", time.Since(start).String())
+		cwlog.DoLog(true, "WALK COMPLETE:", time.Since(start).String())
 
 		b, _ := json.Marshal(tempList)
 
 		world.SuperChunkListLock.RUnlock()
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
-		//cwlog.DoLog"ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
+		cwlog.DoLog(true, "ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
 
 		_, err := os.Create(tempPath)
 
@@ -159,9 +157,9 @@ func SaveGame() {
 			return
 		}
 
-		util.ChatDetailed("Game save complete.", world.ColorOrange, time.Second*15)
+		util.ChatDetailed("Game save complete: "+finalPath, world.ColorOrange, time.Second*15)
 
-		//cwlog.DoLog("COMPRESS & WRITE COMPLETE:", time.Since(start).String())
+		cwlog.DoLog(true, "COMPRESS & WRITE COMPLETE:", time.Since(start).String())
 	}()
 }
 

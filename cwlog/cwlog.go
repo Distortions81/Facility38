@@ -123,8 +123,8 @@ func StartLog() {
 	/* Save descriptors, open/closed elsewhere */
 	LogDesc = bdesc
 
-	os.Stderr = bdesc
-	os.Stdout = bdesc
+	//os.Stderr = bdesc
+	//os.Stdout = bdesc
 
 	LogReady = true
 

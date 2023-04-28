@@ -257,9 +257,6 @@ func drawItemInfo(screen *ebiten.Image) {
 				if o.Unique.TypeP.MachineSettings.KgPerCycle > 0 {
 					toolTip = toolTip + fmt.Sprintf("Per Cycle: %v\n", PrintWeight(o.Unique.TypeP.MachineSettings.KgPerCycle))
 				}
-				if o.Unique.TypeP.MachineSettings.MaxContainKG > 0 {
-					toolTip = toolTip + fmt.Sprintf("Max contents: %v\n", PrintWeight(o.Unique.TypeP.MachineSettings.MaxContainKG))
-				}
 
 				for _, p := range o.Ports {
 					if p.Obj == nil {

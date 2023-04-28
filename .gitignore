@@ -9,3 +9,5 @@ log
 __debug_bin
 save.dat
 data/settings.json
+heapdump
+panic.log
