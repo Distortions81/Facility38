@@ -70,8 +70,10 @@ func MakeChunk(pos world.XY) bool {
 		world.SuperChunkMap[scpos].ChunkMap[cpos].TileMap = make(map[world.XY]*world.TileData)
 
 		/* Terrain img */
+		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainLock.Lock()
 		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainImage = world.TempChunkImage
 		world.SuperChunkMap[scpos].ChunkMap[cpos].UsingTemporary = true
+		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainLock.Unlock()
 
 		/* Save position */
 		world.SuperChunkMap[scpos].ChunkMap[cpos].Pos = cpos
