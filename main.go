@@ -38,7 +38,7 @@ type Game struct {
 /* Main function */
 func main() {
 	debug.SetPanicOnFault(true)
-	debug.SetTraceback("all")
+	//debug.SetTraceback("all")
 
 	defer util.ReportPanic("main")
 	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on Windows (NOT RECOMMENDED!)")

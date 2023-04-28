@@ -60,7 +60,7 @@ func ReportPanic(format string, args ...interface{}) {
 
 		_, filename, line, _ := runtime.Caller(4)
 		input := fmt.Sprintf(format, args...)
-		buf := fmt.Sprintf("(GAME CRASH)\nBUILD:v%v-%v\nLabel:%v File: %v Line: %v\nError:%v\nStack Track:\n%v\n", def.Version, BuildInfo, input, filename, line, r, string(debug.Stack()))
+		buf := fmt.Sprintf("(GAME CRASH)\nBUILD:v%v-%v\nLabel:%v File: %v Line: %v\nError:%v\n\nStack Trace:\n%v\n", def.Version, BuildInfo, input, filepath.Base(filename), line, r, string(debug.Stack()))
 
 		if !world.WASMMode {
 			os.WriteFile("panic.log", []byte(buf), 0660)

@@ -1,6 +1,6 @@
 #!/bin/bash
 curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
-go build -ldflags="-X main.buildTime=$curTime"
+go build -trimpath -ldflags="-X main.buildTime=$curTime"
 
 #stop on error
 if [ $? -ne 0 ]; then
