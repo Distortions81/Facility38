@@ -11,6 +11,7 @@ import (
 	"image/color"
 	"log"
 	"runtime"
+	"runtime/debug"
 	"time"
 
 	_ "github.com/defia/trf"
@@ -36,6 +37,9 @@ type Game struct {
 
 /* Main function */
 func main() {
+	debug.SetPanicOnFault(true)
+	debug.SetTraceback("all")
+
 	defer util.ReportPanic("main")
 	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on Windows (NOT RECOMMENDED!)")
 	forceMetal := flag.Bool("use-metal", false, "Use the Metal graphics API on Macintosh.")

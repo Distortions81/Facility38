@@ -12,6 +12,7 @@ import (
 	"io"
 	"log"
 	"math"
+	"os"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
@@ -41,9 +42,25 @@ func init() {
 
 func ReportPanic(format string, args ...interface{}) {
 	if r := recover(); r != nil {
+
+		cwlog.DoLog(false, "Writing 'heapdump' file.")
+		f, err := os.Create("heapdump")
+		if err == nil {
+			debug.WriteHeapDump(f.Fd())
+			f.Close()
+		} else {
+			cwlog.DoLog(false, "Failed to write 'heapdump' file.")
+		}
+
 		_, filename, line, _ := runtime.Caller(1)
 		input := fmt.Sprintf(format, args...)
 		buf := fmt.Sprintf("REPORT-PANIC: Label:%v File:%v Line:%v Error:%v\nStack:\n%v\n", input, filename, line, r, debug.Stack())
+
+		err = os.WriteFile("panic.log", []byte(buf), os.ModeAppend)
+		if err == nil {
+			f.Close()
+		}
+
 		cwlog.DoLog(false, buf)
 		ChatDetailed(buf, world.ColorOrange, time.Second*30)
 	}
