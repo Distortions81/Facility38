@@ -81,7 +81,7 @@ var WorldObjs = []*world.ObjType{
 	{
 		Base:         "basic-splitter",
 		Name:         "Basic Splitter",
-		Description:  "One input to three outputs equally",
+		Description:  "One input belt to three output belts.",
 		TypeI:        def.ObjTypeBasicSplit,
 		Category:     def.ObjCatBelt,
 		Size:         world.XYs{X: 1, Y: 1},
