@@ -57,7 +57,7 @@ func ReportPanic(format string, args ...interface{}) {
 
 		_, filename, line, _ := runtime.Caller(1)
 		input := fmt.Sprintf(format, args...)
-		buf := fmt.Sprintf("REPORT-PANIC: Label:%v File:%v Line:%v Error:%v\nStack:\n%v\n", input, filename, line, r, debug.Stack())
+		buf := fmt.Sprintf("REPORT-PANIC: Label:%v File:%v Line:%v Error:%v\nStack:\n%v\n", input, filename, line, r, string(debug.Stack()))
 
 		if !world.WASMMode {
 			os.WriteFile("panic.log", []byte(buf), os.ModeAppend)
