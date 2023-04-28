@@ -12,3 +12,4 @@ data/settings.json
 heapdump
 panic.log
 BUILD/builds
+saves/

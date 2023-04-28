@@ -7,6 +7,7 @@ import (
 	"Facility38/world"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"runtime"
 	"time"
@@ -55,8 +56,10 @@ func SaveGame() {
 		GameLock.Lock()
 		defer GameLock.Unlock()
 
-		tempPath := "saves/save.dat.tmp"
-		finalPath := "saves/save.dat"
+		savenum := time.Now().UTC().Unix()
+
+		tempPath := fmt.Sprintf("saves/save-%v.json.tmp", savenum)
+		finalPath := fmt.Sprintf("saves/save-%v.json", savenum)
 		os.Mkdir("saves", 0666)
 
 		start := time.Now()
