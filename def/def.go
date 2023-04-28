@@ -17,7 +17,7 @@ const (
 	ThreeSixtyDeg    = math.Pi * 2
 	DegToRad         = 6.28319
 
-	ChatHeightLines = 10
+	ChatHeightLines = 20
 	ChatFadeTime    = time.Second * 3
 
 	Version = "018"
