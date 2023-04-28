@@ -19,7 +19,6 @@ func init() {
 		for j, mt := range MatTypes {
 			if nl.TypeI == mt.TypeI {
 				NoiseLayers[i].TypeP = MatTypes[j]
-				break
 			}
 		}
 	}
@@ -34,6 +33,7 @@ func ResourceMapInit() {
 		NoiseLayers[p].RandomSource = rand.NewSource(NoiseLayers[p].RandomSeed)
 		NoiseLayers[p].PerlinNoise = perlin.NewPerlinRandSource(float64(NoiseLayers[p].Alpha), float64(NoiseLayers[p].Beta), NoiseLayers[p].N, NoiseLayers[p].RandomSource)
 	}
+
 }
 
 func NoiseMap(x, y float32, p int) float32 {

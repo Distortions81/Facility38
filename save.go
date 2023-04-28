@@ -85,9 +85,9 @@ func SaveGame() {
 				seeds.Coal = nl.RandomSeed
 			case def.MAT_IRON_ORE:
 				seeds.Iron = nl.RandomSeed
-			case def.MAT_COPPER_SHOT:
+			case def.MAT_COPPER_ORE:
 				seeds.Copper = nl.RandomSeed
-			case def.MAT_STONE_BLOCK:
+			case def.MAT_STONE_ORE:
 				seeds.Stone = nl.RandomSeed
 			}
 		}
@@ -255,9 +255,9 @@ func LoadGame() {
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Coal
 			case def.MAT_IRON_ORE:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Iron
-			case def.MAT_COPPER_SHOT:
+			case def.MAT_COPPER_ORE:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Copper
-			case def.MAT_STONE_BLOCK:
+			case def.MAT_STONE_ORE:
 				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Stone
 			}
 		}
@@ -318,9 +318,6 @@ func LoadGame() {
 
 func NukeWorld() {
 	defer util.ReportPanic("NukeWorld")
-	if world.TockCount == 0 && world.TickCount == 0 {
-		return
-	}
 
 	world.TickListLock.Lock()
 	world.TickList = []world.TickEvent{}
