@@ -33,8 +33,10 @@ var (
 func SetupTerrainCache() {
 	defer util.ReportPanic("SetupTerrainCache")
 	tChunk := world.MapChunk{}
+
 	renderChunkGround(&tChunk, false, world.XY{X: 0, Y: 0})
 	world.TempChunkImage = tChunk.TerrainImage
+	tChunk.UsingTemporary = true
 
 	world.SuperChunkListLock.RLock()
 	for _, sChunk := range world.SuperChunkList {
