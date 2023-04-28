@@ -8,7 +8,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 	"time"
 )
@@ -169,6 +171,30 @@ func SaveGame() {
 	}()
 }
 
+func FindNewstSave() string {
+
+	dir := "saves/"
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		panic(err)
+	}
+
+	var newestFile os.FileInfo
+	for _, file := range files {
+		if filepath.Ext(file.Name()) == ".json" {
+			if newestFile == nil || file.ModTime().After(newestFile.ModTime()) {
+				newestFile = file
+			}
+		}
+	}
+
+	if newestFile != nil {
+		return newestFile.Name()
+	} else {
+		return ""
+	}
+}
+
 /* WIP */
 func LoadGame() {
 	defer util.ReportPanic("LoadGame")
@@ -182,7 +208,13 @@ func LoadGame() {
 		GameLock.Lock()
 		defer GameLock.Unlock()
 
-		b, err := os.ReadFile("saves/save.dat")
+		saveName := FindNewstSave()
+		if saveName == "" {
+			util.Chat("No saves found!")
+			return
+		}
+		util.Chat("Loading saves/" + saveName)
+		b, err := os.ReadFile("saves/" + saveName)
 		if err != nil {
 			cwlog.DoLog(true, "LoadGame: file not found: %v\n", err)
 			return
@@ -196,7 +228,7 @@ func LoadGame() {
 		NukeWorld()
 
 		/* Pause the whole world ... */
-		world.SuperChunkListLock.RLock()
+		world.SuperChunkListLock.Lock()
 		world.TickListLock.Lock()
 		world.TockListLock.Lock()
 		tempList := gameSave{}
@@ -210,7 +242,7 @@ func LoadGame() {
 			cwlog.DoLog(true, "LoadGame: Invalid save version.")
 		}
 
-		world.SuperChunkListLock.RUnlock()
+		world.SuperChunkListLock.Unlock()
 		for n, nl := range NoiseLayers {
 			switch nl.TypeI {
 			case def.MAT_NONE:
@@ -280,7 +312,7 @@ func LoadGame() {
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
 
-		util.ChatDetailed("Game load complete.", world.ColorOrange, time.Second*15)
+		util.ChatDetailed("Load complete!", world.ColorOrange, time.Second*15)
 	}()
 }
 
