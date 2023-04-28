@@ -50,7 +50,7 @@ func ReportPanic(format string, args ...interface{}) {
 			if err == nil {
 				debug.WriteHeapDump(f.Fd())
 				f.Close()
-				defer ChatDetailed("wrote heapdump", world.ColorRed, time.Second*30)
+				defer ChatDetailed("wrote heapdump", world.ColorRed, time.Hour)
 			} else {
 				cwlog.DoLog(false, "Failed to write 'heapdump' file.")
 			}
@@ -62,11 +62,11 @@ func ReportPanic(format string, args ...interface{}) {
 
 		if !world.WASMMode {
 			os.WriteFile("panic.log", []byte(buf), 0660)
-			defer ChatDetailed("wrote panic.log", world.ColorRed, time.Second*30)
+			defer ChatDetailed("wrote panic.log", world.ColorRed, time.Hour)
 		}
 
 		//cwlog.DoLog(false, buf)
-		ChatDetailed(buf, world.ColorOrange, time.Second*30)
+		ChatDetailed(buf, world.ColorOrange, time.Hour)
 	}
 }
 
