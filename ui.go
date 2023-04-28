@@ -406,6 +406,32 @@ func rotateWorldObjects() {
 		b := util.GetObj(pos, chunk)
 		/* Valid building? */
 		if b == nil {
+			if SelectedItemType == def.MaxItemType {
+				return
+			}
+			for pos := 0; pos < ToolbarMax; pos++ {
+				if ToolbarItems[pos].OType == nil {
+					continue
+				}
+				item := ToolbarItems[pos].OType
+				if item.TypeI != SelectedItemType {
+					continue
+				}
+				if !item.Rotatable {
+					continue
+				}
+
+				dir := item.Direction
+				if gShiftPressed {
+					dir = util.RotCCW(dir)
+				} else {
+					dir = util.RotCW(dir)
+				}
+				item.Direction = dir
+
+				DrawToolbar(true, false, pos)
+			}
+
 			return
 		}
 
