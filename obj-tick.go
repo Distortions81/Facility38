@@ -160,14 +160,16 @@ func tickObj(obj *world.ObjData) {
 		*port.Link.Buf, *port.Buf = *port.Buf, *port.Link.Buf
 	}
 
-	if obj.NumOut+obj.NumFOut == blockedOut {
-		if !obj.Blocked {
-			obj.Blocked = true
+	if obj.Unique.TypeP.Category == def.ObjCatBelt {
+		if obj.NumOut+obj.NumFOut == blockedOut {
+			if !obj.Blocked {
+				obj.Blocked = true
 
-		}
-	} else {
-		if obj.Blocked {
-			obj.Blocked = false
+			}
+		} else {
+			if obj.Blocked {
+				obj.Blocked = false
+			}
 		}
 	}
 }
