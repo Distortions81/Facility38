@@ -288,7 +288,9 @@ func LoadGame() {
 				}
 			}
 
-			PlaceObj(obj.Pos, 0, obj, obj.Dir, false)
+			newObj := PlaceObj(obj.Pos, obj.Unique.TypeP.TypeI, nil, obj.Dir, false)
+			newObj.Unique = obj.Unique
+			newObj.KGHeld = obj.KGHeld
 		}
 
 		world.VisDataDirty.Store(true)
