@@ -133,6 +133,11 @@ func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
 }
 
 func Chat(text string) {
+	if !world.MapGenerated.Load() {
+		return
+	}
+	cwlog.DoLog(false, "Chat: "+text)
+
 	go func(text string) {
 		ChatLinesLock.Lock()
 		deleteOldLines()
@@ -144,10 +149,12 @@ func Chat(text string) {
 		}
 
 		ChatLinesLock.Unlock()
-		cwlog.DoLog(false, "Chat: "+text)
 	}(text)
 }
 func ChatDetailed(text string, color color.Color, life time.Duration) {
+	if !world.MapGenerated.Load() {
+		return
+	}
 	cwlog.DoLog(false, "Chat: "+text)
 
 	/* Don't log until we are loaded into the game */
