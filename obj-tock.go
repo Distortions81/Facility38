@@ -330,11 +330,13 @@ func smelterUpdate(obj *world.ObjData) {
 	obj.KGHeld -= obj.Unique.TypeP.MachineSettings.KgPerCycle
 
 	/* Output result */
-	obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.MachineSettings.KgPerCycle
+	if obj.NumOut > 0 {
+		obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.MachineSettings.KgPerCycle
 
-	/* Find and set result type, if needed */
-	if obj.Outputs[0].Buf.TypeP != result {
-		obj.Outputs[0].Buf.TypeP = result
+		/* Find and set result type, if needed */
+		if obj.Outputs[0].Buf.TypeP != result {
+			obj.Outputs[0].Buf.TypeP = result
+		}
 	}
 }
 
