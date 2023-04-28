@@ -311,7 +311,7 @@ func NukeWorld() {
 		for c, chunk := range superchunk.ChunkList {
 
 			world.SuperChunkList[sc].ChunkList[c].Parent = nil
-			if chunk.TerrainImage != nil && chunk.TerrainImage != world.TempChunkImage {
+			if chunk.TerrainImage != nil && chunk.TerrainImage != world.TempChunkImage && !chunk.UsingTemporary {
 				world.SuperChunkList[sc].ChunkList[c].TerrainImage.Dispose()
 			}
 
