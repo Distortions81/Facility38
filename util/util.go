@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
 
@@ -134,8 +135,11 @@ func Chat(text string) {
 		ChatLinesLock.Lock()
 		deleteOldLines()
 
-		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color.White, BGColor: world.ColorToolTipBG, Lifetime: time.Second * 15, Timestamp: time.Now()})
-		ChatLinesTop++
+		sepLines := strings.Split(text, "\n")
+		for _, sep := range sepLines {
+			ChatLines = append(ChatLines, world.ChatLines{Text: sep, Color: color.White, BGColor: world.ColorToolTipBG, Lifetime: time.Second * 15, Timestamp: time.Now()})
+			ChatLinesTop++
+		}
 
 		ChatLinesLock.Unlock()
 		cwlog.DoLog(false, "Chat: "+text)
@@ -150,8 +154,11 @@ func ChatDetailed(text string, color color.Color, life time.Duration) {
 		ChatLinesLock.Lock()
 		deleteOldLines()
 
-		ChatLines = append(ChatLines, world.ChatLines{Text: text, Color: color, BGColor: world.ColorToolTipBG, Lifetime: life, Timestamp: time.Now()})
-		ChatLinesTop++
+		sepLines := strings.Split(text, "\n")
+		for _, sep := range sepLines {
+			ChatLines = append(ChatLines, world.ChatLines{Text: sep, Color: color, BGColor: world.ColorToolTipBG, Lifetime: life, Timestamp: time.Now()})
+			ChatLinesTop++
+		}
 
 		ChatLinesLock.Unlock()
 		cwlog.DoLog(false, "Chat: "+text)
