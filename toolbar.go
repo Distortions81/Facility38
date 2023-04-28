@@ -74,9 +74,18 @@ func DrawToolbar(click, hover bool, index int) {
 
 		op.GeoM.Reset()
 		iSize := img.Bounds()
+
+		/* Handle non-square sprites */
+		var largerDim int
+		if iSize.Size().X > largerDim {
+			largerDim = iSize.Size().X
+		}
+		if iSize.Size().Y > largerDim {
+			largerDim = iSize.Size().Y
+		}
 		op.GeoM.Scale(
-			world.UIScale/(float64(iSize.Max.X)/float64(def.ToolBarIconSize)),
-			world.UIScale/(float64(iSize.Max.Y)/float64(def.ToolBarIconSize)))
+			world.UIScale/(float64(largerDim)/float64(def.ToolBarIconSize)),
+			world.UIScale/(float64(largerDim)/float64(def.ToolBarIconSize)))
 
 		if item.OType.Rotatable && item.OType.Direction > 0 {
 			x := float64(ToolBarIconSize / 2)
