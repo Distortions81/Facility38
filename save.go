@@ -220,6 +220,8 @@ func LoadGame() {
 			return
 		}
 
+		world.MapGenerated.Store(false)
+
 		//unzip := util.UncompressZip(b)
 		dbuf := bytes.NewBuffer(b)
 
@@ -265,7 +267,6 @@ func LoadGame() {
 		ResourceMapInit()
 
 		/* Needs unsafeCreateObj that can accept a starting data set */
-		count := 0
 		for i := range tempList.Objects {
 
 			obj := &world.ObjData{
@@ -287,24 +288,7 @@ func LoadGame() {
 				}
 			}
 
-			/* Relink */
-			MakeChunk(util.UnCenterXY(tempList.Objects[i].Pos))
-			chunk := util.GetChunk(util.UnCenterXY(tempList.Objects[i].Pos))
-			obj.Chunk = chunk
-
-			obj.Chunk.BuildingMap[util.UnCenterXY(tempList.Objects[i].Pos)] = &world.BuildingData{}
-			obj.Chunk.BuildingMap[util.UnCenterXY(tempList.Objects[i].Pos)].Obj = obj
-			obj.Chunk.ObjList = append(obj.Chunk.ObjList, obj)
-			chunk.Parent.PixmapDirty = true
-			chunk.NumObjs++
-
-			if obj.Unique.TypeP.InitObj != nil {
-				obj.Unique.TypeP.InitObj(obj)
-			}
-
-			chunk.Parent.PixmapDirty = true
-
-			count++
+			PlaceObj(obj.Pos, 0, obj, obj.Dir, false)
 		}
 
 		world.VisDataDirty.Store(true)
@@ -313,6 +297,8 @@ func LoadGame() {
 		world.TockListLock.Unlock()
 
 		util.ChatDetailed("Load complete!", world.ColorOrange, time.Second*15)
+		time.Sleep(time.Second)
+		world.MapGenerated.Store(true)
 	}()
 }
 
