@@ -60,7 +60,7 @@ func SaveGame() {
 		os.Mkdir("saves", 0666)
 
 		start := time.Now()
-		cwlog.DoLog(true, "Save starting.")
+		util.Chat("Save starting...")
 
 		/* Pause the whole world ... */
 		world.SuperChunkListLock.RLock()
@@ -104,12 +104,14 @@ func SaveGame() {
 					}
 
 					/* Convert pointer to type int */
-					for c := range tobj.Contents.Mats {
-						if tobj.Contents.Mats[c] == nil {
-							continue
-						}
-						if tobj.Contents.Mats[c].TypeP == nil {
-							continue
+					if tobj.Contents != nil {
+						for c := range tobj.Contents.Mats {
+							if tobj.Contents.Mats[c] == nil {
+								continue
+							}
+							if tobj.Contents.Mats[c].TypeP == nil {
+								continue
+							}
 						}
 					}
 
@@ -127,14 +129,14 @@ func SaveGame() {
 				}
 			}
 		}
-		cwlog.DoLog(true, "WALK COMPLETE:", time.Since(start).String())
+		cwlog.DoLog(true, "WALK COMPLETE: %v", time.Since(start).String())
 
 		b, _ := json.Marshal(tempList)
 
 		world.SuperChunkListLock.RUnlock()
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
-		cwlog.DoLog(true, "ENCODE DONE (WORLD UNLOCKED):", time.Since(start).String())
+		cwlog.DoLog(true, "ENCODE DONE (WORLD UNLOCKED): %v", time.Since(start).String())
 
 		_, err := os.Create(tempPath)
 
@@ -143,9 +145,9 @@ func SaveGame() {
 			return
 		}
 
-		zip := util.CompressZip(b)
+		//zip := util.CompressZip(b)
 
-		err = os.WriteFile(tempPath, zip, 0644)
+		err = os.WriteFile(tempPath, b, 0644)
 
 		if err != nil {
 			cwlog.DoLog(true, "SaveGame: os.WriteFile error: %v\n", err)
@@ -160,15 +162,13 @@ func SaveGame() {
 
 		util.ChatDetailed("Game save complete: "+finalPath, world.ColorOrange, time.Second*15)
 
-		cwlog.DoLog(true, "COMPRESS & WRITE COMPLETE:", time.Since(start).String())
+		cwlog.DoLog(true, "COMPRESS & WRITE COMPLETE: %v", time.Since(start).String())
 	}()
 }
 
 /* WIP */
 func LoadGame() {
 	defer util.ReportPanic("LoadGame")
-	util.Chat("Load is current disabled (wip).")
-	return
 
 	if world.WASMMode {
 		return
@@ -179,16 +179,14 @@ func LoadGame() {
 		GameLock.Lock()
 		defer GameLock.Unlock()
 
-		//start := time.Now()
-
-		b, err := os.ReadFile("save.dat")
+		b, err := os.ReadFile("saves/save.dat")
 		if err != nil {
 			cwlog.DoLog(true, "LoadGame: file not found: %v\n", err)
 			return
 		}
 
-		unzip := util.UncompressZip(b)
-		dbuf := bytes.NewBuffer(unzip)
+		//unzip := util.UncompressZip(b)
+		dbuf := bytes.NewBuffer(b)
 
 		dec := json.NewDecoder(dbuf)
 
@@ -246,9 +244,11 @@ func LoadGame() {
 				KGHeld: tempList.Objects[i].KGHeld,
 			}
 
-			for c := range obj.Unique.Contents.Mats {
-				if obj.Unique.Contents.Mats[c] == nil {
-					continue
+			if obj.Unique != nil && obj.Unique.Contents != nil {
+				for c := range obj.Unique.Contents.Mats {
+					if obj.Unique.Contents.Mats[c] == nil {
+						continue
+					}
 				}
 			}
 
@@ -257,6 +257,7 @@ func LoadGame() {
 			chunk := util.GetChunk(util.UnCenterXY(tempList.Objects[i].Pos))
 			obj.Chunk = chunk
 
+			obj.Chunk.BuildingMap[util.UnCenterXY(tempList.Objects[i].Pos)] = &world.BuildingData{}
 			obj.Chunk.BuildingMap[util.UnCenterXY(tempList.Objects[i].Pos)].Obj = obj
 			obj.Chunk.ObjList = append(obj.Chunk.ObjList, obj)
 			chunk.Parent.PixmapDirty = true
