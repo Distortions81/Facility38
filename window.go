@@ -122,9 +122,11 @@ func OpenWindow(window *WindowData) {
 			if world.Debug {
 				cwlog.DoLog(true, "Window '%v' added to open list.", window.Title)
 			}
-			OpenWindows = append(OpenWindows, Windows[wpos])
 
-			break
+			OpenWindows = append(OpenWindows, Windows[wpos])
+		} else {
+			/* Patch until layering is added */
+			go CloseWindow(Windows[wpos])
 		}
 	}
 }
