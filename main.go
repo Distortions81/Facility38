@@ -63,6 +63,9 @@ func main() {
 		world.UPSBench = false
 		world.LoadTest = false
 	}
+
+	util.BuildInfo = buildTime
+
 	/* Web assm builds */
 	if WASMMode == "true" {
 		world.WASMMode = true

@@ -27,9 +27,11 @@ var (
 	ChatLinesTop  int
 	ChatLines     []world.ChatLines
 	ChatLinesLock sync.Mutex
+	BuildInfo     string
 )
 
 func init() {
+
 	defer ReportPanic("util init")
 	ChatLines = append(ChatLines, world.ChatLines{
 		Text:      "",
@@ -56,9 +58,9 @@ func ReportPanic(format string, args ...interface{}) {
 			}
 		}
 
-		_, filename, line, _ := runtime.Caller(2)
+		_, filename, line, _ := runtime.Caller(4)
 		input := fmt.Sprintf(format, args...)
-		buf := fmt.Sprintf("REPORT-PANIC: Label:%v File:%v Line:%v Error:%v\nStack:\n%v\n", input, filename, line, r, string(debug.Stack()))
+		buf := fmt.Sprintf("(GAME CRASH)\nBUILD:v%v-%v\nLabel:%v File: %v Line: %v\nError:%v\nStack Track:\n%v\n", def.Version, BuildInfo, input, filename, line, r, string(debug.Stack()))
 
 		if !world.WASMMode {
 			os.WriteFile("panic.log", []byte(buf), 0660)
