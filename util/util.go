@@ -69,6 +69,7 @@ func ReportPanic(format string, args ...interface{}) {
 
 		//cwlog.DoLog(false, buf)
 		ChatDetailed(buf, world.ColorOrange, time.Hour)
+		time.Sleep(time.Hour)
 	}
 }
 
