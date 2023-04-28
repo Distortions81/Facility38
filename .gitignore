@@ -11,3 +11,4 @@ save.dat
 data/settings.json
 heapdump
 panic.log
+BUILD/builds

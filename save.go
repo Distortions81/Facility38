@@ -55,8 +55,9 @@ func SaveGame() {
 		GameLock.Lock()
 		defer GameLock.Unlock()
 
-		tempPath := "save.dat.tmp"
-		finalPath := "save.dat"
+		tempPath := "saves/save.dat.tmp"
+		finalPath := "saves/save.dat"
+		os.Mkdir("saves", 0666)
 
 		start := time.Now()
 		cwlog.DoLog(true, "Save starting.")
