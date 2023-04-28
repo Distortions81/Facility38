@@ -82,6 +82,7 @@ type WindowButtonData struct {
 }
 
 func InitWindows() {
+	defer util.ReportPanic("InitWindows")
 	for _, win := range Windows {
 		if win.WindowSetup != nil {
 			win.WindowSetup(win)
@@ -307,11 +308,10 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 }
 
 func CollisionWindowsCheck(input world.XYs) bool {
+	defer util.ReportPanic("CollisionWindowsCheck")
 	if gClickCaptured {
 		return true
 	}
-
-	defer util.ReportPanic("CollisionWindowsCheck")
 	if gClickCaptured {
 		return false
 	}

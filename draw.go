@@ -60,12 +60,14 @@ var (
 
 /* Setup a few images for later use */
 func init() {
+	defer util.ReportPanic("draw: init")
 	world.MiniMapTile = ebiten.NewImage(1, 1)
 	world.MiniMapTile.Fill(color.White)
 }
 
 /* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
+	defer util.ReportPanic("Draw")
 
 	/* Boot screen */
 	if !world.MapGenerated.Load() ||

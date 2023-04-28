@@ -8,6 +8,7 @@ import (
 
 /* Make a test map, or skip and still start daemons */
 func MakeMap(gen bool) {
+	defer util.ReportPanic("MakeMap")
 	GameLock.Lock()
 	defer GameLock.Unlock()
 

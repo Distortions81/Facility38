@@ -20,7 +20,7 @@ const (
 )
 
 func setupOptionsWindow(window *WindowData) {
-
+	defer util.ReportPanic("setupOptionsWindow")
 	buttons = []image.Rectangle{}
 
 	/* Loop all settings */
@@ -42,6 +42,7 @@ func setupOptionsWindow(window *WindowData) {
 }
 
 func drawHelpWindow(window *WindowData) {
+	defer util.ReportPanic("drawHelpWindow")
 	DrawText(helpText, world.GeneralFont, color.White, color.Transparent,
 		world.XYf32{X: float32(window.ScaledSize.X / 2), Y: float32(window.ScaledSize.Y / 2)},
 		0, window.Cache, false, false, true)
@@ -50,6 +51,7 @@ func drawHelpWindow(window *WindowData) {
 const checkScale = 0.5
 
 func drawOptionsWindow(window *WindowData) {
+	defer util.ReportPanic("drawOptionsWindow")
 	var txt string
 
 	/* Draw items */

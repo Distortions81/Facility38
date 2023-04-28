@@ -2,6 +2,7 @@ package main
 
 import (
 	"Facility38/def"
+	"Facility38/util"
 	"Facility38/world"
 	"sync"
 	"time"
@@ -22,7 +23,7 @@ var (
 
 /* Make default toolbar list */
 func InitToolbar() {
-
+	defer util.ReportPanic("InitToolbar")
 	ToolbarMax = 0
 	for spos, stype := range SubTypes {
 		if spos == def.ObjSubUI || spos == def.ObjSubGame {
@@ -41,6 +42,7 @@ func InitToolbar() {
 
 /* Draw toolbar to an image */
 func DrawToolbar(click, hover bool, index int) {
+	defer util.ReportPanic("DrawToolbar")
 	ToolBarIconSize := float32(world.UIScale * def.ToolBarIconSize)
 	ToolBarSpacing := float32(def.ToolBarIconSize / def.ToolBarSpaceRatio)
 

@@ -3,11 +3,13 @@ package main
 import (
 	"Facility38/cwlog"
 	"Facility38/def"
+	"Facility38/util"
 	"Facility38/world"
 )
 
 /* Link up recipe pointers */
 func init() {
+	defer util.ReportPanic("obj-recipie init")
 	for rpos, rec := range Recipies {
 		for reqPos, req := range rec.Requires {
 			Recipies[rpos].RequiresP[reqPos] = MatTypes[req]

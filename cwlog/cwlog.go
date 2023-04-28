@@ -102,7 +102,7 @@ func StartLog() {
 	t := time.Now()
 
 	/* Create our log file names */
-	LogName = fmt.Sprintf("log/cw-%v-%v-%v.log", t.Day(), t.Month(), t.Year())
+	LogName = fmt.Sprintf("log/game-%v-%v-%v.log", t.Day(), t.Month(), t.Year())
 
 	/* Make log directory */
 	errr := os.MkdirAll("log", os.ModePerm)
@@ -122,5 +122,10 @@ func StartLog() {
 
 	/* Save descriptors, open/closed elsewhere */
 	LogDesc = bdesc
+
+	os.Stderr = bdesc
+	os.Stdout = bdesc
+
 	LogReady = true
+
 }

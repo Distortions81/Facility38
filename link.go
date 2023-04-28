@@ -12,7 +12,7 @@ import (
 var linkLock sync.Mutex
 
 func LinkObj(from world.XY, b *world.BuildingData) {
-
+	defer util.ReportPanic("LinkObj")
 	linkLock.Lock()
 	defer linkLock.Unlock()
 
@@ -107,6 +107,7 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 
 /* Add/Remove tick/tock events as needed */
 func AutoEvents(obj *world.ObjData) {
+	defer util.ReportPanic("AutoEvents")
 
 	/* Add to tock/tick lists */
 	var foundOutputs, foundInputs, foundFOut, foundFIn bool
@@ -146,7 +147,7 @@ func AutoEvents(obj *world.ObjData) {
 
 /* UnlinkObj an object */
 func UnlinkObj(obj *world.ObjData) {
-
+	defer util.ReportPanic("UnlinkObj")
 	linkLock.Lock()
 	defer linkLock.Unlock()
 
@@ -205,6 +206,7 @@ func UnlinkObj(obj *world.ObjData) {
 
 /* Add port to correct alias, increment */
 func portAlias(obj *world.ObjData, port int, ptype uint8) {
+	defer util.ReportPanic("portAlias")
 	if obj.Ports[port].Link == nil {
 		return
 	}
@@ -230,6 +232,7 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
  * Currently very lazy, but simple
  */
 func portPop(obj *world.ObjData) {
+	defer util.ReportPanic("portPop")
 	obj.Outputs = nil
 	obj.NumOut = 0
 

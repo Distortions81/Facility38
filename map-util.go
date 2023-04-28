@@ -9,6 +9,7 @@ import (
 
 /* Make a superchunk */
 func makeSuperChunk(pos world.XY) {
+	defer util.ReportPanic("makeSuperChunk")
 	//Make super chunk if needed
 
 	newPos := pos
@@ -40,6 +41,7 @@ func makeSuperChunk(pos world.XY) {
 
 /* Make a chunk, insert into superchunk */
 func MakeChunk(pos world.XY) bool {
+	defer util.ReportPanic("MakeChunk")
 	//Make chunk if needed
 
 	newPos := pos
@@ -91,6 +93,7 @@ func MakeChunk(pos world.XY) bool {
 
 /* Explore (input) chunks + and - */
 func ExploreMap(pos world.XY, input int, slow bool) {
+	defer util.ReportPanic("ExploreMap")
 	/* Explore some map */
 
 	ChunksMade := 0

@@ -2,6 +2,7 @@ package main
 
 import (
 	"Facility38/data"
+	"Facility38/util"
 	"Facility38/world"
 	"log"
 	"time"
@@ -12,6 +13,7 @@ import (
 )
 
 func UpdateFonts() {
+	defer util.ReportPanic("UpdateFonts")
 
 	newVal := 96.0 * world.UIScale
 	if newVal < 1 {
@@ -146,6 +148,7 @@ func UpdateFonts() {
 const sizingText = "!@#$%^&*()_+-=[]{}|;':,.<>?`~qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 
 func getFontHeight(font font.Face) int {
+	defer util.ReportPanic("getFontHeight")
 	tRect := text.BoundString(font, sizingText)
 	return tRect.Dy()
 }

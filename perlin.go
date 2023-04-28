@@ -2,6 +2,7 @@ package main
 
 import (
 	"Facility38/def"
+	"Facility38/util"
 	"Facility38/world"
 	"math/rand"
 	"time"
@@ -10,7 +11,7 @@ import (
 )
 
 func init() {
-
+	defer util.ReportPanic("perlin init")
 	for i, nl := range NoiseLayers {
 		if NoiseLayers[i].TypeI == def.MAT_NONE {
 			continue
@@ -25,6 +26,7 @@ func init() {
 }
 
 func ResourceMapInit() {
+	defer util.ReportPanic("ResourceMapInit")
 	for p := range NoiseLayers {
 		if NoiseLayers[p].RandomSeed == 0 {
 			NoiseLayers[p].RandomSeed = time.Now().UnixNano() + int64(rand.Intn(1000))
@@ -35,6 +37,7 @@ func ResourceMapInit() {
 }
 
 func NoiseMap(x, y float32, p int) float32 {
+	defer util.ReportPanic("NoiseMap")
 	val := float32(NoiseLayers[p].PerlinNoise.Noise2D(
 		float64(x/NoiseLayers[p].Scale),
 		float64(y/NoiseLayers[p].Scale)))/float32(NoiseLayers[p].Contrast) + NoiseLayers[p].Brightness

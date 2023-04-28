@@ -2,6 +2,7 @@ package main
 
 import (
 	"Facility38/cwlog"
+	"Facility38/util"
 	"Facility38/world"
 	"bytes"
 	"encoding/json"
@@ -121,6 +122,7 @@ var SubTypes = []SubTypeData{
 /* Debug quick dump GameObjTypes
  */
 func DumpItems() bool {
+	defer util.ReportPanic("DumpItems")
 
 	outbuf := new(bytes.Buffer)
 	enc := json.NewEncoder(outbuf)

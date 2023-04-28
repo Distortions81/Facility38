@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"image/color"
 	"log"
-	"os"
 	"runtime"
 	"time"
 
@@ -37,6 +36,7 @@ type Game struct {
 
 /* Main function */
 func main() {
+	defer util.ReportPanic("main")
 	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on Windows (NOT RECOMMENDED!)")
 	forceMetal := flag.Bool("use-metal", false, "Use the Metal graphics API on Macintosh.")
 	forceAuto := flag.Bool("use-auto", false, "Use Auto-detected graphics API.")
@@ -65,7 +65,6 @@ func main() {
 	} else {
 		/* Functions that will not work in webasm */
 		cwlog.StartLog()
-		os.Stderr = cwlog.LogDesc
 		cwlog.LogDaemon()
 	}
 
@@ -129,6 +128,7 @@ func main() {
 
 /* Ebiten game init */
 func NewGame() *Game {
+	defer util.ReportPanic("NewGame")
 	UpdateFonts()
 	go func() {
 		GameRunning = false
@@ -147,6 +147,7 @@ func NewGame() *Game {
 }
 
 func startGame() {
+	defer util.ReportPanic("startGame")
 	//util.ChatDetailed("Click or press any key to continue.", world.ColorGreen, time.Second*15)
 
 	for !world.SpritesLoaded.Load() ||
@@ -176,6 +177,7 @@ func startGame() {
 
 /* Load all sprites, sub missing ones */
 func loadSprites(dark bool) {
+	defer util.ReportPanic("loadSprites")
 	dstr := ""
 	if dark {
 		dstr = "-dark"
@@ -282,6 +284,7 @@ func loadSprites(dark bool) {
 }
 
 func LinkSprites(dark bool) {
+	defer util.ReportPanic("LinkSprites")
 	for _, otype := range SubTypes {
 		for key, item := range otype.List {
 			if dark {
@@ -341,6 +344,7 @@ func LinkSprites(dark bool) {
 var titleBuf *ebiten.Image
 
 func bootScreen(screen *ebiten.Image) {
+	defer util.ReportPanic("bootScreen")
 
 	if titleBuf == nil {
 		titleBuf = ebiten.NewImage(int(world.ScreenWidth), int(world.ScreenHeight))
@@ -422,6 +426,7 @@ func bootScreen(screen *ebiten.Image) {
 
 /* Detect logical and virtual CPUs, set number of workers */
 func detectCPUs(hyper bool) {
+	defer util.ReportPanic("detectCPUs")
 
 	if world.WASMMode {
 		world.NumWorkers = 1
@@ -460,6 +465,7 @@ func detectCPUs(hyper bool) {
 
 /* Sets up a reasonable sized window depending on diplay resolution */
 func setupWindowSize() {
+	defer util.ReportPanic("setupWindowSize")
 	world.ScreenSizeLock.Lock()
 	defer world.ScreenSizeLock.Unlock()
 
@@ -490,7 +496,7 @@ const scaleLockVal = 4
 
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-
+	defer util.ReportPanic("Layout")
 	world.ScreenSizeLock.Lock()
 	defer world.ScreenSizeLock.Unlock()
 
@@ -506,10 +512,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 /* Automatic window title update */
 func windowTitle() {
+	defer util.ReportPanic("windowTitle")
 	ebiten.SetWindowTitle("Facility 38")
 }
 
 func handleResize(outsideWidth int, outsideHeight int) {
+	defer util.ReportPanic("handleResize")
 	//Recalcualte settings window item
 	scale := 1 / (def.UIBaseResolution / float64(outsideWidth))
 

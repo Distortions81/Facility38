@@ -20,6 +20,7 @@ var (
 )
 
 func init() {
+	defer util.ReportPanic("obj-tick init")
 	if strings.EqualFold(runtime.GOOS, "windows") || world.WASMMode {
 		minSleep = (time.Millisecond * 2) //Windows and WASM time resolution sucks
 	}

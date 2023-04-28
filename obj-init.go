@@ -10,6 +10,7 @@ import (
 )
 
 func init() {
+	defer util.ReportPanic("obj-init init")
 
 	for i := range MatTypes {
 		MatTypes[i].TypeI = uint8(i)
@@ -92,6 +93,7 @@ func init() {
 }
 
 func initSmelter(obj *world.ObjData) bool {
+	defer util.ReportPanic("initSmelter")
 	if obj == nil {
 		return false
 	}
@@ -103,6 +105,7 @@ func initSmelter(obj *world.ObjData) bool {
 }
 
 func initMiner(obj *world.ObjData) bool {
+	defer util.ReportPanic("initMiner")
 	if obj == nil {
 		return false
 	}
@@ -148,18 +151,20 @@ func initMiner(obj *world.ObjData) bool {
 }
 
 func deinitMiner(obj *world.ObjData) {
-
+	defer util.ReportPanic("deinitMiner")
 	/* Update resource map on remove */
 	obj.Parent.Parent.ResourceDirty = true
 }
 
 func initBeltOver(obj *world.ObjData) bool {
+	defer util.ReportPanic("initBeltOver")
 	obj.BeltOver = &world.BeltOverType{}
 	obj.BeltOver.Middle = &world.MatData{}
 	return true
 }
 
 func initSlipRoller(obj *world.ObjData) bool {
+	defer util.ReportPanic("initSlipRoller")
 	if obj == nil {
 		return false
 	}

@@ -7,6 +7,7 @@ import (
 )
 
 func linkMiner(obj *world.ObjData) {
+	defer util.ReportPanic("linkMiner")
 	if obj.NumOut == 0 {
 		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
@@ -17,6 +18,7 @@ func linkMiner(obj *world.ObjData) {
 }
 
 func linkBelt(obj *world.ObjData) {
+	defer util.ReportPanic("linkBelt")
 	if obj.NumOut == 0 || obj.NumIn == 0 {
 		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
@@ -53,6 +55,7 @@ func linkBelt(obj *world.ObjData) {
 }
 
 func linkBeltOver(obj *world.ObjData) {
+	defer util.ReportPanic("linkBeltOver")
 	if obj.NumOut == 0 || obj.NumIn == 0 {
 		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
@@ -81,6 +84,7 @@ func linkBeltOver(obj *world.ObjData) {
 }
 
 func linkFuelHopper(obj *world.ObjData) {
+	defer util.ReportPanic("linkFuelHopper")
 	if obj.NumFOut == 0 || obj.NumIn == 0 {
 		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
@@ -91,6 +95,7 @@ func linkFuelHopper(obj *world.ObjData) {
 }
 
 func linkSplitter(obj *world.ObjData) {
+	defer util.ReportPanic("linkSplitter")
 	if obj.NumOut == 0 || obj.NumIn == 0 {
 		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
@@ -101,6 +106,7 @@ func linkSplitter(obj *world.ObjData) {
 }
 
 func linkUnloader(obj *world.ObjData) {
+	defer util.ReportPanic("linkUnloader")
 	if obj.NumOut != 0 || obj.NumIn != 0 {
 		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
 		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
@@ -111,6 +117,7 @@ func linkUnloader(obj *world.ObjData) {
 }
 
 func linkBox(obj *world.ObjData) {
+	defer util.ReportPanic("linkBox")
 	if obj.NumIn == 0 {
 		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
 	} else {
@@ -119,6 +126,7 @@ func linkBox(obj *world.ObjData) {
 }
 
 func linkMachine(obj *world.ObjData) {
+	defer util.ReportPanic("linkMachine")
 	if obj.NumOut == 0 {
 		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
 		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)

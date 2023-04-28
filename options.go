@@ -42,7 +42,7 @@ type settingType struct {
 }
 
 func init() {
-
+	defer util.ReportPanic("options init")
 	settingItems = []settingType{
 		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
 		{ConfigName: "FULLSCREEN", Text: "Full Screen", Action: toggleFullscreen},
@@ -58,7 +58,7 @@ func init() {
 }
 
 func loadOptions() {
-
+	defer util.ReportPanic("loadOptions")
 	if world.WASMMode {
 		return
 	}
@@ -94,7 +94,7 @@ func loadOptions() {
 }
 
 func saveOptions() {
-
+	defer util.ReportPanic("saveOptions")
 	if world.WASMMode {
 		return
 	}
@@ -142,6 +142,7 @@ func saveOptions() {
 }
 
 func toggleInfoLine(item int) {
+	defer util.ReportPanic("toggleInfoLine")
 	if world.InfoLine {
 		world.InfoLine = false
 		settingItems[item].Enabled = false
@@ -152,6 +153,7 @@ func toggleInfoLine(item int) {
 }
 
 func toggleHyper(item int) {
+	defer util.ReportPanic("toggleHyper")
 	if world.UseHyper {
 		world.UseHyper = false
 		settingItems[item].Enabled = false
@@ -167,16 +169,13 @@ func quitGame(item int) {
 	go func() {
 		GameRunning = false
 		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
-
-		GameLock.Lock()
-		defer GameLock.Unlock()
-
 		time.Sleep(time.Second * 2)
 		os.Exit(0)
 	}()
 }
 
 func toggleUnits(item int) {
+	defer util.ReportPanic("toggleUnits")
 	if world.ImperialUnits {
 		world.ImperialUnits = false
 		settingItems[item].Enabled = false
@@ -187,6 +186,7 @@ func toggleUnits(item int) {
 }
 
 func toggleTestMap(item int) {
+	defer util.ReportPanic("toggleTestMap")
 	GameRunning = false
 	if world.LoadTest {
 		world.LoadTest = false
@@ -218,6 +218,7 @@ func toggleTestMap(item int) {
 }
 
 func toggleUPSCap(item int) {
+	defer util.ReportPanic("toggleUPSCap")
 	if world.UPSBench {
 		world.UPSBench = false
 		settingItems[item].Enabled = false
@@ -232,6 +233,7 @@ func toggleUPSCap(item int) {
 }
 
 func toggleFullscreen(item int) {
+	defer util.ReportPanic("toggleFullscreen")
 	if ebiten.IsFullscreen() {
 		ebiten.SetFullscreen(false)
 		settingItems[item].Enabled = false
@@ -246,6 +248,7 @@ func toggleFullscreen(item int) {
 }
 
 func toggleMagnify(item int) {
+	defer util.ReportPanic("toggleMagnify")
 	if world.Magnify {
 		world.Magnify = false
 		settingItems[item].Enabled = false
@@ -263,6 +266,7 @@ func toggleMagnify(item int) {
 }
 
 func toggleDebug(item int) {
+	defer util.ReportPanic("toggleDebug")
 	if world.Debug {
 		world.Debug = false
 		settingItems[item].Enabled = false
@@ -277,6 +281,7 @@ func toggleDebug(item int) {
 }
 
 func toggleVsync(item int) {
+	defer util.ReportPanic("toggleVsync")
 	if world.Vsync {
 		world.Vsync = false
 		settingItems[item].Enabled = false

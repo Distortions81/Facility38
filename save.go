@@ -44,7 +44,7 @@ type saveMObj struct {
 
 /* WIP */
 func SaveGame() {
-
+	defer util.ReportPanic("SaveGame")
 	util.Chat("Save is current disabled (wip).")
 	return
 
@@ -53,6 +53,7 @@ func SaveGame() {
 	}
 
 	go func() {
+		defer util.ReportPanic("SaveGame goroutine")
 		GameLock.Lock()
 		defer GameLock.Unlock()
 
@@ -166,7 +167,7 @@ func SaveGame() {
 
 /* WIP */
 func LoadGame() {
-
+	defer util.ReportPanic("LoadGame")
 	util.Chat("Load is current disabled (wip).")
 	return
 
@@ -175,7 +176,7 @@ func LoadGame() {
 	}
 
 	go func() {
-
+		defer util.ReportPanic("LoadGame goroutine")
 		GameLock.Lock()
 		defer GameLock.Unlock()
 
@@ -281,7 +282,7 @@ func LoadGame() {
 }
 
 func NukeWorld() {
-
+	defer util.ReportPanic("NukeWorld")
 	if world.TockCount == 0 && world.TickCount == 0 {
 		return
 	}

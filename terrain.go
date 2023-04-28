@@ -31,7 +31,7 @@ var (
 
 /* Make a 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
-
+	defer util.ReportPanic("SetupTerrainCache")
 	tChunk := world.MapChunk{}
 	renderChunkGround(&tChunk, false, world.XY{X: 0, Y: 0})
 	world.TempChunkImage = tChunk.TerrainImage
@@ -172,7 +172,7 @@ func killTerrainCache(chunk *world.MapChunk, force bool) {
 
 /* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
 func PixmapRenderST() {
-
+	defer util.ReportPanic("PixmapRenderST")
 	if !world.ShowResourceLayer && world.ZoomScale > def.MapPixelThreshold && !pixmapCacheCleared {
 
 		for _, sChunk := range world.SuperChunkList {

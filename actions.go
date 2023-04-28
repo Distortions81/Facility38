@@ -7,6 +7,7 @@ import (
 )
 
 func settingsToggle() {
+	defer util.ReportPanic("settingsToggle")
 	if Windows[0].Active {
 		CloseWindow(Windows[0])
 	} else {
@@ -15,6 +16,8 @@ func settingsToggle() {
 }
 
 func toggleHelp() {
+	defer util.ReportPanic("toggleHelp")
+
 	if Windows[1].Active {
 		CloseWindow(Windows[1])
 	} else {
@@ -23,6 +26,7 @@ func toggleHelp() {
 }
 
 func toggleOverlay() {
+	defer util.ReportPanic("toggleOverlay")
 	if world.OverlayMode {
 		world.OverlayMode = false
 		util.ChatDetailed("Info overlay is now off.", world.ColorOrange, time.Second*5)
@@ -33,6 +37,7 @@ func toggleOverlay() {
 }
 
 func SwitchLayer() {
+	defer util.ReportPanic("SwitchLayer")
 	world.ShowResourceLayerLock.Lock()
 
 	if world.ShowResourceLayer {

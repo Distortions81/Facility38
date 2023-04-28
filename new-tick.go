@@ -31,6 +31,7 @@ var (
 
 /* Init at boot */
 func TickInit() {
+	defer util.ReportPanic("TickInit")
 	for _, ot := range WorldObjs {
 		GetIntervalPos(int(ot.TockInterval))
 	}
@@ -39,6 +40,7 @@ func TickInit() {
 
 /* Return interval data, or create it if needed */
 func GetIntervalPos(interval int) (pos int, created bool) {
+	defer util.ReportPanic("GetIntervalPos")
 	foundInterval := false
 
 	/* Eventually replace with precalc table */
@@ -64,6 +66,7 @@ func GetIntervalPos(interval int) (pos int, created bool) {
 }
 
 func AddTock(obj *world.ObjData) {
+	defer util.ReportPanic("AddTock")
 	if obj.HasTock {
 		return
 	}
@@ -81,6 +84,7 @@ func AddTock(obj *world.ObjData) {
 }
 
 func RemoveTock(obj *world.ObjData) {
+	defer util.ReportPanic("RemoveTock")
 	if !obj.HasTock {
 		return
 	}
@@ -108,6 +112,7 @@ func RemoveTock(obj *world.ObjData) {
 	}
 }
 func AddTick(obj *world.ObjData) {
+	defer util.ReportPanic("AddTick")
 	if obj.HasTick {
 		return
 	}
@@ -125,6 +130,7 @@ func AddTick(obj *world.ObjData) {
 }
 
 func RemoveTick(obj *world.ObjData) {
+	defer util.ReportPanic("RemoveTick")
 	if !obj.HasTick {
 		return
 	}
@@ -153,6 +159,7 @@ func RemoveTick(obj *world.ObjData) {
 }
 
 func NewRunTocksST() {
+	defer util.ReportPanic("NewRunTocksST")
 	ActiveTocks = 0
 
 	for _, ti := range TickIntervals {
@@ -170,6 +177,7 @@ func NewRunTocksST() {
 }
 
 func NewRunTicksST() {
+	defer util.ReportPanic("NewRunTicksST")
 	ActiveTicks = 0
 
 	for _, ti := range TickIntervals {
@@ -191,6 +199,7 @@ var (
 )
 
 func NewRunTocks() {
+	defer util.ReportPanic("NewRunTocks")
 
 	numObj := 0
 	ActiveTocks = 0
@@ -251,9 +260,11 @@ func NewRunTicks() {
 }
 
 func runTickBlock(numObj int) {
+	defer util.ReportPanic("runTickBlock")
+
 	wg.Add()
 	go func(w [def.WorkSize]*world.ObjData, nObj int) {
-		defer util.ReportPanic("runTickBlock")
+		defer util.ReportPanic("runTickBlock goroutine")
 		for x := 0; x < nObj; x++ {
 			tickObj(w[x])
 		}
@@ -264,10 +275,11 @@ func runTickBlock(numObj int) {
 }
 
 func runTockBlock(numObj int) {
+	defer util.ReportPanic("runTockBlock")
 	wg.Add()
 	go func(w [def.WorkSize]*world.ObjData, nObj int) {
 		var x int
-		defer util.ReportPanic("runTockBlock")
+		defer util.ReportPanic("runTockBlock goroutine")
 
 		for x = 0; x < nObj; x++ {
 			w[x].Unique.TypeP.UpdateObj(w[x])

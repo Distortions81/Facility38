@@ -6,6 +6,7 @@ import (
 )
 
 func handleSettings(input world.XYs, window *WindowData) bool {
+	defer util.ReportPanic("handleSettings")
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 

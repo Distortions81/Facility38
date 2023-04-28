@@ -4,7 +4,6 @@ import (
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
-	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -35,12 +34,13 @@ var (
 )
 
 func init() {
+	defer util.ReportPanic("ui init")
 	lastScroll = time.Now()
 }
 
 /* Input interface handler */
 func (g *Game) Update() error {
-
+	defer util.ReportPanic("Update")
 	gClickCaptured = false
 	/* Ignore if not focused */
 	if !ebiten.IsFocused() {
@@ -103,7 +103,7 @@ func (g *Game) Update() error {
 }
 
 func getToolbarKeypress() {
-
+	defer util.ReportPanic("getToolbarKeypress")
 	for _, item := range UIObjs {
 		if inpututil.IsKeyJustPressed(item.QKey) {
 			item.ToolbarAction()
@@ -114,19 +114,13 @@ func getToolbarKeypress() {
 /* Quit if alt-f4 or ESC are pressed */
 func handleQuit() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyF4) && ebiten.IsKeyPressed(ebiten.KeyAlt) {
-		GameRunning = false
-		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
-
-		GameLock.Lock()
-		defer GameLock.Unlock()
-
-		time.Sleep(time.Second * 2)
-		os.Exit(0)
+		quitGame(0)
 	}
 }
 
 /* Record shift state */
 func getShiftToggle() {
+	defer util.ReportPanic("getShiftToggle")
 	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
 		gShiftPressed = true
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyShift) {
@@ -136,6 +130,7 @@ func getShiftToggle() {
 
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
+	defer util.ReportPanic("handleToolbar")
 	ToolBarIconSize := float32(world.UIScale * def.ToolBarIconSize)
 	ToolBarSpacing := float32(def.ToolBarIconSize / def.ToolBarSpaceRatio)
 
@@ -192,6 +187,7 @@ func handleToolbar(rotate bool) bool {
 
 /* Handle scroll wheel and +- keys */
 func zoomHandle() {
+	defer util.ReportPanic("zoomHandle")
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
@@ -228,6 +224,7 @@ func zoomHandle() {
 }
 
 func limitZoom() bool {
+	defer util.ReportPanic("limitZoom")
 	if world.ZoomScale < 1 {
 		world.ZoomScale = 1
 		world.VisDataDirty.Store(true)
@@ -243,6 +240,7 @@ func limitZoom() bool {
 
 /* Record mouse clicks, send clicks to toolbar */
 func getMouseClicks() {
+	defer util.ReportPanic("getMouseClicks")
 	/* Mouse clicks */
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		gMouseHeld = false
@@ -263,6 +261,7 @@ func getMouseClicks() {
 
 /* Look for clicks in window, create or destroy objects */
 func createWorldObjects() {
+	defer util.ReportPanic("createWorldObjects")
 	if gClickCaptured {
 		return
 	}
@@ -316,7 +315,7 @@ func createWorldObjects() {
 var lastUpdate time.Time
 
 func moveCamera() {
-
+	defer util.ReportPanic("moveCamera")
 	var startBase float64 = def.MoveSpeed
 	if gShiftPressed {
 		startBase = def.RunSpeed
@@ -379,6 +378,7 @@ func moveCamera() {
 
 /* Detect and record right click state */
 func getRightMouseClicks() {
+	defer util.ReportPanic("getRightMouseClicks")
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
 		gRightMouseHeld = false
 		gLastActionPosition = world.XY{}
@@ -388,6 +388,7 @@ func getRightMouseClicks() {
 }
 
 func getMiddleMouseClicks() {
+	defer util.ReportPanic("getMiddleMouseClicks")
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonMiddle) {
 		gMiddleMouseHeld = false
 		gLastActionPosition = world.XY{}
@@ -397,6 +398,7 @@ func getMiddleMouseClicks() {
 }
 
 func rotateWorldObjects() {
+	defer util.ReportPanic("rotateWorldObjects")
 	/* Rotate object */
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 

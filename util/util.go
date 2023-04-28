@@ -14,6 +14,7 @@ import (
 	"math"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -27,6 +28,7 @@ var (
 )
 
 func init() {
+	defer ReportPanic("util init")
 	ChatLines = append(ChatLines, world.ChatLines{
 		Text:      "",
 		Timestamp: time.Now(),
@@ -38,14 +40,12 @@ func init() {
 }
 
 func ReportPanic(format string, args ...interface{}) {
-
 	if r := recover(); r != nil {
 		_, filename, line, _ := runtime.Caller(1)
 		input := fmt.Sprintf(format, args...)
-		buf := fmt.Sprintf("REPORT-PANIC: Label:%v File:%v Line:%v Error:%v", input, filename, line, r)
+		buf := fmt.Sprintf("REPORT-PANIC: Label:%v File:%v Line:%v Error:%v\nStack:\n%v\n", input, filename, line, r, debug.Stack())
 		cwlog.DoLog(false, buf)
 		ChatDetailed(buf, world.ColorOrange, time.Second*30)
-		time.Sleep(time.Second)
 	}
 }
 
@@ -56,19 +56,22 @@ func WASMSleep() {
 }
 
 func AddXY(a world.XY, b world.XY) world.XY {
+	defer ReportPanic("AddXY")
 	return world.XY{X: a.X + b.X, Y: a.Y + b.Y}
 }
 
 func GetSubPos(a world.XY, b world.XYs) world.XY {
+	defer ReportPanic("GetSubPos")
 	return world.XY{X: uint16(int32(a.X) + int32(b.X)), Y: uint16(int32(a.Y) + int32(b.Y))}
 }
 
 func SubXY(a world.XY, b world.XY) world.XY {
+	defer ReportPanic("SubXY")
 	return world.XY{X: a.X - b.X, Y: a.Y - b.Y}
 }
 
 func deleteOldLines() {
-
+	defer ReportPanic("deleteOldLines")
 	var newLines []world.ChatLines
 	var newTop int
 
@@ -84,6 +87,7 @@ func deleteOldLines() {
 }
 
 func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
+	defer ReportPanic("ObjCD")
 	if !world.Debug {
 		return
 	}
@@ -176,7 +180,7 @@ func PosIntMod(d, m int) int {
 
 /* Delete an object from a world.ObjData list, does not retain order (fast) */
 func ObjListDelete(obj *world.ObjData) {
-
+	defer ReportPanic("ObjListDelete")
 	obj.Parent.Lock.Lock()
 	defer obj.Parent.Lock.Unlock()
 	for index, item := range obj.Parent.ObjList {
@@ -190,6 +194,7 @@ func ObjListDelete(obj *world.ObjData) {
 }
 
 func PosToString(pos world.XY) string {
+	defer ReportPanic("PosToString")
 	centerPos := CenterXY(pos)
 	buf := fmt.Sprintf("(%v,%v)", humanize.Comma(int64((centerPos.X))), humanize.Comma(int64((centerPos.Y))))
 	return buf
@@ -197,30 +202,36 @@ func PosToString(pos world.XY) string {
 
 /* Convert an internal XY (unsigned) to a (0,0) center */
 func CenterXY(pos world.XY) world.XYs {
+	defer ReportPanic("CenterXY")
 	return world.XYs{X: int32(pos.X) - int32(def.XYCenter), Y: int32(pos.Y) - int32(def.XYCenter)}
 }
 
 func UnCenterXY(pos world.XYs) world.XY {
+	defer ReportPanic("UnCenterXY")
 	return world.XY{X: uint16(int32(pos.X) + int32(def.XYCenter)), Y: uint16(int32(pos.Y) + int32(def.XYCenter))}
 }
 
 /* Rotate consts.DIR value clockwise */
 func RotCW(dir uint8) uint8 {
+	defer ReportPanic("RotCW")
 	return uint8(PosIntMod(int(dir+1), def.DIR_MAX))
 }
 
 /* Rotate consts.DIR value counter-clockwise */
 func RotCCW(dir uint8) uint8 {
+	defer ReportPanic("RotCCW")
 	return uint8(PosIntMod(int(dir-1), def.DIR_MAX))
 }
 
 /* Rotate consts.DIR value to x*/
 func RotDir(dir uint8, add uint8) uint8 {
+	defer ReportPanic("RotDir")
 	return uint8(PosIntMod(int(dir-add), def.DIR_MAX))
 }
 
 /* give distance between two coordinates */
 func Distance(xa, ya, xb, yb int) float32 {
+	defer ReportPanic("Distance")
 	x := math.Abs(float64(xa - xb))
 	y := math.Abs(float64(ya - yb))
 	return float32(math.Sqrt(x*x + y*y))
@@ -228,11 +239,13 @@ func Distance(xa, ya, xb, yb int) float32 {
 
 /* Find point directly in the middle of two coordinates */
 func MidPoint(x1, y1, x2, y2 int) (int, int) {
+	defer ReportPanic("MidPoint")
 	return (x1 + x2) / 2, (y1 + y2) / 2
 }
 
 /* Get an object by XY, uses map (hashtable). RLocks the given chunk */
 func GetObj(pos world.XY, chunk *world.MapChunk) *world.BuildingData {
+	defer ReportPanic("GetObj")
 	if chunk != nil {
 		chunk.Lock.RLock()
 		o := chunk.BuildingMap[pos]
@@ -249,6 +262,7 @@ func GetObj(pos world.XY, chunk *world.MapChunk) *world.BuildingData {
 
 /* Get a chunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
 func GetChunk(pos world.XY) *world.MapChunk {
+	defer ReportPanic("GetChunk")
 	scpos := PosToSuperChunkPos(pos)
 	cpos := PosToChunkPos(pos)
 
@@ -268,6 +282,7 @@ func GetChunk(pos world.XY) *world.MapChunk {
 
 /* Get a superchunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
 func GetSuperChunk(pos world.XY) *world.MapSuperChunk {
+	defer ReportPanic("GetSuperChunk")
 	scpos := PosToSuperChunkPos(pos)
 
 	world.SuperChunkMapLock.RLock()
@@ -279,43 +294,49 @@ func GetSuperChunk(pos world.XY) *world.MapSuperChunk {
 
 /* XY to Chunk XY */
 func PosToChunkPos(pos world.XY) world.XY {
+	defer ReportPanic("PosToChunkPos")
 	return world.XY{X: pos.X / def.ChunkSize, Y: pos.Y / def.ChunkSize}
 }
 
 /* Chunk XY to XY */
 func ChunkPosToPos(pos world.XY) world.XY {
+	defer ReportPanic("ChunkPosToPos")
 	return world.XY{X: pos.X * def.ChunkSize, Y: pos.Y * def.ChunkSize}
 }
 
 /* XY to SuperChunk XY */
 func PosToSuperChunkPos(pos world.XY) world.XY {
+	defer ReportPanic("PosToSuperChunkPos")
 	return world.XY{X: pos.X / def.MaxSuperChunk, Y: pos.Y / def.MaxSuperChunk}
 }
 
 /* SuperChunk XY to XY */
 func SuperChunkPosToPos(pos world.XY) world.XY {
+	defer ReportPanic("SuperChunkPosToPos")
 	return world.XY{X: pos.X * def.MaxSuperChunk, Y: pos.Y * def.MaxSuperChunk}
 }
 
 /* Chunk XY to SuperChunk XY */
 func ChunkPosToSuperChunkPos(pos world.XY) world.XY {
+	defer ReportPanic("ChunkPosToSuperChunkPos")
 	return world.XY{X: pos.X / def.SuperChunkSize, Y: pos.Y / def.SuperChunkSize}
 }
 
 /* SuperChunk XY to Chunk XY */
 func SuperChunkPosToChunkPos(pos world.XY) world.XY {
+	defer ReportPanic("SuperChunkPosToChunkPos")
 	return world.XY{X: pos.X * def.SuperChunkSize, Y: pos.Y * def.SuperChunkSize}
 }
 
 /* Float (X, Y) to world.XY (int) */
 func FloatXYToPosition(x float32, y float32) world.XY {
-
+	defer ReportPanic("FloatXYToPosition")
 	return world.XY{X: uint16(x), Y: uint16(y)}
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
 func GetNeighborObj(src world.XY, dir uint8) *world.BuildingData {
-
+	defer ReportPanic("GetNeighborObj")
 	pos := src
 
 	switch dir {
@@ -347,6 +368,7 @@ func GetNeighborObj(src world.XY, dir uint8) *world.BuildingData {
 
 /* Convert consts.DIR to text */
 func DirToName(dir uint8) string {
+	defer ReportPanic("DirToName")
 	switch dir {
 	case def.DIR_NORTH:
 		return "North"
@@ -362,6 +384,7 @@ func DirToName(dir uint8) string {
 }
 
 func DirToArrow(dir uint8) string {
+	defer ReportPanic("DirToArrow")
 	switch dir {
 	case def.DIR_NORTH:
 		return "^"
@@ -377,6 +400,7 @@ func DirToArrow(dir uint8) string {
 }
 
 func ReverseType(t uint8) uint8 {
+	defer ReportPanic("ReverseType")
 	switch t {
 	case def.PORT_OUT:
 		return def.PORT_IN
@@ -393,6 +417,7 @@ func ReverseType(t uint8) uint8 {
 
 /* Flop a consts.DIR */
 func ReverseDirection(dir uint8) uint8 {
+	defer ReportPanic("ReverseDirection")
 	switch dir {
 	case def.DIR_NORTH:
 		return def.DIR_SOUTH
@@ -409,7 +434,7 @@ func ReverseDirection(dir uint8) uint8 {
 
 /* Generic unzip []byte */
 func UncompressZip(data []byte) []byte {
-
+	defer ReportPanic("UncompressZip")
 	b := bytes.NewReader(data)
 
 	log.Println("Uncompressing: ", humanize.Bytes(uint64(len(data))))
@@ -431,6 +456,7 @@ func UncompressZip(data []byte) []byte {
 
 /* Generic zip []byte */
 func CompressZip(data []byte) []byte {
+	defer ReportPanic("CompressZip")
 	var b bytes.Buffer
 	w, err := zlib.NewWriterLevel(&b, zlib.BestSpeed)
 	if err != nil {
@@ -442,6 +468,7 @@ func CompressZip(data []byte) []byte {
 }
 
 func BoolToOnOff(input bool) string {
+	defer ReportPanic("BoolToOnOff")
 	if input {
 		return "On"
 	} else {
@@ -450,6 +477,7 @@ func BoolToOnOff(input bool) string {
 }
 
 func PosWithinRect(pos world.XY, rect image.Rectangle, pad uint16) bool {
+	defer ReportPanic("PosWithinRect")
 	if int(pos.X-pad) <= rect.Max.X && int(pos.X+pad) >= rect.Min.X {
 		if int(pos.Y-pad) <= rect.Max.Y && int(pos.Y+pad) >= rect.Min.Y {
 			return true
