@@ -100,6 +100,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		drawPixmapMode(screen)
 	}
+	drawTime(screen)
 
 	drawItemPlacement(screen)
 
@@ -890,6 +891,26 @@ func drawDebugInfo(screen *ebiten.Image) {
 	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG,
 		world.XYf32{X: 0, Y: float32(world.ScreenHeight) - pad},
 		pad, screen, true, true, false)
+
+}
+
+func drawTime(screen *ebiten.Image) {
+	defer util.ReportPanic("drawTime")
+
+	gameClock := time.Duration((GameTick / uint64(world.ObjectUPS/2))) * time.Second
+	/* Draw debug info */
+	buf := fmt.Sprintf("GameTime: %v\nTime: %v",
+		gameClock.String(),
+		time.Now().Format("3:04PM"),
+	)
+
+	if world.Debug {
+		buf = buf + fmt.Sprintf(" (%v,%v)", MouseX, MouseY)
+	}
+	var pad float32 = 8
+	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG,
+		world.XYf32{X: float32(world.ScreenWidth) - pad, Y: -pad},
+		pad, screen, false, false, false)
 
 }
 

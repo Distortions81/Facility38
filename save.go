@@ -18,10 +18,11 @@ import (
 /* Used to munge data into a test save file */
 /* TODO: SAVE VERSION AND MAP SEED INTO FILE */
 type gameSave struct {
-	Version int
-	Date    int64
-	MapSeed int64
-	Objects []*saveMObj
+	Version   int
+	Date      int64
+	MapSeed   int64
+	GameTicks uint64
+	Objects   []*saveMObj
 }
 
 type MapSeedsData struct {
@@ -79,9 +80,10 @@ func SaveGame() {
 		world.LastSave = time.Now().UTC()
 
 		tempList := gameSave{
-			Version: 2,
-			Date:    world.LastSave.UTC().Unix(),
-			MapSeed: world.MapSeed}
+			Version:   2,
+			Date:      world.LastSave.UTC().Unix(),
+			MapSeed:   world.MapSeed,
+			GameTicks: GameTick}
 		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
@@ -269,6 +271,7 @@ func LoadGame() {
 		}
 
 		world.LastSave = time.Unix(tempList.Date, 0).UTC()
+		GameTick = tempList.GameTicks
 
 		world.VisDataDirty.Store(true)
 
@@ -301,6 +304,8 @@ func NukeWorld() {
 	world.ObjQueueLock.Lock()
 	world.ObjQueue = []*world.ObjectQueueData{}
 	world.ObjQueueLock.Unlock()
+
+	GameTick = 0
 
 	world.SuperChunkListLock.Lock()
 
