@@ -59,7 +59,7 @@ type MapSuperChunk struct {
 }
 
 type MaterialContentsType struct {
-	Mats [def.MAT_MAX]*MatData
+	Mats [def.MAT_MAX]*MatData `json:"-"`
 	Objs [def.ObjTypeMax]*StoreObj
 }
 

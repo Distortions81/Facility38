@@ -36,14 +36,13 @@ type MapSeedsData struct {
 }
 
 type saveMObj struct {
-	Pos      world.XYs                       `json:"p,omitempty"`
-	TypeI    uint8                           `json:"i,omitempty"`
-	Dir      uint8                           `json:"d,omitempty"`
-	Contents *world.MaterialContentsType     `json:"c,omitempty"`
-	KGFuel   float32                         `json:"kf,omitempty"`
-	KGHeld   float32                         `json:"k,omitempty"`
-	Ports    [def.DIR_MAX]*world.ObjPortData `json:"po,omitempty"`
-	Ticks    uint8                           `json:"t,omitempty"`
+	Pos      world.XYs                   `json:"p,omitempty"`
+	TypeI    uint8                       `json:"i,omitempty"`
+	Dir      uint8                       `json:"d,omitempty"`
+	Contents *world.MaterialContentsType `json:"c,omitempty"`
+	KGFuel   float32                     `json:"kf,omitempty"`
+	KGHeld   float32                     `json:"k,omitempty"`
+	Ticks    uint8                       `json:"t,omitempty"`
 }
 
 /* WIP */
@@ -108,16 +107,6 @@ func SaveGame() {
 						}
 					}
 
-					/* Convert pointer to type int */
-					for p := range tobj.Ports {
-						if tobj.Ports[p] == nil {
-							continue
-						}
-						if tobj.Ports[p].Buf.TypeP == nil {
-							continue
-						}
-						tobj.Ports[p].Obj = nil
-					}
 					tempList.Objects = append(tempList.Objects, tobj)
 				}
 			}
