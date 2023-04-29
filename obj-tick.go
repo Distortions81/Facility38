@@ -221,7 +221,6 @@ func runRotates() {
 
 		if b != nil {
 			obj := b.Obj
-			//CleanPorts(obj)
 
 			if obj.Unique.TypeP.NonSquare {
 				var newdir uint8
@@ -289,17 +288,6 @@ func runRotates() {
 
 	//Done, erase list.
 	world.RotateList = []world.RotateEvent{}
-}
-
-/* TO DO: process if possible, move, or spill */
-func CleanPorts(obj *world.ObjData) {
-	defer util.ReportPanic("CleanPorts")
-
-	for p, port := range obj.Ports {
-		if port.Buf != nil && port.Buf.Amount > 0 {
-			obj.Ports[p].Buf.Amount = 0
-		}
-	}
 }
 
 /* Add/remove tick/tock events from the lists

@@ -188,10 +188,6 @@ func WindowDirty(window *WindowData) {
 const cpad = 18
 const closeScale = 0.7
 
-/*
- * TODO: RESIZE CLOSE X BUTTON!!!
- * Adjust padding by font size / scale / dpi
- */
 func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	defer util.ReportPanic("DrawWindow")
 	WindowsLock.Lock()

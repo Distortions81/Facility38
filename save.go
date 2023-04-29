@@ -16,7 +16,6 @@ import (
 )
 
 /* Used to munge data into a test save file */
-/* TODO: SAVE VERSION AND MAP SEED INTO FILE */
 type gameSave struct {
 	Version   int
 	Date      int64
