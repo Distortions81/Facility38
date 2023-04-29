@@ -164,6 +164,7 @@ func killTerrainCache(chunk *world.MapChunk, force bool) {
 
 		chunk.TerrainLock.Lock()
 		chunk.TerrainImage.Dispose()
+		chunk.TerrainImage = nil
 		chunk.TerrainImage = world.TempChunkImage
 		chunk.UsingTemporary = true
 		numTerrainCache--
