@@ -53,6 +53,10 @@ func SaveGame() {
 		return
 	}
 
+	if world.TickCount == 0 {
+		return
+	}
+
 	go func() {
 		defer util.ReportPanic("SaveGame goroutine")
 		GameLock.Lock()

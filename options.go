@@ -53,7 +53,7 @@ func init() {
 		{ConfigName: "FREEDOM-UNITS", Text: "Imperial Units", Action: toggleUnits},
 		{ConfigName: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper},
 		{ConfigName: "DEBUG-TEXT", Text: "Debug info-text", Action: toggleInfoLine},
-		{ConfigName: "AUTOSAVE", Text: "Autosave", Action: toggleAutosave, Enabled: true},
+		{ConfigName: "AUTOSAVE", Text: "Autosave (5m)", Action: toggleAutosave, Enabled: true},
 		{Text: "Quit game", Action: quitGame, NoCheck: true},
 	}
 }

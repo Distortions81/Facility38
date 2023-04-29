@@ -119,7 +119,7 @@ func ObjUpdateDaemonST() {
 		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
 		world.ActualUPS = (1000000000.0 / float32(world.MeasuredObjectUPS_ns))
 
-		if world.Autosave && time.Since(world.LastSave) > time.Minute*10 {
+		if world.Autosave && time.Since(world.LastSave) > time.Minute*5 {
 			world.LastSave = time.Now().UTC()
 			SaveGame()
 		}
