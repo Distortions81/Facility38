@@ -481,17 +481,24 @@ func setupWindowSize() {
 	/* Skip in benchmark mode */
 	if !world.UPSBench {
 		/* Handle high res displays, 50% window */
-		if xSize > 2560 && ySize > 1600 {
+		if xSize > 2560 && ySize > 1440 {
 			world.Magnify = false
-			world.ScreenWidth = uint16(xSize) / 2
-			world.ScreenHeight = uint16(ySize) / 2
+			settingItems[2].Enabled = false
+
+			world.ScreenWidth = uint16(xSize / 2)
+			world.ScreenHeight = uint16(ySize / 2)
 
 			/* Small Screen, just go fullscreen */
-		} else if xSize <= 1280 && ySize <= 800 {
+		} else {
 			world.Magnify = true
+			settingItems[2].Enabled = true
+
 			world.ScreenWidth = uint16(xSize)
 			world.ScreenHeight = uint16(ySize)
-			ebiten.SetFullscreen(true)
+
+			if xSize <= 1280 && ySize <= 720 {
+				ebiten.SetFullscreen(true)
+			}
 		}
 	}
 	ebiten.SetWindowSize(int(world.ScreenWidth), int(world.ScreenHeight))
