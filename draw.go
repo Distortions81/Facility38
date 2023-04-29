@@ -899,7 +899,7 @@ func drawTime(screen *ebiten.Image) {
 
 	gameClock := time.Duration((GameTick / uint64(world.ObjectUPS/2))) * time.Second
 	/* Draw debug info */
-	buf := fmt.Sprintf("GameTime: %v\nTime: %v",
+	buf := fmt.Sprintf("Map Time: %v\nTime: %v",
 		gameClock.String(),
 		time.Now().Format("3:04PM"),
 	)
