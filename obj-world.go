@@ -233,7 +233,7 @@ var WorldObjs = []*world.ObjType{
 			KW:           10,
 			KgHopperMove: 1,
 		},
-		TockInterval: uint8(world.ObjectUPS/2) * 2,
+		TockInterval: uint8(world.ObjectUPS/2) * 5,
 		Symbol:       "FHP",
 		Ports: []world.ObjPortData{
 			{Dir: def.DIR_ANY, Type: def.PORT_IN},
