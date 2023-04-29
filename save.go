@@ -62,7 +62,7 @@ func SaveGame() {
 
 		tempPath := fmt.Sprintf("saves/save-%v.json.tmp", savenum)
 		finalPath := fmt.Sprintf("saves/save-%v.json", savenum)
-		os.Mkdir("saves", 0666)
+		os.Mkdir("saves", os.ModePerm)
 
 		start := time.Now()
 		util.Chat("Save starting...")
@@ -127,6 +127,7 @@ func SaveGame() {
 
 		if err != nil {
 			cwlog.DoLog(true, "SaveGame: os.Create error: %v\n", err)
+			util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
 			return
 		}
 
@@ -136,16 +137,18 @@ func SaveGame() {
 
 		if err != nil {
 			cwlog.DoLog(true, "SaveGame: os.WriteFile error: %v\n", err)
+			util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
 		}
 
 		err = os.Rename(tempPath, finalPath)
 
 		if err != nil {
 			cwlog.DoLog(true, "SaveGame: couldn't rename save file: %v\n", err)
+			util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
 			return
 		}
 
-		util.ChatDetailed("Game save complete: "+finalPath, world.ColorOrange, time.Second*15)
+		util.ChatDetailed("Game save complete: "+finalPath, world.ColorOrange, time.Second*5)
 
 		cwlog.DoLog(true, "COMPRESS & WRITE COMPLETE: %v", time.Since(start).String())
 	}()
