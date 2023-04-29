@@ -114,8 +114,6 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				} else {
 					AutoEvents(neighb.Obj)
 				}
-			} else {
-				//util.ObjCD(b, fmt.Sprintf("Port incorrect direction: %v", util.DirToName(port.Dir)))
 			}
 		}
 		/* Run custom link code */

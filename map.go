@@ -4,6 +4,7 @@ import (
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
+	"time"
 )
 
 /* Make a test map, or skip and still start daemons */
@@ -82,6 +83,8 @@ func MakeMap(gen bool) {
 
 	util.WASMSleep()
 	ExploreMap(world.XY{X: def.XYCenter - (def.ChunkSize / 2), Y: def.XYCenter - (def.ChunkSize / 2)}, 16, world.WASMMode)
+
+	world.LastSave = time.Now().UTC()
 
 	world.MapLoadPercent = 100
 	world.MapGenerated.Store(true)

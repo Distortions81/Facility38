@@ -258,6 +258,8 @@ func LoadGame() {
 			newObj.KGHeld = obj.KGHeld
 		}
 
+		world.LastSave = time.Unix(tempList.Date, 0).UTC()
+
 		world.VisDataDirty.Store(true)
 
 		world.TickListLock.Unlock()
@@ -329,5 +331,6 @@ func NukeWorld() {
 	TickIntervals = []TickInterval{}
 
 	runtime.GC()
+	world.LastSave = time.Now().UTC()
 	world.SuperChunkListLock.Unlock()
 }

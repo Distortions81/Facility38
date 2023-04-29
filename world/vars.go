@@ -4,6 +4,7 @@ import (
 	"Facility38/def"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
@@ -23,7 +24,10 @@ var (
 	Magnify   = true
 	LogStdOut = true
 	UIScale   = 1.0
-	MapSeed   int64
+
+	/* Map values */
+	MapSeed  int64
+	LastSave time.Time
 
 	ResourceLegendImage *ebiten.Image
 	TitleImage          *ebiten.Image
