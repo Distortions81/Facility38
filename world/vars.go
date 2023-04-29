@@ -23,6 +23,7 @@ var (
 	Magnify   = true
 	LogStdOut = true
 	UIScale   = 1.0
+	MapSeed   int64
 
 	ResourceLegendImage *ebiten.Image
 	TitleImage          *ebiten.Image
@@ -33,6 +34,7 @@ var (
 	ImperialUnits bool    = false
 	UseHyper      bool    = false
 	InfoLine      bool    = false
+	Autosave      bool    = true
 
 	/* SuperChunk List */
 	SuperChunkList     []*MapSuperChunk

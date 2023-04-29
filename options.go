@@ -53,6 +53,7 @@ func init() {
 		{ConfigName: "FREEDOM-UNITS", Text: "Imperial Units", Action: toggleUnits},
 		{ConfigName: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper},
 		{ConfigName: "DEBUG-TEXT", Text: "Debug info-text", Action: toggleInfoLine},
+		{ConfigName: "AUTOSAVE", Text: "Autosave", Action: toggleInfoLine, Enabled: true},
 		{Text: "Quit game", Action: quitGame, NoCheck: true},
 	}
 }
@@ -272,6 +273,21 @@ func toggleDebug(item int) {
 		settingItems[item].Enabled = false
 	} else {
 		world.Debug = true
+		settingItems[item].Enabled = true
+	}
+	buf := fmt.Sprintf("%v is now %v.",
+		settingItems[item].Text,
+		util.BoolToOnOff(settingItems[item].Enabled))
+	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+}
+
+func toggleAutosave(item int) {
+	defer util.ReportPanic("toggleDebug")
+	if world.Autosave {
+		world.Autosave = false
+		settingItems[item].Enabled = false
+	} else {
+		world.Autosave = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",

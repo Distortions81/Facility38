@@ -122,8 +122,9 @@ type MapChunk struct {
 }
 
 type NoiseLayerData struct {
-	Name  string
-	TypeI uint8
+	Name       string
+	TypeI      uint8
+	SeedOffset int64
 
 	TypeP *MaterialType
 

@@ -18,10 +18,10 @@ import (
 /* Used to munge data into a test save file */
 /* TODO: SAVE VERSION AND MAP SEED INTO FILE */
 type gameSave struct {
-	Version  int
-	Date     int64
-	MapSeeds MapSeedsData
-	Objects  []*saveMObj
+	Version int
+	Date    int64
+	MapSeed int64
+	Objects []*saveMObj
 }
 
 type MapSeedsData struct {
@@ -72,30 +72,10 @@ func SaveGame() {
 		world.TickListLock.Lock()
 		world.TockListLock.Lock()
 
-		var seeds MapSeedsData
-		for _, nl := range NoiseLayers {
-			switch nl.TypeI {
-			case def.MAT_NONE:
-				seeds.Grass = nl.RandomSeed
-			case def.MAT_OIL:
-				seeds.Oil = nl.RandomSeed
-			case def.MAT_GAS:
-				seeds.Gas = nl.RandomSeed
-			case def.MAT_COAL:
-				seeds.Coal = nl.RandomSeed
-			case def.MAT_IRON_ORE:
-				seeds.Iron = nl.RandomSeed
-			case def.MAT_COPPER_ORE:
-				seeds.Copper = nl.RandomSeed
-			case def.MAT_STONE_ORE:
-				seeds.Stone = nl.RandomSeed
-			}
-		}
-
 		tempList := gameSave{
-			Version:  2,
-			Date:     time.Now().Unix(),
-			MapSeeds: seeds}
+			Version: 2,
+			Date:    time.Now().Unix(),
+			MapSeed: world.MapSeed}
 		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
@@ -245,25 +225,7 @@ func LoadGame() {
 		}
 
 		world.SuperChunkListLock.Unlock()
-		for n, nl := range NoiseLayers {
-			switch nl.TypeI {
-			case def.MAT_NONE:
-				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Grass
-			case def.MAT_OIL:
-				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Oil
-			case def.MAT_GAS:
-				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Gas
-			case def.MAT_COAL:
-				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Coal
-			case def.MAT_IRON_ORE:
-				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Iron
-			case def.MAT_COPPER_ORE:
-				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Copper
-			case def.MAT_STONE_ORE:
-				NoiseLayers[n].RandomSeed = tempList.MapSeeds.Stone
-			}
-		}
-
+		world.MapSeed = tempList.MapSeed
 		ResourceMapInit()
 
 		/* Needs unsafeCreateObj that can accept a starting data set */
