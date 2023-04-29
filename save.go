@@ -166,6 +166,7 @@ func LoadGame() {
 	if world.WASMMode {
 		return
 	}
+	world.LastSave = time.Now().UTC()
 
 	go func() {
 		defer util.ReportPanic("LoadGame goroutine")
