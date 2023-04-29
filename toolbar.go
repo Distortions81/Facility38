@@ -50,7 +50,7 @@ func DrawToolbar(click, hover bool, index int) {
 	defer toolbarCacheLock.Unlock()
 
 	if toolbarCache == nil {
-		toolbarCache = ebiten.NewImage(int(ToolBarIconSize+ToolBarSpacing)*ToolbarMax, int(ToolBarIconSize+ToolBarSpacing))
+		toolbarCache = ebiten.NewImage(int(ToolBarIconSize+ToolBarSpacing)*ToolbarMax+4, int(ToolBarIconSize+ToolBarSpacing))
 	}
 	toolbarCache.Clear()
 	toolbarCache.Fill(world.ColorToolTipBG)

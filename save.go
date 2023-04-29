@@ -69,7 +69,7 @@ func SaveGame() {
 		os.Mkdir("saves", os.ModePerm)
 
 		start := time.Now()
-		util.Chat("Save starting...")
+		util.Chat("Saving...")
 
 		/* Pause the whole world ... */
 		world.SuperChunkListLock.RLock()
@@ -157,6 +157,10 @@ func SaveGame() {
 		util.ChatDetailed("Game save complete: "+finalPath, world.ColorOrange, time.Second*5)
 
 		cwlog.DoLog(true, "COMPRESS & WRITE COMPLETE: %v", time.Since(start).String())
+
+		if time.Since(start) > time.Second*2 {
+			util.Chat("Save complete.")
+		}
 	}()
 }
 
