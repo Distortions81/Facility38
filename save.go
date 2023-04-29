@@ -35,12 +35,9 @@ type MapSeedsData struct {
 }
 
 type saveMObj struct {
-	Pos      world.XYs                   `json:"p,omitempty"`
-	TypeI    uint8                       `json:"i,omitempty"`
-	Dir      uint8                       `json:"d,omitempty"`
-	Contents *world.MaterialContentsType `json:"c,omitempty"`
-	KGFuel   float32                     `json:"kf,omitempty"`
-	KGHeld   float32                     `json:"k,omitempty"`
+	Pos   world.XYs `json:"p,omitempty"`
+	TypeI uint8     `json:"i,omitempty"`
+	Dir   uint8     `json:"d,omitempty"`
 }
 
 /* WIP */
@@ -85,24 +82,9 @@ func SaveGame() {
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
 					tobj := &saveMObj{
-						Pos:      util.CenterXY(mObj.Pos),
-						TypeI:    mObj.Unique.TypeP.TypeI,
-						Dir:      mObj.Dir,
-						Contents: mObj.Unique.Contents,
-						KGFuel:   mObj.Unique.KGFuel,
-						KGHeld:   mObj.KGHeld,
-					}
-
-					/* Convert pointer to type int */
-					if tobj.Contents != nil {
-						for c := range tobj.Contents.Mats {
-							if tobj.Contents.Mats[c] == nil {
-								continue
-							}
-							if tobj.Contents.Mats[c].TypeP == nil {
-								continue
-							}
-						}
+						Pos:   util.CenterXY(mObj.Pos),
+						TypeI: mObj.Unique.TypeP.TypeI,
+						Dir:   mObj.Dir,
 					}
 
 					tempList.Objects = append(tempList.Objects, tobj)
@@ -236,12 +218,9 @@ func LoadGame() {
 			obj := &world.ObjData{
 				Pos: util.UnCenterXY(tempList.Objects[i].Pos),
 				Unique: &world.UniqueObject{
-					TypeP:    WorldObjs[tempList.Objects[i].TypeI],
-					Contents: tempList.Objects[i].Contents,
-					KGFuel:   tempList.Objects[i].KGFuel,
+					TypeP: WorldObjs[tempList.Objects[i].TypeI],
 				},
-				Dir:    tempList.Objects[i].Dir,
-				KGHeld: tempList.Objects[i].KGHeld,
+				Dir: tempList.Objects[i].Dir,
 			}
 
 			if obj.Unique != nil && obj.Unique.Contents != nil {
@@ -253,7 +232,6 @@ func LoadGame() {
 			}
 
 			newObj := PlaceObj(obj.Pos, obj.Unique.TypeP.TypeI, nil, obj.Dir, false)
-			newObj.Unique = obj.Unique
 			newObj.KGHeld = obj.KGHeld
 		}
 
