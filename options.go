@@ -36,9 +36,11 @@ type settingType struct {
 	TextBounds image.Rectangle `json:"-"`
 	Rect       image.Rectangle `json:"-"`
 
+	Enabled     bool
+	WASMExclude bool
+
 	Action  func(item int) `json:"-"`
-	Enabled bool
-	NoCheck bool `json:"-"`
+	NoCheck bool           `json:"-"`
 }
 
 func init() {
@@ -51,10 +53,10 @@ func init() {
 		{ConfigName: "DEBUG", Text: "Debug mode", Action: toggleDebug},
 		{Text: "Load test map", Action: toggleTestMap},
 		{ConfigName: "FREEDOM-UNITS", Text: "Imperial Units", Action: toggleUnits},
-		{ConfigName: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper},
+		{ConfigName: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper, WASMExclude: true},
 		{ConfigName: "DEBUG-TEXT", Text: "Debug info-text", Action: toggleInfoLine},
-		{ConfigName: "AUTOSAVE", Text: "Autosave (5m)", Action: toggleAutosave, Enabled: true},
-		{Text: "Quit game", Action: quitGame, NoCheck: true},
+		{ConfigName: "AUTOSAVE", Text: "Autosave (5m)", Action: toggleAutosave, Enabled: true, WASMExclude: true},
+		{Text: "Quit game", Action: quitGame, NoCheck: true, WASMExclude: true},
 	}
 }
 

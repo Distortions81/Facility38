@@ -25,6 +25,11 @@ func setupOptionsWindow(window *WindowData) {
 
 	/* Loop all settings */
 	for i := range settingItems {
+
+		if world.WASMMode && settingItems[i].WASMExclude {
+			continue
+		}
+
 		/* Place line */
 		settingItems[i].TextPosX = int(padding * world.UIScale)
 		settingItems[i].TextPosY = int((float64(world.GeneralFontH)*scalefactor)*float64(i+linePad)) + int(padding*world.UIScale)
@@ -56,6 +61,10 @@ func drawOptionsWindow(window *WindowData) {
 
 	/* Draw items */
 	for i, item := range settingItems {
+		if world.WASMMode && item.WASMExclude {
+			continue
+		}
+
 		b := buttons[i]
 
 		/* Text */
