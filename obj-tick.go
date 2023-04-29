@@ -221,7 +221,7 @@ func runRotates() {
 
 		if b != nil {
 			obj := b.Obj
-			CleanPorts(obj)
+			//CleanPorts(obj)
 
 			if obj.Unique.TypeP.NonSquare {
 				var newdir uint8

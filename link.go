@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Facility38/cwlog"
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
@@ -246,6 +247,108 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 	case def.PORT_FOUT:
 		obj.FuelOut = append(obj.FuelOut, &obj.Ports[port])
 		obj.NumFOut++
+	}
+
+	/* Fix trapped materials */
+	for p, port := range obj.Ports {
+
+		if port.Buf == nil {
+			continue
+		}
+
+		if port.Buf.Amount == 0 {
+			continue
+		}
+
+		var good bool
+		var canFix bool
+		switch port.Type {
+		case def.PORT_IN:
+			if obj.NumIn > 0 {
+				for op := range obj.Inputs {
+					if obj.Inputs[op] == &obj.Ports[p] {
+						/* Don't need to reprocess, port is alive */
+						good = true
+						break
+					}
+				}
+				if !good {
+					canFix = true
+				}
+			}
+		case def.PORT_OUT:
+			if obj.NumOut > 0 {
+				for op := range obj.Outputs {
+					if obj.Outputs[op] == &obj.Ports[p] {
+						/* Don't need to reprocess, port is alive */
+						good = true
+						break
+					}
+				}
+				if !good {
+					canFix = true
+				}
+			}
+		case def.PORT_FIN:
+			if obj.NumFIn > 0 {
+				for op := range obj.FuelIn {
+					if obj.FuelIn[op] == &obj.Ports[p] {
+						/* Don't need to reprocess, port is alive */
+						good = true
+						break
+					}
+				}
+				if !good {
+					canFix = true
+				}
+			}
+		case def.PORT_FOUT:
+			if obj.NumFOut > 0 {
+				for op := range obj.FuelOut {
+					if obj.FuelOut[op] == &obj.Ports[p] {
+						/* Don't need to reprocess, port is alive */
+						good = true
+						break
+					}
+				}
+				if !good {
+					canFix = true
+				}
+			}
+		}
+
+		if !good && canFix {
+			fixed := false
+			switch port.Type {
+			case def.PORT_IN:
+				if obj.Inputs[0].Buf.Amount == 0 {
+					/* Swap pointers */
+					obj.Inputs[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.Inputs[0].Buf
+					fixed = true
+				}
+			case def.PORT_OUT:
+				if obj.Outputs[0].Buf.Amount == 0 {
+					/* Swap pointers */
+					obj.Outputs[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.Outputs[0].Buf
+					fixed = true
+				}
+			case def.PORT_FIN:
+				if obj.FuelIn[0].Buf.Amount == 0 {
+					/* Swap pointers */
+					obj.FuelIn[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.FuelIn[0].Buf
+					fixed = true
+				}
+			case def.PORT_FOUT:
+				if obj.FuelOut[0].Buf.Amount == 0 {
+					/* Swap pointers */
+					obj.FuelOut[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.FuelOut[0].Buf
+					fixed = true
+				}
+			}
+			if fixed {
+				cwlog.DoLog(true, "Fixed orphaned material in object ports.")
+			}
+		}
 	}
 }
 
