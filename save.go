@@ -72,9 +72,11 @@ func SaveGame() {
 		world.TickListLock.Lock()
 		world.TockListLock.Lock()
 
+		world.LastSave = time.Now().UTC()
+
 		tempList := gameSave{
 			Version: 2,
-			Date:    time.Now().Unix(),
+			Date:    world.LastSave.UTC().Unix(),
 			MapSeed: world.MapSeed}
 		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
