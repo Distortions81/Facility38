@@ -23,10 +23,10 @@ func setupOptionsWindow(window *WindowData) {
 	defer util.ReportPanic("setupOptionsWindow")
 	buttons = []image.Rectangle{}
 
+	i := 0
 	/* Loop all settings */
-	for i := range settingItems {
-
-		if world.WASMMode && settingItems[i].WASMExclude {
+	for _, item := range settingItems {
+		if world.WASMMode && item.WASMExclude {
 			continue
 		}
 
@@ -42,6 +42,8 @@ func setupOptionsWindow(window *WindowData) {
 		button.Min.Y = int((float64(world.GeneralFontH)*scalefactor)*float64(i)) + int(padding*world.UIScale)
 		button.Max.Y = int((float64(world.GeneralFontH)*scalefactor)*float64(i+linePad)) + int(padding*world.UIScale)
 		buttons = append(buttons, button)
+
+		i++
 	}
 
 }
@@ -59,8 +61,9 @@ func drawOptionsWindow(window *WindowData) {
 	defer util.ReportPanic("drawOptionsWindow")
 	var txt string
 
+	i := 0
 	/* Draw items */
-	for i, item := range settingItems {
+	for _, item := range settingItems {
 		if world.WASMMode && item.WASMExclude {
 			continue
 		}
@@ -105,5 +108,6 @@ func drawOptionsWindow(window *WindowData) {
 				float64(item.TextPosY)-(float64(check.Bounds().Dy())*world.UIScale*checkScale))
 			window.Cache.DrawImage(check, op)
 		}
+		i++
 	}
 }
