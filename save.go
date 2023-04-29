@@ -42,7 +42,6 @@ type saveMObj struct {
 	Contents *world.MaterialContentsType `json:"c,omitempty"`
 	KGFuel   float32                     `json:"kf,omitempty"`
 	KGHeld   float32                     `json:"k,omitempty"`
-	Ticks    uint8                       `json:"t,omitempty"`
 }
 
 /* WIP */
