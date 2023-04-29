@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Facility38/cwlog"
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
@@ -796,6 +797,10 @@ func drawIconMode(screen *ebiten.Image) {
 
 	/* Batch render everything */
 	for p := 0; p < BatchTop; p++ {
+		if ImageBatch[p] == nil || OpBatch[p] == nil {
+			cwlog.DoLog(true, "Nil ImageBatch")
+			continue
+		}
 		screen.DrawImage(ImageBatch[p], OpBatch[p])
 	}
 }
