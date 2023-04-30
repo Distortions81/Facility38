@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Facility38/cwlog"
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
@@ -21,7 +20,7 @@ import (
 const (
 	cBlockedIndicatorOffset = 0
 	WASMTerrainDiv          = 5
-	MaxBatch                = 10000
+	MaxBatch                = 15000
 	infoWidth               = 128
 	infoHeight              = 128
 	infoSpaceRight          = 8
@@ -94,7 +93,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				OpBatch[o] = nil
 			}
 			BatchWatermark = 0
-			cwlog.DoLog(true, "Batch GC")
 
 		}
 		if BatchTop > BatchWatermark {
