@@ -50,7 +50,7 @@ func main() {
 	forceMetal := flag.Bool("use-metal", false, "Use the Metal graphics API on Macintosh.")
 	forceAuto := flag.Bool("use-auto", false, "Use Auto-detected graphics API.")
 	forceOpengl := flag.Bool("use-opengl", true, "Use OpenGL graphics API")
-	showVersion := flag.Bool("version", true, "Show game version and close")
+	showVersion := flag.Bool("version", false, "Show game version and close")
 	flag.Parse()
 
 	if *showVersion {
