@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Facility38/cwlog"
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
@@ -26,7 +27,7 @@ const (
 	infoSpaceRight          = 8
 	infoSpaceTop            = 8
 	infoPad                 = 4
-	batchGCInterval         = 600
+	batchGCInterval         = time.Second * 30
 )
 
 var (
@@ -55,6 +56,7 @@ var (
 
 	BatchTop       int
 	BatchWatermark int
+	BatchGC        time.Time
 	ImageBatch     [MaxBatch]*ebiten.Image
 	OpBatch        [MaxBatch]*ebiten.DrawImageOptions
 	UILayer        *ebiten.Image
@@ -83,12 +85,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Clear items for GC */
-	if frameCount%batchGCInterval == 0 {
+	if time.Since(BatchGC) > batchGCInterval {
+		BatchGC = time.Now()
+
 		for o := 0; o <= BatchWatermark; o++ {
 			ImageBatch[o] = nil
 			OpBatch[o] = nil
 		}
 		BatchWatermark = 0
+		cwlog.DoLog(true, "Batch GC")
+
 	}
 	if BatchTop > BatchWatermark {
 		BatchWatermark = BatchTop
@@ -903,14 +909,14 @@ func drawDebugInfo(screen *ebiten.Image) {
 	defer util.ReportPanic("drawDebugInfo")
 
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %-4v UPS: %4.2f Objects: %8v, %-8v/%8v, %-8v Draws: %-5v Arch: %v Build: v%v-%v",
+	buf := fmt.Sprintf("FPS: %-4v UPS: %4.2f Objects: %8v, %-8v/%8v, %-8v Draws: %-5v(%-5v) Arch: %v Build: v%v-%v",
 		int(ebiten.ActualFPS()),
 		(world.ActualUPS),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTickCount), 2, ""),
-		BatchTop,
+		BatchTop, BatchWatermark,
 		runtime.GOARCH, def.Version, buildTime,
 	)
 
