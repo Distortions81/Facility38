@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Facility38/cwlog"
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
@@ -19,7 +18,7 @@ func init() {
 		}
 	}
 
-	cwlog.DoLog(true, "Building recipe material lookup tables.")
+	//cwlog.DoLog(true, "Building recipe material lookup tables.")
 	for objPos, obj := range WorldObjs {
 		for recPos, rec := range Recipies {
 			for _, mach := range rec.MachineTypes {
