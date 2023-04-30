@@ -50,7 +50,13 @@ func main() {
 	forceMetal := flag.Bool("use-metal", false, "Use the Metal graphics API on Macintosh.")
 	forceAuto := flag.Bool("use-auto", false, "Use Auto-detected graphics API.")
 	forceOpengl := flag.Bool("use-opengl", true, "Use OpenGL graphics API")
+	showVersion := flag.Bool("version", true, "Show game version and close")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Printf("v%v-%v\n", def.Version, buildTime)
+		return
+	}
 
 	imgb, err := data.GetSpriteImage("title.png", true)
 	if err == nil {
