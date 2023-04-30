@@ -93,6 +93,7 @@ func LogDaemon() {
 			LogBufLines--
 
 			LogBufLock.Unlock()
+			time.Sleep(time.Millisecond)
 		}
 	}()
 }
