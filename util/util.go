@@ -30,6 +30,7 @@ var (
 	BuildInfo     string
 )
 
+/* Init chat system */
 func init() {
 
 	defer ReportPanic("util init")
@@ -43,6 +44,7 @@ func init() {
 	ChatLinesTop = 1
 }
 
+/* Handles panics */
 func ReportPanic(format string, args ...interface{}) {
 	if r := recover(); r != nil {
 
@@ -73,27 +75,32 @@ func ReportPanic(format string, args ...interface{}) {
 	}
 }
 
+/* WASM is single-thread, we use sleep to allow other threads to run */
 func WASMSleep() {
 	if world.WASMMode {
 		time.Sleep(time.Millisecond * 10)
 	}
 }
 
+/* Add coords */
 func AddXY(a world.XY, b world.XY) world.XY {
 	defer ReportPanic("AddXY")
 	return world.XY{X: a.X + b.X, Y: a.Y + b.Y}
 }
 
+/* Sub-object relative pos to real */
 func GetSubPos(a world.XY, b world.XYs) world.XY {
 	defer ReportPanic("GetSubPos")
 	return world.XY{X: uint16(int32(a.X) + int32(b.X)), Y: uint16(int32(a.Y) + int32(b.Y))}
 }
 
+/* Subtract coords */
 func SubXY(a world.XY, b world.XY) world.XY {
 	defer ReportPanic("SubXY")
 	return world.XY{X: a.X - b.X, Y: a.Y - b.Y}
 }
 
+/* Trim lines from chat */
 func deleteOldLines() {
 	defer ReportPanic("deleteOldLines")
 	var newLines []world.ChatLines
@@ -110,6 +117,7 @@ func deleteOldLines() {
 	ChatLinesTop = newTop
 }
 
+/* Log with object details */
 func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
 	defer ReportPanic("ObjCD")
 	if !world.Debug {
@@ -133,6 +141,7 @@ func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
 	ChatDetailed(buf, world.ColorRed, time.Minute)
 }
 
+/* Default add lines to chat */
 func Chat(text string) {
 	if !world.MapGenerated.Load() {
 		return
@@ -152,6 +161,8 @@ func Chat(text string) {
 		ChatLinesLock.Unlock()
 	}(text)
 }
+
+/* Add to chat with options */
 func ChatDetailed(text string, color color.Color, life time.Duration) {
 	if !world.MapGenerated.Load() {
 		return

@@ -6,20 +6,30 @@ import (
 )
 
 const (
-	WorkSize         = 10000
-	FontDPI          = 96
-	MaxItemType      = 255
-	GameUPS          = 8
+	/* Tick / Tock work block */
+	WorkSize = 10000
+	FontDPI  = 96
+	/* Used for toolbar as "none" */
+	MaxItemType = 255
+	/* Updates per second, real update rate is this div 2 */
+	GameUPS = 8
+	/* Used for perlin noise layers */
 	NumResourceTypes = 7
+	/* Base UI scale on this width */
 	UIBaseResolution = 1920
-	NinetyDeg        = math.Pi / 2
-	OneEightyDeg     = math.Pi
-	ThreeSixtyDeg    = math.Pi * 2
-	DegToRad         = 6.28319
 
+	/* For sprite rotation */
+	NinetyDeg     = math.Pi / 2
+	OneEightyDeg  = math.Pi
+	ThreeSixtyDeg = math.Pi * 2
+	//DegToRad      = 6.28319
+
+	/* Number of chat lines to display at once */
 	ChatHeightLines = 20
-	ChatFadeTime    = time.Second * 3
+	/* Defaut fade out time */
+	ChatFadeTime = time.Second * 3
 
+	/* Game base version */
 	Version = "018"
 
 	/* Files and directories */
@@ -28,8 +38,10 @@ const (
 	TxtDir     = "txt/"
 	ShadersDir = "shaders/"
 
+	/* For test/bench map */
 	NumTestObjects = 1000000
 
+	/* WASD speeds */
 	MoveSpeed = 4.0
 	RunSpeed  = 16.0
 
@@ -130,6 +142,7 @@ const (
 	TBSelThick        = 2
 	HalfSelThick      = TBSelThick / 2
 
+	/* Game sprite scale */
 	SpriteScale = 16
 
 	/* Draw settings */
@@ -206,6 +219,7 @@ const (
 	SPHERICAL_PACKING_RANDOM = 0.64
 	SPHERICAL_PACKING_BEST   = 0.74
 
+	/* Game timescale */
 	TIMESCALE_MULTI = 12
 
 	/* Event queue types */
