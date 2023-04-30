@@ -46,13 +46,13 @@ type settingType struct {
 func init() {
 	defer util.ReportPanic("options init")
 	settingItems = []settingType{
-		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true},
+		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true, WASMExclude: true},
 		{ConfigName: "FULLSCREEN", Text: "Full Screen", Action: toggleFullscreen},
 		{ConfigName: "MAGNIFY", Text: "Magnifiy UI", Action: toggleMagnify},
-		{ConfigName: "UNCAP-FPS", Text: "Uncap UPS", Action: toggleUPSCap},
-		{ConfigName: "DEBUG", Text: "Debug mode", Action: toggleDebug},
-		{Text: "Load test map", Action: toggleTestMap},
-		{ConfigName: "FREEDOM-UNITS", Text: "Imperial Units", Action: toggleUnits},
+		{ConfigName: "UNCAP-FPS", Text: "Uncap UPS", Action: toggleUPSCap, WASMExclude: true},
+		{ConfigName: "DEBUG", Text: "Debug mode", Action: toggleDebug, WASMExclude: true},
+		{Text: "Load test map", Action: toggleTestMap, WASMExclude: true},
+		{ConfigName: "FREEDOM-UNITS", Text: "US customary units", Action: toggleUnits},
 		{ConfigName: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper, WASMExclude: true},
 		{ConfigName: "DEBUG-TEXT", Text: "Debug info-text", Action: toggleInfoLine},
 		{ConfigName: "AUTOSAVE", Text: "Autosave (5m)", Action: toggleAutosave, Enabled: true, WASMExclude: true},

@@ -146,7 +146,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		drawDebugInfo(screen)
 	}
 
-	//drawChatLines(screen)
+	drawChatLines(screen)
 	DrawOpenWindows(screen)
 
 	if world.PlayerReady.Load() < 60 {

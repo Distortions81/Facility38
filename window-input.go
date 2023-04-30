@@ -22,11 +22,14 @@ func handleSettings(input world.XYs, window *WindowData) bool {
 		if util.PosWithinRect(
 			world.XY{X: uint16(input.X - originX),
 				Y: uint16(input.Y - originY)}, b, 1) {
-			item.Action(i)
-			saveOptions()
-			window.Dirty = true
-			gMouseHeld = false
-			return true
+			if (world.WASMMode && !item.WASMExclude) || !world.WASMMode {
+				item.Action(i)
+				saveOptions()
+				window.Dirty = true
+				gMouseHeld = false
+
+				return true
+			}
 		}
 	}
 

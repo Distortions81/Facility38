@@ -37,6 +37,11 @@ type Game struct {
 
 /* Main function */
 func main() {
+	/* Web assm builds */
+	if WASMMode == "true" || runtime.GOARCH == "wasm" {
+		world.WASMMode = true
+	}
+
 	debug.SetPanicOnFault(true)
 	//debug.SetTraceback("all")
 
@@ -66,10 +71,7 @@ func main() {
 
 	util.BuildInfo = buildTime
 
-	/* Web assm builds */
-	if WASMMode == "true" {
-		world.WASMMode = true
-	} else {
+	if !world.WASMMode {
 		/* Functions that will not work in webasm */
 		cwlog.StartLog()
 		cwlog.LogDaemon()
