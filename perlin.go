@@ -5,15 +5,12 @@ import (
 	"Facility38/util"
 	"Facility38/world"
 	"math/rand"
-	"time"
 
 	"github.com/aquilax/go-perlin"
 )
 
 func init() {
 	defer util.ReportPanic("perlin init")
-	rand.Seed(time.Now().UnixNano())
-	rand.Seed(rand.Int63())
 
 	for i, nl := range NoiseLayers {
 		if NoiseLayers[i].TypeI == def.MAT_NONE {
