@@ -24,19 +24,27 @@ func setupOptionsWindow(window *WindowData) {
 	buttons = []image.Rectangle{}
 
 	/* Loop all settings */
-	for i := range settingItems {
+	ioff := 1
+	for pos := range settingItems {
+
 		/* Place line */
-		settingItems[i].TextPosX = int(padding * world.UIScale)
-		settingItems[i].TextPosY = int((float64(world.GeneralFontH)*scalefactor)*float64(i+linePad)) + int(padding*world.UIScale)
+		settingItems[pos].TextPosX = int(padding * world.UIScale)
+		settingItems[pos].TextPosY = int((float64(world.GeneralFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*world.UIScale)
 
 		/* Generate button */
 		button := image.Rectangle{}
-		button.Min.X = 0
-		button.Max.X = def.XYMax
+		if (world.WASMMode && !settingItems[pos].WASMExclude) || !world.WASMMode {
+			button.Min.X = 0
+			button.Max.X = def.XYMax
 
-		button.Min.Y = int((float64(world.GeneralFontH)*scalefactor)*float64(i)) + int(padding*world.UIScale)
-		button.Max.Y = int((float64(world.GeneralFontH)*scalefactor)*float64(i+linePad)) + int(padding*world.UIScale)
+			button.Min.Y = int((float64(world.GeneralFontH)*scalefactor)*float64(ioff)) + int(padding*world.UIScale)
+			button.Max.Y = int((float64(world.GeneralFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*world.UIScale)
+		}
 		buttons = append(buttons, button)
+
+		if (world.WASMMode && !settingItems[pos].WASMExclude) || !world.WASMMode {
+			ioff++
+		}
 	}
 
 }
@@ -54,6 +62,8 @@ func drawOptionsWindow(window *WindowData) {
 	defer util.ReportPanic("drawOptionsWindow")
 	var txt string
 
+	d := 0
+
 	/* Draw items */
 	for i, item := range settingItems {
 		b := buttons[i]
@@ -68,7 +78,7 @@ func drawOptionsWindow(window *WindowData) {
 		/* Draw text */
 		itemColor := world.ColorWhite
 
-		if i%2 == 0 {
+		if d%2 == 0 {
 			vector.DrawFilledRect(window.Cache,
 				float32(b.Min.X),
 				float32(b.Max.Y),
@@ -78,6 +88,7 @@ func drawOptionsWindow(window *WindowData) {
 		}
 
 		if (world.WASMMode && !item.WASMExclude) || !world.WASMMode {
+
 			text.Draw(window.Cache, txt, world.GeneralFont, item.TextPosX, item.TextPosY-(world.GeneralFontH/2), itemColor)
 
 			if !item.NoCheck {
@@ -97,6 +108,7 @@ func drawOptionsWindow(window *WindowData) {
 					float64(item.TextPosY)-(float64(check.Bounds().Dy())*world.UIScale*checkScale))
 				window.Cache.DrawImage(check, op)
 			}
+			d++
 		}
 	}
 }
