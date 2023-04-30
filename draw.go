@@ -85,19 +85,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Clear items for GC */
-	if time.Since(BatchGC) > batchGCInterval {
-		BatchGC = time.Now()
+	if frameCount%30 == 0 {
+		if time.Since(BatchGC) > batchGCInterval {
+			BatchGC = time.Now()
 
-		for o := 0; o <= BatchWatermark; o++ {
-			ImageBatch[o] = nil
-			OpBatch[o] = nil
+			for o := 0; o <= BatchWatermark; o++ {
+				ImageBatch[o] = nil
+				OpBatch[o] = nil
+			}
+			BatchWatermark = 0
+			cwlog.DoLog(true, "Batch GC")
+
 		}
-		BatchWatermark = 0
-		cwlog.DoLog(true, "Batch GC")
-
-	}
-	if BatchTop > BatchWatermark {
-		BatchWatermark = BatchTop
+		if BatchTop > BatchWatermark {
+			BatchWatermark = BatchTop
+		}
 	}
 	BatchTop = 0
 
