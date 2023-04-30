@@ -17,11 +17,13 @@ import (
 
 /* Used to munge data into a test save file */
 type gameSave struct {
-	Version   int
-	Date      int64
-	MapSeed   int64
-	GameTicks uint64
-	Objects   []*saveMObj
+	Version    int
+	Date       int64
+	MapSeed    int64
+	GameTicks  uint64
+	CameraPos  world.XYs
+	CameraZoom int16
+	Objects    []*saveMObj
 }
 
 type MapSeedsData struct {
@@ -74,10 +76,12 @@ func SaveGame() {
 		world.LastSave = time.Now().UTC()
 
 		tempList := gameSave{
-			Version:   2,
-			Date:      world.LastSave.UTC().Unix(),
-			MapSeed:   world.MapSeed,
-			GameTicks: GameTick}
+			Version:    2,
+			Date:       world.LastSave.UTC().Unix(),
+			MapSeed:    world.MapSeed,
+			GameTicks:  GameTick,
+			CameraPos:  world.XYs{X: int32(world.CameraX), Y: int32(world.CameraY)},
+			CameraZoom: int16(world.ZoomScale)}
 		for _, sChunk := range world.SuperChunkList {
 			for _, chunk := range sChunk.ChunkList {
 				for _, mObj := range chunk.ObjList {
@@ -238,6 +242,13 @@ func LoadGame() {
 
 		world.LastSave = time.Unix(tempList.Date, 0).UTC()
 		GameTick = tempList.GameTicks
+		if tempList.CameraPos.X != 0 && tempList.CameraPos.Y != 0 {
+			world.CameraX = float32(tempList.CameraPos.X)
+			world.CameraY = float32(tempList.CameraPos.Y)
+		}
+		if tempList.CameraZoom != 0 {
+			world.ZoomScale = float32(tempList.CameraZoom)
+		}
 
 		world.VisDataDirty.Store(true)
 
