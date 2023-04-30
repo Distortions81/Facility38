@@ -26,6 +26,7 @@ const (
 	infoSpaceRight          = 8
 	infoSpaceTop            = 8
 	infoPad                 = 4
+	batchGCInterval         = 600
 )
 
 var (
@@ -52,10 +53,11 @@ var (
 	lastCamX float32
 	lastCamY float32
 
-	BatchTop   int
-	ImageBatch [MaxBatch]*ebiten.Image
-	OpBatch    [MaxBatch]*ebiten.DrawImageOptions
-	UILayer    *ebiten.Image
+	BatchTop       int
+	BatchWatermark int
+	ImageBatch     [MaxBatch]*ebiten.Image
+	OpBatch        [MaxBatch]*ebiten.DrawImageOptions
+	UILayer        *ebiten.Image
 )
 
 /* Setup a few images for later use */
@@ -68,6 +70,7 @@ func init() {
 /* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
 	defer util.ReportPanic("Draw")
+	frameCount++
 
 	/* Boot screen */
 	if !world.MapGenerated.Load() ||
@@ -79,7 +82,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		return
 	}
 
-	frameCount++
+	/* Clear items for GC */
+	if frameCount%batchGCInterval == 0 {
+		for o := 0; o <= BatchWatermark; o++ {
+			ImageBatch[o] = nil
+			OpBatch[o] = nil
+		}
+		BatchWatermark = 0
+	}
+	if BatchTop > BatchWatermark {
+		BatchWatermark = BatchTop
+	}
+	BatchTop = 0
 
 	/* If needed, calculate object visibility */
 	updateVisData()
@@ -95,12 +109,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	/* Draw modes */
 	if world.ZoomScale > def.MapPixelThreshold { /* Draw icon mode */
-		drawIconMode(screen)
+		drawIconMode()
 	} else {
-		drawPixmapMode(screen)
+		drawPixmapMode()
 	}
-	drawTime(screen)
 
+	/* Batch render everything */
+	screen.Clear()
+	for p := 0; p < BatchTop; p++ {
+		if ImageBatch[p] == nil || OpBatch[p] == nil {
+			continue
+		}
+		screen.DrawImage(ImageBatch[p], OpBatch[p])
+	}
+
+	/* Not batched, draws on screen */
+	drawTime(screen)
 	drawItemPlacement(screen)
 
 	/* Draw toolbar */
@@ -116,7 +140,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		drawDebugInfo(screen)
 	}
 
-	drawChatLines(screen)
+	//drawChatLines(screen)
 	DrawOpenWindows(screen)
 
 	if world.PlayerReady.Load() < 60 {
@@ -368,7 +392,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 
 	/* Draw ghost for selected item */
 	if SelectedItemType < def.MaxItemType {
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		item := WorldObjs[SelectedItemType]
 
 		/* camera + object */
@@ -498,7 +522,7 @@ func updateVisData() {
 
 func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image) {
 	defer util.ReportPanic("drawTerrain")
-	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 	/* Draw ground */
 	chunk.TerrainLock.RLock()
@@ -518,14 +542,12 @@ func drawTerrain(chunk *world.MapChunk) (*ebiten.DrawImageOptions, *ebiten.Image
 	return op, cTmp
 }
 
-func drawIconMode(screen *ebiten.Image) {
+func drawIconMode() {
 	defer util.ReportPanic("drawIconMode")
-
-	BatchTop = 0
 
 	/* Draw ground */
 	if world.ShowResourceLayer {
-		drawPixmapMode(screen)
+		drawPixmapMode()
 	} else {
 		for _, chunk := range VisChunk {
 			op, img := drawTerrain(chunk)
@@ -544,7 +566,7 @@ func drawIconMode(screen *ebiten.Image) {
 	/* Draw objects */
 	for _, obj := range VisObj {
 
-		op, img := drawObject(screen, obj, false)
+		op, img := drawObject(obj, false)
 		if img != nil {
 			OpBatch[BatchTop] = op
 			ImageBatch[BatchTop] = img
@@ -562,7 +584,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Draw Input Materials */
 			for _, port := range obj.Ports {
 				if port.Buf.Amount > 0 {
-					op, img = drawMaterials(port.Buf, obj, screen, 0.8, 1.0, nil)
+					op, img = drawMaterials(port.Buf, obj, 0.8, 1.0, nil)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -591,7 +613,7 @@ func drawIconMode(screen *ebiten.Image) {
 				if obj.BeltOver.UnderIn.Buf.Amount > 0 {
 					/* Input */
 					dir := RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
-					op, img := drawMaterials(obj.BeltOver.UnderIn.Buf, obj, screen, 0.8, 1.0, &dir)
+					op, img := drawMaterials(obj.BeltOver.UnderIn.Buf, obj, 0.8, 1.0, &dir)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -611,7 +633,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 				/* Output */
 				dir := RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
-				op, img := drawMaterials(obj.BeltOver.UnderOut.Buf, obj, screen, 0.8, 1.0, &dir)
+				op, img := drawMaterials(obj.BeltOver.UnderOut.Buf, obj, 0.8, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
 					ImageBatch[BatchTop] = img
@@ -628,7 +650,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 			/* Draw mask for underpass */
 			if drewUnder {
-				opb, imgb := drawObject(screen, obj, true)
+				opb, imgb := drawObject(obj, true)
 				if img != nil {
 					OpBatch[BatchTop] = opb
 					ImageBatch[BatchTop] = imgb
@@ -643,7 +665,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Draw overpass input */
 			if obj.BeltOver.OverIn != nil {
 				dir := RotatePosF64(world.XYs{X: 0, Y: start}, obj.Dir, world.XYf64{X: 16, Y: 48})
-				op, img := drawMaterials(obj.BeltOver.OverIn.Buf, obj, screen, 0.75, 1.0, &dir)
+				op, img := drawMaterials(obj.BeltOver.OverIn.Buf, obj, 0.75, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
 					ImageBatch[BatchTop] = img
@@ -658,7 +680,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Draw overpass middle */
 			if obj.BeltOver.Middle != nil {
 				dir := RotatePosF64(world.XYs{X: 0, Y: middle}, obj.Dir, world.XYf64{X: 16, Y: 48})
-				op, img := drawMaterials(obj.BeltOver.Middle, obj, screen, 0.5, 1.0, &dir)
+				op, img := drawMaterials(obj.BeltOver.Middle, obj, 0.5, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
 					ImageBatch[BatchTop] = img
@@ -673,7 +695,7 @@ func drawIconMode(screen *ebiten.Image) {
 			/* Draw overpass output */
 			if obj.BeltOver.OverOut != nil {
 				dir := RotatePosF64(world.XYs{X: 0, Y: end}, obj.Dir, world.XYf64{X: 16, Y: 48})
-				op, img := drawMaterials(obj.BeltOver.OverOut.Buf, obj, screen, 0.75, 1.0, &dir)
+				op, img := drawMaterials(obj.BeltOver.OverOut.Buf, obj, 0.75, 1.0, &dir)
 				if img != nil {
 					OpBatch[BatchTop] = op
 					ImageBatch[BatchTop] = img
@@ -694,7 +716,7 @@ func drawIconMode(screen *ebiten.Image) {
 					if cont == nil {
 						continue
 					}
-					op, img = drawMaterials(cont, obj, screen, 0.5, 0.75, nil)
+					op, img = drawMaterials(cont, obj, 0.5, 0.75, nil)
 					if img != nil {
 						OpBatch[BatchTop] = op
 						ImageBatch[BatchTop] = img
@@ -723,7 +745,7 @@ func drawIconMode(screen *ebiten.Image) {
 				img := WorldOverlays[def.ObjOverlayNoFuel].Images.Main
 
 				iSize := img.Bounds()
-				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Scale(((float64(1))*float64(world.ZoomScale))/float64(iSize.Max.X),
 					((float64(1))*float64(world.ZoomScale))/float64(iSize.Max.Y))
 				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
@@ -742,7 +764,7 @@ func drawIconMode(screen *ebiten.Image) {
 					} else if obj.Unique.TypeP.ShowBlocked && obj.Blocked {
 
 						img := ObjOverlayTypes[def.ObjOverlayBlocked].Image
-						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 						iSize := img.Bounds()
 						op.GeoM.Translate(
@@ -771,7 +793,7 @@ func drawIconMode(screen *ebiten.Image) {
 
 						img := WorldOverlays[port.Dir].Images.Main
 						iSize := img.Bounds()
-						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 						op.GeoM.Scale((1*float64(world.ZoomScale))/float64(iSize.Max.X),
 							((1)*float64(world.ZoomScale))/float64(iSize.Max.Y))
 						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
@@ -793,15 +815,6 @@ func drawIconMode(screen *ebiten.Image) {
 			}
 		}
 	}
-
-	/* Batch render everything */
-	for p := 0; p < BatchTop; p++ {
-		if ImageBatch[p] == nil || OpBatch[p] == nil {
-			//cwlog.DoLog(true, "Nil ImageBatch")
-			continue
-		}
-		screen.DrawImage(ImageBatch[p], OpBatch[p])
-	}
 }
 
 /*
@@ -816,7 +829,7 @@ func drawIconMode(screen *ebiten.Image) {
 		if b.Obj.Unique.TypeP.Image == nil {
 			return
 		} else {
-			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 			iSize := b.Obj.Unique.TypeP.Image.Bounds()
 
@@ -833,9 +846,8 @@ func drawIconMode(screen *ebiten.Image) {
 	}
 */
 
-func drawPixmapMode(screen *ebiten.Image) {
+func drawPixmapMode() {
 	defer util.ReportPanic("drawPixmapMode")
-	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 
 	/* Single thread render terrain for WASM */
 	if world.WASMMode && frameCount%WASMTerrainDiv == 0 {
@@ -851,7 +863,7 @@ func drawPixmapMode(screen *ebiten.Image) {
 			continue
 		}
 
-		op.GeoM.Reset()
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(
 			(def.MaxSuperChunk*float64(world.ZoomScale))/float64(def.MaxSuperChunk),
 			(def.MaxSuperChunk*float64(world.ZoomScale))/float64(def.MaxSuperChunk))
@@ -860,16 +872,30 @@ func drawPixmapMode(screen *ebiten.Image) {
 			((float64(camXPos)+float64((sChunk.Pos.X))*def.MaxSuperChunk)*float64(world.ZoomScale))-1,
 			((float64(camYPos)+float64((sChunk.Pos.Y))*def.MaxSuperChunk)*float64(world.ZoomScale))-1)
 
-		screen.DrawImage(sChunk.PixelMap, op)
+		if sChunk.PixelMap != nil {
+			OpBatch[BatchTop] = op
+			ImageBatch[BatchTop] = sChunk.PixelMap
+			if BatchTop < MaxBatch {
+				BatchTop++
+			} else {
+				break
+			}
+		}
 		sChunk.PixelMapLock.Unlock()
 	}
 	world.SuperChunkListLock.RUnlock()
 
 	if world.ShowResourceLayer && world.ResourceLegendImage != nil {
-		op.GeoM.Reset()
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(2, 2)
 		op.GeoM.Translate(8, float64(def.ToolBarIconSize*world.UIScale)*2)
-		screen.DrawImage(world.ResourceLegendImage, op)
+		if world.ResourceLegendImage != nil {
+			OpBatch[BatchTop] = op
+			ImageBatch[BatchTop] = world.ResourceLegendImage
+			if BatchTop < MaxBatch {
+				BatchTop++
+			}
+		}
 	}
 }
 
@@ -877,13 +903,14 @@ func drawDebugInfo(screen *ebiten.Image) {
 	defer util.ReportPanic("drawDebugInfo")
 
 	/* Draw debug info */
-	buf := fmt.Sprintf("FPS: %-4v UPS: %4.2f Objects: %8v, %-8v/%8v, %-8v Arch: %v Build: v%v-%v",
+	buf := fmt.Sprintf("FPS: %-4v UPS: %4.2f Objects: %8v, %-8v/%8v, %-8v Draws: %-5v Arch: %v Build: v%v-%v",
 		int(ebiten.ActualFPS()),
 		(world.ActualUPS),
 		humanize.SIWithDigits(float64(world.TockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTockCount), 2, ""),
 		humanize.SIWithDigits(float64(world.TickCount), 2, ""),
 		humanize.SIWithDigits(float64(world.ActiveTickCount), 2, ""),
+		BatchTop,
 		runtime.GOARCH, def.Version, buildTime,
 	)
 
@@ -955,7 +982,7 @@ func DrawText(input string, face font.Face, color color.Color, bgcolor color.Col
 }
 
 /* Draw world objects */
-func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
+func drawObject(obj *world.ObjData, maskOnly bool) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 	defer util.ReportPanic("drawObject")
 	/* camera + object */
 	objOffX := camXPos + (float32(obj.Pos.X))
@@ -977,7 +1004,7 @@ func drawObject(screen *ebiten.Image, obj *world.ObjData, maskOnly bool) (op *eb
 	if obj.Unique.TypeP.Images.Main == nil {
 		return nil, nil
 	} else {
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 		iSize := obj.Unique.TypeP.Images.Main.Bounds()
 
@@ -1042,7 +1069,7 @@ func calcScreenCamera() {
 }
 
 /* Draw materials on belts */
-func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, scale float64, alpha float32, pos *world.XYf64) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
+func drawMaterials(m *world.MatData, obj *world.ObjData, scale float64, alpha float32, pos *world.XYf64) (op *ebiten.DrawImageOptions, img *ebiten.Image) {
 	defer util.ReportPanic("drawMaterials")
 	if obj != nil && m.Amount > 0 {
 		img := m.TypeP.Image
@@ -1057,7 +1084,7 @@ func drawMaterials(m *world.MatData, obj *world.ObjData, screen *ebiten.Image, s
 			objCamPosY := float64(objOffY * world.ZoomScale)
 
 			iSize := img.Bounds()
-			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 			xx := float64(iSize.Dx()) / 2.0
 			yy := float64(iSize.Dy()) / 2.0
 			op.GeoM.Translate(-xx, -yy)

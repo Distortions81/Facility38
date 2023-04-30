@@ -75,7 +75,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 
 		for i := 0; i < def.ChunkSize; i++ {
 			for j := 0; j < def.ChunkSize; j++ {
-				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
 				if doDetail {

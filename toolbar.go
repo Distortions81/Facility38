@@ -70,7 +70,7 @@ func DrawToolbar(click, hover bool, index int) {
 			return
 		}
 
-		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 		op.GeoM.Reset()
 		iSize := img.Bounds()
@@ -159,7 +159,7 @@ func DrawToolbar(click, hover bool, index int) {
 		}
 
 		if item.OType.ToolBarArrow {
-			var aop *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
+			var aop *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 			arrow := WorldOverlays[item.OType.Direction].Images.Main
 			if arrow != nil {
