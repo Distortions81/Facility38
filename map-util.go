@@ -23,6 +23,11 @@ func makeSuperChunk(pos world.XY) {
 		/* Make new superchunk in map at pos */
 		newSuperChunk := &world.MapSuperChunk{}
 
+		maxSize := def.SuperChunkTotal * def.SuperChunkTotal * 4
+		newSuperChunk.ItemMap = make([]byte, maxSize)
+		newSuperChunk.ResourceMap = make([]byte, maxSize)
+		newSuperChunk.ResourceDirty = true
+
 		world.SuperChunkMap[scpos] = newSuperChunk
 		world.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
 

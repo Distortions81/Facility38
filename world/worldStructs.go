@@ -46,6 +46,7 @@ type MapSuperChunk struct {
 
 	ResourceDirty bool
 	ResourceMap   []byte
+	ItemMap       []byte
 	ResourceLock  sync.Mutex
 
 	PixelMap     *ebiten.Image
