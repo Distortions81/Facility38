@@ -40,8 +40,10 @@ func minerUpdate(obj *world.ObjData) {
 	if obj.MinerData.ResourcesCount > 1 {
 		if obj.MinerData.LastUsed < (obj.MinerData.ResourcesCount - 1) {
 			obj.MinerData.LastUsed++
-			pick = obj.MinerData.LastUsed
+		} else {
+			obj.MinerData.LastUsed = 0
 		}
+		pick = obj.MinerData.LastUsed
 	}
 
 	/* Calculate how much material */
@@ -602,21 +604,24 @@ func slipRollerUpdate(obj *world.ObjData) {
 		cwlog.DoLog(true, "Nil recipie")
 		return
 	}
-	result := rec.ResultP[0]
 
-	/* Burn fuel */
-	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
+	if obj.NumOut > 0 {
+		result := rec.ResultP[0]
 
-	/* Subtract ore */
-	obj.Unique.SingleContent.Amount--
-	/* Subtract ore weight */
-	obj.KGHeld -= obj.Unique.SingleContent.TypeP.KG
+		/* Burn fuel */
+		obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
 
-	/* Output result */
-	obj.Outputs[0].Buf.Amount = result.KG
+		/* Subtract ore */
+		obj.Unique.SingleContent.Amount--
+		/* Subtract ore weight */
+		obj.KGHeld -= obj.Unique.SingleContent.TypeP.KG
 
-	/* Find and set result type, if needed */
-	if obj.Outputs[0].Buf.TypeP != result {
-		obj.Outputs[0].Buf.TypeP = result
+		/* Output result */
+		obj.Outputs[0].Buf.Amount = result.KG
+
+		/* Find and set result type, if needed */
+		if obj.Outputs[0].Buf.TypeP != result {
+			obj.Outputs[0].Buf.TypeP = result
+		}
 	}
 }
