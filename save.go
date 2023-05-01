@@ -4,6 +4,7 @@ import (
 	"Facility38/cwlog"
 	"Facility38/def"
 	"Facility38/util"
+	"Facility38/wasm"
 	"Facility38/world"
 	"bytes"
 	"encoding/json"
@@ -109,7 +110,7 @@ func SaveGame() {
 		zip := util.CompressZip(b)
 
 		if world.WASMMode {
-			downloadByteArray(saveTempName, zip)
+			wasm.SendBytes(saveTempName, zip)
 		} else {
 			err = os.WriteFile(savesDir+"/"+saveTempName, zip, 0644)
 
