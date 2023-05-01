@@ -126,7 +126,7 @@ func ObjUpdateDaemonST() {
 }
 
 func handleAutosave() {
-	if !world.WASMMode && world.Autosave && time.Since(world.LastSave) > time.Minute*5 {
+	if world.Autosave && !world.WASMMode && time.Since(world.LastSave) > time.Minute*5 {
 		world.LastSave = time.Now().UTC()
 		SaveGame()
 	}

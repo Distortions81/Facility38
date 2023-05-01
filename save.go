@@ -46,14 +46,6 @@ type saveMObj struct {
 func SaveGame() {
 	defer util.ReportPanic("SaveGame")
 
-	if world.WASMMode {
-		return
-	}
-
-	if world.TickCount == 0 {
-		return
-	}
-
 	go func() {
 		defer util.ReportPanic("SaveGame goroutine")
 		GameLock.Lock()
@@ -61,9 +53,11 @@ func SaveGame() {
 
 		savenum := time.Now().UTC().Unix()
 
-		tempPath := fmt.Sprintf("saves/save-%v.json.tmp", savenum)
-		finalPath := fmt.Sprintf("saves/save-%v.json", savenum)
-		os.Mkdir("saves", os.ModePerm)
+		savesDir := "saves"
+		saveTempName := fmt.Sprintf("save-%v.zip.tmp", savenum)
+		saveName := fmt.Sprintf("save-%v.zip", savenum)
+
+		os.Mkdir("savesDir", os.ModePerm)
 
 		start := time.Now()
 		util.Chat("Saving...")
@@ -104,7 +98,7 @@ func SaveGame() {
 		world.TockListLock.Unlock()
 		cwlog.DoLog(true, "ENCODE DONE (WORLD UNLOCKED): %v", time.Since(start).String())
 
-		_, err := os.Create(tempPath)
+		_, err := os.Create(savesDir + "/" + saveTempName)
 
 		if err != nil {
 			cwlog.DoLog(true, "SaveGame: os.Create error: %v\n", err)
@@ -112,26 +106,30 @@ func SaveGame() {
 			return
 		}
 
-		//zip := util.CompressZip(b)
+		zip := util.CompressZip(b)
 
-		err = os.WriteFile(tempPath, b, 0644)
+		if world.WASMMode {
+			downloadByteArray(saveTempName, zip)
+		} else {
+			err = os.WriteFile(savesDir+"/"+saveTempName, zip, 0644)
 
-		if err != nil {
-			cwlog.DoLog(true, "SaveGame: os.WriteFile error: %v\n", err)
-			util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
+			if err != nil {
+				cwlog.DoLog(true, "SaveGame: os.WriteFile error: %v\n", err)
+				util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
+			}
+
+			err = os.Rename(savesDir+"/"+saveTempName, savesDir+"/"+saveName)
+
+			if err != nil {
+				cwlog.DoLog(true, "SaveGame: couldn't rename save file: %v\n", err)
+				util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
+				return
+			}
+
+			util.ChatDetailed("Game save complete: "+saveName, world.ColorOrange, time.Second*5)
+
+			cwlog.DoLog(true, "COMPRESS & WRITE COMPLETE: %v", time.Since(start).String())
 		}
-
-		err = os.Rename(tempPath, finalPath)
-
-		if err != nil {
-			cwlog.DoLog(true, "SaveGame: couldn't rename save file: %v\n", err)
-			util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
-			return
-		}
-
-		util.ChatDetailed("Game save complete: "+finalPath, world.ColorOrange, time.Second*5)
-
-		cwlog.DoLog(true, "COMPRESS & WRITE COMPLETE: %v", time.Since(start).String())
 
 		util.Chat("Save complete.")
 	}()

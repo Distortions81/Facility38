@@ -41,7 +41,7 @@ var UIObjs = []*world.ObjType{
 		Symbol: "LAYER", Description: "Toggle between the build and resource layer", QKey: ebiten.KeyF5,
 	},
 	{
-		Base: "save", ExcludeWASM: true,
+		Base: "save", ExcludeWASM: false,
 		Name: "Save Game", ToolbarAction: SaveGame,
 		Symbol: "SAV", Description: "Save game", QKey: ebiten.KeyF6,
 	},
