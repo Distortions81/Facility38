@@ -920,9 +920,6 @@ func drawDebugInfo(screen *ebiten.Image) {
 		runtime.GOARCH, def.Version, buildTime,
 	)
 
-	if world.Debug {
-		buf = buf + fmt.Sprintf(" (%v,%v)", MouseX, MouseY)
-	}
 	var pad float32 = 4
 	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG,
 		world.XYf32{X: 0, Y: float32(world.ScreenHeight) - pad},
@@ -941,7 +938,7 @@ func drawTime(screen *ebiten.Image) {
 	)
 
 	if world.Debug {
-		buf = buf + fmt.Sprintf(" (%v,%v)", MouseX, MouseY)
+		buf = buf + fmt.Sprintf("\n(%-4v,%-4v)", MouseX, MouseY)
 	}
 	var pad float32 = 8
 	DrawText(buf, world.MonoFont, color.White, world.ColorDebugBG,
