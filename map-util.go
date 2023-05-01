@@ -4,6 +4,7 @@ import (
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
+	"time"
 )
 
 /* Make a superchunk */
@@ -98,7 +99,7 @@ func MakeChunk(pos world.XY) bool {
 }
 
 /* Explore (input) chunks + and - */
-func ExploreMap(pos world.XY, input int) {
+func ExploreMap(pos world.XY, input int, slow bool) {
 	defer util.ReportPanic("ExploreMap")
 	/* Explore some map */
 
@@ -111,6 +112,15 @@ func ExploreMap(pos world.XY, input int) {
 			pos := world.XY{X: uint16(offx - x), Y: uint16(offy - y)}
 			MakeChunk(pos)
 			ChunksMade++
+
+			if slow && ChunksMade%10 == 0 {
+				world.MapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
+				if world.WASMMode {
+					time.Sleep(time.Nanosecond)
+				} else {
+					time.Sleep(time.Millisecond * 5)
+				}
+			}
 		}
 	}
 }
