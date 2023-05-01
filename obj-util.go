@@ -118,7 +118,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	 * If not in "fast mode" then explore map area as well.
 	 */
 	if !fast {
-		ExploreMap(pos, 6, fast)
+		ExploreMap(pos, 6)
 	} else {
 		MakeChunk(pos)
 	}

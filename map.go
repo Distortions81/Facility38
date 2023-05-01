@@ -82,7 +82,7 @@ func MakeMap(gen bool) {
 	}
 
 	util.WASMSleep()
-	ExploreMap(world.XY{X: def.XYCenter - (def.ChunkSize / 2), Y: def.XYCenter - (def.ChunkSize / 2)}, 16, world.WASMMode)
+	ExploreMap(world.XY{X: def.XYCenter - (def.ChunkSize / 2), Y: def.XYCenter - (def.ChunkSize / 2)}, 16)
 
 	world.LastSave = time.Now().UTC()
 

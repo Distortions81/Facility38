@@ -357,9 +357,14 @@ func LinkSprites(dark bool) {
 
 /* Render boot info to screen */
 var titleBuf *ebiten.Image
+var statusText string
 
 func bootScreen(screen *ebiten.Image) {
 	defer util.ReportPanic("bootScreen")
+
+	if world.MapLoadPercent >= 100 {
+		world.MapLoadPercent = 100
+	}
 
 	if titleBuf == nil {
 		titleBuf = ebiten.NewImage(int(world.ScreenWidth), int(world.ScreenHeight))
@@ -369,7 +374,7 @@ func bootScreen(screen *ebiten.Image) {
 
 	if val == 0 || !world.MapGenerated.Load() || !world.SpritesLoaded.Load() {
 
-		status := ""
+		status := statusText
 		if !world.MapGenerated.Load() {
 			status = status + fmt.Sprintf("Loading: %-4.01f%%", world.MapLoadPercent)
 		}
@@ -413,9 +418,7 @@ func bootScreen(screen *ebiten.Image) {
 		y := (float32(world.ScreenHeight) / 4.0)
 		vector.DrawFilledRect(screen, x, y, pw, tall, world.ColorVeryDarkGray, false)
 		color := world.ColorVeryDarkGray
-		if world.MapLoadPercent >= 100 {
-			world.MapLoadPercent = 100
-		}
+
 		color.G = byte(104 + (world.MapLoadPercent * 1.5))
 		color.A = 128
 		vector.DrawFilledRect(titleBuf, x, y, world.MapLoadPercent*float32(multi), tall, color, false)

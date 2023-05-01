@@ -133,9 +133,7 @@ func SaveGame() {
 
 		cwlog.DoLog(true, "COMPRESS & WRITE COMPLETE: %v", time.Since(start).String())
 
-		if time.Since(start) > time.Second*2 {
-			util.Chat("Save complete.")
-		}
+		util.Chat("Save complete.")
 	}()
 }
 
@@ -173,6 +171,8 @@ func LoadGame() {
 	world.LastSave = time.Now().UTC()
 
 	go func() {
+		world.MapLoadPercent = 0
+
 		defer util.ReportPanic("LoadGame goroutine")
 		GameLock.Lock()
 		defer GameLock.Unlock()
@@ -180,23 +180,29 @@ func LoadGame() {
 		saveName := FindNewstSave()
 		if saveName == "" {
 			util.Chat("No saves found!")
+			statusText = ""
 			return
 		}
+		statusText = fmt.Sprintf("Reading file: %v\n", saveName)
+		world.MapGenerated.Store(false)
+
+		defer world.MapGenerated.Store(true)
+
 		util.Chat("Loading saves/" + saveName)
 		b, err := os.ReadFile("saves/" + saveName)
 		if err != nil {
 			cwlog.DoLog(true, "LoadGame: file not found: %v\n", err)
+			statusText = ""
 			return
 		}
 
-		world.MapGenerated.Store(false)
-
 		//unzip := util.UncompressZip(b)
 		dbuf := bytes.NewBuffer(b)
-
 		dec := json.NewDecoder(dbuf)
 
+		statusText = "Clearing memory.\n"
 		NukeWorld()
+		statusText = "Parsing save file.\n"
 
 		/* Pause the whole world ... */
 		world.SuperChunkListLock.Lock()
@@ -206,19 +212,29 @@ func LoadGame() {
 		err = dec.Decode(&tempList)
 		if err != nil {
 			cwlog.DoLog(true, "LoadGame: JSON decode error: %v\n", err)
+			statusText = ""
 			return
 		}
 
 		if tempList.Version != 2 {
 			cwlog.DoLog(true, "LoadGame: Invalid save version.")
+			statusText = ""
+			return
 		}
 
 		world.SuperChunkListLock.Unlock()
 		world.MapSeed = tempList.MapSeed
+		statusText = "Generating map resources.\n"
 		ResourceMapInit()
 
+		statusText = "Loading objects.\n"
 		/* Needs unsafeCreateObj that can accept a starting data set */
+		numObj := len(tempList.Objects)
 		for i := range tempList.Objects {
+			if i%10000 == 0 {
+				world.MapLoadPercent = float32(float32(i)/float32(numObj)) * 100.0
+				RunEventQueue()
+			}
 
 			obj := &world.ObjData{
 				Pos: util.UnCenterXY(tempList.Objects[i].Pos),
@@ -228,17 +244,10 @@ func LoadGame() {
 				Dir: tempList.Objects[i].Dir,
 			}
 
-			if obj.Unique != nil && obj.Unique.Contents != nil {
-				for c := range obj.Unique.Contents.Mats {
-					if obj.Unique.Contents.Mats[c] == nil {
-						continue
-					}
-				}
-			}
-
-			newObj := PlaceObj(obj.Pos, obj.Unique.TypeP.TypeI, nil, obj.Dir, false)
+			newObj := PlaceObj(obj.Pos, obj.Unique.TypeP.TypeI, nil, obj.Dir, true)
 			newObj.KGHeld = obj.KGHeld
 		}
+		statusText = "Complete!\n"
 
 		world.LastSave = time.Unix(tempList.Date, 0).UTC()
 		GameTick = tempList.GameTicks
@@ -255,9 +264,13 @@ func LoadGame() {
 		world.TickListLock.Unlock()
 		world.TockListLock.Unlock()
 
-		util.ChatDetailed("Load complete!", world.ColorOrange, time.Second*15)
+		util.ResetChat()
+		go util.ChatDetailed("Load complete!", world.ColorOrange, time.Second*15)
+		world.MapLoadPercent = 100
+
 		time.Sleep(time.Second)
 		world.MapGenerated.Store(true)
+		statusText = ""
 	}()
 }
 

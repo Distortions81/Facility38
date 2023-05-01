@@ -75,6 +75,20 @@ func ReportPanic(format string, args ...interface{}) {
 	}
 }
 
+func ResetChat() {
+	ChatLinesLock.Lock()
+	ChatLines = []world.ChatLines{}
+	ChatLines = append(ChatLines, world.ChatLines{
+		Text:      "",
+		Timestamp: time.Now(),
+		Lifetime:  time.Nanosecond,
+		Color:     world.ColorAqua,
+		BGColor:   world.ColorToolTipBG,
+	})
+	ChatLinesTop = 1
+	ChatLinesLock.Unlock()
+}
+
 /* WASM is single-thread, we use sleep to allow other threads to run */
 func WASMSleep() {
 	if world.WASMMode {
