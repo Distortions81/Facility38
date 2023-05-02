@@ -179,6 +179,8 @@ func NewGame() *Game {
 func checkAuth() bool {
 	good := data.LoadSecrets()
 	if !good {
+		util.Chat("Key load failed.")
+		time.Sleep(time.Second * 5)
 		return false
 	}
 
@@ -191,7 +193,7 @@ func checkAuth() bool {
 	client := &http.Client{Transport: transport}
 
 	// Send HTTPS POST request to server
-	response, err := client.Post("https://m45sci.xyz:8443", "application/json", bytes.NewBuffer([]byte(data.Secrets[0].Pass)))
+	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(data.Secrets[0].Pass)))
 	if err != nil {
 		util.Chat("Unable to connect to auth server... Closing.")
 		time.Sleep(time.Second * 5)
@@ -206,6 +208,8 @@ func checkAuth() bool {
 	}
 
 	pass := string(responseBytes)
+
+	cwlog.DoLog(true, pass)
 
 	if pass == data.Secrets[0].Reply {
 		//util.Chat("Auth server approved! Have fun!")

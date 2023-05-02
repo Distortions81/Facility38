@@ -142,16 +142,19 @@ func LoadSecrets() bool {
 
 	file, err := f.Open(secretsFile)
 	if err != nil {
+		cwlog.DoLog(true, "%v", err)
 		return false
 	}
 
 	bytes, err := io.ReadAll(file)
 	if err != nil {
+		cwlog.DoLog(true, "%v", err)
 		return false
 	}
 
 	err = json.Unmarshal(bytes, &Secrets)
 	if err != nil {
+		cwlog.DoLog(true, "%v", err)
 		return false
 	}
 
