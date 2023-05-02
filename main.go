@@ -191,7 +191,7 @@ func checkAuth() bool {
 	client := &http.Client{Transport: transport}
 
 	// Send HTTPS POST request to server
-	response, err := client.Post("https://localhost:8443", "application/json", bytes.NewBuffer([]byte(data.Secrets[0].Pass)))
+	response, err := client.Post("https://m45sci.xyz:8443", "application/json", bytes.NewBuffer([]byte(data.Secrets[0].Pass)))
 	if err != nil {
 		util.Chat("Unable to connect to auth server... Closing.")
 		time.Sleep(time.Second * 5)
