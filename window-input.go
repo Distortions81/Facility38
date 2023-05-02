@@ -5,8 +5,8 @@ import (
 	"Facility38/world"
 )
 
-func handleSettings(input world.XYs, window *WindowData) bool {
-	defer util.ReportPanic("handleSettings")
+func handleOptions(input world.XYs, window *WindowData) bool {
+	defer util.ReportPanic("handleOptions")
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 

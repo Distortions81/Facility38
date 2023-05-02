@@ -23,7 +23,7 @@ var Windows []*WindowData = []*WindowData{
 		WindowDraw:  drawOptionsWindow,
 		WindowSetup: setupOptionsWindow,
 		Movable:     true,
-		WindowInput: handleSettings,
+		WindowInput: handleOptions,
 	},
 	{
 		Title:      "Help & Controls",
