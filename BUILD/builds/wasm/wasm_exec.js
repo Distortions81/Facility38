@@ -2,47 +2,18 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+"use strict";
+
 (() => {
-	// Map multiple JavaScript environments to a single common API,
-	// preferring web standards over Node.js API.
-	//
-	// Environments considered:
-	// - Browsers
-	// - Node.js
-	// - Electron
-	// - Parcel
-	// - Webpack
-
-	if (typeof stateal !== "undefined") {
-		// stateal already exists
-	} else if (typeof window !== "undefined") {
-		window.stateal = window;
-	} else if (typeof self !== "undefined") {
-		self.stateal = self;
-	} else {
-		throw new Error("cannot export Go (neither stateal, window nor self is defined)");
-	}
-
-	if (!stateal.require && typeof require !== "undefined") {
-		stateal.require = require;
-	}
-
-	if (!stateal.fs && stateal.require) {
-		const fs = require("fs");
-		if (typeof fs === "object" && fs !== null && Object.keys(fs).length !== 0) {
-			stateal.fs = fs;
-		}
-	}
-
 	const enosys = () => {
 		const err = new Error("not implemented");
 		err.code = "ENOSYS";
 		return err;
 	};
 
-	if (!stateal.fs) {
+	if (!globalThis.fs) {
 		let outputBuf = "";
-		stateal.fs = {
+		globalThis.fs = {
 			constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1 }, // unused
 			writeSync(fd, buf) {
 				outputBuf += decoder.decode(buf);
@@ -87,8 +58,8 @@
 		};
 	}
 
-	if (!stateal.process) {
-		stateal.process = {
+	if (!globalThis.process) {
+		globalThis.process = {
 			getuid() { return -1; },
 			getgid() { return -1; },
 			geteuid() { return -1; },
@@ -102,47 +73,26 @@
 		}
 	}
 
-	if (!stateal.crypto && stateal.require) {
-		const nodeCrypto = require("crypto");
-		stateal.crypto = {
-			getRandomValues(b) {
-				nodeCrypto.randomFillSync(b);
-			},
-		};
-	}
-	if (!stateal.crypto) {
-		throw new Error("stateal.crypto is not available, polyfill required (getRandomValues only)");
+	if (!globalThis.crypto) {
+		throw new Error("globalThis.crypto is not available, polyfill required (crypto.getRandomValues only)");
 	}
 
-	if (!stateal.performance) {
-		stateal.performance = {
-			now() {
-				const [sec, nsec] = process.hrtime();
-				return sec * 1000 + nsec / 1000000;
-			},
-		};
+	if (!globalThis.performance) {
+		throw new Error("globalThis.performance is not available, polyfill required (performance.now only)");
 	}
 
-	if (!stateal.TextEncoder && stateal.require) {
-		stateal.TextEncoder = require("util").TextEncoder;
-	}
-	if (!stateal.TextEncoder) {
-		throw new Error("stateal.TextEncoder is not available, polyfill required");
+	if (!globalThis.TextEncoder) {
+		throw new Error("globalThis.TextEncoder is not available, polyfill required");
 	}
 
-	if (!stateal.TextDecoder && stateal.require) {
-		stateal.TextDecoder = require("util").TextDecoder;
+	if (!globalThis.TextDecoder) {
+		throw new Error("globalThis.TextDecoder is not available, polyfill required");
 	}
-	if (!stateal.TextDecoder) {
-		throw new Error("stateal.TextDecoder is not available, polyfill required");
-	}
-
-	// End of polyfills for common API.
 
 	const encoder = new TextEncoder("utf-8");
 	const decoder = new TextDecoder("utf-8");
 
-	stateal.Go = class {
+	globalThis.Go = class {
 		constructor() {
 			this.argv = ["js"];
 			this.env = {};
@@ -517,7 +467,7 @@
 				null,
 				true,
 				false,
-				stateal,
+				globalThis,
 				this,
 			];
 			this._goRefCounts = new Array(this._values.length).fill(Infinity); // number of references that Go has to a JS value, indexed by reference id
@@ -526,7 +476,7 @@
 				[null, 2],
 				[true, 3],
 				[false, 4],
-				[stateal, 5],
+				[globalThis, 5],
 				[this, 6],
 			]);
 			this._idPool = [];   // unused ids that have been garbage collected
@@ -546,10 +496,10 @@
 				return ptr;
 			};
 
-			const argc = this.ardef.length;
+			const argc = this.argv.length;
 
 			const argvPtrs = [];
-			this.ardef.forEach((arg) => {
+			this.argv.forEach((arg) => {
 				argvPtrs.push(strPtr(arg));
 			});
 			argvPtrs.push(0);
@@ -567,7 +517,7 @@
 				offset += 8;
 			});
 
-			// The linker guarantees stateal data starts from at least wasmMinDataAddr.
+			// The linker guarantees global data starts from at least wasmMinDataAddr.
 			// Keep in sync with cmd/link/internal/ld/data.go:wasmMinDataAddr.
 			const wasmMinDataAddr = 4096 + 8192;
 			if (offset >= wasmMinDataAddr) {
@@ -600,37 +550,5 @@
 				return event.result;
 			};
 		}
-	}
-
-	if (
-		typeof module !== "undefined" &&
-		stateal.require &&
-		stateal.require.main === module &&
-		stateal.process &&
-		stateal.process.versions &&
-		!stateal.process.versions.electron
-	) {
-		if (process.ardef.length < 3) {
-			console.error("usage: go_js_wasm_exec [wasm binary] [arguments]");
-			process.exit(1);
-		}
-
-		const go = new Go();
-		go.argv = process.ardef.slice(2);
-		go.env = Object.assign({ TMPDIR: require("os").tmpdir() }, process.env);
-		go.exit = process.exit;
-		WebAssembly.instantiate(fs.readFileSync(process.argv[2]), go.importObject).then((result) => {
-			process.on("exit", (code) => { // Node.js exits if no event handler is pending
-				if (code === 0 && !go.exited) {
-					// deadlock, make Go print error and stack traces
-					go._pendingEvent = { id: 0 };
-					go._resume();
-				}
-			});
-			return go.run(result.instance);
-		}).catch((err) => {
-			console.error(err);
-			process.exit(1);
-		});
 	}
 })();
