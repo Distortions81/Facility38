@@ -36,8 +36,6 @@ func SendBytes(filename string, data []byte) {
 
 func init() {
 	go func() {
-		done := make(chan struct{}, 0)
-
 		// create a file input element
 		fileInput := js.Global().Get("document").Call("createElement", "input")
 		fileInput.Set("type", "file")
@@ -79,9 +77,5 @@ func init() {
 
 			return nil
 		}))
-
-		// add the file input element to the page
-		//js.Global().Get("document").Get("body").Call("form.firstChild", fileInput)
-		<-done
 	}()
 }
