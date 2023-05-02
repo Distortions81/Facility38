@@ -185,7 +185,7 @@ func checkAuth() bool {
 	// Create HTTP client with custom transport
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true, // Skip certificate verification for testing purposes only!
+			InsecureSkipVerify: false,
 		},
 	}
 	client := &http.Client{Transport: transport}
