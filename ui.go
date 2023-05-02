@@ -71,6 +71,10 @@ func (g *Game) Update() error {
 		return nil
 	}
 
+	if !world.Authorized.Load() {
+		return nil
+	}
+
 	getMouseClicks()
 	getMiddleMouseClicks()
 	getRightMouseClicks()

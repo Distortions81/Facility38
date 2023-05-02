@@ -13,7 +13,6 @@ import (
 	"image/color"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -180,7 +179,6 @@ func checkAuth() bool {
 	good := data.LoadSecrets()
 	if !good {
 		util.Chat("Key load failed.")
-		time.Sleep(time.Second * 5)
 		return false
 	}
 
@@ -195,8 +193,13 @@ func checkAuth() bool {
 	// Send HTTPS POST request to server
 	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(data.Secrets[0].P)))
 	if err != nil {
-		util.Chat("Unable to connect to auth server... Closing.")
-		time.Sleep(time.Second * 5)
+		txt := "Unable to connect to auth server."
+		util.Chat(txt)
+		world.Authorized.Store(false)
+		statusText = txt
+
+		time.Sleep(time.Second * 10)
+		go checkAuth()
 		return false
 	}
 	defer response.Body.Close()
@@ -215,8 +218,10 @@ func checkAuth() bool {
 		return true
 	}
 
-	util.Chat("Auth server did not approve... Closing.")
-	time.Sleep(time.Second * 5)
+	txt := "Auth server did not approve."
+	util.Chat(txt)
+	world.Authorized.Store(false)
+	statusText = txt
 	return false
 }
 
@@ -224,7 +229,6 @@ func startGame() {
 	defer util.ReportPanic("startGame")
 
 	if !checkAuth() {
-		os.Exit(0)
 		return
 	}
 
@@ -240,6 +244,8 @@ func startGame() {
 		for GameRunning {
 			time.Sleep(time.Minute)
 			UpdateFonts()
+
+			checkAuth()
 		}
 	}()
 
@@ -442,61 +448,58 @@ func bootScreen(screen *ebiten.Image) {
 
 	val := world.PlayerReady.Load()
 
-	if val == 0 || !world.MapGenerated.Load() || !world.SpritesLoaded.Load() {
-
-		status := statusText
-		if !world.MapGenerated.Load() {
-			status = status + fmt.Sprintf("Loading: %-4.01f%%", world.MapLoadPercent)
-		}
-		titleBuf.Fill(world.BootColor)
-
-		if world.TitleImage != nil {
-			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
-
-			newScaleX := (float64(world.ScreenHeight) / float64(world.TitleImage.Bounds().Dy()))
-
-			op.GeoM.Scale(newScaleX, newScaleX)
-
-			op.GeoM.Translate(
-				float64(world.ScreenWidth/2)-(float64(world.TitleImage.Bounds().Size().X)*newScaleX)/2,
-				float64(world.ScreenHeight/2)-(float64(world.TitleImage.Bounds().Size().Y)*newScaleX)/2,
-			)
-			titleBuf.DrawImage(world.TitleImage, op)
-
-			op.GeoM.Reset()
-			op.GeoM.Scale(world.UIScale/4, world.UIScale/4)
-			titleBuf.DrawImage(world.EbitenLogo, op)
-		}
-
-		if status == "" {
-			status = "Loading complete\nClick, or any key to continue"
-		}
-
-		output := fmt.Sprintf("Status: %v", status)
-
-		DrawText("Facility 38", world.LogoFont, world.ColorOrange, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 4, Y: (float32(world.ScreenHeight) / 4.0) - 4}, 0, titleBuf, false, true, true)
-		DrawText("Facility 38", world.LogoFont, world.ColorVeryDarkAqua, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 4.0}, 0, titleBuf, false, true, true)
-
-		DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 2, Y: (float32(world.ScreenHeight) / 2.5) - 2}, 0, titleBuf, false, true, true)
-		DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) + 2, Y: (float32(world.ScreenHeight) / 2.5) + 2}, 0, titleBuf, false, true, true)
-		DrawText(output, world.BootFont, world.ColorLightOrange, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 2.5}, 0, titleBuf, false, true, true)
-
-		multi := 5.0
-		pw := float32(100.0 * multi)
-		tall := float32(24.0)
-		x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
-		y := (float32(world.ScreenHeight) / 4.0)
-		vector.DrawFilledRect(screen, x, y, pw, tall, world.ColorVeryDarkGray, false)
-		color := world.ColorVeryDarkGray
-
-		color.G = byte(104 + (world.MapLoadPercent * 1.5))
-		color.A = 128
-		vector.DrawFilledRect(titleBuf, x, y, world.MapLoadPercent*float32(multi), tall, color, false)
+	status := statusText
+	if !world.MapGenerated.Load() {
+		status = status + fmt.Sprintf("Loading: %-4.01f%%", world.MapLoadPercent)
 	}
+	titleBuf.Fill(world.BootColor)
+
+	if world.TitleImage != nil {
+		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
+
+		newScaleX := (float64(world.ScreenHeight) / float64(world.TitleImage.Bounds().Dy()))
+
+		op.GeoM.Scale(newScaleX, newScaleX)
+
+		op.GeoM.Translate(
+			float64(world.ScreenWidth/2)-(float64(world.TitleImage.Bounds().Size().X)*newScaleX)/2,
+			float64(world.ScreenHeight/2)-(float64(world.TitleImage.Bounds().Size().Y)*newScaleX)/2,
+		)
+		titleBuf.DrawImage(world.TitleImage, op)
+
+		op.GeoM.Reset()
+		op.GeoM.Scale(world.UIScale/4, world.UIScale/4)
+		titleBuf.DrawImage(world.EbitenLogo, op)
+	}
+
+	if status == "" {
+		status = "Loading complete\nClick, or any key to continue"
+	}
+
+	output := fmt.Sprintf("Status: %v", status)
+
+	DrawText("Facility 38", world.LogoFont, world.ColorOrange, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 4, Y: (float32(world.ScreenHeight) / 4.0) - 4}, 0, titleBuf, false, true, true)
+	DrawText("Facility 38", world.LogoFont, world.ColorVeryDarkAqua, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 4.0}, 0, titleBuf, false, true, true)
+
+	DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 2, Y: (float32(world.ScreenHeight) / 2.5) - 2}, 0, titleBuf, false, true, true)
+	DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) + 2, Y: (float32(world.ScreenHeight) / 2.5) + 2}, 0, titleBuf, false, true, true)
+	DrawText(output, world.BootFont, world.ColorLightOrange, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 2.5}, 0, titleBuf, false, true, true)
+
+	multi := 5.0
+	pw := float32(100.0 * multi)
+	tall := float32(24.0)
+	x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
+	y := (float32(world.ScreenHeight) / 4.0)
+	vector.DrawFilledRect(titleBuf, x, y, pw, tall, world.ColorVeryDarkGray, false)
+	color := world.ColorVeryDarkGray
+
+	color.G = byte(104 + (world.MapLoadPercent * 1.5))
+	color.A = 128
+	vector.DrawFilledRect(titleBuf, x, y, world.MapLoadPercent*float32(multi), tall, color, false)
 
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
-	if world.PlayerReady.Load() != 0 && world.MapGenerated.Load() && world.SpritesLoaded.Load() {
+	if world.PlayerReady.Load() != 0 && world.MapGenerated.Load() && world.SpritesLoaded.Load() && world.Authorized.Load() {
 		alpha := 0.5 - (float32(val) * 0.0169491525424)
 		op.ColorScale.Scale(alpha, alpha, alpha, alpha)
 		world.PlayerReady.Store(val + 1)

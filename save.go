@@ -47,6 +47,10 @@ func SaveGame() {
 	defer util.ReportPanic("SaveGame")
 
 	go func() {
+		if !checkAuth() {
+			return
+		}
+
 		defer util.ReportPanic("SaveGame goroutine")
 		GameLock.Lock()
 		defer GameLock.Unlock()
@@ -185,6 +189,10 @@ func LoadGame(external bool, data []byte) {
 	world.LastSave = time.Now().UTC()
 
 	go func(external bool, data []byte) {
+
+		if !checkAuth() {
+			return
+		}
 		world.MapLoadPercent = 0
 
 		defer util.ReportPanic("LoadGame goroutine")
@@ -204,7 +212,6 @@ func LoadGame(external bool, data []byte) {
 
 		statusText = fmt.Sprintf("Reading file: %v\n", saveName)
 		world.MapGenerated.Store(false)
-
 		defer world.MapGenerated.Store(true)
 
 		util.Chat("Loading saves/" + saveName)
