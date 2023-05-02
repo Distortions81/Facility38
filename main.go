@@ -6,9 +6,14 @@ import (
 	"Facility38/def"
 	"Facility38/util"
 	"Facility38/world"
+	"bytes"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"image/color"
+	"io/ioutil"
+	"net/http"
+	"os"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -22,6 +27,7 @@ import (
 
 var (
 	helpText string = "Loading..."
+	authKey  string = ""
 
 	/* Compile flags */
 	buildTime string = "Dev Build"
@@ -75,6 +81,7 @@ func main() {
 	}
 
 	util.BuildInfo = buildTime
+	world.Authorized.Store(false)
 
 	if !world.WASMMode {
 		/* Functions that will not work in webasm */
@@ -151,6 +158,7 @@ func main() {
 /* Ebiten game init */
 func NewGame() *Game {
 	defer util.ReportPanic("NewGame")
+
 	UpdateFonts()
 	go func() {
 		GameRunning = false
@@ -168,9 +176,55 @@ func NewGame() *Game {
 	return &Game{}
 }
 
+func checkAuth() bool {
+	good := data.LoadSecrets()
+	if !good {
+		return false
+	}
+
+	// Create HTTP client with custom transport
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true, // Skip certificate verification for testing purposes only!
+		},
+	}
+	client := &http.Client{Transport: transport}
+
+	// Send HTTPS POST request to server
+	response, err := client.Post("https://localhost:8443", "application/json", bytes.NewBuffer([]byte(data.Secrets[0].Pass)))
+	if err != nil {
+		util.Chat("Unable to connect to auth server... Closing.")
+		time.Sleep(time.Second * 5)
+		return false
+	}
+	defer response.Body.Close()
+
+	// Read server response
+	responseBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	pass := string(responseBytes)
+
+	if pass == data.Secrets[0].Reply {
+		//util.Chat("Auth server approved! Have fun!")
+		world.Authorized.Store(true)
+		return true
+	}
+
+	util.Chat("Auth server did not approve... Closing.")
+	time.Sleep(time.Second * 5)
+	return false
+}
+
 func startGame() {
 	defer util.ReportPanic("startGame")
-	//util.ChatDetailed("Click or press any key to continue.", world.ColorGreen, time.Second*15)
+
+	if !checkAuth() {
+		os.Exit(0)
+		return
+	}
 
 	for !world.SpritesLoaded.Load() ||
 		world.PlayerReady.Load() == 0 {
@@ -447,6 +501,8 @@ func bootScreen(screen *ebiten.Image) {
 	}
 
 	screen.DrawImage(titleBuf, op)
+	drawChatLines(screen)
+
 	if val == 59 && titleBuf != nil {
 		//cwlog.DoLog(true, "Title disposed.")
 		titleBuf.Dispose()

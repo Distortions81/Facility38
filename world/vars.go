@@ -103,6 +103,7 @@ var (
 	SpritesLoaded atomic.Bool
 	PlayerReady   atomic.Int32
 	MapGenerated  atomic.Bool
+	Authorized    atomic.Bool
 
 	/* Fonts */
 	BootFont  font.Face

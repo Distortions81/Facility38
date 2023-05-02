@@ -74,7 +74,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	frameCount++
 
 	/* Boot screen */
-	if !world.MapGenerated.Load() ||
+	if !world.Authorized.Load() || !world.MapGenerated.Load() ||
 		!world.SpritesLoaded.Load() ||
 		world.PlayerReady.Load() == 0 {
 

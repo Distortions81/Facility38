@@ -4,12 +4,14 @@ import (
 	"Facility38/cwlog"
 	"Facility38/def"
 	"embed"
+	"encoding/json"
 	"fmt"
 	"image"
 	_ "image/png"
 	"io"
 	"log"
 	"strings"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -116,4 +118,42 @@ func GetText(name string) (string, error) {
 		return "Error: length 0!", err
 	}
 
+}
+
+const secretsFile = def.TxtDir + "key.json"
+
+var Secrets []secData
+var secretsMutex sync.Mutex
+
+type secData struct {
+	Name    string
+	Pass    string
+	Reply   string
+	Enabled bool
+
+	LastUsed int64
+	Created  int64
+	Hours    int
+}
+
+func LoadSecrets() bool {
+	secretsMutex.Lock()
+	defer secretsMutex.Unlock()
+
+	file, err := f.Open(secretsFile)
+	if err != nil {
+		return false
+	}
+
+	bytes, err := io.ReadAll(file)
+	if err != nil {
+		return false
+	}
+
+	err = json.Unmarshal(bytes, &Secrets)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
