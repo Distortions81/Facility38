@@ -42,6 +42,15 @@ func init() {
 		fileInput := js.Global().Get("document").Call("createElement", "input")
 		fileInput.Set("type", "file")
 
+		// add the file input element to the DOM
+		js.Global().Get("document").Get("body").Call("appendChild", fileInput)
+
+		// style the file input element to be fixed and positioned at the top-left corner of the viewport
+		fileInput.Get("style").Set("position", "fixed")
+		fileInput.Get("style").Set("top", "0")
+		fileInput.Get("style").Set("left", "0")
+		fileInput.Get("style").Set("opacity", "1")
+
 		// attach an event listener to handle the file selection
 		fileInput.Call("addEventListener", "change", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			// get the selected file
@@ -72,8 +81,7 @@ func init() {
 		}))
 
 		// add the file input element to the page
-		js.Global().Get("document").Get("body").Call("appendChild", fileInput)
-
+		//js.Global().Get("document").Get("body").Call("form.firstChild", fileInput)
 		<-done
 	}()
 }

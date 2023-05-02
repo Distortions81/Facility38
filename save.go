@@ -167,7 +167,7 @@ func FindNewstSave() string {
 
 func TriggerLoad() {
 	if world.WASMMode {
-		util.Chat("To load a save game, scroll to the bottom of the web page and click 'Choose file'.")
+		util.Chat("To load a save game, click 'Choose File' in the top-left of the screen and select the save game file to load.")
 	}
 	LoadGame(false, nil)
 }
