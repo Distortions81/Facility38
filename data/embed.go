@@ -120,27 +120,21 @@ func GetText(name string) (string, error) {
 
 }
 
-const secretsFile = def.TxtDir + "key.json"
+const sFile = def.TxtDir + "p.json"
 
 var Secrets []secData
-var secretsMutex sync.Mutex
+var sMutex sync.Mutex
 
 type secData struct {
-	Name    string
-	Pass    string
-	Reply   string
-	Enabled bool
-
-	LastUsed int64
-	Created  int64
-	Hours    int
+	P string `json:"p,omitempty"`
+	R string `json:"r,omitempty"`
 }
 
 func LoadSecrets() bool {
-	secretsMutex.Lock()
-	defer secretsMutex.Unlock()
+	sMutex.Lock()
+	defer sMutex.Unlock()
 
-	file, err := f.Open(secretsFile)
+	file, err := f.Open(sFile)
 	if err != nil {
 		cwlog.DoLog(true, "%v", err)
 		return false
