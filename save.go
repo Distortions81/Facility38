@@ -112,10 +112,10 @@ func SaveGame() {
 
 		if world.WASMMode {
 			// Call the SendBytes function with the data and filename
-			SendBytes(saveName, zip)
+			go SendBytes(saveName, zip)
 
 			// Wait for incoming messages from the JavaScript side
-			<-make(chan struct{})
+			//<-make(chan struct{})
 		} else {
 			err := os.WriteFile(savesDir+"/"+saveTempName, zip, 0644)
 
