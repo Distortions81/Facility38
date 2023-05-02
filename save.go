@@ -4,7 +4,6 @@ import (
 	"Facility38/cwlog"
 	"Facility38/def"
 	"Facility38/util"
-	"Facility38/wasm"
 	"Facility38/world"
 	"bytes"
 	"encoding/json"
@@ -113,7 +112,7 @@ func SaveGame() {
 
 		if world.WASMMode {
 			// Call the SendBytes function with the data and filename
-			wasm.SendBytes(saveName, zip)
+			SendBytes(saveName, zip)
 
 			// Wait for incoming messages from the JavaScript side
 			<-make(chan struct{})
@@ -166,39 +165,60 @@ func FindNewstSave() string {
 	}
 }
 
-/* WIP */
-func LoadGame() {
+func TriggerLoad() {
+	if world.WASMMode {
+		util.Chat("To load a save game, scroll to the bottom of the web page and click 'Choose file'.")
+	}
+	LoadGame(false, nil)
+}
+func LoadGame(external bool, data []byte) {
 	defer util.ReportPanic("LoadGame")
 
-	if world.WASMMode {
+	if world.WASMMode && !external {
+		return
+	}
+	if world.WASMMode && external && len(data) == 0 {
+		util.Chat("No save data found.")
 		return
 	}
 	world.LastSave = time.Now().UTC()
 
-	go func() {
+	go func(external bool, data []byte) {
 		world.MapLoadPercent = 0
 
 		defer util.ReportPanic("LoadGame goroutine")
 		GameLock.Lock()
 		defer GameLock.Unlock()
 
-		saveName := FindNewstSave()
-		if saveName == "" {
-			util.Chat("No saves found!")
-			statusText = ""
-			return
+		saveName := "browser attachment"
+
+		if !external {
+			saveName = FindNewstSave()
+			if saveName == "" {
+				util.Chat("No saves found!")
+				statusText = ""
+				return
+			}
 		}
+
 		statusText = fmt.Sprintf("Reading file: %v\n", saveName)
 		world.MapGenerated.Store(false)
 
 		defer world.MapGenerated.Store(true)
 
 		util.Chat("Loading saves/" + saveName)
-		b, err := os.ReadFile("saves/" + saveName)
-		if err != nil {
-			cwlog.DoLog(true, "LoadGame: file not found: %v\n", err)
-			statusText = ""
-			return
+
+		var b []byte
+		var err error
+		if !external {
+			b, err = os.ReadFile("saves/" + saveName)
+			if err != nil {
+				cwlog.DoLog(true, "LoadGame: file not found: %v\n", err)
+				statusText = ""
+				return
+			}
+		} else {
+			b = data
 		}
 
 		unzip := util.UncompressZip(b)
@@ -276,7 +296,7 @@ func LoadGame() {
 		time.Sleep(time.Second)
 		world.MapGenerated.Store(true)
 		statusText = ""
-	}()
+	}(external, data)
 }
 
 func NukeWorld() {

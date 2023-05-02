@@ -46,8 +46,8 @@ var UIObjs = []*world.ObjType{
 		Symbol: "SAV", Description: "Save game", QKey: ebiten.KeyF6,
 	},
 	{
-		Base: "load", ExcludeWASM: true,
-		Name: "Load Game", ToolbarAction: LoadGame,
+		Base: "load", ExcludeWASM: false,
+		Name: "Load Game", ToolbarAction: TriggerLoad,
 		Symbol: "LDG", Description: "Load last game", QKey: ebiten.KeyF7,
 	},
 }
