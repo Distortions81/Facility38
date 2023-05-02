@@ -58,7 +58,7 @@ func SaveGame() {
 		saveTempName := fmt.Sprintf("save-%v.zip.tmp", savenum)
 		saveName := fmt.Sprintf("save-%v.zip", savenum)
 
-		os.Mkdir("savesDir", os.ModePerm)
+		os.Mkdir(savesDir, os.ModePerm)
 
 		start := time.Now()
 		util.Chat("Saving...")
@@ -99,20 +99,26 @@ func SaveGame() {
 		world.TockListLock.Unlock()
 		cwlog.DoLog(true, "ENCODE DONE (WORLD UNLOCKED): %v", time.Since(start).String())
 
-		_, err := os.Create(savesDir + "/" + saveTempName)
+		if !world.WASMMode {
+			_, err := os.Create(savesDir + "/" + saveTempName)
 
-		if err != nil {
-			cwlog.DoLog(true, "SaveGame: os.Create error: %v\n", err)
-			util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
-			return
+			if err != nil {
+				cwlog.DoLog(true, "SaveGame: os.Create error: %v\n", err)
+				util.ChatDetailed("Unable to write to saves directory (check file permissions)", world.ColorOrange, time.Second*5)
+				return
+			}
 		}
 
 		zip := util.CompressZip(b)
 
 		if world.WASMMode {
-			wasm.SendBytes(saveTempName, zip)
+			// Call the SendBytes function with the data and filename
+			wasm.SendBytes(saveName, zip)
+
+			// Wait for incoming messages from the JavaScript side
+			<-make(chan struct{})
 		} else {
-			err = os.WriteFile(savesDir+"/"+saveTempName, zip, 0644)
+			err := os.WriteFile(savesDir+"/"+saveTempName, zip, 0644)
 
 			if err != nil {
 				cwlog.DoLog(true, "SaveGame: os.WriteFile error: %v\n", err)
@@ -146,7 +152,7 @@ func FindNewstSave() string {
 
 	var newestFile os.FileInfo
 	for _, file := range files {
-		if filepath.Ext(file.Name()) == ".json" {
+		if filepath.Ext(file.Name()) == ".zip" {
 			if newestFile == nil || file.ModTime().After(newestFile.ModTime()) {
 				newestFile = file
 			}
@@ -195,8 +201,8 @@ func LoadGame() {
 			return
 		}
 
-		//unzip := util.UncompressZip(b)
-		dbuf := bytes.NewBuffer(b)
+		unzip := util.UncompressZip(b)
+		dbuf := bytes.NewBuffer(unzip)
 		dec := json.NewDecoder(dbuf)
 
 		statusText = "Clearing memory.\n"

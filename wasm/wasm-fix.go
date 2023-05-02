@@ -4,4 +4,5 @@
 package wasm
 
 func SendBytes(name string, bytes []byte) {
+
 }
