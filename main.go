@@ -209,8 +209,6 @@ func checkAuth() bool {
 
 	pass := string(responseBytes)
 
-	cwlog.DoLog(true, pass)
-
 	if pass == data.Secrets[0].Reply {
 		//util.Chat("Auth server approved! Have fun!")
 		world.Authorized.Store(true)
