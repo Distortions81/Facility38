@@ -27,7 +27,7 @@ import (
 
 var (
 	helpText string = "Loading..."
-	authKey  string = ""
+	authKey  string = "lesson been future amount"
 
 	/* Compile flags */
 	buildTime string = "Dev Build"
