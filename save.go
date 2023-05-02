@@ -146,7 +146,8 @@ func FindNewstSave() string {
 	dir := "saves/"
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		panic(err)
+		cwlog.DoLog(true, "Saves folder not found.")
+		return ""
 	}
 
 	var newestFile os.FileInfo
