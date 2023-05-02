@@ -9,7 +9,6 @@ import (
 	"flag"
 	"fmt"
 	"image/color"
-	"log"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -111,34 +110,42 @@ func main() {
 
 	windowTitle()
 
-	go func() {
-		for GameRunning {
-			time.Sleep(time.Minute)
-			UpdateFonts()
-		}
-	}()
-
+	problem := false
 	if *forceMetal {
 		cwlog.DoLog(true, "Starting game with Metal graphics API.")
 		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryMetal}); err != nil {
-			log.Fatal(err)
+			cwlog.DoLog(true, "%v", err)
+			problem = true
 		}
 	} else if *forceDirectX {
 		cwlog.DoLog(true, "Starting game with DirectX graphics API.")
 		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryDirectX}); err != nil {
-			log.Fatal(err)
+			cwlog.DoLog(true, "%v", err)
+			problem = true
 		}
 	} else if *forceAuto {
 		cwlog.DoLog(true, "Starting game with Automatic graphics API.")
 		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}); err != nil {
-			log.Fatal(err)
+			cwlog.DoLog(true, "%v", err)
+			problem = true
+			return
 		}
 	} else if *forceOpengl {
 		cwlog.DoLog(true, "Starting game with OpenGL graphics API.")
 		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
-			log.Fatal(err)
+			cwlog.DoLog(true, "%v", err)
+			problem = true
 		}
 	}
+
+	if problem {
+		cwlog.DoLog(true, "Failed, attempting to load with autodetect.")
+		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}); err != nil {
+			cwlog.DoLog(true, "%v", err)
+			return
+		}
+	}
+
 }
 
 /* Ebiten game init */
@@ -173,6 +180,13 @@ func startGame() {
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
 	GameRunning = true
+	go func() {
+		for GameRunning {
+			time.Sleep(time.Minute)
+			UpdateFonts()
+		}
+	}()
+
 	if !world.WASMMode {
 		go PixmapRenderDaemon()
 		go ObjUpdateDaemon()
