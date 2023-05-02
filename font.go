@@ -62,6 +62,7 @@ func UpdateFonts() {
 		log.Fatal(err)
 	}
 
+	/* Mono font */
 	fdata = data.GetFont("Hack-Regular.ttf")
 	collection, err = opentype.ParseCollection(fdata)
 	if err != nil {
