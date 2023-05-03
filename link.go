@@ -1,10 +1,6 @@
 package main
 
 import (
-	"Facility38/cwlog"
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
 	"fmt"
 	"sync"
 )
@@ -12,34 +8,34 @@ import (
 var linkLock sync.Mutex
 
 /* Link to output in (dir) */
-func LinkObj(from world.XY, b *world.BuildingData) {
-	defer util.ReportPanic("LinkObj")
+func linkObj(from XY, b *buildingData) {
+	defer reportPanic("linkObj")
 	linkLock.Lock()
 	defer linkLock.Unlock()
 
-	//util.ObjCD(b, fmt.Sprintf("Facing: %v", util.DirToName(b.Obj.Dir)))
-	b.Obj.LastInput = 0
-	b.Obj.LastOutput = 0
+	//ObjCD(b, fmt.Sprintf("Facing: %v", DirToName(b.Obj.Dir)))
+	b.obj.LastInput = 0
+	b.obj.LastOutput = 0
 
 	/* Attempt to link ports */
-	for p, port := range b.Obj.Ports {
+	for p, port := range b.obj.Ports {
 
 		/* Make sure port is unoccupied */
-		if port.Obj != nil {
-			//util.ObjCD(b, fmt.Sprintf("Port Occupied: %v", util.DirToName(port.Dir)))
+		if port.obj != nil {
+			//ObjCD(b, fmt.Sprintf("Port Occupied: %v", DirToName(port.Dir)))
 			continue
 		}
 
-		var neighb *world.BuildingData
-		if port.Dir == def.DIR_ANY {
+		var neighb *buildingData
+		if port.Dir == DIR_ANY {
 			var testPort uint8
-			for testPort = def.DIR_NORTH; testPort <= def.DIR_WEST; testPort++ {
-				//cwlog.DoLog(true, "Looking in all directions: "+util.DirToName(testPort))
+			for testPort = DIR_NORTH; testPort <= DIR_WEST; testPort++ {
+				//DoLog(true, "Looking in all directions: "+DirToName(testPort))
 
-				neighb = util.GetNeighborObj(from, testPort)
-				if neighb != nil && neighb.Obj != nil {
-					if neighb.Obj.Pos != b.Obj.Pos {
-						//cwlog.DoLog(true, "found")
+				neighb = GetNeighborObj(from, testPort)
+				if neighb != nil && neighb.obj != nil {
+					if neighb.obj.Pos != b.obj.Pos {
+						//DoLog(true, "found")
 						break
 					}
 				}
@@ -48,80 +44,80 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 				continue
 			}
 		} else {
-			neighb = util.GetNeighborObj(from, port.Dir)
+			neighb = GetNeighborObj(from, port.Dir)
 		}
 
 		/* We found one*/
 		if neighb == nil {
-			//util.ObjCD(b, fmt.Sprintf("No neighbor: %v", util.DirToName(port.Dir)))
+			//ObjCD(b, fmt.Sprintf("No neighbor: %v", DirToName(port.Dir)))
 			continue
 		}
 
-		if neighb.Obj.Pos == b.Obj.Pos {
-			//util.ObjCD(b, fmt.Sprintf("Ignoring link to self: %v", util.DirToName(port.Dir)))
+		if neighb.obj.Pos == b.obj.Pos {
+			//ObjCD(b, fmt.Sprintf("Ignoring link to self: %v", DirToName(port.Dir)))
 			continue
 		}
 
-		//cwlog.DoLog(true, util.DirToName(port.Dir))
+		//DoLog(true, DirToName(port.Dir))
 
-		for n, np := range neighb.Obj.Ports {
+		for n, np := range neighb.obj.Ports {
 
 			/* Neighbor port is available */
-			if np.Obj != nil {
-				//util.ObjCD(b, fmt.Sprintf("Port occupied: %v", util.DirToName(port.Dir)))
+			if np.obj != nil {
+				//ObjCD(b, fmt.Sprintf("Port occupied: %v", DirToName(port.Dir)))
 				continue
 			}
 
 			/* Port is in correct direction */
-			if np.Dir == util.ReverseDirection(port.Dir) ||
-				np.Dir == def.DIR_ANY || port.Dir == def.DIR_ANY {
+			if np.Dir == ReverseDirection(port.Dir) ||
+				np.Dir == DIR_ANY || port.Dir == DIR_ANY {
 
 				/* Port is of correct type */
-				if port.Type != util.ReverseType(np.Type) {
-					//util.ObjCD(b, fmt.Sprintf("Port incorrect type: %v", util.DirToName(port.Dir)))
+				if port.Type != ReverseType(np.Type) {
+					//ObjCD(b, fmt.Sprintf("Port incorrect type: %v", DirToName(port.Dir)))
 					continue
 				}
 
 				/* Normal objects can only link to loaders */
-				if (b.Obj.Unique.TypeP.Category == def.ObjCatGeneric &&
-					neighb.Obj.Unique.TypeP.Category != def.ObjCatLoader) ||
-					(neighb.Obj.Unique.TypeP.Category == def.ObjCatGeneric &&
-						b.Obj.Unique.TypeP.Category != def.ObjCatLoader) {
+				if (b.obj.Unique.typeP.category == ObjCatGeneric &&
+					neighb.obj.Unique.typeP.category != ObjCatLoader) ||
+					(neighb.obj.Unique.typeP.category == ObjCatGeneric &&
+						b.obj.Unique.typeP.category != ObjCatLoader) {
 					continue
 				}
 
 				/* Add link to objects */
-				neighb.Obj.Ports[n].Obj = b.Obj
-				b.Obj.Ports[p].Obj = neighb.Obj
+				neighb.obj.Ports[n].obj = b.obj
+				b.obj.Ports[p].obj = neighb.obj
 
 				/* Add direct port links */
-				neighb.Obj.Ports[n].Link = &b.Obj.Ports[p]
-				b.Obj.Ports[p].Link = &neighb.Obj.Ports[n]
+				neighb.obj.Ports[n].link = &b.obj.Ports[p]
+				b.obj.Ports[p].link = &neighb.obj.Ports[n]
 
-				if world.Debug {
+				if Debug {
 					oName := "none"
-					if b.Obj != nil {
-						oName = fmt.Sprintf("%v: %v", neighb.Obj.Unique.TypeP.Name, util.PosToString(neighb.Pos))
+					if b.obj != nil {
+						oName = fmt.Sprintf("%v: %v", neighb.obj.Unique.typeP.name, PosToString(neighb.pos))
 					}
-					util.ObjCD(b, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, util.DirToName(port.Dir), util.DirToArrow(port.Dir), oName))
+					ObjCD(b, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, DirToName(port.Dir), DirToArrow(port.Dir), oName))
 				}
 
-				portAlias(b.Obj, p, port.Type)
-				portAlias(neighb.Obj, n, np.Type)
+				portAlias(b.obj, p, port.Type)
+				portAlias(neighb.obj, n, np.Type)
 
 				/* Run custom link code */
-				if neighb.Obj.Unique.TypeP.LinkObj != nil {
-					neighb.Obj.Unique.TypeP.LinkObj(neighb.Obj)
+				if neighb.obj.Unique.typeP.linkObj != nil {
+					neighb.obj.Unique.typeP.linkObj(neighb.obj)
 				} else {
-					AutoEvents(neighb.Obj)
+					autoEvents(neighb.obj)
 				}
 			}
 		}
 		/* Run custom link code */
-		if b.Obj.Unique.TypeP.LinkObj != nil {
-			b.Obj.Unique.TypeP.LinkObj(b.Obj)
+		if b.obj.Unique.typeP.linkObj != nil {
+			b.obj.Unique.typeP.linkObj(b.obj)
 		} else {
-			AutoEvents(b.Obj)
+			autoEvents(b.obj)
 		}
 
 	}
@@ -129,48 +125,48 @@ func LinkObj(from world.XY, b *world.BuildingData) {
 }
 
 /* Add/Remove tick/tock events as needed */
-func AutoEvents(obj *world.ObjData) {
-	defer util.ReportPanic("AutoEvents")
+func autoEvents(obj *ObjData) {
+	defer reportPanic("AutoEvents")
 
 	/* Add to tock/tick lists */
 	var foundOutputs, foundInputs, foundFOut, foundFIn bool
-	if obj.NumOut > 0 {
+	if obj.numOut > 0 {
 		foundOutputs = true
 	}
-	if obj.NumIn > 0 {
+	if obj.numIn > 0 {
 		foundInputs = true
 	}
-	if obj.NumFIn > 0 {
+	if obj.numFIn > 0 {
 		foundFIn = true
 	}
-	if obj.NumFOut > 0 {
+	if obj.numFOut > 0 {
 		foundFOut = true
 	}
 
 	/* If we have inputs and outputs object needs, add to tock list */
-	if obj.Unique.TypeP.UpdateObj != nil {
+	if obj.Unique.typeP.updateObj != nil {
 
-		if obj.Unique.TypeP.HasInputs && foundInputs {
-			EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		if obj.Unique.typeP.hasInputs && foundInputs {
+			EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 		}
-		if obj.Unique.TypeP.HasOutputs && foundOutputs {
-			EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
-			EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		if obj.Unique.typeP.hasOutputs && foundOutputs {
+			EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+			EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 		}
 
-		if obj.Unique.TypeP.HasFIn && foundFIn {
-			EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		if obj.Unique.typeP.hasFIn && foundFIn {
+			EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 		}
-		if obj.Unique.TypeP.HasFOut && foundFOut {
-			EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
-			EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		if obj.Unique.typeP.hasFOut && foundFOut {
+			EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+			EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 		}
 	}
 }
 
-/* UnlinkObj an object */
-func UnlinkObj(obj *world.ObjData) {
-	defer util.ReportPanic("UnlinkObj")
+/* unlinkObj an object */
+func unlinkObj(obj *ObjData) {
+	defer reportPanic("UnlinkObj")
 	linkLock.Lock()
 	defer linkLock.Unlock()
 
@@ -180,39 +176,39 @@ func UnlinkObj(obj *world.ObjData) {
 
 	for p, port := range obj.Ports {
 		/* No obj, skip */
-		if port.Obj == nil {
+		if port.obj == nil {
 			continue
 		}
 
 		/* Delete ourselves from others */
-		for pb, portb := range port.Obj.Ports {
-			if portb.Obj == obj {
-				pObj := port.Obj
+		for pb, portb := range port.obj.Ports {
+			if portb.obj == obj {
+				pObj := port.obj
 
 				/* Reset last port to avoid hitting invalid one */
-				if port.Type == def.PORT_IN {
+				if port.Type == PORT_IN {
 					obj.LastInput = 0
 				} else {
-					port.Obj.LastInput = 0
+					port.obj.LastInput = 0
 				}
 
 				/* Clean up port aliases */
-				pObj.Ports[pb].Link = nil
-				pObj.Ports[pb].Obj = nil
+				pObj.Ports[pb].link = nil
+				pObj.Ports[pb].obj = nil
 
 				portPop(pObj)
-				if pObj.Unique.TypeP.LinkObj != nil {
-					pObj.Unique.TypeP.LinkObj(pObj)
+				if pObj.Unique.typeP.linkObj != nil {
+					pObj.Unique.typeP.linkObj(pObj)
 				} else {
-					AutoEvents(pObj)
+					autoEvents(pObj)
 				}
 			}
 		}
-		portPop(port.Obj)
+		portPop(port.obj)
 
 		/* Break links */
-		obj.Ports[p].Link = nil
-		obj.Ports[p].Obj = nil
+		obj.Ports[p].link = nil
+		obj.Ports[p].obj = nil
 	}
 
 	/* Murder all the port aliases */
@@ -223,30 +219,30 @@ func UnlinkObj(obj *world.ObjData) {
 	* we will be re-added in link if there
 	* is some need for us to be in there
 	 */
-	EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
-	EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
+	EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+	EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 }
 
 /* Add port to correct alias, increment */
-func portAlias(obj *world.ObjData, port int, ptype uint8) {
-	defer util.ReportPanic("portAlias")
-	if obj.Ports[port].Link == nil {
+func portAlias(obj *ObjData, port int, ptype uint8) {
+	defer reportPanic("portAlias")
+	if obj.Ports[port].link == nil {
 		return
 	}
 
 	switch ptype {
-	case def.PORT_IN:
-		obj.Inputs = append(obj.Inputs, &obj.Ports[port])
-		obj.NumIn++
-	case def.PORT_OUT:
-		obj.Outputs = append(obj.Outputs, &obj.Ports[port])
-		obj.NumOut++
-	case def.PORT_FIN:
-		obj.FuelIn = append(obj.FuelIn, &obj.Ports[port])
-		obj.NumFIn++
-	case def.PORT_FOUT:
-		obj.FuelOut = append(obj.FuelOut, &obj.Ports[port])
-		obj.NumFOut++
+	case PORT_IN:
+		obj.inputs = append(obj.inputs, &obj.Ports[port])
+		obj.numIn++
+	case PORT_OUT:
+		obj.outputs = append(obj.outputs, &obj.Ports[port])
+		obj.numOut++
+	case PORT_FIN:
+		obj.fuelIn = append(obj.fuelIn, &obj.Ports[port])
+		obj.numFIn++
+	case PORT_FOUT:
+		obj.fuelOut = append(obj.fuelOut, &obj.Ports[port])
+		obj.numFOut++
 	}
 
 	/* Fix trapped materials */
@@ -263,10 +259,10 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 		var good bool
 		var canFix bool
 		switch port.Type {
-		case def.PORT_IN:
-			if obj.NumIn > 0 {
-				for op := range obj.Inputs {
-					if obj.Inputs[op] == &obj.Ports[p] {
+		case PORT_IN:
+			if obj.numIn > 0 {
+				for op := range obj.inputs {
+					if obj.inputs[op] == &obj.Ports[p] {
 						/* Don't need to reprocess, port is alive */
 						good = true
 						break
@@ -276,10 +272,10 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 					canFix = true
 				}
 			}
-		case def.PORT_OUT:
-			if obj.NumOut > 0 {
-				for op := range obj.Outputs {
-					if obj.Outputs[op] == &obj.Ports[p] {
+		case PORT_OUT:
+			if obj.numOut > 0 {
+				for op := range obj.outputs {
+					if obj.outputs[op] == &obj.Ports[p] {
 						/* Don't need to reprocess, port is alive */
 						good = true
 						break
@@ -289,10 +285,10 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 					canFix = true
 				}
 			}
-		case def.PORT_FIN:
-			if obj.NumFIn > 0 {
-				for op := range obj.FuelIn {
-					if obj.FuelIn[op] == &obj.Ports[p] {
+		case PORT_FIN:
+			if obj.numFIn > 0 {
+				for op := range obj.fuelIn {
+					if obj.fuelIn[op] == &obj.Ports[p] {
 						/* Don't need to reprocess, port is alive */
 						good = true
 						break
@@ -302,10 +298,10 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 					canFix = true
 				}
 			}
-		case def.PORT_FOUT:
-			if obj.NumFOut > 0 {
-				for op := range obj.FuelOut {
-					if obj.FuelOut[op] == &obj.Ports[p] {
+		case PORT_FOUT:
+			if obj.numFOut > 0 {
+				for op := range obj.fuelOut {
+					if obj.fuelOut[op] == &obj.Ports[p] {
 						/* Don't need to reprocess, port is alive */
 						good = true
 						break
@@ -320,33 +316,33 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
 		if !good && canFix {
 			fixed := false
 			switch port.Type {
-			case def.PORT_IN:
-				if obj.Inputs[0].Buf.Amount == 0 {
+			case PORT_IN:
+				if obj.inputs[0].Buf.Amount == 0 {
 					/* Swap pointers */
-					obj.Inputs[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.Inputs[0].Buf
+					obj.inputs[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.inputs[0].Buf
 					fixed = true
 				}
-			case def.PORT_OUT:
-				if obj.Outputs[0].Buf.Amount == 0 {
+			case PORT_OUT:
+				if obj.outputs[0].Buf.Amount == 0 {
 					/* Swap pointers */
-					obj.Outputs[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.Outputs[0].Buf
+					obj.outputs[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.outputs[0].Buf
 					fixed = true
 				}
-			case def.PORT_FIN:
-				if obj.FuelIn[0].Buf.Amount == 0 {
+			case PORT_FIN:
+				if obj.fuelIn[0].Buf.Amount == 0 {
 					/* Swap pointers */
-					obj.FuelIn[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.FuelIn[0].Buf
+					obj.fuelIn[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.fuelIn[0].Buf
 					fixed = true
 				}
-			case def.PORT_FOUT:
-				if obj.FuelOut[0].Buf.Amount == 0 {
+			case PORT_FOUT:
+				if obj.fuelOut[0].Buf.Amount == 0 {
 					/* Swap pointers */
-					obj.FuelOut[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.FuelOut[0].Buf
+					obj.fuelOut[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.fuelOut[0].Buf
 					fixed = true
 				}
 			}
 			if fixed {
-				cwlog.DoLog(true, "Fixed orphaned material in object ports.")
+				DoLog(true, "Fixed orphaned material in object ports.")
 			}
 		}
 	}
@@ -356,19 +352,19 @@ func portAlias(obj *world.ObjData, port int, ptype uint8) {
  * Remove a port from aliases
  * Currently very lazy, but simple
  */
-func portPop(obj *world.ObjData) {
-	defer util.ReportPanic("portPop")
-	obj.Outputs = nil
-	obj.NumOut = 0
+func portPop(obj *ObjData) {
+	defer reportPanic("portPop")
+	obj.outputs = nil
+	obj.numOut = 0
 
-	obj.Inputs = nil
-	obj.NumIn = 0
+	obj.inputs = nil
+	obj.numIn = 0
 
-	obj.FuelIn = nil
-	obj.NumFIn = 0
+	obj.fuelIn = nil
+	obj.numFIn = 0
 
-	obj.FuelOut = nil
-	obj.NumFOut = 0
+	obj.fuelOut = nil
+	obj.numFOut = 0
 
 	for p, port := range obj.Ports {
 		portAlias(obj, p, port.Type)

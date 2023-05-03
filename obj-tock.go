@@ -1,57 +1,53 @@
 package main
 
 import (
-	"Facility38/cwlog"
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
 	"math/rand"
 )
 
-func minerUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("minerUpdate")
+func minerUpdate(obj *ObjData) {
+	defer reportPanic("minerUpdate")
 
 	/* Get fuel */
-	for p, port := range obj.FuelIn {
+	for p, port := range obj.fuelIn {
 		/* Will it over fill us? */
 		if port.Buf.Amount > 0 &&
-			obj.Unique.KGFuel+port.Buf.Amount <= obj.Unique.TypeP.MachineSettings.MaxFuelKG {
+			obj.Unique.KGFuel+port.Buf.Amount <= obj.Unique.typeP.machineSettings.maxFuelKG {
 
 			/* Eat the fuel */
 			obj.Unique.KGFuel += port.Buf.Amount
-			obj.FuelIn[p].Buf.Amount = 0
+			obj.fuelIn[p].Buf.Amount = 0
 		}
 	}
 
-	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
+	if obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
 		/* Not enough fuel, exit */
-		if obj.Active {
-			obj.Active = false
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
-	if obj.NumOut == 0 {
+	if obj.numOut == 0 {
 		return
 	}
 
 	/* Cycle through available materials */
 	var pick uint8 = 0
-	if obj.MinerData.ResourcesCount > 1 {
-		if obj.MinerData.LastUsed < (obj.MinerData.ResourcesCount - 1) {
-			obj.MinerData.LastUsed++
+	if obj.MinerData.resourcesCount > 1 {
+		if obj.MinerData.lastUsed < (obj.MinerData.resourcesCount - 1) {
+			obj.MinerData.lastUsed++
 		} else {
-			obj.MinerData.LastUsed = 0
+			obj.MinerData.lastUsed = 0
 		}
-		pick = obj.MinerData.LastUsed
+		pick = obj.MinerData.lastUsed
 	}
 
 	/* Calculate how much material */
-	if obj.MinerData.ResourcesCount == 0 {
+	if obj.MinerData.resourcesCount == 0 {
 		return
 	}
-	amount := obj.Unique.TypeP.MachineSettings.KgPerCycle * float32(obj.MinerData.Resources[pick])
-	kind := MatTypes[obj.MinerData.ResourcesType[pick]]
+	amount := obj.Unique.typeP.machineSettings.kgPerCycle * float32(obj.MinerData.resources[pick])
+	kind := matTypes[obj.MinerData.resourcesType[pick]]
 
 	/* Stop if the amount is extremely small, zero or negative */
 	if amount < 0.001 {
@@ -59,60 +55,60 @@ func minerUpdate(obj *world.ObjData) {
 	}
 
 	/* Set as actively working */
-	if !obj.Active {
-		obj.Active = true
+	if !obj.active {
+		obj.active = true
 	}
 
 	/* Tally the amount taken as well as the type */
-	obj.Tile.MinerData.Mined[pick] += amount
+	obj.Tile.minerData.mined[pick] += amount
 
 	/* Output the material */
-	obj.Outputs[0].Buf.Amount = amount
-	if obj.Outputs[0].Buf.TypeP != kind {
-		obj.Outputs[0].Buf.TypeP = kind
+	obj.outputs[0].Buf.Amount = amount
+	if obj.outputs[0].Buf.TypeP != kind {
+		obj.outputs[0].Buf.TypeP = kind
 	}
-	obj.Outputs[0].Buf.Rot = uint8(rand.Intn(3))
+	obj.outputs[0].Buf.Rot = uint8(rand.Intn(3))
 
 	/* Burn fuel */
-	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
+	obj.Unique.KGFuel -= obj.Unique.typeP.machineSettings.kgFuelPerCycle
 
 }
 
-func beltUpdateOver(obj *world.ObjData) {
-	defer util.ReportPanic("beltUpdateOver")
+func beltUpdateOver(obj *ObjData) {
+	defer reportPanic("beltUpdateOver")
 
 	/* Underpass */
-	if obj.BeltOver.UnderIn != nil && obj.BeltOver.UnderOut != nil {
-		if obj.BeltOver.UnderOut.Obj != nil && !obj.BeltOver.UnderOut.Obj.Blocked {
-			if obj.BeltOver.UnderIn.Buf.Amount != 0 && obj.BeltOver.UnderOut.Buf.Amount == 0 {
-				*obj.BeltOver.UnderOut.Buf, *obj.BeltOver.UnderIn.Buf = *obj.BeltOver.UnderIn.Buf, *obj.BeltOver.UnderOut.Buf
+	if obj.beltOver.underIn != nil && obj.beltOver.underOut != nil {
+		if obj.beltOver.underOut.obj != nil && !obj.beltOver.underOut.obj.blocked {
+			if obj.beltOver.underIn.Buf.Amount != 0 && obj.beltOver.underOut.Buf.Amount == 0 {
+				*obj.beltOver.underOut.Buf, *obj.beltOver.underIn.Buf = *obj.beltOver.underIn.Buf, *obj.beltOver.underOut.Buf
 			}
 		}
 	}
 
 	/* Overpass to OverOut */
-	if obj.BeltOver.OverOut != nil && obj.BeltOver.Middle != nil {
-		if obj.BeltOver.OverOut.Obj != nil {
-			if obj.BeltOver.Middle.Amount != 0 && obj.BeltOver.OverOut.Buf.Amount == 0 {
-				*obj.BeltOver.OverOut.Buf, *obj.BeltOver.Middle = *obj.BeltOver.Middle, *obj.BeltOver.OverOut.Buf
+	if obj.beltOver.overOut != nil && obj.beltOver.middle != nil {
+		if obj.beltOver.overOut.obj != nil {
+			if obj.beltOver.middle.Amount != 0 && obj.beltOver.overOut.Buf.Amount == 0 {
+				*obj.beltOver.overOut.Buf, *obj.beltOver.middle = *obj.beltOver.middle, *obj.beltOver.overOut.Buf
 			}
 		}
 	}
 
 	/* OverIn to Overpass */
-	if obj.BeltOver.OverIn != nil && obj.BeltOver.Middle != nil {
-		if obj.BeltOver.OverIn.Buf.Amount != 0 && obj.BeltOver.Middle.Amount == 0 {
-			*obj.BeltOver.Middle, *obj.BeltOver.OverIn.Buf = *obj.BeltOver.OverIn.Buf, *obj.BeltOver.Middle
+	if obj.beltOver.overIn != nil && obj.beltOver.middle != nil {
+		if obj.beltOver.overIn.Buf.Amount != 0 && obj.beltOver.middle.Amount == 0 {
+			*obj.beltOver.middle, *obj.beltOver.overIn.Buf = *obj.beltOver.overIn.Buf, *obj.beltOver.middle
 		}
 	}
 
 }
 
-func beltUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("beltUpdate")
+func beltUpdate(obj *ObjData) {
+	defer reportPanic("beltUpdate")
 
-	if obj.NumIn > 1 {
-		if obj.LastInput == (obj.NumIn - 1) {
+	if obj.numIn > 1 {
+		if obj.LastInput == (obj.numIn - 1) {
 			obj.LastInput = 0
 		} else {
 			obj.LastInput++
@@ -120,21 +116,21 @@ func beltUpdate(obj *world.ObjData) {
 	}
 
 	/* Does the input contain anything? */
-	if obj.NumOut > 0 && obj.NumIn > 0 {
-		if obj.Inputs[obj.LastInput].Buf.Amount > 0 &&
-			obj.Outputs[0].Buf.Amount == 0 &&
-			obj.Outputs[0].Obj != nil &&
-			!obj.Outputs[0].Obj.Blocked {
+	if obj.numOut > 0 && obj.numIn > 0 {
+		if obj.inputs[obj.LastInput].Buf.Amount > 0 &&
+			obj.outputs[0].Buf.Amount == 0 &&
+			obj.outputs[0].obj != nil &&
+			!obj.outputs[0].obj.blocked {
 			/* Good to go, swap pointers */
-			*obj.Outputs[0].Buf, *obj.Inputs[obj.LastInput].Buf = *obj.Inputs[obj.LastInput].Buf, *obj.Outputs[0].Buf
+			*obj.outputs[0].Buf, *obj.inputs[obj.LastInput].Buf = *obj.inputs[obj.LastInput].Buf, *obj.outputs[0].Buf
 		}
 	}
 }
 
-func fuelHopperUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("fuelHopperUpdate")
+func fuelHopperUpdate(obj *ObjData) {
+	defer reportPanic("fuelHopperUpdate")
 
-	for i, input := range obj.Inputs {
+	for i, input := range obj.inputs {
 
 		/* Does input contain anything? */
 		if input.Buf.Amount == 0 {
@@ -142,64 +138,64 @@ func fuelHopperUpdate(obj *world.ObjData) {
 		}
 
 		/* Is input solid? */
-		if !input.Buf.TypeP.IsSolid {
+		if !input.Buf.TypeP.isSolid {
 			continue
 		}
 
 		/* Is input fuel? */
-		if !input.Buf.TypeP.IsFuel {
+		if !input.Buf.TypeP.isFuel {
 			continue
 		}
 
 		/* Do we have room for it? */
-		if (obj.Unique.KGFuel + input.Buf.Amount) < obj.Unique.TypeP.MachineSettings.MaxFuelKG {
+		if (obj.Unique.KGFuel + input.Buf.Amount) < obj.Unique.typeP.machineSettings.maxFuelKG {
 			obj.Unique.KGFuel += input.Buf.Amount
-			obj.Inputs[i].Buf.Amount = 0
+			obj.inputs[i].Buf.Amount = 0
 			break
 		}
 	}
 
 	if obj.Unique.KGFuel > 0 {
-		if !obj.Active {
-			obj.Active = true
+		if !obj.active {
+			obj.active = true
 		}
 	} else {
-		if obj.Active {
-			obj.Active = false
+		if obj.active {
+			obj.active = false
 		}
 	}
 
 	/* Grab destination object */
-	if obj.Unique.KGFuel > (obj.Unique.TypeP.MachineSettings.KgHopperMove + obj.Unique.TypeP.MachineSettings.KgFuelPerCycle) {
-		for _, output := range obj.FuelOut {
-			output.Buf.Amount = obj.Unique.TypeP.MachineSettings.KgHopperMove
-			obj.Unique.KGFuel -= (obj.Unique.TypeP.MachineSettings.KgHopperMove + obj.Unique.TypeP.MachineSettings.KgFuelPerCycle)
+	if obj.Unique.KGFuel > (obj.Unique.typeP.machineSettings.kgHopperMove + obj.Unique.typeP.machineSettings.kgFuelPerCycle) {
+		for _, output := range obj.fuelOut {
+			output.Buf.Amount = obj.Unique.typeP.machineSettings.kgHopperMove
+			obj.Unique.KGFuel -= (obj.Unique.typeP.machineSettings.kgHopperMove + obj.Unique.typeP.machineSettings.kgFuelPerCycle)
 			break
 		}
 	}
 }
 
-func loaderUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("loaderUpdate")
+func loaderUpdate(obj *ObjData) {
+	defer reportPanic("loaderUpdate")
 
-	for i, input := range obj.Inputs {
+	for i, input := range obj.inputs {
 		if input.Buf.Amount == 0 {
 			continue
 		}
-		if obj.NumOut == 0 || obj.Outputs[0].Buf.Amount != 0 {
+		if obj.numOut == 0 || obj.outputs[0].Buf.Amount != 0 {
 			continue
 		}
-		*obj.Outputs[0].Buf, *obj.Inputs[i].Buf = *obj.Inputs[i].Buf, *obj.Outputs[0].Buf
+		*obj.outputs[0].Buf, *obj.inputs[i].Buf = *obj.inputs[i].Buf, *obj.outputs[0].Buf
 		break
 	}
 }
 
-func splitterUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("splitterUpdate")
+func splitterUpdate(obj *ObjData) {
+	defer reportPanic("splitterUpdate")
 
-	if obj.NumIn > 0 && obj.Inputs[0].Buf.Amount > 0 {
-		if obj.NumOut > 0 {
-			if obj.LastOutput >= (obj.NumOut - 1) {
+	if obj.numIn > 0 && obj.inputs[0].Buf.Amount > 0 {
+		if obj.numOut > 0 {
+			if obj.LastOutput >= (obj.numOut - 1) {
 				obj.LastOutput = 0
 			} else {
 				obj.LastOutput++
@@ -208,50 +204,50 @@ func splitterUpdate(obj *world.ObjData) {
 			return
 		}
 
-		if obj.Outputs[obj.LastOutput].Buf.Amount == 0 {
+		if obj.outputs[obj.LastOutput].Buf.Amount == 0 {
 			/* Good to go, swap pointers */
-			*obj.Inputs[0].Buf, *obj.Outputs[obj.LastOutput].Buf = *obj.Outputs[obj.LastOutput].Buf, *obj.Inputs[0].Buf
+			*obj.inputs[0].Buf, *obj.outputs[obj.LastOutput].Buf = *obj.outputs[obj.LastOutput].Buf, *obj.inputs[0].Buf
 			return
 		}
 	}
 }
 
-func boxUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("boxUpdate")
+func boxUpdate(obj *ObjData) {
+	defer reportPanic("boxUpdate")
 
-	for p, port := range obj.Inputs {
+	for p, port := range obj.inputs {
 		if port.Buf.TypeP == nil {
 			continue
 		}
 
 		/* Will the input fit? */
-		if obj.KGHeld+port.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+		if obj.KGHeld+port.Buf.Amount > obj.Unique.typeP.machineSettings.maxContainKG {
 			continue
 		}
 
 		/* Init content type if needed */
-		if obj.Unique.Contents.Mats[port.Buf.TypeP.TypeI] == nil {
-			obj.Unique.Contents.Mats[port.Buf.TypeP.TypeI] = &world.MatData{}
+		if obj.Unique.Contents.mats[port.Buf.TypeP.typeI] == nil {
+			obj.Unique.Contents.mats[port.Buf.TypeP.typeI] = &MatData{}
 		}
 
 		/* Add to contents */
-		obj.Unique.Contents.Mats[port.Buf.TypeP.TypeI].Amount += obj.Inputs[p].Buf.Amount
-		obj.Unique.Contents.Mats[port.Buf.TypeP.TypeI].TypeP = MatTypes[port.Buf.TypeP.TypeI]
+		obj.Unique.Contents.mats[port.Buf.TypeP.typeI].Amount += obj.inputs[p].Buf.Amount
+		obj.Unique.Contents.mats[port.Buf.TypeP.typeI].TypeP = matTypes[port.Buf.TypeP.typeI]
 		obj.KGHeld += port.Buf.Amount
-		obj.Inputs[p].Buf.Amount = 0
+		obj.inputs[p].Buf.Amount = 0
 		continue
 
 	}
 }
 
-func smelterUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("smelterUpdate")
+func smelterUpdate(obj *ObjData) {
+	defer reportPanic("smelterUpdate")
 
 	/* Get fuel */
-	for _, fuel := range obj.FuelIn {
+	for _, fuel := range obj.fuelIn {
 
 		/* Will the fuel fit? */
-		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.typeP.machineSettings.maxFuelKG {
 			continue
 		}
 
@@ -260,7 +256,7 @@ func smelterUpdate(obj *world.ObjData) {
 	}
 
 	/* Check input */
-	for _, input := range obj.Inputs {
+	for _, input := range obj.inputs {
 
 		/* Input contains something */
 		if input.Buf.Amount == 0 {
@@ -268,19 +264,19 @@ func smelterUpdate(obj *world.ObjData) {
 		}
 
 		/* Input is ore */
-		if !input.Buf.TypeP.IsOre {
+		if !input.Buf.TypeP.isOre {
 			continue
 		}
 
 		/* Contents will fit */
-		if obj.KGHeld+input.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+		if obj.KGHeld+input.Buf.Amount > obj.Unique.typeP.machineSettings.maxContainKG {
 			continue
 		}
 
 		/* Set type if needed */
 		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
 			if obj.Unique.SingleContent.Amount > 0 {
-				obj.Unique.SingleContent.TypeP = MatTypes[def.MAT_MIX_ORE]
+				obj.Unique.SingleContent.TypeP = matTypes[MAT_MIX_ORE]
 			} else {
 				obj.Unique.SingleContent.TypeP = input.Buf.TypeP
 			}
@@ -295,60 +291,60 @@ func smelterUpdate(obj *world.ObjData) {
 	}
 
 	/* Is there enough ore to process? */
-	if obj.Unique.SingleContent.Amount < obj.Unique.TypeP.MachineSettings.KgPerCycle {
-		if obj.Active {
-			obj.Active = false
+	if obj.Unique.SingleContent.Amount < obj.Unique.typeP.machineSettings.kgPerCycle {
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
 	/* Do we have enough fuel? */
-	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
-		if obj.Active {
-			obj.Active = false
+	if obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
-	if !obj.Active {
-		obj.Active = true
+	if !obj.active {
+		obj.active = true
 	}
 
 	/* Look up material */
-	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
+	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.TypeP.typeI]
 	if rec == nil {
-		cwlog.DoLog(true, "Nil recipie")
+		DoLog(true, "Nil recipie")
 		return
 	}
-	result := rec.ResultP[0]
+	result := rec.resultP[0]
 
 	/* Burn fuel */
-	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
+	obj.Unique.KGFuel -= obj.Unique.typeP.machineSettings.kgFuelPerCycle
 
 	/* Subtract ore */
-	obj.Unique.SingleContent.Amount -= obj.Unique.TypeP.MachineSettings.KgPerCycle
+	obj.Unique.SingleContent.Amount -= obj.Unique.typeP.machineSettings.kgPerCycle
 	/* Subtract ore weight */
-	obj.KGHeld -= obj.Unique.TypeP.MachineSettings.KgPerCycle
+	obj.KGHeld -= obj.Unique.typeP.machineSettings.kgPerCycle
 
 	/* Output result */
-	if obj.NumOut > 0 {
-		obj.Outputs[0].Buf.Amount = obj.Unique.TypeP.MachineSettings.KgPerCycle
+	if obj.numOut > 0 {
+		obj.outputs[0].Buf.Amount = obj.Unique.typeP.machineSettings.kgPerCycle
 
 		/* Find and set result type, if needed */
-		if obj.Outputs[0].Buf.TypeP != result {
-			obj.Outputs[0].Buf.TypeP = result
+		if obj.outputs[0].Buf.TypeP != result {
+			obj.outputs[0].Buf.TypeP = result
 		}
 	}
 }
 
-func casterUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("casterUpdate")
+func casterUpdate(obj *ObjData) {
+	defer reportPanic("casterUpdate")
 
 	/* Get fuel */
-	for _, fuel := range obj.FuelIn {
+	for _, fuel := range obj.fuelIn {
 
 		/* Will the fuel fit? */
-		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.typeP.machineSettings.maxFuelKG {
 			continue
 		}
 
@@ -358,7 +354,7 @@ func casterUpdate(obj *world.ObjData) {
 	}
 
 	/* Check input */
-	for _, input := range obj.Inputs {
+	for _, input := range obj.inputs {
 
 		/* Input contains something */
 		if input.Buf.Amount == 0 {
@@ -366,12 +362,12 @@ func casterUpdate(obj *world.ObjData) {
 		}
 
 		/* Contents are shot */
-		if !input.Buf.TypeP.IsShot {
+		if !input.Buf.TypeP.isShot {
 			continue
 		}
 
 		/* Contents will fit */
-		if obj.KGHeld+input.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+		if obj.KGHeld+input.Buf.Amount > obj.Unique.typeP.machineSettings.maxContainKG {
 			continue
 		}
 
@@ -390,65 +386,65 @@ func casterUpdate(obj *world.ObjData) {
 
 	/* Is there enough ore to process? */
 	if obj.Unique.SingleContent.Amount < 1 {
-		if obj.Active {
-			obj.Active = false
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
 	/* Process ores */
 	/* Is there enough ore to process? */
-	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
+	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.TypeP.typeI]
 	if rec == nil {
-		cwlog.DoLog(true, "Nil recipie")
+		DoLog(true, "Nil recipie")
 		return
 	}
-	result := rec.ResultP[0]
+	result := rec.resultP[0]
 
-	if obj.Unique.SingleContent.Amount < result.KG {
-		if obj.Active {
-			obj.Active = false
+	if obj.Unique.SingleContent.Amount < result.kg {
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
 	/* Do we have enough fuel? */
-	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
-		if obj.Active {
-			obj.Active = false
+	if obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
-	if !obj.Active {
-		obj.Active = true
+	if !obj.active {
+		obj.active = true
 	}
 
 	/* Burn fuel */
-	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
+	obj.Unique.KGFuel -= obj.Unique.typeP.machineSettings.kgFuelPerCycle
 
 	/* Subtract ore */
-	obj.Unique.SingleContent.Amount -= result.KG
+	obj.Unique.SingleContent.Amount -= result.kg
 	/* Subtract ore weight */
-	obj.KGHeld -= result.KG
+	obj.KGHeld -= result.kg
 
 	/* Output result */
-	obj.Outputs[0].Buf.Amount = result.KG
+	obj.outputs[0].Buf.Amount = result.kg
 
 	/* Find and set result type, if needed */
-	if obj.Outputs[0].Buf.TypeP != result {
-		obj.Outputs[0].Buf.TypeP = result
+	if obj.outputs[0].Buf.TypeP != result {
+		obj.outputs[0].Buf.TypeP = result
 	}
 }
 
-func rodCasterUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("rodCasterUpdate")
+func rodCasterUpdate(obj *ObjData) {
+	defer reportPanic("rodCasterUpdate")
 
 	/* Get fuel */
-	for _, fuel := range obj.FuelIn {
+	for _, fuel := range obj.fuelIn {
 
 		/* Will the fuel fit? */
-		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.typeP.machineSettings.maxFuelKG {
 			continue
 		}
 
@@ -458,7 +454,7 @@ func rodCasterUpdate(obj *world.ObjData) {
 	}
 
 	/* Check input */
-	for _, input := range obj.Inputs {
+	for _, input := range obj.inputs {
 
 		/* Input contains something */
 		if input.Buf.Amount < 1 {
@@ -466,12 +462,12 @@ func rodCasterUpdate(obj *world.ObjData) {
 		}
 
 		/* Contents is metal bar */
-		if !input.Buf.TypeP.IsBar {
+		if !input.Buf.TypeP.isBar {
 			continue
 		}
 
 		/* Contents will fit */
-		if obj.KGHeld+(input.Buf.Amount) > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+		if obj.KGHeld+(input.Buf.Amount) > obj.Unique.typeP.machineSettings.maxContainKG {
 			continue
 		}
 
@@ -481,65 +477,65 @@ func rodCasterUpdate(obj *world.ObjData) {
 		}
 
 		/* Add to weight */
-		obj.KGHeld += (input.Buf.Amount * input.Buf.TypeP.KG)
+		obj.KGHeld += (input.Buf.Amount * input.Buf.TypeP.kg)
 
 		/* Add input to contents */
-		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.TypeP.KG)
+		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.TypeP.kg)
 		input.Buf.Amount = 0
 	}
 
 	/* Is there enough ore to process? */
 	if obj.Unique.SingleContent.Amount < 1 {
-		if obj.Active {
-			obj.Active = false
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
 	/* Do we have enough fuel? */
-	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
-		if obj.Active {
-			obj.Active = false
+	if obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
-	if !obj.Active {
-		obj.Active = true
+	if !obj.active {
+		obj.active = true
 	}
 
-	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
+	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.TypeP.typeI]
 	if rec == nil {
-		cwlog.DoLog(true, "Nil recipie")
+		DoLog(true, "Nil recipie")
 		return
 	}
-	result := rec.ResultP[0]
+	result := rec.resultP[0]
 
 	/* Burn fuel */
-	obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
+	obj.Unique.KGFuel -= obj.Unique.typeP.machineSettings.kgFuelPerCycle
 
 	/* Subtract ore */
 	obj.Unique.SingleContent.Amount--
 	/* Subtract ore weight */
-	obj.KGHeld -= obj.Unique.SingleContent.TypeP.KG
+	obj.KGHeld -= obj.Unique.SingleContent.TypeP.kg
 
 	/* Output result */
-	obj.Outputs[0].Buf.Amount = result.KG
+	obj.outputs[0].Buf.Amount = result.kg
 
 	/* Find and set result type, if needed */
-	if obj.Outputs[0].Buf.TypeP != result {
-		obj.Outputs[0].Buf.TypeP = result
+	if obj.outputs[0].Buf.TypeP != result {
+		obj.outputs[0].Buf.TypeP = result
 	}
 }
 
-func slipRollerUpdate(obj *world.ObjData) {
-	defer util.ReportPanic("slipRollerUpdate")
+func slipRollerUpdate(obj *ObjData) {
+	defer reportPanic("slipRollerUpdate")
 
 	/* Get fuel */
-	for _, fuel := range obj.FuelIn {
+	for _, fuel := range obj.fuelIn {
 
 		/* Will the fuel fit? */
-		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.TypeP.MachineSettings.MaxFuelKG {
+		if obj.Unique.KGFuel+fuel.Buf.Amount > obj.Unique.typeP.machineSettings.maxFuelKG {
 			continue
 		}
 
@@ -549,7 +545,7 @@ func slipRollerUpdate(obj *world.ObjData) {
 	}
 
 	/* Check input */
-	for _, input := range obj.Inputs {
+	for _, input := range obj.inputs {
 
 		/* Input contains something */
 		if input.Buf.Amount < 1 {
@@ -557,12 +553,12 @@ func slipRollerUpdate(obj *world.ObjData) {
 		}
 
 		/* Contents is metal bar */
-		if !input.Buf.TypeP.IsBar {
+		if !input.Buf.TypeP.isBar {
 			continue
 		}
 
 		/* Contents will fit */
-		if obj.KGHeld+(input.Buf.Amount) > obj.Unique.TypeP.MachineSettings.MaxContainKG {
+		if obj.KGHeld+(input.Buf.Amount) > obj.Unique.typeP.machineSettings.maxContainKG {
 			continue
 		}
 
@@ -572,56 +568,56 @@ func slipRollerUpdate(obj *world.ObjData) {
 		}
 
 		/* Add to weight */
-		obj.KGHeld += (input.Buf.Amount * input.Buf.TypeP.KG)
+		obj.KGHeld += (input.Buf.Amount * input.Buf.TypeP.kg)
 
 		/* Add input to contents */
-		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.TypeP.KG)
+		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.TypeP.kg)
 		input.Buf.Amount = 0
 	}
 
 	/* Is there enough ore to process? */
 	if obj.Unique.SingleContent.Amount < 1 {
-		if obj.Active {
-			obj.Active = false
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
 	/* Do we have enough fuel? */
-	if obj.Unique.KGFuel < obj.Unique.TypeP.MachineSettings.KgFuelPerCycle {
-		if obj.Active {
-			obj.Active = false
+	if obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
+		if obj.active {
+			obj.active = false
 		}
 		return
 	}
 
-	if !obj.Active {
-		obj.Active = true
+	if !obj.active {
+		obj.active = true
 	}
 
-	rec := obj.Unique.TypeP.RecipieLookup[obj.Unique.SingleContent.TypeP.TypeI]
+	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.TypeP.typeI]
 	if rec == nil {
-		cwlog.DoLog(true, "Nil recipie")
+		DoLog(true, "Nil recipie")
 		return
 	}
 
-	if obj.NumOut > 0 {
-		result := rec.ResultP[0]
+	if obj.numOut > 0 {
+		result := rec.resultP[0]
 
 		/* Burn fuel */
-		obj.Unique.KGFuel -= obj.Unique.TypeP.MachineSettings.KgFuelPerCycle
+		obj.Unique.KGFuel -= obj.Unique.typeP.machineSettings.kgFuelPerCycle
 
 		/* Subtract ore */
 		obj.Unique.SingleContent.Amount--
 		/* Subtract ore weight */
-		obj.KGHeld -= obj.Unique.SingleContent.TypeP.KG
+		obj.KGHeld -= obj.Unique.SingleContent.TypeP.kg
 
 		/* Output result */
-		obj.Outputs[0].Buf.Amount = result.KG
+		obj.outputs[0].Buf.Amount = result.kg
 
 		/* Find and set result type, if needed */
-		if obj.Outputs[0].Buf.TypeP != result {
-			obj.Outputs[0].Buf.TypeP = result
+		if obj.outputs[0].Buf.TypeP != result {
+			obj.outputs[0].Buf.TypeP = result
 		}
 	}
 }

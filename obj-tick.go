@@ -1,9 +1,6 @@
 package main
 
 import (
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
 	"fmt"
 	"image/color"
 	"runtime"
@@ -20,17 +17,17 @@ var (
 )
 
 func init() {
-	defer util.ReportPanic("obj-tick init")
-	if strings.EqualFold(runtime.GOOS, "windows") || world.WASMMode {
+	defer reportPanic("obj-tick init")
+	if strings.EqualFold(runtime.GOOS, "windows") || WASMMode {
 		minSleep = (time.Millisecond * 2) //Windows and WASM time resolution sucks
 	}
 }
 
 /* Loops: Ticks: External, Tocks: Internal, EventQueue, ObjQueue. Locks each list one at a time. Sleeps if needed. Multi-threaded */
-func ObjUpdateDaemon() {
-	defer util.ReportPanic("ObjUpdateDaemon")
+func objUpdateDaemon() {
+	defer reportPanic("objUpdateDaemon")
 
-	for !world.MapGenerated.Load() {
+	for !MapGenerated.Load() {
 		time.Sleep(time.Millisecond * 100)
 	}
 
@@ -41,34 +38,34 @@ func ObjUpdateDaemon() {
 		start := time.Now()
 
 		if tockState {
-			NewRunTocks()
+			newRunTocks()
 			tockState = false
 		} else {
-			NewRunTicks() //Move external
+			newRunTicks() //Move external
 			GameTick++
 			tockState = true
 		}
 
 		runRotates()
 
-		world.ObjQueueLock.Lock()
+		ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
-		world.ObjQueueLock.Unlock()
+		ObjQueueLock.Unlock()
 
-		world.EventQueueLock.Lock()
+		EventQueueLock.Lock()
 		RunEventQueue() //Queue to add/remove events
-		world.EventQueueLock.Unlock()
+		EventQueueLock.Unlock()
 
 		GameLock.Unlock()
 
-		if !world.UPSBench {
-			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
+		if !UPSBench {
+			sleepFor := time.Duration(ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
 			}
 		}
-		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
-		world.ActualUPS = (1000000000.0 / float32(world.MeasuredObjectUPS_ns))
+		MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
+		ActualUPS = (1000000000.0 / float32(MeasuredObjectUPS_ns))
 
 		handleAutosave()
 	}
@@ -83,10 +80,10 @@ func ObjUpdateDaemon() {
  * WASM just ins't a high priority at the moment
  */
 func ObjUpdateDaemonST() {
-	defer util.ReportPanic("ObjUpdateDaemonST")
+	defer reportPanic("ObjUpdateDaemonST")
 	var start time.Time
 
-	for !world.MapGenerated.Load() {
+	for !MapGenerated.Load() {
 		time.Sleep(time.Millisecond * 100)
 	}
 
@@ -98,35 +95,35 @@ func ObjUpdateDaemonST() {
 		start = time.Now()
 
 		if tockState {
-			NewRunTocksST() //Process objects
+			newRunTocksST() //Process objects
 			tockState = false
 		} else {
-			NewRunTicksST() //Move external
+			newRunTicksST() //Move external
 			GameTick++
 			tockState = true
 		}
 
 		runRotates()
 
-		world.ObjQueueLock.Lock()
+		ObjQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
-		world.ObjQueueLock.Unlock()
+		ObjQueueLock.Unlock()
 
-		world.EventQueueLock.Lock()
+		EventQueueLock.Lock()
 		RunEventQueue() //Queue to add/remove events
-		world.EventQueueLock.Unlock()
+		EventQueueLock.Unlock()
 
 		GameLock.Unlock()
 
-		if !world.UPSBench {
-			sleepFor := time.Duration(world.ObjectUPS_ns) - time.Since(start)
+		if !UPSBench {
+			sleepFor := time.Duration(ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
 			}
 		}
 
-		world.MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
-		world.ActualUPS = (1000000000.0 / float32(world.MeasuredObjectUPS_ns))
+		MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
+		ActualUPS = (1000000000.0 / float32(MeasuredObjectUPS_ns))
 
 		handleAutosave()
 	}
@@ -134,18 +131,18 @@ func ObjUpdateDaemonST() {
 
 /* Autosave */
 func handleAutosave() {
-	if world.Autosave && !world.WASMMode && time.Since(world.LastSave) > time.Minute*5 {
-		world.LastSave = time.Now().UTC()
-		SaveGame()
+	if Autosave && !WASMMode && time.Since(LastSave) > time.Minute*5 {
+		LastSave = time.Now().UTC()
+		saveGame()
 	}
 }
 
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
-func tickObj(obj *world.ObjData) {
-	defer util.ReportPanic("tickObj")
+func tickObj(obj *ObjData) {
+	defer reportPanic("tickObj")
 
 	var blockedOut uint8 = 0
-	for _, port := range obj.Outputs {
+	for _, port := range obj.outputs {
 
 		/* If we have stuff to send */
 		if port.Buf.Amount == 0 {
@@ -153,15 +150,15 @@ func tickObj(obj *world.ObjData) {
 		}
 
 		/* If destination is empty */
-		if port.Link.Buf.Amount != 0 {
+		if port.link.Buf.Amount != 0 {
 			blockedOut++
 			continue
 		}
 
 		/* Swap pointers */
-		*port.Link.Buf, *port.Buf = *port.Buf, *port.Link.Buf
+		*port.link.Buf, *port.Buf = *port.Buf, *port.link.Buf
 	}
-	for _, port := range obj.FuelOut {
+	for _, port := range obj.fuelOut {
 
 		/* If we have stuff to send */
 		if port.Buf.Amount == 0 {
@@ -169,106 +166,106 @@ func tickObj(obj *world.ObjData) {
 		}
 
 		/* If destination is empty */
-		if port.Link.Buf.Amount != 0 {
+		if port.link.Buf.Amount != 0 {
 			blockedOut++
 			continue
 		}
 
 		/* Swap pointers */
-		*port.Link.Buf, *port.Buf = *port.Buf, *port.Link.Buf
+		*port.link.Buf, *port.Buf = *port.Buf, *port.link.Buf
 	}
 
 	/* Don't bother with blocking except on belts */
-	if obj.Unique.TypeP.Category == def.ObjCatBelt {
-		if obj.NumOut+obj.NumFOut == blockedOut {
-			if !obj.Blocked {
-				obj.Blocked = true
+	if obj.Unique.typeP.category == ObjCatBelt {
+		if obj.numOut+obj.numFOut == blockedOut {
+			if !obj.blocked {
+				obj.blocked = true
 
 			}
 		} else {
-			if obj.Blocked {
-				obj.Blocked = false
+			if obj.blocked {
+				obj.blocked = false
 			}
 		}
 	}
 }
 
 /* A queue of object rotations to perform between ticks */
-func RotateListAdd(b *world.BuildingData, cw bool, pos world.XY) {
-	defer util.ReportPanic("RotateListAdd")
-	world.RotateListLock.Lock()
+func rotateListAdd(b *buildingData, cw bool, pos XY) {
+	defer reportPanic("RotateListAdd")
+	RotateListLock.Lock()
 
-	world.RotateList = append(world.RotateList, world.RotateEvent{Build: b, Clockwise: cw})
-	world.RotateCount++
+	RotateList = append(RotateList, rotateEvent{build: b, clockwise: cw})
+	RotateCount++
 
-	world.RotateListLock.Unlock()
+	RotateListLock.Unlock()
 }
 
 /* Add to event queue (list of tock and tick events) */
-func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
-	defer util.ReportPanic("EventQueueAdd")
-	world.EventQueueLock.Lock()
-	world.EventQueue = append(world.EventQueue, &world.EventQueueData{Obj: obj, QType: qtype, Delete: delete})
-	world.EventQueueLock.Unlock()
+func EventQueueAdd(obj *ObjData, qtype uint8, delete bool) {
+	defer reportPanic("EventQueueAdd")
+	EventQueueLock.Lock()
+	EventQueue = append(EventQueue, &eventQueueData{obj: obj, qType: qtype, delete: delete})
+	EventQueueLock.Unlock()
 }
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
-func ObjQueueAdd(obj *world.ObjData, otype uint8, pos world.XY, delete bool, dir uint8) {
-	defer util.ReportPanic("ObjQueueAdd")
-	world.ObjQueueLock.Lock()
-	world.ObjQueue = append(world.ObjQueue, &world.ObjectQueueData{Obj: obj, OType: otype, Pos: pos, Delete: delete, Dir: dir})
-	world.ObjQueueLock.Unlock()
+func objQueueAdd(obj *ObjData, otype uint8, pos XY, delete bool, dir uint8) {
+	defer reportPanic("ObjQueueAdd")
+	ObjQueueLock.Lock()
+	ObjQueue = append(ObjQueue, &objectQueueData{obj: obj, oType: otype, pos: pos, delete: delete, dir: dir})
+	ObjQueueLock.Unlock()
 }
 
 /* Perform object rotations between ticks */
 func runRotates() {
-	defer util.ReportPanic("RunRotates")
-	world.RotateListLock.Lock()
-	defer world.RotateListLock.Unlock()
+	defer reportPanic("RunRotates")
+	RotateListLock.Lock()
+	defer RotateListLock.Unlock()
 
-	for _, rot := range world.RotateList {
-		var objSave world.ObjData
-		b := rot.Build
+	for _, rot := range RotateList {
+		var objSave ObjData
+		b := rot.build
 
 		/* Valid building */
 		if b != nil {
-			obj := b.Obj
+			obj := b.obj
 
 			/* Non-square multi-tile objects */
-			if obj.Unique.TypeP.NonSquare {
+			if obj.Unique.typeP.nonSquare {
 				var newdir uint8
 				var olddir uint8 = obj.Dir
 
 				/* Save a copy of the object */
 				objSave = *obj
 
-				if !rot.Clockwise {
-					newdir = util.RotCCW(objSave.Dir)
+				if !rot.clockwise {
+					newdir = RotCCW(objSave.Dir)
 				} else {
-					newdir = util.RotCW(objSave.Dir)
+					newdir = RotCW(objSave.Dir)
 				}
 
 				/* Remove object from the world */
-				UnlinkObj(obj)
+				unlinkObj(obj)
 				removeObj(obj)
 
 				/* Rotate sub-object map */
-				for _, sub := range objSave.Unique.TypeP.SubObjs {
-					tile := RotateCoord(sub, objSave.Dir, GetObjSize(&objSave, nil))
-					pos := util.GetSubPos(objSave.Pos, tile)
+				for _, sub := range objSave.Unique.typeP.subObjs {
+					tile := rotateCoord(sub, objSave.Dir, getObjSize(&objSave, nil))
+					pos := GetSubPos(objSave.Pos, tile)
 					removePosMap(pos)
 				}
 
 				/* Place back into world */
-				found := PlaceObj(objSave.Pos, 0, &objSave, newdir, false)
+				found := placeObj(objSave.Pos, 0, &objSave, newdir, false)
 
 				/* Problem found, wont fit, undo! */
 				if found == nil {
 					/* Unable to rotate, undo */
-					util.ChatDetailed(fmt.Sprintf("Unable to rotate: %v at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), world.ColorRed, time.Second*15)
-					found = PlaceObj(objSave.Pos, 0, &objSave, olddir, false)
+					ChatDetailed(fmt.Sprintf("Unable to rotate: %v at %v", obj.Unique.typeP.name, PosToString(obj.Pos)), ColorRed, time.Second*15)
+					found = placeObj(objSave.Pos, 0, &objSave, olddir, false)
 					if found == nil {
-						util.ChatDetailed(fmt.Sprintf("Unable to place item back: %v at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), world.ColorRed, time.Second*15)
+						ChatDetailed(fmt.Sprintf("Unable to place item back: %v at %v", obj.Unique.typeP.name, PosToString(obj.Pos)), ColorRed, time.Second*15)
 					}
 				}
 				continue
@@ -277,122 +274,122 @@ func runRotates() {
 			var newdir uint8
 
 			/* Unlink */
-			UnlinkObj(obj)
+			unlinkObj(obj)
 
 			/* Rotate ports */
-			if !rot.Clockwise {
-				newdir = util.RotCCW(obj.Dir)
+			if !rot.clockwise {
+				newdir = RotCCW(obj.Dir)
 				for p, port := range obj.Ports {
-					obj.Ports[p].Dir = util.RotCCW(port.Dir)
+					obj.Ports[p].Dir = RotCCW(port.Dir)
 				}
 
-				util.ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), color.White, time.Second*5)
+				ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", obj.Unique.typeP.name, PosToString(obj.Pos)), color.White, time.Second*5)
 			} else {
-				newdir = util.RotCW(obj.Dir)
+				newdir = RotCW(obj.Dir)
 				for p, port := range obj.Ports {
-					obj.Ports[p].Dir = util.RotCW(port.Dir)
+					obj.Ports[p].Dir = RotCW(port.Dir)
 				}
 
-				util.ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), color.White, time.Second*5)
+				ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", obj.Unique.typeP.name, PosToString(obj.Pos)), color.White, time.Second*5)
 			}
 			obj.Dir = newdir
 
 			/* TODO: move this code to LinkObj */
 			/* multi-tile object relink */
-			if obj.Unique.TypeP.MultiTile {
-				for _, subObj := range obj.Unique.TypeP.SubObjs {
-					subPos := util.GetSubPos(obj.Pos, subObj)
-					LinkObj(subPos, b)
+			if obj.Unique.typeP.multiTile {
+				for _, subObj := range obj.Unique.typeP.subObjs {
+					subPos := GetSubPos(obj.Pos, subObj)
+					linkObj(subPos, b)
 				}
 			} else {
 				/* Standard relink */
-				LinkObj(obj.Pos, b)
+				linkObj(obj.Pos, b)
 			}
 		}
 	}
 
 	//Done, reset list.
-	world.RotateList = []world.RotateEvent{}
+	RotateList = []rotateEvent{}
 }
 
 /* Add/remove tick/tock events from the lists */
 func RunEventQueue() {
-	defer util.ReportPanic("RunEventQueue")
+	defer reportPanic("RunEventQueue")
 
-	for _, e := range world.EventQueue {
-		if e.Delete {
-			switch e.QType {
-			case def.QUEUE_TYPE_TICK:
-				RemoveTick(e.Obj)
-			case def.QUEUE_TYPE_TOCK:
-				RemoveTock(e.Obj)
+	for _, e := range EventQueue {
+		if e.delete {
+			switch e.qType {
+			case QUEUE_TYPE_TICK:
+				removeTick(e.obj)
+			case QUEUE_TYPE_TOCK:
+				removeTock(e.obj)
 			}
 		} else {
-			switch e.QType {
-			case def.QUEUE_TYPE_TICK:
-				AddTick(e.Obj)
-			case def.QUEUE_TYPE_TOCK:
-				AddTock(e.Obj)
+			switch e.qType {
+			case QUEUE_TYPE_TICK:
+				addTick(e.obj)
+			case QUEUE_TYPE_TOCK:
+				addTock(e.obj)
 			}
 		}
 
 	}
 
 	/* Done, reset list */
-	world.EventQueue = []*world.EventQueueData{}
+	EventQueue = []*eventQueueData{}
 }
 
 /* Add/remove objects from game world at end of tick/tock cycle */
 func runObjQueue() {
-	defer util.ReportPanic("runObjQueue")
+	defer reportPanic("runObjQueue")
 
-	for _, item := range world.ObjQueue {
-		if item.Delete {
+	for _, item := range ObjQueue {
+		if item.delete {
 
 			/* Handle multi-tile item delete */
-			if item.Obj.Unique.TypeP.MultiTile {
-				for _, sub := range item.Obj.Unique.TypeP.SubObjs {
-					tile := RotateCoord(sub, item.Obj.Dir, GetObjSize(item.Obj, nil))
-					pos := util.GetSubPos(item.Pos, tile)
+			if item.obj.Unique.typeP.multiTile {
+				for _, sub := range item.obj.Unique.typeP.subObjs {
+					tile := rotateCoord(sub, item.obj.Dir, getObjSize(item.obj, nil))
+					pos := GetSubPos(item.pos, tile)
 					removePosMap(pos)
 				}
 			}
-			delObj(item.Obj)
-			world.VisDataDirty.Store(true)
+			delObj(item.obj)
+			VisDataDirty.Store(true)
 		} else {
 
 			/* Place object in world */
 			//Add
-			PlaceObj(item.Pos, item.OType, nil, item.Dir, false)
-			world.VisDataDirty.Store(true)
+			placeObj(item.pos, item.oType, nil, item.dir, false)
+			VisDataDirty.Store(true)
 		}
 	}
 
 	/* Done, reset list */
-	world.ObjQueue = []*world.ObjectQueueData{}
+	ObjQueue = []*objectQueueData{}
 }
 
 /* Unlink and remove object */
-func delObj(obj *world.ObjData) {
-	defer util.ReportPanic("delObj")
-	UnlinkObj(obj)
+func delObj(obj *ObjData) {
+	defer reportPanic("delObj")
+	unlinkObj(obj)
 	removeObj(obj)
 }
 
-/* TODO this and obj-util.go are duplicates and need to be consolidated */
+/* TODO this and obj-go are duplicates and need to be consolidated */
 /* Delete object from ObjMap, decerment Num Marks PixmapDirty */
-func removePosMap(pos world.XY) {
-	defer util.ReportPanic("removePosMap")
+func removePosMap(pos XY) {
+	defer reportPanic("removePosMap")
 
-	sChunk := util.GetSuperChunk(pos)
-	chunk := util.GetChunk(pos)
+	sChunk := GetSuperChunk(pos)
+	chunk := GetChunk(pos)
 	if chunk == nil || sChunk == nil {
 		return
 	}
 
-	chunk.Lock.Lock()
-	chunk.NumObjs--
-	delete(chunk.BuildingMap, pos)
-	sChunk.PixmapDirty = true
-	chunk.Lock.Unlock()
+	chunk.lock.Lock()
+	chunk.numObjs--
+	delete(chunk.buildingMap, pos)
+	sChunk.pixmapDirty = true
+	chunk.lock.Unlock()
 }

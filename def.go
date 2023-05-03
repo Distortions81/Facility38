@@ -1,4 +1,4 @@
-package def
+package main
 
 import (
 	"math"
@@ -8,7 +8,6 @@ import (
 const (
 	/* Tick / Tock work block */
 	WorkSize = 10000
-	FontDPI  = 96
 	/* Used for toolbar as "none" */
 	MaxItemType = 255
 	/* Updates per second, real update rate is this div 2 */

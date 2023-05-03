@@ -1,17 +1,12 @@
 package main
 
 import (
-	"Facility38/cwlog"
-	"Facility38/data"
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
 	"bytes"
 	"crypto/tls"
 	"flag"
 	"fmt"
 	"image/color"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"runtime"
 	"runtime/debug"
@@ -27,14 +22,11 @@ import (
 
 var (
 	helpText string = "Loading..."
-	authKey  string = "lesson been future amount"
 
 	/* Compile flags */
 	buildTime string = "Dev Build"
-	WASMMode  string
-	UPSBench  string
-	LoadTest  string
-	NoDebug   string
+	wasmMode  string
+	noDebug   string
 )
 
 type Game struct {
@@ -43,12 +35,12 @@ type Game struct {
 /* Main function */
 func main() {
 	/* Web assm builds */
-	if WASMMode == "true" || runtime.GOARCH == "wasm" {
-		world.WASMMode = true
+	if wasmMode == "true" || runtime.GOARCH == "wasm" {
+		WASMMode = true
 	}
 
 	debug.SetPanicOnFault(true)
-	defer util.ReportPanic("main")
+	defer reportPanic("main")
 
 	/* Startup arguments */
 	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on Windows (NOT RECOMMENDED!)")
@@ -59,42 +51,42 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Printf("v%03v-%v\n", def.Version, buildTime)
+		fmt.Printf("v%03v-%v\n", Version, buildTime)
 		return
 	}
 
 	/* Loads boot screen assets */
-	imgb, err := data.GetSpriteImage("title.png", true)
+	imgb, err := GetSpriteImage("title.png", true)
 	if err == nil {
-		world.TitleImage = imgb
+		TitleImage = imgb
 	}
-	imgb, err = data.GetSpriteImage("ebiten.png", true)
+	imgb, err = GetSpriteImage("ebiten.png", true)
 	if err == nil {
-		world.EbitenLogo = imgb
+		EbitenLogo = imgb
 	}
 
 	/* Compile flags */
-	if NoDebug == "true" { /* Published build */
-		world.Debug = false
-		world.LogStdOut = false
-		world.UPSBench = false
-		world.LoadTest = false
+	if noDebug == "true" { /* Published build */
+		Debug = false
+		LogStdOut = false
+		UPSBench = false
+		LoadTest = false
 	}
 
-	util.BuildInfo = buildTime
-	world.Authorized.Store(false)
+	buildInfo = buildTime
+	Authorized.Store(false)
 
-	if !world.WASMMode {
+	if !WASMMode {
 		/* Functions that will not work in webasm */
-		cwlog.StartLog()
-		cwlog.LogDaemon()
+		StartLog()
+		LogDaemon()
 	}
 
 	/* Set up toolbar data */
-	InitToolbar()
+	initToolbar()
 
 	/* Intro text setup, this is temporary */
-	str, err := data.GetText("help")
+	str, err := GetText("help")
 	if err != nil {
 		panic(err)
 	}
@@ -104,7 +96,7 @@ func main() {
 	detectCPUs(false)
 
 	/* Create tick interval list */
-	TickInit()
+	tickInit()
 
 	/* Set up ebiten and window */
 	ebiten.SetVsyncEnabled(true)
@@ -119,36 +111,36 @@ func main() {
 	/* Graphics APIs, with fallback to autodetect*/
 	problem := false
 	if *forceMetal {
-		cwlog.DoLog(true, "Starting game with Metal graphics API.")
-		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryMetal}); err != nil {
-			cwlog.DoLog(true, "%v", err)
+		DoLog(true, "Starting game with Metal graphics API.")
+		if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryMetal}); err != nil {
+			DoLog(true, "%v", err)
 			problem = true
 		}
 	} else if *forceDirectX {
-		cwlog.DoLog(true, "Starting game with DirectX graphics API.")
-		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryDirectX}); err != nil {
-			cwlog.DoLog(true, "%v", err)
+		DoLog(true, "Starting game with DirectX graphics API.")
+		if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryDirectX}); err != nil {
+			DoLog(true, "%v", err)
 			problem = true
 		}
 	} else if *forceAuto {
-		cwlog.DoLog(true, "Starting game with Automatic graphics API.")
-		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}); err != nil {
-			cwlog.DoLog(true, "%v", err)
+		DoLog(true, "Starting game with Automatic graphics API.")
+		if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}); err != nil {
+			DoLog(true, "%v", err)
 			problem = true
 			return
 		}
 	} else if *forceOpengl {
-		cwlog.DoLog(true, "Starting game with OpenGL graphics API.")
-		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
-			cwlog.DoLog(true, "%v", err)
+		DoLog(true, "Starting game with OpenGL graphics API.")
+		if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
+			DoLog(true, "%v", err)
 			problem = true
 		}
 	}
 
 	if problem {
-		cwlog.DoLog(true, "Failed, attempting to load with autodetect.")
-		if err := ebiten.RunGameWithOptions(NewGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}); err != nil {
-			cwlog.DoLog(true, "%v", err)
+		DoLog(true, "Failed, attempting to load with autodetect.")
+		if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}); err != nil {
+			DoLog(true, "%v", err)
 			return
 		}
 	}
@@ -156,11 +148,11 @@ func main() {
 }
 
 /* Ebiten game init */
-func NewGame() *Game {
-	defer util.ReportPanic("NewGame")
+func newGame() *Game {
+	defer reportPanic("NewGame")
 
 	/* Load fonts */
-	UpdateFonts()
+	updateFonts()
 
 	go func() {
 		GameRunning = false
@@ -170,10 +162,10 @@ func NewGame() *Game {
 		loadSprites(true)
 
 		/* Set up perlin noise channels */
-		ResourceMapInit()
+		resourceMapInit()
 
 		/* Make starting map */
-		MakeMap(world.LoadTest)
+		makeMap(LoadTest)
 
 		/* Begin game */
 		startGame()
@@ -187,7 +179,7 @@ var silenceUpdates bool
 
 /* Contact server for version information */
 func checkVersion(silent bool) bool {
-	defer util.ReportPanic("checkVersion")
+	defer reportPanic("checkVersion")
 
 	// Create HTTP client with custom transport
 	transport := &http.Transport{
@@ -197,19 +189,19 @@ func checkVersion(silent bool) bool {
 	}
 	client := &http.Client{Transport: transport}
 
-	cstr := fmt.Sprintf("CheckUpdateDev:v%03v-%v\n", def.Version, buildTime)
+	cstr := fmt.Sprintf("CheckUpdateDev:v%03v-%v\n", Version, buildTime)
 	// Send HTTPS POST request to server
 	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(cstr)))
 	if err != nil {
 		txt := "Unable to connect to update server."
-		util.Chat(txt)
+		Chat(txt)
 		statusText = txt
 		return false
 	}
 	defer response.Body.Close()
 
 	// Read server response
-	responseBytes, err := ioutil.ReadAll(response.Body)
+	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		panic(err)
 	}
@@ -227,18 +219,18 @@ func checkVersion(silent bool) bool {
 			newVersion = respParts[1]
 			//dlURL = respParts[2]
 
-			if world.WASMMode {
-				go util.ChatDetailed("The game is out of date.\nYou may need to refresh your browser.", world.ColorOrange, 30*time.Second)
+			if WASMMode {
+				go ChatDetailed("The game is out of date.\nYou may need to refresh your browser.", ColorOrange, 30*time.Second)
 				return true
 			}
 
 			buf := fmt.Sprintf("New version available: %v", newVersion)
 			silenceUpdates = true
-			util.ChatDetailed(buf, color.White, 60)
+			ChatDetailed(buf, color.White, 60)
 			return true
 		}
 	} else if respPartLen > 0 && respParts[0] == "UpToDate" {
-		util.Chat("Update server: Facility 38 is up-to-date.")
+		Chat("Update server: Facility 38 is up-to-date.")
 	} else {
 		return false
 	}
@@ -248,11 +240,11 @@ func checkVersion(silent bool) bool {
 
 /* Check server for authorization information */
 func checkAuth() bool {
-	defer util.ReportPanic("checkAuth")
+	defer reportPanic("checkAuth")
 
-	good := data.LoadSecrets()
+	good := LoadSecrets()
 	if !good {
-		util.Chat("Key load failed.")
+		Chat("Key load failed.")
 		return false
 	}
 
@@ -265,11 +257,11 @@ func checkAuth() bool {
 	client := &http.Client{Transport: transport}
 
 	// Send HTTPS POST request to server
-	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(data.Secrets[0].P)))
+	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(Secrets[0].P)))
 	if err != nil {
 		txt := "Unable to connect to auth server."
-		util.Chat(txt)
-		world.Authorized.Store(false)
+		Chat(txt)
+		Authorized.Store(false)
 		statusText = txt
 
 		/* Sleep for a bit, and try again */
@@ -281,30 +273,30 @@ func checkAuth() bool {
 	defer response.Body.Close()
 
 	// Read server response
-	responseBytes, err := ioutil.ReadAll(response.Body)
+	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		panic(err)
 	}
 	pass := string(responseBytes)
 
 	/* Check reply */
-	if pass == data.Secrets[0].R {
-		//util.Chat("Auth server approved! Have fun!")
-		world.Authorized.Store(true)
+	if pass == Secrets[0].R {
+		//Chat("Auth server approved! Have fun!")
+		Authorized.Store(true)
 		return true
 	}
 
 	/* Server said we are no-go */
 	txt := "Auth server did not approve."
-	util.Chat(txt)
-	world.Authorized.Store(false)
+	Chat(txt)
+	Authorized.Store(false)
 	statusText = txt
 	return false
 }
 
 /* Game start */
 func startGame() {
-	defer util.ReportPanic("startGame")
+	defer reportPanic("startGame")
 
 	/* Check if we are approved to play */
 	if !checkAuth() {
@@ -315,8 +307,8 @@ func startGame() {
 	checkVersion(false)
 
 	/* Hang out here until we are ready to proceed */
-	for !world.SpritesLoaded.Load() ||
-		world.PlayerReady.Load() == 0 {
+	for !SpritesLoaded.Load() ||
+		PlayerReady.Load() == 0 {
 		time.Sleep(time.Millisecond * 100)
 	}
 
@@ -324,7 +316,7 @@ func startGame() {
 	loadOptions()
 
 	/* Welcome/help message */
-	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
+	ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", ColorYellow, time.Second*60)
 
 	/* Set game running for update loops */
 	GameRunning = true
@@ -334,7 +326,7 @@ func startGame() {
 			time.Sleep(time.Minute * 5)
 
 			//shhh
-			UpdateFonts()
+			updateFonts()
 
 			checkAuth()
 		}
@@ -348,182 +340,182 @@ func startGame() {
 	}()
 
 	/* Threaded update daemons */
-	if !world.WASMMode {
-		go PixmapRenderDaemon()
-		go ObjUpdateDaemon()
-		go ResourceRenderDaemon()
+	if !WASMMode {
+		go pixmapRenderDaemon()
+		go objUpdateDaemon()
+		go resourceRenderDaemon()
 	} else {
 		/* Single thread version */
-		util.WASMSleep()
+		WASMSleep()
 		go ObjUpdateDaemonST()
 	}
 
-	world.ScreenSizeLock.Lock()
-	handleResize(int(world.ScreenWidth), int(world.ScreenHeight))
-	world.VisDataDirty.Store(true)
-	world.ScreenSizeLock.Unlock()
+	ScreenSizeLock.Lock()
+	handleResize(int(ScreenWidth), int(ScreenHeight))
+	VisDataDirty.Store(true)
+	ScreenSizeLock.Unlock()
 
-	InitWindows()
+	initWindows()
 }
 
 /* Load all sprites, sub missing ones */
 func loadSprites(dark bool) {
-	defer util.ReportPanic("loadSprites")
+	defer reportPanic("loadSprites")
 	dstr := ""
 	if dark {
 		dstr = "-dark"
 	}
 
-	for _, otype := range SubTypes {
-		for key, item := range otype.List {
+	for _, otype := range subTypes {
+		for key, item := range otype.list {
 
 			/* Main */
-			img, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+dstr+".png", false)
+			img, err := GetSpriteImage(otype.folder+"/"+item.base+dstr+".png", false)
 
 			/* If not found, check subfolder */
 			if err != nil {
-				img, err = data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+dstr+".png", false)
+				img, err = GetSpriteImage(otype.folder+"/"+item.base+"/"+item.base+dstr+".png", false)
 				if err != nil && !dark {
 					/* If not found, fill texture with text */
-					img = ebiten.NewImage(int(def.SpriteScale), int(def.SpriteScale))
-					img.Fill(world.ColorVeryDarkGray)
-					text.Draw(img, item.Symbol, world.ObjectFont, def.PlaceholdOffX, def.PlaceholdOffY, world.ColorWhite)
+					img = ebiten.NewImage(int(SpriteScale), int(SpriteScale))
+					img.Fill(ColorVeryDarkGray)
+					text.Draw(img, item.symbol, ObjectFont, PlaceholdOffX, PlaceholdOffY, ColorWhite)
 				}
 			}
 			if dark {
-				otype.List[key].Images.DarkMain = img
+				otype.list[key].images.darkMain = img
 			} else {
-				otype.List[key].Images.LightMain = img
+				otype.list[key].images.lightMain = img
 			}
 
 			/* Corner pieces */
-			imgc, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+"-corner"+dstr+".png", false)
+			imgc, err := GetSpriteImage(otype.folder+"/"+item.base+"/"+item.base+"-corner"+dstr+".png", false)
 			if err == nil {
 				if dark {
-					otype.List[key].Images.DarkCorner = imgc
+					otype.list[key].images.darkCorner = imgc
 				} else {
-					otype.List[key].Images.LightCorner = imgc
+					otype.list[key].images.lightCorner = imgc
 				}
 			}
 
 			/* Active*/
-			imga, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+"-active"+dstr+".png", false)
+			imga, err := GetSpriteImage(otype.folder+"/"+item.base+"/"+item.base+"-active"+dstr+".png", false)
 			if err == nil {
 				if dark {
-					otype.List[key].Images.DarkActive = imga
+					otype.list[key].images.darkActive = imga
 				} else {
-					otype.List[key].Images.LightActive = imga
+					otype.list[key].images.lightActive = imga
 				}
 			}
 
 			/* Overlays */
-			imgo, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+item.Base+"-overlay"+dstr+".png", false)
+			imgo, err := GetSpriteImage(otype.folder+"/"+item.base+"/"+item.base+"-overlay"+dstr+".png", false)
 			if err == nil {
 				if dark {
-					otype.List[key].Images.DarkOverlay = imgo
+					otype.list[key].images.darkOverlay = imgo
 				} else {
-					otype.List[key].Images.LightOverlay = imgo
+					otype.list[key].images.lightOverlay = imgo
 				}
 			}
 
 			/* Masks */
-			imgm, err := data.GetSpriteImage(otype.Folder+"/"+item.Base+"/"+"-mask"+dstr+".png", false)
+			imgm, err := GetSpriteImage(otype.folder+"/"+item.base+"/"+"-mask"+dstr+".png", false)
 			if err == nil {
 				if dark {
-					otype.List[key].Images.LightMask = imgm
+					otype.list[key].images.lightMask = imgm
 				} else {
-					otype.List[key].Images.DarkMask = imgm
+					otype.list[key].images.darkMask = imgm
 				}
 			}
 
-			util.WASMSleep()
+			WASMSleep()
 		}
 	}
 
-	for m, item := range MatTypes {
+	for m, item := range matTypes {
 		if !dark {
-			img, err := data.GetSpriteImage("belt-obj/"+item.Base+".png", false)
+			img, err := GetSpriteImage("belt-obj/"+item.base+".png", false)
 			if err != nil {
 				/* If not found, fill texture with text */
-				img = ebiten.NewImage(int(def.SpriteScale), int(def.SpriteScale))
-				img.Fill(world.ColorVeryDarkGray)
-				text.Draw(img, item.Symbol, world.ObjectFont, def.PlaceholdOffX, def.PlaceholdOffY, world.ColorWhite)
+				img = ebiten.NewImage(int(SpriteScale), int(SpriteScale))
+				img.Fill(ColorVeryDarkGray)
+				text.Draw(img, item.symbol, ObjectFont, PlaceholdOffX, PlaceholdOffY, ColorWhite)
 			}
-			MatTypes[m].LightImage = img
+			matTypes[m].lightImage = img
 		} else {
 
-			imgd, err := data.GetSpriteImage("belt-obj/"+item.Base+"-dark.png", false)
+			imgd, err := GetSpriteImage("belt-obj/"+item.base+"-dark.png", false)
 			if err == nil {
-				MatTypes[m].DarkImage = imgd
-				cwlog.DoLog(true, "loaded dark: %v", item.Base)
+				matTypes[m].darkImage = imgd
+				DoLog(true, "loaded dark: %v", item.base)
 			}
 		}
-		util.WASMSleep()
+		WASMSleep()
 	}
 
-	img, err := data.GetSpriteImage("ui/resource-legend.png", true)
+	img, err := GetSpriteImage("ui/resource-legend.png", true)
 	if err == nil {
-		world.ResourceLegendImage = img
+		ResourceLegendImage = img
 	}
 
 	LinkSprites(false)
 	LinkSprites(true)
 
-	SetupTerrainCache()
-	DrawToolbar(false, false, 0)
-	world.SpritesLoaded.Store(true)
+	setupTerrainCache()
+	drawToolbar(false, false, 0)
+	SpritesLoaded.Store(true)
 }
 
 func LinkSprites(dark bool) {
-	defer util.ReportPanic("LinkSprites")
-	for _, otype := range SubTypes {
-		for key, item := range otype.List {
+	defer reportPanic("LinkSprites")
+	for _, otype := range subTypes {
+		for key, item := range otype.list {
 			if dark {
-				if item.Images.DarkMain != nil {
-					otype.List[key].Images.Main = item.Images.DarkMain
+				if item.images.darkMain != nil {
+					otype.list[key].images.main = item.images.darkMain
 				}
-				if item.Images.DarkToolbar != nil {
-					otype.List[key].Images.Toolbar = item.Images.DarkToolbar
+				if item.images.darkToolbar != nil {
+					otype.list[key].images.toolbar = item.images.darkToolbar
 				}
-				if item.Images.DarkMask != nil {
-					otype.List[key].Images.Mask = item.Images.DarkMask
+				if item.images.darkMask != nil {
+					otype.list[key].images.mask = item.images.darkMask
 				}
-				if item.Images.DarkActive != nil {
-					otype.List[key].Images.Active = item.Images.DarkActive
+				if item.images.darkActive != nil {
+					otype.list[key].images.active = item.images.darkActive
 				}
-				if item.Images.DarkCorner != nil {
-					otype.List[key].Images.Corner = item.Images.DarkCorner
+				if item.images.darkCorner != nil {
+					otype.list[key].images.corner = item.images.darkCorner
 				}
-				if item.Images.DarkOverlay != nil {
-					otype.List[key].Images.Overlay = item.Images.DarkOverlay
+				if item.images.darkOverlay != nil {
+					otype.list[key].images.overlay = item.images.darkOverlay
 				}
-				for m, item := range MatTypes {
-					if item.DarkImage != nil {
-						MatTypes[m].Image = MatTypes[m].DarkImage
+				for m, item := range matTypes {
+					if item.darkImage != nil {
+						matTypes[m].image = matTypes[m].darkImage
 					}
 				}
 			} else {
-				if item.Images.LightMain != nil {
-					otype.List[key].Images.Main = item.Images.LightMain
+				if item.images.lightMain != nil {
+					otype.list[key].images.main = item.images.lightMain
 				}
-				if item.Images.LightToolbar != nil {
-					otype.List[key].Images.Toolbar = item.Images.LightToolbar
+				if item.images.lightToolbar != nil {
+					otype.list[key].images.toolbar = item.images.lightToolbar
 				}
-				if item.Images.LightMask != nil {
-					otype.List[key].Images.Mask = item.Images.LightMask
+				if item.images.lightMask != nil {
+					otype.list[key].images.mask = item.images.lightMask
 				}
-				if item.Images.LightActive != nil {
-					otype.List[key].Images.Active = item.Images.LightActive
+				if item.images.lightActive != nil {
+					otype.list[key].images.active = item.images.lightActive
 				}
-				if item.Images.LightCorner != nil {
-					otype.List[key].Images.Corner = item.Images.LightCorner
+				if item.images.lightCorner != nil {
+					otype.list[key].images.corner = item.images.lightCorner
 				}
-				if item.Images.LightOverlay != nil {
-					otype.List[key].Images.Overlay = item.Images.LightOverlay
+				if item.images.lightOverlay != nil {
+					otype.list[key].images.overlay = item.images.lightOverlay
 				}
-				for m, item := range MatTypes {
-					if item.LightImage != nil {
-						MatTypes[m].Image = MatTypes[m].LightImage
+				for m, item := range matTypes {
+					if item.lightImage != nil {
+						matTypes[m].image = matTypes[m].lightImage
 					}
 				}
 			}
@@ -536,40 +528,40 @@ var titleBuf *ebiten.Image
 var statusText string
 
 func bootScreen(screen *ebiten.Image) {
-	defer util.ReportPanic("bootScreen")
+	defer reportPanic("bootScreen")
 
-	if world.MapLoadPercent >= 100 {
-		world.MapLoadPercent = 100
+	if MapLoadPercent >= 100 {
+		MapLoadPercent = 100
 	}
 
 	if titleBuf == nil {
-		titleBuf = ebiten.NewImage(int(world.ScreenWidth), int(world.ScreenHeight))
+		titleBuf = ebiten.NewImage(int(ScreenWidth), int(ScreenHeight))
 	}
 
-	val := world.PlayerReady.Load()
+	val := PlayerReady.Load()
 
 	status := statusText
-	if !world.MapGenerated.Load() {
-		status = status + fmt.Sprintf("Loading: %-4.01f%%", world.MapLoadPercent)
+	if !MapGenerated.Load() {
+		status = status + fmt.Sprintf("Loading: %-4.01f%%", MapLoadPercent)
 	}
-	titleBuf.Fill(world.BootColor)
+	titleBuf.Fill(BootColor)
 
-	if world.TitleImage != nil {
+	if TitleImage != nil {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 
-		newScaleX := (float64(world.ScreenHeight) / float64(world.TitleImage.Bounds().Dy()))
+		newScaleX := (float64(ScreenHeight) / float64(TitleImage.Bounds().Dy()))
 
 		op.GeoM.Scale(newScaleX, newScaleX)
 
 		op.GeoM.Translate(
-			float64(world.ScreenWidth/2)-(float64(world.TitleImage.Bounds().Size().X)*newScaleX)/2,
-			float64(world.ScreenHeight/2)-(float64(world.TitleImage.Bounds().Size().Y)*newScaleX)/2,
+			float64(ScreenWidth/2)-(float64(TitleImage.Bounds().Size().X)*newScaleX)/2,
+			float64(ScreenHeight/2)-(float64(TitleImage.Bounds().Size().Y)*newScaleX)/2,
 		)
-		titleBuf.DrawImage(world.TitleImage, op)
+		titleBuf.DrawImage(TitleImage, op)
 
 		op.GeoM.Reset()
-		op.GeoM.Scale(world.UIScale/4, world.UIScale/4)
-		titleBuf.DrawImage(world.EbitenLogo, op)
+		op.GeoM.Scale(UIScale/4, UIScale/4)
+		titleBuf.DrawImage(EbitenLogo, op)
 	}
 
 	if status == "" {
@@ -578,51 +570,51 @@ func bootScreen(screen *ebiten.Image) {
 
 	output := fmt.Sprintf("Status: %v", status)
 
-	DrawText("Facility 38", world.LogoFont, world.ColorOrange, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 4, Y: (float32(world.ScreenHeight) / 4.0) - 4}, 0, titleBuf, false, true, true)
-	DrawText("Facility 38", world.LogoFont, world.ColorVeryDarkAqua, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 4.0}, 0, titleBuf, false, true, true)
+	DrawText("Facility 38", LogoFont, ColorOrange, color.Transparent, XYf32{X: (float32(ScreenWidth) / 2.0) - 4, Y: (float32(ScreenHeight) / 4.0) - 4}, 0, titleBuf, false, true, true)
+	DrawText("Facility 38", LogoFont, ColorVeryDarkAqua, color.Transparent, XYf32{X: float32(ScreenWidth) / 2.0, Y: float32(ScreenHeight) / 4.0}, 0, titleBuf, false, true, true)
 
-	DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) - 2, Y: (float32(world.ScreenHeight) / 2.5) - 2}, 0, titleBuf, false, true, true)
-	DrawText(output, world.BootFont, world.ColorBlack, color.Transparent, world.XYf32{X: (float32(world.ScreenWidth) / 2.0) + 2, Y: (float32(world.ScreenHeight) / 2.5) + 2}, 0, titleBuf, false, true, true)
-	DrawText(output, world.BootFont, world.ColorLightOrange, color.Transparent, world.XYf32{X: float32(world.ScreenWidth) / 2.0, Y: float32(world.ScreenHeight) / 2.5}, 0, titleBuf, false, true, true)
+	DrawText(output, BootFont, ColorBlack, color.Transparent, XYf32{X: (float32(ScreenWidth) / 2.0) - 2, Y: (float32(ScreenHeight) / 2.5) - 2}, 0, titleBuf, false, true, true)
+	DrawText(output, BootFont, ColorBlack, color.Transparent, XYf32{X: (float32(ScreenWidth) / 2.0) + 2, Y: (float32(ScreenHeight) / 2.5) + 2}, 0, titleBuf, false, true, true)
+	DrawText(output, BootFont, ColorLightOrange, color.Transparent, XYf32{X: float32(ScreenWidth) / 2.0, Y: float32(ScreenHeight) / 2.5}, 0, titleBuf, false, true, true)
 
 	multi := 5.0
 	pw := float32(100.0 * multi)
 	tall := float32(24.0)
-	x := (float32(world.ScreenWidth) / 2.0) - (pw / 2.0)
-	y := (float32(world.ScreenHeight) / 4.0)
-	vector.DrawFilledRect(titleBuf, x, y, pw, tall, world.ColorVeryDarkGray, false)
-	color := world.ColorVeryDarkGray
+	x := (float32(ScreenWidth) / 2.0) - (pw / 2.0)
+	y := (float32(ScreenHeight) / 4.0)
+	vector.DrawFilledRect(titleBuf, x, y, pw, tall, ColorVeryDarkGray, false)
+	color := ColorVeryDarkGray
 
-	color.G = byte(104 + (world.MapLoadPercent * 1.5))
+	color.G = byte(104 + (MapLoadPercent * 1.5))
 	color.A = 128
-	vector.DrawFilledRect(titleBuf, x, y, world.MapLoadPercent*float32(multi), tall, color, false)
+	vector.DrawFilledRect(titleBuf, x, y, MapLoadPercent*float32(multi), tall, color, false)
 
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
-	if world.PlayerReady.Load() != 0 && world.MapGenerated.Load() && world.SpritesLoaded.Load() && world.Authorized.Load() {
+	if PlayerReady.Load() != 0 && MapGenerated.Load() && SpritesLoaded.Load() && Authorized.Load() {
 		alpha := 0.5 - (float32(val) * 0.0169491525424)
 		op.ColorScale.Scale(alpha, alpha, alpha, alpha)
-		world.PlayerReady.Store(val + 1)
+		PlayerReady.Store(val + 1)
 	}
 
 	screen.DrawImage(titleBuf, op)
 	drawChatLines(screen)
 
 	if val == 59 && titleBuf != nil {
-		//cwlog.DoLog(true, "Title disposed.")
+		//DoLog(true, "Title disposed.")
 		titleBuf.Dispose()
 		titleBuf = nil
-		world.PlayerReady.Store(255)
+		PlayerReady.Store(255)
 	}
-	util.WASMSleep()
+	WASMSleep()
 }
 
 /* Detect logical and virtual CPUs, set number of workers */
 func detectCPUs(hyper bool) {
-	defer util.ReportPanic("detectCPUs")
+	defer reportPanic("detectCPUs")
 
-	if world.WASMMode {
-		world.NumWorkers = 1
+	if WASMMode {
+		NumWorkers = 1
 		return
 	}
 
@@ -631,12 +623,12 @@ func detectCPUs(hyper bool) {
 	if lCPUs <= 1 {
 		lCPUs = 1
 	}
-	world.NumWorkers = lCPUs
-	cwlog.DoLog(true, "Virtual CPUs: %v", lCPUs)
+	NumWorkers = lCPUs
+	DoLog(true, "Virtual CPUs: %v", lCPUs)
 
 	if hyper {
-		world.NumWorkers = lCPUs
-		cwlog.DoLog(true, "Number of workers: %v", lCPUs)
+		NumWorkers = lCPUs
+		DoLog(true, "Number of workers: %v", lCPUs)
 		return
 	}
 
@@ -649,104 +641,104 @@ func detectCPUs(hyper bool) {
 		} else {
 			lCPUs = 1
 		}
-		cwlog.DoLog(true, "Logical CPUs: %v", cdat)
+		DoLog(true, "Logical CPUs: %v", cdat)
 	}
 
-	cwlog.DoLog(true, "Number of workers: %v", lCPUs)
-	world.NumWorkers = lCPUs
+	DoLog(true, "Number of workers: %v", lCPUs)
+	NumWorkers = lCPUs
 }
 
 /* Sets up a reasonable sized window depending on diplay resolution */
 func setupWindowSize() {
-	defer util.ReportPanic("setupWindowSize")
-	world.ScreenSizeLock.Lock()
-	defer world.ScreenSizeLock.Unlock()
+	defer reportPanic("setupWindowSize")
+	ScreenSizeLock.Lock()
+	defer ScreenSizeLock.Unlock()
 
 	xSize, ySize := ebiten.ScreenSizeInFullscreen()
 
 	/* Skip in benchmark mode */
-	if !world.UPSBench {
+	if !UPSBench {
 		/* Handle high res displays, 50% window */
 		if xSize > 2560 && ySize > 1440 {
-			world.Magnify = false
+			Magnify = false
 			settingItems[2].Enabled = false
 
-			world.ScreenWidth = uint16(xSize / 2)
-			world.ScreenHeight = uint16(ySize / 2)
+			ScreenWidth = uint16(xSize / 2)
+			ScreenHeight = uint16(ySize / 2)
 
 			/* Small Screen, just go fullscreen */
 		} else {
-			world.Magnify = true
+			Magnify = true
 			settingItems[2].Enabled = true
 
-			world.ScreenWidth = uint16(xSize)
-			world.ScreenHeight = uint16(ySize)
+			ScreenWidth = uint16(xSize)
+			ScreenHeight = uint16(ySize)
 
 			if xSize <= 1280 && ySize <= 720 {
 				ebiten.SetFullscreen(true)
 			}
 		}
 	}
-	ebiten.SetWindowSize(int(world.ScreenWidth), int(world.ScreenHeight))
+	ebiten.SetWindowSize(int(ScreenWidth), int(ScreenHeight))
 }
 
-var oldScale = world.UIScale
+var oldScale = UIScale
 
 const scaleLockVal = 4
 
 /* Ebiten resize handling */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	defer util.ReportPanic("Layout")
-	world.ScreenSizeLock.Lock()
-	defer world.ScreenSizeLock.Unlock()
+	defer reportPanic("Layout")
+	ScreenSizeLock.Lock()
+	defer ScreenSizeLock.Unlock()
 
-	if outsideWidth != int(world.ScreenWidth) || outsideHeight != int(world.ScreenHeight) {
-		world.ScreenWidth = uint16(outsideWidth)
-		world.ScreenHeight = uint16(outsideHeight)
+	if outsideWidth != int(ScreenWidth) || outsideHeight != int(ScreenHeight) {
+		ScreenWidth = uint16(outsideWidth)
+		ScreenHeight = uint16(outsideHeight)
 		handleResize(outsideWidth, outsideHeight)
-		world.VisDataDirty.Store(true)
+		VisDataDirty.Store(true)
 	}
 
-	return int(world.ScreenWidth), int(world.ScreenHeight)
+	return int(ScreenWidth), int(ScreenHeight)
 }
 
 /* Automatic window title update */
 func windowTitle() {
-	defer util.ReportPanic("windowTitle")
+	defer reportPanic("windowTitle")
 	ebiten.SetWindowTitle("Facility 38")
 }
 
 func handleResize(outsideWidth int, outsideHeight int) {
-	defer util.ReportPanic("handleResize")
+	defer reportPanic("handleResize")
 	//Recalcualte settings window item
-	scale := 1 / (def.UIBaseResolution / float64(outsideWidth))
+	scale := 1 / (UIBaseResolution / float64(outsideWidth))
 
 	lock := float64(int(scale * scaleLockVal))
 	scale = lock / scaleLockVal
 
 	if scale < 0.5 {
-		world.UIScale = 0.5
+		UIScale = 0.5
 	} else {
-		world.UIScale = scale
+		UIScale = scale
 	}
 
-	if world.Magnify {
-		world.UIScale = world.UIScale + 0.33
+	if Magnify {
+		UIScale = UIScale + 0.33
 	}
 
-	if world.UIScale != oldScale {
+	if UIScale != oldScale {
 		/* Kill window caches */
-		for w := range Windows {
-			if Windows[w].Cache != nil {
-				Windows[w].Cache.Dispose()
-				Windows[w].Cache = nil
+		for w := range windows {
+			if windows[w].cache != nil {
+				windows[w].cache.Dispose()
+				windows[w].cache = nil
 			}
 		}
 
-		//cwlog.DoLog(true, "UIScale: %v", world.UIScale)
-		oldScale = world.UIScale
+		//DoLog(true, "UIScale: %v", UIScale)
+		oldScale = UIScale
 
-		UpdateFonts()
+		updateFonts()
 
 		toolbarCacheLock.Lock()
 		if toolbarCache != nil {
@@ -754,8 +746,8 @@ func handleResize(outsideWidth int, outsideHeight int) {
 			toolbarCache = nil
 		}
 		toolbarCacheLock.Unlock()
-		DrawToolbar(false, false, 255)
+		drawToolbar(false, false, 255)
 
-		InitWindows()
+		initWindows()
 	}
 }

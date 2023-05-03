@@ -1,117 +1,116 @@
 package main
 
 import (
-	"Facility38/cwlog"
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
-
 	"github.com/remeh/sizedwaitgroup"
 )
 
 /* Modulo offset */
-type OffsetData struct {
-	Offset int
-	Ticks  []*world.ObjData
-	Tocks  []*world.ObjData
+type offsetData struct {
+	offset int
+	ticks  []*ObjData
+	tocks  []*ObjData
 }
 
 /* How often objects in this group update */
-type TickInterval struct {
-	Interval   int
-	LastOffset int
-	Offsets    []OffsetData
+type tickInterval struct {
+	interval   int
+	lastOffset int
+	offsets    []offsetData
 }
 
 var (
-	TickIntervals []TickInterval
+	tickIntervals []tickInterval
 	wg            sizedwaitgroup.SizedWaitGroup
 
-	ActiveTicks int
-	ActiveTocks int
+	activeTicks int
+	activeTocks int
+
+	tickBlocks int
+	tockBlocks int
+	block      [WorkSize]*ObjData
 )
 
 /* Init at boot */
-func TickInit() {
-	defer util.ReportPanic("TickInit")
-	for _, ot := range WorldObjs {
-		GetIntervalPos(int(ot.TockInterval))
+func tickInit() {
+	defer reportPanic("tickInit")
+	for _, ot := range worldObjs {
+		getIntervalPos(int(ot.tockInterval))
 	}
-	cwlog.DoLog(true, "%v intervals added.", len(TickIntervals))
+	DoLog(true, "%v intervals added.", len(tickIntervals))
 
 }
 
 /* Return interval data, or create it if needed */
-func GetIntervalPos(interval int) (pos int, created bool) {
-	defer util.ReportPanic("GetIntervalPos")
+func getIntervalPos(interval int) (pos int, created bool) {
+	defer reportPanic("getIntervalPos")
 	foundInterval := false
 
 	/* Eventually replace with precalc table */
-	for ipos, inter := range TickIntervals {
-		if inter.Interval == interval {
+	for ipos, inter := range tickIntervals {
+		if inter.interval == interval {
 			foundInterval = true
 			return ipos, false
 		}
 	}
 	/* Doesn't exist, create it */
 	if !foundInterval {
-		pos := len(TickIntervals)
+		pos := len(tickIntervals)
 
-		offsets := make([]OffsetData, interval+1)
+		offsets := make([]offsetData, interval+1)
 		for opos := range offsets {
-			offsets[opos].Offset = opos
+			offsets[opos].offset = opos
 		}
-		TickIntervals = append(TickIntervals, TickInterval{Interval: interval, Offsets: offsets})
+		tickIntervals = append(tickIntervals, tickInterval{interval: interval, offsets: offsets})
 		return pos, true
 	}
 
-	cwlog.DoLog(true, "Error!")
+	DoLog(true, "Error!")
 	return -1, false
 }
 
 /* Add tock event to tick interval/mod offset */
-func AddTock(obj *world.ObjData) {
-	defer util.ReportPanic("AddTock")
-	if obj.HasTock {
+func addTock(obj *ObjData) {
+	defer reportPanic("addTock")
+	if obj.hasTock {
 		return
 	}
-	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
+	i, _ := getIntervalPos(int(obj.Unique.typeP.tockInterval))
 
-	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
-		TickIntervals[i].LastOffset = 0
+	if tickIntervals[i].lastOffset >= tickIntervals[i].interval {
+		tickIntervals[i].lastOffset = 0
 	}
 
-	TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Tocks =
-		append(TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Tocks, obj)
+	tickIntervals[i].offsets[tickIntervals[i].lastOffset].tocks =
+		append(tickIntervals[i].offsets[tickIntervals[i].lastOffset].tocks, obj)
 
-	TickIntervals[i].LastOffset++
-	world.TockCount++
+	tickIntervals[i].lastOffset++
+	TockCount++
 }
 
 /* Remove a tock from tick interval/mod offset */
-func RemoveTock(obj *world.ObjData) {
-	defer util.ReportPanic("RemoveTock")
-	if !obj.HasTock {
+func removeTock(obj *ObjData) {
+	defer reportPanic("removeTock")
+	if !obj.hasTock {
 		return
 	}
-	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
+	i, _ := getIntervalPos(int(obj.Unique.typeP.tockInterval))
 
-	for offPos, off := range TickIntervals[i].Offsets {
+	for offPos, off := range tickIntervals[i].offsets {
 		/* Check if this is the correct interval */
-		if uint8(off.Offset) != obj.Unique.TypeP.TockInterval {
+		if uint8(off.offset) != obj.Unique.typeP.tockInterval {
 			continue
 		}
 		/* If it is, remove object */
-		for itemPos, item := range off.Tocks {
+		for itemPos, item := range off.tocks {
 			if item == obj {
 
-				TickIntervals[i].Offsets[offPos].Tocks =
+				tickIntervals[i].offsets[offPos].tocks =
 					append(
-						TickIntervals[i].Offsets[offPos].Tocks[:itemPos],
-						TickIntervals[i].Offsets[offPos].Tocks[itemPos+1:]...)
+						tickIntervals[i].offsets[offPos].tocks[:itemPos],
+						tickIntervals[i].offsets[offPos].tocks[itemPos+1:]...)
 
-				world.TockCount--
-				cwlog.DoLog(true, "Tock Removed: %v", obj.Unique.TypeP.Name)
+				TockCount--
+				DoLog(true, "Tock Removed: %v", obj.Unique.typeP.name)
 				break
 			}
 		}
@@ -119,50 +118,50 @@ func RemoveTock(obj *world.ObjData) {
 }
 
 /* Add a tick from a tick interval/mod offset */
-func AddTick(obj *world.ObjData) {
-	defer util.ReportPanic("AddTick")
-	if obj.HasTick {
+func addTick(obj *ObjData) {
+	defer reportPanic("addTick")
+	if obj.hasTick {
 		return
 	}
 
-	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
-	if TickIntervals[i].LastOffset >= TickIntervals[i].Interval {
-		TickIntervals[i].LastOffset = 0
+	i, _ := getIntervalPos(int(obj.Unique.typeP.tockInterval))
+	if tickIntervals[i].lastOffset >= tickIntervals[i].interval {
+		tickIntervals[i].lastOffset = 0
 	}
 
-	TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Ticks =
-		append(TickIntervals[i].Offsets[TickIntervals[i].LastOffset].Ticks, obj)
+	tickIntervals[i].offsets[tickIntervals[i].lastOffset].ticks =
+		append(tickIntervals[i].offsets[tickIntervals[i].lastOffset].ticks, obj)
 
-	TickIntervals[i].LastOffset++
-	world.TickCount++
+	tickIntervals[i].lastOffset++
+	TickCount++
 }
 
 /* Remove a tick event from the TickInterval list */
-func RemoveTick(obj *world.ObjData) {
-	defer util.ReportPanic("RemoveTick")
+func removeTick(obj *ObjData) {
+	defer reportPanic("removeTick")
 
-	if !obj.HasTick {
+	if !obj.hasTick {
 		return
 	}
 	/* Find our position */
-	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
+	i, _ := getIntervalPos(int(obj.Unique.typeP.tockInterval))
 
-	for offPos, off := range TickIntervals[i].Offsets {
+	for offPos, off := range tickIntervals[i].offsets {
 		/* Check if this is the correct interval */
-		if uint8(off.Offset) != obj.Unique.TypeP.TockInterval {
+		if uint8(off.offset) != obj.Unique.typeP.tockInterval {
 			continue
 		}
 		/* If it is, remove object */
-		for itemPos, item := range off.Ticks {
+		for itemPos, item := range off.ticks {
 			if item == obj {
 
-				TickIntervals[i].Offsets[offPos].Ticks =
+				tickIntervals[i].offsets[offPos].ticks =
 					append(
-						TickIntervals[i].Offsets[offPos].Ticks[:itemPos],
-						TickIntervals[i].Offsets[offPos].Ticks[itemPos+1:]...)
+						tickIntervals[i].offsets[offPos].ticks[:itemPos],
+						tickIntervals[i].offsets[offPos].ticks[itemPos+1:]...)
 
-				world.TickCount--
-				cwlog.DoLog(true, "Tick Removed: %v", obj.Unique.TypeP.Name)
+				TickCount--
+				DoLog(true, "Tick Removed: %v", obj.Unique.typeP.name)
 				break
 			}
 		}
@@ -170,64 +169,64 @@ func RemoveTick(obj *world.ObjData) {
 }
 
 /* Single-thhread run tocks */
-func NewRunTocksST() {
-	defer util.ReportPanic("NewRunTocksST")
-	ActiveTocks = 0
+func newRunTocksST() {
+	defer reportPanic("newRunTocksST")
+	activeTocks = 0
 
-	for _, ti := range TickIntervals {
-		for _, off := range ti.Offsets {
-			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
-				for _, tock := range off.Tocks {
-					tock.Unique.TypeP.UpdateObj(tock)
+	for _, ti := range tickIntervals {
+		for _, off := range ti.offsets {
+			if ti.interval == 0 || (GameTick+uint64(off.offset))%uint64(ti.interval) == 0 {
+				for _, tock := range off.tocks {
+					tock.Unique.typeP.updateObj(tock)
 				}
-				ActiveTocks += len(off.Tocks)
+				activeTocks += len(off.tocks)
 			}
 		}
 	}
 
-	world.ActiveTockCount = ActiveTocks
+	ActiveTockCount = activeTocks
 }
 
 /* Single-thread run ticks */
-func NewRunTicksST() {
-	defer util.ReportPanic("NewRunTicksST")
-	ActiveTicks = 0
+func newRunTicksST() {
+	defer reportPanic("newRunTicksST")
+	activeTicks = 0
 
-	for _, ti := range TickIntervals {
-		for _, off := range ti.Offsets {
-			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
-				for _, tock := range off.Ticks {
+	for _, ti := range tickIntervals {
+		for _, off := range ti.offsets {
+			if ti.interval == 0 || (GameTick+uint64(off.offset))%uint64(ti.interval) == 0 {
+				for _, tock := range off.ticks {
 					tickObj(tock)
 				}
-				ActiveTicks += len(off.Tocks)
+				activeTicks += len(off.tocks)
 			}
 		}
 	}
 
-	world.ActiveTickCount = ActiveTicks
+	ActiveTickCount = activeTicks
 }
 
 /* Threaded tock update */
-var block [def.WorkSize]*world.ObjData
-
-func NewRunTocks() {
-	defer util.ReportPanic("NewRunTocks")
+func newRunTocks() {
+	defer reportPanic("newRunTocks")
 
 	numObj := 0
-	ActiveTocks = 0
+	activeTocks = 0
+	tockBlocks = 0
 
-	wg = sizedwaitgroup.New(world.NumWorkers)
+	wg = sizedwaitgroup.New(NumWorkers)
 
-	for _, ti := range TickIntervals {
-		for _, off := range ti.Offsets {
-			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
-				for _, tock := range off.Tocks {
+	for _, ti := range tickIntervals {
+		for _, off := range ti.offsets {
+			if ti.interval == 0 || (GameTick+uint64(off.offset))%uint64(ti.interval) == 0 {
+				for _, tock := range off.tocks {
 					block[numObj] = tock
 					numObj++
-					if numObj == def.WorkSize {
+					if numObj == WorkSize {
 						//Waitgroup add and done happen within here
 						runTockBlock(numObj)
-						ActiveTocks += numObj
+						activeTocks += numObj
+						tockBlocks++
 						numObj = 0
 					}
 				}
@@ -236,29 +235,31 @@ func NewRunTocks() {
 	}
 	if numObj > 0 {
 		runTockBlock(numObj)
-		ActiveTocks += numObj
+		activeTocks += numObj
 	}
 	wg.Wait()
-	world.ActiveTockCount = ActiveTocks
+	ActiveTockCount = activeTocks
 }
 
 /* Threaded tick update */
-func NewRunTicks() {
+func newRunTicks() {
 
 	numObj := 0
-	ActiveTicks = 0
-	defer util.ReportPanic("NewRunTicks")
+	activeTicks = 0
+	tickBlocks = 0
+	defer reportPanic("newRunTicks")
 
-	for _, ti := range TickIntervals {
-		for _, off := range ti.Offsets {
-			if ti.Interval == 0 || (GameTick+uint64(off.Offset))%uint64(ti.Interval) == 0 {
-				for _, tick := range off.Ticks {
+	for _, ti := range tickIntervals {
+		for _, off := range ti.offsets {
+			if ti.interval == 0 || (GameTick+uint64(off.offset))%uint64(ti.interval) == 0 {
+				for _, tick := range off.ticks {
 					block[numObj] = tick
 					numObj++
-					if numObj == def.WorkSize {
+					if numObj == WorkSize {
 						//Waitgroup add and done happen within here
 						runTickBlock(numObj)
-						ActiveTicks += numObj
+						activeTicks += numObj
+						tickBlocks++
 						numObj = 0
 					}
 				}
@@ -267,42 +268,42 @@ func NewRunTicks() {
 	}
 	if numObj > 0 {
 		runTickBlock(numObj)
-		ActiveTicks += numObj
+		activeTicks += numObj
 	}
 	wg.Wait()
 
-	world.ActiveTickCount = ActiveTicks
+	ActiveTickCount = activeTicks
 }
 
 /* Run a block of ticks on a thread */
 func runTickBlock(numObj int) {
-	defer util.ReportPanic("runTickBlock")
+	defer reportPanic("runTickBlock")
 
 	wg.Add()
-	go func(w [def.WorkSize]*world.ObjData, nObj int) {
-		defer util.ReportPanic("runTickBlock goroutine")
+	go func(w [WorkSize]*ObjData, nObj int) {
+		defer reportPanic("runTickBlock goroutine")
 		for x := 0; x < nObj; x++ {
 			tickObj(w[x])
 		}
 		wg.Done()
 	}(block, numObj)
 
-	block = [def.WorkSize]*world.ObjData{}
+	block = [WorkSize]*ObjData{}
 }
 
 /* Run a block of tocks on a thread */
 func runTockBlock(numObj int) {
-	defer util.ReportPanic("runTockBlock")
+	defer reportPanic("runTockBlock")
 	wg.Add()
-	go func(w [def.WorkSize]*world.ObjData, nObj int) {
+	go func(w [WorkSize]*ObjData, nObj int) {
 		var x int
-		defer util.ReportPanic("runTockBlock goroutine")
+		defer reportPanic("runTockBlock goroutine")
 
 		for x = 0; x < nObj; x++ {
-			w[x].Unique.TypeP.UpdateObj(w[x])
+			w[x].Unique.typeP.updateObj(w[x])
 		}
 		wg.Done()
 	}(block, numObj)
 
-	block = [def.WorkSize]*world.ObjData{}
+	block = [WorkSize]*ObjData{}
 }

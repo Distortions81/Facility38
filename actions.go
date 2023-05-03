@@ -1,8 +1,6 @@
 package main
 
 import (
-	"Facility38/util"
-	"Facility38/world"
 	"time"
 )
 
@@ -10,51 +8,51 @@ import (
 
 /* Toggle settings window */
 func settingsToggle() {
-	defer util.ReportPanic("settingsToggle")
-	if Windows[0].Active {
-		CloseWindow(Windows[0])
+	defer reportPanic("settingsToggle")
+	if windows[0].active {
+		closeWindow(windows[0])
 	} else {
-		OpenWindow(Windows[0])
+		openWindow(windows[0])
 	}
 }
 
 /* Toggle help windw */
 func toggleHelp() {
-	defer util.ReportPanic("toggleHelp")
+	defer reportPanic("toggleHelp")
 
-	if Windows[1].Active {
-		CloseWindow(Windows[1])
+	if windows[1].active {
+		closeWindow(windows[1])
 	} else {
-		OpenWindow(Windows[1])
+		openWindow(windows[1])
 	}
 }
 
 /* Toggle info overlay */
 func toggleOverlay() {
-	defer util.ReportPanic("toggleOverlay")
-	if world.OverlayMode {
-		world.OverlayMode = false
-		util.ChatDetailed("Info overlay is now off.", world.ColorOrange, time.Second*5)
+	defer reportPanic("toggleOverlay")
+	if OverlayMode {
+		OverlayMode = false
+		ChatDetailed("Info overlay is now off.", ColorOrange, time.Second*5)
 	} else {
-		world.OverlayMode = true
-		util.ChatDetailed("Info overlay is now on.", world.ColorOrange, time.Second*5)
+		OverlayMode = true
+		ChatDetailed("Info overlay is now on.", ColorOrange, time.Second*5)
 	}
 }
 
 /* Switch between normal and resource layers */
-func SwitchLayer() {
-	defer util.ReportPanic("SwitchLayer")
-	world.ShowResourceLayerLock.Lock()
+func switchGameLayer() {
+	defer reportPanic("switchGameLayer")
+	ShowResourceLayerLock.Lock()
 
-	if world.ShowResourceLayer {
-		world.ShowResourceLayer = false
-		util.ChatDetailed("Switched from resource layer to game.", world.ColorOrange, time.Second*10)
+	if ShowResourceLayer {
+		ShowResourceLayer = false
+		ChatDetailed("Switched from resource layer to game.", ColorOrange, time.Second*10)
 	} else {
-		world.ShowResourceLayer = true
-		util.ChatDetailed("Switched from game to resource layer.", world.ColorOrange, time.Second*10)
+		ShowResourceLayer = true
+		ChatDetailed("Switched from game to resource layer.", ColorOrange, time.Second*10)
 	}
-	for _, sChunk := range world.SuperChunkList {
-		sChunk.PixmapDirty = true
+	for _, sChunk := range SuperChunkList {
+		sChunk.pixmapDirty = true
 	}
-	world.ShowResourceLayerLock.Unlock()
+	ShowResourceLayerLock.Unlock()
 }

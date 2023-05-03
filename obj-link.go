@@ -1,137 +1,131 @@
 package main
 
-import (
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
-)
-
-func linkMiner(obj *world.ObjData) {
-	defer util.ReportPanic("linkMiner")
-	if obj.NumOut == 0 {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
+func linkMiner(obj *ObjData) {
+	defer reportPanic("linkMiner")
+	if obj.numOut == 0 {
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 }
 
-func linkBelt(obj *world.ObjData) {
-	defer util.ReportPanic("linkBelt")
-	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
+func linkBelt(obj *ObjData) {
+	defer reportPanic("linkBelt")
+	if obj.numOut == 0 || obj.numIn == 0 {
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 
-	if obj.NumIn == 1 && obj.NumOut == 1 {
-		var in, out uint8 = obj.Inputs[0].Dir, obj.Outputs[0].Dir
+	if obj.numIn == 1 && obj.numOut == 1 {
+		var in, out uint8 = obj.inputs[0].Dir, obj.outputs[0].Dir
 
-		obj.IsCorner = true
+		obj.isCorner = true
 
-		var DrawDir uint8 = def.DIR_NORTH
-		if in == def.DIR_SOUTH && out == def.DIR_EAST ||
-			out == def.DIR_SOUTH && in == def.DIR_EAST {
+		var DrawDir uint8 = DIR_NORTH
+		if in == DIR_SOUTH && out == DIR_EAST ||
+			out == DIR_SOUTH && in == DIR_EAST {
 			DrawDir = 0
-		} else if in == def.DIR_WEST && out == def.DIR_SOUTH ||
-			out == def.DIR_WEST && in == def.DIR_SOUTH {
+		} else if in == DIR_WEST && out == DIR_SOUTH ||
+			out == DIR_WEST && in == DIR_SOUTH {
 			DrawDir = 1
-		} else if in == def.DIR_WEST && out == def.DIR_NORTH ||
-			out == def.DIR_WEST && in == def.DIR_NORTH {
+		} else if in == DIR_WEST && out == DIR_NORTH ||
+			out == DIR_WEST && in == DIR_NORTH {
 			DrawDir = 2
-		} else if in == def.DIR_NORTH && out == def.DIR_EAST ||
-			out == def.DIR_NORTH && in == def.DIR_EAST {
+		} else if in == DIR_NORTH && out == DIR_EAST ||
+			out == DIR_NORTH && in == DIR_EAST {
 			DrawDir = 3
 		} else {
-			obj.IsCorner = false
+			obj.isCorner = false
 		}
-		obj.CornerDir = DrawDir
+		obj.cornerDir = DrawDir
 	} else {
-		obj.IsCorner = false
+		obj.isCorner = false
 	}
 }
 
-func linkBeltOver(obj *world.ObjData) {
-	defer util.ReportPanic("linkBeltOver")
-	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
+func linkBeltOver(obj *ObjData) {
+	defer reportPanic("linkBeltOver")
+	if obj.numOut == 0 || obj.numIn == 0 {
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 
 	/* Alias inputs */
-	for i, input := range obj.Inputs {
-		if input.Dir == util.ReverseDirection(obj.Dir) {
-			obj.BeltOver.OverIn = obj.Inputs[i]
+	for i, input := range obj.inputs {
+		if input.Dir == ReverseDirection(obj.Dir) {
+			obj.beltOver.overIn = obj.inputs[i]
 		} else {
-			obj.BeltOver.UnderIn = obj.Inputs[i]
+			obj.beltOver.underIn = obj.inputs[i]
 		}
 	}
 
 	/* Alias outputs */
-	for o, output := range obj.Outputs {
+	for o, output := range obj.outputs {
 		if output.Dir == obj.Dir {
-			obj.BeltOver.OverOut = obj.Outputs[o]
+			obj.beltOver.overOut = obj.outputs[o]
 		} else {
-			obj.BeltOver.UnderOut = obj.Outputs[o]
+			obj.beltOver.underOut = obj.outputs[o]
 		}
 	}
 }
 
-func linkFuelHopper(obj *world.ObjData) {
-	defer util.ReportPanic("linkFuelHopper")
-	if obj.NumFOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
+func linkFuelHopper(obj *ObjData) {
+	defer reportPanic("linkFuelHopper")
+	if obj.numFOut == 0 || obj.numIn == 0 {
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 }
 
-func linkSplitter(obj *world.ObjData) {
-	defer util.ReportPanic("linkSplitter")
-	if obj.NumOut == 0 || obj.NumIn == 0 {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
+func linkSplitter(obj *ObjData) {
+	defer reportPanic("linkSplitter")
+	if obj.numOut == 0 || obj.numIn == 0 {
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 }
 
-func linkUnloader(obj *world.ObjData) {
-	defer util.ReportPanic("linkUnloader")
-	if obj.NumOut != 0 || obj.NumIn != 0 {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+func linkUnloader(obj *ObjData) {
+	defer reportPanic("linkUnloader")
+	if obj.numOut != 0 || obj.numIn != 0 {
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	} else {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	}
 }
 
-func linkBox(obj *world.ObjData) {
-	defer util.ReportPanic("linkBox")
-	if obj.NumIn == 0 {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
+func linkBox(obj *ObjData) {
+	defer reportPanic("linkBox")
+	if obj.numIn == 0 {
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
 	} else {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 	}
 }
 
-func linkMachine(obj *world.ObjData) {
-	defer util.ReportPanic("linkMachine")
-	if obj.NumOut == 0 {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, true)
+func linkMachine(obj *ObjData) {
+	defer reportPanic("linkMachine")
+	if obj.numOut == 0 {
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, def.QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, def.QUEUE_TYPE_TICK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 }

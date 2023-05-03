@@ -1,10 +1,6 @@
 package main
 
 import (
-	"Facility38/cwlog"
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
 	"image"
 	"time"
 
@@ -30,33 +26,33 @@ var (
 )
 
 /* Make a low-detail 'loading' temporary texture for chunk terrain */
-func SetupTerrainCache() {
-	defer util.ReportPanic("SetupTerrainCache")
-	tChunk := world.MapChunk{}
+func setupTerrainCache() {
+	defer reportPanic("setupTerrainCache")
+	tChunk := mapChunk{}
 
-	renderChunkGround(&tChunk, false, world.XY{X: 0, Y: 0})
-	world.TempChunkImage = tChunk.TerrainImage
-	tChunk.UsingTemporary = true
+	renderChunkGround(&tChunk, false, XY{X: 0, Y: 0})
+	TempChunkImage = tChunk.terrainImage
+	tChunk.usingTemporary = true
 
-	world.SuperChunkListLock.RLock()
-	for _, sChunk := range world.SuperChunkList {
-		for _, chunk := range sChunk.ChunkList {
+	SuperChunkListLock.RLock()
+	for _, sChunk := range SuperChunkList {
+		for _, chunk := range sChunk.chunkList {
 			killTerrainCache(chunk, true)
 		}
 	}
-	world.SuperChunkListLock.RUnlock()
+	SuperChunkListLock.RUnlock()
 
 	if debugVisualize {
-		world.TempChunkImage.Fill(world.ColorDarkRed)
+		TempChunkImage.Fill(ColorDarkRed)
 	}
 }
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
-func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
-	defer util.ReportPanic("renderChunkGround")
-	chunkPix := (def.SpriteScale * def.ChunkSize)
+func renderChunkGround(chunk *mapChunk, doDetail bool, cpos XY) {
+	defer reportPanic("renderChunkGround")
+	chunkPix := (SpriteScale * ChunkSize)
 
-	var bg *ebiten.Image = TerrainTypes[0].Images.Main
+	var bg *ebiten.Image = terrainTypes[0].images.main
 	sx := int(float32(bg.Bounds().Size().X))
 	sy := int(float32(bg.Bounds().Size().Y))
 	var tImg *ebiten.Image
@@ -68,23 +64,23 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 		rect.Max.X = chunkPix
 		rect.Max.Y = chunkPix
 
-		if chunk.UsingTemporary || chunk.TerrainImage == nil {
+		if chunk.usingTemporary || chunk.terrainImage == nil {
 			tImg = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 		}
 
-		var opList [def.ChunkSize * def.ChunkSize]*ebiten.DrawImageOptions
+		var opList [ChunkSize * ChunkSize]*ebiten.DrawImageOptions
 		var opPos uint16
 
-		for i := 0; i < def.ChunkSize; i++ {
-			for j := 0; j < def.ChunkSize; j++ {
+		for i := 0; i < ChunkSize; i++ {
+			for j := 0; j < ChunkSize; j++ {
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
 				if doDetail {
-					x := (float32(cpos.X*def.ChunkSize) + float32(i))
-					y := (float32(cpos.Y*def.ChunkSize) + float32(j))
+					x := (float32(cpos.X*ChunkSize) + float32(i))
+					y := (float32(cpos.Y*ChunkSize) + float32(j))
 
-					h := NoiseMap(x, y, 0)
+					h := noiseMap(x, y, 0)
 
 					op.ColorScale.Reset()
 					op.ColorScale.Scale((h)-1.5, (h)-1.5, (h)-1.5, 1)
@@ -97,16 +93,16 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 			}
 		}
 
-		chunk.TerrainLock.Lock()
+		chunk.terrainLock.Lock()
 		/* Batch render */
 		for _, op := range opList {
 			tImg.DrawImage(bg, op)
 		}
 		numTerrainCache++
-		chunk.TerrainImage = tImg
-		chunk.UsingTemporary = false
-		chunk.TerrainTime = time.Now()
-		chunk.TerrainLock.Unlock()
+		chunk.terrainImage = tImg
+		chunk.usingTemporary = false
+		chunk.terrainTime = time.Now()
+		chunk.terrainLock.Unlock()
 
 	} else {
 		panic("No valid bg texture.")
@@ -118,14 +114,14 @@ var clearedCache bool
 
 /* WASM single-thread version, one tile per call */
 /* Disposes everything if we switch layers */
-func RenderTerrainST() {
-	defer util.ReportPanic("RenderTerrainST")
+func renderTerrainST() {
+	defer reportPanic("RenderTerrainST")
 
 	/* If we zoom out, decallocate everything */
-	if world.WASMMode && world.ZoomScale <= def.MapPixelThreshold {
-		if world.WASMMode && !clearedCache {
-			for _, sChunk := range world.SuperChunkList {
-				for _, chunk := range sChunk.ChunkList {
+	if WASMMode && ZoomScale <= MapPixelThreshold {
+		if WASMMode && !clearedCache {
+			for _, sChunk := range SuperChunkList {
+				for _, chunk := range sChunk.chunkList {
 					killTerrainCache(chunk, true)
 				}
 			}
@@ -134,18 +130,18 @@ func RenderTerrainST() {
 	} else {
 		clearedCache = false
 
-		world.SuperChunkListLock.RLock()
-		for _, chunk := range VisChunk {
-			if chunk.UsingTemporary {
-				renderChunkGround(chunk, true, chunk.Pos)
+		SuperChunkListLock.RLock()
+		for _, chunk := range visChunk {
+			if chunk.usingTemporary {
+				renderChunkGround(chunk, true, chunk.pos)
 			}
 		}
-		world.SuperChunkListLock.RUnlock()
+		SuperChunkListLock.RUnlock()
 
 		/* Kill non-visible */
-		for _, sChunk := range world.SuperChunkList {
-			for _, chunk := range sChunk.ChunkList {
-				if !chunk.Visible && !chunk.UsingTemporary {
+		for _, sChunk := range SuperChunkList {
+			for _, chunk := range sChunk.chunkList {
+				if !chunk.visible && !chunk.usingTemporary {
 					killTerrainCache(chunk, false)
 				}
 			}
@@ -154,24 +150,24 @@ func RenderTerrainST() {
 }
 
 /* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
-func killTerrainCache(chunk *world.MapChunk, force bool) {
-	defer util.ReportPanic("killTerrainCache")
-	if chunk.UsingTemporary || chunk.TerrainImage == nil {
+func killTerrainCache(chunk *mapChunk, force bool) {
+	defer reportPanic("killTerrainCache")
+	if chunk.usingTemporary || chunk.terrainImage == nil {
 		return
 	}
 
 	if force ||
 		(numTerrainCache > maxTerrainCache &&
-			time.Since(chunk.TerrainTime) > minTerrainTime) ||
-		(world.WASMMode && numTerrainCache > maxTerrainCacheWASM) {
+			time.Since(chunk.terrainTime) > minTerrainTime) ||
+		(WASMMode && numTerrainCache > maxTerrainCacheWASM) {
 
-		chunk.TerrainLock.Lock()
-		chunk.TerrainImage.Dispose()
-		chunk.TerrainImage = nil
-		chunk.TerrainImage = world.TempChunkImage
-		chunk.UsingTemporary = true
+		chunk.terrainLock.Lock()
+		chunk.terrainImage.Dispose()
+		chunk.terrainImage = nil
+		chunk.terrainImage = TempChunkImage
+		chunk.usingTemporary = true
 		numTerrainCache--
-		chunk.TerrainLock.Unlock()
+		chunk.terrainLock.Unlock()
 
 	}
 }
@@ -179,15 +175,15 @@ func killTerrainCache(chunk *world.MapChunk, force bool) {
 /* Render pixmap images, one tile per call. Disposes everything on layer change */
 var pixmapCacheCleared bool
 
-func PixmapRenderST() {
-	defer util.ReportPanic("PixmapRenderST")
-	if !world.ShowResourceLayer && world.ZoomScale > def.MapPixelThreshold && !pixmapCacheCleared {
+func pixmapRenderST() {
+	defer reportPanic("PixmapRenderST")
+	if !ShowResourceLayer && ZoomScale > MapPixelThreshold && !pixmapCacheCleared {
 
-		for _, sChunk := range world.SuperChunkList {
-			if sChunk.PixelMap != nil {
+		for _, sChunk := range SuperChunkList {
+			if sChunk.pixelMap != nil {
 
-				sChunk.PixelMap.Dispose()
-				sChunk.PixelMap = nil
+				sChunk.pixelMap.Dispose()
+				sChunk.pixelMap = nil
 				numPixmapCache--
 				break
 
@@ -195,12 +191,12 @@ func PixmapRenderST() {
 		}
 		pixmapCacheCleared = true
 
-	} else if world.ZoomScale <= def.MapPixelThreshold || world.ShowResourceLayer {
+	} else if ZoomScale <= MapPixelThreshold || ShowResourceLayer {
 		pixmapCacheCleared = false
 
-		for _, sChunk := range world.SuperChunkList {
-			if sChunk.PixelMap == nil || sChunk.PixmapDirty {
-				drawPixmap(sChunk, sChunk.Pos)
+		for _, sChunk := range SuperChunkList {
+			if sChunk.pixelMap == nil || sChunk.pixmapDirty {
+				drawPixmap(sChunk, sChunk.pos)
 				break
 			}
 
@@ -209,206 +205,206 @@ func PixmapRenderST() {
 }
 
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
-func PixmapRenderDaemon() {
-	defer util.ReportPanic("PixmapRenderDaemon")
+func pixmapRenderDaemon() {
+	defer reportPanic("PixmapRenderDaemon")
 
 	for GameRunning {
-		world.SuperChunkListLock.RLock()
-		for _, sChunk := range world.SuperChunkList {
-			if sChunk.NumChunks == 0 {
+		SuperChunkListLock.RLock()
+		for _, sChunk := range SuperChunkList {
+			if sChunk.numChunks == 0 {
 				continue
 			}
 
-			if !world.ShowResourceLayer && world.ZoomScale > def.MapPixelThreshold {
-				sChunk.PixelMapLock.Lock()
-				if sChunk.PixelMap != nil &&
+			if !ShowResourceLayer && ZoomScale > MapPixelThreshold {
+				sChunk.pixelMapLock.Lock()
+				if sChunk.pixelMap != nil &&
 					(maxPixmapCache > numPixmapCache) {
 
-					sChunk.PixelMap.Dispose()
-					cwlog.DoLog(true, "dispose pixmap %v", sChunk.Pos)
-					sChunk.PixelMap = nil
+					sChunk.pixelMap.Dispose()
+					DoLog(true, "dispose pixmap %v", sChunk.pos)
+					sChunk.pixelMap = nil
 					numPixmapCache--
 
 				}
-				sChunk.PixelMapLock.Unlock()
-			} else if world.ZoomScale <= def.MapPixelThreshold || world.ShowResourceLayer {
+				sChunk.pixelMapLock.Unlock()
+			} else if ZoomScale <= MapPixelThreshold || ShowResourceLayer {
 
-				if sChunk.PixelMap == nil || sChunk.PixmapDirty {
-					drawPixmap(sChunk, sChunk.Pos)
-					cwlog.DoLog(true, "render pixmap %v", sChunk.Pos)
+				if sChunk.pixelMap == nil || sChunk.pixmapDirty {
+					drawPixmap(sChunk, sChunk.pos)
+					DoLog(true, "render pixmap %v", sChunk.pos)
 				}
 			}
 		}
-		world.SuperChunkListLock.RUnlock()
+		SuperChunkListLock.RUnlock()
 		time.Sleep(pixmapRenderLoop)
 	}
 }
 
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
-func ResourceRenderDaemon() {
-	defer util.ReportPanic("ResourceRenderDaemon")
+func resourceRenderDaemon() {
+	defer reportPanic("resourceRenderDaemon")
 	for GameRunning {
 
-		world.SuperChunkListLock.RLock()
-		for _, sChunk := range world.SuperChunkList {
-			sChunk.ResourceLock.Lock()
-			if sChunk.ResourceMap == nil || sChunk.ResourceDirty {
+		SuperChunkListLock.RLock()
+		for _, sChunk := range SuperChunkList {
+			sChunk.resourceLock.Lock()
+			if sChunk.resourceMap == nil || sChunk.resourceDirty {
 				drawResource(sChunk)
-				sChunk.ResourceDirty = false
+				sChunk.resourceDirty = false
 			}
-			sChunk.ResourceLock.Unlock()
+			sChunk.resourceLock.Unlock()
 		}
-		world.SuperChunkListLock.RUnlock()
+		SuperChunkListLock.RUnlock()
 
 		time.Sleep(resourceRenderLoop)
 	}
 }
 
 /* Render resouces during render for WASM single-thread */
-func ResourceRenderDaemonST() {
-	defer util.ReportPanic("ResourceRenderDaemonST")
-	for _, sChunk := range world.SuperChunkList {
-		if sChunk.ResourceMap == nil || sChunk.ResourceDirty {
+func resourceRenderDaemonST() {
+	defer reportPanic("resourceRenderDaemonST")
+	for _, sChunk := range SuperChunkList {
+		if sChunk.resourceMap == nil || sChunk.resourceDirty {
 			drawResource(sChunk)
-			sChunk.ResourceDirty = false
+			sChunk.resourceDirty = false
 			break
 		}
 	}
 }
 
 /* Draw perlin nouise resource channel */
-func drawResource(sChunk *world.MapSuperChunk) {
-	defer util.ReportPanic("drawResource")
+func drawResource(sChunk *mapSuperChunkData) {
+	defer reportPanic("drawResource")
 	if sChunk == nil {
 		return
 	}
 
-	if sChunk.ResourceMap == nil {
-		sChunk.ResourceMap = make([]byte, def.SuperChunkTotal*def.SuperChunkTotal*4)
+	if sChunk.resourceMap == nil {
+		sChunk.resourceMap = make([]byte, SuperChunkTotal*SuperChunkTotal*4)
 	}
 
-	for x := 0; x < def.SuperChunkTotal; x++ {
-		for y := 0; y < def.SuperChunkTotal; y++ {
-			ppos := 4 * (x + y*def.SuperChunkTotal)
+	for x := 0; x < SuperChunkTotal; x++ {
+		for y := 0; y < SuperChunkTotal; y++ {
+			ppos := 4 * (x + y*SuperChunkTotal)
 
-			worldX := float32((sChunk.Pos.X * def.SuperChunkTotal) + uint16(x))
-			worldY := float32((sChunk.Pos.Y * def.SuperChunkTotal) + uint16(y))
+			worldX := float32((sChunk.pos.X * SuperChunkTotal) + uint16(x))
+			worldY := float32((sChunk.pos.Y * SuperChunkTotal) + uint16(y))
 
 			var r, g, b float32 = 0.01, 0.01, 0.01
-			for p, nl := range NoiseLayers {
+			for p, nl := range noiseLayers {
 				if p == 0 {
 					continue
 				}
 
-				h := NoiseMap(worldX, worldY, p)
+				h := noiseMap(worldX, worldY, p)
 
-				Chunk := sChunk.ChunkMap[util.PosToChunkPos(world.XY{X: uint16(worldX), Y: uint16(worldY)})]
+				Chunk := sChunk.chunkMap[PosToChunkPos(XY{X: uint16(worldX), Y: uint16(worldY)})]
 				if Chunk != nil {
-					Tile := Chunk.TileMap[world.XY{X: uint16(x), Y: uint16(y)}]
+					Tile := Chunk.tileMap[XY{X: uint16(x), Y: uint16(y)}]
 
 					if Tile != nil {
-						h -= (Tile.MinerData.Mined[p] / 150)
+						h -= (Tile.minerData.mined[p] / 150)
 					}
 				}
-				if nl.ModRed {
-					r += (h * nl.RedMulti)
+				if nl.modRed {
+					r += (h * nl.redMulti)
 				}
-				if nl.ModGreen {
-					g += (h * nl.GreenMulti)
+				if nl.modGreen {
+					g += (h * nl.greenMulti)
 				}
-				if nl.ModBlue {
-					b += (h * nl.BlueMulti)
+				if nl.modBlue {
+					b += (h * nl.blueMulti)
 				}
 			}
-			r = util.Min(r, 1.0)
-			g = util.Min(g, 1.0)
-			b = util.Min(b, 1.0)
+			r = Min(r, 1.0)
+			g = Min(g, 1.0)
+			b = Min(b, 1.0)
 
-			r = util.Max(r, 0)
-			g = util.Max(g, 0)
-			b = util.Max(b, 0)
+			r = Max(r, 0)
+			g = Max(g, 0)
+			b = Max(b, 0)
 
-			sChunk.ResourceMap[ppos] = byte(r * 255)
-			sChunk.ResourceMap[ppos+1] = byte(g * 255)
-			sChunk.ResourceMap[ppos+2] = byte(b * 255)
-			sChunk.ResourceMap[ppos+3] = 0xFF
+			sChunk.resourceMap[ppos] = byte(r * 255)
+			sChunk.resourceMap[ppos+1] = byte(g * 255)
+			sChunk.resourceMap[ppos+2] = byte(b * 255)
+			sChunk.resourceMap[ppos+3] = 0xFF
 		}
 	}
-	sChunk.PixmapDirty = true
+	sChunk.pixmapDirty = true
 }
 
 /* Draw a superchunk's pixmap, allocates image if needed. */
-func drawPixmap(sChunk *world.MapSuperChunk, scPos world.XY) {
-	defer util.ReportPanic("drawPixmap")
-	maxSize := def.SuperChunkTotal * def.SuperChunkTotal * 4
-	if sChunk.ItemMap == nil {
-		sChunk.ItemMap = make([]byte, maxSize)
+func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
+	defer reportPanic("drawPixmap")
+	maxSize := SuperChunkTotal * SuperChunkTotal * 4
+	if sChunk.itemMap == nil {
+		sChunk.itemMap = make([]byte, maxSize)
 	}
 
 	didCopy := false
-	sChunk.ResourceLock.Lock()
-	if world.ShowResourceLayer && sChunk.ResourceMap != nil {
-		copy(sChunk.ItemMap, sChunk.ResourceMap)
+	sChunk.resourceLock.Lock()
+	if ShowResourceLayer && sChunk.resourceMap != nil {
+		copy(sChunk.itemMap, sChunk.resourceMap)
 		didCopy = true
 	}
-	sChunk.ResourceLock.Unlock()
+	sChunk.resourceLock.Unlock()
 
 	//Fill with bg and grid
-	for x := 0; x < def.SuperChunkTotal; x++ {
-		for y := 0; y < def.SuperChunkTotal; y++ {
-			ppos := 4 * (x + y*def.SuperChunkTotal)
+	for x := 0; x < SuperChunkTotal; x++ {
+		for y := 0; y < SuperChunkTotal; y++ {
+			ppos := 4 * (x + y*SuperChunkTotal)
 
 			if x%32 == 0 || y%32 == 0 {
-				sChunk.ItemMap[ppos] = 0x20
-				sChunk.ItemMap[ppos+1] = 0x20
-				sChunk.ItemMap[ppos+2] = 0x20
-				sChunk.ItemMap[ppos+3] = 0x10
+				sChunk.itemMap[ppos] = 0x20
+				sChunk.itemMap[ppos+1] = 0x20
+				sChunk.itemMap[ppos+2] = 0x20
+				sChunk.itemMap[ppos+3] = 0x10
 			} else if !didCopy {
-				sChunk.ItemMap[ppos] = 0x05
-				sChunk.ItemMap[ppos+1] = 0x05
-				sChunk.ItemMap[ppos+2] = 0x05
-				sChunk.ItemMap[ppos+3] = 0xff
+				sChunk.itemMap[ppos] = 0x05
+				sChunk.itemMap[ppos+1] = 0x05
+				sChunk.itemMap[ppos+2] = 0x05
+				sChunk.itemMap[ppos+3] = 0xff
 			}
 		}
 	}
 
-	for _, chunk := range sChunk.ChunkList {
-		if chunk.NumObjs <= 0 {
+	for _, chunk := range sChunk.chunkList {
+		if chunk.numObjs <= 0 {
 			continue
 		}
 
 		/* Draw objects in chunk */
-		for pos := range chunk.BuildingMap {
-			scX := (((scPos.X) * (def.MaxSuperChunk)) - def.XYCenter)
-			scY := (((scPos.Y) * (def.MaxSuperChunk)) - def.XYCenter)
+		for pos := range chunk.buildingMap {
+			scX := (((scPos.X) * (MaxSuperChunk)) - XYCenter)
+			scY := (((scPos.Y) * (MaxSuperChunk)) - XYCenter)
 
-			x := int((pos.X - def.XYCenter) - scX)
-			y := int((pos.Y - def.XYCenter) - scY)
+			x := int((pos.X - XYCenter) - scX)
+			y := int((pos.Y - XYCenter) - scY)
 
-			ppos := 4 * (x + y*def.SuperChunkTotal)
+			ppos := 4 * (x + y*SuperChunkTotal)
 			if ppos < maxSize {
-				sChunk.ItemMap[ppos] = 0xff
-				sChunk.ItemMap[ppos+1] = 0xff
-				sChunk.ItemMap[ppos+2] = 0xff
-				sChunk.ItemMap[ppos+3] = 0xff
+				sChunk.itemMap[ppos] = 0xff
+				sChunk.itemMap[ppos+1] = 0xff
+				sChunk.itemMap[ppos+2] = 0xff
+				sChunk.itemMap[ppos+3] = 0xff
 			}
 		}
 
 	}
 
-	sChunk.PixelMapLock.Lock()
+	sChunk.pixelMapLock.Lock()
 	/* Make Pixelmap images */
-	if sChunk.PixelMap == nil {
+	if sChunk.pixelMap == nil {
 		rect := image.Rectangle{}
 
-		rect.Max.X = def.SuperChunkTotal
-		rect.Max.Y = def.SuperChunkTotal
+		rect.Max.X = SuperChunkTotal
+		rect.Max.Y = SuperChunkTotal
 
-		sChunk.PixelMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
+		sChunk.pixelMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 		numPixmapCache++
 	}
-	sChunk.PixelMap.WritePixels(sChunk.ItemMap)
-	sChunk.PixelMapTime = time.Now()
-	sChunk.PixmapDirty = false
-	sChunk.PixelMapLock.Unlock()
+	sChunk.pixelMap.WritePixels(sChunk.itemMap)
+	sChunk.pixelMapTime = time.Now()
+	sChunk.pixmapDirty = false
+	sChunk.pixelMapLock.Unlock()
 }

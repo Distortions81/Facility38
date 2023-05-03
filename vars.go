@@ -1,7 +1,6 @@
-package world
+package main
 
 import (
-	"Facility38/def"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -12,7 +11,7 @@ import (
 
 func init() {
 	VisDataDirty.Store(true)
-	SuperChunkMap = make(map[XY]*MapSuperChunk)
+	SuperChunkMap = make(map[XY]*mapSuperChunkData)
 }
 
 var (
@@ -33,7 +32,7 @@ var (
 	TitleImage          *ebiten.Image
 	EbitenLogo          *ebiten.Image
 
-	FontDPI       float64 = def.FontDPI
+	FontDPI       float64 = fpx
 	Vsync         bool    = true
 	ImperialUnits bool    = false
 	UseHyper      bool    = false
@@ -41,31 +40,26 @@ var (
 	Autosave      bool    = true
 
 	/* SuperChunk List */
-	SuperChunkList     []*MapSuperChunk
+	SuperChunkList     []*mapSuperChunkData
 	SuperChunkListLock sync.RWMutex
 
 	/* SuperChunkMap */
-	SuperChunkMap     map[XY]*MapSuperChunk
+	SuperChunkMap     map[XY]*mapSuperChunkData
 	SuperChunkMapLock sync.RWMutex
 
 	/* Tick: External inter-object communication */
-	RotateList     []RotateEvent = []RotateEvent{}
+	RotateList     []rotateEvent = []rotateEvent{}
 	RotateListLock sync.Mutex
 
-	/* Tick: External inter-object communication */
-	TickList     []TickEvent = []TickEvent{}
 	TickListLock sync.Mutex
-
-	/* Tock: buffer/interal events */
-	TockList     []TickEvent = []TickEvent{}
 	TockListLock sync.Mutex
 
 	/* ObjQueue: add/del objects at end of tick */
-	ObjQueue     []*ObjectQueueData
+	ObjQueue     []*objectQueueData
 	ObjQueueLock sync.Mutex
 
 	/* EventQueue: add/del ticks/tocks at end of tick */
-	EventQueue     []*EventQueueData
+	EventQueue     []*eventQueueData
 	EventQueueLock sync.Mutex
 
 	/* Number of queued object rotations */
@@ -86,7 +80,7 @@ var (
 	NumWorkers int
 
 	/* Game UPS rate */
-	ObjectUPS            float32 = def.GameUPS
+	ObjectUPS            float32 = GameUPS
 	ObjectUPS_ns                 = int(1000000000.0 / ObjectUPS)
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
 	ActualUPS            float32
@@ -122,11 +116,11 @@ var (
 	ObjectFontH int
 
 	/* Camera position */
-	CameraX float32 = float32(def.XYCenter)
-	CameraY float32 = float32(def.XYCenter)
+	CameraX float32 = float32(XYCenter)
+	CameraY float32 = float32(XYCenter)
 
 	/* Camera states */
-	ZoomScale   float32 = def.DefaultZoom //Current zoom
+	ZoomScale   float32 = DefaultZoom //Current zoom
 	OverlayMode bool
 
 	/* View layers */

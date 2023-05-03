@@ -1,7 +1,6 @@
-package cwlog
+package main
 
 import (
-	"Facility38/world"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,16 +9,14 @@ import (
 	"time"
 )
 
-const MaxBufferLines = 100000
-
 var (
-	LogDesc  *os.File
-	LogName  string
-	LogReady bool
+	logDesc  *os.File
+	logName  string
+	logReady bool
 
-	LogBuf      []string
-	LogBufLines int
-	LogBufLock  sync.Mutex
+	logBuf      []string
+	logBufLines int
+	logBufLock  sync.Mutex
 )
 
 /*
@@ -51,49 +48,49 @@ func DoLog(withTrace bool, format string, args ...interface{}) {
 		buf = fmt.Sprintf("%v: %v\n", date, text)
 	}
 
-	if !LogReady || LogDesc == nil {
+	if !logReady || logDesc == nil {
 		fmt.Print(buf)
 		return
 	}
 
 	/* Add to buffer */
-	LogBufLock.Lock()
-	LogBuf = append(LogBuf, buf)
-	LogBufLines++
-	LogBufLock.Unlock()
+	logBufLock.Lock()
+	logBuf = append(logBuf, buf)
+	logBufLines++
+	logBufLock.Unlock()
 }
 
 func LogDaemon() {
 
 	go func() {
 		for {
-			LogBufLock.Lock()
+			logBufLock.Lock()
 
 			/* Are there lines to write? */
-			if LogBufLines == 0 {
-				LogBufLock.Unlock()
+			if logBufLines == 0 {
+				logBufLock.Unlock()
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
 
 			/* Write line */
-			_, err := LogDesc.WriteString(LogBuf[0])
+			_, err := logDesc.WriteString(logBuf[0])
 			if err != nil {
 				fmt.Println("DoLog: WriteString failure")
-				LogDesc.Close()
-				LogDesc = nil
+				logDesc.Close()
+				logDesc = nil
 			}
 
 			/* If enabled, write to stdout */
-			if world.LogStdOut {
-				fmt.Print(LogBuf[0])
+			if LogStdOut {
+				fmt.Print(logBuf[0])
 			}
 
 			/* Remove line from buffer */
-			LogBuf = LogBuf[1:]
-			LogBufLines--
+			logBuf = logBuf[1:]
+			logBufLines--
 
-			LogBufLock.Unlock()
+			logBufLock.Unlock()
 		}
 	}()
 }
@@ -103,7 +100,7 @@ func StartLog() {
 	t := time.Now()
 
 	/* Create our log file names */
-	LogName = fmt.Sprintf("log/game-%v-%v-%v.log", t.Day(), t.Month(), t.Year())
+	logName = fmt.Sprintf("log/game-%v-%v-%v.log", t.Day(), t.Month(), t.Year())
 
 	/* Make log directory */
 	errr := os.MkdirAll("log", os.ModePerm)
@@ -113,7 +110,7 @@ func StartLog() {
 	}
 
 	/* Open log files */
-	bdesc, errb := os.OpenFile(LogName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	bdesc, errb := os.OpenFile(logName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
 	/* Handle file errors */
 	if errb != nil {
@@ -122,11 +119,11 @@ func StartLog() {
 	}
 
 	/* Save descriptors, open/closed elsewhere */
-	LogDesc = bdesc
+	logDesc = bdesc
 
 	//os.Stderr = bdesc
 	//os.Stdout = bdesc
 
-	LogReady = true
+	logReady = true
 
 }
