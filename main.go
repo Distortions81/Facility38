@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"runtime"
 	"runtime/debug"
+	"strings"
 	"time"
 
 	_ "github.com/defia/trf"
@@ -175,6 +176,55 @@ func NewGame() *Game {
 	return &Game{}
 }
 
+func checkVersion() bool {
+
+	// Create HTTP client with custom transport
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: false,
+		},
+	}
+	client := &http.Client{Transport: transport}
+
+	// Send HTTPS POST request to server
+	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte("CheckUpdateDev")))
+	if err != nil {
+		txt := "Unable to connect to update server."
+		util.Chat(txt)
+		statusText = txt
+		return false
+	}
+	defer response.Body.Close()
+
+	// Read server response
+	responseBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	resp := string(responseBytes)
+	respParts := strings.Split(resp, "\n")
+	respPartLen := len(respParts)
+
+	var newVersion string
+	//var dlURL string
+
+	if respPartLen > 2 {
+		if respParts[0] == "Update" {
+			newVersion = respParts[1]
+			//dlURL = respParts[2]
+
+			buf := fmt.Sprintf("New version available: %v", newVersion)
+			util.ChatDetailed(buf, color.White, 60)
+			return true
+		}
+	}
+
+	util.Chat("Update server: Facility 38 is up-to-date.")
+
+	return false
+}
+
 func checkAuth() bool {
 	good := data.LoadSecrets()
 	if !good {
@@ -231,6 +281,8 @@ func startGame() {
 	if !checkAuth() {
 		return
 	}
+
+	checkVersion()
 
 	for !world.SpritesLoaded.Load() ||
 		world.PlayerReady.Load() == 0 {
