@@ -59,7 +59,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Printf("v%v-%v\n", def.Version, buildTime)
+		fmt.Printf("v%03v-%v\n", def.Version, buildTime)
 		return
 	}
 
@@ -188,8 +188,9 @@ func checkVersion(silent bool) bool {
 	}
 	client := &http.Client{Transport: transport}
 
+	cstr := fmt.Sprintf("CheckUpdateDev:v%03v-%v\n", def.Version, buildTime)
 	// Send HTTPS POST request to server
-	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte("CheckUpdateDev")))
+	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(cstr)))
 	if err != nil {
 		txt := "Unable to connect to update server."
 		util.Chat(txt)
