@@ -81,6 +81,7 @@ type WindowButtonData struct {
 	Save   bool
 }
 
+/* Allow windows to do any precalculation they need to do */
 func InitWindows() {
 	defer util.ReportPanic("InitWindows")
 	for _, win := range Windows {
@@ -91,6 +92,7 @@ func InitWindows() {
 	}
 }
 
+/* Draw whatever windows are currently open */
 func DrawOpenWindows(screen *ebiten.Image) {
 	defer util.ReportPanic("DrawOpenWindows")
 	for _, win := range OpenWindows {
@@ -98,6 +100,8 @@ func DrawOpenWindows(screen *ebiten.Image) {
 	}
 }
 
+/* Open a window */
+/* Until layering is added, close other windows if we open one */
 func OpenWindow(window *WindowData) {
 	defer util.ReportPanic("OpenWindow")
 	WindowsLock.Lock()
@@ -131,6 +135,7 @@ func OpenWindow(window *WindowData) {
 	}
 }
 
+/* Close a window */
 func CloseWindow(window *WindowData) {
 	defer util.ReportPanic("CloseWindow")
 	WindowsLock.Lock()
@@ -145,6 +150,7 @@ func CloseWindow(window *WindowData) {
 		gWindowDrag = nil
 	}
 
+	/* Check all open windows */
 	for wopos := range OpenWindows {
 		if OpenWindows[wopos] == window {
 			window.Active = false
@@ -158,6 +164,7 @@ func CloseWindow(window *WindowData) {
 		}
 	}
 
+	/* Dispose window image cache if needed */
 	if !window.KeepCache && window.Cache != nil {
 		if world.Debug {
 			cwlog.DoLog(true, "Window '%v' closed, disposing cache.", window.Title)
@@ -165,10 +172,13 @@ func CloseWindow(window *WindowData) {
 		window.Cache.Dispose()
 		window.Cache = nil
 	}
+
+	/* Eat click event */
 	gClickCaptured = true
 	gMouseHeld = false
 }
 
+/* Mark window 'dirty' for re-render */
 func WindowDirty(window *WindowData) {
 	defer util.ReportPanic("WindowDirty")
 	WindowsLock.Lock()
@@ -185,6 +195,7 @@ func WindowDirty(window *WindowData) {
 	}
 }
 
+/* Draw window title, frame, background and cached window contents */
 const cpad = 18
 const closeScale = 0.7
 
@@ -193,12 +204,14 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	WindowsLock.Lock()
 	defer WindowsLock.Unlock()
 
+	/* Calculate some values for UI scale */
 	pad := int(cpad * world.UIScale)
 	halfPad := int((cpad / 2.0) * world.UIScale)
 
 	winPos := getWindowPos(window)
 	window.ScaledSize = world.XYs{X: int32(float64(window.Size.X) * world.UIScale), Y: int32(float64(window.Size.Y) * world.UIScale)}
 
+	/* If window not dirty, and it has a cache, draw the cache */
 	if !window.Dirty {
 		if window.Cache != nil {
 			op := &ebiten.DrawImageOptions{}
@@ -208,6 +221,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		}
 	}
 
+	/* If there is no window cache, init it */
 	if window.Cache == nil {
 		window.Cache = ebiten.NewImage(int(window.ScaledSize.X), int(window.ScaledSize.Y))
 		if world.Debug {
@@ -241,6 +255,7 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 		titleColor = color.White
 	}
 
+	/* Draw window BG */
 	vector.DrawFilledRect(
 		window.Cache,
 		0, 0,
@@ -305,13 +320,11 @@ func DrawWindow(screen *ebiten.Image, window *WindowData) {
 	screen.DrawImage(window.Cache, op)
 }
 
+/* Check if a click is within an open window */
 func CollisionWindowsCheck(input world.XYs) bool {
 	defer util.ReportPanic("CollisionWindowsCheck")
 	if gClickCaptured {
 		return true
-	}
-	if gClickCaptured {
-		return false
 	}
 	for _, win := range OpenWindows {
 		if CollisionWindow(input, win) {
@@ -322,6 +335,7 @@ func CollisionWindowsCheck(input world.XYs) bool {
 	return false
 }
 
+/* Check if a click is within a specific window */
 func CollisionWindow(input world.XYs, window *WindowData) bool {
 	defer util.ReportPanic("CollisionWindow")
 	winPos := getWindowPos(window)
@@ -355,6 +369,7 @@ func CollisionWindow(input world.XYs, window *WindowData) bool {
 	}
 }
 
+/* Check if a click was within a window's close box */
 func handleClose(input world.XYs, window *WindowData) bool {
 	defer util.ReportPanic("handleCLose")
 	if gWindowDrag != nil {
@@ -382,6 +397,7 @@ func handleClose(input world.XYs, window *WindowData) bool {
 	return false
 }
 
+/* Handle dragging windows */
 func handleDrag(input world.XYs, window *WindowData) bool {
 	defer util.ReportPanic("handleDrag")
 	if !gMouseHeld {
@@ -412,6 +428,7 @@ func handleDrag(input world.XYs, window *WindowData) bool {
 	return false
 }
 
+/* Get window position, assists with auto-centered windows */
 func getWindowPos(window *WindowData) world.XYs {
 	defer util.ReportPanic("getWindowPos")
 	var winPos world.XYs

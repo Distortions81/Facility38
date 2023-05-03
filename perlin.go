@@ -9,6 +9,7 @@ import (
 	"github.com/aquilax/go-perlin"
 )
 
+/* Link up material type pointers to perlin noise layers */
 func init() {
 	defer util.ReportPanic("perlin init")
 
@@ -24,6 +25,7 @@ func init() {
 	}
 }
 
+/* Init random seeds for the perlin noise layers */
 func ResourceMapInit() {
 	defer util.ReportPanic("ResourceMapInit")
 
@@ -38,6 +40,7 @@ func ResourceMapInit() {
 	}
 }
 
+/* Get resource value at xy */
 func NoiseMap(x, y float32, p int) float32 {
 	defer util.ReportPanic("NoiseMap")
 
@@ -54,6 +57,7 @@ func NoiseMap(x, y float32, p int) float32 {
 	return val
 }
 
+/* Resource layers */
 var NoiseLayers = [def.NumResourceTypes]world.NoiseLayerData{
 	{Name: "Ground",
 		SeedOffset: 5147,

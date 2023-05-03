@@ -9,9 +9,9 @@ import (
 	"sync"
 )
 
-/* Link to output in (dir) */
 var linkLock sync.Mutex
 
+/* Link to output in (dir) */
 func LinkObj(from world.XY, b *world.BuildingData) {
 	defer util.ReportPanic("LinkObj")
 	linkLock.Lock()

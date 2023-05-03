@@ -60,6 +60,7 @@ func init() {
 	}
 }
 
+/* Load user options settings from disk */
 func loadOptions() {
 	defer util.ReportPanic("loadOptions")
 	if world.WASMMode {
@@ -96,6 +97,7 @@ func loadOptions() {
 
 }
 
+/* Save user options settings to disk */
 func saveOptions() {
 	defer util.ReportPanic("saveOptions")
 	if world.WASMMode {
@@ -144,6 +146,7 @@ func saveOptions() {
 	cwlog.DoLog(true, "Settings saved.")
 }
 
+/* Toggle the debug bottom-screen text */
 func toggleInfoLine(item int) {
 	defer util.ReportPanic("toggleInfoLine")
 	if world.InfoLine {
@@ -155,6 +158,7 @@ func toggleInfoLine(item int) {
 	}
 }
 
+/* Toggle the use of hyperthreading */
 func toggleHyper(item int) {
 	defer util.ReportPanic("toggleHyper")
 	if world.UseHyper {
@@ -168,6 +172,7 @@ func toggleHyper(item int) {
 	}
 }
 
+/* Close game */
 func quitGame(item int) {
 	go func() {
 		GameRunning = false
@@ -177,6 +182,7 @@ func quitGame(item int) {
 	}()
 }
 
+/* Toggle units */
 func toggleUnits(item int) {
 	defer util.ReportPanic("toggleUnits")
 	if world.ImperialUnits {
@@ -188,6 +194,7 @@ func toggleUnits(item int) {
 	}
 }
 
+/* Toggle test map */
 func toggleTestMap(item int) {
 	defer util.ReportPanic("toggleTestMap")
 	GameRunning = false
@@ -220,6 +227,7 @@ func toggleTestMap(item int) {
 	}()
 }
 
+/* Toggle UPS cap */
 func toggleUPSCap(item int) {
 	defer util.ReportPanic("toggleUPSCap")
 	if world.UPSBench {
@@ -235,6 +243,7 @@ func toggleUPSCap(item int) {
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
+/* Toggle fullscreen */
 func toggleFullscreen(item int) {
 	defer util.ReportPanic("toggleFullscreen")
 	if ebiten.IsFullscreen() {
@@ -250,6 +259,7 @@ func toggleFullscreen(item int) {
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
+/* Toggle UI magnification */
 func toggleMagnify(item int) {
 	defer util.ReportPanic("toggleMagnify")
 	if world.Magnify {
@@ -268,6 +278,7 @@ func toggleMagnify(item int) {
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
+/* Toggle debug mode */
 func toggleDebug(item int) {
 	defer util.ReportPanic("toggleDebug")
 	if world.Debug {
@@ -283,6 +294,7 @@ func toggleDebug(item int) {
 	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
 }
 
+/* Toggle autosave */
 func toggleAutosave(item int) {
 	defer util.ReportPanic("toggleDebug")
 	if world.Autosave {

@@ -5,6 +5,7 @@ import (
 	"Facility38/world"
 )
 
+/* Figure out what option item user clicked */
 func handleOptions(input world.XYs, window *WindowData) bool {
 	defer util.ReportPanic("handleOptions")
 	WindowsLock.Lock()

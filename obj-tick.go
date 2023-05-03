@@ -74,7 +74,14 @@ func ObjUpdateDaemon() {
 	}
 }
 
-/* WASM single-thread object update */
+/*
+ * WASM single-thread object update
+ * Simple, but does not run well with large worlds
+ * This really needs to process a bit at a time at the end of each frame instead
+ * This works, but gets very 'jerky' with large maps due to uneven process load
+ * Leading to wildly varying frame times
+ * WASM just ins't a high priority at the moment
+ */
 func ObjUpdateDaemonST() {
 	defer util.ReportPanic("ObjUpdateDaemonST")
 	var start time.Time
@@ -125,6 +132,7 @@ func ObjUpdateDaemonST() {
 	}
 }
 
+/* Autosave */
 func handleAutosave() {
 	if world.Autosave && !world.WASMMode && time.Since(world.LastSave) > time.Minute*5 {
 		world.LastSave = time.Now().UTC()
@@ -170,6 +178,7 @@ func tickObj(obj *world.ObjData) {
 		*port.Link.Buf, *port.Buf = *port.Buf, *port.Link.Buf
 	}
 
+	/* Don't bother with blocking except on belts */
 	if obj.Unique.TypeP.Category == def.ObjCatBelt {
 		if obj.NumOut+obj.NumFOut == blockedOut {
 			if !obj.Blocked {
@@ -184,6 +193,7 @@ func tickObj(obj *world.ObjData) {
 	}
 }
 
+/* A queue of object rotations to perform between ticks */
 func RotateListAdd(b *world.BuildingData, cw bool, pos world.XY) {
 	defer util.ReportPanic("RotateListAdd")
 	world.RotateListLock.Lock()
@@ -194,7 +204,7 @@ func RotateListAdd(b *world.BuildingData, cw bool, pos world.XY) {
 	world.RotateListLock.Unlock()
 }
 
-/* Lock and add it EventQueue */
+/* Add to event queue (list of tock and tick events) */
 func EventQueueAdd(obj *world.ObjData, qtype uint8, delete bool) {
 	defer util.ReportPanic("EventQueueAdd")
 	world.EventQueueLock.Lock()
@@ -210,6 +220,7 @@ func ObjQueueAdd(obj *world.ObjData, otype uint8, pos world.XY, delete bool, dir
 	world.ObjQueueLock.Unlock()
 }
 
+/* Perform object rotations between ticks */
 func runRotates() {
 	defer util.ReportPanic("RunRotates")
 	world.RotateListLock.Lock()
@@ -219,9 +230,11 @@ func runRotates() {
 		var objSave world.ObjData
 		b := rot.Build
 
+		/* Valid building */
 		if b != nil {
 			obj := b.Obj
 
+			/* Non-square multi-tile objects */
 			if obj.Unique.TypeP.NonSquare {
 				var newdir uint8
 				var olddir uint8 = obj.Dir
@@ -238,12 +251,18 @@ func runRotates() {
 				/* Remove object from the world */
 				UnlinkObj(obj)
 				removeObj(obj)
+
+				/* Rotate sub-object map */
 				for _, sub := range objSave.Unique.TypeP.SubObjs {
 					tile := RotateCoord(sub, objSave.Dir, GetObjSize(&objSave, nil))
 					pos := util.GetSubPos(objSave.Pos, tile)
 					removePosMap(pos)
 				}
+
+				/* Place back into world */
 				found := PlaceObj(objSave.Pos, 0, &objSave, newdir, false)
+
+				/* Problem found, wont fit, undo! */
 				if found == nil {
 					/* Unable to rotate, undo */
 					util.ChatDetailed(fmt.Sprintf("Unable to rotate: %v at %v", obj.Unique.TypeP.Name, util.PosToString(obj.Pos)), world.ColorRed, time.Second*15)
@@ -257,7 +276,10 @@ func runRotates() {
 
 			var newdir uint8
 
+			/* Unlink */
 			UnlinkObj(obj)
+
+			/* Rotate ports */
 			if !rot.Clockwise {
 				newdir = util.RotCCW(obj.Dir)
 				for p, port := range obj.Ports {
@@ -275,23 +297,25 @@ func runRotates() {
 			}
 			obj.Dir = newdir
 
+			/* TODO: move this code to LinkObj */
+			/* multi-tile object relink */
 			if obj.Unique.TypeP.MultiTile {
 				for _, subObj := range obj.Unique.TypeP.SubObjs {
 					subPos := util.GetSubPos(obj.Pos, subObj)
 					LinkObj(subPos, b)
 				}
 			} else {
+				/* Standard relink */
 				LinkObj(obj.Pos, b)
 			}
 		}
 	}
 
-	//Done, erase list.
+	//Done, reset list.
 	world.RotateList = []world.RotateEvent{}
 }
 
-/* Add/remove tick/tock events from the lists
- */
+/* Add/remove tick/tock events from the lists */
 func RunEventQueue() {
 	defer util.ReportPanic("RunEventQueue")
 
@@ -314,6 +338,7 @@ func RunEventQueue() {
 
 	}
 
+	/* Done, reset list */
 	world.EventQueue = []*world.EventQueueData{}
 }
 
@@ -323,6 +348,8 @@ func runObjQueue() {
 
 	for _, item := range world.ObjQueue {
 		if item.Delete {
+
+			/* Handle multi-tile item delete */
 			if item.Obj.Unique.TypeP.MultiTile {
 				for _, sub := range item.Obj.Unique.TypeP.SubObjs {
 					tile := RotateCoord(sub, item.Obj.Dir, GetObjSize(item.Obj, nil))
@@ -333,35 +360,39 @@ func runObjQueue() {
 			delObj(item.Obj)
 			world.VisDataDirty.Store(true)
 		} else {
+
+			/* Place object in world */
 			//Add
 			PlaceObj(item.Pos, item.OType, nil, item.Dir, false)
 			world.VisDataDirty.Store(true)
 		}
 	}
 
+	/* Done, reset list */
 	world.ObjQueue = []*world.ObjectQueueData{}
 }
 
+/* Unlink and remove object */
 func delObj(obj *world.ObjData) {
 	defer util.ReportPanic("delObj")
 	UnlinkObj(obj)
 	removeObj(obj)
 }
 
+/* TODO this and obj-util.go are duplicates and need to be consolidated */
 /* Delete object from ObjMap, decerment Num Marks PixmapDirty */
 func removePosMap(pos world.XY) {
 	defer util.ReportPanic("removePosMap")
 
-	/* delete from map */
 	sChunk := util.GetSuperChunk(pos)
 	chunk := util.GetChunk(pos)
 	if chunk == nil || sChunk == nil {
 		return
 	}
+
 	chunk.Lock.Lock()
 	chunk.NumObjs--
 	delete(chunk.BuildingMap, pos)
 	sChunk.PixmapDirty = true
 	chunk.Lock.Unlock()
-
 }

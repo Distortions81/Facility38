@@ -96,9 +96,6 @@ var (
 	ScreenWidth    uint16 = 1280
 	ScreenHeight   uint16 = 720
 
-	/* Small images used in game */
-	MiniMapTile *ebiten.Image
-
 	/* Boot status */
 	SpritesLoaded atomic.Bool
 	PlayerReady   atomic.Int32

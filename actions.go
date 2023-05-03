@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+/* This file is for toolbar actions */
+
+/* Toggle settings window */
 func settingsToggle() {
 	defer util.ReportPanic("settingsToggle")
 	if Windows[0].Active {
@@ -15,6 +18,7 @@ func settingsToggle() {
 	}
 }
 
+/* Toggle help windw */
 func toggleHelp() {
 	defer util.ReportPanic("toggleHelp")
 
@@ -25,6 +29,7 @@ func toggleHelp() {
 	}
 }
 
+/* Toggle info overlay */
 func toggleOverlay() {
 	defer util.ReportPanic("toggleOverlay")
 	if world.OverlayMode {
@@ -36,6 +41,7 @@ func toggleOverlay() {
 	}
 }
 
+/* Switch between normal and resource layers */
 func SwitchLayer() {
 	defer util.ReportPanic("SwitchLayer")
 	world.ShowResourceLayerLock.Lock()

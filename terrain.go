@@ -29,7 +29,7 @@ var (
 	numPixmapCache  int
 )
 
-/* Make a 'loading' temporary texture for chunk terrain */
+/* Make a low-detail 'loading' temporary texture for chunk terrain */
 func SetupTerrainCache() {
 	defer util.ReportPanic("SetupTerrainCache")
 	tChunk := world.MapChunk{}
@@ -117,6 +117,7 @@ func renderChunkGround(chunk *world.MapChunk, doDetail bool, cpos world.XY) {
 var clearedCache bool
 
 /* WASM single-thread version, one tile per call */
+/* Disposes everything if we switch layers */
 func RenderTerrainST() {
 	defer util.ReportPanic("RenderTerrainST")
 
@@ -175,7 +176,7 @@ func killTerrainCache(chunk *world.MapChunk, force bool) {
 	}
 }
 
-/* Render pixmap images, one tile per call. Also disposes if zoom level changes. */
+/* Render pixmap images, one tile per call. Disposes everything on layer change */
 var pixmapCacheCleared bool
 
 func PixmapRenderST() {
@@ -263,6 +264,7 @@ func ResourceRenderDaemon() {
 	}
 }
 
+/* Render resouces during render for WASM single-thread */
 func ResourceRenderDaemonST() {
 	defer util.ReportPanic("ResourceRenderDaemonST")
 	for _, sChunk := range world.SuperChunkList {
@@ -274,6 +276,7 @@ func ResourceRenderDaemonST() {
 	}
 }
 
+/* Draw perlin nouise resource channel */
 func drawResource(sChunk *world.MapSuperChunk) {
 	defer util.ReportPanic("drawResource")
 	if sChunk == nil {

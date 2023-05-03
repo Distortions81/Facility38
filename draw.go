@@ -30,50 +30,50 @@ const (
 )
 
 var (
+	/* Camera position */
 	camXPos float32
 	camYPos float32
 
+	/* Previous camera position */
+	lastCamX float32
+	lastCamY float32
+
+	/* Camera rect */
 	camStartX uint16
 	camStartY uint16
 	camEndX   uint16
 	camEndY   uint16
 
+	/* Screen rect */
 	screenStartX uint16
 	screenStartY uint16
 	screenEndX   uint16
 	screenEndY   uint16
 	frameCount   uint64
 
+	/* Mouse position in world coords */
 	WorldMouseX float32
 	WorldMouseY float32
 
+	/* Caching for resource yield tooltip */
 	lastResourceString string
-	ConsoleActive      bool
 
-	lastCamX float32
-	lastCamY float32
-
+	/* Batch draw data */
 	BatchTop       int
 	BatchWatermark int
 	BatchGC        time.Time
 	ImageBatch     [MaxBatch]*ebiten.Image
 	OpBatch        [MaxBatch]*ebiten.DrawImageOptions
-	UILayer        *ebiten.Image
-)
 
-/* Setup a few images for later use */
-func init() {
-	defer util.ReportPanic("draw: init")
-	world.MiniMapTile = ebiten.NewImage(1, 1)
-	world.MiniMapTile.Fill(color.White)
-}
+	ConsoleActive bool
+)
 
 /* Ebiten: Draw everything */
 func (g *Game) Draw(screen *ebiten.Image) {
 	defer util.ReportPanic("Draw")
 	frameCount++
 
-	/* Boot screen */
+	/* Boot/load/auth screen */
 	if !world.Authorized.Load() || !world.MapGenerated.Load() ||
 		!world.SpritesLoaded.Load() ||
 		world.PlayerReady.Load() == 0 {
@@ -83,7 +83,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		return
 	}
 
-	/* Clear items for GC */
+	/* Clear batch render items for GC */
 	if frameCount%30 == 0 {
 		if time.Since(BatchGC) > batchGCInterval {
 			BatchGC = time.Now()
@@ -110,13 +110,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			RenderTerrainST()
 		}
 	} else {
+		/* Standard rendering */
 		RenderTerrainST()
 	}
 
 	/* Draw modes */
-	if world.ZoomScale > def.MapPixelThreshold { /* Draw icon mode */
+	if world.ZoomScale > def.MapPixelThreshold {
+		/* Draw icon mode */
 		drawIconMode()
 	} else {
+		/* Pixmap mode */
 		drawPixmapMode()
 	}
 
@@ -146,9 +149,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		drawDebugInfo(screen)
 	}
 
+	/* Draw chat */
 	drawChatLines(screen)
+
+	/* Draw windows */
 	DrawOpenWindows(screen)
 
+	/* Boot screen fade-out */
 	if world.PlayerReady.Load() < 60 {
 		bootScreen(screen)
 	}

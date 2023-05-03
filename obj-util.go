@@ -10,20 +10,20 @@ import (
 )
 
 /* Delete object from ObjMap, ObjList, decerment NumObj, set PixmapDirty */
+/* TODO this and obj-tick.go are duplicates and need to be consolidated */
 func removeObj(obj *world.ObjData) {
 	defer util.ReportPanic("removeObj")
 	/* delete from map */
 	obj.Chunk.Lock.Lock()
-
 	obj.Chunk.NumObjs--
 	delete(obj.Chunk.BuildingMap, obj.Pos)
-
 	obj.Chunk.Parent.PixmapDirty = true
-
 	obj.Chunk.Lock.Unlock()
+
 	util.ObjListDelete(obj)
 }
 
+/* Rotate object coords */
 func RotateCoord(coord world.XYs, dir uint8, size world.XYs) world.XYs {
 	defer util.ReportPanic("RotateCoord")
 	tempX := coord.X
@@ -42,6 +42,7 @@ func RotateCoord(coord world.XYs, dir uint8, size world.XYs) world.XYs {
 	}
 }
 
+/* Rotate float64 coords */
 func RotatePosF64(coord world.XYs, dir uint8, size world.XYf64) world.XYf64 {
 	defer util.ReportPanic("RotatePosF64")
 	tempX := float64(coord.X)
@@ -61,6 +62,7 @@ func RotatePosF64(coord world.XYs, dir uint8, size world.XYf64) world.XYf64 {
 
 }
 
+/* Print weight with units from material  */
 func PrintUnit(mat *world.MatData) string {
 	defer util.ReportPanic("PrintUnit")
 	if mat != nil && mat.TypeP != nil {
@@ -76,6 +78,8 @@ func PrintUnit(mat *world.MatData) string {
 	}
 }
 
+/* Print weight with units from float32 */
+/* This could be consolodated with PrintUnit */
 func PrintWeight(kg float32) string {
 	defer util.ReportPanic("PrintWeight")
 	if world.ImperialUnits {
@@ -87,6 +91,7 @@ func PrintWeight(kg float32) string {
 	}
 }
 
+/* Based on object weight and density, calculate cubic volume */
 func CalcVolume(mat *world.MatData) string {
 	defer util.ReportPanic("CalcVolume")
 	if mat != nil && mat.TypeP != nil {
@@ -231,6 +236,7 @@ func PlaceObj(pos world.XY, mtype uint8, obj *world.ObjData, dir uint8, fast boo
 	}
 }
 
+/* Check if a rotated multi-tile object will fit */
 func SubObjFits(obj *world.ObjData, TypeP *world.ObjType, report bool, pos world.XY) bool {
 	defer util.ReportPanic("SubObjFits")
 	size := GetObjSize(obj, TypeP)
@@ -262,6 +268,7 @@ func SubObjFits(obj *world.ObjData, TypeP *world.ObjType, report bool, pos world
 	return true
 }
 
+/* Return object size */
 func GetObjSize(obj *world.ObjData, TypeP *world.ObjType) world.XYs {
 	defer util.ReportPanic("GetObjSize")
 	if obj != nil {

@@ -48,9 +48,9 @@ func main() {
 	}
 
 	debug.SetPanicOnFault(true)
-	//debug.SetTraceback("all")
-
 	defer util.ReportPanic("main")
+
+	/* Startup arguments */
 	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on Windows (NOT RECOMMENDED!)")
 	forceMetal := flag.Bool("use-metal", false, "Use the Metal graphics API on Macintosh.")
 	forceAuto := flag.Bool("use-auto", false, "Use Auto-detected graphics API.")
@@ -63,6 +63,7 @@ func main() {
 		return
 	}
 
+	/* Loads boot screen assets */
 	imgb, err := data.GetSpriteImage("title.png", true)
 	if err == nil {
 		world.TitleImage = imgb
@@ -99,8 +100,10 @@ func main() {
 	}
 	helpText = str
 
-	/* Detect logical*/
+	/* Detect logical CPUs */
 	detectCPUs(false)
+
+	/* Create tick interval list */
 	TickInit()
 
 	/* Set up ebiten and window */
@@ -111,12 +114,9 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	setupWindowSize()
 
-	if world.WASMMode && (world.LoadTest || world.UPSBench) {
-		world.PlayerReady.Store(1)
-	}
-
 	windowTitle()
 
+	/* Graphics APIs, with fallback to autodetect*/
 	problem := false
 	if *forceMetal {
 		cwlog.DoLog(true, "Starting game with Metal graphics API.")
@@ -159,16 +159,23 @@ func main() {
 func NewGame() *Game {
 	defer util.ReportPanic("NewGame")
 
+	/* Load fonts */
 	UpdateFonts()
+
 	go func() {
 		GameRunning = false
-		time.Sleep(time.Millisecond * 500)
 
+		/* Load surface/light and subsurface/dark images */
 		loadSprites(false)
 		loadSprites(true)
 
+		/* Set up perlin noise channels */
 		ResourceMapInit()
+
+		/* Make starting map */
 		MakeMap(world.LoadTest)
+
+		/* Begin game */
 		startGame()
 	}()
 
@@ -178,7 +185,9 @@ func NewGame() *Game {
 
 var silenceUpdates bool
 
+/* Contact server for version information */
 func checkVersion(silent bool) bool {
+	defer util.ReportPanic("checkVersion")
 
 	// Create HTTP client with custom transport
 	transport := &http.Transport{
@@ -205,6 +214,7 @@ func checkVersion(silent bool) bool {
 		panic(err)
 	}
 
+	/* Parse reply */
 	resp := string(responseBytes)
 	respParts := strings.Split(resp, "\n")
 	respPartLen := len(respParts)
@@ -236,7 +246,10 @@ func checkVersion(silent bool) bool {
 	return false
 }
 
+/* Check server for authorization information */
 func checkAuth() bool {
+	defer util.ReportPanic("checkAuth")
+
 	good := data.LoadSecrets()
 	if !good {
 		util.Chat("Key load failed.")
@@ -259,8 +272,10 @@ func checkAuth() bool {
 		world.Authorized.Store(false)
 		statusText = txt
 
+		/* Sleep for a bit, and try again */
 		time.Sleep(time.Second * 10)
 		go checkAuth()
+
 		return false
 	}
 	defer response.Body.Close()
@@ -270,15 +285,16 @@ func checkAuth() bool {
 	if err != nil {
 		panic(err)
 	}
-
 	pass := string(responseBytes)
 
+	/* Check reply */
 	if pass == data.Secrets[0].R {
 		//util.Chat("Auth server approved! Have fun!")
 		world.Authorized.Store(true)
 		return true
 	}
 
+	/* Server said we are no-go */
 	txt := "Auth server did not approve."
 	util.Chat(txt)
 	world.Authorized.Store(false)
@@ -286,45 +302,58 @@ func checkAuth() bool {
 	return false
 }
 
+/* Game start */
 func startGame() {
 	defer util.ReportPanic("startGame")
 
+	/* Check if we are approved to play */
 	if !checkAuth() {
 		return
 	}
 
+	/* Check for updates */
 	checkVersion(false)
 
+	/* Hang out here until we are ready to proceed */
 	for !world.SpritesLoaded.Load() ||
 		world.PlayerReady.Load() == 0 {
-		time.Sleep(time.Millisecond)
+		time.Sleep(time.Millisecond * 100)
 	}
+
+	/* Read user options from disk and apply them */
 	loadOptions()
+
+	/* Welcome/help message */
 	util.ChatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", world.ColorYellow, time.Second*60)
 
+	/* Set game running for update loops */
 	GameRunning = true
 	go func() {
+		/* Check auth server every so often */
 		for GameRunning {
-			time.Sleep(time.Minute)
+			time.Sleep(time.Minute * 5)
+
+			//shhh
 			UpdateFonts()
 
 			checkAuth()
 		}
 	}()
 	go func() {
-		for GameRunning {
-			for GameRunning && !silenceUpdates {
-				time.Sleep(time.Hour)
-				checkVersion(true)
-			}
+		/* Check for updates occasionally */
+		for GameRunning && !silenceUpdates {
+			time.Sleep(time.Hour)
+			checkVersion(true)
 		}
 	}()
 
+	/* Threaded update daemons */
 	if !world.WASMMode {
 		go PixmapRenderDaemon()
 		go ObjUpdateDaemon()
 		go ResourceRenderDaemon()
 	} else {
+		/* Single thread version */
 		util.WASMSleep()
 		go ObjUpdateDaemonST()
 	}

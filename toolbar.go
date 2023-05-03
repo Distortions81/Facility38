@@ -49,23 +49,31 @@ func DrawToolbar(click, hover bool, index int) {
 	toolbarCacheLock.Lock()
 	defer toolbarCacheLock.Unlock()
 
+	/* If needed, init image */
 	if toolbarCache == nil {
 		toolbarCache = ebiten.NewImage(int(ToolBarIconSize+ToolBarSpacing)*ToolbarMax+4, int(ToolBarIconSize+ToolBarSpacing))
 	}
+	/* Clear, full with semi-transparent */
 	toolbarCache.Clear()
 	toolbarCache.Fill(world.ColorToolTipBG)
 
+	/* Loop through all toolbar items */
 	for pos := 0; pos < ToolbarMax; pos++ {
 		item := ToolbarItems[pos]
 		x := float64(int(ToolBarIconSize+ToolBarSpacing) * int(pos))
 
+		/* Get main image */
 		img := item.OType.Images.Main
+
+		/* If there is an overlay mode version, use that */
 		if item.OType.Images.Overlay != nil {
 			img = item.OType.Images.Overlay
 		}
+		/* If there is a toolbar-specific sprite, use that */
 		if item.OType.Images.Toolbar != nil {
 			img = item.OType.Images.Toolbar
 		}
+		/* Something went wrong, exit */
 		if img == nil {
 			return
 		}
@@ -76,6 +84,7 @@ func DrawToolbar(click, hover bool, index int) {
 		iSize := img.Bounds()
 
 		/* Handle non-square sprites */
+		/* TODO: Get rid of this, just make toolbar sprites instead */
 		var largerDim int
 		if iSize.Size().X > largerDim {
 			largerDim = iSize.Size().X
@@ -83,19 +92,26 @@ func DrawToolbar(click, hover bool, index int) {
 		if iSize.Size().Y > largerDim {
 			largerDim = iSize.Size().Y
 		}
+
+		/* Adjust image to toolbar size */
 		op.GeoM.Scale(
 			world.UIScale/(float64(largerDim)/float64(def.ToolBarIconSize)),
 			world.UIScale/(float64(largerDim)/float64(def.ToolBarIconSize)))
 
+		/* If set to, rotate sprite to direction */
 		if item.OType.Rotatable && item.OType.Direction > 0 {
 			x := float64(ToolBarIconSize / 2)
 			y := float64(ToolBarIconSize / 2)
+
+			/* center, rotate and move back... or we rotate on TL corner */
 			op.GeoM.Translate(-x, -y)
 			op.GeoM.Rotate(def.NinetyDeg * float64(item.OType.Direction))
 			op.GeoM.Translate(x, y)
 		}
+		/* Move to correct location in toolbar image */
 		op.GeoM.Translate((float64(ToolBarIconSize+(ToolBarSpacing))*float64(pos))+float64(ToolBarSpacing/2), float64(ToolBarSpacing/2))
 
+		/* hovered/clicked icon highlight */
 		if pos == index {
 			if click {
 				vector.DrawFilledRect(toolbarCache, float32(pos)*(ToolBarIconSize+ToolBarSpacing),
@@ -114,8 +130,10 @@ func DrawToolbar(click, hover bool, index int) {
 
 		}
 
+		/* Draw to image */
 		toolbarCache.DrawImage(img, op)
 
+		/* Draw selection frame for selected game object */
 		if item.SType == def.ObjSubGame {
 
 			if item.OType.TypeI == SelectedItemType {
@@ -158,6 +176,7 @@ func DrawToolbar(click, hover bool, index int) {
 			}
 		}
 
+		/* Show direction arrow, if this is a sprite we do not want to rotate */
 		if item.OType.ToolBarArrow {
 			var aop *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 

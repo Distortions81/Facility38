@@ -7,6 +7,7 @@ import (
 	"syscall/js"
 )
 
+/* Send data to javascript */
 func SendBytes(filename string, data []byte) {
 
 	// convert the Go byte slice to a JavaScript Uint8Array object
@@ -34,6 +35,7 @@ func SendBytes(filename string, data []byte) {
 	js.Global().Get("document").Get("body").Call("removeChild", jsDownloadLink)
 }
 
+/* Create savegame load button, and event */
 func init() {
 	go func() {
 		// create a file input element

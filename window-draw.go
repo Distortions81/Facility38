@@ -19,6 +19,7 @@ const (
 	linePad     = 1
 )
 
+/* Calculate spacing and order based on DPI and scale */
 func setupOptionsWindow(window *WindowData) {
 	defer util.ReportPanic("setupOptionsWindow")
 	buttons = []image.Rectangle{}
@@ -49,13 +50,16 @@ func setupOptionsWindow(window *WindowData) {
 
 }
 
+/* Draw the help window content */
 func drawHelpWindow(window *WindowData) {
 	defer util.ReportPanic("drawHelpWindow")
+
 	DrawText(helpText, world.GeneralFont, color.White, color.Transparent,
 		world.XYf32{X: float32(window.ScaledSize.X / 2), Y: float32(window.ScaledSize.Y / 2)},
 		0, window.Cache, false, false, true)
 }
 
+/* Draw options window content */
 const checkScale = 0.5
 
 func drawOptionsWindow(window *WindowData) {
@@ -87,10 +91,12 @@ func drawOptionsWindow(window *WindowData) {
 				color.NRGBA{R: 255, G: 255, B: 255, A: 16}, false)
 		}
 
+		/* Skip some entries for WASM mode */
 		if (world.WASMMode && !item.WASMExclude) || !world.WASMMode {
 
 			text.Draw(window.Cache, txt, world.GeneralFont, item.TextPosX, item.TextPosY-(world.GeneralFontH/2), itemColor)
 
+			/* if the item can be toggled, draw checkmark */
 			if !item.NoCheck {
 
 				/* Get checkmark image */
@@ -101,6 +107,7 @@ func drawOptionsWindow(window *WindowData) {
 				} else {
 					check = WorldOverlays[7].Images.Main
 				}
+
 				/* Draw checkmark */
 				op.GeoM.Scale(world.UIScale*checkScale, world.UIScale*checkScale)
 				op.GeoM.Translate(
