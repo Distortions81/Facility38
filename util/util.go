@@ -32,16 +32,7 @@ var (
 
 /* Init chat system */
 func init() {
-
-	defer ReportPanic("util init")
-	ChatLines = append(ChatLines, world.ChatLines{
-		Text:      "",
-		Timestamp: time.Now(),
-		Lifetime:  time.Nanosecond,
-		Color:     world.ColorAqua,
-		BGColor:   world.ColorToolTipBG,
-	})
-	ChatLinesTop = 1
+	ResetChat()
 }
 
 /* Handles panics */
@@ -75,6 +66,7 @@ func ReportPanic(format string, args ...interface{}) {
 	}
 }
 
+/* Reset chat history */
 func ResetChat() {
 	ChatLinesLock.Lock()
 	ChatLines = []world.ChatLines{}
@@ -157,23 +149,8 @@ func ObjCD(b *world.BuildingData, format string, args ...interface{}) {
 
 /* Default add lines to chat */
 func Chat(text string) {
-	if !world.MapGenerated.Load() {
-		return
-	}
-	cwlog.DoLog(false, "Chat: "+text)
+	ChatDetailed(text, color.White, time.Second*15)
 
-	go func(text string) {
-		ChatLinesLock.Lock()
-		deleteOldLines()
-
-		sepLines := strings.Split(text, "\n")
-		for _, sep := range sepLines {
-			ChatLines = append(ChatLines, world.ChatLines{Text: sep, Color: color.White, BGColor: world.ColorToolTipBG, Lifetime: time.Second * 15, Timestamp: time.Now()})
-			ChatLinesTop++
-		}
-
-		ChatLinesLock.Unlock()
-	}(text)
 }
 
 /* Add to chat with options */
@@ -244,8 +221,10 @@ func PosIntMod(d, m int) int {
 /* Delete an object from a world.ObjData list, does not retain order (fast) */
 func ObjListDelete(obj *world.ObjData) {
 	defer ReportPanic("ObjListDelete")
+
 	obj.Chunk.Lock.Lock()
 	defer obj.Chunk.Lock.Unlock()
+
 	for index, item := range obj.Chunk.ObjList {
 		if item.Pos == obj.Pos {
 			obj.Chunk.ObjList[index] = obj.Chunk.ObjList[len(obj.Chunk.ObjList)-1]
@@ -256,6 +235,7 @@ func ObjListDelete(obj *world.ObjData) {
 	}
 }
 
+/* Pos world.XY to string */
 func PosToString(pos world.XY) string {
 	defer ReportPanic("PosToString")
 	centerPos := CenterXY(pos)
@@ -269,6 +249,7 @@ func CenterXY(pos world.XY) world.XYs {
 	return world.XYs{X: int32(pos.X) - int32(def.XYCenter), Y: int32(pos.Y) - int32(def.XYCenter)}
 }
 
+/* Convert uncentered position to centered */
 func UnCenterXY(pos world.XYs) world.XY {
 	defer ReportPanic("UnCenterXY")
 	return world.XY{X: uint16(int32(pos.X) + int32(def.XYCenter)), Y: uint16(int32(pos.Y) + int32(def.XYCenter))}
@@ -318,23 +299,24 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 /* Get an object by XY, uses map (hashtable). RLocks the given chunk */
 func GetObj(pos world.XY, chunk *world.MapChunk) *world.BuildingData {
 	defer ReportPanic("GetObj")
+
 	if chunk != nil {
 		chunk.Lock.RLock()
 		o := chunk.BuildingMap[pos]
 		chunk.Lock.RUnlock()
+
 		if o != nil {
 			return o
-		} else {
-			return nil
 		}
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
 /* Get a chunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
 func GetChunk(pos world.XY) *world.MapChunk {
 	defer ReportPanic("GetChunk")
+
 	scpos := PosToSuperChunkPos(pos)
 	cpos := PosToChunkPos(pos)
 
@@ -457,6 +439,7 @@ func DirToName(dir uint8) string {
 	return "Error"
 }
 
+/* Used in debug text */
 func DirToArrow(dir uint8) string {
 	defer ReportPanic("DirToArrow")
 	switch dir {
@@ -475,6 +458,7 @@ func DirToArrow(dir uint8) string {
 	return "Error"
 }
 
+/* Reverse Port Direction/Type */
 func ReverseType(t uint8) uint8 {
 	defer ReportPanic("ReverseType")
 	switch t {
@@ -491,7 +475,7 @@ func ReverseType(t uint8) uint8 {
 	}
 }
 
-/* Flop a consts.DIR */
+/* Flop a direction */
 func ReverseDirection(dir uint8) uint8 {
 	defer ReportPanic("ReverseDirection")
 	switch dir {
@@ -543,6 +527,7 @@ func CompressZip(data []byte) []byte {
 	return b.Bytes()
 }
 
+/* Bool to text */
 func BoolToOnOff(input bool) string {
 	defer ReportPanic("BoolToOnOff")
 	if input {
@@ -552,6 +537,7 @@ func BoolToOnOff(input bool) string {
 	}
 }
 
+/* Check if a position is within a image.Rectangle */
 func PosWithinRect(pos world.XY, rect image.Rectangle, pad uint16) bool {
 	defer ReportPanic("PosWithinRect")
 	if int(pos.X-pad) <= rect.Max.X && int(pos.X+pad) >= rect.Min.X {

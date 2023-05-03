@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+/* Machine Recipies */
 type RecipeData struct {
 	Name  string
 	TypeI uint16
@@ -59,11 +60,13 @@ type MapSuperChunk struct {
 	Lock sync.RWMutex
 }
 
+/* Object material contents */
 type MaterialContentsType struct {
 	Mats [def.MAT_MAX]*MatData `json:"-"`
 	Objs [def.ObjTypeMax]*StoreObj
 }
 
+/* BeltOver specific data */
 type BeltOverType struct {
 	Middle *MatData
 
@@ -122,6 +125,7 @@ type MapChunk struct {
 	Lock sync.RWMutex
 }
 
+/* Perlin noise data */
 type NoiseLayerData struct {
 	Name       string
 	TypeI      uint8
@@ -129,6 +133,7 @@ type NoiseLayerData struct {
 
 	TypeP *MaterialType
 
+	/* Perlin values */
 	Scale      float32
 	Alpha      float32
 	Beta       float32
@@ -138,6 +143,7 @@ type NoiseLayerData struct {
 	MaxValue   float32
 	MinValue   float32
 
+	/* Output adjustments */
 	InvertValue bool
 
 	ModRed   bool
@@ -157,6 +163,7 @@ type NoiseLayerData struct {
 	PerlinNoise  *perlin.Perlin
 }
 
+/* Miner data */
 type MinerDataType struct {
 	Resources      []float32
 	ResourcesType  []uint8
@@ -172,11 +179,13 @@ type ObjData struct {
 	/* Data needed for transporting or storing object */
 	Unique *UniqueObject
 
-	Dir        uint8
+	/* Object direction */
+	Dir uint8
+	/* For round-robin input/output */
 	LastInput  uint8
 	LastOutput uint8
 
-	//Port aliases, prevent looping all ports
+	/* Port aliases, prevent looping all ports */
 	Ports []ObjPortData
 
 	Outputs []*ObjPortData
@@ -185,6 +194,7 @@ type ObjData struct {
 	FuelIn  []*ObjPortData
 	FuelOut []*ObjPortData
 
+	/* Belt corner data */
 	IsCorner  bool
 	CornerDir uint8
 
@@ -203,15 +213,18 @@ type ObjData struct {
 	Blocked bool
 	Active  bool
 
+	/* Prevent needing to seach event lists */
 	HasTick bool
 	HasTock bool
 }
 
+/* For storing unique objects */
 type StoreObj struct {
 	Unique []*UniqueObject
 	Count  uint64
 }
 
+/* Data that is unique to an object */
 type UniqueObject struct {
 	Contents      *MaterialContentsType
 	SingleContent *MatData
@@ -219,6 +232,7 @@ type UniqueObject struct {
 	TypeP         *ObjType
 }
 
+/* Object ports to link to other objects */
 type ObjPortData struct {
 	Dir  uint8
 	Type uint8
@@ -229,6 +243,7 @@ type ObjPortData struct {
 	SubPos XYs
 }
 
+/* Material type data */
 type MaterialType struct {
 	Symbol   string
 	Name     string
@@ -259,8 +274,8 @@ type MaterialType struct {
 	IsSheetMetal bool
 }
 
+/* Loaded images */
 type ObjectImages struct {
-	/* Loaded images */
 	Main    *ebiten.Image
 	Toolbar *ebiten.Image
 	Mask    *ebiten.Image
@@ -283,6 +298,7 @@ type ObjectImages struct {
 	DarkOverlay *ebiten.Image
 }
 
+/* Machine data */
 type MachineData struct {
 	KgHourMine   float32 //Miner speed
 	KgHopperMove float32 //Hopper speed

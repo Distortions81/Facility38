@@ -84,6 +84,7 @@ func LogDaemon() {
 				LogDesc = nil
 			}
 
+			/* If enabled, write to stdout */
 			if world.LogStdOut {
 				fmt.Print(LogBuf[0])
 			}
@@ -93,7 +94,6 @@ func LogDaemon() {
 			LogBufLines--
 
 			LogBufLock.Unlock()
-			time.Sleep(time.Millisecond)
 		}
 	}()
 }
