@@ -9,12 +9,14 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 )
 
+/* Modulo offset */
 type OffsetData struct {
 	Offset int
 	Ticks  []*world.ObjData
 	Tocks  []*world.ObjData
 }
 
+/* How often objects in this group update */
 type TickInterval struct {
 	Interval   int
 	LastOffset int
@@ -36,6 +38,7 @@ func TickInit() {
 		GetIntervalPos(int(ot.TockInterval))
 	}
 	cwlog.DoLog(true, "%v intervals added.", len(TickIntervals))
+
 }
 
 /* Return interval data, or create it if needed */
@@ -50,6 +53,7 @@ func GetIntervalPos(interval int) (pos int, created bool) {
 			return ipos, false
 		}
 	}
+	/* Doesn't exist, create it */
 	if !foundInterval {
 		pos := len(TickIntervals)
 
@@ -65,6 +69,7 @@ func GetIntervalPos(interval int) (pos int, created bool) {
 	return -1, false
 }
 
+/* Add tock event to tick interval/mod offset */
 func AddTock(obj *world.ObjData) {
 	defer util.ReportPanic("AddTock")
 	if obj.HasTock {
@@ -83,6 +88,7 @@ func AddTock(obj *world.ObjData) {
 	world.TockCount++
 }
 
+/* Remove a tock from tick interval/mod offset */
 func RemoveTock(obj *world.ObjData) {
 	defer util.ReportPanic("RemoveTock")
 	if !obj.HasTock {
@@ -111,6 +117,8 @@ func RemoveTock(obj *world.ObjData) {
 		}
 	}
 }
+
+/* Add a tick from a tick interval/mod offset */
 func AddTick(obj *world.ObjData) {
 	defer util.ReportPanic("AddTick")
 	if obj.HasTick {
@@ -129,11 +137,14 @@ func AddTick(obj *world.ObjData) {
 	world.TickCount++
 }
 
+/* Remove a tick event from the TickInterval list */
 func RemoveTick(obj *world.ObjData) {
 	defer util.ReportPanic("RemoveTick")
+
 	if !obj.HasTick {
 		return
 	}
+	/* Find our position */
 	i, _ := GetIntervalPos(int(obj.Unique.TypeP.TockInterval))
 
 	for offPos, off := range TickIntervals[i].Offsets {
@@ -158,6 +169,7 @@ func RemoveTick(obj *world.ObjData) {
 	}
 }
 
+/* Single-thhread run tocks */
 func NewRunTocksST() {
 	defer util.ReportPanic("NewRunTocksST")
 	ActiveTocks = 0
@@ -176,6 +188,7 @@ func NewRunTocksST() {
 	world.ActiveTockCount = ActiveTocks
 }
 
+/* Single-thread run ticks */
 func NewRunTicksST() {
 	defer util.ReportPanic("NewRunTicksST")
 	ActiveTicks = 0
@@ -194,9 +207,8 @@ func NewRunTicksST() {
 	world.ActiveTickCount = ActiveTicks
 }
 
-var (
-	block [def.WorkSize]*world.ObjData
-)
+/* Threaded tock update */
+var block [def.WorkSize]*world.ObjData
 
 func NewRunTocks() {
 	defer util.ReportPanic("NewRunTocks")
@@ -213,6 +225,7 @@ func NewRunTocks() {
 					block[numObj] = tock
 					numObj++
 					if numObj == def.WorkSize {
+						//Waitgroup add and done happen within here
 						runTockBlock(numObj)
 						ActiveTocks += numObj
 						numObj = 0
@@ -229,6 +242,7 @@ func NewRunTocks() {
 	world.ActiveTockCount = ActiveTocks
 }
 
+/* Threaded tick update */
 func NewRunTicks() {
 
 	numObj := 0
@@ -242,6 +256,7 @@ func NewRunTicks() {
 					block[numObj] = tick
 					numObj++
 					if numObj == def.WorkSize {
+						//Waitgroup add and done happen within here
 						runTickBlock(numObj)
 						ActiveTicks += numObj
 						numObj = 0
@@ -259,6 +274,7 @@ func NewRunTicks() {
 	world.ActiveTickCount = ActiveTicks
 }
 
+/* Run a block of ticks on a thread */
 func runTickBlock(numObj int) {
 	defer util.ReportPanic("runTickBlock")
 
@@ -274,6 +290,7 @@ func runTickBlock(numObj int) {
 	block = [def.WorkSize]*world.ObjData{}
 }
 
+/* Run a block of tocks on a thread */
 func runTockBlock(numObj int) {
 	defer util.ReportPanic("runTockBlock")
 	wg.Add()
