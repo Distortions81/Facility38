@@ -307,12 +307,10 @@ func startGame() {
 	}()
 	go func() {
 		for GameRunning {
-			go func() {
-				for GameRunning && !silenceUpdates {
-					time.Sleep(time.Hour)
-					checkVersion(true)
-				}
-			}()
+			for GameRunning && !silenceUpdates {
+				time.Sleep(time.Hour)
+				checkVersion(true)
+			}
 		}
 	}()
 
