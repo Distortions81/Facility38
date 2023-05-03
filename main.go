@@ -176,7 +176,9 @@ func NewGame() *Game {
 	return &Game{}
 }
 
-func checkVersion() bool {
+var silenceUpdates bool
+
+func checkVersion(silent bool) bool {
 
 	// Create HTTP client with custom transport
 	transport := &http.Transport{
@@ -215,12 +217,15 @@ func checkVersion() bool {
 			//dlURL = respParts[2]
 
 			buf := fmt.Sprintf("New version available: %v", newVersion)
+			silenceUpdates = true
 			util.ChatDetailed(buf, color.White, 60)
 			return true
 		}
+	} else if respPartLen > 0 && respParts[0] == "UpToDate" {
+		util.Chat("Update server: Facility 38 is up-to-date.")
+	} else {
+		return false
 	}
-
-	util.Chat("Update server: Facility 38 is up-to-date.")
 
 	return false
 }
@@ -282,7 +287,7 @@ func startGame() {
 		return
 	}
 
-	checkVersion()
+	checkVersion(false)
 
 	for !world.SpritesLoaded.Load() ||
 		world.PlayerReady.Load() == 0 {
@@ -298,6 +303,16 @@ func startGame() {
 			UpdateFonts()
 
 			checkAuth()
+		}
+	}()
+	go func() {
+		for GameRunning {
+			go func() {
+				for GameRunning && !silenceUpdates {
+					time.Sleep(time.Hour)
+					checkVersion(true)
+				}
+			}()
 		}
 	}()
 
