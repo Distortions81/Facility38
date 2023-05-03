@@ -217,6 +217,11 @@ func checkVersion(silent bool) bool {
 			newVersion = respParts[1]
 			//dlURL = respParts[2]
 
+			if world.WASMMode {
+				go util.ChatDetailed("The game is out of date.\nYou may need to refresh your browser.", world.ColorOrange, 30*time.Second)
+				return true
+			}
+
 			buf := fmt.Sprintf("New version available: %v", newVersion)
 			silenceUpdates = true
 			util.ChatDetailed(buf, color.White, 60)
