@@ -79,10 +79,10 @@ func linkObj(from XY, b *buildingData) {
 				}
 
 				/* Normal objects can only link to loaders */
-				if (b.obj.Unique.typeP.category == ObjCatGeneric &&
-					neighb.obj.Unique.typeP.category != ObjCatLoader) ||
-					(neighb.obj.Unique.typeP.category == ObjCatGeneric &&
-						b.obj.Unique.typeP.category != ObjCatLoader) {
+				if (b.obj.Unique.typeP.category == objCatGeneric &&
+					neighb.obj.Unique.typeP.category != objCatLoader) ||
+					(neighb.obj.Unique.typeP.category == objCatGeneric &&
+						b.obj.Unique.typeP.category != objCatLoader) {
 					continue
 				}
 

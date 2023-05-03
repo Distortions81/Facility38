@@ -176,7 +176,7 @@ func tickObj(obj *ObjData) {
 	}
 
 	/* Don't bother with blocking except on belts */
-	if obj.Unique.typeP.category == ObjCatBelt {
+	if obj.Unique.typeP.category == objCatBelt {
 		if obj.numOut+obj.numFOut == blockedOut {
 			if !obj.blocked {
 				obj.blocked = true

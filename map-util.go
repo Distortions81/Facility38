@@ -20,7 +20,7 @@ func makeSuperChunk(pos XY) {
 		/* Make new superchunk in map at pos */
 		newSuperChunk := &mapSuperChunkData{}
 
-		maxSize := SuperChunkTotal * SuperChunkTotal * 4
+		maxSize := superChunkTotal * superChunkTotal * 4
 		newSuperChunk.itemMap = make([]byte, maxSize)
 		newSuperChunk.resourceMap = make([]byte, maxSize)
 		newSuperChunk.resourceDirty = true
@@ -101,11 +101,11 @@ func exploreMap(pos XY, input int, slow bool) {
 	/* Explore some map */
 
 	ChunksMade := 0
-	area := input * ChunkSize
+	area := input * chunkSize
 	offx := int(pos.X) - (area / 2)
 	offy := int(pos.Y) - (area / 2)
-	for x := -area; x < area; x += ChunkSize {
-		for y := -area; y < area; y += ChunkSize {
+	for x := -area; x < area; x += chunkSize {
+		for y := -area; y < area; y += chunkSize {
 			pos := XY{X: uint16(offx - x), Y: uint16(offy - y)}
 			makeChunk(pos)
 			ChunksMade++

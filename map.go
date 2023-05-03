@@ -21,7 +21,7 @@ func makeMap(gen bool) {
 		vSpace := 4
 		bLen := 3
 		beltLength := hSpace + bLen
-		for i := 0; total < NumTestObjects; i++ {
+		for i := 0; total < numTestObjects; i++ {
 			if i%2 == 0 {
 				rows++
 			} else {
@@ -34,32 +34,32 @@ func makeMap(gen bool) {
 
 		if LoadTest {
 
-			ty := int(XYCenter) - (rows)
+			ty := int(xyCenter) - (rows)
 			cols := 0
 			for j := 0; j < rows*columns; j++ {
 				cols++
 
-				tx := int(XYCenter) - ((columns * (beltLength + hSpace)) / 3)
-				placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, ObjTypeBasicMiner, nil, DIR_EAST, true)
+				tx := int(xyCenter) - ((columns * (beltLength + hSpace)) / 3)
+				placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, objTypeBasicMiner, nil, DIR_EAST, true)
 				tx++
 				tx++
 				Loaded++
 
-				placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, ObjTypeBasicUnloader, nil, DIR_EAST, true)
+				placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, objTypeBasicUnloader, nil, DIR_EAST, true)
 				tx++
 				Loaded++
 
 				for i := 0; i < beltLength-hSpace; i++ {
-					placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, ObjTypeBasicBelt, nil, DIR_EAST, true)
+					placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, objTypeBasicBelt, nil, DIR_EAST, true)
 					tx++
 					Loaded++
 				}
 
-				placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, ObjTypeBasicLoader, nil, DIR_EAST, true)
+				placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, objTypeBasicLoader, nil, DIR_EAST, true)
 				tx++
 				Loaded++
 
-				placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, ObjTypeBasicBox, nil, DIR_EAST, true)
+				placeObj(XY{X: uint16(tx + (cols * beltLength)), Y: uint16(ty)}, objTypeBasicBox, nil, DIR_EAST, true)
 				tx++
 				tx++
 				Loaded++
@@ -79,7 +79,7 @@ func makeMap(gen bool) {
 	}
 
 	WASMSleep()
-	exploreMap(XY{X: XYCenter - (ChunkSize / 2), Y: XYCenter - (ChunkSize / 2)}, 16, true)
+	exploreMap(XY{X: xyCenter - (chunkSize / 2), Y: xyCenter - (chunkSize / 2)}, 16, true)
 
 	LastSave = time.Now().UTC()
 

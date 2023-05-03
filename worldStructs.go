@@ -21,7 +21,7 @@ type recipeData struct {
 	result  [MAT_MAX]uint8
 	resultP [MAT_MAX]*materialType
 
-	machineTypes [ObjTypeMax]uint8
+	machineTypes [objTypeMax]uint8
 }
 
 /* Chat line data */
@@ -88,7 +88,7 @@ type buildingData struct {
 
 /* Used to keep track of amount of resources mined */
 type minerData struct {
-	mined [NumResourceTypes]float32
+	mined [numResourceTypes]float32
 }
 
 /* Contain object map, object list and TerrainImg */
@@ -160,8 +160,7 @@ type MinerDataType struct {
 
 /* Object data */
 type ObjData struct {
-	Pos   XY
-	chunk *mapChunk
+	Pos XY
 
 	/* Data needed for transporting or storing object */
 	Unique *UniqueObject
@@ -173,7 +172,13 @@ type ObjData struct {
 	LastOutput uint8
 
 	/* Port aliases, prevent looping all ports */
-	Ports []ObjPortData
+	Ports     []ObjPortData
+	KGHeld    float32
+	MinerData *MinerDataType
+	Tile      *tileData
+
+	/* Unexported */
+	chunk *mapChunk
 
 	outputs []*ObjPortData
 	inputs  []*ObjPortData
@@ -192,10 +197,7 @@ type ObjData struct {
 	numFOut uint8
 
 	//Internal Tock() use
-	beltOver  *beltOverType
-	KGHeld    float32
-	MinerData *MinerDataType
-	Tile      *tileData
+	beltOver *beltOverType
 
 	blocked bool
 	active  bool
@@ -210,18 +212,19 @@ type UniqueObject struct {
 	Contents      *materialContentsTypeData
 	SingleContent *MatData
 	KGFuel        float32
-	typeP         *objType
+
+	typeP *objType
 }
 
 /* Object ports to link to other objects */
 type ObjPortData struct {
-	Dir  uint8
-	Type uint8
-
-	obj    *ObjData
-	Buf    *MatData
-	link   *ObjPortData
+	Dir    uint8
+	Type   uint8
 	SubPos XYs
+
+	obj  *ObjData
+	Buf  *MatData
+	link *ObjPortData
 }
 
 /* Material type data */
@@ -377,8 +380,7 @@ type toolbarItem struct {
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
-	Obj    *UniqueObject
-	TypeP  *materialType
+	typeP  *materialType
 	Amount float32
 	Rot    uint8
 }

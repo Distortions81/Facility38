@@ -51,7 +51,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Printf("v%03v-%v\n", Version, buildTime)
+		fmt.Printf("v%03v-%v\n", version, buildTime)
 		return
 	}
 
@@ -189,7 +189,7 @@ func checkVersion(silent bool) bool {
 	}
 	client := &http.Client{Transport: transport}
 
-	cstr := fmt.Sprintf("CheckUpdateDev:v%03v-%v\n", Version, buildTime)
+	cstr := fmt.Sprintf("CheckUpdateDev:v%03v-%v\n", version, buildTime)
 	// Send HTTPS POST request to server
 	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(cstr)))
 	if err != nil {
@@ -377,9 +377,9 @@ func loadSprites(dark bool) {
 				img, err = GetSpriteImage(otype.folder+"/"+item.base+"/"+item.base+dstr+".png", false)
 				if err != nil && !dark {
 					/* If not found, fill texture with text */
-					img = ebiten.NewImage(int(SpriteScale), int(SpriteScale))
+					img = ebiten.NewImage(int(spriteScale), int(spriteScale))
 					img.Fill(ColorVeryDarkGray)
-					text.Draw(img, item.symbol, ObjectFont, PlaceholdOffX, PlaceholdOffY, ColorWhite)
+					text.Draw(img, item.symbol, ObjectFont, placeholdOffX, placeholdOffY, ColorWhite)
 				}
 			}
 			if dark {
@@ -437,9 +437,9 @@ func loadSprites(dark bool) {
 			img, err := GetSpriteImage("belt-obj/"+item.base+".png", false)
 			if err != nil {
 				/* If not found, fill texture with text */
-				img = ebiten.NewImage(int(SpriteScale), int(SpriteScale))
+				img = ebiten.NewImage(int(spriteScale), int(spriteScale))
 				img.Fill(ColorVeryDarkGray)
-				text.Draw(img, item.symbol, ObjectFont, PlaceholdOffX, PlaceholdOffY, ColorWhite)
+				text.Draw(img, item.symbol, ObjectFont, placeholdOffX, placeholdOffY, ColorWhite)
 			}
 			matTypes[m].lightImage = img
 		} else {
@@ -711,7 +711,7 @@ func windowTitle() {
 func handleResize(outsideWidth int, outsideHeight int) {
 	defer reportPanic("handleResize")
 	//Recalcualte settings window item
-	scale := 1 / (UIBaseResolution / float64(outsideWidth))
+	scale := 1 / (uiBaseResolution / float64(outsideWidth))
 
 	lock := float64(int(scale * scaleLockVal))
 	scale = lock / scaleLockVal

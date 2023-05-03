@@ -55,7 +55,7 @@ func noiseMap(x, y float32, p int) float32 {
 }
 
 /* Resource layers */
-var noiseLayers = [NumResourceTypes]noiseLayerData{
+var noiseLayers = [numResourceTypes]noiseLayerData{
 	{name: "Ground",
 		seedOffset: 5147,
 		typeI:      MAT_NONE,

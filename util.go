@@ -50,7 +50,7 @@ func reportPanic(format string, args ...interface{}) {
 
 		_, filename, line, _ := runtime.Caller(4)
 		input := fmt.Sprintf(format, args...)
-		buf := fmt.Sprintf("(GAME CRASH)\nBUILD:v%v-%v\nLabel:%v File: %v Line: %v\nError:%v\n\nStack Trace:\n%v\n", Version, buildInfo, input, filepath.Base(filename), line, r, string(debug.Stack()))
+		buf := fmt.Sprintf("(GAME CRASH)\nBUILD:v%v-%v\nLabel:%v File: %v Line: %v\nError:%v\n\nStack Trace:\n%v\n", version, buildInfo, input, filepath.Base(filename), line, r, string(debug.Stack()))
 
 		if !WASMMode {
 			os.WriteFile("panic.log", []byte(buf), 0660)
@@ -243,13 +243,13 @@ func PosToString(pos XY) string {
 /* Convert an internal XY (unsigned) to a (0,0) center */
 func CenterXY(pos XY) XYs {
 	defer reportPanic("CenterXY")
-	return XYs{X: int32(pos.X) - int32(XYCenter), Y: int32(pos.Y) - int32(XYCenter)}
+	return XYs{X: int32(pos.X) - int32(xyCenter), Y: int32(pos.Y) - int32(xyCenter)}
 }
 
 /* Convert uncentered position to centered */
 func UnCenterXY(pos XYs) XY {
 	defer reportPanic("UnCenterXY")
-	return XY{X: uint16(int32(pos.X) + int32(XYCenter)), Y: uint16(int32(pos.Y) + int32(XYCenter))}
+	return XY{X: uint16(int32(pos.X) + int32(xyCenter)), Y: uint16(int32(pos.Y) + int32(xyCenter))}
 }
 
 /* Rotate consts.DIR value clockwise */
@@ -346,37 +346,37 @@ func GetSuperChunk(pos XY) *mapSuperChunkData {
 /* XY to Chunk XY */
 func PosToChunkPos(pos XY) XY {
 	defer reportPanic("PosToChunkPos")
-	return XY{X: pos.X / ChunkSize, Y: pos.Y / ChunkSize}
+	return XY{X: pos.X / chunkSize, Y: pos.Y / chunkSize}
 }
 
 /* Chunk XY to XY */
 func ChunkPosToPos(pos XY) XY {
 	defer reportPanic("ChunkPosToPos")
-	return XY{X: pos.X * ChunkSize, Y: pos.Y * ChunkSize}
+	return XY{X: pos.X * chunkSize, Y: pos.Y * chunkSize}
 }
 
 /* XY to SuperChunk XY */
 func PosToSuperChunkPos(pos XY) XY {
 	defer reportPanic("PosToSuperChunkPos")
-	return XY{X: pos.X / MaxSuperChunk, Y: pos.Y / MaxSuperChunk}
+	return XY{X: pos.X / maxSuperChunk, Y: pos.Y / maxSuperChunk}
 }
 
 /* SuperChunk XY to XY */
 func SuperChunkPosToPos(pos XY) XY {
 	defer reportPanic("SuperChunkPosToPos")
-	return XY{X: pos.X * MaxSuperChunk, Y: pos.Y * MaxSuperChunk}
+	return XY{X: pos.X * maxSuperChunk, Y: pos.Y * maxSuperChunk}
 }
 
 /* Chunk XY to SuperChunk XY */
 func ChunkPosToSuperChunkPos(pos XY) XY {
 	defer reportPanic("ChunkPosToSuperChunkPos")
-	return XY{X: pos.X / SuperChunkSize, Y: pos.Y / SuperChunkSize}
+	return XY{X: pos.X / superChunkSize, Y: pos.Y / superChunkSize}
 }
 
 /* SuperChunk XY to Chunk XY */
 func SuperChunkPosToChunkPos(pos XY) XY {
 	defer reportPanic("SuperChunkPosToChunkPos")
-	return XY{X: pos.X * SuperChunkSize, Y: pos.Y * SuperChunkSize}
+	return XY{X: pos.X * superChunkSize, Y: pos.Y * superChunkSize}
 }
 
 /* Float (X, Y) to XY (int) */

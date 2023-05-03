@@ -31,121 +31,121 @@ func init() {
 var recipies = []*recipeData{
 	/* Basic Smelter */
 	{
-		typeI:    RecIronShot,
+		typeI:    recIronShot,
 		name:     "Iron Shot",
 		requires: [MAT_MAX]uint8{MAT_IRON_ORE},
 
 		result:       [MAT_MAX]uint8{MAT_IRON_SHOT},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicSmelter},
+		machineTypes: [objTypeMax]uint8{objTypeBasicSmelter},
 	},
 	{
-		typeI:    RecCopperShot,
+		typeI:    recCopperShot,
 		name:     "Copper Shot",
 		requires: [MAT_MAX]uint8{MAT_COPPER_ORE},
 
 		result:       [MAT_MAX]uint8{MAT_COPPER_SHOT},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicSmelter},
+		machineTypes: [objTypeMax]uint8{objTypeBasicSmelter},
 	},
 	{
-		typeI:    RecCopperShot,
+		typeI:    recCopperShot,
 		name:     "Slag Shot",
 		requires: [MAT_MAX]uint8{MAT_MIX_ORE},
 
 		result:       [MAT_MAX]uint8{MAT_SLAG_SHOT},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicSmelter},
+		machineTypes: [objTypeMax]uint8{objTypeBasicSmelter},
 	},
 	{
-		typeI:    RecCopperShot,
+		typeI:    recCopperShot,
 		name:     "Stone Shot",
 		requires: [MAT_MAX]uint8{MAT_STONE_ORE},
 
 		result:       [MAT_MAX]uint8{MAT_SLAG_SHOT},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicSmelter},
+		machineTypes: [objTypeMax]uint8{objTypeBasicSmelter},
 	},
 
 	/* Basic Caster */
 	{
-		typeI:    RecIronBar,
+		typeI:    recIronBar,
 		name:     "Iron Bar",
 		requires: [MAT_MAX]uint8{MAT_IRON_SHOT},
 
 		result:       [MAT_MAX]uint8{MAT_IRON_BAR},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicCaster},
+		machineTypes: [objTypeMax]uint8{objTypeBasicCaster},
 	},
 	{
-		typeI:    RecCopperBar,
+		typeI:    recCopperBar,
 		name:     "Copper Bar",
 		requires: [MAT_MAX]uint8{MAT_COPPER_SHOT},
 
 		result:       [MAT_MAX]uint8{MAT_COPPER_BAR},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicCaster},
+		machineTypes: [objTypeMax]uint8{objTypeBasicCaster},
 	},
 	{
-		typeI:    RecCopperBar,
+		typeI:    recCopperBar,
 		name:     "Slag Bar",
 		requires: [MAT_MAX]uint8{MAT_SLAG_SHOT},
 
 		result:       [MAT_MAX]uint8{MAT_SLAG_BAR},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicCaster},
+		machineTypes: [objTypeMax]uint8{objTypeBasicCaster},
 	},
 	{
-		typeI:    RecCopperBar,
+		typeI:    recCopperBar,
 		name:     "Stone Block",
 		requires: [MAT_MAX]uint8{MAT_STONE_SHOT},
 
 		result:       [MAT_MAX]uint8{MAT_STONE_BLOCK},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicCaster},
+		machineTypes: [objTypeMax]uint8{objTypeBasicCaster},
 	},
 
 	/* Basic Rod Caster */
 	{
-		typeI:    RecIronRod,
+		typeI:    recIronRod,
 		name:     "Iron Rod",
 		requires: [MAT_MAX]uint8{MAT_IRON_BAR},
 
 		result:       [MAT_MAX]uint8{MAT_IRON_ROD},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicRodCaster},
+		machineTypes: [objTypeMax]uint8{objTypeBasicRodCaster},
 	},
 	{
-		typeI:    RecCopperRod,
+		typeI:    recCopperRod,
 		name:     "Copper Rod",
 		requires: [MAT_MAX]uint8{MAT_COPPER_BAR},
 
 		result:       [MAT_MAX]uint8{MAT_COPPER_ROD},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicRodCaster},
+		machineTypes: [objTypeMax]uint8{objTypeBasicRodCaster},
 	},
 	{
-		typeI:    RecCopperRod,
+		typeI:    recCopperRod,
 		name:     "Slag Rod",
 		requires: [MAT_MAX]uint8{MAT_SLAG_BAR},
 
 		result:       [MAT_MAX]uint8{MAT_SLAG_ROD},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicRodCaster},
+		machineTypes: [objTypeMax]uint8{objTypeBasicRodCaster},
 	},
 
 	/* Slip Roller */
 	{
-		typeI:    RecIronSheet,
+		typeI:    recIronSheet,
 		name:     "Iron Sheet",
 		requires: [MAT_MAX]uint8{MAT_IRON_BAR},
 
 		result:       [MAT_MAX]uint8{MAT_IRON_SHEET},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicSlipRoller},
+		machineTypes: [objTypeMax]uint8{objTypeBasicSlipRoller},
 	},
 	{
-		typeI:    RecCopperSheet,
+		typeI:    recCopperSheet,
 		name:     "Copper Sheet",
 		requires: [MAT_MAX]uint8{MAT_COPPER_BAR},
 
 		result:       [MAT_MAX]uint8{MAT_COPPER_SHEET},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicSlipRoller},
+		machineTypes: [objTypeMax]uint8{objTypeBasicSlipRoller},
 	},
 	{
-		typeI:    RecCopperSheet,
+		typeI:    recCopperSheet,
 		name:     "Slag Sheet",
 		requires: [MAT_MAX]uint8{MAT_SLAG_BAR},
 
 		result:       [MAT_MAX]uint8{MAT_SLAG_SHEET},
-		machineTypes: [ObjTypeMax]uint8{ObjTypeBasicSlipRoller},
+		machineTypes: [objTypeMax]uint8{objTypeBasicSlipRoller},
 	},
 }

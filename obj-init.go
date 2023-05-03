@@ -96,7 +96,7 @@ func initSmelter(obj *ObjData) bool {
 	}
 
 	obj.Unique.SingleContent = &MatData{}
-	obj.Unique.SingleContent.TypeP = matTypes[MAT_MIX_ORE]
+	obj.Unique.SingleContent.typeP = matTypes[MAT_MIX_ORE]
 
 	return true
 }
@@ -167,7 +167,7 @@ func initSlipRoller(obj *ObjData) bool {
 	}
 
 	obj.Unique.SingleContent = &MatData{}
-	obj.Unique.SingleContent.TypeP = matTypes[MAT_IRON_SHEET]
+	obj.Unique.SingleContent.typeP = matTypes[MAT_IRON_SHEET]
 
 	return true
 }

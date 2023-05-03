@@ -27,7 +27,7 @@ var (
 
 	tickBlocks int
 	tockBlocks int
-	block      [WorkSize]*ObjData
+	block      [workSize]*ObjData
 )
 
 /* Init at boot */
@@ -222,7 +222,7 @@ func newRunTocks() {
 				for _, tock := range off.tocks {
 					block[numObj] = tock
 					numObj++
-					if numObj == WorkSize {
+					if numObj == workSize {
 						//Waitgroup add and done happen within here
 						runTockBlock(numObj)
 						activeTocks += numObj
@@ -255,7 +255,7 @@ func newRunTicks() {
 				for _, tick := range off.ticks {
 					block[numObj] = tick
 					numObj++
-					if numObj == WorkSize {
+					if numObj == workSize {
 						//Waitgroup add and done happen within here
 						runTickBlock(numObj)
 						activeTicks += numObj
@@ -280,7 +280,7 @@ func runTickBlock(numObj int) {
 	defer reportPanic("runTickBlock")
 
 	wg.Add()
-	go func(w [WorkSize]*ObjData, nObj int) {
+	go func(w [workSize]*ObjData, nObj int) {
 		defer reportPanic("runTickBlock goroutine")
 		for x := 0; x < nObj; x++ {
 			tickObj(w[x])
@@ -288,14 +288,14 @@ func runTickBlock(numObj int) {
 		wg.Done()
 	}(block, numObj)
 
-	block = [WorkSize]*ObjData{}
+	block = [workSize]*ObjData{}
 }
 
 /* Run a block of tocks on a thread */
 func runTockBlock(numObj int) {
 	defer reportPanic("runTockBlock")
 	wg.Add()
-	go func(w [WorkSize]*ObjData, nObj int) {
+	go func(w [workSize]*ObjData, nObj int) {
 		var x int
 		defer reportPanic("runTockBlock goroutine")
 
@@ -305,5 +305,5 @@ func runTockBlock(numObj int) {
 		wg.Done()
 	}(block, numObj)
 
-	block = [WorkSize]*ObjData{}
+	block = [workSize]*ObjData{}
 }

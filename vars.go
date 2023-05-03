@@ -80,7 +80,7 @@ var (
 	NumWorkers int
 
 	/* Game UPS rate */
-	ObjectUPS            float32 = GameUPS
+	ObjectUPS            float32 = gameUPS
 	ObjectUPS_ns                 = int(1000000000.0 / ObjectUPS)
 	MeasuredObjectUPS_ns         = ObjectUPS_ns
 	ActualUPS            float32
@@ -116,8 +116,8 @@ var (
 	ObjectFontH int
 
 	/* Camera position */
-	CameraX float32 = float32(XYCenter)
-	CameraY float32 = float32(XYCenter)
+	CameraX float32 = float32(xyCenter)
+	CameraY float32 = float32(xyCenter)
 
 	/* Camera states */
 	ZoomScale   float32 = DefaultZoom //Current zoom

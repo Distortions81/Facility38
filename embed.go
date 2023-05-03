@@ -23,7 +23,7 @@ var (
 const cLoadEmbedSprites = true
 
 func init() {
-	gpng, err := f.Open(GfxDir + "icon.png")
+	gpng, err := f.Open(gfxDir + "icon.png")
 	if err != nil {
 		fmt.Println("Game icon file is missing...")
 		return
@@ -37,7 +37,7 @@ func init() {
 }
 
 func GetFont(name string) []byte {
-	data, err := f.ReadFile(GfxDir + "fonts/" + name)
+	data, err := f.ReadFile(gfxDir + "fonts/" + name)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func GetFont(name string) []byte {
 func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 
 	if cLoadEmbedSprites {
-		gpng, err := f.Open(GfxDir + name)
+		gpng, err := f.Open(gfxDir + name)
 		if err != nil {
 			//DoLog(true, "GetSpriteImage: Embedded: %v", err)
 			return nil, err
@@ -68,7 +68,7 @@ func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 		return img, nil
 
 	} else {
-		img, _, err := ebitenutil.NewImageFromFile(DataDir + GfxDir + name)
+		img, _, err := ebitenutil.NewImageFromFile(dataDir + gfxDir + name)
 		if err != nil {
 			DoLog(true, "GetSpriteImage: File: %v", err)
 		}
@@ -77,7 +77,7 @@ func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 }
 
 func GetText(name string) (string, error) {
-	file, err := f.Open(TxtDir + name + ".txt")
+	file, err := f.Open(txtDir + name + ".txt")
 	if err != nil {
 		DoLog(true, "GetText: %v", err)
 		return "GetText: File: " + name + " not found in embed.", err
@@ -98,7 +98,7 @@ func GetText(name string) (string, error) {
 
 }
 
-const sFile = TxtDir + "p.json"
+const sFile = txtDir + "p.json"
 
 var Secrets []secData
 var sMutex sync.Mutex

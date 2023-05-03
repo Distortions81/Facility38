@@ -64,8 +64,8 @@ func minerUpdate(obj *ObjData) {
 
 	/* Output the material */
 	obj.outputs[0].Buf.Amount = amount
-	if obj.outputs[0].Buf.TypeP != kind {
-		obj.outputs[0].Buf.TypeP = kind
+	if obj.outputs[0].Buf.typeP != kind {
+		obj.outputs[0].Buf.typeP = kind
 	}
 	obj.outputs[0].Buf.Rot = uint8(rand.Intn(3))
 
@@ -138,12 +138,12 @@ func fuelHopperUpdate(obj *ObjData) {
 		}
 
 		/* Is input solid? */
-		if !input.Buf.TypeP.isSolid {
+		if !input.Buf.typeP.isSolid {
 			continue
 		}
 
 		/* Is input fuel? */
-		if !input.Buf.TypeP.isFuel {
+		if !input.Buf.typeP.isFuel {
 			continue
 		}
 
@@ -216,7 +216,7 @@ func boxUpdate(obj *ObjData) {
 	defer reportPanic("boxUpdate")
 
 	for p, port := range obj.inputs {
-		if port.Buf.TypeP == nil {
+		if port.Buf.typeP == nil {
 			continue
 		}
 
@@ -226,13 +226,13 @@ func boxUpdate(obj *ObjData) {
 		}
 
 		/* Init content type if needed */
-		if obj.Unique.Contents.mats[port.Buf.TypeP.typeI] == nil {
-			obj.Unique.Contents.mats[port.Buf.TypeP.typeI] = &MatData{}
+		if obj.Unique.Contents.mats[port.Buf.typeP.typeI] == nil {
+			obj.Unique.Contents.mats[port.Buf.typeP.typeI] = &MatData{}
 		}
 
 		/* Add to contents */
-		obj.Unique.Contents.mats[port.Buf.TypeP.typeI].Amount += obj.inputs[p].Buf.Amount
-		obj.Unique.Contents.mats[port.Buf.TypeP.typeI].TypeP = matTypes[port.Buf.TypeP.typeI]
+		obj.Unique.Contents.mats[port.Buf.typeP.typeI].Amount += obj.inputs[p].Buf.Amount
+		obj.Unique.Contents.mats[port.Buf.typeP.typeI].typeP = matTypes[port.Buf.typeP.typeI]
 		obj.KGHeld += port.Buf.Amount
 		obj.inputs[p].Buf.Amount = 0
 		continue
@@ -264,7 +264,7 @@ func smelterUpdate(obj *ObjData) {
 		}
 
 		/* Input is ore */
-		if !input.Buf.TypeP.isOre {
+		if !input.Buf.typeP.isOre {
 			continue
 		}
 
@@ -274,11 +274,11 @@ func smelterUpdate(obj *ObjData) {
 		}
 
 		/* Set type if needed */
-		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
+		if obj.Unique.SingleContent.typeP != input.Buf.typeP {
 			if obj.Unique.SingleContent.Amount > 0 {
-				obj.Unique.SingleContent.TypeP = matTypes[MAT_MIX_ORE]
+				obj.Unique.SingleContent.typeP = matTypes[MAT_MIX_ORE]
 			} else {
-				obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+				obj.Unique.SingleContent.typeP = input.Buf.typeP
 			}
 		}
 
@@ -311,7 +311,7 @@ func smelterUpdate(obj *ObjData) {
 	}
 
 	/* Look up material */
-	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.TypeP.typeI]
+	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
 		DoLog(true, "Nil recipie")
 		return
@@ -331,8 +331,8 @@ func smelterUpdate(obj *ObjData) {
 		obj.outputs[0].Buf.Amount = obj.Unique.typeP.machineSettings.kgPerCycle
 
 		/* Find and set result type, if needed */
-		if obj.outputs[0].Buf.TypeP != result {
-			obj.outputs[0].Buf.TypeP = result
+		if obj.outputs[0].Buf.typeP != result {
+			obj.outputs[0].Buf.typeP = result
 		}
 	}
 }
@@ -362,7 +362,7 @@ func casterUpdate(obj *ObjData) {
 		}
 
 		/* Contents are shot */
-		if !input.Buf.TypeP.isShot {
+		if !input.Buf.typeP.isShot {
 			continue
 		}
 
@@ -372,8 +372,8 @@ func casterUpdate(obj *ObjData) {
 		}
 
 		/* Set type if needed */
-		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
-			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+		if obj.Unique.SingleContent.typeP != input.Buf.typeP {
+			obj.Unique.SingleContent.typeP = input.Buf.typeP
 		}
 
 		/* Add to weight */
@@ -394,7 +394,7 @@ func casterUpdate(obj *ObjData) {
 
 	/* Process ores */
 	/* Is there enough ore to process? */
-	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.TypeP.typeI]
+	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
 		DoLog(true, "Nil recipie")
 		return
@@ -432,8 +432,8 @@ func casterUpdate(obj *ObjData) {
 	obj.outputs[0].Buf.Amount = result.kg
 
 	/* Find and set result type, if needed */
-	if obj.outputs[0].Buf.TypeP != result {
-		obj.outputs[0].Buf.TypeP = result
+	if obj.outputs[0].Buf.typeP != result {
+		obj.outputs[0].Buf.typeP = result
 	}
 }
 
@@ -462,7 +462,7 @@ func rodCasterUpdate(obj *ObjData) {
 		}
 
 		/* Contents is metal bar */
-		if !input.Buf.TypeP.isBar {
+		if !input.Buf.typeP.isBar {
 			continue
 		}
 
@@ -472,15 +472,15 @@ func rodCasterUpdate(obj *ObjData) {
 		}
 
 		/* Set type if needed */
-		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
-			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+		if obj.Unique.SingleContent.typeP != input.Buf.typeP {
+			obj.Unique.SingleContent.typeP = input.Buf.typeP
 		}
 
 		/* Add to weight */
-		obj.KGHeld += (input.Buf.Amount * input.Buf.TypeP.kg)
+		obj.KGHeld += (input.Buf.Amount * input.Buf.typeP.kg)
 
 		/* Add input to contents */
-		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.TypeP.kg)
+		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.typeP.kg)
 		input.Buf.Amount = 0
 	}
 
@@ -504,7 +504,7 @@ func rodCasterUpdate(obj *ObjData) {
 		obj.active = true
 	}
 
-	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.TypeP.typeI]
+	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
 		DoLog(true, "Nil recipie")
 		return
@@ -517,14 +517,14 @@ func rodCasterUpdate(obj *ObjData) {
 	/* Subtract ore */
 	obj.Unique.SingleContent.Amount--
 	/* Subtract ore weight */
-	obj.KGHeld -= obj.Unique.SingleContent.TypeP.kg
+	obj.KGHeld -= obj.Unique.SingleContent.typeP.kg
 
 	/* Output result */
 	obj.outputs[0].Buf.Amount = result.kg
 
 	/* Find and set result type, if needed */
-	if obj.outputs[0].Buf.TypeP != result {
-		obj.outputs[0].Buf.TypeP = result
+	if obj.outputs[0].Buf.typeP != result {
+		obj.outputs[0].Buf.typeP = result
 	}
 }
 
@@ -553,7 +553,7 @@ func slipRollerUpdate(obj *ObjData) {
 		}
 
 		/* Contents is metal bar */
-		if !input.Buf.TypeP.isBar {
+		if !input.Buf.typeP.isBar {
 			continue
 		}
 
@@ -563,15 +563,15 @@ func slipRollerUpdate(obj *ObjData) {
 		}
 
 		/* Set type if needed */
-		if obj.Unique.SingleContent.TypeP != input.Buf.TypeP {
-			obj.Unique.SingleContent.TypeP = input.Buf.TypeP
+		if obj.Unique.SingleContent.typeP != input.Buf.typeP {
+			obj.Unique.SingleContent.typeP = input.Buf.typeP
 		}
 
 		/* Add to weight */
-		obj.KGHeld += (input.Buf.Amount * input.Buf.TypeP.kg)
+		obj.KGHeld += (input.Buf.Amount * input.Buf.typeP.kg)
 
 		/* Add input to contents */
-		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.TypeP.kg)
+		obj.Unique.SingleContent.Amount += (input.Buf.Amount * input.Buf.typeP.kg)
 		input.Buf.Amount = 0
 	}
 
@@ -595,7 +595,7 @@ func slipRollerUpdate(obj *ObjData) {
 		obj.active = true
 	}
 
-	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.TypeP.typeI]
+	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
 		DoLog(true, "Nil recipie")
 		return
@@ -610,14 +610,14 @@ func slipRollerUpdate(obj *ObjData) {
 		/* Subtract ore */
 		obj.Unique.SingleContent.Amount--
 		/* Subtract ore weight */
-		obj.KGHeld -= obj.Unique.SingleContent.TypeP.kg
+		obj.KGHeld -= obj.Unique.SingleContent.typeP.kg
 
 		/* Output result */
 		obj.outputs[0].Buf.Amount = result.kg
 
 		/* Find and set result type, if needed */
-		if obj.outputs[0].Buf.TypeP != result {
-			obj.outputs[0].Buf.TypeP = result
+		if obj.outputs[0].Buf.typeP != result {
+			obj.outputs[0].Buf.typeP = result
 		}
 	}
 }

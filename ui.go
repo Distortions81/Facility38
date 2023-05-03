@@ -143,7 +143,7 @@ func getShiftToggle() {
 func handleToolbar(rotate bool) bool {
 	defer reportPanic("handleToolbar")
 	toolBarIconSize := float32(UIScale * ToolBarIconSize)
-	toolBarSpacing := float32(ToolBarIconSize / ToolBarSpaceRatio)
+	toolBarSpacing := float32(ToolBarIconSize / toolBarSpaceRatio)
 
 	uipix := float32((toolbarMax * int(toolBarIconSize+toolBarSpacing)))
 
@@ -185,7 +185,7 @@ func handleToolbar(rotate bool) bool {
 
 					/* Deselect */
 				} else if selectedItemType == toolbarItems[ipos].oType.typeI {
-					selectedItemType = MaxItemType
+					selectedItemType = maxItemType
 					drawToolbar(true, false, ipos)
 
 				} else {
@@ -315,7 +315,7 @@ func createWorldObjects() {
 	/* Left mouse, and tile is empty */
 	if gMouseHeld {
 		/* Nothing selected exit */
-		if selectedItemType == MaxItemType {
+		if selectedItemType == maxItemType {
 			return
 		}
 		obj := worldObjs[selectedItemType]
@@ -344,9 +344,9 @@ var lastUpdate time.Time
 func moveCamera() {
 	defer reportPanic("moveCamera")
 
-	var startBase float64 = MoveSpeed
+	var startBase float64 = moveSpeed
 	if gShiftPressed {
-		startBase = RunSpeed
+		startBase = runSpeed
 	}
 
 	/* Adjust speed based on high-percision TPS */
@@ -391,15 +391,15 @@ func moveCamera() {
 		LastMouseY = MouseY
 
 		/* Don't let camera go beyond a reasonable point */
-		if CameraX > float32(XYMax) {
-			CameraX = float32(XYMax)
-		} else if CameraX < XYMin {
-			CameraX = XYMin
+		if CameraX > float32(xyMax) {
+			CameraX = float32(xyMax)
+		} else if CameraX < xyMin {
+			CameraX = xyMin
 		}
-		if CameraY > float32(XYMax) {
-			CameraY = float32(XYMax)
-		} else if CameraY < XYMin {
-			CameraY = XYMin
+		if CameraY > float32(xyMax) {
+			CameraY = float32(xyMax)
+		} else if CameraY < xyMin {
+			CameraY = xyMin
 		}
 	} else {
 		gCameraDrag = false
@@ -447,7 +447,7 @@ func rotateWorldObjects() {
 
 		if b == nil {
 			/* Nothing is selected, exit */
-			if selectedItemType == MaxItemType {
+			if selectedItemType == maxItemType {
 				return
 			}
 

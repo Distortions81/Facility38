@@ -61,12 +61,12 @@ func rotatePosF64(coord XYs, dir uint8, size XYf64) XYf64 {
 /* Print weight with units from material  */
 func printUnit(mat *MatData) string {
 	defer reportPanic("PrintUnit")
-	if mat != nil && mat.TypeP != nil {
-		if ImperialUnits && mat.TypeP.unitName == " kg" {
+	if mat != nil && mat.typeP != nil {
+		if ImperialUnits && mat.typeP.unitName == " kg" {
 			buf := fmt.Sprintf("%0.2f lbs", mat.Amount*2.20462262185)
 			return buf
 		} else {
-			buf := fmt.Sprintf("%0.2f%v", mat.Amount, mat.TypeP.unitName)
+			buf := fmt.Sprintf("%0.2f%v", mat.Amount, mat.typeP.unitName)
 			return buf
 		}
 	} else {
@@ -90,9 +90,9 @@ func printWeight(kg float32) string {
 /* Based on object weight and density, calculate cubic volume */
 func calcVolume(mat *MatData) string {
 	defer reportPanic("CalcVolume")
-	if mat != nil && mat.TypeP != nil {
+	if mat != nil && mat.typeP != nil {
 
-		density := mat.TypeP.density
+		density := mat.typeP.density
 		mass := mat.Amount
 		cm3 := ((mass / density) * 1000.0)
 		in3 := cm3 / 16.387064

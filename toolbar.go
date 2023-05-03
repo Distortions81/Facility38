@@ -12,7 +12,7 @@ var (
 	toolbarCache     *ebiten.Image
 	toolbarCacheLock sync.RWMutex
 	toolbarMax       int
-	selectedItemType uint8 = MaxItemType
+	selectedItemType uint8 = maxItemType
 	toolbarItems           = []toolbarItem{}
 
 	toolbarHover bool
@@ -23,7 +23,7 @@ func initToolbar() {
 	defer reportPanic("InitToolbar")
 	toolbarMax = 0
 	for spos, stype := range subTypes {
-		if spos == ObjSubUI || spos == ObjSubGame {
+		if spos == objSubUI || spos == objSubGame {
 			for _, otype := range stype.list {
 				/* Skips some items for WASM */
 				if WASMMode && otype.excludeWASM {
@@ -41,7 +41,7 @@ func initToolbar() {
 func drawToolbar(click, hover bool, index int) {
 	defer reportPanic("drawToolbar")
 	toolBarIconSize := float32(UIScale * ToolBarIconSize)
-	toolBarSpacing := float32(ToolBarIconSize / ToolBarSpaceRatio)
+	toolBarSpacing := float32(ToolBarIconSize / toolBarSpaceRatio)
 
 	toolbarCacheLock.Lock()
 	defer toolbarCacheLock.Unlock()
@@ -102,7 +102,7 @@ func drawToolbar(click, hover bool, index int) {
 
 			/* center, rotate and move back... or we rotate on TL corner */
 			op.GeoM.Translate(-x, -y)
-			op.GeoM.Rotate(NinetyDeg * float64(item.oType.direction))
+			op.GeoM.Rotate(ninetyDeg * float64(item.oType.direction))
 			op.GeoM.Translate(x, y)
 		}
 		/* Move to correct location in toolbar image */
@@ -131,7 +131,7 @@ func drawToolbar(click, hover bool, index int) {
 		toolbarCache.DrawImage(img, op)
 
 		/* Draw selection frame for selected game object */
-		if item.sType == ObjSubGame {
+		if item.sType == objSubGame {
 
 			if item.oType.typeI == selectedItemType {
 				/* Left */
@@ -139,35 +139,35 @@ func drawToolbar(click, hover bool, index int) {
 					float32(pos)*(toolBarIconSize+toolBarSpacing),
 					0,
 
-					(TBSelThick),
-					(toolBarIconSize+toolBarSpacing)-TBSelThick,
+					(tbSelThick),
+					(toolBarIconSize+toolBarSpacing)-tbSelThick,
 					ColorTBSelected, false)
 
 				/* Top */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(toolBarIconSize+toolBarSpacing)+TBSelThick,
+					float32(pos)*(toolBarIconSize+toolBarSpacing)+tbSelThick,
 					0,
 
-					(toolBarIconSize+toolBarSpacing)-TBSelThick,
-					(TBSelThick),
+					(toolBarIconSize+toolBarSpacing)-tbSelThick,
+					(tbSelThick),
 					ColorTBSelected, false)
 
 				/* Bottom */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(toolBarIconSize+toolBarSpacing)+TBSelThick,
-					(toolBarSpacing)+toolBarIconSize-TBSelThick,
+					float32(pos)*(toolBarIconSize+toolBarSpacing)+tbSelThick,
+					(toolBarSpacing)+toolBarIconSize-tbSelThick,
 
-					(toolBarIconSize+toolBarSpacing)-TBSelThick,
-					(TBSelThick),
+					(toolBarIconSize+toolBarSpacing)-tbSelThick,
+					(tbSelThick),
 					ColorTBSelected, false)
 
 				/* Right */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(toolBarIconSize+toolBarSpacing)+toolBarIconSize+toolBarSpacing-TBSelThick,
+					float32(pos)*(toolBarIconSize+toolBarSpacing)+toolBarIconSize+toolBarSpacing-tbSelThick,
 					0,
 
-					(TBSelThick),
-					(toolBarIconSize+toolBarSpacing)-TBSelThick,
+					(tbSelThick),
+					(toolBarIconSize+toolBarSpacing)-tbSelThick,
 					ColorTBSelected, false)
 
 			}

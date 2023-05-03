@@ -33,7 +33,7 @@ func setupOptionsWindow(window *windowData) {
 		button := image.Rectangle{}
 		if (WASMMode && !settingItems[pos].WASMExclude) || !WASMMode {
 			button.Min.X = 0
-			button.Max.X = XYMax
+			button.Max.X = xyMax
 
 			button.Min.Y = int((float64(GeneralFontH)*scalefactor)*float64(ioff)) + int(padding*UIScale)
 			button.Max.Y = int((float64(GeneralFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*UIScale)

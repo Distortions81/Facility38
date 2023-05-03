@@ -50,7 +50,7 @@ func setupTerrainCache() {
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
 func renderChunkGround(chunk *mapChunk, doDetail bool, cpos XY) {
 	defer reportPanic("renderChunkGround")
-	chunkPix := (SpriteScale * ChunkSize)
+	chunkPix := (spriteScale * chunkSize)
 
 	var bg *ebiten.Image = terrainTypes[0].images.main
 	sx := int(float32(bg.Bounds().Size().X))
@@ -68,17 +68,17 @@ func renderChunkGround(chunk *mapChunk, doDetail bool, cpos XY) {
 			tImg = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 		}
 
-		var opList [ChunkSize * ChunkSize]*ebiten.DrawImageOptions
+		var opList [chunkSize * chunkSize]*ebiten.DrawImageOptions
 		var opPos uint16
 
-		for i := 0; i < ChunkSize; i++ {
-			for j := 0; j < ChunkSize; j++ {
+		for i := 0; i < chunkSize; i++ {
+			for j := 0; j < chunkSize; j++ {
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
 				if doDetail {
-					x := (float32(cpos.X*ChunkSize) + float32(i))
-					y := (float32(cpos.Y*ChunkSize) + float32(j))
+					x := (float32(cpos.X*chunkSize) + float32(i))
+					y := (float32(cpos.Y*chunkSize) + float32(j))
 
 					h := noiseMap(x, y, 0)
 
@@ -280,15 +280,15 @@ func drawResource(sChunk *mapSuperChunkData) {
 	}
 
 	if sChunk.resourceMap == nil {
-		sChunk.resourceMap = make([]byte, SuperChunkTotal*SuperChunkTotal*4)
+		sChunk.resourceMap = make([]byte, superChunkTotal*superChunkTotal*4)
 	}
 
-	for x := 0; x < SuperChunkTotal; x++ {
-		for y := 0; y < SuperChunkTotal; y++ {
-			ppos := 4 * (x + y*SuperChunkTotal)
+	for x := 0; x < superChunkTotal; x++ {
+		for y := 0; y < superChunkTotal; y++ {
+			ppos := 4 * (x + y*superChunkTotal)
 
-			worldX := float32((sChunk.pos.X * SuperChunkTotal) + uint16(x))
-			worldY := float32((sChunk.pos.Y * SuperChunkTotal) + uint16(y))
+			worldX := float32((sChunk.pos.X * superChunkTotal) + uint16(x))
+			worldY := float32((sChunk.pos.Y * superChunkTotal) + uint16(y))
 
 			var r, g, b float32 = 0.01, 0.01, 0.01
 			for p, nl := range noiseLayers {
@@ -336,7 +336,7 @@ func drawResource(sChunk *mapSuperChunkData) {
 /* Draw a superchunk's pixmap, allocates image if needed. */
 func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 	defer reportPanic("drawPixmap")
-	maxSize := SuperChunkTotal * SuperChunkTotal * 4
+	maxSize := superChunkTotal * superChunkTotal * 4
 	if sChunk.itemMap == nil {
 		sChunk.itemMap = make([]byte, maxSize)
 	}
@@ -350,9 +350,9 @@ func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 	sChunk.resourceLock.Unlock()
 
 	//Fill with bg and grid
-	for x := 0; x < SuperChunkTotal; x++ {
-		for y := 0; y < SuperChunkTotal; y++ {
-			ppos := 4 * (x + y*SuperChunkTotal)
+	for x := 0; x < superChunkTotal; x++ {
+		for y := 0; y < superChunkTotal; y++ {
+			ppos := 4 * (x + y*superChunkTotal)
 
 			if x%32 == 0 || y%32 == 0 {
 				sChunk.itemMap[ppos] = 0x20
@@ -375,13 +375,13 @@ func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 
 		/* Draw objects in chunk */
 		for pos := range chunk.buildingMap {
-			scX := (((scPos.X) * (MaxSuperChunk)) - XYCenter)
-			scY := (((scPos.Y) * (MaxSuperChunk)) - XYCenter)
+			scX := (((scPos.X) * (maxSuperChunk)) - xyCenter)
+			scY := (((scPos.Y) * (maxSuperChunk)) - xyCenter)
 
-			x := int((pos.X - XYCenter) - scX)
-			y := int((pos.Y - XYCenter) - scY)
+			x := int((pos.X - xyCenter) - scX)
+			y := int((pos.Y - xyCenter) - scY)
 
-			ppos := 4 * (x + y*SuperChunkTotal)
+			ppos := 4 * (x + y*superChunkTotal)
 			if ppos < maxSize {
 				sChunk.itemMap[ppos] = 0xff
 				sChunk.itemMap[ppos+1] = 0xff
@@ -397,8 +397,8 @@ func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 	if sChunk.pixelMap == nil {
 		rect := image.Rectangle{}
 
-		rect.Max.X = SuperChunkTotal
-		rect.Max.Y = SuperChunkTotal
+		rect.Max.X = superChunkTotal
+		rect.Max.Y = superChunkTotal
 
 		sChunk.pixelMap = ebiten.NewImageWithOptions(rect, &ebiten.NewImageOptions{Unmanaged: true})
 		numPixmapCache++
