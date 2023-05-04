@@ -62,7 +62,7 @@ func rotatePosF64(coord XYs, dir uint8, size XYf64) XYf64 {
 func printUnit(mat *MatData) string {
 	defer reportPanic("PrintUnit")
 	if mat != nil && mat.typeP != nil {
-		if ImperialUnits && mat.typeP.unitName == " kg" {
+		if usUnits && mat.typeP.unitName == " kg" {
 			buf := fmt.Sprintf("%0.2f lbs", mat.Amount*2.20462262185)
 			return buf
 		} else {
@@ -78,7 +78,7 @@ func printUnit(mat *MatData) string {
 /* This could be consolodated with PrintUnit */
 func printWeight(kg float32) string {
 	defer reportPanic("PrintWeight")
-	if ImperialUnits {
+	if usUnits {
 		buf := fmt.Sprintf("%0.2f lbs", kg*2.20462262185)
 		return buf
 	} else {
@@ -100,7 +100,7 @@ func calcVolume(mat *MatData) string {
 		cmSide := math.Sqrt(float64(cm3))
 
 		var buf string
-		if ImperialUnits {
+		if usUnits {
 			buf = fmt.Sprintf("%0.2f x %0.2f in", inSide, inSide)
 		} else {
 			buf = fmt.Sprintf("%0.2f x %0.2f cm", cmSide, cmSide)

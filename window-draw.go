@@ -12,7 +12,7 @@ import (
 
 const (
 	padding     = 8
-	scalefactor = 1.5
+	scaleFactor = 1.5
 	linePad     = 1
 )
 
@@ -22,12 +22,12 @@ func setupOptionsWindow(window *windowData) {
 	buttons = []image.Rectangle{}
 
 	/* Loop all settings */
-	ioff := 1
+	optNum := 1
 	for pos := range settingItems {
 
 		/* Place line */
 		settingItems[pos].TextPosX = int(padding * uiScale)
-		settingItems[pos].TextPosY = int((float64(generalFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*uiScale)
+		settingItems[pos].TextPosY = int((float64(generalFontH)*scaleFactor)*float64(optNum+linePad)) + int(padding*uiScale)
 
 		/* Generate button */
 		button := image.Rectangle{}
@@ -35,13 +35,13 @@ func setupOptionsWindow(window *windowData) {
 			button.Min.X = 0
 			button.Max.X = xyMax
 
-			button.Min.Y = int((float64(generalFontH)*scalefactor)*float64(ioff)) + int(padding*uiScale)
-			button.Max.Y = int((float64(generalFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*uiScale)
+			button.Min.Y = int((float64(generalFontH)*scaleFactor)*float64(optNum)) + int(padding*uiScale)
+			button.Max.Y = int((float64(generalFontH)*scaleFactor)*float64(optNum+linePad)) + int(padding*uiScale)
 		}
 		buttons = append(buttons, button)
 
 		if (wasmMode && !settingItems[pos].WASMExclude) || !wasmMode {
-			ioff++
+			optNum++
 		}
 	}
 

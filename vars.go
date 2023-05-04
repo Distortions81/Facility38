@@ -20,27 +20,9 @@ var (
 	loadTest = false
 
 	debugMode = false
-	Magnify   = true
-	LogStdOut = true
+	magnify   = true
+	logStdOut = true
 	uiScale   = 1.0
-	// @Summary 登录
-	// @Description 登录
-	// @Produce json
-	// @Param body body controllers.LoginParams true "body参数"
-	// @Success 200 {string} string "ok" "返回用户信息"
-	// @Failure 400 {string} string "err_code：10002 参数错误； err_code：10003 校验错误"
-	// @Failure 401 {string} string "err_code：10001 登录失败"
-	// @Failure 500 {string} string "err_code：20001 服务错误；err_code：20002 接口错误；err_code：20003 无数据错误；err_code：20004 数据库异常；err_code：20005 缓存异常"
-	// @Router /user/person/login [post]
-	// @Summary 登录
-	// @Description 登录
-	// @Produce json
-	// @Param body body controllers.LoginParams true "body参数"
-	// @Success 200 {string} string "ok" "返回用户信息"
-	// @Failure 400 {string} string "err_code：10002 参数错误； err_code：10003 校验错误"
-	// @Failure 401 {string} string "err_code：10001 登录失败"
-	// @Failure 500 {string} string "err_code：20001 服务错误；err_code：20002 接口错误；err_code：20003 无数据错误；err_code：20004 数据库异常；err_code：20005 缓存异常"
-	// @Router /user/person/login [post]
 
 	/* Map values */
 	MapSeed  int64
@@ -48,14 +30,14 @@ var (
 
 	resourceLegendImage *ebiten.Image
 	TitleImage          *ebiten.Image
-	EbitenLogo          *ebiten.Image
+	ebitenLogo          *ebiten.Image
 
-	fontDPI       float64 = fpx
-	Vsync         bool    = true
-	ImperialUnits bool    = false
-	UseHyper      bool    = false
-	InfoLine      bool    = false
-	Autosave      bool    = true
+	fontDPI  float64 = fpx
+	vSync    bool    = true
+	usUnits  bool    = false
+	useHyper bool    = false
+	infoLine bool    = false
+	autoSave bool    = true
 
 	/* SuperChunk List */
 	superChunkList     []*mapSuperChunkData
@@ -81,24 +63,24 @@ var (
 	eventQueueLock sync.Mutex
 
 	/* Number of tick events */
-	TickCount       int
-	ActiveTickCount int
+	tickCount       int
+	activeTickCount int
 
 	/* Number of tock events */
-	TockCount       int
-	ActiveTockCount int
+	tockCount       int
+	activeTockCount int
 
 	/* Number of ticks per worker */
-	TickWorkSize int
+	tickWorkSize int
 
 	/* Number of tocks per worker */
 	numWorkers int
 
 	/* Game UPS rate */
-	ObjectUPS            float32 = gameUPS
-	ObjectUPS_ns                 = int(1000000000.0 / ObjectUPS)
-	MeasuredObjectUPS_ns         = ObjectUPS_ns
-	ActualUPS            float32
+	objectUPS            float32 = gameUPS
+	objectUPS_ns                 = int(1000000000.0 / objectUPS)
+	measuredObjectUPS_ns         = objectUPS_ns
+	actualUPS            float32
 
 	/* Starting resolution */
 	screenSizeLock sync.Mutex

@@ -82,7 +82,7 @@ func logDaemon() {
 			}
 
 			/* If enabled, write to stdout */
-			if LogStdOut {
+			if logStdOut {
 				fmt.Print(logBuf[0])
 			}
 
@@ -103,9 +103,9 @@ func startLog() {
 	logName = fmt.Sprintf("log/game-%v-%v-%v.log", t.Day(), t.Month(), t.Year())
 
 	/* Make log directory */
-	errr := os.MkdirAll("log", os.ModePerm)
-	if errr != nil {
-		fmt.Print(errr.Error())
+	mkerr := os.MkdirAll("log", os.ModePerm)
+	if mkerr != nil {
+		fmt.Print(mkerr.Error())
 		return
 	}
 

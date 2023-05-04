@@ -10,7 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-/* Machine Recipies */
+/* Machine recipes */
 type recipeData struct {
 	name  string
 	typeI uint16
@@ -202,7 +202,7 @@ type ObjData struct {
 	blocked bool
 	active  bool
 
-	/* Prevent needing to seach event lists */
+	/* Prevent needing to search event lists */
 	hasTick bool
 	hasTock bool
 }
@@ -301,7 +301,7 @@ type objType struct {
 	name        string
 	description string
 
-	typeI    uint8  //Position in objtype
+	typeI    uint8  //Position in objType
 	category uint8  //Currently used during linking objects
 	symbol   string //Used in case we were unable to find or load the sprite
 
@@ -322,7 +322,7 @@ type objType struct {
 	images          objectImages //All image data
 	machineSettings machineData  //Machine-specific data
 
-	recipieLookup [MAT_MAX]*recipeData //Quick recipie lookup
+	recipieLookup [MAT_MAX]*recipeData //Quick recipe lookup
 
 	/* How often object should run, used in obj's tock function */
 	tockInterval uint8
@@ -340,7 +340,7 @@ type objType struct {
 
 	/* Port connections */
 	ports   []ObjPortData
-	subObjs []XYs /* Releative positions of tiles in multi-tile objects */
+	subObjs []XYs /* Relative positions of tiles in multi-tile objects */
 
 	/* Function links */
 	toolbarAction func()                  `json:"-"`

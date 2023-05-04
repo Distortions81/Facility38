@@ -48,7 +48,7 @@ func setupTerrainCache() {
 }
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
-func renderChunkGround(chunk *mapChunk, doDetail bool, cpos XY) {
+func renderChunkGround(chunk *mapChunk, doDetail bool, chunkPos XY) {
 	defer reportPanic("renderChunkGround")
 	chunkPix := (spriteScale * chunkSize)
 
@@ -77,8 +77,8 @@ func renderChunkGround(chunk *mapChunk, doDetail bool, cpos XY) {
 				op.GeoM.Translate(float64(i*sx), float64(j*sy))
 
 				if doDetail {
-					x := (float32(cpos.X*chunkSize) + float32(i))
-					y := (float32(cpos.Y*chunkSize) + float32(j))
+					x := (float32(chunkPos.X*chunkSize) + float32(i))
+					y := (float32(chunkPos.Y*chunkSize) + float32(j))
 
 					h := noiseMap(x, y, 0)
 
@@ -117,7 +117,7 @@ var clearedCache bool
 func renderTerrainST() {
 	defer reportPanic("RenderTerrainST")
 
-	/* If we zoom out, decallocate everything */
+	/* If we zoom out, deallocate everything */
 	if wasmMode && zoomScale <= mapPixelThreshold {
 		if wasmMode && !clearedCache {
 			for _, sChunk := range superChunkList {
@@ -204,7 +204,7 @@ func pixmapRenderST() {
 	}
 }
 
-/* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
+/* Loop, renders and disposes superChunk to sChunk.PixMap Locks sChunk.PixLock */
 func pixmapRenderDaemon() {
 	defer reportPanic("PixmapRenderDaemon")
 
@@ -240,7 +240,7 @@ func pixmapRenderDaemon() {
 	}
 }
 
-/* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
+/* Loop, renders and disposes superChunk to sChunk.PixMap Locks sChunk.PixLock */
 func resourceRenderDaemon() {
 	defer reportPanic("resourceRenderDaemon")
 	for gameRunning {
@@ -260,7 +260,7 @@ func resourceRenderDaemon() {
 	}
 }
 
-/* Render resouces during render for WASM single-thread */
+/* Render resources during render for WASM single-thread */
 func resourceRenderDaemonST() {
 	defer reportPanic("resourceRenderDaemonST")
 	for _, sChunk := range superChunkList {
@@ -272,7 +272,7 @@ func resourceRenderDaemonST() {
 	}
 }
 
-/* Draw perlin nouise resource channel */
+/* Draw perlin noise resource channel */
 func drawResource(sChunk *mapSuperChunkData) {
 	defer reportPanic("drawResource")
 	if sChunk == nil {
@@ -285,7 +285,7 @@ func drawResource(sChunk *mapSuperChunkData) {
 
 	for x := 0; x < superChunkTotal; x++ {
 		for y := 0; y < superChunkTotal; y++ {
-			ppos := 4 * (x + y*superChunkTotal)
+			pixelPos := 4 * (x + y*superChunkTotal)
 
 			worldX := float32((sChunk.pos.X * superChunkTotal) + uint16(x))
 			worldY := float32((sChunk.pos.Y * superChunkTotal) + uint16(y))
@@ -324,16 +324,16 @@ func drawResource(sChunk *mapSuperChunkData) {
 			g = Max(g, 0)
 			b = Max(b, 0)
 
-			sChunk.resourceMap[ppos] = byte(r * 255)
-			sChunk.resourceMap[ppos+1] = byte(g * 255)
-			sChunk.resourceMap[ppos+2] = byte(b * 255)
-			sChunk.resourceMap[ppos+3] = 0xFF
+			sChunk.resourceMap[pixelPos] = byte(r * 255)
+			sChunk.resourceMap[pixelPos+1] = byte(g * 255)
+			sChunk.resourceMap[pixelPos+2] = byte(b * 255)
+			sChunk.resourceMap[pixelPos+3] = 0xFF
 		}
 	}
 	sChunk.pixmapDirty = true
 }
 
-/* Draw a superchunk's pixmap, allocates image if needed. */
+/* Draw a superChunk's pixmap, allocates image if needed. */
 func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 	defer reportPanic("drawPixmap")
 	maxSize := superChunkTotal * superChunkTotal * 4
@@ -352,18 +352,18 @@ func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 	//Fill with bg and grid
 	for x := 0; x < superChunkTotal; x++ {
 		for y := 0; y < superChunkTotal; y++ {
-			ppos := 4 * (x + y*superChunkTotal)
+			pixelPos := 4 * (x + y*superChunkTotal)
 
 			if x%32 == 0 || y%32 == 0 {
-				sChunk.itemMap[ppos] = 0x20
-				sChunk.itemMap[ppos+1] = 0x20
-				sChunk.itemMap[ppos+2] = 0x20
-				sChunk.itemMap[ppos+3] = 0x10
+				sChunk.itemMap[pixelPos] = 0x20
+				sChunk.itemMap[pixelPos+1] = 0x20
+				sChunk.itemMap[pixelPos+2] = 0x20
+				sChunk.itemMap[pixelPos+3] = 0x10
 			} else if !didCopy {
-				sChunk.itemMap[ppos] = 0x05
-				sChunk.itemMap[ppos+1] = 0x05
-				sChunk.itemMap[ppos+2] = 0x05
-				sChunk.itemMap[ppos+3] = 0xff
+				sChunk.itemMap[pixelPos] = 0x05
+				sChunk.itemMap[pixelPos+1] = 0x05
+				sChunk.itemMap[pixelPos+2] = 0x05
+				sChunk.itemMap[pixelPos+3] = 0xff
 			}
 		}
 	}
@@ -381,12 +381,12 @@ func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 			x := int((pos.X - xyCenter) - scX)
 			y := int((pos.Y - xyCenter) - scY)
 
-			ppos := 4 * (x + y*superChunkTotal)
-			if ppos < maxSize {
-				sChunk.itemMap[ppos] = 0xff
-				sChunk.itemMap[ppos+1] = 0xff
-				sChunk.itemMap[ppos+2] = 0xff
-				sChunk.itemMap[ppos+3] = 0xff
+			pixelPos := 4 * (x + y*superChunkTotal)
+			if pixelPos < maxSize {
+				sChunk.itemMap[pixelPos] = 0xff
+				sChunk.itemMap[pixelPos+1] = 0xff
+				sChunk.itemMap[pixelPos+2] = 0xff
+				sChunk.itemMap[pixelPos+3] = 0xff
 			}
 		}
 

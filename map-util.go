@@ -4,20 +4,20 @@ import (
 	"time"
 )
 
-/* Make a superchunk */
+/* Make a superChunk */
 func makeSuperChunk(pos XY) {
 	defer reportPanic("makeSuperChunk")
-	//Make super chunk if needed
+	//Make superChunk if needed
 
 	newPos := pos
-	scpos := posToSuperChunkPos(newPos)
+	supChunkPos := posToSuperChunkPos(newPos)
 
-	superChunkMapLock.Lock()  //Lock Superclunk map
-	superChunkListLock.Lock() //Lock Superchunk list
+	superChunkMapLock.Lock()  //Lock superChunk map
+	superChunkListLock.Lock() //Lock superChunk list
 
-	if superChunkMap[scpos] == nil {
+	if superChunkMap[supChunkPos] == nil {
 
-		/* Make new superchunk in map at pos */
+		/* Make new superChunk in map at pos */
 		newSuperChunk := &mapSuperChunkData{}
 
 		maxSize := superChunkTotal * superChunkTotal * 4
@@ -25,23 +25,23 @@ func makeSuperChunk(pos XY) {
 		newSuperChunk.resourceMap = make([]byte, maxSize)
 		newSuperChunk.resourceDirty = true
 
-		superChunkMap[scpos] = newSuperChunk
-		superChunkMap[scpos].lock.Lock() //Lock chunk
+		superChunkMap[supChunkPos] = newSuperChunk
+		superChunkMap[supChunkPos].lock.Lock() //Lock chunk
 
 		superChunkList =
-			append(superChunkList, superChunkMap[scpos])
-		superChunkMap[scpos].chunkMap = make(map[XY]*mapChunk)
+			append(superChunkList, superChunkMap[supChunkPos])
+		superChunkMap[supChunkPos].chunkMap = make(map[XY]*mapChunk)
 
 		/* Save position */
-		superChunkMap[scpos].pos = scpos
+		superChunkMap[supChunkPos].pos = supChunkPos
 
-		superChunkMap[scpos].lock.Unlock()
+		superChunkMap[supChunkPos].lock.Unlock()
 	}
 	superChunkListLock.Unlock()
 	superChunkMapLock.Unlock()
 }
 
-/* Make a chunk, insert into superchunk */
+/* Make a chunk, insert into superChunk */
 func makeChunk(pos XY) bool {
 	defer reportPanic("makeChunk")
 	//Make chunk if needed
@@ -50,40 +50,40 @@ func makeChunk(pos XY) bool {
 
 	makeSuperChunk(pos)
 
-	cpos := PosToChunkPos(newPos)
-	scpos := posToSuperChunkPos(newPos)
+	chunkPos := PosToChunkPos(newPos)
+	supChunkPos := posToSuperChunkPos(newPos)
 
-	superChunkMapLock.Lock()  //Lock Superclunk map
-	superChunkListLock.Lock() //Lock Superchunk list
+	superChunkMapLock.Lock()  //Lock superChunk map
+	superChunkListLock.Lock() //Lock superChunk list
 
-	if superChunkMap[scpos].chunkMap[cpos] == nil {
+	if superChunkMap[supChunkPos].chunkMap[chunkPos] == nil {
 		/* Increase chunk count */
-		superChunkMap[scpos].numChunks++
+		superChunkMap[supChunkPos].numChunks++
 
 		/* Make a new empty chunk in the map at pos */
-		superChunkMap[scpos].chunkMap[cpos] = &mapChunk{}
-		superChunkMap[scpos].lock.Lock() //Lock chunk
+		superChunkMap[supChunkPos].chunkMap[chunkPos] = &mapChunk{}
+		superChunkMap[supChunkPos].lock.Lock() //Lock chunk
 
 		/* Append to chunk list */
-		superChunkMap[scpos].chunkList =
-			append(superChunkMap[scpos].chunkList, superChunkMap[scpos].chunkMap[cpos])
+		superChunkMap[supChunkPos].chunkList =
+			append(superChunkMap[supChunkPos].chunkList, superChunkMap[supChunkPos].chunkMap[chunkPos])
 
-		superChunkMap[scpos].chunkMap[cpos].buildingMap = make(map[XY]*buildingData)
-		superChunkMap[scpos].chunkMap[cpos].tileMap = make(map[XY]*tileData)
+		superChunkMap[supChunkPos].chunkMap[chunkPos].buildingMap = make(map[XY]*buildingData)
+		superChunkMap[supChunkPos].chunkMap[chunkPos].tileMap = make(map[XY]*tileData)
 
 		/* Terrain img */
-		superChunkMap[scpos].chunkMap[cpos].terrainLock.Lock()
-		superChunkMap[scpos].chunkMap[cpos].terrainImage = TempChunkImage
-		superChunkMap[scpos].chunkMap[cpos].usingTemporary = true
-		superChunkMap[scpos].chunkMap[cpos].terrainLock.Unlock()
+		superChunkMap[supChunkPos].chunkMap[chunkPos].terrainLock.Lock()
+		superChunkMap[supChunkPos].chunkMap[chunkPos].terrainImage = TempChunkImage
+		superChunkMap[supChunkPos].chunkMap[chunkPos].usingTemporary = true
+		superChunkMap[supChunkPos].chunkMap[chunkPos].terrainLock.Unlock()
 
 		/* Save position */
-		superChunkMap[scpos].chunkMap[cpos].pos = cpos
+		superChunkMap[supChunkPos].chunkMap[chunkPos].pos = chunkPos
 
 		/* Save parent */
-		superChunkMap[scpos].chunkMap[cpos].parent = superChunkMap[scpos]
+		superChunkMap[supChunkPos].chunkMap[chunkPos].parent = superChunkMap[supChunkPos]
 
-		superChunkMap[scpos].lock.Unlock()
+		superChunkMap[supChunkPos].lock.Unlock()
 
 		superChunkListLock.Unlock()
 		superChunkMapLock.Unlock()
@@ -102,11 +102,11 @@ func exploreMap(pos XY, input int, slow bool) {
 
 	ChunksMade := 0
 	area := input * chunkSize
-	offx := int(pos.X) - (area / 2)
-	offy := int(pos.Y) - (area / 2)
+	offX := int(pos.X) - (area / 2)
+	offY := int(pos.Y) - (area / 2)
 	for x := -area; x < area; x += chunkSize {
 		for y := -area; y < area; y += chunkSize {
-			pos := XY{X: uint16(offx - x), Y: uint16(offy - y)}
+			pos := XY{X: uint16(offX - x), Y: uint16(offY - y)}
 			makeChunk(pos)
 			ChunksMade++
 

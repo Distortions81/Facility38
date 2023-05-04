@@ -9,6 +9,6 @@ package main
  * reference and the compile would fail
  */
 
-func SendBytes(name string, bytes []byte) {
+func sendBytes(name string, bytes []byte) {
 
 }

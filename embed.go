@@ -22,12 +22,12 @@ var (
 const cLoadEmbedSprites = true
 
 func init() {
-	gpng, err := f.Open(gfxDir + "icon.png")
+	pngData, err := f.Open(gfxDir + "icon.png")
 	if err != nil {
 		fmt.Println("Game icon file is missing...")
 		return
 	}
-	m, _, err := image.Decode(gpng)
+	m, _, err := image.Decode(pngData)
 	if err != nil {
 		fmt.Println("Game icon file is invalid...")
 		return
@@ -44,7 +44,7 @@ func getFont(name string) []byte {
 
 }
 
-func getSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
+func getSpriteImage(name string, unmanaged bool) (*ebiten.Image, error) {
 
 	if cLoadEmbedSprites {
 		gpng, err := f.Open(gfxDir + name)
@@ -59,7 +59,7 @@ func getSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 			return nil, err
 		}
 		var img *ebiten.Image
-		if unmananged {
+		if unmanaged {
 			img = ebiten.NewImageFromImageWithOptions(m, &ebiten.NewImageFromImageOptions{Unmanaged: true})
 		} else {
 			img = ebiten.NewImageFromImage(m)

@@ -44,7 +44,7 @@ func main() {
 	forceDirectX := flag.Bool("use-directx", false, "Use DirectX graphics API on Windows (NOT RECOMMENDED!)")
 	forceMetal := flag.Bool("use-metal", false, "Use the Metal graphics API on Macintosh.")
 	forceAuto := flag.Bool("use-auto", false, "Use Auto-detected graphics API.")
-	forceOpengl := flag.Bool("use-opengl", true, "Use OpenGL graphics API")
+	forceOpenGL := flag.Bool("use-opengl", true, "Use OpenGL graphics API")
 	showVersion := flag.Bool("version", false, "Show game version and close")
 	flag.Parse()
 
@@ -60,7 +60,7 @@ func main() {
 	}
 	imgb, err = getSpriteImage("ebiten.png", true)
 	if err == nil {
-		EbitenLogo = imgb
+		ebitenLogo = imgb
 	}
 
 	buildInfo = buildTime
@@ -119,7 +119,7 @@ func main() {
 			problem = true
 			return
 		}
-	} else if *forceOpengl {
+	} else if *forceOpenGL {
 		doLog(true, "Starting game with OpenGL graphics API.")
 		if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
 			doLog(true, "%v", err)
@@ -179,9 +179,9 @@ func checkVersion(silent bool) bool {
 	}
 	client := &http.Client{Transport: transport}
 
-	cstr := fmt.Sprintf("CheckUpdateDev:v%03v-%v\n", version, buildTime)
+	postString := fmt.Sprintf("CheckUpdateDev:v%03v-%v\n", version, buildTime)
 	// Send HTTPS POST request to server
-	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(cstr)))
+	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(postString)))
 	if err != nil {
 		txt := "Unable to connect to update server."
 		chat(txt)
@@ -351,20 +351,20 @@ func startGame() {
 /* Load all sprites, sub missing ones */
 func loadSprites(dark bool) {
 	defer reportPanic("loadSprites")
-	dstr := ""
+	darkStr := ""
 	if dark {
-		dstr = "-dark"
+		darkStr = "-dark"
 	}
 
-	for _, otype := range subTypes {
-		for key, item := range otype.list {
+	for _, oType := range subTypes {
+		for key, item := range oType.list {
 
 			/* Main */
-			img, err := getSpriteImage(otype.folder+"/"+item.base+dstr+".png", false)
+			img, err := getSpriteImage(oType.folder+"/"+item.base+darkStr+".png", false)
 
 			/* If not found, check subfolder */
 			if err != nil {
-				img, err = getSpriteImage(otype.folder+"/"+item.base+"/"+item.base+dstr+".png", false)
+				img, err = getSpriteImage(oType.folder+"/"+item.base+"/"+item.base+darkStr+".png", false)
 				if err != nil && !dark {
 					/* If not found, fill texture with text */
 					img = ebiten.NewImage(int(spriteScale), int(spriteScale))
@@ -373,48 +373,48 @@ func loadSprites(dark bool) {
 				}
 			}
 			if dark {
-				otype.list[key].images.darkMain = img
+				oType.list[key].images.darkMain = img
 			} else {
-				otype.list[key].images.lightMain = img
+				oType.list[key].images.lightMain = img
 			}
 
 			/* Corner pieces */
-			imgc, err := getSpriteImage(otype.folder+"/"+item.base+"/"+item.base+"-corner"+dstr+".png", false)
+			cornerImg, err := getSpriteImage(oType.folder+"/"+item.base+"/"+item.base+"-corner"+darkStr+".png", false)
 			if err == nil {
 				if dark {
-					otype.list[key].images.darkCorner = imgc
+					oType.list[key].images.darkCorner = cornerImg
 				} else {
-					otype.list[key].images.lightCorner = imgc
+					oType.list[key].images.lightCorner = cornerImg
 				}
 			}
 
 			/* Active*/
-			imga, err := getSpriteImage(otype.folder+"/"+item.base+"/"+item.base+"-active"+dstr+".png", false)
+			activeImage, err := getSpriteImage(oType.folder+"/"+item.base+"/"+item.base+"-active"+darkStr+".png", false)
 			if err == nil {
 				if dark {
-					otype.list[key].images.darkActive = imga
+					oType.list[key].images.darkActive = activeImage
 				} else {
-					otype.list[key].images.lightActive = imga
+					oType.list[key].images.lightActive = activeImage
 				}
 			}
 
 			/* Overlays */
-			imgo, err := getSpriteImage(otype.folder+"/"+item.base+"/"+item.base+"-overlay"+dstr+".png", false)
+			overlayImg, err := getSpriteImage(oType.folder+"/"+item.base+"/"+item.base+"-overlay"+darkStr+".png", false)
 			if err == nil {
 				if dark {
-					otype.list[key].images.darkOverlay = imgo
+					oType.list[key].images.darkOverlay = overlayImg
 				} else {
-					otype.list[key].images.lightOverlay = imgo
+					oType.list[key].images.lightOverlay = overlayImg
 				}
 			}
 
 			/* Masks */
-			imgm, err := getSpriteImage(otype.folder+"/"+item.base+"/"+"-mask"+dstr+".png", false)
+			maskImg, err := getSpriteImage(oType.folder+"/"+item.base+"/"+"-mask"+darkStr+".png", false)
 			if err == nil {
 				if dark {
-					otype.list[key].images.lightMask = imgm
+					oType.list[key].images.lightMask = maskImg
 				} else {
-					otype.list[key].images.darkMask = imgm
+					oType.list[key].images.darkMask = maskImg
 				}
 			}
 
@@ -434,9 +434,9 @@ func loadSprites(dark bool) {
 			matTypes[m].lightImage = img
 		} else {
 
-			imgd, err := getSpriteImage("belt-obj/"+item.base+"-dark.png", false)
+			darkMatImg, err := getSpriteImage("belt-obj/"+item.base+"-dark.png", false)
 			if err == nil {
-				matTypes[m].darkImage = imgd
+				matTypes[m].darkImage = darkMatImg
 				doLog(true, "loaded dark: %v", item.base)
 			}
 		}
@@ -458,26 +458,26 @@ func loadSprites(dark bool) {
 
 func linkSprites(dark bool) {
 	defer reportPanic("LinkSprites")
-	for _, otype := range subTypes {
-		for key, item := range otype.list {
+	for _, oType := range subTypes {
+		for key, item := range oType.list {
 			if dark {
 				if item.images.darkMain != nil {
-					otype.list[key].images.main = item.images.darkMain
+					oType.list[key].images.main = item.images.darkMain
 				}
 				if item.images.darkToolbar != nil {
-					otype.list[key].images.toolbar = item.images.darkToolbar
+					oType.list[key].images.toolbar = item.images.darkToolbar
 				}
 				if item.images.darkMask != nil {
-					otype.list[key].images.mask = item.images.darkMask
+					oType.list[key].images.mask = item.images.darkMask
 				}
 				if item.images.darkActive != nil {
-					otype.list[key].images.active = item.images.darkActive
+					oType.list[key].images.active = item.images.darkActive
 				}
 				if item.images.darkCorner != nil {
-					otype.list[key].images.corner = item.images.darkCorner
+					oType.list[key].images.corner = item.images.darkCorner
 				}
 				if item.images.darkOverlay != nil {
-					otype.list[key].images.overlay = item.images.darkOverlay
+					oType.list[key].images.overlay = item.images.darkOverlay
 				}
 				for m, item := range matTypes {
 					if item.darkImage != nil {
@@ -486,22 +486,22 @@ func linkSprites(dark bool) {
 				}
 			} else {
 				if item.images.lightMain != nil {
-					otype.list[key].images.main = item.images.lightMain
+					oType.list[key].images.main = item.images.lightMain
 				}
 				if item.images.lightToolbar != nil {
-					otype.list[key].images.toolbar = item.images.lightToolbar
+					oType.list[key].images.toolbar = item.images.lightToolbar
 				}
 				if item.images.lightMask != nil {
-					otype.list[key].images.mask = item.images.lightMask
+					oType.list[key].images.mask = item.images.lightMask
 				}
 				if item.images.lightActive != nil {
-					otype.list[key].images.active = item.images.lightActive
+					oType.list[key].images.active = item.images.lightActive
 				}
 				if item.images.lightCorner != nil {
-					otype.list[key].images.corner = item.images.lightCorner
+					oType.list[key].images.corner = item.images.lightCorner
 				}
 				if item.images.lightOverlay != nil {
-					otype.list[key].images.overlay = item.images.lightOverlay
+					oType.list[key].images.overlay = item.images.lightOverlay
 				}
 				for m, item := range matTypes {
 					if item.lightImage != nil {
@@ -551,7 +551,7 @@ func bootScreen(screen *ebiten.Image) {
 
 		op.GeoM.Reset()
 		op.GeoM.Scale(uiScale/4, uiScale/4)
-		titleBuf.DrawImage(EbitenLogo, op)
+		titleBuf.DrawImage(ebitenLogo, op)
 	}
 
 	if status == "" {
@@ -638,7 +638,7 @@ func detectCPUs(hyper bool) {
 	numWorkers = lCPUs
 }
 
-/* Sets up a reasonable sized window depending on diplay resolution */
+/* Sets up a reasonable sized window depending on display resolution */
 func setupWindowSize() {
 	defer reportPanic("setupWindowSize")
 	screenSizeLock.Lock()
@@ -648,15 +648,15 @@ func setupWindowSize() {
 
 	/* Handle high res displays, 50% window */
 	if xSize > 2560 && ySize > 1440 {
-		Magnify = false
+		magnify = false
 		settingItems[2].Enabled = false
 
 		ScreenWidth = uint16(xSize / 2)
 		ScreenHeight = uint16(ySize / 2)
 
-		/* Small Screen, just go fullscreen */
+		/* Small Screen, just go full-screen */
 	} else {
-		Magnify = true
+		magnify = true
 		settingItems[2].Enabled = true
 
 		ScreenWidth = uint16(xSize)
@@ -698,7 +698,7 @@ func windowTitle() {
 
 func handleResize(outsideWidth int, outsideHeight int) {
 	defer reportPanic("handleResize")
-	//Recalcualte settings window item
+	//Recalculate settings window item
 	scale := 1 / (uiBaseResolution / float64(outsideWidth))
 
 	lock := float64(int(scale * scaleLockVal))
@@ -710,7 +710,7 @@ func handleResize(outsideWidth int, outsideHeight int) {
 		uiScale = scale
 	}
 
-	if Magnify {
+	if magnify {
 		uiScale = uiScale + 0.33
 	}
 

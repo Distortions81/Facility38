@@ -16,7 +16,7 @@ func settingsToggle() {
 	}
 }
 
-/* Toggle help windw */
+/* Toggle help window */
 func toggleHelp() {
 	defer reportPanic("toggleHelp")
 

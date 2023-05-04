@@ -33,18 +33,20 @@ func init() {
 }
 
 /* Handles panics */
+const hdFileName = "heapDump.dat"
+
 func reportPanic(format string, args ...interface{}) {
 	if r := recover(); r != nil {
 
 		if !wasmMode {
-			doLog(false, "Writing 'heapdump' file.")
-			f, err := os.Create("heapdump")
+			doLog(false, "Writing '%v' file.", hdFileName)
+			f, err := os.Create(hdFileName)
 			if err == nil {
 				debug.WriteHeapDump(f.Fd())
 				f.Close()
-				defer chatDetailed("wrote heapdump", ColorRed, time.Hour)
+				defer chatDetailed("wrote heapDump", ColorRed, time.Hour)
 			} else {
-				doLog(false, "Failed to write 'heapdump' file.")
+				doLog(false, "Failed to write '%v' file.", hdFileName)
 			}
 		}
 
@@ -252,7 +254,7 @@ func UnCenterXY(pos XYs) XY {
 	return XY{X: uint16(int32(pos.X) + int32(xyCenter)), Y: uint16(int32(pos.Y) + int32(xyCenter))}
 }
 
-/* Rotate consts.DIR value clockwise */
+/* Rotate DIR value clockwise */
 func RotCW(dir uint8) uint8 {
 	defer reportPanic("RotCW")
 	if dir == DIR_ANY {
@@ -261,7 +263,7 @@ func RotCW(dir uint8) uint8 {
 	return uint8(PosIntMod(int(dir+1), DIR_MAX))
 }
 
-/* Rotate consts.DIR value counter-clockwise */
+/* Rotate DIR value counter-clockwise */
 func RotCCW(dir uint8) uint8 {
 	defer reportPanic("RotCCW")
 	if dir == DIR_ANY {
@@ -270,7 +272,7 @@ func RotCCW(dir uint8) uint8 {
 	return uint8(PosIntMod(int(dir-1), DIR_MAX))
 }
 
-/* Rotate consts.DIR value to x*/
+/* Rotate DIR value to x*/
 func RotDir(dir uint8, add uint8) uint8 {
 	defer reportPanic("RotDir")
 	if dir == DIR_ANY || add == DIR_ANY {
@@ -293,7 +295,7 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 	return (x1 + x2) / 2, (y1 + y2) / 2
 }
 
-/* Get an object by XY, uses map (hashtable). RLocks the given chunk */
+/* Get an object by XY, uses map (hash table). RLocks the given chunk */
 func GetObj(pos XY, chunk *mapChunk) *buildingData {
 	defer reportPanic("GetObj")
 
@@ -310,34 +312,34 @@ func GetObj(pos XY, chunk *mapChunk) *buildingData {
 	return nil
 }
 
-/* Get a chunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
+/* Get a chunk by XY, used map (hash table). RLocks the SuperChunkMap and Chunk */
 func GetChunk(pos XY) *mapChunk {
 	defer reportPanic("GetChunk")
 
-	scpos := posToSuperChunkPos(pos)
-	cpos := PosToChunkPos(pos)
+	supChunkPos := posToSuperChunkPos(pos)
+	chunkPos := PosToChunkPos(pos)
 
 	superChunkMapLock.RLock()
-	sChunk := superChunkMap[scpos]
+	sChunk := superChunkMap[supChunkPos]
 	superChunkMapLock.RUnlock()
 
 	if sChunk == nil {
 		return nil
 	}
 	sChunk.lock.RLock()
-	chunk := sChunk.chunkMap[cpos]
+	chunk := sChunk.chunkMap[chunkPos]
 	sChunk.lock.RUnlock()
 
 	return chunk
 }
 
-/* Get a superchunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
+/* Get a superChunk by XY, used map (hash table). RLocks the SuperChunkMap and Chunk */
 func GetSuperChunk(pos XY) *mapSuperChunkData {
 	defer reportPanic("GetSuperChunk")
-	scpos := posToSuperChunkPos(pos)
+	supChunkPos := posToSuperChunkPos(pos)
 
 	superChunkMapLock.RLock()
-	sChunk := superChunkMap[scpos]
+	sChunk := superChunkMap[supChunkPos]
 	superChunkMapLock.RUnlock()
 
 	return sChunk
@@ -385,7 +387,7 @@ func FloatXYToPosition(x float32, y float32) XY {
 	return XY{X: uint16(x), Y: uint16(y)}
 }
 
-/* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
+/* Search SuperChunk->Chunk->ObjMap hash tables to find neighboring objects in (dir) */
 func getNeighborObj(src XY, dir uint8) *buildingData {
 	defer reportPanic("GetNeighborObj")
 	pos := src
@@ -417,7 +419,7 @@ func getNeighborObj(src XY, dir uint8) *buildingData {
 	return b
 }
 
-/* Convert consts.DIR to text */
+/* Convert DIR to text */
 func dirToName(dir uint8) string {
 	defer reportPanic("DirToName")
 	switch dir {

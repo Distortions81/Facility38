@@ -2,24 +2,24 @@ package main
 
 /* Link up recipe pointers */
 func init() {
-	defer reportPanic("obj-recipie init")
-	for rpos, rec := range recipies {
+	defer reportPanic("obj-recpes init")
+	for recPos, rec := range recipes {
 		for reqPos, req := range rec.requires {
-			recipies[rpos].requiresP[reqPos] = matTypes[req]
+			recipes[recPos].requiresP[reqPos] = matTypes[req]
 		}
 		for resPos, result := range rec.result {
-			recipies[rpos].resultP[resPos] = matTypes[result]
+			recipes[recPos].resultP[resPos] = matTypes[result]
 		}
 	}
 
 	//DoLog(true, "Building recipe material lookup tables.")
 	for objPos, obj := range worldObjs {
-		for recPos, rec := range recipies {
+		for recPos, rec := range recipes {
 			for _, mach := range rec.machineTypes {
 				if obj.typeI == mach {
 					//Found a relevant recipie
 					for _, req := range rec.requires {
-						worldObjs[objPos].recipieLookup[req] = recipies[recPos]
+						worldObjs[objPos].recipieLookup[req] = recipes[recPos]
 					}
 				}
 			}
@@ -28,7 +28,7 @@ func init() {
 
 }
 
-var recipies = []*recipeData{
+var recipes = []*recipeData{
 	/* Basic Smelter */
 	{
 		typeI:    recIronShot,

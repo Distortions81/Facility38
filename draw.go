@@ -142,7 +142,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	drawItemInfo(screen)
 
 	/* Debug info */
-	if InfoLine {
+	if infoLine {
 		drawDebugInfo(screen)
 	}
 
@@ -296,37 +296,37 @@ func drawItemInfo(screen *ebiten.Image) {
 					if p.obj == nil {
 						continue
 					}
-					var tstring = "None"
+					var typeString = "None"
 					if p.Buf.typeP != nil {
-						tstring = p.Buf.typeP.name
+						typeString = p.Buf.typeP.name
 					}
 
 					if p.Type == PORT_IN {
 						toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %v (%v)\n",
 							dirToName(uint8(p.Dir)),
 							p.obj.Unique.typeP.name,
-							tstring,
+							typeString,
 							printUnit(p.Buf),
 							calcVolume(p.Buf))
 					} else if p.Type == PORT_OUT {
 						toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %v (%v)\n",
 							dirToName(uint8(p.Dir)),
 							p.obj.Unique.typeP.name,
-							tstring,
+							typeString,
 							printUnit(p.Buf),
 							calcVolume(p.Buf))
 					} else if p.Type == PORT_FOUT {
 						toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %v (%v)\n",
 							dirToName(uint8(p.Dir)),
 							p.obj.Unique.typeP.name,
-							tstring,
+							typeString,
 							printUnit(p.Buf),
 							calcVolume(p.Buf))
 					} else if p.Type == PORT_FIN {
 						toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %v (%v)\n",
 							dirToName(uint8(p.Dir)),
 							p.obj.Unique.typeP.name,
-							tstring,
+							typeString,
 							printUnit(p.Buf),
 							calcVolume(p.Buf))
 					}
@@ -375,7 +375,7 @@ func drawItemInfo(screen *ebiten.Image) {
 	if showResourceLayer {
 		buf := ""
 		/* Only recalculate if mouse moves */
-		if MouseX != LastMouseX || MouseY != LastMouseY || camXPos != lastCamX || camYPos != lastCamY {
+		if MouseX != lastMouseX || MouseY != LastMouseY || camXPos != lastCamX || camYPos != lastCamY {
 
 			/* Get info for all layers */
 			for p := 1; p < len(noiseLayers); p++ {
@@ -443,8 +443,8 @@ func drawItemPlacement(screen *ebiten.Image) {
 				blocked = true
 			}
 		} else {
-			tchunk := GetChunk(wPos)
-			if GetObj(wPos, tchunk) != nil {
+			tmpChunk := GetChunk(wPos)
+			if GetObj(wPos, tmpChunk) != nil {
 				blocked = true
 			}
 		}
@@ -463,7 +463,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 	}
 }
 
-/* Look at camera position, make a list of visible superchunks and chunks. */
+/* Look at camera position, make a list of visible super-chunks and chunks. */
 var visObj []*ObjData
 var visChunk []*mapChunk
 var visSChunk []*mapSuperChunkData
@@ -720,7 +720,7 @@ func drawIconMode() {
 		/* Draw overlays */
 		if overlayMode {
 
-			/* Show box conents in overylay mode */
+			/* Show box contents in overlay mode */
 			if obj.Unique.typeP.typeI == objTypeBasicBox {
 				for _, cont := range obj.Unique.Contents.mats {
 					if cont == nil {
@@ -810,7 +810,7 @@ func drawPixmapMode() {
 		resourceRenderDaemonST()
 		pixmapRenderST()
 	}
-	/* Draw superchunk images (pixmap mode)*/
+	/* Draw superChunk images (pixmap mode)*/
 	superChunkListLock.RLock()
 	for _, sChunk := range visSChunk {
 		sChunk.pixelMapLock.Lock()
@@ -861,11 +861,11 @@ func drawDebugInfo(screen *ebiten.Image) {
 	/* Draw debug info */
 	buf := fmt.Sprintf("FPS: %-4v UPS: %4.2f Updates: %8v/%-8v/%8v/%-8v Blocks: %-8v/%-8v Draws: %-5v(%-5v) Arch: %v Build: v%v-%v",
 		int(ebiten.ActualFPS()),
-		(ActualUPS),
-		humanize.SIWithDigits(float64(TockCount), 2, ""),
-		humanize.SIWithDigits(float64(ActiveTockCount), 2, ""),
-		humanize.SIWithDigits(float64(TickCount), 2, ""),
-		humanize.SIWithDigits(float64(ActiveTickCount), 2, ""),
+		(actualUPS),
+		humanize.SIWithDigits(float64(tockCount), 2, ""),
+		humanize.SIWithDigits(float64(activeTockCount), 2, ""),
+		humanize.SIWithDigits(float64(tickCount), 2, ""),
+		humanize.SIWithDigits(float64(activeTickCount), 2, ""),
 		tickBlocks, tockBlocks,
 		batchTop, batchWatermark,
 		runtime.GOARCH, version, buildTime,
@@ -881,7 +881,7 @@ func drawDebugInfo(screen *ebiten.Image) {
 func drawTime(screen *ebiten.Image) {
 	defer reportPanic("drawTime")
 
-	gameClock := time.Duration((GameTick / uint64(ObjectUPS/2))) * time.Second
+	gameClock := time.Duration((GameTick / uint64(objectUPS/2))) * time.Second
 	/* Draw debug info */
 	buf := fmt.Sprintf("Map Time: %v\nTime: %v",
 		gameClock.String(),
@@ -1080,7 +1080,7 @@ func drawChatLines(screen *ebiten.Image) {
 		lineNum++
 
 		/* BG */
-		tBgColor := ColorToolTipBG
+		tempBGColor := ColorToolTipBG
 		/* Text color */
 		r, g, b, _ := line.color.RGBA()
 
@@ -1090,18 +1090,18 @@ func drawChatLines(screen *ebiten.Image) {
 			blend = (float64(chatFadeTime-(line.lifetime-since)) / float64(chatFadeTime) * 100.0)
 		}
 		newAlpha := (254.0 - (blend * 2.55))
-		oldAlpha := tBgColor.A
+		oldAlpha := tempBGColor.A
 		faded := newAlpha - float64(253.0-int(oldAlpha))
 		if faded <= 0 {
 			faded = 0
 		} else if faded > 254 {
 			faded = 254
 		}
-		tBgColor.A = byte(faded)
+		tempBGColor.A = byte(faded)
 
 		drawText(line.text, generalFont,
 			color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)},
-			tBgColor, XYf32{X: padding, Y: float32(ScreenHeight) - (float32(lineNum) * (float32(generalFontH) * 1.2)) - chatVertSpace},
+			tempBGColor, XYf32{X: padding, Y: float32(ScreenHeight) - (float32(lineNum) * (float32(generalFontH) * 1.2)) - chatVertSpace},
 			2, screen, true, false, false)
 	}
 }

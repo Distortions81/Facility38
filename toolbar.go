@@ -22,15 +22,15 @@ var (
 func initToolbar() {
 	defer reportPanic("InitToolbar")
 	toolbarMax = 0
-	for spos, stype := range subTypes {
-		if spos == objSubUI || spos == objSubGame {
-			for _, otype := range stype.list {
+	for subPos, subType := range subTypes {
+		if subPos == objSubUI || subPos == objSubGame {
+			for _, oType := range subType.list {
 				/* Skips some items for WASM */
-				if wasmMode && otype.excludeWASM {
+				if wasmMode && oType.excludeWASM {
 					continue
 				}
 				toolbarMax++
-				toolbarItems = append(toolbarItems, toolbarItem{sType: spos, oType: otype})
+				toolbarItems = append(toolbarItems, toolbarItem{sType: subPos, oType: oType})
 
 			}
 		}

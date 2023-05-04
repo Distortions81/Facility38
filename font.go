@@ -26,8 +26,8 @@ func updateFonts() {
 	var err error
 
 	if now.Month() == 4 && now.Day() == 1 {
-		fdata := getFont("comici.ttf")
-		collection, err := opentype.ParseCollection(fdata)
+		fontData := getFont("comici.ttf")
+		collection, err := opentype.ParseCollection(fontData)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -37,8 +37,8 @@ func updateFonts() {
 			log.Fatal(err)
 		}
 	} else {
-		fdata := getFont("Exo2-Regular.ttf")
-		collection, err := opentype.ParseCollection(fdata)
+		fontData := getFont("Exo2-Regular.ttf")
+		collection, err := opentype.ParseCollection(fontData)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -50,8 +50,8 @@ func updateFonts() {
 	}
 
 	/* Logo font */
-	fdata := getFont("Azonix-1VB0.otf")
-	collection, err := opentype.ParseCollection(fdata)
+	fontData := getFont("Azonix-1VB0.otf")
+	collection, err := opentype.ParseCollection(fontData)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,8 +62,8 @@ func updateFonts() {
 	}
 
 	/* Mono font */
-	fdata = getFont("Hack-Regular.ttf")
-	collection, err = opentype.ParseCollection(fdata)
+	fontData = getFont("Hack-Regular.ttf")
+	collection, err = opentype.ParseCollection(fontData)
 	if err != nil {
 		log.Fatal(err)
 	}

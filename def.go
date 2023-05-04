@@ -25,7 +25,7 @@ const (
 
 	/* Number of chat lines to display at once */
 	chatHeightLines = 20
-	/* Defaut fade out time */
+	/* Default fade out time */
 	chatFadeTime = time.Second * 3
 
 	/* Game base version */
@@ -48,7 +48,7 @@ const (
 	xyMax    = xyCenter * 2.0
 	xyMin    = 1.0
 
-	/* Game datastrures */
+	/* Game data structures */
 	/* Subtypes */
 	objSubUI   = 0
 	objSubGame = 1
@@ -209,7 +209,7 @@ const (
 	SPHERICAL_PACKING_BEST   = 0.74
 
 	/* Game timescale */
-	TIMESCALE_MULTI = 12
+	gameTimescale = 12
 
 	/* Event queue types */
 	QUEUE_TYPE_NONE = 0

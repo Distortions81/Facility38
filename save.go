@@ -41,11 +41,11 @@ func saveGame() {
 		gameLock.Lock()
 		defer gameLock.Unlock()
 
-		savenum := time.Now().UTC().Unix()
+		saveDate := time.Now().UTC().Unix()
 
 		savesDir := "saves"
-		saveTempName := fmt.Sprintf("save-%v.zip.tmp", savenum)
-		saveName := fmt.Sprintf("save-%v.zip", savenum)
+		saveTempName := fmt.Sprintf("save-%v.zip.tmp", saveDate)
+		saveName := fmt.Sprintf("save-%v.zip", saveDate)
 
 		os.Mkdir(savesDir, os.ModePerm)
 
@@ -69,13 +69,13 @@ func saveGame() {
 		for _, sChunk := range superChunkList {
 			for _, chunk := range sChunk.chunkList {
 				for _, mObj := range chunk.objList {
-					tobj := &saveMObj{
+					tmpObj := &saveMObj{
 						Pos:   CenterXY(mObj.Pos),
 						TypeI: mObj.Unique.typeP.typeI,
 						Dir:   mObj.Dir,
 					}
 
-					tempList.Objects = append(tempList.Objects, tobj)
+					tempList.Objects = append(tempList.Objects, tmpObj)
 				}
 			}
 		}
@@ -102,10 +102,7 @@ func saveGame() {
 
 		if wasmMode {
 			// Call the SendBytes function with the data and filename
-			go SendBytes(saveName, zip)
-
-			// Wait for incoming messages from the JavaScript side
-			//<-make(chan struct{})
+			go sendBytes(saveName, zip)
 		} else {
 			err := os.WriteFile(savesDir+"/"+saveTempName, zip, 0644)
 
@@ -131,7 +128,7 @@ func saveGame() {
 	}()
 }
 
-func findNewstSave() string {
+func findNewestSave() string {
 
 	dir := "saves/"
 	files, err := os.ReadDir(dir)
@@ -192,7 +189,7 @@ func loadGame(external bool, data []byte) {
 		saveName := "browser attachment"
 
 		if !external {
-			saveName = findNewstSave()
+			saveName = findNewestSave()
 			if saveName == "" {
 				chat("No saves found!")
 				statusText = ""
@@ -220,8 +217,8 @@ func loadGame(external bool, data []byte) {
 		}
 
 		unzip := UncompressZip(b)
-		dbuf := bytes.NewBuffer(unzip)
-		dec := json.NewDecoder(dbuf)
+		deCompBuf := bytes.NewBuffer(unzip)
+		dec := json.NewDecoder(deCompBuf)
 
 		statusText = "Clearing memory.\n"
 		nukeWorld()
@@ -310,8 +307,8 @@ func nukeWorld() {
 	superChunkListLock.Lock()
 
 	/* Erase current map */
-	for sc, superchunk := range superChunkList {
-		for c, chunk := range superchunk.chunkList {
+	for sc, supChunk := range superChunkList {
+		for c, chunk := range supChunk.chunkList {
 
 			superChunkList[sc].chunkList[c].parent = nil
 			if chunk.terrainImage != nil && chunk.terrainImage != TempChunkImage && !chunk.usingTemporary {

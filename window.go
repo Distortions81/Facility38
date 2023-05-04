@@ -42,8 +42,8 @@ type windowData struct {
 	movable    bool /* Can be dragged */
 	opaque     bool /* Non-semitransparent background */
 	centered   bool /* Auto-centered */
+	borderless bool
 	closeable  bool /* Has a close-x in title bar */
-	borderless bool /* Does not draw border */
 	keepCache  bool /* Draw cache persists when window is closed */
 	dragPos    XYs  /* Position where window drag began */
 
@@ -54,7 +54,7 @@ type windowData struct {
 	position   XYs /* Position */
 
 	bgColor      *color.Color /* Custom BG color */
-	titleBGColor *color.Color /* Custom titlebar background color */
+	titleBGColor *color.Color /* Custom title bar background color */
 	titleColor   *color.Color /* Custom title text color */
 
 	dirty       bool          /* Needs to be redrawn */
@@ -100,14 +100,14 @@ func openWindow(window *windowData) {
 		return
 	}
 
-	for wpos := range windows {
-		if windows[wpos] == window {
-			windows[wpos].active = true
+	for winPos := range windows {
+		if windows[winPos] == window {
+			windows[winPos].active = true
 
 			if window.centered && window.movable {
 
 				window.scaledSize = XYs{X: int32(float64(window.size.X) * uiScale), Y: int32(float64(window.size.Y) * uiScale)}
-				windows[wpos].position = XYs{
+				windows[winPos].position = XYs{
 					X: int32(ScreenWidth/2) - (window.scaledSize.X / 2),
 					Y: int32(ScreenHeight/2) - (window.scaledSize.Y / 2)}
 			}
@@ -116,10 +116,10 @@ func openWindow(window *windowData) {
 				doLog(true, "Window '%v' added to open list.", window.title)
 			}
 
-			openWindows = append(openWindows, windows[wpos])
+			openWindows = append(openWindows, windows[winPos])
 		} else {
 			/* Patch until layering is added */
-			go closeWindow(windows[wpos])
+			go closeWindow(windows[winPos])
 		}
 	}
 }
@@ -140,15 +140,15 @@ func closeWindow(window *windowData) {
 	}
 
 	/* Check all open windows */
-	for wopos := range openWindows {
-		if openWindows[wopos] == window {
+	for winPos := range openWindows {
+		if openWindows[winPos] == window {
 			window.active = false
 
 			if debugMode {
 				doLog(true, "Window '%v' removed from open list.", window.title)
 			}
 			/* Remove item */
-			openWindows = append(openWindows[:wopos], openWindows[wopos+1:]...)
+			openWindows = append(openWindows[:winPos], openWindows[winPos+1:]...)
 			break
 		}
 	}
@@ -168,7 +168,7 @@ func closeWindow(window *windowData) {
 }
 
 /* Draw window title, frame, background and cached window contents */
-const cpad = 18
+const closePad = 18
 const closeScale = 0.7
 
 func drawWindow(screen *ebiten.Image, window *windowData) {
@@ -177,8 +177,8 @@ func drawWindow(screen *ebiten.Image, window *windowData) {
 	defer windowsLock.Unlock()
 
 	/* Calculate some values for UI scale */
-	pad := int(cpad * uiScale)
-	halfPad := int((cpad / 2.0) * uiScale)
+	pad := int(closePad * uiScale)
+	halfPad := int((closePad / 2.0) * uiScale)
 
 	winPos := getWindowPos(window)
 	window.scaledSize = XYs{X: int32(float64(window.size.X) * uiScale), Y: int32(float64(window.size.Y) * uiScale)}

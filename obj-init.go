@@ -24,17 +24,17 @@ func init() {
 
 		/* Convert mining amount to interval */
 		if worldObjs[i].machineSettings.kgHourMine > 0 {
-			worldObjs[i].machineSettings.kgPerCycle = ((worldObjs[i].machineSettings.kgHourMine / 60 / 60 / ObjectUPS) * float32(worldObjs[i].tockInterval)) * TIMESCALE_MULTI
+			worldObjs[i].machineSettings.kgPerCycle = ((worldObjs[i].machineSettings.kgHourMine / 60 / 60 / objectUPS) * float32(worldObjs[i].tockInterval)) * gameTimescale
 		}
 		/* Convert Horsepower to solid to KW and solid fuel per interval */
 		if worldObjs[i].machineSettings.hp > 0 {
-			KW := worldObjs[i].machineSettings.hp * HP_PER_KW
-			COALKG := KW / COAL_KWH_PER_KG
-			worldObjs[i].machineSettings.kgFuelPerCycle = ((COALKG / 60 / 60 / ObjectUPS) * float32(worldObjs[i].tockInterval)) * TIMESCALE_MULTI
+			kw := worldObjs[i].machineSettings.hp * HP_PER_KW
+			coalKg := kw / COAL_KWH_PER_KG
+			worldObjs[i].machineSettings.kgFuelPerCycle = ((coalKg / 60 / 60 / objectUPS) * float32(worldObjs[i].tockInterval)) * gameTimescale
 			/* Convert KW to solid fuel per interval */
 		} else if worldObjs[i].machineSettings.kw > 0 {
-			COALKG := worldObjs[i].machineSettings.kw / COAL_KWH_PER_KG
-			worldObjs[i].machineSettings.kgFuelPerCycle = ((COALKG / 60 / 60 / ObjectUPS) * float32(worldObjs[i].tockInterval)) * TIMESCALE_MULTI
+			coalKg := worldObjs[i].machineSettings.kw / COAL_KWH_PER_KG
+			worldObjs[i].machineSettings.kgFuelPerCycle = ((coalKg / 60 / 60 / objectUPS) * float32(worldObjs[i].tockInterval)) * gameTimescale
 		}
 
 		/* Auto calculate max fuel from fuel used per interval */
@@ -147,8 +147,8 @@ func initMiner(obj *ObjData) bool {
 	return true
 }
 
-func deinitMiner(obj *ObjData) {
-	defer reportPanic("deinitMiner")
+func deInitMiner(obj *ObjData) {
+	defer reportPanic("deInitMiner")
 	/* Update resource map on remove */
 	obj.chunk.parent.resourceDirty = true
 }

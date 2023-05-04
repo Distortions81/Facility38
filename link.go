@@ -26,41 +26,41 @@ func linkObj(from XY, b *buildingData) {
 			continue
 		}
 
-		var neighb *buildingData
+		var neighbor *buildingData
 		if port.Dir == DIR_ANY {
 			var testPort uint8
 			for testPort = DIR_NORTH; testPort <= DIR_WEST; testPort++ {
 				//DoLog(true, "Looking in all directions: "+DirToName(testPort))
 
-				neighb = getNeighborObj(from, testPort)
-				if neighb != nil && neighb.obj != nil {
-					if neighb.obj.Pos != b.obj.Pos {
+				neighbor = getNeighborObj(from, testPort)
+				if neighbor != nil && neighbor.obj != nil {
+					if neighbor.obj.Pos != b.obj.Pos {
 						//DoLog(true, "found")
 						break
 					}
 				}
 			}
-			if neighb == nil {
+			if neighbor == nil {
 				continue
 			}
 		} else {
-			neighb = getNeighborObj(from, port.Dir)
+			neighbor = getNeighborObj(from, port.Dir)
 		}
 
 		/* We found one*/
-		if neighb == nil {
+		if neighbor == nil {
 			//ObjCD(b, fmt.Sprintf("No neighbor: %v", DirToName(port.Dir)))
 			continue
 		}
 
-		if neighb.obj.Pos == b.obj.Pos {
+		if neighbor.obj.Pos == b.obj.Pos {
 			//ObjCD(b, fmt.Sprintf("Ignoring link to self: %v", DirToName(port.Dir)))
 			continue
 		}
 
 		//DoLog(true, DirToName(port.Dir))
 
-		for n, np := range neighb.obj.Ports {
+		for n, np := range neighbor.obj.Ports {
 
 			/* Neighbor port is available */
 			if np.obj != nil {
@@ -80,36 +80,36 @@ func linkObj(from XY, b *buildingData) {
 
 				/* Normal objects can only link to loaders */
 				if (b.obj.Unique.typeP.category == objCatGeneric &&
-					neighb.obj.Unique.typeP.category != objCatLoader) ||
-					(neighb.obj.Unique.typeP.category == objCatGeneric &&
+					neighbor.obj.Unique.typeP.category != objCatLoader) ||
+					(neighbor.obj.Unique.typeP.category == objCatGeneric &&
 						b.obj.Unique.typeP.category != objCatLoader) {
 					continue
 				}
 
 				/* Add link to objects */
-				neighb.obj.Ports[n].obj = b.obj
-				b.obj.Ports[p].obj = neighb.obj
+				neighbor.obj.Ports[n].obj = b.obj
+				b.obj.Ports[p].obj = neighbor.obj
 
 				/* Add direct port links */
-				neighb.obj.Ports[n].link = &b.obj.Ports[p]
-				b.obj.Ports[p].link = &neighb.obj.Ports[n]
+				neighbor.obj.Ports[n].link = &b.obj.Ports[p]
+				b.obj.Ports[p].link = &neighbor.obj.Ports[n]
 
 				if debugMode {
 					oName := "none"
 					if b.obj != nil {
-						oName = fmt.Sprintf("%v: %v", neighb.obj.Unique.typeP.name, posToString(neighb.pos))
+						oName = fmt.Sprintf("%v: %v", neighbor.obj.Unique.typeP.name, posToString(neighbor.pos))
 					}
 					objCD(b, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, dirToName(port.Dir), DirToArrow(port.Dir), oName))
 				}
 
 				portAlias(b.obj, p, port.Type)
-				portAlias(neighb.obj, n, np.Type)
+				portAlias(neighbor.obj, n, np.Type)
 
 				/* Run custom link code */
-				if neighb.obj.Unique.typeP.linkObj != nil {
-					neighb.obj.Unique.typeP.linkObj(neighb.obj)
+				if neighbor.obj.Unique.typeP.linkObj != nil {
+					neighbor.obj.Unique.typeP.linkObj(neighbor.obj)
 				} else {
-					autoEvents(neighb.obj)
+					autoEvents(neighbor.obj)
 				}
 			}
 		}
@@ -181,8 +181,8 @@ func unlinkObj(obj *ObjData) {
 		}
 
 		/* Delete ourselves from others */
-		for pb, portb := range port.obj.Ports {
-			if portb.obj == obj {
+		for pb, ourPort := range port.obj.Ports {
+			if ourPort.obj == obj {
 				pObj := port.obj
 
 				/* Reset last port to avoid hitting invalid one */
@@ -224,13 +224,13 @@ func unlinkObj(obj *ObjData) {
 }
 
 /* Add port to correct alias, increment */
-func portAlias(obj *ObjData, port int, ptype uint8) {
+func portAlias(obj *ObjData, port int, pType uint8) {
 	defer reportPanic("portAlias")
 	if obj.Ports[port].link == nil {
 		return
 	}
 
-	switch ptype {
+	switch pType {
 	case PORT_IN:
 		obj.inputs = append(obj.inputs, &obj.Ports[port])
 		obj.numIn++

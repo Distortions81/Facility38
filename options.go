@@ -45,12 +45,12 @@ func init() {
 	settingItems = []settingType{
 		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", action: toggleVsync, Enabled: true, WASMExclude: true},
 		{ConfigName: "FULLSCREEN", Text: "Full Screen", action: toggleFullscreen},
-		{ConfigName: "MAGNIFY", Text: "Magnifiy UI", action: toggleMagnify},
+		{ConfigName: "MAGNIFY", Text: "Magnify UI", action: toggleMagnify},
 		{ConfigName: "UNCAP-FPS", Text: "Uncap UPS", action: toggleUPSCap, WASMExclude: true},
 		{ConfigName: "DEBUG", Text: "Debug mode", action: toggleDebug, WASMExclude: true},
 		{Text: "Load test map", action: toggleTestMap, WASMExclude: true},
 		{ConfigName: "FREEDOM-UNITS", Text: "US customary units", action: toggleUnits},
-		{ConfigName: "HYPERTHREAD", Text: "Use hyperthreading", action: toggleHyper, WASMExclude: true},
+		{ConfigName: "HYPERTHREAD", Text: "Use hyper-threading", action: toggleHyper, WASMExclude: true},
 		{ConfigName: "DEBUG-TEXT", Text: "Debug info-text", action: toggleInfoLine},
 		{ConfigName: "AUTOSAVE", Text: "Autosave (5m)", action: toggleAutosave, Enabled: true, WASMExclude: true},
 		{Text: "Quit game", action: quitGame, NoCheck: true, WASMExclude: true},
@@ -82,11 +82,11 @@ func loadOptions() {
 
 	doLog(true, "Settings loaded.")
 
-	for wpos, wSetting := range settingItems {
+	for setPos, wSetting := range settingItems {
 		for _, fSetting := range tempSettings {
 			if wSetting.ConfigName == fSetting.ConfigName {
 				if fSetting.Enabled != wSetting.Enabled {
-					settingItems[wpos].action(wpos)
+					settingItems[setPos].action(setPos)
 				}
 			}
 		}
@@ -111,8 +111,8 @@ func saveOptions() {
 	tempPath := settingsFile + ".tmp"
 	finalPath := settingsFile
 
-	outbuf := new(bytes.Buffer)
-	enc := json.NewEncoder(outbuf)
+	outBuf := new(bytes.Buffer)
+	enc := json.NewEncoder(outBuf)
 	enc.SetIndent("", "\t")
 
 	if err := enc.Encode(&tempSettings); err != nil {
@@ -127,7 +127,7 @@ func saveOptions() {
 		return
 	}
 
-	err = os.WriteFile(tempPath, outbuf.Bytes(), 0644)
+	err = os.WriteFile(tempPath, outBuf.Bytes(), 0644)
 
 	if err != nil {
 		doLog(true, "saveOptions: WriteFile failure")
@@ -146,24 +146,24 @@ func saveOptions() {
 /* Toggle the debug bottom-screen text */
 func toggleInfoLine(item int) {
 	defer reportPanic("toggleInfoLine")
-	if InfoLine {
-		InfoLine = false
+	if infoLine {
+		infoLine = false
 		settingItems[item].Enabled = false
 	} else {
-		InfoLine = true
+		infoLine = true
 		settingItems[item].Enabled = true
 	}
 }
 
-/* Toggle the use of hyperthreading */
+/* Toggle the use of hyper-threading */
 func toggleHyper(item int) {
 	defer reportPanic("toggleHyper")
-	if UseHyper {
-		UseHyper = false
+	if useHyper {
+		useHyper = false
 		settingItems[item].Enabled = false
 		detectCPUs(false)
 	} else {
-		UseHyper = true
+		useHyper = true
 		settingItems[item].Enabled = true
 		detectCPUs(true)
 	}
@@ -182,11 +182,11 @@ func quitGame(item int) {
 /* Toggle units */
 func toggleUnits(item int) {
 	defer reportPanic("toggleUnits")
-	if ImperialUnits {
-		ImperialUnits = false
+	if usUnits {
+		usUnits = false
 		settingItems[item].Enabled = false
 	} else {
-		ImperialUnits = true
+		usUnits = true
 		settingItems[item].Enabled = true
 	}
 }
@@ -240,7 +240,7 @@ func toggleUPSCap(item int) {
 	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
-/* Toggle fullscreen */
+/* Toggle full-screen */
 func toggleFullscreen(item int) {
 	defer reportPanic("toggleFullscreen")
 	if ebiten.IsFullscreen() {
@@ -259,11 +259,11 @@ func toggleFullscreen(item int) {
 /* Toggle UI magnification */
 func toggleMagnify(item int) {
 	defer reportPanic("toggleMagnify")
-	if Magnify {
-		Magnify = false
+	if magnify {
+		magnify = false
 		settingItems[item].Enabled = false
 	} else {
-		Magnify = true
+		magnify = true
 		settingItems[item].Enabled = true
 	}
 
@@ -294,11 +294,11 @@ func toggleDebug(item int) {
 /* Toggle autosave */
 func toggleAutosave(item int) {
 	defer reportPanic("toggleDebug")
-	if Autosave {
-		Autosave = false
+	if autoSave {
+		autoSave = false
 		settingItems[item].Enabled = false
 	} else {
-		Autosave = true
+		autoSave = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",
@@ -309,12 +309,12 @@ func toggleAutosave(item int) {
 
 func toggleVsync(item int) {
 	defer reportPanic("toggleVsync")
-	if Vsync {
-		Vsync = false
+	if vSync {
+		vSync = false
 		settingItems[item].Enabled = false
 		ebiten.SetVsyncEnabled(false)
 	} else {
-		Vsync = true
+		vSync = true
 		settingItems[item].Enabled = true
 		ebiten.SetVsyncEnabled(true)
 	}

@@ -26,7 +26,7 @@ var (
 	MouseX int
 	MouseY int
 
-	LastMouseX int
+	lastMouseX int
 	LastMouseY int
 )
 
@@ -48,14 +48,14 @@ func (g *Game) Update() error {
 	}
 
 	/* Save mouse coords */
-	LastMouseX = MouseX
+	lastMouseX = MouseX
 	LastMouseY = MouseY
 
 	/* Clamp to window */
 	MouseX, MouseY = ebiten.CursorPosition()
 	if MouseX < 0 || MouseX > int(ScreenWidth) ||
 		MouseY < 0 || MouseY > int(ScreenHeight) {
-		MouseX = LastMouseX
+		MouseX = lastMouseX
 		MouseY = LastMouseY
 
 		/* Stop dragging window if we go off-screen */
@@ -82,7 +82,7 @@ func (g *Game) Update() error {
 	getMiddleMouseClicks()
 	getRightMouseClicks()
 	getShiftToggle()
-	getToolbarKeypress()
+	getToolbarKeyPress()
 
 	handleQuit()
 	zoomHandle()
@@ -113,7 +113,7 @@ func (g *Game) Update() error {
 }
 
 /* Toolbar shortcut keys */
-func getToolbarKeypress() {
+func getToolbarKeyPress() {
 	defer reportPanic("getToolbarKeypress")
 	for _, item := range uiObjs {
 		if inpututil.IsKeyJustPressed(item.qKey) {
@@ -145,32 +145,32 @@ func handleToolbar(rotate bool) bool {
 	iconSize := float32(uiScale * toolBarIconSize)
 	spacing := float32(toolBarIconSize / toolBarSpaceRatio)
 
-	uipix := float32((toolbarMax * int(iconSize+spacing)))
+	tbLength := float32((toolbarMax * int(iconSize+spacing)))
 
 	fmx := float32(MouseX)
 	fmy := float32(MouseY)
 
 	/* If the click isn't off the right of the toolbar */
-	if fmx <= uipix {
+	if fmx <= tbLength {
 		/* If the click isn't below the toolbar */
 		if fmy <= iconSize {
 
-			ipos := int(fmx / float32(iconSize+spacing))
+			tbItem := int(fmx / float32(iconSize+spacing))
 			len := len(toolbarItems) - 1
-			if ipos > len {
-				ipos = len
-			} else if ipos < 0 {
-				ipos = 0
+			if tbItem > len {
+				tbItem = len
+			} else if tbItem < 0 {
+				tbItem = 0
 			}
-			item := toolbarItems[ipos].oType
+			item := toolbarItems[tbItem].oType
 
 			/* Draw item hover */
-			drawToolbar(true, false, ipos)
+			drawToolbar(true, false, tbItem)
 
 			/* Actions */
 			if item.toolbarAction != nil && !rotate {
 				item.toolbarAction()
-				drawToolbar(true, false, ipos)
+				drawToolbar(true, false, tbItem)
 			} else {
 				/* Not a click, check for rotation */
 				if rotate && item != nil {
@@ -181,17 +181,17 @@ func handleToolbar(rotate bool) bool {
 						dir = RotCW(dir)
 					}
 					item.direction = dir
-					drawToolbar(true, false, ipos)
+					drawToolbar(true, false, tbItem)
 
 					/* Deselect */
-				} else if selectedItemType == toolbarItems[ipos].oType.typeI {
+				} else if selectedItemType == toolbarItems[tbItem].oType.typeI {
 					selectedItemType = maxItemType
-					drawToolbar(true, false, ipos)
+					drawToolbar(true, false, tbItem)
 
 				} else {
 					/* Select */
-					selectedItemType = toolbarItems[ipos].oType.typeI
-					drawToolbar(true, false, ipos)
+					selectedItemType = toolbarItems[tbItem].oType.typeI
+					drawToolbar(true, false, tbItem)
 
 				}
 			}
@@ -384,10 +384,10 @@ func moveCamera() {
 			gCameraDrag = true
 		}
 
-		cameraX = cameraX + (float32(LastMouseX-MouseX) / zoomScale)
+		cameraX = cameraX + (float32(lastMouseX-MouseX) / zoomScale)
 		cameraY = cameraY + (float32(LastMouseY-MouseY) / zoomScale)
 		visDataDirty.Store(true)
-		LastMouseX = MouseX
+		lastMouseX = MouseX
 		LastMouseY = MouseY
 
 		/* Don't let camera go beyond a reasonable point */

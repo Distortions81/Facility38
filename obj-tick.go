@@ -59,13 +59,13 @@ func objUpdateDaemon() {
 		gameLock.Unlock()
 
 		if !upsBench {
-			sleepFor := time.Duration(ObjectUPS_ns) - time.Since(start)
+			sleepFor := time.Duration(objectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
 			}
 		}
-		MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
-		ActualUPS = (1000000000.0 / float32(MeasuredObjectUPS_ns))
+		measuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
+		actualUPS = (1000000000.0 / float32(measuredObjectUPS_ns))
 
 		handleAutosave()
 	}
@@ -116,14 +116,14 @@ func ObjUpdateDaemonST() {
 		gameLock.Unlock()
 
 		if !upsBench {
-			sleepFor := time.Duration(ObjectUPS_ns) - time.Since(start)
+			sleepFor := time.Duration(objectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
 			}
 		}
 
-		MeasuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
-		ActualUPS = (1000000000.0 / float32(MeasuredObjectUPS_ns))
+		measuredObjectUPS_ns = int(time.Since(start).Nanoseconds())
+		actualUPS = (1000000000.0 / float32(measuredObjectUPS_ns))
 
 		handleAutosave()
 	}
@@ -131,7 +131,7 @@ func ObjUpdateDaemonST() {
 
 /* Autosave */
 func handleAutosave() {
-	if Autosave && !wasmMode && time.Since(lastSave) > time.Minute*5 {
+	if autoSave && !wasmMode && time.Since(lastSave) > time.Minute*5 {
 		lastSave = time.Now().UTC()
 		saveGame()
 	}
@@ -232,16 +232,16 @@ func runRotates() {
 
 			/* Non-square multi-tile objects */
 			if obj.Unique.typeP.nonSquare {
-				var newdir uint8
-				var olddir uint8 = obj.Dir
+				var newDir uint8
+				var oldDir uint8 = obj.Dir
 
 				/* Save a copy of the object */
 				objSave = *obj
 
 				if !rot.clockwise {
-					newdir = RotCCW(objSave.Dir)
+					newDir = RotCCW(objSave.Dir)
 				} else {
-					newdir = RotCW(objSave.Dir)
+					newDir = RotCW(objSave.Dir)
 				}
 
 				/* Remove object from the world */
@@ -256,13 +256,13 @@ func runRotates() {
 				}
 
 				/* Place back into world */
-				found := placeObj(objSave.Pos, 0, &objSave, newdir, false)
+				found := placeObj(objSave.Pos, 0, &objSave, newDir, false)
 
 				/* Problem found, wont fit, undo! */
 				if found == nil {
 					/* Unable to rotate, undo */
 					chatDetailed(fmt.Sprintf("Unable to rotate: %v at %v", obj.Unique.typeP.name, posToString(obj.Pos)), ColorRed, time.Second*15)
-					found = placeObj(objSave.Pos, 0, &objSave, olddir, false)
+					found = placeObj(objSave.Pos, 0, &objSave, oldDir, false)
 					if found == nil {
 						chatDetailed(fmt.Sprintf("Unable to place item back: %v at %v", obj.Unique.typeP.name, posToString(obj.Pos)), ColorRed, time.Second*15)
 					}
@@ -270,28 +270,28 @@ func runRotates() {
 				continue
 			}
 
-			var newdir uint8
+			var newDir uint8
 
 			/* Unlink */
 			unlinkObj(obj)
 
 			/* Rotate ports */
 			if !rot.clockwise {
-				newdir = RotCCW(obj.Dir)
+				newDir = RotCCW(obj.Dir)
 				for p, port := range obj.Ports {
 					obj.Ports[p].Dir = RotCCW(port.Dir)
 				}
 
 				chatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", obj.Unique.typeP.name, posToString(obj.Pos)), color.White, time.Second*5)
 			} else {
-				newdir = RotCW(obj.Dir)
+				newDir = RotCW(obj.Dir)
 				for p, port := range obj.Ports {
 					obj.Ports[p].Dir = RotCW(port.Dir)
 				}
 
 				chatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", obj.Unique.typeP.name, posToString(obj.Pos)), color.White, time.Second*5)
 			}
-			obj.Dir = newdir
+			obj.Dir = newDir
 
 			/* TODO: move this code to LinkObj */
 			/* multi-tile object relink */
@@ -376,7 +376,7 @@ func delObj(obj *ObjData) {
 }
 
 /* TODO this and obj-go are duplicates and need to be consolidated */
-/* Delete object from ObjMap, decerment Num Marks PixmapDirty */
+/* Delete object from ObjMap, decrement Num Marks PixmapDirty */
 func removePosMap(pos XY) {
 	defer reportPanic("removePosMap")
 

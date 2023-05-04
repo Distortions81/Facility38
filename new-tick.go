@@ -57,8 +57,8 @@ func getIntervalPos(interval int) (pos int, created bool) {
 		pos := len(tickIntervals)
 
 		offsets := make([]offsetData, interval+1)
-		for opos := range offsets {
-			offsets[opos].offset = opos
+		for offPos := range offsets {
+			offsets[offPos].offset = offPos
 		}
 		tickIntervals = append(tickIntervals, tickInterval{interval: interval, offsets: offsets})
 		return pos, true
@@ -84,7 +84,7 @@ func addTock(obj *ObjData) {
 		append(tickIntervals[i].offsets[tickIntervals[i].lastOffset].tocks, obj)
 
 	tickIntervals[i].lastOffset++
-	TockCount++
+	tockCount++
 }
 
 /* Remove a tock from tick interval/mod offset */
@@ -109,7 +109,7 @@ func removeTock(obj *ObjData) {
 						tickIntervals[i].offsets[offPos].tocks[:itemPos],
 						tickIntervals[i].offsets[offPos].tocks[itemPos+1:]...)
 
-				TockCount--
+				tockCount--
 				doLog(true, "Tock Removed: %v", obj.Unique.typeP.name)
 				break
 			}
@@ -133,7 +133,7 @@ func addTick(obj *ObjData) {
 		append(tickIntervals[i].offsets[tickIntervals[i].lastOffset].ticks, obj)
 
 	tickIntervals[i].lastOffset++
-	TickCount++
+	tickCount++
 }
 
 /* Remove a tick event from the TickInterval list */
@@ -160,7 +160,7 @@ func removeTick(obj *ObjData) {
 						tickIntervals[i].offsets[offPos].ticks[:itemPos],
 						tickIntervals[i].offsets[offPos].ticks[itemPos+1:]...)
 
-				TickCount--
+				tickCount--
 				doLog(true, "Tick Removed: %v", obj.Unique.typeP.name)
 				break
 			}
@@ -168,7 +168,7 @@ func removeTick(obj *ObjData) {
 	}
 }
 
-/* Single-thhread run tocks */
+/* Single-thread run tocks */
 func newRunTocksST() {
 	defer reportPanic("newRunTocksST")
 	activeTocks = 0
@@ -184,7 +184,7 @@ func newRunTocksST() {
 		}
 	}
 
-	ActiveTockCount = activeTocks
+	activeTockCount = activeTocks
 }
 
 /* Single-thread run ticks */
@@ -203,7 +203,7 @@ func newRunTicksST() {
 		}
 	}
 
-	ActiveTickCount = activeTicks
+	activeTickCount = activeTicks
 }
 
 /* Threaded tock update */
@@ -223,7 +223,7 @@ func newRunTocks() {
 					block[numObj] = tock
 					numObj++
 					if numObj == workSize {
-						//Waitgroup add and done happen within here
+						//WaitGroup add and done happen within here
 						runTockBlock(numObj)
 						activeTocks += numObj
 						tockBlocks++
@@ -238,7 +238,7 @@ func newRunTocks() {
 		activeTocks += numObj
 	}
 	wg.Wait()
-	ActiveTockCount = activeTocks
+	activeTockCount = activeTocks
 }
 
 /* Threaded tick update */
@@ -256,7 +256,7 @@ func newRunTicks() {
 					block[numObj] = tick
 					numObj++
 					if numObj == workSize {
-						//Waitgroup add and done happen within here
+						//WaitGroup add and done happen within here
 						runTickBlock(numObj)
 						activeTicks += numObj
 						tickBlocks++
@@ -272,7 +272,7 @@ func newRunTicks() {
 	}
 	wg.Wait()
 
-	ActiveTickCount = activeTicks
+	activeTickCount = activeTicks
 }
 
 /* Run a block of ticks on a thread */
