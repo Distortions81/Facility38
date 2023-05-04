@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"image/color"
 	"io"
+	"log"
 	"net/http"
+	"os/exec"
 	"runtime"
 	"runtime/debug"
 	"strings"
@@ -167,6 +169,25 @@ func newGame() *Game {
 
 var silenceUpdates bool
 
+func openBrowser(url string) {
+	var err error
+
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", url).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		err = exec.Command("open", url).Start()
+	default:
+		err = fmt.Errorf("unsupported platform")
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
+
 /* Contact server for version information */
 func checkVersion(silent bool) bool {
 	defer reportPanic("checkVersion")
@@ -215,8 +236,11 @@ func checkVersion(silent bool) bool {
 			}
 
 			buf := fmt.Sprintf("New version available: %v", newVersion)
+			if respParts[2] != "" {
+				go openBrowser(respParts[2])
+			}
 			silenceUpdates = true
-			chatDetailed(buf, color.White, 60)
+			chatDetailed(buf, color.White, 60*time.Second)
 			return true
 		}
 	} else if respPartLen > 0 && respParts[0] == "UpToDate" {
