@@ -407,6 +407,15 @@ func loadSprites(dark bool) {
 					oType.list[key].images.lightOverlay = overlayImg
 				}
 			}
+			/* Toolbar */
+			toolbarImg, err := getSpriteImage(oType.folder+"/"+item.base+"/"+item.base+"-toolbar"+darkStr+".png", false)
+			if err == nil {
+				if dark {
+					oType.list[key].images.darkToolbar = toolbarImg
+				} else {
+					oType.list[key].images.lightToolbar = toolbarImg
+				}
+			}
 
 			/* Masks */
 			maskImg, err := getSpriteImage(oType.folder+"/"+item.base+"/"+"-mask"+darkStr+".png", false)
