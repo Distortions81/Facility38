@@ -149,20 +149,13 @@ func objCD(b *buildingData, format string, args ...interface{}) {
 /* Default add lines to chat */
 func chat(text string) {
 	chatDetailed(text, color.White, time.Second*15)
-
 }
 
 /* Add to chat with options */
 func chatDetailed(text string, color color.Color, life time.Duration) {
-	if !mapGenerated.Load() {
-		return
-	}
+
 	doLog(false, "Chat: "+text)
 
-	/* Don't log until we are loaded into the game */
-	if !mapGenerated.Load() {
-		return
-	}
 	go func(text string) {
 		chatLinesLock.Lock()
 		deleteOldLines()
