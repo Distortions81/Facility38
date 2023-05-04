@@ -81,7 +81,7 @@ func drawToolbar(click, hover bool, index int) {
 		iSize := img.Bounds()
 
 		/* Handle non-square sprites */
-		/* TODO: Get rid of this, just make toolbar sprites instead */
+		/* Just make toolbar sprites instead */
 		var largerDim int
 		if iSize.Size().X > largerDim {
 			largerDim = iSize.Size().X

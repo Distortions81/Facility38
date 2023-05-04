@@ -32,7 +32,7 @@ type Game struct {
 
 /* Main function */
 func main() {
-	/* Web assm builds */
+	/* Wasm builds */
 	if runtime.GOARCH == "wasm" {
 		wasmMode = true
 	}
@@ -54,20 +54,20 @@ func main() {
 	}
 
 	/* Loads boot screen assets */
-	imgb, err := getSpriteImage("title.png", true)
+	titleImg, err := getSpriteImage("title.png", true)
 	if err == nil {
-		TitleImage = imgb
+		TitleImage = titleImg
 	}
-	imgb, err = getSpriteImage("ebiten.png", true)
+	ebitenImg, err := getSpriteImage("ebiten.png", true)
 	if err == nil {
-		ebitenLogo = imgb
+		ebitenLogo = ebitenImg
 	}
 
 	buildInfo = buildTime
 	authorized.Store(false)
 
 	if !wasmMode {
-		/* Functions that will not work in webasm */
+		/* Functions that will not work in wasm */
 		startLog()
 		logDaemon()
 	}
@@ -632,15 +632,15 @@ func detectCPUs(hyper bool) {
 	}
 
 	/* Logical CPUs */
-	cdat, cerr := cpu.Counts(false)
+	count, err := cpu.Counts(false)
 
-	if cerr == nil {
-		if cdat > 1 {
-			lCPUs = (cdat - 1)
+	if err == nil {
+		if count > 1 {
+			lCPUs = (count - 1)
 		} else {
 			lCPUs = 1
 		}
-		doLog(true, "Logical CPUs: %v", cdat)
+		doLog(true, "Logical CPUs: %v", count)
 	}
 
 	doLog(true, "Number of workers: %v", lCPUs)
