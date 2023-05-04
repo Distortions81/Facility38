@@ -253,9 +253,13 @@ func checkVersion(silent bool) bool {
 				default:
 					//Unsupported
 				}
-				if downloadURL != "" {
-					go openBrowser(downloadURL)
-				}
+				/*
+					if downloadURL != "" {
+						go openBrowser(downloadURL)
+					}
+				*/
+				chat(downloadURL)
+
 			}
 			silenceUpdates = true
 			chatDetailed(buf, color.White, 60*time.Second)
