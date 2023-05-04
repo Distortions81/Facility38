@@ -1,18 +1,13 @@
 package main
 
-import (
-	"Facility38/util"
-	"Facility38/world"
-)
-
 /* Figure out what option item user clicked */
-func handleOptions(input world.XYs, window *WindowData) bool {
-	defer util.ReportPanic("handleOptions")
-	WindowsLock.Lock()
-	defer WindowsLock.Unlock()
+func handleOptions(input XYs, window *windowData) bool {
+	defer reportPanic("handleOptions")
+	windowsLock.Lock()
+	defer windowsLock.Unlock()
 
-	originX := window.Position.X
-	originY := window.Position.Y
+	originX := window.position.X
+	originY := window.position.Y
 
 	if !gMouseHeld {
 		return false
@@ -20,13 +15,13 @@ func handleOptions(input world.XYs, window *WindowData) bool {
 
 	for i, item := range settingItems {
 		b := buttons[i]
-		if util.PosWithinRect(
-			world.XY{X: uint16(input.X - originX),
+		if PosWithinRect(
+			XY{X: uint16(input.X - originX),
 				Y: uint16(input.Y - originY)}, b, 1) {
-			if (world.WASMMode && !item.WASMExclude) || !world.WASMMode {
-				item.Action(i)
+			if (wasmMode && !item.WASMExclude) || !wasmMode {
+				item.action(i)
 				saveOptions()
-				window.Dirty = true
+				window.dirty = true
 				gMouseHeld = false
 
 				return true

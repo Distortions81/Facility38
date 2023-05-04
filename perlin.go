@@ -1,9 +1,6 @@
 package main
 
 import (
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
 	"math/rand"
 
 	"github.com/aquilax/go-perlin"
@@ -11,207 +8,207 @@ import (
 
 /* Link up material type pointers to perlin noise layers */
 func init() {
-	defer util.ReportPanic("perlin init")
+	defer reportPanic("perlin init")
 
-	for i, nl := range NoiseLayers {
-		if NoiseLayers[i].TypeI == def.MAT_NONE {
+	for i, nl := range noiseLayers {
+		if noiseLayers[i].typeI == MAT_NONE {
 			continue
 		}
-		for j, mt := range MatTypes {
-			if nl.TypeI == mt.TypeI {
-				NoiseLayers[i].TypeP = MatTypes[j]
+		for j, mt := range matTypes {
+			if nl.typeI == mt.typeI {
+				noiseLayers[i].typeP = matTypes[j]
 			}
 		}
 	}
 }
 
 /* Init random seeds for the perlin noise layers */
-func ResourceMapInit() {
-	defer util.ReportPanic("ResourceMapInit")
+func resourceMapInit() {
+	defer reportPanic("ResourceMapInit")
 
-	if world.MapSeed == 0 {
-		world.MapSeed = rand.Int63()
+	if MapSeed == 0 {
+		MapSeed = rand.Int63()
 	}
 
-	for p := range NoiseLayers {
-		NoiseLayers[p].RandomSeed = world.MapSeed - NoiseLayers[p].SeedOffset
-		NoiseLayers[p].RandomSource = rand.NewSource(NoiseLayers[p].RandomSeed)
-		NoiseLayers[p].PerlinNoise = perlin.NewPerlinRandSource(float64(NoiseLayers[p].Alpha), float64(NoiseLayers[p].Beta), NoiseLayers[p].N, NoiseLayers[p].RandomSource)
+	for p := range noiseLayers {
+		noiseLayers[p].randomSeed = MapSeed - noiseLayers[p].seedOffset
+		noiseLayers[p].randomSource = rand.NewSource(noiseLayers[p].randomSeed)
+		noiseLayers[p].perlinNoise = perlin.NewPerlinRandSource(float64(noiseLayers[p].alpha), float64(noiseLayers[p].beta), noiseLayers[p].n, noiseLayers[p].randomSource)
 	}
 }
 
 /* Get resource value at xy */
-func NoiseMap(x, y float32, p int) float32 {
-	defer util.ReportPanic("NoiseMap")
+func noiseMap(x, y float32, p int) float32 {
+	defer reportPanic("NoiseMap")
 
-	val := float32(NoiseLayers[p].PerlinNoise.Noise2D(
-		float64(x/NoiseLayers[p].Scale),
-		float64(y/NoiseLayers[p].Scale)))/float32(NoiseLayers[p].Contrast) + NoiseLayers[p].Brightness
+	val := float32(noiseLayers[p].perlinNoise.Noise2D(
+		float64(x/noiseLayers[p].scale),
+		float64(y/noiseLayers[p].scale)))/float32(noiseLayers[p].contrast) + noiseLayers[p].brightness
 
-	if val > NoiseLayers[p].MaxValue {
-		return NoiseLayers[p].MaxValue
-	} else if val < NoiseLayers[p].MinValue {
-		return NoiseLayers[p].MinValue
+	if val > noiseLayers[p].maxValue {
+		return noiseLayers[p].maxValue
+	} else if val < noiseLayers[p].minValue {
+		return noiseLayers[p].minValue
 	}
 
 	return val
 }
 
 /* Resource layers */
-var NoiseLayers = [def.NumResourceTypes]world.NoiseLayerData{
-	{Name: "Ground",
-		SeedOffset: 5147,
-		TypeI:      def.MAT_NONE,
-		Scale:      32,
-		Alpha:      2,
-		Beta:       2.0,
-		N:          3,
-		Contrast:   2,
-		Brightness: 2,
-		MaxValue:   5,
-		MinValue:   -1,
+var noiseLayers = [numResourceTypes]noiseLayerData{
+	{name: "Ground",
+		seedOffset: 5147,
+		typeI:      MAT_NONE,
+		scale:      32,
+		alpha:      2,
+		beta:       2.0,
+		n:          3,
+		contrast:   2,
+		brightness: 2,
+		maxValue:   5,
+		minValue:   -1,
 
-		ModRed:   true,
-		ModGreen: true,
-		ModBlue:  true,
+		modRed:   true,
+		modGreen: true,
+		modBlue:  true,
 
-		ResourceMultiplier: 0,
-		RedMulti:           1,
-		BlueMulti:          1,
-		GreenMulti:         1,
+		resourceMultiplier: 0,
+		redMulti:           1,
+		blueMulti:          1,
+		greenMulti:         1,
 	},
 
 	/* Resources */
-	{Name: "Oil",
-		SeedOffset: 6812,
-		TypeI:      def.MAT_OIL,
-		Scale:      256,
-		Alpha:      2,
-		Beta:       2.0,
-		N:          3,
+	{name: "Oil",
+		seedOffset: 6812,
+		typeI:      MAT_OIL,
+		scale:      256,
+		alpha:      2,
+		beta:       2.0,
+		n:          3,
 
-		Contrast:   0.2,
-		Brightness: -2.2,
-		MaxValue:   5,
-		MinValue:   0,
+		contrast:   0.2,
+		brightness: -2.2,
+		maxValue:   5,
+		minValue:   0,
 
-		ModRed:   true,
-		ModGreen: true,
-		ModBlue:  true,
+		modRed:   true,
+		modGreen: true,
+		modBlue:  true,
 
-		ResourceMultiplier: 1,
-		RedMulti:           0,
-		GreenMulti:         1,
-		BlueMulti:          0,
+		resourceMultiplier: 1,
+		redMulti:           0,
+		greenMulti:         1,
+		blueMulti:          0,
 	},
-	{Name: "Natural Gas",
-		SeedOffset: 240,
-		TypeI:      def.MAT_GAS,
-		Scale:      128,
-		Alpha:      2,
-		Beta:       2.0,
-		N:          3,
+	{name: "Natural Gas",
+		seedOffset: 240,
+		typeI:      MAT_GAS,
+		scale:      128,
+		alpha:      2,
+		beta:       2.0,
+		n:          3,
 
-		Contrast:   0.3,
-		Brightness: -1.5,
-		MaxValue:   5,
-		MinValue:   0,
+		contrast:   0.3,
+		brightness: -1.5,
+		maxValue:   5,
+		minValue:   0,
 
-		ModRed:   true,
-		ModGreen: true,
-		ModBlue:  true,
+		modRed:   true,
+		modGreen: true,
+		modBlue:  true,
 
-		ResourceMultiplier: 1,
-		RedMulti:           0.80,
-		GreenMulti:         1,
-		BlueMulti:          0,
+		resourceMultiplier: 1,
+		redMulti:           0.80,
+		greenMulti:         1,
+		blueMulti:          0,
 	},
-	{Name: "Coal",
-		SeedOffset: 7266,
-		TypeI:      def.MAT_COAL,
-		Scale:      256,
-		Alpha:      2,
-		Beta:       2.0,
-		N:          3,
+	{name: "Coal",
+		seedOffset: 7266,
+		typeI:      MAT_COAL,
+		scale:      256,
+		alpha:      2,
+		beta:       2.0,
+		n:          3,
 
-		Contrast:   0.3,
-		Brightness: -1.0,
-		MaxValue:   5,
-		MinValue:   0,
+		contrast:   0.3,
+		brightness: -1.0,
+		maxValue:   5,
+		minValue:   0,
 
-		ModRed:   true,
-		ModGreen: true,
-		ModBlue:  true,
+		modRed:   true,
+		modGreen: true,
+		modBlue:  true,
 
-		RedMulti:   1,
-		GreenMulti: 0,
-		BlueMulti:  0,
+		redMulti:   1,
+		greenMulti: 0,
+		blueMulti:  0,
 	},
-	{Name: "Iron Ore",
-		SeedOffset: 5324,
-		TypeI:      def.MAT_IRON_ORE,
-		Scale:      256,
-		Alpha:      2,
-		Beta:       2.0,
-		N:          3,
+	{name: "Iron Ore",
+		seedOffset: 5324,
+		typeI:      MAT_IRON_ORE,
+		scale:      256,
+		alpha:      2,
+		beta:       2.0,
+		n:          3,
 
-		Contrast:   0.3,
-		Brightness: -1.0,
-		MaxValue:   5,
-		MinValue:   0,
+		contrast:   0.3,
+		brightness: -1.0,
+		maxValue:   5,
+		minValue:   0,
 
-		ModRed:   true,
-		ModGreen: true,
-		ModBlue:  true,
+		modRed:   true,
+		modGreen: true,
+		modBlue:  true,
 
-		ResourceMultiplier: 1,
-		RedMulti:           1,
-		GreenMulti:         0.5,
-		BlueMulti:          0,
+		resourceMultiplier: 1,
+		redMulti:           1,
+		greenMulti:         0.5,
+		blueMulti:          0,
 	},
-	{Name: "Copper Ore",
-		SeedOffset: 1544,
-		TypeI:      def.MAT_COPPER_ORE,
-		Scale:      256,
-		Alpha:      2,
-		Beta:       2.0,
-		N:          3,
+	{name: "Copper Ore",
+		seedOffset: 1544,
+		typeI:      MAT_COPPER_ORE,
+		scale:      256,
+		alpha:      2,
+		beta:       2.0,
+		n:          3,
 
-		Contrast:   0.3,
-		Brightness: -1.0,
-		MaxValue:   5,
-		MinValue:   0,
+		contrast:   0.3,
+		brightness: -1.0,
+		maxValue:   5,
+		minValue:   0,
 
-		ModRed:   true,
-		ModGreen: true,
-		ModBlue:  true,
+		modRed:   true,
+		modGreen: true,
+		modBlue:  true,
 
-		ResourceMultiplier: 1,
-		RedMulti:           0,
-		GreenMulti:         1,
-		BlueMulti:          1,
+		resourceMultiplier: 1,
+		redMulti:           0,
+		greenMulti:         1,
+		blueMulti:          1,
 	},
-	{Name: "Stone Ore",
-		SeedOffset: 8175,
-		TypeI:      def.MAT_STONE_ORE,
-		Scale:      256,
-		Alpha:      2,
-		Beta:       2.0,
-		N:          3,
+	{name: "Stone Ore",
+		seedOffset: 8175,
+		typeI:      MAT_STONE_ORE,
+		scale:      256,
+		alpha:      2,
+		beta:       2.0,
+		n:          3,
 
-		Contrast:   0.4,
-		Brightness: -0.75,
-		MaxValue:   5,
-		MinValue:   0,
+		contrast:   0.4,
+		brightness: -0.75,
+		maxValue:   5,
+		minValue:   0,
 
-		InvertValue: true,
-		ModRed:      true,
-		ModGreen:    true,
-		ModBlue:     true,
+		invertValue: true,
+		modRed:      true,
+		modGreen:    true,
+		modBlue:     true,
 
-		ResourceMultiplier: 1,
-		RedMulti:           0.5,
-		GreenMulti:         0.5,
-		BlueMulti:          0.5,
+		resourceMultiplier: 1,
+		redMulti:           0.5,
+		greenMulti:         0.5,
+		blueMulti:          0.5,
 	},
 }

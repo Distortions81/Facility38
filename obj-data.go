@@ -1,161 +1,123 @@
 package main
 
 import (
-	"Facility38/cwlog"
-	"Facility38/util"
-	"Facility38/world"
-	"bytes"
-	"encoding/json"
-	"os"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var GroundTiles = []*world.ObjType{
+var groundTiles = []*objType{
 	{
-		Base: "tile",
+		base: "tile",
 	},
 }
 
 /* Toolbar actions and images */
-var UIObjs = []*world.ObjType{
+var uiObjs = []*objType{
 	//Ui Only
 	{
-		Base: "help",
-		Name: "Help", ToolbarAction: toggleHelp,
-		Symbol: "?", Description: "See game controls and help.", QKey: ebiten.KeyF1,
+		base: "help",
+		name: "Help", toolbarAction: toggleHelp,
+		symbol: "?", description: "See game controls and help.", qKey: ebiten.KeyF1,
 	},
 	{
-		Base: "settings",
-		Name: "Options", ToolbarAction: settingsToggle,
-		Symbol: "SET", Description: "Show game options", QKey: ebiten.KeyF2,
+		base: "settings",
+		name: "Options", toolbarAction: settingsToggle,
+		symbol: "SET", description: "Show game options", qKey: ebiten.KeyF2,
 	},
 	{
-		Base: "overlay",
-		Name: "Overlay", ToolbarAction: toggleOverlay,
-		Symbol: "OVRLY", Description: "Turn info overlay on/off", QKey: ebiten.KeyF3,
+		base: "overlay",
+		name: "Overlay", toolbarAction: toggleOverlay,
+		symbol: "OVRLY", description: "Turn info overlay on/off", qKey: ebiten.KeyF3,
 	},
 	{
-		Base: "layer",
-		Name: "Layer", ToolbarAction: SwitchLayer,
-		Symbol: "LAYER", Description: "Toggle between the build and resource layer", QKey: ebiten.KeyF5,
+		base: "layer",
+		name: "Layer", toolbarAction: switchGameLayer,
+		symbol: "LAYER", description: "Toggle between the build and resource layer", qKey: ebiten.KeyF5,
 	},
 	{
-		Base: "save", ExcludeWASM: false,
-		Name: "Save Game", ToolbarAction: SaveGame,
-		Symbol: "SAV", Description: "Save game", QKey: ebiten.KeyF6,
+		base: "save", excludeWASM: false,
+		name: "Save Game", toolbarAction: saveGame,
+		symbol: "SAV", description: "Save game", qKey: ebiten.KeyF6,
 	},
 	{
-		Base: "load", ExcludeWASM: false,
-		Name: "Load Game", ToolbarAction: TriggerLoad,
-		Symbol: "LDG", Description: "Load last game", QKey: ebiten.KeyF7,
+		base: "load", excludeWASM: false,
+		name: "Load Game", toolbarAction: triggerLoad,
+		symbol: "LDG", description: "Load last game", qKey: ebiten.KeyF7,
 	},
 }
 
 /* Terrain types and images */
-var TerrainTypes = []*world.ObjType{
+var terrainTypes = []*objType{
 	{
-		Base:   "dirt",
-		Name:   "dirt",
-		Size:   world.XYs{X: 1, Y: 1},
-		Symbol: ".",
+		base:   "dirt",
+		name:   "dirt",
+		size:   XYs{X: 1, Y: 1},
+		symbol: ".",
 	},
 	{
 
-		Base:   "grass",
-		Name:   "grass",
-		Size:   world.XYs{X: 1, Y: 1},
-		Symbol: ".",
+		base:   "grass",
+		name:   "grass",
+		size:   XYs{X: 1, Y: 1},
+		symbol: ".",
 	},
 }
 
 /* Overlay images */
-var WorldOverlays = []*world.ObjType{
+var worldOverlays = []*objType{
 	{
-		Base: "arrow-north",
-		Name: "Arrow North", Symbol: "^"},
+		base: "arrow-north",
+		name: "Arrow North", symbol: "^"},
 	{
-		Base: "arrow-east",
-		Name: "Arrow East", Symbol: ">"},
+		base: "arrow-east",
+		name: "Arrow East", symbol: ">"},
 	{
-		Base: "arrow-south",
-		Name: "Arrow South", Symbol: "v"},
+		base: "arrow-south",
+		name: "Arrow South", symbol: "v"},
 	{
-		Base: "arrow-west",
-		Name: "Arrow West", Symbol: "<"},
+		base: "arrow-west",
+		name: "Arrow West", symbol: "<"},
 	{
-		Base: "blocked",
-		Name: "Blocked", Symbol: "*"},
+		base: "blocked",
+		name: "Blocked", symbol: "*"},
 	{
-		Base: "nofuel",
-		Name: "NO FUEL", Symbol: "&"},
+		base: "nofuel",
+		name: "NO FUEL", symbol: "&"},
 	{
-		Base: "check-on",
-		Name: "Check-On", Symbol: "1"},
+		base: "check-on",
+		name: "Check-On", symbol: "1"},
 	{
-		Base: "check-off",
-		Name: "Check-Off", Symbol: "0"},
+		base: "check-off",
+		name: "Check-Off", symbol: "0"},
 	{
-		Base: "close",
-		Name: "Close", Symbol: "X"},
+		base: "close",
+		name: "Close", symbol: "X"},
 }
 
-type SubTypeData struct {
-	Folder string
-	List   []*world.ObjType
+type subTypeData struct {
+	folder string
+	list   []*objType
 }
 
 /* Toolbar item types, array of array of ObjType */
-var SubTypes = []SubTypeData{
+var subTypes = []subTypeData{
 	{
-		Folder: "ui",
-		List:   UIObjs,
+		folder: "ui",
+		list:   uiObjs,
 	},
 	{
-		Folder: "world-obj",
-		List:   WorldObjs,
+		folder: "world-obj",
+		list:   worldObjs,
 	},
 	{
-		Folder: "overlays",
-		List:   WorldOverlays,
+		folder: "overlays",
+		list:   worldOverlays,
 	},
 	{
-		Folder: "terrain",
-		List:   TerrainTypes,
+		folder: "terrain",
+		list:   terrainTypes,
 	},
 	{
-		Folder: "ground",
-		List:   GroundTiles,
+		folder: "ground",
+		list:   groundTiles,
 	},
-}
-
-/* Debug quick dump GameObjTypes
- */
-func DumpItems() bool {
-	defer util.ReportPanic("DumpItems")
-
-	outbuf := new(bytes.Buffer)
-	enc := json.NewEncoder(outbuf)
-	enc.SetIndent("", "\t")
-
-	if err := enc.Encode(WorldObjs); err != nil {
-		cwlog.DoLog(true, "DumpItems: %v", err)
-		return false
-	}
-
-	_, err := os.Create("items.json")
-
-	if err != nil {
-		cwlog.DoLog(true, "DumpItems: %v", err)
-		return false
-	}
-
-	err = os.WriteFile("items.json", outbuf.Bytes(), 0644)
-
-	if err != nil {
-		cwlog.DoLog(true, "DumpItems: %v", err)
-		return false
-	}
-
-	return true
 }

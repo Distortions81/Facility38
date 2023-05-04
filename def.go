@@ -1,4 +1,4 @@
-package def
+package main
 
 import (
 	"math"
@@ -7,98 +7,87 @@ import (
 
 const (
 	/* Tick / Tock work block */
-	WorkSize = 10000
-	FontDPI  = 96
+	workSize = 10000
 	/* Used for toolbar as "none" */
-	MaxItemType = 255
+	maxItemType = 255
 	/* Updates per second, real update rate is this div 2 */
-	GameUPS = 8
+	gameUPS = 8
 	/* Used for perlin noise layers */
-	NumResourceTypes = 7
+	numResourceTypes = 7
 	/* Base UI scale on this width */
-	UIBaseResolution = 1920
+	uiBaseResolution = 1920
 
 	/* For sprite rotation */
-	NinetyDeg     = math.Pi / 2
-	OneEightyDeg  = math.Pi
-	ThreeSixtyDeg = math.Pi * 2
+	ninetyDeg     = math.Pi / 2
+	oneEightyDeg  = math.Pi
+	threeSixtyDeg = math.Pi * 2
 	//DegToRad      = 6.28319
 
 	/* Number of chat lines to display at once */
-	ChatHeightLines = 20
-	/* Defaut fade out time */
-	ChatFadeTime = time.Second * 3
+	chatHeightLines = 20
+	/* Default fade out time */
+	chatFadeTime = time.Second * 3
 
 	/* Game base version */
-	Version = "018"
+	version = "018"
 
 	/* Files and directories */
-	DataDir    = "data/"
-	GfxDir     = "gfx/"
-	TxtDir     = "txt/"
-	ShadersDir = "shaders/"
+	dataDir = "data/"
+	gfxDir  = dataDir + "gfx/"
+	txtDir  = dataDir + "txt/"
 
 	/* For test/bench map */
-	NumTestObjects = 1000000
+	numTestObjects = 1000000
 
 	/* WASD speeds */
-	MoveSpeed = 4.0
-	RunSpeed  = 16.0
+	moveSpeed = 4.0
+	runSpeed  = 16.0
 
 	/* Define world center */
-	XYCenter = 32768.0
-	XYMax    = XYCenter * 2.0
-	XYMin    = 1.0
+	xyCenter = 32768.0
+	xyMax    = xyCenter * 2.0
+	xyMin    = 1.0
 
-	/* Game datastrures */
+	/* Game data structures */
 	/* Subtypes */
-	ObjSubUI   = 0
-	ObjSubGame = 1
-	ObjOverlay = 2
-
-	/* Toolbars */
-	ToolbarNone    = 0
-	ToolbarSave    = 1
-	ToolbarLoad    = 2
-	ToolbarLayer   = 3
-	ToolbarOverlay = 4
+	objSubUI   = 0
+	objSubGame = 1
+	objOverlay = 2
 
 	/* Buildings */
-	ObjTypeBasicMiner      = 0
-	ObjTypeBasicBelt       = 1
-	ObjTypeBasicBeltOver   = 2
-	ObjTypeBasicSplit      = 3
-	ObjTypeBasicBox        = 4
-	ObjTypeBasicSmelter    = 5
-	ObjTypeBasicCaster     = 6
-	ObjTypeBasicRodCaster  = 7
-	ObjTypeBasicSlipRoller = 8
-	ObjTypeBasicFuelHopper = 9
-	ObjTypeBasicUnloader   = 10
-	ObjTypeBasicLoader     = 11
+	objTypeBasicMiner      = 0
+	objTypeBasicBelt       = 1
+	objTypeBasicBeltOver   = 2
+	objTypeBasicSplit      = 3
+	objTypeBasicBox        = 4
+	objTypeBasicSmelter    = 5
+	objTypeBasicCaster     = 6
+	objTypeBasicRodCaster  = 7
+	objTypeBasicSlipRoller = 8
+	objTypeBasicFuelHopper = 9
+	objTypeBasicUnloader   = 10
+	objTypeBasicLoader     = 11
 
-	ObjTypeMax = 12
+	objTypeMax = 12
 
 	/* Recipes */
-	RecIronShot   = 0
-	RecCopperShot = 1
-	RecStoneBlock = 2
+	recIronShot   = 0
+	recCopperShot = 1
+	recStoneBlock = 2
 
-	RecIronBar   = 3
-	RecCopperBar = 4
+	recIronBar   = 3
+	recCopperBar = 4
 
-	RecIronRod   = 5
-	RecCopperRod = 6
+	recIronRod   = 5
+	recCopperRod = 6
 
-	RecIronSheet   = 7
-	RecCopperSheet = 8
-
-	RecMax = 9
+	recIronSheet   = 7
+	recCopperSheet = 8
 
 	/* Object catagories */
-	ObjCatGeneric = 0
-	ObjCatBelt    = 1
-	ObjCatLoader  = 2
+	objCatGeneric = 0
+	objCatBelt    = 1
+	objCatLoader  = 2
 
 	/* Materials */
 	MAT_NONE = 0
@@ -133,29 +122,29 @@ const (
 	MAT_MAX = 23
 
 	/* Placeholder texture words render offset */
-	PlaceholdOffX = 0
-	PlaceholdOffY = 10
+	placeholdOffX = 0
+	placeholdOffY = 10
 
 	/* Toolbar settings */
-	ToolBarIconSize   = 48
-	ToolBarSpaceRatio = 4
-	TBSelThick        = 2
-	HalfSelThick      = TBSelThick / 2
+	toolBarIconSize   = 48
+	toolBarSpaceRatio = 4
+	tbSelThick        = 2
+	halfSelThick      = tbSelThick / 2
 
 	/* Game sprite scale */
-	SpriteScale = 16
+	spriteScale = 16
 
 	/* Draw settings */
-	MaxSuperChunk = SuperChunkSize * SuperChunkSize
+	maxSuperChunk = superChunkSize * superChunkSize
 
-	ChunkSize       = 32
-	ChunkSizeTotal  = ChunkSize * ChunkSize
-	SuperChunkSize  = 32
-	SuperChunkTotal = SuperChunkSize * SuperChunkSize
-	ChunkTotal      = ChunkSize * ChunkSize
+	chunkSize       = 32
+	chunkSizeTotal  = chunkSize * chunkSize
+	superChunkSize  = 32
+	superChunkTotal = superChunkSize * superChunkSize
+	chunkTotal      = chunkSize * chunkSize
 
-	DefaultZoom       = SpriteScale * 2
-	MapPixelThreshold = (SpriteScale / 2)
+	defaultZoom       = spriteScale * 2
+	mapPixelThreshold = (spriteScale / 2)
 
 	/* Directions */
 	DIR_NORTH = 0
@@ -173,12 +162,12 @@ const (
 	PORT_FOUT = 4
 
 	/* Overlay Types */
-	ObjOverlayNorth   = 0
-	ObjOverlayEast    = 1
-	ObjOverlaySouth   = 2
-	ObjOverlayWest    = 3
-	ObjOverlayBlocked = 4
-	ObjOverlayNoFuel  = 5
+	objOverlayNorth   = 0
+	objOverlayEast    = 1
+	objOverlaySouth   = 2
+	objOverlayWest    = 3
+	objOverlayBlocked = 4
+	objOverlayNoFuel  = 5
 
 	/* World Values */
 	COAL_KWH_PER_KG = 8
@@ -220,7 +209,7 @@ const (
 	SPHERICAL_PACKING_BEST   = 0.74
 
 	/* Game timescale */
-	TIMESCALE_MULTI = 12
+	gameTimescale = 12
 
 	/* Event queue types */
 	QUEUE_TYPE_NONE = 0

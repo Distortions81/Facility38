@@ -1,13 +1,10 @@
-package data
+package main
 
 import (
-	"Facility38/cwlog"
-	"Facility38/def"
 	"embed"
 	"encoding/json"
 	"fmt"
 	"image"
-	_ "image/png"
 	"io"
 	"log"
 	"strings"
@@ -18,39 +15,19 @@ import (
 )
 
 var (
-	//go:embed txt gfx shaders
+	//go:embed data
 	f embed.FS
-
-	//PixelateShader *ebiten.Shader
 )
 
 const cLoadEmbedSprites = true
 
-/*
 func init() {
-	var err error
-	var shaderProgram []byte
-	shaderProgram, err = f.ReadFile(def.ShadersDir + "pixelate.kage")
-	if err != nil {
-		log.Fatal("Error reading shaders.")
-		return
-	}
-
-	PixelateShader, err = ebiten.NewShader(shaderProgram)
-	if err != nil {
-		log.Fatal("Error compiling shaders.")
-		return
-	}
-}
-*/
-
-func init() {
-	gpng, err := f.Open(def.GfxDir + "icon.png")
+	pngData, err := f.Open(gfxDir + "icon.png")
 	if err != nil {
 		fmt.Println("Game icon file is missing...")
 		return
 	}
-	m, _, err := image.Decode(gpng)
+	m, _, err := image.Decode(pngData)
 	if err != nil {
 		fmt.Println("Game icon file is invalid...")
 		return
@@ -58,8 +35,8 @@ func init() {
 	ebiten.SetWindowIcon([]image.Image{m})
 }
 
-func GetFont(name string) []byte {
-	data, err := f.ReadFile(def.GfxDir + "fonts/" + name)
+func getFont(name string) []byte {
+	data, err := f.ReadFile(gfxDir + "fonts/" + name)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,22 +44,22 @@ func GetFont(name string) []byte {
 
 }
 
-func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
+func getSpriteImage(name string, unmanaged bool) (*ebiten.Image, error) {
 
 	if cLoadEmbedSprites {
-		gpng, err := f.Open(def.GfxDir + name)
+		gpng, err := f.Open(gfxDir + name)
 		if err != nil {
-			//cwlog.DoLog(true, "GetSpriteImage: Embedded: %v", err)
+			//DoLog(true, "GetSpriteImage: Embedded: %v", err)
 			return nil, err
 		}
 
 		m, _, err := image.Decode(gpng)
 		if err != nil {
-			cwlog.DoLog(true, "GetSpriteImage: Embedded: %v", err)
+			doLog(true, "GetSpriteImage: Embedded: %v", err)
 			return nil, err
 		}
 		var img *ebiten.Image
-		if unmananged {
+		if unmanaged {
 			img = ebiten.NewImageFromImageWithOptions(m, &ebiten.NewImageFromImageOptions{Unmanaged: true})
 		} else {
 			img = ebiten.NewImageFromImage(m)
@@ -90,29 +67,29 @@ func GetSpriteImage(name string, unmananged bool) (*ebiten.Image, error) {
 		return img, nil
 
 	} else {
-		img, _, err := ebitenutil.NewImageFromFile(def.DataDir + def.GfxDir + name)
+		img, _, err := ebitenutil.NewImageFromFile(dataDir + gfxDir + name)
 		if err != nil {
-			cwlog.DoLog(true, "GetSpriteImage: File: %v", err)
+			doLog(true, "GetSpriteImage: File: %v", err)
 		}
 		return img, err
 	}
 }
 
-func GetText(name string) (string, error) {
-	file, err := f.Open(def.TxtDir + name + ".txt")
+func getText(name string) (string, error) {
+	file, err := f.Open(txtDir + name + ".txt")
 	if err != nil {
-		cwlog.DoLog(true, "GetText: %v", err)
+		doLog(true, "GetText: %v", err)
 		return "GetText: File: " + name + " not found in embed.", err
 	}
 
 	txt, err := io.ReadAll(file)
 	if err != nil {
-		cwlog.DoLog(true, "GetText: %v", err)
+		doLog(true, "GetText: %v", err)
 		return "Error: Failed read: " + name, err
 	}
 
 	if len(txt) > 0 {
-		cwlog.DoLog(true, "GetText: %v", name)
+		doLog(true, "GetText: %v", name)
 		return strings.ReplaceAll(string(txt), "\r", ""), nil
 	} else {
 		return "Error: length 0!", err
@@ -120,7 +97,7 @@ func GetText(name string) (string, error) {
 
 }
 
-const sFile = def.TxtDir + "p.json"
+const sFile = txtDir + "p.json"
 
 var Secrets []secData
 var sMutex sync.Mutex
@@ -130,25 +107,25 @@ type secData struct {
 	R string `json:"r,omitempty"`
 }
 
-func LoadSecrets() bool {
+func loadSecrets() bool {
 	sMutex.Lock()
 	defer sMutex.Unlock()
 
 	file, err := f.Open(sFile)
 	if err != nil {
-		cwlog.DoLog(true, "%v", err)
+		doLog(true, "%v", err)
 		return false
 	}
 
 	bytes, err := io.ReadAll(file)
 	if err != nil {
-		cwlog.DoLog(true, "%v", err)
+		doLog(true, "%v", err)
 		return false
 	}
 
 	err = json.Unmarshal(bytes, &Secrets)
 	if err != nil {
-		cwlog.DoLog(true, "%v", err)
+		doLog(true, "%v", err)
 		return false
 	}
 

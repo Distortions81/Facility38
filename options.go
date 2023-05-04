@@ -1,9 +1,6 @@
 package main
 
 import (
-	"Facility38/cwlog"
-	"Facility38/util"
-	"Facility38/world"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -39,31 +36,31 @@ type settingType struct {
 	Enabled     bool
 	WASMExclude bool
 
-	Action  func(item int) `json:"-"`
+	action  func(item int) `json:"-"`
 	NoCheck bool           `json:"-"`
 }
 
 func init() {
-	defer util.ReportPanic("options init")
+	defer reportPanic("options init")
 	settingItems = []settingType{
-		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", Action: toggleVsync, Enabled: true, WASMExclude: true},
-		{ConfigName: "FULLSCREEN", Text: "Full Screen", Action: toggleFullscreen},
-		{ConfigName: "MAGNIFY", Text: "Magnifiy UI", Action: toggleMagnify},
-		{ConfigName: "UNCAP-FPS", Text: "Uncap UPS", Action: toggleUPSCap, WASMExclude: true},
-		{ConfigName: "DEBUG", Text: "Debug mode", Action: toggleDebug, WASMExclude: true},
-		{Text: "Load test map", Action: toggleTestMap, WASMExclude: true},
-		{ConfigName: "FREEDOM-UNITS", Text: "US customary units", Action: toggleUnits},
-		{ConfigName: "HYPERTHREAD", Text: "Use hyperthreading", Action: toggleHyper, WASMExclude: true},
-		{ConfigName: "DEBUG-TEXT", Text: "Debug info-text", Action: toggleInfoLine},
-		{ConfigName: "AUTOSAVE", Text: "Autosave (5m)", Action: toggleAutosave, Enabled: true, WASMExclude: true},
-		{Text: "Quit game", Action: quitGame, NoCheck: true, WASMExclude: true},
+		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", action: toggleVsync, Enabled: true, WASMExclude: true},
+		{ConfigName: "FULLSCREEN", Text: "Full Screen", action: toggleFullscreen},
+		{ConfigName: "MAGNIFY", Text: "Magnify UI", action: toggleMagnify},
+		{ConfigName: "UNCAP-FPS", Text: "Uncap UPS", action: toggleUPSCap, WASMExclude: true},
+		{ConfigName: "DEBUG", Text: "Debug mode", action: toggleDebug, WASMExclude: true},
+		{Text: "Load test map", action: toggleTestMap, WASMExclude: true},
+		{ConfigName: "FREEDOM-UNITS", Text: "US customary units", action: toggleUnits},
+		{ConfigName: "HYPERTHREAD", Text: "Use hyper-threading", action: toggleHyper, WASMExclude: true},
+		{ConfigName: "DEBUG-TEXT", Text: "Debug info-text", action: toggleInfoLine},
+		{ConfigName: "AUTOSAVE", Text: "Autosave (5m)", action: toggleAutosave, Enabled: true, WASMExclude: true},
+		{Text: "Quit game", action: quitGame, NoCheck: true, WASMExclude: true},
 	}
 }
 
 /* Load user options settings from disk */
 func loadOptions() {
-	defer util.ReportPanic("loadOptions")
-	if world.WASMMode {
+	defer reportPanic("loadOptions")
+	if wasmMode {
 		return
 	}
 
@@ -75,21 +72,21 @@ func loadOptions() {
 
 		err := json.Unmarshal([]byte(file), &tempSettings)
 		if err != nil {
-			cwlog.DoLog(true, "loadOptions: Unmarshal failure")
-			cwlog.DoLog(true, err.Error())
+			doLog(true, "loadOptions: Unmarshal failure")
+			doLog(true, err.Error())
 		}
 	} else {
-		cwlog.DoLog(true, "loadOptions: ReadFile failure")
+		doLog(true, "loadOptions: ReadFile failure")
 		return
 	}
 
-	cwlog.DoLog(true, "Settings loaded.")
+	doLog(true, "Settings loaded.")
 
-	for wpos, wSetting := range settingItems {
+	for setPos, wSetting := range settingItems {
 		for _, fSetting := range tempSettings {
 			if wSetting.ConfigName == fSetting.ConfigName {
 				if fSetting.Enabled != wSetting.Enabled {
-					settingItems[wpos].Action(wpos)
+					settingItems[setPos].action(setPos)
 				}
 			}
 		}
@@ -99,8 +96,8 @@ func loadOptions() {
 
 /* Save user options settings to disk */
 func saveOptions() {
-	defer util.ReportPanic("saveOptions")
-	if world.WASMMode {
+	defer reportPanic("saveOptions")
+	if wasmMode {
 		return
 	}
 
@@ -114,59 +111,59 @@ func saveOptions() {
 	tempPath := settingsFile + ".tmp"
 	finalPath := settingsFile
 
-	outbuf := new(bytes.Buffer)
-	enc := json.NewEncoder(outbuf)
+	outBuf := new(bytes.Buffer)
+	enc := json.NewEncoder(outBuf)
 	enc.SetIndent("", "\t")
 
 	if err := enc.Encode(&tempSettings); err != nil {
-		cwlog.DoLog(true, "saveOptions: enc.Encode failure")
+		doLog(true, "saveOptions: enc.Encode failure")
 		return
 	}
 
 	_, err := os.Create(tempPath)
 
 	if err != nil {
-		cwlog.DoLog(true, "saveOptions: os.Create failure")
+		doLog(true, "saveOptions: os.Create failure")
 		return
 	}
 
-	err = os.WriteFile(tempPath, outbuf.Bytes(), 0644)
+	err = os.WriteFile(tempPath, outBuf.Bytes(), 0644)
 
 	if err != nil {
-		cwlog.DoLog(true, "saveOptions: WriteFile failure")
+		doLog(true, "saveOptions: WriteFile failure")
 	}
 
 	err = os.Rename(tempPath, finalPath)
 
 	if err != nil {
-		cwlog.DoLog(true, "Couldn't rename settings file.")
+		doLog(true, "Couldn't rename settings file.")
 		return
 	}
 
-	cwlog.DoLog(true, "Settings saved.")
+	doLog(true, "Settings saved.")
 }
 
 /* Toggle the debug bottom-screen text */
 func toggleInfoLine(item int) {
-	defer util.ReportPanic("toggleInfoLine")
-	if world.InfoLine {
-		world.InfoLine = false
+	defer reportPanic("toggleInfoLine")
+	if infoLine {
+		infoLine = false
 		settingItems[item].Enabled = false
 	} else {
-		world.InfoLine = true
+		infoLine = true
 		settingItems[item].Enabled = true
 	}
 }
 
-/* Toggle the use of hyperthreading */
+/* Toggle the use of hyper-threading */
 func toggleHyper(item int) {
-	defer util.ReportPanic("toggleHyper")
-	if world.UseHyper {
-		world.UseHyper = false
+	defer reportPanic("toggleHyper")
+	if useHyper {
+		useHyper = false
 		settingItems[item].Enabled = false
 		detectCPUs(false)
 	} else {
-		world.UseHyper = true
+		useHyper = true
 		settingItems[item].Enabled = true
 		detectCPUs(true)
 	}
@@ -175,8 +172,8 @@ func toggleHyper(item int) {
 /* Close game */
 func quitGame(item int) {
 	go func() {
-		GameRunning = false
-		util.ChatDetailed("Game closing...", world.ColorRed, time.Second*10)
+		gameRunning = false
+		chatDetailed("Game closing...", ColorRed, time.Second*10)
 		time.Sleep(time.Second * 2)
 		os.Exit(0)
 	}()
@@ -184,44 +181,44 @@ func quitGame(item int) {
 
 /* Toggle units */
 func toggleUnits(item int) {
-	defer util.ReportPanic("toggleUnits")
-	if world.ImperialUnits {
-		world.ImperialUnits = false
+	defer reportPanic("toggleUnits")
+	if usUnits {
+		usUnits = false
 		settingItems[item].Enabled = false
 	} else {
-		world.ImperialUnits = true
+		usUnits = true
 		settingItems[item].Enabled = true
 	}
 }
 
 /* Toggle test map */
 func toggleTestMap(item int) {
-	defer util.ReportPanic("toggleTestMap")
-	GameRunning = false
-	if world.LoadTest {
-		world.LoadTest = false
+	defer reportPanic("toggleTestMap")
+	gameRunning = false
+	if loadTest {
+		loadTest = false
 		settingItems[item].Enabled = false
 		buf := "Clearing map."
-		util.ChatDetailed(buf, world.ColorOrange, time.Second*10)
+		chatDetailed(buf, ColorOrange, time.Second*10)
 	} else {
-		world.LoadTest = true
+		loadTest = true
 		settingItems[item].Enabled = true
 		buf := "Loading test map..."
-		util.ChatDetailed(buf, world.ColorOrange, time.Second*30)
+		chatDetailed(buf, ColorOrange, time.Second*30)
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
-		util.BoolToOnOff(settingItems[item].Enabled))
-	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+		BoolToOnOff(settingItems[item].Enabled))
+	chatDetailed(buf, ColorOrange, time.Second*5)
 
-	world.MapGenerated.Store(false)
-	world.PlayerReady.Store(0)
+	mapGenerated.Store(false)
+	playerReady.Store(0)
 
-	world.MapLoadPercent = 0
+	mapLoadPercent = 0
 	time.Sleep(time.Millisecond * 10)
 	go func() {
 		time.Sleep(time.Millisecond * 10)
-		MakeMap(world.LoadTest)
+		makeMap()
 		time.Sleep(time.Millisecond * 10)
 		startGame()
 	}()
@@ -229,23 +226,23 @@ func toggleTestMap(item int) {
 
 /* Toggle UPS cap */
 func toggleUPSCap(item int) {
-	defer util.ReportPanic("toggleUPSCap")
-	if world.UPSBench {
-		world.UPSBench = false
+	defer reportPanic("toggleUPSCap")
+	if upsBench {
+		upsBench = false
 		settingItems[item].Enabled = false
 	} else {
-		world.UPSBench = true
+		upsBench = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
-		util.BoolToOnOff(settingItems[item].Enabled))
-	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+		BoolToOnOff(settingItems[item].Enabled))
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
-/* Toggle fullscreen */
+/* Toggle full-screen */
 func toggleFullscreen(item int) {
-	defer util.ReportPanic("toggleFullscreen")
+	defer reportPanic("toggleFullscreen")
 	if ebiten.IsFullscreen() {
 		ebiten.SetFullscreen(false)
 		settingItems[item].Enabled = false
@@ -255,74 +252,74 @@ func toggleFullscreen(item int) {
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
-		util.BoolToOnOff(settingItems[item].Enabled))
-	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+		BoolToOnOff(settingItems[item].Enabled))
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 /* Toggle UI magnification */
 func toggleMagnify(item int) {
-	defer util.ReportPanic("toggleMagnify")
-	if world.Magnify {
-		world.Magnify = false
+	defer reportPanic("toggleMagnify")
+	if magnify {
+		magnify = false
 		settingItems[item].Enabled = false
 	} else {
-		world.Magnify = true
+		magnify = true
 		settingItems[item].Enabled = true
 	}
 
-	handleResize(int(world.ScreenWidth), int(world.ScreenHeight))
+	handleResize(int(ScreenWidth), int(ScreenHeight))
 
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
-		util.BoolToOnOff(settingItems[item].Enabled))
-	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+		BoolToOnOff(settingItems[item].Enabled))
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 /* Toggle debug mode */
 func toggleDebug(item int) {
-	defer util.ReportPanic("toggleDebug")
-	if world.Debug {
-		world.Debug = false
+	defer reportPanic("toggleDebug")
+	if debugMode {
+		debugMode = false
 		settingItems[item].Enabled = false
 	} else {
-		world.Debug = true
+		debugMode = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
-		util.BoolToOnOff(settingItems[item].Enabled))
-	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+		BoolToOnOff(settingItems[item].Enabled))
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 /* Toggle autosave */
 func toggleAutosave(item int) {
-	defer util.ReportPanic("toggleDebug")
-	if world.Autosave {
-		world.Autosave = false
+	defer reportPanic("toggleDebug")
+	if autoSave {
+		autoSave = false
 		settingItems[item].Enabled = false
 	} else {
-		world.Autosave = true
+		autoSave = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
-		util.BoolToOnOff(settingItems[item].Enabled))
-	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+		BoolToOnOff(settingItems[item].Enabled))
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 func toggleVsync(item int) {
-	defer util.ReportPanic("toggleVsync")
-	if world.Vsync {
-		world.Vsync = false
+	defer reportPanic("toggleVsync")
+	if vSync {
+		vSync = false
 		settingItems[item].Enabled = false
 		ebiten.SetVsyncEnabled(false)
 	} else {
-		world.Vsync = true
+		vSync = true
 		settingItems[item].Enabled = true
 		ebiten.SetVsyncEnabled(true)
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
-		util.BoolToOnOff(settingItems[item].Enabled))
-	util.ChatDetailed(buf, world.ColorOrange, time.Second*5)
+		BoolToOnOff(settingItems[item].Enabled))
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }

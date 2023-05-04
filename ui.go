@@ -1,9 +1,6 @@
 package main
 
 import (
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -18,10 +15,10 @@ var (
 	gShiftPressed    bool
 	gClickCaptured   bool
 	gCameraDrag      bool
-	gWindowDrag      *WindowData
+	gWindowDrag      *windowData
 
 	/* Last object we performed an action on */
-	gLastActionPosition world.XY
+	gLastActionPosition XY
 
 	/* WASM weirdness kludge */
 	lastScroll time.Time
@@ -29,18 +26,18 @@ var (
 	MouseX int
 	MouseY int
 
-	LastMouseX int
+	lastMouseX int
 	LastMouseY int
 )
 
 func init() {
-	defer util.ReportPanic("ui init")
+	defer reportPanic("ui init")
 	lastScroll = time.Now()
 }
 
 /* Input interface handler */
 func (g *Game) Update() error {
-	defer util.ReportPanic("Update")
+	defer reportPanic("Update")
 
 	/* Reset click 'captured' state */
 	gClickCaptured = false
@@ -51,14 +48,14 @@ func (g *Game) Update() error {
 	}
 
 	/* Save mouse coords */
-	LastMouseX = MouseX
+	lastMouseX = MouseX
 	LastMouseY = MouseY
 
 	/* Clamp to window */
 	MouseX, MouseY = ebiten.CursorPosition()
-	if MouseX < 0 || MouseX > int(world.ScreenWidth) ||
-		MouseY < 0 || MouseY > int(world.ScreenHeight) {
-		MouseX = LastMouseX
+	if MouseX < 0 || MouseX > int(ScreenWidth) ||
+		MouseY < 0 || MouseY > int(ScreenHeight) {
+		MouseX = lastMouseX
 		MouseY = LastMouseY
 
 		/* Stop dragging window if we go off-screen */
@@ -68,15 +65,15 @@ func (g *Game) Update() error {
 
 	var keys []ebiten.Key
 	/* Game start screen */
-	if (world.PlayerReady.Load() == 0 || !world.MapGenerated.Load()) &&
+	if (playerReady.Load() == 0 || !mapGenerated.Load()) &&
 		(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
 			inpututil.AppendPressedKeys(keys) != nil) {
-		world.PlayerReady.Store(1)
+		playerReady.Store(1)
 		return nil
 	}
 
 	/* Server says no input for you */
-	if !world.Authorized.Load() {
+	if !authorized.Load() {
 		return nil
 	}
 
@@ -85,17 +82,17 @@ func (g *Game) Update() error {
 	getMiddleMouseClicks()
 	getRightMouseClicks()
 	getShiftToggle()
-	getToolbarKeypress()
+	getToolbarKeyPress()
 
 	handleQuit()
 	zoomHandle()
 
 	/* Check if we clicked within a window */
-	gClickCaptured = CollisionWindowsCheck(world.XYs{X: int32(MouseX), Y: int32(MouseY)})
+	gClickCaptured = collisionWindowsCheck(XYs{X: int32(MouseX), Y: int32(MouseY)})
 
 	/* Handle window drag */
 	if gWindowDrag != nil {
-		gWindowDrag.Position = world.XYs{X: int32(MouseX) - gWindowDrag.DragPos.X, Y: int32(MouseY) - gWindowDrag.DragPos.Y}
+		gWindowDrag.position = XYs{X: int32(MouseX) - gWindowDrag.dragPos.X, Y: int32(MouseY) - gWindowDrag.dragPos.Y}
 		gClickCaptured = true
 	}
 
@@ -110,17 +107,17 @@ func (g *Game) Update() error {
 	calcScreenCamera()
 
 	/* Get mouse position on world */
-	WorldMouseX = (float32(MouseX)/world.ZoomScale + (world.CameraX - (float32(world.ScreenWidth)/2.0)/world.ZoomScale))
-	WorldMouseY = (float32(MouseY)/world.ZoomScale + (world.CameraY - (float32(world.ScreenHeight)/2.0)/world.ZoomScale))
+	worldMouseX = (float32(MouseX)/zoomScale + (cameraX - (float32(ScreenWidth)/2.0)/zoomScale))
+	worldMouseY = (float32(MouseY)/zoomScale + (cameraY - (float32(ScreenHeight)/2.0)/zoomScale))
 	return nil
 }
 
 /* Toolbar shortcut keys */
-func getToolbarKeypress() {
-	defer util.ReportPanic("getToolbarKeypress")
-	for _, item := range UIObjs {
-		if inpututil.IsKeyJustPressed(item.QKey) {
-			item.ToolbarAction()
+func getToolbarKeyPress() {
+	defer reportPanic("getToolbarKeypress")
+	for _, item := range uiObjs {
+		if inpututil.IsKeyJustPressed(item.qKey) {
+			item.toolbarAction()
 		}
 	}
 }
@@ -134,7 +131,7 @@ func handleQuit() {
 
 /* Record shift state */
 func getShiftToggle() {
-	defer util.ReportPanic("getShiftToggle")
+	defer reportPanic("getShiftToggle")
 	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
 		gShiftPressed = true
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyShift) {
@@ -144,57 +141,57 @@ func getShiftToggle() {
 
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
-	defer util.ReportPanic("handleToolbar")
-	ToolBarIconSize := float32(world.UIScale * def.ToolBarIconSize)
-	ToolBarSpacing := float32(def.ToolBarIconSize / def.ToolBarSpaceRatio)
+	defer reportPanic("handleToolbar")
+	iconSize := float32(uiScale * toolBarIconSize)
+	spacing := float32(toolBarIconSize / toolBarSpaceRatio)
 
-	uipix := float32((ToolbarMax * int(ToolBarIconSize+ToolBarSpacing)))
+	tbLength := float32((toolbarMax * int(iconSize+spacing)))
 
 	fmx := float32(MouseX)
 	fmy := float32(MouseY)
 
 	/* If the click isn't off the right of the toolbar */
-	if fmx <= uipix {
+	if fmx <= tbLength {
 		/* If the click isn't below the toolbar */
-		if fmy <= ToolBarIconSize {
+		if fmy <= iconSize {
 
-			ipos := int(fmx / float32(ToolBarIconSize+ToolBarSpacing))
-			len := len(ToolbarItems) - 1
-			if ipos > len {
-				ipos = len
-			} else if ipos < 0 {
-				ipos = 0
+			tbItem := int(fmx / float32(iconSize+spacing))
+			len := len(toolbarItems) - 1
+			if tbItem > len {
+				tbItem = len
+			} else if tbItem < 0 {
+				tbItem = 0
 			}
-			item := ToolbarItems[ipos].OType
+			item := toolbarItems[tbItem].oType
 
 			/* Draw item hover */
-			DrawToolbar(true, false, ipos)
+			drawToolbar(true, false, tbItem)
 
 			/* Actions */
-			if item.ToolbarAction != nil && !rotate {
-				item.ToolbarAction()
-				DrawToolbar(true, false, ipos)
+			if item.toolbarAction != nil && !rotate {
+				item.toolbarAction()
+				drawToolbar(true, false, tbItem)
 			} else {
 				/* Not a click, check for rotation */
 				if rotate && item != nil {
-					dir := item.Direction
+					dir := item.direction
 					if gShiftPressed {
-						dir = util.RotCCW(dir)
+						dir = RotCCW(dir)
 					} else {
-						dir = util.RotCW(dir)
+						dir = RotCW(dir)
 					}
-					item.Direction = dir
-					DrawToolbar(true, false, ipos)
+					item.direction = dir
+					drawToolbar(true, false, tbItem)
 
 					/* Deselect */
-				} else if SelectedItemType == ToolbarItems[ipos].OType.TypeI {
-					SelectedItemType = def.MaxItemType
-					DrawToolbar(true, false, ipos)
+				} else if selectedItemType == toolbarItems[tbItem].oType.typeI {
+					selectedItemType = maxItemType
+					drawToolbar(true, false, tbItem)
 
 				} else {
 					/* Select */
-					SelectedItemType = ToolbarItems[ipos].OType.TypeI
-					DrawToolbar(true, false, ipos)
+					selectedItemType = toolbarItems[tbItem].oType.typeI
+					drawToolbar(true, false, tbItem)
 
 				}
 			}
@@ -210,14 +207,14 @@ func handleToolbar(rotate bool) bool {
 
 /* Handle scroll wheel and +- keys */
 func zoomHandle() {
-	defer util.ReportPanic("zoomHandle")
+	defer reportPanic("zoomHandle")
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
 	/* WASM weirdness kludge */
-	if world.WASMMode && (fsy > 0 && fsy < 0) {
+	if wasmMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
-			world.VisDataDirty.Store(true)
+			visDataDirty.Store(true)
 			return
 		}
 	}
@@ -225,42 +222,42 @@ func zoomHandle() {
 
 	/* Zoom in or out with keyboard */
 	if inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
-		world.ZoomScale = world.ZoomScale * 2
+		zoomScale = zoomScale * 2
 		limitZoom()
-		world.VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
-		world.ZoomScale = world.ZoomScale / 2
+		zoomScale = zoomScale / 2
 		limitZoom()
-		world.VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	} else if fsy > 0 {
 		/* Zoom in with scroll wheel */
-		world.ZoomScale = world.ZoomScale * 2
+		zoomScale = zoomScale * 2
 
 		/* Center world on mouse */
 		if limitZoom() {
-			world.CameraX = WorldMouseX
-			world.CameraY = WorldMouseY
+			cameraX = worldMouseX
+			cameraY = worldMouseY
 		}
-		world.VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	} else if fsy < 0 {
 		/* Zoom out */
-		world.ZoomScale = world.ZoomScale / 2
+		zoomScale = zoomScale / 2
 		limitZoom()
-		world.VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	}
 
 }
 
 /* Clamp zoom to a range */
 func limitZoom() bool {
-	defer util.ReportPanic("limitZoom")
-	if world.ZoomScale < 1 {
-		world.ZoomScale = 1
-		world.VisDataDirty.Store(true)
+	defer reportPanic("limitZoom")
+	if zoomScale < 1 {
+		zoomScale = 1
+		visDataDirty.Store(true)
 		return false
-	} else if world.ZoomScale > 256 {
-		world.ZoomScale = 256
-		world.VisDataDirty.Store(true)
+	} else if zoomScale > 256 {
+		zoomScale = 256
+		visDataDirty.Store(true)
 		return false
 	}
 
@@ -269,7 +266,7 @@ func limitZoom() bool {
 
 /* Record mouse clicks, send clicks to toolbar */
 func getMouseClicks() {
-	defer util.ReportPanic("getMouseClicks")
+	defer reportPanic("getMouseClicks")
 	/* Mouse clicks */
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		gMouseHeld = false
@@ -277,7 +274,7 @@ func getMouseClicks() {
 		/* Stop dragging window */
 		gWindowDrag = nil
 
-		gLastActionPosition = world.XY{}
+		gLastActionPosition = XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		gMouseHeld = true
 		gLastActionPosition.X = 0
@@ -290,7 +287,7 @@ func getMouseClicks() {
 
 /* Look for clicks in window, create or destroy objects */
 func createWorldObjects() {
-	defer util.ReportPanic("createWorldObjects")
+	defer reportPanic("createWorldObjects")
 	if gClickCaptured {
 		return
 	}
@@ -304,7 +301,7 @@ func createWorldObjects() {
 	if gClickCaptured {
 		return
 	}
-	pos := util.FloatXYToPosition(WorldMouseX, WorldMouseY)
+	pos := FloatXYToPosition(worldMouseX, worldMouseY)
 
 	/* Is this a new position? */
 	if pos == gLastActionPosition {
@@ -312,30 +309,30 @@ func createWorldObjects() {
 	}
 	gLastActionPosition = pos
 
-	chunk := util.GetChunk(pos)
-	b := util.GetObj(pos, chunk)
+	chunk := GetChunk(pos)
+	b := GetObj(pos, chunk)
 
 	/* Left mouse, and tile is empty */
 	if gMouseHeld {
 		/* Nothing selected exit */
-		if SelectedItemType == def.MaxItemType {
+		if selectedItemType == maxItemType {
 			return
 		}
-		obj := WorldObjs[SelectedItemType]
-		dir := obj.Direction
+		obj := worldObjs[selectedItemType]
+		dir := obj.direction
 
-		if world.WASMMode {
-			ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+		if wasmMode {
+			objQueueAdd(nil, selectedItemType, pos, false, dir)
 		} else {
-			go ObjQueueAdd(nil, SelectedItemType, pos, false, dir)
+			go objQueueAdd(nil, selectedItemType, pos, false, dir)
 		}
 
 		/* Else if tile is not empty and RightMouse is held */
-	} else if b != nil && b.Obj != nil && gRightMouseHeld {
-		if world.WASMMode {
-			ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
+	} else if b != nil && b.obj != nil && gRightMouseHeld {
+		if wasmMode {
+			objQueueAdd(b.obj, selectedItemType, b.obj.Pos, true, 0)
 		} else {
-			go ObjQueueAdd(b.Obj, SelectedItemType, b.Obj.Pos, true, 0)
+			go objQueueAdd(b.obj, selectedItemType, b.obj.Pos, true, 0)
 		}
 	}
 }
@@ -345,11 +342,11 @@ var lastUpdate time.Time
 
 /* Move camera, based on wall time */
 func moveCamera() {
-	defer util.ReportPanic("moveCamera")
+	defer reportPanic("moveCamera")
 
-	var startBase float64 = def.MoveSpeed
+	var startBase float64 = moveSpeed
 	if gShiftPressed {
-		startBase = def.RunSpeed
+		startBase = runSpeed
 	}
 
 	/* Adjust speed based on high-percision TPS */
@@ -358,26 +355,26 @@ func moveCamera() {
 	base := startBase / (float64(tps / 60.0))
 
 	/* Base speed on zoom level */
-	speed := float32(base / (float64(world.ZoomScale) / 4.0))
+	speed := float32(base / (float64(zoomScale) / 4.0))
 
 	/* WASD keys */
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
-		world.CameraY -= speed
-		world.VisDataDirty.Store(true)
+		cameraY -= speed
+		visDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		world.CameraX -= speed
-		world.VisDataDirty.Store(true)
+		cameraX -= speed
+		visDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
-		world.CameraY += speed
-		world.VisDataDirty.Store(true)
+		cameraY += speed
+		visDataDirty.Store(true)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
-		world.CameraX += speed
-		world.VisDataDirty.Store(true)
+		cameraX += speed
+		visDataDirty.Store(true)
 	}
 
 	/* Middle-Mouse click-drag */
@@ -387,22 +384,22 @@ func moveCamera() {
 			gCameraDrag = true
 		}
 
-		world.CameraX = world.CameraX + (float32(LastMouseX-MouseX) / world.ZoomScale)
-		world.CameraY = world.CameraY + (float32(LastMouseY-MouseY) / world.ZoomScale)
-		world.VisDataDirty.Store(true)
-		LastMouseX = MouseX
+		cameraX = cameraX + (float32(lastMouseX-MouseX) / zoomScale)
+		cameraY = cameraY + (float32(LastMouseY-MouseY) / zoomScale)
+		visDataDirty.Store(true)
+		lastMouseX = MouseX
 		LastMouseY = MouseY
 
 		/* Don't let camera go beyond a reasonable point */
-		if world.CameraX > float32(def.XYMax) {
-			world.CameraX = float32(def.XYMax)
-		} else if world.CameraX < def.XYMin {
-			world.CameraX = def.XYMin
+		if cameraX > float32(xyMax) {
+			cameraX = float32(xyMax)
+		} else if cameraX < xyMin {
+			cameraX = xyMin
 		}
-		if world.CameraY > float32(def.XYMax) {
-			world.CameraY = float32(def.XYMax)
-		} else if world.CameraY < def.XYMin {
-			world.CameraY = def.XYMin
+		if cameraY > float32(xyMax) {
+			cameraY = float32(xyMax)
+		} else if cameraY < xyMin {
+			cameraY = xyMin
 		}
 	} else {
 		gCameraDrag = false
@@ -411,10 +408,10 @@ func moveCamera() {
 
 /* Detect and record right click state */
 func getRightMouseClicks() {
-	defer util.ReportPanic("getRightMouseClicks")
+	defer reportPanic("getRightMouseClicks")
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
 		gRightMouseHeld = false
-		gLastActionPosition = world.XY{}
+		gLastActionPosition = XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 		gRightMouseHeld = true
 	}
@@ -422,10 +419,10 @@ func getRightMouseClicks() {
 
 /* Detect middle mouse click */
 func getMiddleMouseClicks() {
-	defer util.ReportPanic("getMiddleMouseClicks")
+	defer reportPanic("getMiddleMouseClicks")
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonMiddle) {
 		gMiddleMouseHeld = false
-		gLastActionPosition = world.XY{}
+		gLastActionPosition = XY{}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
 		gMiddleMouseHeld = true
 	}
@@ -433,59 +430,59 @@ func getMiddleMouseClicks() {
 
 /* Detect R key */
 func rotateWorldObjects() {
-	defer util.ReportPanic("rotateWorldObjects")
+	defer reportPanic("rotateWorldObjects")
 	/* Rotate object */
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 
-		pos := util.FloatXYToPosition(WorldMouseX, WorldMouseY)
+		pos := FloatXYToPosition(worldMouseX, worldMouseY)
 
-		chunk := util.GetChunk(pos)
+		chunk := GetChunk(pos)
 		/* Valid chunk? */
 		if chunk == nil {
 			return
 		}
 
-		b := util.GetObj(pos, chunk)
+		b := GetObj(pos, chunk)
 		/* Valid building? */
 
 		if b == nil {
 			/* Nothing is selected, exit */
-			if SelectedItemType == def.MaxItemType {
+			if selectedItemType == maxItemType {
 				return
 			}
 
-			for pos := 0; pos < ToolbarMax; pos++ {
-				if ToolbarItems[pos].OType == nil {
+			for pos := 0; pos < toolbarMax; pos++ {
+				if toolbarItems[pos].oType == nil {
 					continue
 				}
-				item := ToolbarItems[pos].OType
-				if item.TypeI != SelectedItemType {
+				item := toolbarItems[pos].oType
+				if item.typeI != selectedItemType {
 					continue
 				}
-				if !item.Rotatable {
+				if !item.rotatable {
 					continue
 				}
 
-				dir := item.Direction
+				dir := item.direction
 				if gShiftPressed {
-					dir = util.RotCCW(dir)
+					dir = RotCCW(dir)
 				} else {
-					dir = util.RotCW(dir)
+					dir = RotCW(dir)
 				}
-				item.Direction = dir
+				item.direction = dir
 
-				DrawToolbar(true, false, pos)
+				drawToolbar(true, false, pos)
 			}
 
 			return
 		}
 
 		/* Valid object? */
-		if b.Obj == nil {
+		if b.obj == nil {
 			return
 		}
 
 		/* Queue up a object rotation */
-		RotateListAdd(b, !gShiftPressed, pos)
+		rotateListAdd(b, !gShiftPressed, pos)
 	}
 }

@@ -1,121 +1,118 @@
 package main
 
 import (
-	"Facility38/def"
-	"Facility38/util"
-	"Facility38/world"
 	"time"
 )
 
-/* Make a superchunk */
-func makeSuperChunk(pos world.XY) {
-	defer util.ReportPanic("makeSuperChunk")
-	//Make super chunk if needed
+/* Make a superChunk */
+func makeSuperChunk(pos XY) {
+	defer reportPanic("makeSuperChunk")
+	//Make superChunk if needed
 
 	newPos := pos
-	scpos := util.PosToSuperChunkPos(newPos)
+	supChunkPos := posToSuperChunkPos(newPos)
 
-	world.SuperChunkMapLock.Lock()  //Lock Superclunk map
-	world.SuperChunkListLock.Lock() //Lock Superchunk list
+	superChunkMapLock.Lock()  //Lock superChunk map
+	superChunkListLock.Lock() //Lock superChunk list
 
-	if world.SuperChunkMap[scpos] == nil {
+	if superChunkMap[supChunkPos] == nil {
 
-		/* Make new superchunk in map at pos */
-		newSuperChunk := &world.MapSuperChunk{}
+		/* Make new superChunk in map at pos */
+		newSuperChunk := &mapSuperChunkData{}
 
-		maxSize := def.SuperChunkTotal * def.SuperChunkTotal * 4
-		newSuperChunk.ItemMap = make([]byte, maxSize)
-		newSuperChunk.ResourceMap = make([]byte, maxSize)
-		newSuperChunk.ResourceDirty = true
+		maxSize := superChunkTotal * superChunkTotal * 4
+		newSuperChunk.itemMap = make([]byte, maxSize)
+		newSuperChunk.resourceMap = make([]byte, maxSize)
+		newSuperChunk.resourceDirty = true
 
-		world.SuperChunkMap[scpos] = newSuperChunk
-		world.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
+		superChunkMap[supChunkPos] = newSuperChunk
+		superChunkMap[supChunkPos].lock.Lock() //Lock chunk
 
-		world.SuperChunkList =
-			append(world.SuperChunkList, world.SuperChunkMap[scpos])
-		world.SuperChunkMap[scpos].ChunkMap = make(map[world.XY]*world.MapChunk)
+		superChunkList =
+			append(superChunkList, superChunkMap[supChunkPos])
+		superChunkMap[supChunkPos].chunkMap = make(map[XY]*mapChunk)
 
 		/* Save position */
-		world.SuperChunkMap[scpos].Pos = scpos
+		superChunkMap[supChunkPos].pos = supChunkPos
 
-		world.SuperChunkMap[scpos].Lock.Unlock()
+		superChunkMap[supChunkPos].lock.Unlock()
 	}
-	world.SuperChunkListLock.Unlock()
-	world.SuperChunkMapLock.Unlock()
+	superChunkListLock.Unlock()
+	superChunkMapLock.Unlock()
 }
 
-/* Make a chunk, insert into superchunk */
-func MakeChunk(pos world.XY) bool {
-	defer util.ReportPanic("MakeChunk")
+/* Make a chunk, insert into superChunk */
+func makeChunk(pos XY) bool {
+	defer reportPanic("makeChunk")
 	//Make chunk if needed
 
 	newPos := pos
 
 	makeSuperChunk(pos)
 
-	cpos := util.PosToChunkPos(newPos)
-	scpos := util.PosToSuperChunkPos(newPos)
+	chunkPos := PosToChunkPos(newPos)
+	supChunkPos := posToSuperChunkPos(newPos)
 
-	world.SuperChunkMapLock.Lock()  //Lock Superclunk map
-	world.SuperChunkListLock.Lock() //Lock Superchunk list
+	superChunkMapLock.Lock()  //Lock superChunk map
+	superChunkListLock.Lock() //Lock superChunk list
 
-	if world.SuperChunkMap[scpos].ChunkMap[cpos] == nil {
+	if superChunkMap[supChunkPos].chunkMap[chunkPos] == nil {
 		/* Increase chunk count */
-		world.SuperChunkMap[scpos].NumChunks++
+		superChunkMap[supChunkPos].numChunks++
 
 		/* Make a new empty chunk in the map at pos */
-		world.SuperChunkMap[scpos].ChunkMap[cpos] = &world.MapChunk{}
-		world.SuperChunkMap[scpos].Lock.Lock() //Lock chunk
+		superChunkMap[supChunkPos].chunkMap[chunkPos] = &mapChunk{}
+		superChunkMap[supChunkPos].lock.Lock() //Lock chunk
 
 		/* Append to chunk list */
-		world.SuperChunkMap[scpos].ChunkList =
-			append(world.SuperChunkMap[scpos].ChunkList, world.SuperChunkMap[scpos].ChunkMap[cpos])
+		superChunkMap[supChunkPos].chunkList =
+			append(superChunkMap[supChunkPos].chunkList, superChunkMap[supChunkPos].chunkMap[chunkPos])
 
-		world.SuperChunkMap[scpos].ChunkMap[cpos].BuildingMap = make(map[world.XY]*world.BuildingData)
-		world.SuperChunkMap[scpos].ChunkMap[cpos].TileMap = make(map[world.XY]*world.TileData)
+		superChunkMap[supChunkPos].chunkMap[chunkPos].buildingMap = make(map[XY]*buildingData)
+		superChunkMap[supChunkPos].chunkMap[chunkPos].tileMap = make(map[XY]*tileData)
 
 		/* Terrain img */
-		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainLock.Lock()
-		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainImage = world.TempChunkImage
-		world.SuperChunkMap[scpos].ChunkMap[cpos].UsingTemporary = true
-		world.SuperChunkMap[scpos].ChunkMap[cpos].TerrainLock.Unlock()
+		superChunkMap[supChunkPos].chunkMap[chunkPos].terrainLock.Lock()
+		superChunkMap[supChunkPos].chunkMap[chunkPos].terrainImage = TempChunkImage
+		superChunkMap[supChunkPos].chunkMap[chunkPos].usingTemporary = true
+		superChunkMap[supChunkPos].chunkMap[chunkPos].terrainLock.Unlock()
 
 		/* Save position */
-		world.SuperChunkMap[scpos].ChunkMap[cpos].Pos = cpos
+		superChunkMap[supChunkPos].chunkMap[chunkPos].pos = chunkPos
 
 		/* Save parent */
-		world.SuperChunkMap[scpos].ChunkMap[cpos].Parent = world.SuperChunkMap[scpos]
+		superChunkMap[supChunkPos].chunkMap[chunkPos].parent = superChunkMap[supChunkPos]
 
-		world.SuperChunkMap[scpos].Lock.Unlock()
+		superChunkMap[supChunkPos].lock.Unlock()
 
-		world.SuperChunkListLock.Unlock()
-		world.SuperChunkMapLock.Unlock()
+		superChunkListLock.Unlock()
+		superChunkMapLock.Unlock()
 		return true
 	}
 
-	world.SuperChunkListLock.Unlock()
-	world.SuperChunkMapLock.Unlock()
+	superChunkListLock.Unlock()
+	superChunkMapLock.Unlock()
 	return false
 }
 
 /* Explore (input) chunks + and - */
-func ExploreMap(pos world.XY, input int, slow bool) {
-	defer util.ReportPanic("ExploreMap")
+func exploreMap(pos XY, input int, slow bool) {
+	defer reportPanic("exploreMap")
 	/* Explore some map */
 
 	ChunksMade := 0
-	area := input * def.ChunkSize
-	offx := int(pos.X) - (area / 2)
-	offy := int(pos.Y) - (area / 2)
-	for x := -area; x < area; x += def.ChunkSize {
-		for y := -area; y < area; y += def.ChunkSize {
-			pos := world.XY{X: uint16(offx - x), Y: uint16(offy - y)}
-			MakeChunk(pos)
+	area := input * chunkSize
+	offX := int(pos.X) - (area / 2)
+	offY := int(pos.Y) - (area / 2)
+	for x := -area; x < area; x += chunkSize {
+		for y := -area; y < area; y += chunkSize {
+			pos := XY{X: uint16(offX - x), Y: uint16(offY - y)}
+			makeChunk(pos)
 			ChunksMade++
 
 			if slow && ChunksMade%10 == 0 {
-				world.MapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
-				if world.WASMMode {
+				mapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
+				if wasmMode {
 					time.Sleep(time.Nanosecond)
 				} else {
 					time.Sleep(time.Millisecond * 5)
