@@ -154,6 +154,10 @@ func chat(text string) {
 /* Add to chat with options */
 func chatDetailed(text string, color color.Color, life time.Duration) {
 
+	if !mapGenerated.Load() {
+		return
+	}
+
 	doLog(false, "Chat: "+text)
 
 	go func(text string) {
