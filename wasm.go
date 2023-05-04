@@ -70,7 +70,7 @@ func init() {
 
 				// print the file data
 				//fmt.Printf("File Data: %s\n", data)
-				LoadGame(true, data)
+				loadGame(true, data)
 				//Chat("File loaded.")
 
 				return nil
