@@ -1,7 +1,7 @@
 #!/bin/bash
 path="BUILD/builds/wasm"
 rm BUILD/main.wasm.gz
-rm path/wasm/main.wasm
+rm $path/main.wasm
 curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
 
 # Check if an argument was passed in
