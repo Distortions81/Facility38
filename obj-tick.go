@@ -11,14 +11,14 @@ import (
 
 var (
 	GameTick    uint64
-	GameRunning bool
-	GameLock    sync.Mutex
+	gameRunning bool
+	gameLock    sync.Mutex
 	minSleep    = 400 * time.Microsecond //Sleeping for less than this does not appear effective.
 )
 
 func init() {
 	defer reportPanic("obj-tick init")
-	if strings.EqualFold(runtime.GOOS, "windows") || WASMMode {
+	if strings.EqualFold(runtime.GOOS, "windows") || wasmMode {
 		minSleep = (time.Millisecond * 2) //Windows and WASM time resolution sucks
 	}
 }
@@ -27,14 +27,14 @@ func init() {
 func objUpdateDaemon() {
 	defer reportPanic("objUpdateDaemon")
 
-	for !MapGenerated.Load() {
+	for !mapGenerated.Load() {
 		time.Sleep(time.Millisecond * 100)
 	}
 
 	var tockState bool = true
 
-	for GameRunning {
-		GameLock.Lock()
+	for gameRunning {
+		gameLock.Lock()
 		start := time.Now()
 
 		if tockState {
@@ -53,12 +53,12 @@ func objUpdateDaemon() {
 		ObjQueueLock.Unlock()
 
 		EventQueueLock.Lock()
-		RunEventQueue() //Queue to add/remove events
+		runEventQueue() //Queue to add/remove events
 		EventQueueLock.Unlock()
 
-		GameLock.Unlock()
+		gameLock.Unlock()
 
-		if !UPSBench {
+		if !upsBench {
 			sleepFor := time.Duration(ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
@@ -83,14 +83,14 @@ func ObjUpdateDaemonST() {
 	defer reportPanic("ObjUpdateDaemonST")
 	var start time.Time
 
-	for !MapGenerated.Load() {
+	for !mapGenerated.Load() {
 		time.Sleep(time.Millisecond * 100)
 	}
 
 	var tockState bool = true
 
-	for GameRunning {
-		GameLock.Lock()
+	for gameRunning {
+		gameLock.Lock()
 
 		start = time.Now()
 
@@ -110,12 +110,12 @@ func ObjUpdateDaemonST() {
 		ObjQueueLock.Unlock()
 
 		EventQueueLock.Lock()
-		RunEventQueue() //Queue to add/remove events
+		runEventQueue() //Queue to add/remove events
 		EventQueueLock.Unlock()
 
-		GameLock.Unlock()
+		gameLock.Unlock()
 
-		if !UPSBench {
+		if !upsBench {
 			sleepFor := time.Duration(ObjectUPS_ns) - time.Since(start)
 			if sleepFor > minSleep {
 				time.Sleep(sleepFor - time.Microsecond)
@@ -131,8 +131,8 @@ func ObjUpdateDaemonST() {
 
 /* Autosave */
 func handleAutosave() {
-	if Autosave && !WASMMode && time.Since(LastSave) > time.Minute*5 {
-		LastSave = time.Now().UTC()
+	if Autosave && !wasmMode && time.Since(lastSave) > time.Minute*5 {
+		lastSave = time.Now().UTC()
 		saveGame()
 	}
 }
@@ -202,7 +202,7 @@ func rotateListAdd(b *buildingData, cw bool, pos XY) {
 }
 
 /* Add to event queue (list of tock and tick events) */
-func EventQueueAdd(obj *ObjData, qtype uint8, delete bool) {
+func eventQueueAdd(obj *ObjData, qtype uint8, delete bool) {
 	defer reportPanic("EventQueueAdd")
 	EventQueueLock.Lock()
 	EventQueue = append(EventQueue, &eventQueueData{obj: obj, qType: qtype, delete: delete})
@@ -262,10 +262,10 @@ func runRotates() {
 				/* Problem found, wont fit, undo! */
 				if found == nil {
 					/* Unable to rotate, undo */
-					ChatDetailed(fmt.Sprintf("Unable to rotate: %v at %v", obj.Unique.typeP.name, PosToString(obj.Pos)), ColorRed, time.Second*15)
+					chatDetailed(fmt.Sprintf("Unable to rotate: %v at %v", obj.Unique.typeP.name, posToString(obj.Pos)), ColorRed, time.Second*15)
 					found = placeObj(objSave.Pos, 0, &objSave, olddir, false)
 					if found == nil {
-						ChatDetailed(fmt.Sprintf("Unable to place item back: %v at %v", obj.Unique.typeP.name, PosToString(obj.Pos)), ColorRed, time.Second*15)
+						chatDetailed(fmt.Sprintf("Unable to place item back: %v at %v", obj.Unique.typeP.name, posToString(obj.Pos)), ColorRed, time.Second*15)
 					}
 				}
 				continue
@@ -283,14 +283,14 @@ func runRotates() {
 					obj.Ports[p].Dir = RotCCW(port.Dir)
 				}
 
-				ChatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", obj.Unique.typeP.name, PosToString(obj.Pos)), color.White, time.Second*5)
+				chatDetailed(fmt.Sprintf("Rotated %v counter-clockwise at %v", obj.Unique.typeP.name, posToString(obj.Pos)), color.White, time.Second*5)
 			} else {
 				newdir = RotCW(obj.Dir)
 				for p, port := range obj.Ports {
 					obj.Ports[p].Dir = RotCW(port.Dir)
 				}
 
-				ChatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", obj.Unique.typeP.name, PosToString(obj.Pos)), color.White, time.Second*5)
+				chatDetailed(fmt.Sprintf("Rotated %v clockwise at %v", obj.Unique.typeP.name, posToString(obj.Pos)), color.White, time.Second*5)
 			}
 			obj.Dir = newdir
 
@@ -313,7 +313,7 @@ func runRotates() {
 }
 
 /* Add/remove tick/tock events from the lists */
-func RunEventQueue() {
+func runEventQueue() {
 	defer reportPanic("RunEventQueue")
 
 	for _, e := range EventQueue {

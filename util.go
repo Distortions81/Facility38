@@ -36,15 +36,15 @@ func init() {
 func reportPanic(format string, args ...interface{}) {
 	if r := recover(); r != nil {
 
-		if !WASMMode {
-			DoLog(false, "Writing 'heapdump' file.")
+		if !wasmMode {
+			doLog(false, "Writing 'heapdump' file.")
 			f, err := os.Create("heapdump")
 			if err == nil {
 				debug.WriteHeapDump(f.Fd())
 				f.Close()
-				defer ChatDetailed("wrote heapdump", ColorRed, time.Hour)
+				defer chatDetailed("wrote heapdump", ColorRed, time.Hour)
 			} else {
-				DoLog(false, "Failed to write 'heapdump' file.")
+				doLog(false, "Failed to write 'heapdump' file.")
 			}
 		}
 
@@ -52,13 +52,13 @@ func reportPanic(format string, args ...interface{}) {
 		input := fmt.Sprintf(format, args...)
 		buf := fmt.Sprintf("(GAME CRASH)\nBUILD:v%v-%v\nLabel:%v File: %v Line: %v\nError:%v\n\nStack Trace:\n%v\n", version, buildInfo, input, filepath.Base(filename), line, r, string(debug.Stack()))
 
-		if !WASMMode {
+		if !wasmMode {
 			os.WriteFile("panic.log", []byte(buf), 0660)
-			defer ChatDetailed("wrote panic.log", ColorRed, time.Hour)
+			defer chatDetailed("wrote panic.log", ColorRed, time.Hour)
 		}
 
 		//DoLog(false, buf)
-		ChatDetailed(buf, ColorOrange, time.Hour)
+		chatDetailed(buf, ColorOrange, time.Hour)
 		time.Sleep(time.Hour)
 	}
 }
@@ -79,8 +79,8 @@ func resetChat() {
 }
 
 /* WASM is single-thread, we use sleep to allow other threads to run */
-func WASMSleep() {
-	if WASMMode {
+func wasmSleep() {
+	if wasmMode {
 		time.Sleep(time.Millisecond * 10)
 	}
 }
@@ -121,9 +121,9 @@ func deleteOldLines() {
 }
 
 /* Log with object details */
-func ObjCD(b *buildingData, format string, args ...interface{}) {
+func objCD(b *buildingData, format string, args ...interface{}) {
 	defer reportPanic("ObjCD")
-	if !Debug {
+	if !debugMode {
 		return
 	}
 	/* Get current time */
@@ -137,28 +137,28 @@ func ObjCD(b *buildingData, format string, args ...interface{}) {
 
 	/* Add object name and position */
 
-	objData := fmt.Sprintf("%v: %v: %v", b.obj.Unique.typeP.name, PosToString(b.pos), text)
+	objData := fmt.Sprintf("%v: %v: %v", b.obj.Unique.typeP.name, posToString(b.pos), text)
 
 	/* Date, go file, go file line, text */
 	buf := fmt.Sprintf("%v: %15v:%5v: %v", date, filepath.Base(filename), line, objData)
-	ChatDetailed(buf, ColorRed, time.Minute)
+	chatDetailed(buf, ColorRed, time.Minute)
 }
 
 /* Default add lines to chat */
-func Chat(text string) {
-	ChatDetailed(text, color.White, time.Second*15)
+func chat(text string) {
+	chatDetailed(text, color.White, time.Second*15)
 
 }
 
 /* Add to chat with options */
-func ChatDetailed(text string, color color.Color, life time.Duration) {
-	if !MapGenerated.Load() {
+func chatDetailed(text string, color color.Color, life time.Duration) {
+	if !mapGenerated.Load() {
 		return
 	}
-	DoLog(false, "Chat: "+text)
+	doLog(false, "Chat: "+text)
 
 	/* Don't log until we are loaded into the game */
-	if !MapGenerated.Load() {
+	if !mapGenerated.Load() {
 		return
 	}
 	go func(text string) {
@@ -233,7 +233,7 @@ func ObjListDelete(obj *ObjData) {
 }
 
 /* Pos XY to string */
-func PosToString(pos XY) string {
+func posToString(pos XY) string {
 	defer reportPanic("PosToString")
 	centerPos := CenterXY(pos)
 	buf := fmt.Sprintf("(%v,%v)", humanize.Comma(int64((centerPos.X))), humanize.Comma(int64((centerPos.Y))))
@@ -314,12 +314,12 @@ func GetObj(pos XY, chunk *mapChunk) *buildingData {
 func GetChunk(pos XY) *mapChunk {
 	defer reportPanic("GetChunk")
 
-	scpos := PosToSuperChunkPos(pos)
+	scpos := posToSuperChunkPos(pos)
 	cpos := PosToChunkPos(pos)
 
-	SuperChunkMapLock.RLock()
-	sChunk := SuperChunkMap[scpos]
-	SuperChunkMapLock.RUnlock()
+	superChunkMapLock.RLock()
+	sChunk := superChunkMap[scpos]
+	superChunkMapLock.RUnlock()
 
 	if sChunk == nil {
 		return nil
@@ -334,11 +334,11 @@ func GetChunk(pos XY) *mapChunk {
 /* Get a superchunk by XY, used map (hashtable). RLocks the SuperChunkMap and Chunk */
 func GetSuperChunk(pos XY) *mapSuperChunkData {
 	defer reportPanic("GetSuperChunk")
-	scpos := PosToSuperChunkPos(pos)
+	scpos := posToSuperChunkPos(pos)
 
-	SuperChunkMapLock.RLock()
-	sChunk := SuperChunkMap[scpos]
-	SuperChunkMapLock.RUnlock()
+	superChunkMapLock.RLock()
+	sChunk := superChunkMap[scpos]
+	superChunkMapLock.RUnlock()
 
 	return sChunk
 }
@@ -356,7 +356,7 @@ func ChunkPosToPos(pos XY) XY {
 }
 
 /* XY to SuperChunk XY */
-func PosToSuperChunkPos(pos XY) XY {
+func posToSuperChunkPos(pos XY) XY {
 	defer reportPanic("PosToSuperChunkPos")
 	return XY{X: pos.X / maxSuperChunk, Y: pos.Y / maxSuperChunk}
 }
@@ -386,7 +386,7 @@ func FloatXYToPosition(x float32, y float32) XY {
 }
 
 /* Search SuperChunk->Chunk->ObjMap hashtables to find neighboring objects in (dir) */
-func GetNeighborObj(src XY, dir uint8) *buildingData {
+func getNeighborObj(src XY, dir uint8) *buildingData {
 	defer reportPanic("GetNeighborObj")
 	pos := src
 
@@ -418,7 +418,7 @@ func GetNeighborObj(src XY, dir uint8) *buildingData {
 }
 
 /* Convert consts.DIR to text */
-func DirToName(dir uint8) string {
+func dirToName(dir uint8) string {
 	defer reportPanic("DirToName")
 	switch dir {
 	case DIR_NORTH:
@@ -456,7 +456,7 @@ func DirToArrow(dir uint8) string {
 }
 
 /* Reverse Port Direction/Type */
-func ReverseType(t uint8) uint8 {
+func reverseType(t uint8) uint8 {
 	defer reportPanic("ReverseType")
 	switch t {
 	case PORT_OUT:
@@ -473,7 +473,7 @@ func ReverseType(t uint8) uint8 {
 }
 
 /* Flop a direction */
-func ReverseDirection(dir uint8) uint8 {
+func reverseDirection(dir uint8) uint8 {
 	defer reportPanic("ReverseDirection")
 	switch dir {
 	case DIR_NORTH:
@@ -517,7 +517,7 @@ func CompressZip(data []byte) []byte {
 	var b bytes.Buffer
 	w, err := zlib.NewWriterLevel(&b, zlib.BestSpeed)
 	if err != nil {
-		DoLog(true, "CompressZip: %v", err)
+		doLog(true, "CompressZip: %v", err)
 	}
 	w.Write(data)
 	w.Close()

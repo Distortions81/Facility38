@@ -32,7 +32,7 @@ func linkObj(from XY, b *buildingData) {
 			for testPort = DIR_NORTH; testPort <= DIR_WEST; testPort++ {
 				//DoLog(true, "Looking in all directions: "+DirToName(testPort))
 
-				neighb = GetNeighborObj(from, testPort)
+				neighb = getNeighborObj(from, testPort)
 				if neighb != nil && neighb.obj != nil {
 					if neighb.obj.Pos != b.obj.Pos {
 						//DoLog(true, "found")
@@ -44,7 +44,7 @@ func linkObj(from XY, b *buildingData) {
 				continue
 			}
 		} else {
-			neighb = GetNeighborObj(from, port.Dir)
+			neighb = getNeighborObj(from, port.Dir)
 		}
 
 		/* We found one*/
@@ -69,11 +69,11 @@ func linkObj(from XY, b *buildingData) {
 			}
 
 			/* Port is in correct direction */
-			if np.Dir == ReverseDirection(port.Dir) ||
+			if np.Dir == reverseDirection(port.Dir) ||
 				np.Dir == DIR_ANY || port.Dir == DIR_ANY {
 
 				/* Port is of correct type */
-				if port.Type != ReverseType(np.Type) {
+				if port.Type != reverseType(np.Type) {
 					//ObjCD(b, fmt.Sprintf("Port incorrect type: %v", DirToName(port.Dir)))
 					continue
 				}
@@ -94,12 +94,12 @@ func linkObj(from XY, b *buildingData) {
 				neighb.obj.Ports[n].link = &b.obj.Ports[p]
 				b.obj.Ports[p].link = &neighb.obj.Ports[n]
 
-				if Debug {
+				if debugMode {
 					oName := "none"
 					if b.obj != nil {
-						oName = fmt.Sprintf("%v: %v", neighb.obj.Unique.typeP.name, PosToString(neighb.pos))
+						oName = fmt.Sprintf("%v: %v", neighb.obj.Unique.typeP.name, posToString(neighb.pos))
 					}
-					ObjCD(b, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, DirToName(port.Dir), DirToArrow(port.Dir), oName))
+					objCD(b, fmt.Sprintf("Linked: Port-%v: ( %v %v ) to %v", p, dirToName(port.Dir), DirToArrow(port.Dir), oName))
 				}
 
 				portAlias(b.obj, p, port.Type)
@@ -147,19 +147,19 @@ func autoEvents(obj *ObjData) {
 	if obj.Unique.typeP.updateObj != nil {
 
 		if obj.Unique.typeP.hasInputs && foundInputs {
-			EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+			eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 		}
 		if obj.Unique.typeP.hasOutputs && foundOutputs {
-			EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
-			EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+			eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+			eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 		}
 
 		if obj.Unique.typeP.hasFIn && foundFIn {
-			EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+			eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 		}
 		if obj.Unique.typeP.hasFOut && foundFOut {
-			EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
-			EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+			eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+			eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 		}
 	}
 }
@@ -219,8 +219,8 @@ func unlinkObj(obj *ObjData) {
 	* we will be re-added in link if there
 	* is some need for us to be in there
 	 */
-	EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
-	EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
+	eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+	eventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 }
 
 /* Add port to correct alias, increment */
@@ -342,7 +342,7 @@ func portAlias(obj *ObjData, port int, ptype uint8) {
 				}
 			}
 			if fixed {
-				DoLog(true, "Fixed orphaned material in object ports.")
+				doLog(true, "Fixed orphaned material in object ports.")
 			}
 		}
 	}

@@ -207,7 +207,7 @@ func placeObj(pos XY, mtype uint8, obj *ObjData, dir uint8, fast bool) *ObjData 
 				if tchunk != nil {
 					tchunk.lock.Lock()
 					newB := &buildingData{obj: newObj, pos: sXY}
-					ObjCD(newB, fmt.Sprintf("Created at: %v", PosToString(sXY)))
+					objCD(newB, fmt.Sprintf("Created at: %v", posToString(sXY)))
 					tchunk.buildingMap[sXY] = newB
 					tchunk.lock.Unlock()
 					if initOkay {
@@ -251,9 +251,9 @@ func subObjFits(obj *ObjData, TypeP *objType, report bool, pos XY) bool {
 		if tchunk != nil {
 			if GetObj(subPos, tchunk) != nil {
 				if report {
-					Chat(
+					chat(
 						fmt.Sprintf(
-							"SubObjFits: (%v) Can't fit here: %v", TypeP.name, PosToString(subPos),
+							"SubObjFits: (%v) Can't fit here: %v", TypeP.name, posToString(subPos),
 						))
 				}
 				return false
@@ -280,7 +280,7 @@ func getObjSize(obj *ObjData, TypeP *objType) XYs {
 			return TypeP.size
 		}
 	} else {
-		DoLog(true, "GetObjSize: Obj and TypeP nil.")
+		doLog(true, "GetObjSize: Obj and TypeP nil.")
 		return XYs{X: 0, Y: 0}
 	}
 }

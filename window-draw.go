@@ -26,21 +26,21 @@ func setupOptionsWindow(window *windowData) {
 	for pos := range settingItems {
 
 		/* Place line */
-		settingItems[pos].TextPosX = int(padding * UIScale)
-		settingItems[pos].TextPosY = int((float64(GeneralFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*UIScale)
+		settingItems[pos].TextPosX = int(padding * uiScale)
+		settingItems[pos].TextPosY = int((float64(generalFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*uiScale)
 
 		/* Generate button */
 		button := image.Rectangle{}
-		if (WASMMode && !settingItems[pos].WASMExclude) || !WASMMode {
+		if (wasmMode && !settingItems[pos].WASMExclude) || !wasmMode {
 			button.Min.X = 0
 			button.Max.X = xyMax
 
-			button.Min.Y = int((float64(GeneralFontH)*scalefactor)*float64(ioff)) + int(padding*UIScale)
-			button.Max.Y = int((float64(GeneralFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*UIScale)
+			button.Min.Y = int((float64(generalFontH)*scalefactor)*float64(ioff)) + int(padding*uiScale)
+			button.Max.Y = int((float64(generalFontH)*scalefactor)*float64(ioff+linePad)) + int(padding*uiScale)
 		}
 		buttons = append(buttons, button)
 
-		if (WASMMode && !settingItems[pos].WASMExclude) || !WASMMode {
+		if (wasmMode && !settingItems[pos].WASMExclude) || !wasmMode {
 			ioff++
 		}
 	}
@@ -51,7 +51,7 @@ func setupOptionsWindow(window *windowData) {
 func drawHelpWindow(window *windowData) {
 	defer reportPanic("drawHelpWindow")
 
-	DrawText(helpText, GeneralFont, color.White, color.Transparent,
+	drawText(helpText, generalFont, color.White, color.Transparent,
 		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 2)},
 		0, window.cache, false, false, true)
 }
@@ -76,9 +76,6 @@ func drawOptionsWindow(window *windowData) {
 			txt = item.Text
 		}
 
-		/* Draw text */
-		itemColor := ColorWhite
-
 		if d%2 == 0 {
 			vector.DrawFilledRect(window.cache,
 				float32(b.Min.X),
@@ -89,9 +86,9 @@ func drawOptionsWindow(window *windowData) {
 		}
 
 		/* Skip some entries for WASM mode */
-		if (WASMMode && !item.WASMExclude) || !WASMMode {
+		if (wasmMode && !item.WASMExclude) || !wasmMode {
 
-			text.Draw(window.cache, txt, GeneralFont, item.TextPosX, item.TextPosY-(GeneralFontH/2), itemColor)
+			text.Draw(window.cache, txt, generalFont, item.TextPosX, item.TextPosY-(generalFontH/2), color.White)
 
 			/* if the item can be toggled, draw checkmark */
 			if !item.NoCheck {
@@ -106,10 +103,10 @@ func drawOptionsWindow(window *windowData) {
 				}
 
 				/* Draw checkmark */
-				op.GeoM.Scale(UIScale*checkScale, UIScale*checkScale)
+				op.GeoM.Scale(uiScale*checkScale, uiScale*checkScale)
 				op.GeoM.Translate(
-					float64(window.scaledSize.X)-(float64(check.Bounds().Dx())*UIScale)-(padding*UIScale),
-					float64(item.TextPosY)-(float64(check.Bounds().Dy())*UIScale*checkScale))
+					float64(window.scaledSize.X)-(float64(check.Bounds().Dx())*uiScale)-(padding*uiScale),
+					float64(item.TextPosY)-(float64(check.Bounds().Dy())*uiScale*checkScale))
 				window.cache.DrawImage(check, op)
 			}
 			d++

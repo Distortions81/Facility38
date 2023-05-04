@@ -16,8 +16,8 @@ import (
 
 const (
 	cBlockedIndicatorOffset = 0
-	WASMTerrainDiv          = 5
-	MaxBatch                = 15000
+	wasmTerrainDiv          = 5
+	maxBatch                = 15000
 	infoWidth               = 128
 	infoHeight              = 128
 	infoSpaceRight          = 8
@@ -49,8 +49,8 @@ var (
 	frameCount   uint64
 
 	/* Mouse position in world coords */
-	WorldMouseX float32
-	WorldMouseY float32
+	worldMouseX float32
+	worldMouseY float32
 
 	/* Caching for resource yield tooltip */
 	lastResourceString string
@@ -59,8 +59,8 @@ var (
 	batchTop       int
 	batchWatermark int
 	batchGC        time.Time
-	imageBatch     [MaxBatch]*ebiten.Image
-	opBatch        [MaxBatch]*ebiten.DrawImageOptions
+	imageBatch     [maxBatch]*ebiten.Image
+	opBatch        [maxBatch]*ebiten.DrawImageOptions
 
 	consoleActive bool
 )
@@ -71,9 +71,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	frameCount++
 
 	/* Boot/load/auth screen */
-	if !Authorized.Load() || !MapGenerated.Load() ||
-		!SpritesLoaded.Load() ||
-		PlayerReady.Load() == 0 {
+	if !authorized.Load() || !mapGenerated.Load() ||
+		!spritesLoaded.Load() ||
+		playerReady.Load() == 0 {
 
 		bootScreen(screen)
 		time.Sleep(time.Millisecond)
@@ -102,8 +102,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	updateVisData()
 
 	/* WASM terrain rendering */
-	if WASMMode {
-		if frameCount%WASMTerrainDiv == 0 {
+	if wasmMode {
+		if frameCount%wasmTerrainDiv == 0 {
 			renderTerrainST()
 		}
 	} else {
@@ -112,7 +112,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	/* Draw modes */
-	if ZoomScale > MapPixelThreshold {
+	if zoomScale > mapPixelThreshold {
 		/* Draw icon mode */
 		drawIconMode()
 	} else {
@@ -153,7 +153,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	drawOpenWindows(screen)
 
 	/* Boot screen fade-out */
-	if PlayerReady.Load() < 60 {
+	if playerReady.Load() < 60 {
 		bootScreen(screen)
 	}
 }
@@ -163,14 +163,14 @@ var lastVal int
 func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
 	defer reportPanic("toolBarTooltip")
 
-	ToolBarIconSize := float32(UIScale * ToolBarIconSize)
-	ToolBarSpacing := float32(ToolBarIconSize / toolBarSpaceRatio)
+	iconSize := float32(uiScale * toolBarIconSize)
+	spacing := float32(iconSize / toolBarSpaceRatio)
 
 	/* Calculate item */
-	val := int(fmx / int(ToolBarIconSize+ToolBarSpacing))
+	val := int(fmx / int(iconSize+spacing))
 
 	/* Check if mouse is on top of the toolbar */
-	if fmy <= int(ToolBarIconSize) &&
+	if fmy <= int(iconSize) &&
 		val < toolbarMax && val >= 0 {
 
 		/* Calculate toolbar item */
@@ -193,7 +193,7 @@ func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
 		}
 
 		/* Draw text */
-		DrawText(toolTip, ToolTipFont, ColorWhite, ColorToolTipBG,
+		drawText(toolTip, toolTipFont, color.White, ColorToolTipBG,
 			XYf32{X: float32(fmx) + 10, Y: float32(fmy) + 10}, 11, screen,
 			true, false, false)
 
@@ -217,7 +217,7 @@ func drawItemInfo(screen *ebiten.Image) {
 	defer reportPanic("drawItemInfo")
 
 	/* World Obj tool tip */
-	pos := FloatXYToPosition(WorldMouseX, WorldMouseY)
+	pos := FloatXYToPosition(worldMouseX, worldMouseY)
 
 	/* Handle toolbar */
 	if toolBarTooltip(screen, MouseX, MouseY) {
@@ -246,7 +246,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			/* Object name and position */
 			toolTip = fmt.Sprintf("%v: %v\n",
 				o.Unique.typeP.name,
-				PosToString(XY{X: uint16(WorldMouseX), Y: uint16(WorldMouseY)}))
+				posToString(XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}))
 
 			/* Show contents */
 			if o.Unique.Contents != nil {
@@ -284,7 +284,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			}
 
 			/* Debug info */
-			if Debug {
+			if debugMode {
 				if o.Unique.typeP.machineSettings.kgFuelPerCycle > 0 {
 					toolTip = toolTip + fmt.Sprintf("Fuel per tock: %v\n", printWeight(o.Unique.typeP.machineSettings.kgFuelPerCycle))
 				}
@@ -303,28 +303,28 @@ func drawItemInfo(screen *ebiten.Image) {
 
 					if p.Type == PORT_IN {
 						toolTip = toolTip + fmt.Sprintf("Input: %v: %v: %v: %v (%v)\n",
-							DirToName(uint8(p.Dir)),
+							dirToName(uint8(p.Dir)),
 							p.obj.Unique.typeP.name,
 							tstring,
 							printUnit(p.Buf),
 							calcVolume(p.Buf))
 					} else if p.Type == PORT_OUT {
 						toolTip = toolTip + fmt.Sprintf("Output: %v: %v: %v: %v (%v)\n",
-							DirToName(uint8(p.Dir)),
+							dirToName(uint8(p.Dir)),
 							p.obj.Unique.typeP.name,
 							tstring,
 							printUnit(p.Buf),
 							calcVolume(p.Buf))
 					} else if p.Type == PORT_FOUT {
 						toolTip = toolTip + fmt.Sprintf("FuelOut: %v: %v: %v: %v (%v)\n",
-							DirToName(uint8(p.Dir)),
+							dirToName(uint8(p.Dir)),
 							p.obj.Unique.typeP.name,
 							tstring,
 							printUnit(p.Buf),
 							calcVolume(p.Buf))
 					} else if p.Type == PORT_FIN {
 						toolTip = toolTip + fmt.Sprintf("FuelIn: %v: %v: %v: %v (%v)\n",
-							DirToName(uint8(p.Dir)),
+							dirToName(uint8(p.Dir)),
 							p.obj.Unique.typeP.name,
 							tstring,
 							printUnit(p.Buf),
@@ -354,7 +354,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			}
 
 			/* Draw item preview */
-			if ZoomScale < MapPixelThreshold || ShowResourceLayer {
+			if zoomScale < mapPixelThreshold || showResourceLayer {
 				vector.DrawFilledRect(screen, float32(ScreenWidth)-(infoWidth)-infoSpaceRight-infoPad, infoSpaceTop, infoWidth+infoPad, infoHeight+infoPad, ColorToolTipBG, false)
 				op := &ebiten.DrawImageOptions{}
 				op.GeoM.Scale((1.0/float64(o.Unique.typeP.size.X))*8.0, (1.0/float64(o.Unique.typeP.size.Y))*8.0)
@@ -364,22 +364,22 @@ func drawItemInfo(screen *ebiten.Image) {
 		} else {
 			/* Otherwise, just show x/y location */
 			toolTip = fmt.Sprintf("(%v, %v)",
-				humanize.Comma(int64((WorldMouseX - xyCenter))),
-				humanize.Comma(int64((WorldMouseY - xyCenter))))
+				humanize.Comma(int64((worldMouseX - xyCenter))),
+				humanize.Comma(int64((worldMouseY - xyCenter))))
 		}
-		DrawText(toolTip, GeneralFont, color.White, ColorToolTipBG,
+		drawText(toolTip, generalFont, color.White, ColorToolTipBG,
 			XYf32{X: float32(ScreenWidth) - 8, Y: float32(ScreenHeight)},
 			4, screen, false, true, false)
 	}
 	/* Tooltip for resources */
-	if ShowResourceLayer {
+	if showResourceLayer {
 		buf := ""
 		/* Only recalculate if mouse moves */
 		if MouseX != LastMouseX || MouseY != LastMouseY || camXPos != lastCamX || camYPos != lastCamY {
 
 			/* Get info for all layers */
 			for p := 1; p < len(noiseLayers); p++ {
-				var h float32 = float32(math.Abs(float64(noiseMap(WorldMouseX, WorldMouseY, p))))
+				var h float32 = float32(math.Abs(float64(noiseMap(worldMouseX, worldMouseY, p))))
 
 				if h >= 0.0001 {
 					buf = buf + fmt.Sprintf("%v: %0.2f%%\n", noiseLayers[p].name, Min(h*100.0, 100.0))
@@ -390,7 +390,7 @@ func drawItemInfo(screen *ebiten.Image) {
 			buf = lastResourceString
 		}
 		if buf != "" {
-			DrawText("Yields:\n"+buf, ToolTipFont, ColorAqua, ColorToolTipBG,
+			drawText("Yields:\n"+buf, toolTipFont, ColorAqua, ColorToolTipBG,
 				XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, true, false)
 		}
 		lastResourceString = buf
@@ -406,8 +406,8 @@ func drawItemPlacement(screen *ebiten.Image) {
 		item := worldObjs[selectedItemType]
 
 		/* camera + object */
-		objOffX := camXPos + (float32(int(WorldMouseX)))
-		objOffY := camYPos + (float32(int(WorldMouseY)))
+		objOffX := camXPos + (float32(int(worldMouseX)))
+		objOffY := camYPos + (float32(int(worldMouseY)))
 
 		//Quick kludge for 1x3 object
 		if item.size.Y == 3 && (item.direction == 1 || item.direction == 3) {
@@ -416,8 +416,8 @@ func drawItemPlacement(screen *ebiten.Image) {
 		}
 
 		/* camera zoom */
-		x := float64(objOffX * ZoomScale)
-		y := float64(objOffY * ZoomScale)
+		x := float64(objOffX * zoomScale)
+		y := float64(objOffY * zoomScale)
 
 		iSize := item.images.main.Bounds()
 		if item.rotatable {
@@ -429,14 +429,14 @@ func drawItemPlacement(screen *ebiten.Image) {
 		}
 
 		op.GeoM.Scale(
-			(float64(item.size.X)*float64(ZoomScale))/float64(iSize.Max.X),
-			(float64(item.size.Y)*float64(ZoomScale))/float64(iSize.Max.Y))
+			(float64(item.size.X)*float64(zoomScale))/float64(iSize.Max.X),
+			(float64(item.size.Y)*float64(zoomScale))/float64(iSize.Max.Y))
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
 		/* Tint red if we can't place item */
 		blocked := false
-		wPos := XY{X: uint16(WorldMouseX), Y: uint16(WorldMouseY)}
+		wPos := XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}
 		/* Check if object fits */
 		if item.multiTile {
 			if !subObjFits(nil, item, false, wPos) {
@@ -473,9 +473,9 @@ func updateVisData() {
 
 	/* When needed, make a list of chunks to draw */
 	if VisDataDirty.Load() {
-		ScreenSizeLock.Lock()
+		screenSizeLock.Lock()
 		VisDataDirty.Store(false)
-		ScreenSizeLock.Unlock()
+		screenSizeLock.Unlock()
 
 		visObj = []*ObjData{}
 		visChunk = []*mapChunk{}
@@ -486,8 +486,8 @@ func updateVisData() {
 		* Moved to Update()
 		 */
 
-		SuperChunkListLock.RLock()
-		for _, sChunk := range SuperChunkList {
+		superChunkListLock.RLock()
+		for _, sChunk := range superChunkList {
 
 			/* Is this super chunk on the screen? */
 			if sChunk.pos.X < screenStartX/superChunkSize ||
@@ -526,7 +526,7 @@ func updateVisData() {
 			}
 		}
 
-		SuperChunkListLock.RUnlock()
+		superChunkListLock.RUnlock()
 	}
 }
 
@@ -543,10 +543,10 @@ func drawTerrain(chunk *mapChunk) (*ebiten.DrawImageOptions, *ebiten.Image) {
 
 	iSize := cTmp.Bounds().Size()
 	op.GeoM.Reset()
-	op.GeoM.Scale((chunkSize*float64(ZoomScale))/float64(iSize.X),
-		(chunkSize*float64(ZoomScale))/float64(iSize.Y))
-	op.GeoM.Translate((float64(camXPos)+float64(chunk.pos.X*chunkSize))*float64(ZoomScale),
-		(float64(camYPos)+float64(chunk.pos.Y*chunkSize))*float64(ZoomScale))
+	op.GeoM.Scale((chunkSize*float64(zoomScale))/float64(iSize.X),
+		(chunkSize*float64(zoomScale))/float64(iSize.Y))
+	op.GeoM.Translate((float64(camXPos)+float64(chunk.pos.X*chunkSize))*float64(zoomScale),
+		(float64(camYPos)+float64(chunk.pos.Y*chunkSize))*float64(zoomScale))
 	chunk.terrainLock.RUnlock()
 
 	return op, cTmp
@@ -556,7 +556,7 @@ func drawIconMode() {
 	defer reportPanic("drawIconMode")
 
 	/* Draw ground */
-	if ShowResourceLayer {
+	if showResourceLayer {
 		drawPixmapMode()
 	} else {
 		for _, chunk := range visChunk {
@@ -564,7 +564,7 @@ func drawIconMode() {
 			if img != nil {
 				opBatch[batchTop] = op
 				imageBatch[batchTop] = img
-				if batchTop < MaxBatch {
+				if batchTop < maxBatch {
 					batchTop++
 				} else {
 					break
@@ -580,7 +580,7 @@ func drawIconMode() {
 		if img != nil {
 			opBatch[batchTop] = op
 			imageBatch[batchTop] = img
-			if batchTop < MaxBatch {
+			if batchTop < maxBatch {
 				batchTop++
 			} else {
 				break
@@ -598,7 +598,7 @@ func drawIconMode() {
 					if img != nil {
 						opBatch[batchTop] = op
 						imageBatch[batchTop] = img
-						if batchTop < MaxBatch {
+						if batchTop < maxBatch {
 							batchTop++
 						} else {
 							break
@@ -631,7 +631,7 @@ func drawIconMode() {
 						found = true
 						drewUnder = true
 
-						if batchTop < MaxBatch {
+						if batchTop < maxBatch {
 							batchTop++
 						} else {
 							break
@@ -650,7 +650,7 @@ func drawIconMode() {
 
 					drewUnder = true
 
-					if batchTop < MaxBatch {
+					if batchTop < maxBatch {
 						batchTop++
 					} else {
 						break
@@ -664,7 +664,7 @@ func drawIconMode() {
 				if img != nil {
 					opBatch[batchTop] = opb
 					imageBatch[batchTop] = imgb
-					if batchTop < MaxBatch {
+					if batchTop < maxBatch {
 						batchTop++
 					} else {
 						break
@@ -679,7 +679,7 @@ func drawIconMode() {
 				if img != nil {
 					opBatch[batchTop] = op
 					imageBatch[batchTop] = img
-					if batchTop < MaxBatch {
+					if batchTop < maxBatch {
 						batchTop++
 					} else {
 						break
@@ -694,7 +694,7 @@ func drawIconMode() {
 				if img != nil {
 					opBatch[batchTop] = op
 					imageBatch[batchTop] = img
-					if batchTop < MaxBatch {
+					if batchTop < maxBatch {
 						batchTop++
 					} else {
 						break
@@ -709,7 +709,7 @@ func drawIconMode() {
 				if img != nil {
 					opBatch[batchTop] = op
 					imageBatch[batchTop] = img
-					if batchTop < MaxBatch {
+					if batchTop < maxBatch {
 						batchTop++
 					} else {
 						break
@@ -730,7 +730,7 @@ func drawIconMode() {
 					if img != nil {
 						opBatch[batchTop] = op
 						imageBatch[batchTop] = img
-						if batchTop < MaxBatch {
+						if batchTop < maxBatch {
 							batchTop++
 						} else {
 							break
@@ -746,8 +746,8 @@ func drawIconMode() {
 			var objOffY float32 = camYPos + (float32(obj.Pos.Y))
 
 			/* camera zoom */
-			objCamPosX := objOffX * ZoomScale
-			objCamPosY := objOffY * ZoomScale
+			objCamPosX := objOffX * zoomScale
+			objCamPosY := objOffY * zoomScale
 
 			/* Show objects with no fuel */
 			if obj.Unique.typeP.machineSettings.maxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
@@ -756,46 +756,21 @@ func drawIconMode() {
 
 				iSize := img.Bounds()
 				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-				op.GeoM.Scale(((float64(1))*float64(ZoomScale))/float64(iSize.Max.X),
-					((float64(1))*float64(ZoomScale))/float64(iSize.Max.Y))
+				op.GeoM.Scale(((float64(1))*float64(zoomScale))/float64(iSize.Max.X),
+					((float64(1))*float64(zoomScale))/float64(iSize.Max.Y))
 				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 
 				if img != nil {
 					opBatch[batchTop] = op
 					imageBatch[batchTop] = img
-					if batchTop < MaxBatch {
+					if batchTop < maxBatch {
 						batchTop++
 					} else {
 						break
 					}
 
 				}
-				/*
-					} else if obj.Unique.TypeP.ShowBlocked && obj.Blocked {
 
-						img := ObjOverlayTypes[ObjOverlayBlocked].Image
-						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-
-						iSize := img.Bounds()
-						op.GeoM.Translate(
-							cBlockedIndicatorOffset,
-							cBlockedIndicatorOffset)
-
-						op.GeoM.Scale((1*float64(ZoomScale))/float64(iSize.Max.X),
-							(1*float64(ZoomScale))/float64(iSize.Max.Y))
-						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
-						op.ColorScale.ScaleAlpha(0.5)
-
-						if img != nil {
-							OpBatch[BatchTop] = op
-							ImageBatch[BatchTop] = img
-							if BatchTop < MaxBatch {
-								BatchTop++
-							} else {
-								break
-							}
-						}
-				*/
 			} else if obj.Unique.typeP.showArrow {
 				/* Output arrows */
 				for _, port := range obj.Ports {
@@ -804,8 +779,8 @@ func drawIconMode() {
 						img := worldOverlays[port.Dir].images.main
 						iSize := img.Bounds()
 						var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-						op.GeoM.Scale((1*float64(ZoomScale))/float64(iSize.Max.X),
-							((1)*float64(ZoomScale))/float64(iSize.Max.Y))
+						op.GeoM.Scale((1*float64(zoomScale))/float64(iSize.Max.X),
+							((1)*float64(zoomScale))/float64(iSize.Max.Y))
 						op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
 						op.ColorScale.Scale(0.5, 0.5, 0.5, 0.7)
 
@@ -813,7 +788,7 @@ func drawIconMode() {
 						if img != nil {
 							opBatch[batchTop] = op
 							imageBatch[batchTop] = img
-							if batchTop < MaxBatch {
+							if batchTop < maxBatch {
 								batchTop++
 							} else {
 								break
@@ -827,45 +802,16 @@ func drawIconMode() {
 	}
 }
 
-/*
-	func drawSubObjDebug(screen *ebiten.Image, b *BuildingData, bpos XY) {
-
-		objOffX := camXPos + (float32(bpos.X))
-		objOffY := camYPos + (float32(bpos.Y))
-
-		x := float64(objOffX * ZoomScale)
-		y := float64(objOffY * ZoomScale)
-
-		if b.Obj.Unique.TypeP.Image == nil {
-			return
-		} else {
-			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
-
-			iSize := b.Obj.Unique.TypeP.Image.Bounds()
-
-			op.GeoM.Scale(
-				(float64(1)*float64(ZoomScale))/float64(iSize.Max.X),
-				(float64(1)*float64(ZoomScale))/float64(iSize.Max.Y))
-
-			op.GeoM.Translate(math.Floor(x), math.Floor(y))
-			op.ColorScale.Scale(0.125, 0.125, 0.5, 0.33)
-
-			screen.DrawImage(b.Obj.Unique.TypeP.Image, op)
-
-		}
-	}
-*/
-
 func drawPixmapMode() {
 	defer reportPanic("drawPixmapMode")
 
 	/* Single thread render terrain for WASM */
-	if WASMMode && frameCount%WASMTerrainDiv == 0 {
+	if wasmMode && frameCount%wasmTerrainDiv == 0 {
 		resourceRenderDaemonST()
 		pixmapRenderST()
 	}
 	/* Draw superchunk images (pixmap mode)*/
-	SuperChunkListLock.RLock()
+	superChunkListLock.RLock()
 	for _, sChunk := range visSChunk {
 		sChunk.pixelMapLock.Lock()
 		if sChunk.pixelMap == nil {
@@ -875,17 +821,17 @@ func drawPixmapMode() {
 
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(
-			(maxSuperChunk*float64(ZoomScale))/float64(maxSuperChunk),
-			(maxSuperChunk*float64(ZoomScale))/float64(maxSuperChunk))
+			(maxSuperChunk*float64(zoomScale))/float64(maxSuperChunk),
+			(maxSuperChunk*float64(zoomScale))/float64(maxSuperChunk))
 
 		op.GeoM.Translate(
-			((float64(camXPos)+float64((sChunk.pos.X))*maxSuperChunk)*float64(ZoomScale))-1,
-			((float64(camYPos)+float64((sChunk.pos.Y))*maxSuperChunk)*float64(ZoomScale))-1)
+			((float64(camXPos)+float64((sChunk.pos.X))*maxSuperChunk)*float64(zoomScale))-1,
+			((float64(camYPos)+float64((sChunk.pos.Y))*maxSuperChunk)*float64(zoomScale))-1)
 
 		if sChunk.pixelMap != nil {
 			opBatch[batchTop] = op
 			imageBatch[batchTop] = sChunk.pixelMap
-			if batchTop < MaxBatch {
+			if batchTop < maxBatch {
 				batchTop++
 			} else {
 				break
@@ -893,16 +839,16 @@ func drawPixmapMode() {
 		}
 		sChunk.pixelMapLock.Unlock()
 	}
-	SuperChunkListLock.RUnlock()
+	superChunkListLock.RUnlock()
 
-	if ShowResourceLayer && ResourceLegendImage != nil {
+	if showResourceLayer && resourceLegendImage != nil {
 		var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(2, 2)
-		op.GeoM.Translate(8, float64(ToolBarIconSize*UIScale)*2)
-		if ResourceLegendImage != nil {
+		op.GeoM.Translate(8, float64(toolBarIconSize*uiScale)*2)
+		if resourceLegendImage != nil {
 			opBatch[batchTop] = op
-			imageBatch[batchTop] = ResourceLegendImage
-			if batchTop < MaxBatch {
+			imageBatch[batchTop] = resourceLegendImage
+			if batchTop < maxBatch {
 				batchTop++
 			}
 		}
@@ -925,8 +871,8 @@ func drawDebugInfo(screen *ebiten.Image) {
 		runtime.GOARCH, version, buildTime,
 	)
 
-	var pad float32 = 2 * float32(UIScale)
-	DrawText(buf, MonoFont, color.White, ColorDebugBG,
+	var pad float32 = 2 * float32(uiScale)
+	drawText(buf, monoFont, color.White, ColorDebugBG,
 		XYf32{X: 0, Y: float32(ScreenHeight) + (pad * 4.5)},
 		pad, screen, true, true, false)
 
@@ -942,17 +888,17 @@ func drawTime(screen *ebiten.Image) {
 		time.Now().Format("3:04PM"),
 	)
 
-	if Debug {
+	if debugMode {
 		buf = buf + fmt.Sprintf("\n(%-4v,%-4v)", MouseX, MouseY)
 	}
 	var pad float32 = 8
-	DrawText(buf, MonoFont, color.White, ColorDebugBG,
+	drawText(buf, monoFont, color.White, ColorDebugBG,
 		XYf32{X: float32(ScreenWidth) - pad, Y: -pad},
 		pad, screen, false, false, false)
 
 }
 
-func DrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos XYf32,
+func drawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) XYf32 {
 	defer reportPanic("DrawText")
 	var tmx, tmy float32
@@ -1005,8 +951,8 @@ func drawObject(obj *ObjData, maskOnly bool) (op *ebiten.DrawImageOptions, img *
 	}
 
 	/* camera zoom */
-	x := float64(objOffX * ZoomScale)
-	y := float64(objOffY * ZoomScale)
+	x := float64(objOffX * zoomScale)
+	y := float64(objOffY * zoomScale)
 
 	/* Draw sprite */
 	if obj.Unique.typeP.images.main == nil {
@@ -1031,8 +977,8 @@ func drawObject(obj *ObjData, maskOnly bool) (op *ebiten.DrawImageOptions, img *
 		}
 
 		op.GeoM.Scale(
-			(float64(obj.Unique.typeP.size.X)*float64(ZoomScale))/float64(iSize.Max.X),
-			(float64(obj.Unique.typeP.size.Y)*float64(ZoomScale))/float64(iSize.Max.Y))
+			(float64(obj.Unique.typeP.size.X)*float64(zoomScale))/float64(iSize.Max.X),
+			(float64(obj.Unique.typeP.size.Y)*float64(zoomScale))/float64(iSize.Max.Y))
 
 		op.GeoM.Translate(math.Floor(x), math.Floor(y))
 
@@ -1060,14 +1006,14 @@ func calcScreenCamera() {
 	lastCamY = camYPos
 
 	/* Adjust cam position for zoom */
-	camXPos = float32(-CameraX) + ((float32(ScreenWidth) / 2.0) / ZoomScale)
-	camYPos = float32(-CameraY) + ((float32(ScreenHeight) / 2.0) / ZoomScale)
+	camXPos = float32(-CameraX) + ((float32(ScreenWidth) / 2.0) / zoomScale)
+	camYPos = float32(-CameraY) + ((float32(ScreenHeight) / 2.0) / zoomScale)
 
 	/* Get camera bounds */
-	camStartX = uint16((1/ZoomScale + (CameraX - padding - (float32(ScreenWidth)/2.0)/ZoomScale)))
-	camStartY = uint16((1/ZoomScale + (CameraY - padding - (float32(ScreenHeight)/2.0)/ZoomScale)))
-	camEndX = uint16((float32(ScreenWidth)/ZoomScale + (CameraX + padding - (float32(ScreenWidth)/2.0)/ZoomScale)))
-	camEndY = uint16((float32(ScreenHeight)/ZoomScale + (CameraY + padding - (float32(ScreenHeight)/2.0)/ZoomScale)))
+	camStartX = uint16((1/zoomScale + (CameraX - padding - (float32(ScreenWidth)/2.0)/zoomScale)))
+	camStartY = uint16((1/zoomScale + (CameraY - padding - (float32(ScreenHeight)/2.0)/zoomScale)))
+	camEndX = uint16((float32(ScreenWidth)/zoomScale + (CameraX + padding - (float32(ScreenWidth)/2.0)/zoomScale)))
+	camEndY = uint16((float32(ScreenHeight)/zoomScale + (CameraY + padding - (float32(ScreenHeight)/2.0)/zoomScale)))
 
 	/* Pre-calc camera chunk position */
 	screenStartX = camStartX / chunkSize
@@ -1088,8 +1034,8 @@ func drawMaterials(m *MatData, obj *ObjData, scale float64, alpha float32, pos *
 			objOffY := camYPos + (float32(obj.Pos.Y))
 
 			/* camera zoom */
-			objCamPosX := float64(objOffX * ZoomScale)
-			objCamPosY := float64(objOffY * ZoomScale)
+			objCamPosX := float64(objOffX * zoomScale)
+			objCamPosY := float64(objOffY * zoomScale)
 
 			iSize := img.Bounds()
 			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
@@ -1106,8 +1052,8 @@ func drawMaterials(m *MatData, obj *ObjData, scale float64, alpha float32, pos *
 			}
 
 			op.GeoM.Scale(
-				((float64(1))*float64(ZoomScale))/float64(iSize.Max.X),
-				((float64(1))*float64(ZoomScale))/float64(iSize.Max.Y))
+				((float64(1))*float64(zoomScale))/float64(iSize.Max.X),
+				((float64(1))*float64(zoomScale))/float64(iSize.Max.Y))
 			op.GeoM.Translate(objCamPosX, objCamPosY)
 			op.ColorScale.ScaleAlpha(alpha)
 			return op, img
@@ -1116,7 +1062,7 @@ func drawMaterials(m *MatData, obj *ObjData, scale float64, alpha float32, pos *
 	return nil, nil
 }
 
-var chatVertSpace float32 = 24.0 * float32(UIScale)
+var chatVertSpace float32 = 24.0 * float32(uiScale)
 
 func drawChatLines(screen *ebiten.Image) {
 	defer reportPanic("drawChatLines")
@@ -1153,9 +1099,9 @@ func drawChatLines(screen *ebiten.Image) {
 		}
 		tBgColor.A = byte(faded)
 
-		DrawText(line.text, GeneralFont,
+		drawText(line.text, generalFont,
 			color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: byte(newAlpha)},
-			tBgColor, XYf32{X: padding, Y: float32(ScreenHeight) - (float32(lineNum) * (float32(GeneralFontH) * 1.2)) - chatVertSpace},
+			tBgColor, XYf32{X: padding, Y: float32(ScreenHeight) - (float32(lineNum) * (float32(generalFontH) * 1.2)) - chatVertSpace},
 			2, screen, true, false, false)
 	}
 }

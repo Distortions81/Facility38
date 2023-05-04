@@ -10,12 +10,12 @@ func makeSuperChunk(pos XY) {
 	//Make super chunk if needed
 
 	newPos := pos
-	scpos := PosToSuperChunkPos(newPos)
+	scpos := posToSuperChunkPos(newPos)
 
-	SuperChunkMapLock.Lock()  //Lock Superclunk map
-	SuperChunkListLock.Lock() //Lock Superchunk list
+	superChunkMapLock.Lock()  //Lock Superclunk map
+	superChunkListLock.Lock() //Lock Superchunk list
 
-	if SuperChunkMap[scpos] == nil {
+	if superChunkMap[scpos] == nil {
 
 		/* Make new superchunk in map at pos */
 		newSuperChunk := &mapSuperChunkData{}
@@ -25,20 +25,20 @@ func makeSuperChunk(pos XY) {
 		newSuperChunk.resourceMap = make([]byte, maxSize)
 		newSuperChunk.resourceDirty = true
 
-		SuperChunkMap[scpos] = newSuperChunk
-		SuperChunkMap[scpos].lock.Lock() //Lock chunk
+		superChunkMap[scpos] = newSuperChunk
+		superChunkMap[scpos].lock.Lock() //Lock chunk
 
-		SuperChunkList =
-			append(SuperChunkList, SuperChunkMap[scpos])
-		SuperChunkMap[scpos].chunkMap = make(map[XY]*mapChunk)
+		superChunkList =
+			append(superChunkList, superChunkMap[scpos])
+		superChunkMap[scpos].chunkMap = make(map[XY]*mapChunk)
 
 		/* Save position */
-		SuperChunkMap[scpos].pos = scpos
+		superChunkMap[scpos].pos = scpos
 
-		SuperChunkMap[scpos].lock.Unlock()
+		superChunkMap[scpos].lock.Unlock()
 	}
-	SuperChunkListLock.Unlock()
-	SuperChunkMapLock.Unlock()
+	superChunkListLock.Unlock()
+	superChunkMapLock.Unlock()
 }
 
 /* Make a chunk, insert into superchunk */
@@ -51,47 +51,47 @@ func makeChunk(pos XY) bool {
 	makeSuperChunk(pos)
 
 	cpos := PosToChunkPos(newPos)
-	scpos := PosToSuperChunkPos(newPos)
+	scpos := posToSuperChunkPos(newPos)
 
-	SuperChunkMapLock.Lock()  //Lock Superclunk map
-	SuperChunkListLock.Lock() //Lock Superchunk list
+	superChunkMapLock.Lock()  //Lock Superclunk map
+	superChunkListLock.Lock() //Lock Superchunk list
 
-	if SuperChunkMap[scpos].chunkMap[cpos] == nil {
+	if superChunkMap[scpos].chunkMap[cpos] == nil {
 		/* Increase chunk count */
-		SuperChunkMap[scpos].numChunks++
+		superChunkMap[scpos].numChunks++
 
 		/* Make a new empty chunk in the map at pos */
-		SuperChunkMap[scpos].chunkMap[cpos] = &mapChunk{}
-		SuperChunkMap[scpos].lock.Lock() //Lock chunk
+		superChunkMap[scpos].chunkMap[cpos] = &mapChunk{}
+		superChunkMap[scpos].lock.Lock() //Lock chunk
 
 		/* Append to chunk list */
-		SuperChunkMap[scpos].chunkList =
-			append(SuperChunkMap[scpos].chunkList, SuperChunkMap[scpos].chunkMap[cpos])
+		superChunkMap[scpos].chunkList =
+			append(superChunkMap[scpos].chunkList, superChunkMap[scpos].chunkMap[cpos])
 
-		SuperChunkMap[scpos].chunkMap[cpos].buildingMap = make(map[XY]*buildingData)
-		SuperChunkMap[scpos].chunkMap[cpos].tileMap = make(map[XY]*tileData)
+		superChunkMap[scpos].chunkMap[cpos].buildingMap = make(map[XY]*buildingData)
+		superChunkMap[scpos].chunkMap[cpos].tileMap = make(map[XY]*tileData)
 
 		/* Terrain img */
-		SuperChunkMap[scpos].chunkMap[cpos].terrainLock.Lock()
-		SuperChunkMap[scpos].chunkMap[cpos].terrainImage = TempChunkImage
-		SuperChunkMap[scpos].chunkMap[cpos].usingTemporary = true
-		SuperChunkMap[scpos].chunkMap[cpos].terrainLock.Unlock()
+		superChunkMap[scpos].chunkMap[cpos].terrainLock.Lock()
+		superChunkMap[scpos].chunkMap[cpos].terrainImage = TempChunkImage
+		superChunkMap[scpos].chunkMap[cpos].usingTemporary = true
+		superChunkMap[scpos].chunkMap[cpos].terrainLock.Unlock()
 
 		/* Save position */
-		SuperChunkMap[scpos].chunkMap[cpos].pos = cpos
+		superChunkMap[scpos].chunkMap[cpos].pos = cpos
 
 		/* Save parent */
-		SuperChunkMap[scpos].chunkMap[cpos].parent = SuperChunkMap[scpos]
+		superChunkMap[scpos].chunkMap[cpos].parent = superChunkMap[scpos]
 
-		SuperChunkMap[scpos].lock.Unlock()
+		superChunkMap[scpos].lock.Unlock()
 
-		SuperChunkListLock.Unlock()
-		SuperChunkMapLock.Unlock()
+		superChunkListLock.Unlock()
+		superChunkMapLock.Unlock()
 		return true
 	}
 
-	SuperChunkListLock.Unlock()
-	SuperChunkMapLock.Unlock()
+	superChunkListLock.Unlock()
+	superChunkMapLock.Unlock()
 	return false
 }
 
@@ -111,8 +111,8 @@ func exploreMap(pos XY, input int, slow bool) {
 			ChunksMade++
 
 			if slow && ChunksMade%10 == 0 {
-				MapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
-				if WASMMode {
+				mapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
+				if wasmMode {
 					time.Sleep(time.Nanosecond)
 				} else {
 					time.Sleep(time.Millisecond * 5)

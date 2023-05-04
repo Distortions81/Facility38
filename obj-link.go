@@ -3,22 +3,22 @@ package main
 func linkMiner(obj *ObjData) {
 	defer reportPanic("linkMiner")
 	if obj.numOut == 0 {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 }
 
 func linkBelt(obj *ObjData) {
 	defer reportPanic("linkBelt")
 	if obj.numOut == 0 || obj.numIn == 0 {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 
 	if obj.numIn == 1 && obj.numOut == 1 {
@@ -51,16 +51,16 @@ func linkBelt(obj *ObjData) {
 func linkBeltOver(obj *ObjData) {
 	defer reportPanic("linkBeltOver")
 	if obj.numOut == 0 || obj.numIn == 0 {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 
 	/* Alias inputs */
 	for i, input := range obj.inputs {
-		if input.Dir == ReverseDirection(obj.Dir) {
+		if input.Dir == reverseDirection(obj.Dir) {
 			obj.beltOver.overIn = obj.inputs[i]
 		} else {
 			obj.beltOver.underIn = obj.inputs[i]
@@ -80,52 +80,52 @@ func linkBeltOver(obj *ObjData) {
 func linkFuelHopper(obj *ObjData) {
 	defer reportPanic("linkFuelHopper")
 	if obj.numFOut == 0 || obj.numIn == 0 {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 }
 
 func linkSplitter(obj *ObjData) {
 	defer reportPanic("linkSplitter")
 	if obj.numOut == 0 || obj.numIn == 0 {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 }
 
 func linkUnloader(obj *ObjData) {
 	defer reportPanic("linkUnloader")
 	if obj.numOut != 0 || obj.numIn != 0 {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	} else {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	}
 }
 
 func linkBox(obj *ObjData) {
 	defer reportPanic("linkBox")
 	if obj.numIn == 0 {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
 	} else {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
 	}
 }
 
 func linkMachine(obj *ObjData) {
 	defer reportPanic("linkMachine")
 	if obj.numOut == 0 {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, true)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, true)
 	} else {
-		EventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
-		EventQueueAdd(obj, QUEUE_TYPE_TICK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TOCK, false)
+		eventQueueAdd(obj, QUEUE_TYPE_TICK, false)
 	}
 }

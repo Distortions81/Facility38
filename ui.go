@@ -65,15 +65,15 @@ func (g *Game) Update() error {
 
 	var keys []ebiten.Key
 	/* Game start screen */
-	if (PlayerReady.Load() == 0 || !MapGenerated.Load()) &&
+	if (playerReady.Load() == 0 || !mapGenerated.Load()) &&
 		(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) ||
 			inpututil.AppendPressedKeys(keys) != nil) {
-		PlayerReady.Store(1)
+		playerReady.Store(1)
 		return nil
 	}
 
 	/* Server says no input for you */
-	if !Authorized.Load() {
+	if !authorized.Load() {
 		return nil
 	}
 
@@ -107,8 +107,8 @@ func (g *Game) Update() error {
 	calcScreenCamera()
 
 	/* Get mouse position on world */
-	WorldMouseX = (float32(MouseX)/ZoomScale + (CameraX - (float32(ScreenWidth)/2.0)/ZoomScale))
-	WorldMouseY = (float32(MouseY)/ZoomScale + (CameraY - (float32(ScreenHeight)/2.0)/ZoomScale))
+	worldMouseX = (float32(MouseX)/zoomScale + (CameraX - (float32(ScreenWidth)/2.0)/zoomScale))
+	worldMouseY = (float32(MouseY)/zoomScale + (CameraY - (float32(ScreenHeight)/2.0)/zoomScale))
 	return nil
 }
 
@@ -142,10 +142,10 @@ func getShiftToggle() {
 /* Handle clicks that end up within the toolbar */
 func handleToolbar(rotate bool) bool {
 	defer reportPanic("handleToolbar")
-	toolBarIconSize := float32(UIScale * ToolBarIconSize)
-	toolBarSpacing := float32(ToolBarIconSize / toolBarSpaceRatio)
+	iconSize := float32(uiScale * toolBarIconSize)
+	spacing := float32(toolBarIconSize / toolBarSpaceRatio)
 
-	uipix := float32((toolbarMax * int(toolBarIconSize+toolBarSpacing)))
+	uipix := float32((toolbarMax * int(iconSize+spacing)))
 
 	fmx := float32(MouseX)
 	fmy := float32(MouseY)
@@ -153,9 +153,9 @@ func handleToolbar(rotate bool) bool {
 	/* If the click isn't off the right of the toolbar */
 	if fmx <= uipix {
 		/* If the click isn't below the toolbar */
-		if fmy <= toolBarIconSize {
+		if fmy <= iconSize {
 
-			ipos := int(fmx / float32(toolBarIconSize+toolBarSpacing))
+			ipos := int(fmx / float32(iconSize+spacing))
 			len := len(toolbarItems) - 1
 			if ipos > len {
 				ipos = len
@@ -212,7 +212,7 @@ func zoomHandle() {
 	_, fsy := ebiten.Wheel()
 
 	/* WASM weirdness kludge */
-	if WASMMode && (fsy > 0 && fsy < 0) {
+	if wasmMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
 			VisDataDirty.Store(true)
 			return
@@ -222,26 +222,26 @@ func zoomHandle() {
 
 	/* Zoom in or out with keyboard */
 	if inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
-		ZoomScale = ZoomScale * 2
+		zoomScale = zoomScale * 2
 		limitZoom()
 		VisDataDirty.Store(true)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
-		ZoomScale = ZoomScale / 2
+		zoomScale = zoomScale / 2
 		limitZoom()
 		VisDataDirty.Store(true)
 	} else if fsy > 0 {
 		/* Zoom in with scroll wheel */
-		ZoomScale = ZoomScale * 2
+		zoomScale = zoomScale * 2
 
 		/* Center world on mouse */
 		if limitZoom() {
-			CameraX = WorldMouseX
-			CameraY = WorldMouseY
+			CameraX = worldMouseX
+			CameraY = worldMouseY
 		}
 		VisDataDirty.Store(true)
 	} else if fsy < 0 {
 		/* Zoom out */
-		ZoomScale = ZoomScale / 2
+		zoomScale = zoomScale / 2
 		limitZoom()
 		VisDataDirty.Store(true)
 	}
@@ -251,12 +251,12 @@ func zoomHandle() {
 /* Clamp zoom to a range */
 func limitZoom() bool {
 	defer reportPanic("limitZoom")
-	if ZoomScale < 1 {
-		ZoomScale = 1
+	if zoomScale < 1 {
+		zoomScale = 1
 		VisDataDirty.Store(true)
 		return false
-	} else if ZoomScale > 256 {
-		ZoomScale = 256
+	} else if zoomScale > 256 {
+		zoomScale = 256
 		VisDataDirty.Store(true)
 		return false
 	}
@@ -301,7 +301,7 @@ func createWorldObjects() {
 	if gClickCaptured {
 		return
 	}
-	pos := FloatXYToPosition(WorldMouseX, WorldMouseY)
+	pos := FloatXYToPosition(worldMouseX, worldMouseY)
 
 	/* Is this a new position? */
 	if pos == gLastActionPosition {
@@ -321,7 +321,7 @@ func createWorldObjects() {
 		obj := worldObjs[selectedItemType]
 		dir := obj.direction
 
-		if WASMMode {
+		if wasmMode {
 			objQueueAdd(nil, selectedItemType, pos, false, dir)
 		} else {
 			go objQueueAdd(nil, selectedItemType, pos, false, dir)
@@ -329,7 +329,7 @@ func createWorldObjects() {
 
 		/* Else if tile is not empty and RightMouse is held */
 	} else if b != nil && b.obj != nil && gRightMouseHeld {
-		if WASMMode {
+		if wasmMode {
 			objQueueAdd(b.obj, selectedItemType, b.obj.Pos, true, 0)
 		} else {
 			go objQueueAdd(b.obj, selectedItemType, b.obj.Pos, true, 0)
@@ -355,7 +355,7 @@ func moveCamera() {
 	base := startBase / (float64(tps / 60.0))
 
 	/* Base speed on zoom level */
-	speed := float32(base / (float64(ZoomScale) / 4.0))
+	speed := float32(base / (float64(zoomScale) / 4.0))
 
 	/* WASD keys */
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
@@ -384,8 +384,8 @@ func moveCamera() {
 			gCameraDrag = true
 		}
 
-		CameraX = CameraX + (float32(LastMouseX-MouseX) / ZoomScale)
-		CameraY = CameraY + (float32(LastMouseY-MouseY) / ZoomScale)
+		CameraX = CameraX + (float32(LastMouseX-MouseX) / zoomScale)
+		CameraY = CameraY + (float32(LastMouseY-MouseY) / zoomScale)
 		VisDataDirty.Store(true)
 		LastMouseX = MouseX
 		LastMouseY = MouseY
@@ -434,7 +434,7 @@ func rotateWorldObjects() {
 	/* Rotate object */
 	if !gClickCaptured && inpututil.IsKeyJustPressed(ebiten.KeyR) {
 
-		pos := FloatXYToPosition(WorldMouseX, WorldMouseY)
+		pos := FloatXYToPosition(worldMouseX, worldMouseY)
 
 		chunk := GetChunk(pos)
 		/* Valid chunk? */

@@ -14,11 +14,11 @@ const fpx = 96.0
 func updateFonts() {
 	defer reportPanic("updateFonts")
 
-	newVal := fpx * UIScale
+	newVal := fpx * uiScale
 	if newVal < 1 {
 		newVal = 1
 	}
-	FontDPI = newVal
+	fontDPI = newVal
 
 	now := time.Now()
 	var mono, tt *opentype.Font
@@ -26,7 +26,7 @@ func updateFonts() {
 	var err error
 
 	if now.Month() == 4 && now.Day() == 1 {
-		fdata := GetFont("comici.ttf")
+		fdata := getFont("comici.ttf")
 		collection, err := opentype.ParseCollection(fdata)
 		if err != nil {
 			log.Fatal(err)
@@ -37,7 +37,7 @@ func updateFonts() {
 			log.Fatal(err)
 		}
 	} else {
-		fdata := GetFont("Exo2-Regular.ttf")
+		fdata := getFont("Exo2-Regular.ttf")
 		collection, err := opentype.ParseCollection(fdata)
 		if err != nil {
 			log.Fatal(err)
@@ -50,7 +50,7 @@ func updateFonts() {
 	}
 
 	/* Logo font */
-	fdata := GetFont("Azonix-1VB0.otf")
+	fdata := getFont("Azonix-1VB0.otf")
 	collection, err := opentype.ParseCollection(fdata)
 	if err != nil {
 		log.Fatal(err)
@@ -62,7 +62,7 @@ func updateFonts() {
 	}
 
 	/* Mono font */
-	fdata = GetFont("Hack-Regular.ttf")
+	fdata = getFont("Hack-Regular.ttf")
 	collection, err = opentype.ParseCollection(fdata)
 	if err != nil {
 		log.Fatal(err)
@@ -79,70 +79,70 @@ func updateFonts() {
 	 */
 
 	/* Boot screen font */
-	BootFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
+	bootFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
 		Size:    25,
-		DPI:     FontDPI,
+		DPI:     fontDPI,
 		Hinting: font.HintingNone,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	BootFontH = getFontHeight(BootFont)
+	bootFontH = getFontHeight(bootFont)
 
 	/* General font */
-	GeneralFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	generalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    10,
-		DPI:     FontDPI,
+		DPI:     fontDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	GeneralFontH = getFontHeight(GeneralFont)
+	generalFontH = getFontHeight(generalFont)
 
 	/* Missing texture font */
-	ObjectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	objectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    6,
-		DPI:     FontDPI,
+		DPI:     fontDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	ObjectFontH = getFontHeight(ObjectFont)
+	objectFontH = getFontHeight(objectFont)
 
 	/* Tooltip font */
-	ToolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	toolTipFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    8,
-		DPI:     FontDPI,
+		DPI:     fontDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	ToolTipFontH = getFontHeight(ToolTipFont)
+	toolTipFontH = getFontHeight(toolTipFont)
 
 	/* Mono font */
-	MonoFont, err = opentype.NewFace(mono, &opentype.FaceOptions{
+	monoFont, err = opentype.NewFace(mono, &opentype.FaceOptions{
 		Size:    8,
-		DPI:     FontDPI,
+		DPI:     fontDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	MonoFontH = getFontHeight(MonoFont)
+	monoFontH = getFontHeight(monoFont)
 
 	/* Logo font */
-	LogoFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
+	logoFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
 		Size:    70,
-		DPI:     FontDPI,
+		DPI:     fontDPI,
 		Hinting: font.HintingNone,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	LogoFontH = getFontHeight(LogoFont)
+	logoFontH = getFontHeight(logoFont)
 }
 
 const sizingText = "!@#$%^&*()_+-=[]{}|;':,.<>?`~qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"

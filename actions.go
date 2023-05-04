@@ -32,27 +32,27 @@ func toggleOverlay() {
 	defer reportPanic("toggleOverlay")
 	if OverlayMode {
 		OverlayMode = false
-		ChatDetailed("Info overlay is now off.", ColorOrange, time.Second*5)
+		chatDetailed("Info overlay is now off.", ColorOrange, time.Second*5)
 	} else {
 		OverlayMode = true
-		ChatDetailed("Info overlay is now on.", ColorOrange, time.Second*5)
+		chatDetailed("Info overlay is now on.", ColorOrange, time.Second*5)
 	}
 }
 
 /* Switch between normal and resource layers */
 func switchGameLayer() {
 	defer reportPanic("switchGameLayer")
-	ShowResourceLayerLock.Lock()
+	showResourceLayerLock.Lock()
 
-	if ShowResourceLayer {
-		ShowResourceLayer = false
-		ChatDetailed("Switched from resource layer to game.", ColorOrange, time.Second*10)
+	if showResourceLayer {
+		showResourceLayer = false
+		chatDetailed("Switched from resource layer to game.", ColorOrange, time.Second*10)
 	} else {
-		ShowResourceLayer = true
-		ChatDetailed("Switched from game to resource layer.", ColorOrange, time.Second*10)
+		showResourceLayer = true
+		chatDetailed("Switched from game to resource layer.", ColorOrange, time.Second*10)
 	}
-	for _, sChunk := range SuperChunkList {
+	for _, sChunk := range superChunkList {
 		sChunk.pixmapDirty = true
 	}
-	ShowResourceLayerLock.Unlock()
+	showResourceLayerLock.Unlock()
 }

@@ -313,7 +313,7 @@ func smelterUpdate(obj *ObjData) {
 	/* Look up material */
 	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
-		DoLog(true, "Nil recipie")
+		doLog(true, "Nil recipie")
 		return
 	}
 	result := rec.resultP[0]
@@ -396,7 +396,7 @@ func casterUpdate(obj *ObjData) {
 	/* Is there enough ore to process? */
 	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
-		DoLog(true, "Nil recipie")
+		doLog(true, "Nil recipie")
 		return
 	}
 	result := rec.resultP[0]
@@ -506,7 +506,7 @@ func rodCasterUpdate(obj *ObjData) {
 
 	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
-		DoLog(true, "Nil recipie")
+		doLog(true, "Nil recipie")
 		return
 	}
 	result := rec.resultP[0]
@@ -597,7 +597,7 @@ func slipRollerUpdate(obj *ObjData) {
 
 	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
-		DoLog(true, "Nil recipie")
+		doLog(true, "Nil recipie")
 		return
 	}
 

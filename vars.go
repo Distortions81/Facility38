@@ -11,28 +11,28 @@ import (
 
 func init() {
 	VisDataDirty.Store(true)
-	SuperChunkMap = make(map[XY]*mapSuperChunkData)
+	superChunkMap = make(map[XY]*mapSuperChunkData)
 }
 
 var (
 	/* Build flags */
-	UPSBench = false
-	LoadTest = false
+	upsBench = false
+	loadTest = false
 
-	Debug     = false
+	debugMode = false
 	Magnify   = true
 	LogStdOut = true
-	UIScale   = 1.0
+	uiScale   = 1.0
 
 	/* Map values */
 	MapSeed  int64
-	LastSave time.Time
+	lastSave time.Time
 
-	ResourceLegendImage *ebiten.Image
+	resourceLegendImage *ebiten.Image
 	TitleImage          *ebiten.Image
 	EbitenLogo          *ebiten.Image
 
-	FontDPI       float64 = fpx
+	fontDPI       float64 = fpx
 	Vsync         bool    = true
 	ImperialUnits bool    = false
 	UseHyper      bool    = false
@@ -40,19 +40,19 @@ var (
 	Autosave      bool    = true
 
 	/* SuperChunk List */
-	SuperChunkList     []*mapSuperChunkData
-	SuperChunkListLock sync.RWMutex
+	superChunkList     []*mapSuperChunkData
+	superChunkListLock sync.RWMutex
 
-	/* SuperChunkMap */
-	SuperChunkMap     map[XY]*mapSuperChunkData
-	SuperChunkMapLock sync.RWMutex
+	/* superChunkMap */
+	superChunkMap     map[XY]*mapSuperChunkData
+	superChunkMapLock sync.RWMutex
 
 	/* Tick: External inter-object communication */
 	RotateList     []rotateEvent = []rotateEvent{}
 	RotateListLock sync.Mutex
 
-	TickListLock sync.Mutex
-	TockListLock sync.Mutex
+	tickListLock sync.Mutex
+	tockListLock sync.Mutex
 
 	/* ObjQueue: add/del objects at end of tick */
 	ObjQueue     []*objectQueueData
@@ -77,7 +77,7 @@ var (
 	TickWorkSize int
 
 	/* Number of tocks per worker */
-	NumWorkers int
+	numWorkers int
 
 	/* Game UPS rate */
 	ObjectUPS            float32 = gameUPS
@@ -86,46 +86,46 @@ var (
 	ActualUPS            float32
 
 	/* Starting resolution */
-	ScreenSizeLock sync.Mutex
+	screenSizeLock sync.Mutex
 	ScreenWidth    uint16 = 1280
 	ScreenHeight   uint16 = 720
 
 	/* Boot status */
-	SpritesLoaded atomic.Bool
-	PlayerReady   atomic.Int32
-	MapGenerated  atomic.Bool
-	Authorized    atomic.Bool
+	spritesLoaded atomic.Bool
+	playerReady   atomic.Int32
+	mapGenerated  atomic.Bool
+	authorized    atomic.Bool
 
 	/* Fonts */
-	BootFont  font.Face
-	BootFontH int
+	bootFont  font.Face
+	bootFontH int
 
-	ToolTipFont  font.Face
-	ToolTipFontH int
+	toolTipFont  font.Face
+	toolTipFontH int
 
-	MonoFont  font.Face
-	MonoFontH int
+	monoFont  font.Face
+	monoFontH int
 
-	LogoFont  font.Face
-	LogoFontH int
+	logoFont  font.Face
+	logoFontH int
 
-	GeneralFont  font.Face
-	GeneralFontH int
+	generalFont  font.Face
+	generalFontH int
 
-	ObjectFont  font.Face
-	ObjectFontH int
+	objectFont  font.Face
+	objectFontH int
 
 	/* Camera position */
 	CameraX float32 = float32(xyCenter)
 	CameraY float32 = float32(xyCenter)
 
 	/* Camera states */
-	ZoomScale   float32 = DefaultZoom //Current zoom
+	zoomScale   float32 = defaultZoom //Current zoom
 	OverlayMode bool
 
 	/* View layers */
-	ShowResourceLayer     bool
-	ShowResourceLayerLock sync.RWMutex
+	showResourceLayer     bool
+	showResourceLayerLock sync.RWMutex
 
 	/* If position/zoom changed */
 	VisDataDirty atomic.Bool
@@ -134,8 +134,8 @@ var (
 	TempChunkImage *ebiten.Image
 
 	/* WASM mode */
-	WASMMode bool
+	wasmMode bool
 
 	/* Boot progress */
-	MapLoadPercent float32
+	mapLoadPercent float32
 )

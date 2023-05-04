@@ -23,7 +23,7 @@ var (
  * Log this, can use printf arguments
  * Write to buffer, async write
  */
-func DoLog(withTrace bool, format string, args ...interface{}) {
+func doLog(withTrace bool, format string, args ...interface{}) {
 	var buf string
 
 	if withTrace {
@@ -60,7 +60,7 @@ func DoLog(withTrace bool, format string, args ...interface{}) {
 	logBufLock.Unlock()
 }
 
-func LogDaemon() {
+func logDaemon() {
 
 	go func() {
 		for {
@@ -96,7 +96,7 @@ func LogDaemon() {
 }
 
 /* Prep logger */
-func StartLog() {
+func startLog() {
 	t := time.Now()
 
 	/* Create our log file names */

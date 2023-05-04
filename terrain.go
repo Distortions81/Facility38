@@ -34,13 +34,13 @@ func setupTerrainCache() {
 	TempChunkImage = tChunk.terrainImage
 	tChunk.usingTemporary = true
 
-	SuperChunkListLock.RLock()
-	for _, sChunk := range SuperChunkList {
+	superChunkListLock.RLock()
+	for _, sChunk := range superChunkList {
 		for _, chunk := range sChunk.chunkList {
 			killTerrainCache(chunk, true)
 		}
 	}
-	SuperChunkListLock.RUnlock()
+	superChunkListLock.RUnlock()
 
 	if debugVisualize {
 		TempChunkImage.Fill(ColorDarkRed)
@@ -118,9 +118,9 @@ func renderTerrainST() {
 	defer reportPanic("RenderTerrainST")
 
 	/* If we zoom out, decallocate everything */
-	if WASMMode && ZoomScale <= MapPixelThreshold {
-		if WASMMode && !clearedCache {
-			for _, sChunk := range SuperChunkList {
+	if wasmMode && zoomScale <= mapPixelThreshold {
+		if wasmMode && !clearedCache {
+			for _, sChunk := range superChunkList {
 				for _, chunk := range sChunk.chunkList {
 					killTerrainCache(chunk, true)
 				}
@@ -130,16 +130,16 @@ func renderTerrainST() {
 	} else {
 		clearedCache = false
 
-		SuperChunkListLock.RLock()
+		superChunkListLock.RLock()
 		for _, chunk := range visChunk {
 			if chunk.usingTemporary {
 				renderChunkGround(chunk, true, chunk.pos)
 			}
 		}
-		SuperChunkListLock.RUnlock()
+		superChunkListLock.RUnlock()
 
 		/* Kill non-visible */
-		for _, sChunk := range SuperChunkList {
+		for _, sChunk := range superChunkList {
 			for _, chunk := range sChunk.chunkList {
 				if !chunk.visible && !chunk.usingTemporary {
 					killTerrainCache(chunk, false)
@@ -159,7 +159,7 @@ func killTerrainCache(chunk *mapChunk, force bool) {
 	if force ||
 		(numTerrainCache > maxTerrainCache &&
 			time.Since(chunk.terrainTime) > minTerrainTime) ||
-		(WASMMode && numTerrainCache > maxTerrainCacheWASM) {
+		(wasmMode && numTerrainCache > maxTerrainCacheWASM) {
 
 		chunk.terrainLock.Lock()
 		chunk.terrainImage.Dispose()
@@ -177,9 +177,9 @@ var pixmapCacheCleared bool
 
 func pixmapRenderST() {
 	defer reportPanic("PixmapRenderST")
-	if !ShowResourceLayer && ZoomScale > MapPixelThreshold && !pixmapCacheCleared {
+	if !showResourceLayer && zoomScale > mapPixelThreshold && !pixmapCacheCleared {
 
-		for _, sChunk := range SuperChunkList {
+		for _, sChunk := range superChunkList {
 			if sChunk.pixelMap != nil {
 
 				sChunk.pixelMap.Dispose()
@@ -191,10 +191,10 @@ func pixmapRenderST() {
 		}
 		pixmapCacheCleared = true
 
-	} else if ZoomScale <= MapPixelThreshold || ShowResourceLayer {
+	} else if zoomScale <= mapPixelThreshold || showResourceLayer {
 		pixmapCacheCleared = false
 
-		for _, sChunk := range SuperChunkList {
+		for _, sChunk := range superChunkList {
 			if sChunk.pixelMap == nil || sChunk.pixmapDirty {
 				drawPixmap(sChunk, sChunk.pos)
 				break
@@ -208,34 +208,34 @@ func pixmapRenderST() {
 func pixmapRenderDaemon() {
 	defer reportPanic("PixmapRenderDaemon")
 
-	for GameRunning {
-		SuperChunkListLock.RLock()
-		for _, sChunk := range SuperChunkList {
+	for gameRunning {
+		superChunkListLock.RLock()
+		for _, sChunk := range superChunkList {
 			if sChunk.numChunks == 0 {
 				continue
 			}
 
-			if !ShowResourceLayer && ZoomScale > MapPixelThreshold {
+			if !showResourceLayer && zoomScale > mapPixelThreshold {
 				sChunk.pixelMapLock.Lock()
 				if sChunk.pixelMap != nil &&
 					(maxPixmapCache > numPixmapCache) {
 
 					sChunk.pixelMap.Dispose()
-					DoLog(true, "dispose pixmap %v", sChunk.pos)
+					doLog(true, "dispose pixmap %v", sChunk.pos)
 					sChunk.pixelMap = nil
 					numPixmapCache--
 
 				}
 				sChunk.pixelMapLock.Unlock()
-			} else if ZoomScale <= MapPixelThreshold || ShowResourceLayer {
+			} else if zoomScale <= mapPixelThreshold || showResourceLayer {
 
 				if sChunk.pixelMap == nil || sChunk.pixmapDirty {
 					drawPixmap(sChunk, sChunk.pos)
-					DoLog(true, "render pixmap %v", sChunk.pos)
+					doLog(true, "render pixmap %v", sChunk.pos)
 				}
 			}
 		}
-		SuperChunkListLock.RUnlock()
+		superChunkListLock.RUnlock()
 		time.Sleep(pixmapRenderLoop)
 	}
 }
@@ -243,10 +243,10 @@ func pixmapRenderDaemon() {
 /* Loop, renders and disposes superchunk to sChunk.PixMap Locks sChunk.PixLock */
 func resourceRenderDaemon() {
 	defer reportPanic("resourceRenderDaemon")
-	for GameRunning {
+	for gameRunning {
 
-		SuperChunkListLock.RLock()
-		for _, sChunk := range SuperChunkList {
+		superChunkListLock.RLock()
+		for _, sChunk := range superChunkList {
 			sChunk.resourceLock.Lock()
 			if sChunk.resourceMap == nil || sChunk.resourceDirty {
 				drawResource(sChunk)
@@ -254,7 +254,7 @@ func resourceRenderDaemon() {
 			}
 			sChunk.resourceLock.Unlock()
 		}
-		SuperChunkListLock.RUnlock()
+		superChunkListLock.RUnlock()
 
 		time.Sleep(resourceRenderLoop)
 	}
@@ -263,7 +263,7 @@ func resourceRenderDaemon() {
 /* Render resouces during render for WASM single-thread */
 func resourceRenderDaemonST() {
 	defer reportPanic("resourceRenderDaemonST")
-	for _, sChunk := range SuperChunkList {
+	for _, sChunk := range superChunkList {
 		if sChunk.resourceMap == nil || sChunk.resourceDirty {
 			drawResource(sChunk)
 			sChunk.resourceDirty = false
@@ -343,7 +343,7 @@ func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 
 	didCopy := false
 	sChunk.resourceLock.Lock()
-	if ShowResourceLayer && sChunk.resourceMap != nil {
+	if showResourceLayer && sChunk.resourceMap != nil {
 		copy(sChunk.itemMap, sChunk.resourceMap)
 		didCopy = true
 	}

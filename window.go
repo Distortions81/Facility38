@@ -106,14 +106,14 @@ func openWindow(window *windowData) {
 
 			if window.centered && window.movable {
 
-				window.scaledSize = XYs{X: int32(float64(window.size.X) * UIScale), Y: int32(float64(window.size.Y) * UIScale)}
+				window.scaledSize = XYs{X: int32(float64(window.size.X) * uiScale), Y: int32(float64(window.size.Y) * uiScale)}
 				windows[wpos].position = XYs{
 					X: int32(ScreenWidth/2) - (window.scaledSize.X / 2),
 					Y: int32(ScreenHeight/2) - (window.scaledSize.Y / 2)}
 			}
 
-			if Debug {
-				DoLog(true, "Window '%v' added to open list.", window.title)
+			if debugMode {
+				doLog(true, "Window '%v' added to open list.", window.title)
 			}
 
 			openWindows = append(openWindows, windows[wpos])
@@ -144,8 +144,8 @@ func closeWindow(window *windowData) {
 		if openWindows[wopos] == window {
 			window.active = false
 
-			if Debug {
-				DoLog(true, "Window '%v' removed from open list.", window.title)
+			if debugMode {
+				doLog(true, "Window '%v' removed from open list.", window.title)
 			}
 			/* Remove item */
 			openWindows = append(openWindows[:wopos], openWindows[wopos+1:]...)
@@ -155,8 +155,8 @@ func closeWindow(window *windowData) {
 
 	/* Dispose window image cache if needed */
 	if !window.keepCache && window.cache != nil {
-		if Debug {
-			DoLog(true, "Window '%v' closed, disposing cache.", window.title)
+		if debugMode {
+			doLog(true, "Window '%v' closed, disposing cache.", window.title)
 		}
 		window.cache.Dispose()
 		window.cache = nil
@@ -177,11 +177,11 @@ func drawWindow(screen *ebiten.Image, window *windowData) {
 	defer windowsLock.Unlock()
 
 	/* Calculate some values for UI scale */
-	pad := int(cpad * UIScale)
-	halfPad := int((cpad / 2.0) * UIScale)
+	pad := int(cpad * uiScale)
+	halfPad := int((cpad / 2.0) * uiScale)
 
 	winPos := getWindowPos(window)
-	window.scaledSize = XYs{X: int32(float64(window.size.X) * UIScale), Y: int32(float64(window.size.Y) * UIScale)}
+	window.scaledSize = XYs{X: int32(float64(window.size.X) * uiScale), Y: int32(float64(window.size.Y) * uiScale)}
 
 	/* If window not dirty, and it has a cache, draw the cache */
 	if !window.dirty {
@@ -196,8 +196,8 @@ func drawWindow(screen *ebiten.Image, window *windowData) {
 	/* If there is no window cache, init it */
 	if window.cache == nil {
 		window.cache = ebiten.NewImage(int(window.scaledSize.X), int(window.scaledSize.Y))
-		if Debug {
-			DoLog(true, "Window '%v' cache initalized.", window.title)
+		if debugMode {
+			doLog(true, "Window '%v' cache initalized.", window.title)
 		}
 	} else {
 		window.cache.Clear()
@@ -236,7 +236,7 @@ func drawWindow(screen *ebiten.Image, window *windowData) {
 
 	if window.title != "" {
 
-		fHeight := text.BoundString(GeneralFont, "!Aa0")
+		fHeight := text.BoundString(generalFont, "!Aa0")
 
 		/* Border */
 		if !window.borderless {
@@ -263,19 +263,19 @@ func drawWindow(screen *ebiten.Image, window *windowData) {
 		)
 		window.windowButtons.titleBarHeight = fHeight.Dy() + pad
 
-		text.Draw(window.cache, window.title, GeneralFont, halfPad, int(fHeight.Dy()+halfPad), titleColor)
+		text.Draw(window.cache, window.title, generalFont, halfPad, int(fHeight.Dy()+halfPad), titleColor)
 
 		if window.closeable {
 			img := worldOverlays[8].images.main
 			op := &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
-			closePosX := float64(window.scaledSize.X - int32(float64(img.Bounds().Dx())*UIScale*closeScale))
-			op.GeoM.Scale(UIScale*closeScale, UIScale*closeScale)
+			closePosX := float64(window.scaledSize.X - int32(float64(img.Bounds().Dx())*uiScale*closeScale))
+			op.GeoM.Scale(uiScale*closeScale, uiScale*closeScale)
 			op.GeoM.Translate(closePosX, 0)
 
 			/* save button positions */
 			window.windowButtons.closePos = XYs{X: int32(closePosX), Y: int32(0)}
-			window.windowButtons.closeSize = XYs{X: int32(float64(img.Bounds().Dx()) * UIScale),
-				Y: int32(float64(img.Bounds().Dy()) * UIScale)}
+			window.windowButtons.closeSize = XYs{X: int32(float64(img.Bounds().Dx()) * uiScale),
+				Y: int32(float64(img.Bounds().Dy()) * uiScale)}
 			window.cache.DrawImage(img, op)
 		}
 	}
@@ -394,7 +394,7 @@ func handleDrag(input XYs, window *windowData) bool {
 		input.Y < winPos.Y+int32(window.windowButtons.titleBarHeight) {
 		gWindowDrag = window
 		gWindowDrag.dragPos = winOff
-		DoLog(true, "dragging window '%v'", window.title)
+		doLog(true, "dragging window '%v'", window.title)
 		return true
 	}
 	return false

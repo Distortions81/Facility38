@@ -54,13 +54,6 @@ const (
 	objSubGame = 1
 	objOverlay = 2
 
-	/* Toolbars */
-	toolbarNone    = 0
-	toolbarSave    = 1
-	toolbarLoad    = 2
-	toolbarLayer   = 3
-	toolbarOverlay = 4
-
 	/* Buildings */
 	objTypeBasicMiner      = 0
 	objTypeBasicBelt       = 1
@@ -133,7 +126,7 @@ const (
 	placeholdOffY = 10
 
 	/* Toolbar settings */
-	ToolBarIconSize   = 48
+	toolBarIconSize   = 48
 	toolBarSpaceRatio = 4
 	tbSelThick        = 2
 	halfSelThick      = tbSelThick / 2
@@ -150,8 +143,8 @@ const (
 	superChunkTotal = superChunkSize * superChunkSize
 	chunkTotal      = chunkSize * chunkSize
 
-	DefaultZoom       = spriteScale * 2
-	MapPixelThreshold = (spriteScale / 2)
+	defaultZoom       = spriteScale * 2
+	mapPixelThreshold = (spriteScale / 2)
 
 	/* Directions */
 	DIR_NORTH = 0

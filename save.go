@@ -38,8 +38,8 @@ func saveGame() {
 		}
 
 		defer reportPanic("saveGame goroutine")
-		GameLock.Lock()
-		defer GameLock.Unlock()
+		gameLock.Lock()
+		defer gameLock.Unlock()
 
 		savenum := time.Now().UTC().Unix()
 
@@ -50,23 +50,23 @@ func saveGame() {
 		os.Mkdir(savesDir, os.ModePerm)
 
 		start := time.Now()
-		Chat("Saving...")
+		chat("Saving...")
 
 		/* Pause the whole world ... */
-		SuperChunkListLock.RLock()
-		TickListLock.Lock()
-		TockListLock.Lock()
+		superChunkListLock.RLock()
+		tickListLock.Lock()
+		tockListLock.Lock()
 
-		LastSave = time.Now().UTC()
+		lastSave = time.Now().UTC()
 
 		tempList := gameSave{
 			Version:    2,
-			Date:       LastSave.UTC().Unix(),
+			Date:       lastSave.UTC().Unix(),
 			MapSeed:    MapSeed,
 			GameTicks:  GameTick,
 			CameraPos:  XYs{X: int32(CameraX), Y: int32(CameraY)},
-			CameraZoom: int16(ZoomScale)}
-		for _, sChunk := range SuperChunkList {
+			CameraZoom: int16(zoomScale)}
+		for _, sChunk := range superChunkList {
 			for _, chunk := range sChunk.chunkList {
 				for _, mObj := range chunk.objList {
 					tobj := &saveMObj{
@@ -79,28 +79,28 @@ func saveGame() {
 				}
 			}
 		}
-		DoLog(true, "WALK COMPLETE: %v", time.Since(start).String())
+		doLog(true, "WALK COMPLETE: %v", time.Since(start).String())
 
 		b, _ := json.Marshal(tempList)
 
-		SuperChunkListLock.RUnlock()
-		TickListLock.Unlock()
-		TockListLock.Unlock()
-		DoLog(true, "ENCODE DONE (WORLD UNLOCKED): %v", time.Since(start).String())
+		superChunkListLock.RUnlock()
+		tickListLock.Unlock()
+		tockListLock.Unlock()
+		doLog(true, "ENCODE DONE (WORLD UNLOCKED): %v", time.Since(start).String())
 
-		if !WASMMode {
+		if !wasmMode {
 			_, err := os.Create(savesDir + "/" + saveTempName)
 
 			if err != nil {
-				DoLog(true, "SaveGame: os.Create error: %v\n", err)
-				ChatDetailed("Unable to write to saves directory (check file permissions)", ColorOrange, time.Second*5)
+				doLog(true, "SaveGame: os.Create error: %v\n", err)
+				chatDetailed("Unable to write to saves directory (check file permissions)", ColorOrange, time.Second*5)
 				return
 			}
 		}
 
 		zip := CompressZip(b)
 
-		if WASMMode {
+		if wasmMode {
 			// Call the SendBytes function with the data and filename
 			go SendBytes(saveName, zip)
 
@@ -110,24 +110,24 @@ func saveGame() {
 			err := os.WriteFile(savesDir+"/"+saveTempName, zip, 0644)
 
 			if err != nil {
-				DoLog(true, "SaveGame: os.WriteFile error: %v\n", err)
-				ChatDetailed("Unable to write to saves directory (check file permissions)", ColorOrange, time.Second*5)
+				doLog(true, "SaveGame: os.WriteFile error: %v\n", err)
+				chatDetailed("Unable to write to saves directory (check file permissions)", ColorOrange, time.Second*5)
 			}
 
 			err = os.Rename(savesDir+"/"+saveTempName, savesDir+"/"+saveName)
 
 			if err != nil {
-				DoLog(true, "SaveGame: couldn't rename save file: %v\n", err)
-				ChatDetailed("Unable to write to saves directory (check file permissions)", ColorOrange, time.Second*5)
+				doLog(true, "SaveGame: couldn't rename save file: %v\n", err)
+				chatDetailed("Unable to write to saves directory (check file permissions)", ColorOrange, time.Second*5)
 				return
 			}
 
-			ChatDetailed("Game save complete: "+saveName, ColorOrange, time.Second*5)
+			chatDetailed("Game save complete: "+saveName, ColorOrange, time.Second*5)
 
-			DoLog(true, "COMPRESS & WRITE COMPLETE: %v", time.Since(start).String())
+			doLog(true, "COMPRESS & WRITE COMPLETE: %v", time.Since(start).String())
 		}
 
-		Chat("Save complete.")
+		chat("Save complete.")
 	}()
 }
 
@@ -136,7 +136,7 @@ func findNewstSave() string {
 	dir := "saves/"
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		DoLog(true, "Saves folder not found.")
+		doLog(true, "Saves folder not found.")
 		return ""
 	}
 
@@ -161,57 +161,57 @@ func findNewstSave() string {
 }
 
 func triggerLoad() {
-	if WASMMode {
-		Chat("To load a save game, click 'Choose File' in the top-left of the screen and select the save game file to load.")
+	if wasmMode {
+		chat("To load a save game, click 'Choose File' in the top-left of the screen and select the save game file to load.")
 	}
 	loadGame(false, nil)
 }
 func loadGame(external bool, data []byte) {
 	defer reportPanic("LoadGame")
 
-	if WASMMode && !external {
+	if wasmMode && !external {
 		return
 	}
-	if WASMMode && external && len(data) == 0 {
-		Chat("No save data found.")
+	if wasmMode && external && len(data) == 0 {
+		chat("No save data found.")
 		return
 	}
-	LastSave = time.Now().UTC()
+	lastSave = time.Now().UTC()
 
 	go func(external bool, data []byte) {
 
 		if !checkAuth() {
 			return
 		}
-		MapLoadPercent = 0
+		mapLoadPercent = 0
 
 		defer reportPanic("LoadGame goroutine")
-		GameLock.Lock()
-		defer GameLock.Unlock()
+		gameLock.Lock()
+		defer gameLock.Unlock()
 
 		saveName := "browser attachment"
 
 		if !external {
 			saveName = findNewstSave()
 			if saveName == "" {
-				Chat("No saves found!")
+				chat("No saves found!")
 				statusText = ""
 				return
 			}
 		}
 
 		statusText = fmt.Sprintf("Reading file: %v\n", saveName)
-		MapGenerated.Store(false)
-		defer MapGenerated.Store(true)
+		mapGenerated.Store(false)
+		defer mapGenerated.Store(true)
 
-		Chat("Loading saves/" + saveName)
+		chat("Loading saves/" + saveName)
 
 		var b []byte
 		var err error
 		if !external {
 			b, err = os.ReadFile("saves/" + saveName)
 			if err != nil {
-				DoLog(true, "LoadGame: file not found: %v\n", err)
+				doLog(true, "LoadGame: file not found: %v\n", err)
 				statusText = ""
 				return
 			}
@@ -228,24 +228,24 @@ func loadGame(external bool, data []byte) {
 		statusText = "Parsing save file.\n"
 
 		/* Pause the whole world ... */
-		SuperChunkListLock.Lock()
-		TickListLock.Lock()
-		TockListLock.Lock()
+		superChunkListLock.Lock()
+		tickListLock.Lock()
+		tockListLock.Lock()
 		tempList := gameSave{}
 		err = dec.Decode(&tempList)
 		if err != nil {
-			DoLog(true, "LoadGame: JSON decode error: %v\n", err)
+			doLog(true, "LoadGame: JSON decode error: %v\n", err)
 			statusText = ""
 			return
 		}
 
 		if tempList.Version != 2 {
-			DoLog(true, "LoadGame: Invalid save version.")
+			doLog(true, "LoadGame: Invalid save version.")
 			statusText = ""
 			return
 		}
 
-		SuperChunkListLock.Unlock()
+		superChunkListLock.Unlock()
 		MapSeed = tempList.MapSeed
 		statusText = "Generating map resources.\n"
 		resourceMapInit()
@@ -255,8 +255,8 @@ func loadGame(external bool, data []byte) {
 		numObj := len(tempList.Objects)
 		for i := range tempList.Objects {
 			if i%10000 == 0 {
-				MapLoadPercent = float32(float32(i)/float32(numObj)) * 100.0
-				RunEventQueue()
+				mapLoadPercent = float32(float32(i)/float32(numObj)) * 100.0
+				runEventQueue()
 			}
 
 			obj := &ObjData{
@@ -272,24 +272,24 @@ func loadGame(external bool, data []byte) {
 		}
 		statusText = "Complete!\n"
 
-		LastSave = time.Unix(tempList.Date, 0).UTC()
+		lastSave = time.Unix(tempList.Date, 0).UTC()
 		GameTick = tempList.GameTicks
 		if tempList.CameraPos.X != 0 && tempList.CameraPos.Y != 0 {
 			CameraX = float32(tempList.CameraPos.X)
 			CameraY = float32(tempList.CameraPos.Y)
 		}
 		if tempList.CameraZoom != 0 {
-			ZoomScale = float32(tempList.CameraZoom)
+			zoomScale = float32(tempList.CameraZoom)
 		}
 
 		VisDataDirty.Store(true)
 
 		resetChat()
-		go ChatDetailed("Load complete!", ColorOrange, time.Second*15)
-		MapLoadPercent = 100
+		go chatDetailed("Load complete!", ColorOrange, time.Second*15)
+		mapLoadPercent = 100
 
 		time.Sleep(time.Second)
-		MapGenerated.Store(true)
+		mapGenerated.Store(true)
 		statusText = ""
 	}(external, data)
 }
@@ -307,45 +307,45 @@ func nukeWorld() {
 
 	GameTick = 0
 
-	SuperChunkListLock.Lock()
+	superChunkListLock.Lock()
 
 	/* Erase current map */
-	for sc, superchunk := range SuperChunkList {
+	for sc, superchunk := range superChunkList {
 		for c, chunk := range superchunk.chunkList {
 
-			SuperChunkList[sc].chunkList[c].parent = nil
+			superChunkList[sc].chunkList[c].parent = nil
 			if chunk.terrainImage != nil && chunk.terrainImage != TempChunkImage && !chunk.usingTemporary {
-				SuperChunkList[sc].chunkList[c].terrainImage.Dispose()
+				superChunkList[sc].chunkList[c].terrainImage.Dispose()
 			}
 
 			for o, obj := range chunk.objList {
-				SuperChunkList[sc].chunkList[c].objList[o].chunk = nil
+				superChunkList[sc].chunkList[c].objList[o].chunk = nil
 				for p := range obj.Ports {
-					SuperChunkList[sc].chunkList[c].objList[o].Ports[p].obj = nil
+					superChunkList[sc].chunkList[c].objList[o].Ports[p].obj = nil
 				}
-				SuperChunkList[sc].chunkList[c].objList[o] = nil
+				superChunkList[sc].chunkList[c].objList[o] = nil
 			}
 
-			SuperChunkList[sc].chunkList[c].objList = nil
-			SuperChunkList[sc].chunkList[c].buildingMap = nil
+			superChunkList[sc].chunkList[c].objList = nil
+			superChunkList[sc].chunkList[c].buildingMap = nil
 		}
-		SuperChunkList[sc].chunkList = nil
-		SuperChunkList[sc].chunkMap = nil
-		if SuperChunkList[sc].pixelMap != nil {
-			SuperChunkList[sc].pixelMap.Dispose()
-			SuperChunkList[sc].pixelMap = nil
+		superChunkList[sc].chunkList = nil
+		superChunkList[sc].chunkMap = nil
+		if superChunkList[sc].pixelMap != nil {
+			superChunkList[sc].pixelMap.Dispose()
+			superChunkList[sc].pixelMap = nil
 		}
-		SuperChunkList[sc].resourceMap = nil
+		superChunkList[sc].resourceMap = nil
 	}
-	SuperChunkList = []*mapSuperChunkData{}
-	SuperChunkMap = make(map[XY]*mapSuperChunkData)
+	superChunkList = []*mapSuperChunkData{}
+	superChunkMap = make(map[XY]*mapSuperChunkData)
 
 	VisDataDirty.Store(true)
-	ZoomScale = DefaultZoom
+	zoomScale = defaultZoom
 
 	tickIntervals = []tickInterval{}
 
 	runtime.GC()
-	LastSave = time.Now().UTC()
-	SuperChunkListLock.Unlock()
+	lastSave = time.Now().UTC()
+	superChunkListLock.Unlock()
 }

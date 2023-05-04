@@ -60,7 +60,7 @@ func init() {
 /* Load user options settings from disk */
 func loadOptions() {
 	defer reportPanic("loadOptions")
-	if WASMMode {
+	if wasmMode {
 		return
 	}
 
@@ -72,15 +72,15 @@ func loadOptions() {
 
 		err := json.Unmarshal([]byte(file), &tempSettings)
 		if err != nil {
-			DoLog(true, "loadOptions: Unmarshal failure")
-			DoLog(true, err.Error())
+			doLog(true, "loadOptions: Unmarshal failure")
+			doLog(true, err.Error())
 		}
 	} else {
-		DoLog(true, "loadOptions: ReadFile failure")
+		doLog(true, "loadOptions: ReadFile failure")
 		return
 	}
 
-	DoLog(true, "Settings loaded.")
+	doLog(true, "Settings loaded.")
 
 	for wpos, wSetting := range settingItems {
 		for _, fSetting := range tempSettings {
@@ -97,7 +97,7 @@ func loadOptions() {
 /* Save user options settings to disk */
 func saveOptions() {
 	defer reportPanic("saveOptions")
-	if WASMMode {
+	if wasmMode {
 		return
 	}
 
@@ -116,31 +116,31 @@ func saveOptions() {
 	enc.SetIndent("", "\t")
 
 	if err := enc.Encode(&tempSettings); err != nil {
-		DoLog(true, "saveOptions: enc.Encode failure")
+		doLog(true, "saveOptions: enc.Encode failure")
 		return
 	}
 
 	_, err := os.Create(tempPath)
 
 	if err != nil {
-		DoLog(true, "saveOptions: os.Create failure")
+		doLog(true, "saveOptions: os.Create failure")
 		return
 	}
 
 	err = os.WriteFile(tempPath, outbuf.Bytes(), 0644)
 
 	if err != nil {
-		DoLog(true, "saveOptions: WriteFile failure")
+		doLog(true, "saveOptions: WriteFile failure")
 	}
 
 	err = os.Rename(tempPath, finalPath)
 
 	if err != nil {
-		DoLog(true, "Couldn't rename settings file.")
+		doLog(true, "Couldn't rename settings file.")
 		return
 	}
 
-	DoLog(true, "Settings saved.")
+	doLog(true, "Settings saved.")
 }
 
 /* Toggle the debug bottom-screen text */
@@ -172,8 +172,8 @@ func toggleHyper(item int) {
 /* Close game */
 func quitGame(item int) {
 	go func() {
-		GameRunning = false
-		ChatDetailed("Game closing...", ColorRed, time.Second*10)
+		gameRunning = false
+		chatDetailed("Game closing...", ColorRed, time.Second*10)
 		time.Sleep(time.Second * 2)
 		os.Exit(0)
 	}()
@@ -194,31 +194,31 @@ func toggleUnits(item int) {
 /* Toggle test map */
 func toggleTestMap(item int) {
 	defer reportPanic("toggleTestMap")
-	GameRunning = false
-	if LoadTest {
-		LoadTest = false
+	gameRunning = false
+	if loadTest {
+		loadTest = false
 		settingItems[item].Enabled = false
 		buf := "Clearing map."
-		ChatDetailed(buf, ColorOrange, time.Second*10)
+		chatDetailed(buf, ColorOrange, time.Second*10)
 	} else {
-		LoadTest = true
+		loadTest = true
 		settingItems[item].Enabled = true
 		buf := "Loading test map..."
-		ChatDetailed(buf, ColorOrange, time.Second*30)
+		chatDetailed(buf, ColorOrange, time.Second*30)
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
 		BoolToOnOff(settingItems[item].Enabled))
-	ChatDetailed(buf, ColorOrange, time.Second*5)
+	chatDetailed(buf, ColorOrange, time.Second*5)
 
-	MapGenerated.Store(false)
-	PlayerReady.Store(0)
+	mapGenerated.Store(false)
+	playerReady.Store(0)
 
-	MapLoadPercent = 0
+	mapLoadPercent = 0
 	time.Sleep(time.Millisecond * 10)
 	go func() {
 		time.Sleep(time.Millisecond * 10)
-		makeMap(LoadTest)
+		makeMap()
 		time.Sleep(time.Millisecond * 10)
 		startGame()
 	}()
@@ -227,17 +227,17 @@ func toggleTestMap(item int) {
 /* Toggle UPS cap */
 func toggleUPSCap(item int) {
 	defer reportPanic("toggleUPSCap")
-	if UPSBench {
-		UPSBench = false
+	if upsBench {
+		upsBench = false
 		settingItems[item].Enabled = false
 	} else {
-		UPSBench = true
+		upsBench = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
 		BoolToOnOff(settingItems[item].Enabled))
-	ChatDetailed(buf, ColorOrange, time.Second*5)
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 /* Toggle fullscreen */
@@ -253,7 +253,7 @@ func toggleFullscreen(item int) {
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
 		BoolToOnOff(settingItems[item].Enabled))
-	ChatDetailed(buf, ColorOrange, time.Second*5)
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 /* Toggle UI magnification */
@@ -272,23 +272,23 @@ func toggleMagnify(item int) {
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
 		BoolToOnOff(settingItems[item].Enabled))
-	ChatDetailed(buf, ColorOrange, time.Second*5)
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 /* Toggle debug mode */
 func toggleDebug(item int) {
 	defer reportPanic("toggleDebug")
-	if Debug {
-		Debug = false
+	if debugMode {
+		debugMode = false
 		settingItems[item].Enabled = false
 	} else {
-		Debug = true
+		debugMode = true
 		settingItems[item].Enabled = true
 	}
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
 		BoolToOnOff(settingItems[item].Enabled))
-	ChatDetailed(buf, ColorOrange, time.Second*5)
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 /* Toggle autosave */
@@ -304,7 +304,7 @@ func toggleAutosave(item int) {
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
 		BoolToOnOff(settingItems[item].Enabled))
-	ChatDetailed(buf, ColorOrange, time.Second*5)
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }
 
 func toggleVsync(item int) {
@@ -321,5 +321,5 @@ func toggleVsync(item int) {
 	buf := fmt.Sprintf("%v is now %v.",
 		settingItems[item].Text,
 		BoolToOnOff(settingItems[item].Enabled))
-	ChatDetailed(buf, ColorOrange, time.Second*5)
+	chatDetailed(buf, ColorOrange, time.Second*5)
 }

@@ -26,7 +26,7 @@ func initToolbar() {
 		if spos == objSubUI || spos == objSubGame {
 			for _, otype := range stype.list {
 				/* Skips some items for WASM */
-				if WASMMode && otype.excludeWASM {
+				if wasmMode && otype.excludeWASM {
 					continue
 				}
 				toolbarMax++
@@ -40,15 +40,15 @@ func initToolbar() {
 /* Draw toolbar to an image */
 func drawToolbar(click, hover bool, index int) {
 	defer reportPanic("drawToolbar")
-	toolBarIconSize := float32(UIScale * ToolBarIconSize)
-	toolBarSpacing := float32(ToolBarIconSize / toolBarSpaceRatio)
+	iconSize := float32(uiScale * toolBarIconSize)
+	spacing := float32(toolBarIconSize / toolBarSpaceRatio)
 
 	toolbarCacheLock.Lock()
 	defer toolbarCacheLock.Unlock()
 
 	/* If needed, init image */
 	if toolbarCache == nil {
-		toolbarCache = ebiten.NewImage(int(toolBarIconSize+toolBarSpacing)*toolbarMax+4, int(toolBarIconSize+toolBarSpacing))
+		toolbarCache = ebiten.NewImage(int(iconSize+spacing)*toolbarMax+4, int(iconSize+spacing))
 	}
 	/* Clear, full with semi-transparent */
 	toolbarCache.Clear()
@@ -57,7 +57,7 @@ func drawToolbar(click, hover bool, index int) {
 	/* Loop through all toolbar items */
 	for pos := 0; pos < toolbarMax; pos++ {
 		item := toolbarItems[pos]
-		x := float64(int(toolBarIconSize+toolBarSpacing) * int(pos))
+		x := float64(int(iconSize+spacing) * int(pos))
 
 		/* Get main image */
 		img := item.oType.images.main
@@ -92,13 +92,13 @@ func drawToolbar(click, hover bool, index int) {
 
 		/* Adjust image to toolbar size */
 		op.GeoM.Scale(
-			UIScale/(float64(largerDim)/float64(ToolBarIconSize)),
-			UIScale/(float64(largerDim)/float64(ToolBarIconSize)))
+			uiScale/(float64(largerDim)/float64(toolBarIconSize)),
+			uiScale/(float64(largerDim)/float64(toolBarIconSize)))
 
 		/* If set to, rotate sprite to direction */
 		if item.oType.rotatable && item.oType.direction > 0 {
-			x := float64(toolBarIconSize / 2)
-			y := float64(toolBarIconSize / 2)
+			x := float64(iconSize / 2)
+			y := float64(iconSize / 2)
 
 			/* center, rotate and move back... or we rotate on TL corner */
 			op.GeoM.Translate(-x, -y)
@@ -106,13 +106,13 @@ func drawToolbar(click, hover bool, index int) {
 			op.GeoM.Translate(x, y)
 		}
 		/* Move to correct location in toolbar image */
-		op.GeoM.Translate((float64(toolBarIconSize+(toolBarSpacing))*float64(pos))+float64(toolBarSpacing/2), float64(toolBarSpacing/2))
+		op.GeoM.Translate((float64(iconSize+(spacing))*float64(pos))+float64(spacing/2), float64(spacing/2))
 
 		/* hovered/clicked icon highlight */
 		if pos == index {
 			if click {
-				vector.DrawFilledRect(toolbarCache, float32(pos)*(toolBarIconSize+toolBarSpacing),
-					0, toolBarIconSize+toolBarSpacing, toolBarIconSize+toolBarSpacing, ColorRed, false)
+				vector.DrawFilledRect(toolbarCache, float32(pos)*(iconSize+spacing),
+					0, iconSize+spacing, iconSize+spacing, ColorRed, false)
 				toolbarHover = true
 
 				go func() {
@@ -120,8 +120,8 @@ func drawToolbar(click, hover bool, index int) {
 					drawToolbar(false, false, 0)
 				}()
 			} else if hover {
-				vector.DrawFilledRect(toolbarCache, float32(pos)*(toolBarIconSize+toolBarSpacing),
-					0, toolBarIconSize+toolBarSpacing, toolBarIconSize+toolBarSpacing, ColorAqua, false)
+				vector.DrawFilledRect(toolbarCache, float32(pos)*(iconSize+spacing),
+					0, iconSize+spacing, iconSize+spacing, ColorAqua, false)
 				toolbarHover = true
 			}
 
@@ -136,38 +136,38 @@ func drawToolbar(click, hover bool, index int) {
 			if item.oType.typeI == selectedItemType {
 				/* Left */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(toolBarIconSize+toolBarSpacing),
+					float32(pos)*(iconSize+spacing),
 					0,
 
 					(tbSelThick),
-					(toolBarIconSize+toolBarSpacing)-tbSelThick,
+					(iconSize+spacing)-tbSelThick,
 					ColorTBSelected, false)
 
 				/* Top */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(toolBarIconSize+toolBarSpacing)+tbSelThick,
+					float32(pos)*(iconSize+spacing)+tbSelThick,
 					0,
 
-					(toolBarIconSize+toolBarSpacing)-tbSelThick,
+					(iconSize+spacing)-tbSelThick,
 					(tbSelThick),
 					ColorTBSelected, false)
 
 				/* Bottom */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(toolBarIconSize+toolBarSpacing)+tbSelThick,
-					(toolBarSpacing)+toolBarIconSize-tbSelThick,
+					float32(pos)*(iconSize+spacing)+tbSelThick,
+					(spacing)+iconSize-tbSelThick,
 
-					(toolBarIconSize+toolBarSpacing)-tbSelThick,
+					(iconSize+spacing)-tbSelThick,
 					(tbSelThick),
 					ColorTBSelected, false)
 
 				/* Right */
 				vector.DrawFilledRect(toolbarCache,
-					float32(pos)*(toolBarIconSize+toolBarSpacing)+toolBarIconSize+toolBarSpacing-tbSelThick,
+					float32(pos)*(iconSize+spacing)+iconSize+spacing-tbSelThick,
 					0,
 
 					(tbSelThick),
-					(toolBarIconSize+toolBarSpacing)-tbSelThick,
+					(iconSize+spacing)-tbSelThick,
 					ColorTBSelected, false)
 
 			}
@@ -179,9 +179,9 @@ func drawToolbar(click, hover bool, index int) {
 
 			arrow := worldOverlays[item.oType.direction].images.main
 			if arrow != nil {
-				if arrow.Bounds().Max.X != int(toolBarIconSize) {
-					aop.GeoM.Scale(1.0/(float64(arrow.Bounds().Max.X)/float64(toolBarIconSize)),
-						1.0/(float64(arrow.Bounds().Max.Y)/float64(toolBarIconSize)))
+				if arrow.Bounds().Max.X != int(iconSize) {
+					aop.GeoM.Scale(1.0/(float64(arrow.Bounds().Max.X)/float64(iconSize)),
+						1.0/(float64(arrow.Bounds().Max.Y)/float64(iconSize)))
 				}
 				aop.GeoM.Translate(x, 0)
 				aop.ColorScale.Scale(0.5, 0.5, 0.5, 0.66)

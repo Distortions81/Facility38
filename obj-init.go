@@ -130,7 +130,7 @@ func initMiner(obj *ObjData) bool {
 	if !foundRes {
 
 		/* Let user know of this */
-		ChatDetailed(fmt.Sprintf("%v at %v: No resources to mine here!", obj.Unique.typeP.name, PosToString(obj.Pos)),
+		chatDetailed(fmt.Sprintf("%v at %v: No resources to mine here!", obj.Unique.typeP.name, posToString(obj.Pos)),
 			ColorRed, time.Minute)
 
 		obj.blocked = true

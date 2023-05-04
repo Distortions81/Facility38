@@ -36,7 +36,7 @@ func tickInit() {
 	for _, ot := range worldObjs {
 		getIntervalPos(int(ot.tockInterval))
 	}
-	DoLog(true, "%v intervals added.", len(tickIntervals))
+	doLog(true, "%v intervals added.", len(tickIntervals))
 
 }
 
@@ -64,7 +64,7 @@ func getIntervalPos(interval int) (pos int, created bool) {
 		return pos, true
 	}
 
-	DoLog(true, "Error!")
+	doLog(true, "Error!")
 	return -1, false
 }
 
@@ -110,7 +110,7 @@ func removeTock(obj *ObjData) {
 						tickIntervals[i].offsets[offPos].tocks[itemPos+1:]...)
 
 				TockCount--
-				DoLog(true, "Tock Removed: %v", obj.Unique.typeP.name)
+				doLog(true, "Tock Removed: %v", obj.Unique.typeP.name)
 				break
 			}
 		}
@@ -161,7 +161,7 @@ func removeTick(obj *ObjData) {
 						tickIntervals[i].offsets[offPos].ticks[itemPos+1:]...)
 
 				TickCount--
-				DoLog(true, "Tick Removed: %v", obj.Unique.typeP.name)
+				doLog(true, "Tick Removed: %v", obj.Unique.typeP.name)
 				break
 			}
 		}
@@ -214,7 +214,7 @@ func newRunTocks() {
 	activeTocks = 0
 	tockBlocks = 0
 
-	wg = sizedwaitgroup.New(NumWorkers)
+	wg = sizedwaitgroup.New(numWorkers)
 
 	for _, ti := range tickIntervals {
 		for _, off := range ti.offsets {
