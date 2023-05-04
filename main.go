@@ -192,6 +192,10 @@ func openBrowser(url string) {
 func checkVersion(silent bool) bool {
 	defer reportPanic("checkVersion")
 
+	if buildTime == "Dev Build" {
+		return false
+	}
+
 	// Create HTTP client with custom transport
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
@@ -231,13 +235,27 @@ func checkVersion(silent bool) bool {
 			//dlURL = respParts[2]
 
 			if wasmMode {
-				go chatDetailed("The game is out of date.\nYou may need to refresh your browser.", ColorOrange, 30*time.Second)
+				go chatDetailed("The game is out of date.\nYou may need to refresh your browser.", ColorOrange, 60*time.Second)
 				return true
 			}
 
 			buf := fmt.Sprintf("New version available: %v", newVersion)
 			if respParts[2] != "" {
-				go openBrowser(respParts[2])
+				dlBase := strings.TrimSuffix(respParts[2], "/")
+				downloadURL := ""
+				switch runtime.GOOS {
+				case "linux":
+					downloadURL = fmt.Sprintf("%v/Facility38-%v-linux64.zip", dlBase, newVersion)
+				case "windows":
+					downloadURL = fmt.Sprintf("%v/Facility38-%v-win64.zip", dlBase, newVersion)
+				case "darwin":
+					//downloadURL = fmt.Sprintf("%v/Facility38-%v-mac64.zip", dlBase, newVersion)
+				default:
+					//Unsupported
+				}
+				if downloadURL != "" {
+					go openBrowser(downloadURL)
+				}
 			}
 			silenceUpdates = true
 			chatDetailed(buf, color.White, 60*time.Second)
@@ -255,6 +273,11 @@ func checkVersion(silent bool) bool {
 /* Check server for authorization information */
 func checkAuth() bool {
 	defer reportPanic("checkAuth")
+
+	if buildTime == "Dev Build" {
+		authorized.Store(true)
+		return true
+	}
 
 	good := loadSecrets()
 	if !good {
