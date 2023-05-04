@@ -1,7 +1,7 @@
 #!/bin/bash
-rm BUILD/builds/wasm/main.wasm.gz
-rm BUILD/builds/wasm/main.wasm
-
+path="BUILD/builds/wasm"
+rm BUILD/main.wasm.gz
+rm path/wasm/main.wasm
 curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
 
 # Check if an argument was passed in
@@ -13,6 +13,11 @@ fi
 go build -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
 
-GOGC=100 GOOS=js GOMAXPROCS=1 GOARCH=wasm go build -trimpath -tags=ebitensinglethread -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true -X main.WASMMode=true" -o BUILD/builds/wasm/main.wasm
-gzip -9 BUILD/builds/wasm/main.wasm
-rm BUILD/builds/wasm/main.wasm
+
+
+GOGC=100 GOOS=js GOMAXPROCS=1 GOARCH=wasm go build -trimpath -tags=ebitensinglethread -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true -X main.WASMMode=true" -o $path/main.wasm
+
+cd $path
+gzip -9 main.wasm
+mv main.wasm.gz ..
+rm main.wasm
