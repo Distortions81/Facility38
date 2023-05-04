@@ -48,13 +48,13 @@ func objUpdateDaemon() {
 
 		runRotates()
 
-		ObjQueueLock.Lock()
+		objQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
-		ObjQueueLock.Unlock()
+		objQueueLock.Unlock()
 
-		EventQueueLock.Lock()
+		eventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
-		EventQueueLock.Unlock()
+		eventQueueLock.Unlock()
 
 		gameLock.Unlock()
 
@@ -105,13 +105,13 @@ func ObjUpdateDaemonST() {
 
 		runRotates()
 
-		ObjQueueLock.Lock()
+		objQueueLock.Lock()
 		runObjQueue() //Queue to add/remove objects
-		ObjQueueLock.Unlock()
+		objQueueLock.Unlock()
 
-		EventQueueLock.Lock()
+		eventQueueLock.Lock()
 		runEventQueue() //Queue to add/remove events
-		EventQueueLock.Unlock()
+		eventQueueLock.Unlock()
 
 		gameLock.Unlock()
 
@@ -193,37 +193,36 @@ func tickObj(obj *ObjData) {
 /* A queue of object rotations to perform between ticks */
 func rotateListAdd(b *buildingData, cw bool, pos XY) {
 	defer reportPanic("RotateListAdd")
-	RotateListLock.Lock()
+	rotateListLock.Lock()
 
-	RotateList = append(RotateList, rotateEvent{build: b, clockwise: cw})
-	RotateCount++
+	rotateList = append(rotateList, rotateEvent{build: b, clockwise: cw})
 
-	RotateListLock.Unlock()
+	rotateListLock.Unlock()
 }
 
 /* Add to event queue (list of tock and tick events) */
 func eventQueueAdd(obj *ObjData, qtype uint8, delete bool) {
 	defer reportPanic("EventQueueAdd")
-	EventQueueLock.Lock()
-	EventQueue = append(EventQueue, &eventQueueData{obj: obj, qType: qtype, delete: delete})
-	EventQueueLock.Unlock()
+	eventQueueLock.Lock()
+	eventQueue = append(eventQueue, &eventQueueData{obj: obj, qType: qtype, delete: delete})
+	eventQueueLock.Unlock()
 }
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
 func objQueueAdd(obj *ObjData, otype uint8, pos XY, delete bool, dir uint8) {
 	defer reportPanic("ObjQueueAdd")
-	ObjQueueLock.Lock()
-	ObjQueue = append(ObjQueue, &objectQueueData{obj: obj, oType: otype, pos: pos, delete: delete, dir: dir})
-	ObjQueueLock.Unlock()
+	objQueueLock.Lock()
+	objQueue = append(objQueue, &objectQueueData{obj: obj, oType: otype, pos: pos, delete: delete, dir: dir})
+	objQueueLock.Unlock()
 }
 
 /* Perform object rotations between ticks */
 func runRotates() {
 	defer reportPanic("RunRotates")
-	RotateListLock.Lock()
-	defer RotateListLock.Unlock()
+	rotateListLock.Lock()
+	defer rotateListLock.Unlock()
 
-	for _, rot := range RotateList {
+	for _, rot := range rotateList {
 		var objSave ObjData
 		b := rot.build
 
@@ -309,14 +308,14 @@ func runRotates() {
 	}
 
 	//Done, reset list.
-	RotateList = []rotateEvent{}
+	rotateList = []rotateEvent{}
 }
 
 /* Add/remove tick/tock events from the lists */
 func runEventQueue() {
 	defer reportPanic("RunEventQueue")
 
-	for _, e := range EventQueue {
+	for _, e := range eventQueue {
 		if e.delete {
 			switch e.qType {
 			case QUEUE_TYPE_TICK:
@@ -336,14 +335,14 @@ func runEventQueue() {
 	}
 
 	/* Done, reset list */
-	EventQueue = []*eventQueueData{}
+	eventQueue = []*eventQueueData{}
 }
 
 /* Add/remove objects from game world at end of tick/tock cycle */
 func runObjQueue() {
 	defer reportPanic("runObjQueue")
 
-	for _, item := range ObjQueue {
+	for _, item := range objQueue {
 		if item.delete {
 
 			/* Handle multi-tile item delete */
@@ -355,18 +354,18 @@ func runObjQueue() {
 				}
 			}
 			delObj(item.obj)
-			VisDataDirty.Store(true)
+			visDataDirty.Store(true)
 		} else {
 
 			/* Place object in world */
 			//Add
 			placeObj(item.pos, item.oType, nil, item.dir, false)
-			VisDataDirty.Store(true)
+			visDataDirty.Store(true)
 		}
 	}
 
 	/* Done, reset list */
-	ObjQueue = []*objectQueueData{}
+	objQueue = []*objectQueueData{}
 }
 
 /* Unlink and remove object */

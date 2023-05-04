@@ -342,7 +342,7 @@ func startGame() {
 
 	screenSizeLock.Lock()
 	handleResize(int(ScreenWidth), int(ScreenHeight))
-	VisDataDirty.Store(true)
+	visDataDirty.Store(true)
 	screenSizeLock.Unlock()
 
 	initWindows()
@@ -684,7 +684,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 		ScreenWidth = uint16(outsideWidth)
 		ScreenHeight = uint16(outsideHeight)
 		handleResize(outsideWidth, outsideHeight)
-		VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	}
 
 	return int(ScreenWidth), int(ScreenHeight)

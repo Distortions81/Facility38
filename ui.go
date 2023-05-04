@@ -107,8 +107,8 @@ func (g *Game) Update() error {
 	calcScreenCamera()
 
 	/* Get mouse position on world */
-	worldMouseX = (float32(MouseX)/zoomScale + (CameraX - (float32(ScreenWidth)/2.0)/zoomScale))
-	worldMouseY = (float32(MouseY)/zoomScale + (CameraY - (float32(ScreenHeight)/2.0)/zoomScale))
+	worldMouseX = (float32(MouseX)/zoomScale + (cameraX - (float32(ScreenWidth)/2.0)/zoomScale))
+	worldMouseY = (float32(MouseY)/zoomScale + (cameraY - (float32(ScreenHeight)/2.0)/zoomScale))
 	return nil
 }
 
@@ -214,7 +214,7 @@ func zoomHandle() {
 	/* WASM weirdness kludge */
 	if wasmMode && (fsy > 0 && fsy < 0) {
 		if time.Since(lastScroll) < (time.Millisecond * 200) {
-			VisDataDirty.Store(true)
+			visDataDirty.Store(true)
 			return
 		}
 	}
@@ -224,26 +224,26 @@ func zoomHandle() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		zoomScale = zoomScale * 2
 		limitZoom()
-		VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyMinus) || inpututil.IsKeyJustPressed(ebiten.KeyKPSubtract) {
 		zoomScale = zoomScale / 2
 		limitZoom()
-		VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	} else if fsy > 0 {
 		/* Zoom in with scroll wheel */
 		zoomScale = zoomScale * 2
 
 		/* Center world on mouse */
 		if limitZoom() {
-			CameraX = worldMouseX
-			CameraY = worldMouseY
+			cameraX = worldMouseX
+			cameraY = worldMouseY
 		}
-		VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	} else if fsy < 0 {
 		/* Zoom out */
 		zoomScale = zoomScale / 2
 		limitZoom()
-		VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 	}
 
 }
@@ -253,11 +253,11 @@ func limitZoom() bool {
 	defer reportPanic("limitZoom")
 	if zoomScale < 1 {
 		zoomScale = 1
-		VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 		return false
 	} else if zoomScale > 256 {
 		zoomScale = 256
-		VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 		return false
 	}
 
@@ -359,22 +359,22 @@ func moveCamera() {
 
 	/* WASD keys */
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
-		CameraY -= speed
-		VisDataDirty.Store(true)
+		cameraY -= speed
+		visDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		CameraX -= speed
-		VisDataDirty.Store(true)
+		cameraX -= speed
+		visDataDirty.Store(true)
 
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
-		CameraY += speed
-		VisDataDirty.Store(true)
+		cameraY += speed
+		visDataDirty.Store(true)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
-		CameraX += speed
-		VisDataDirty.Store(true)
+		cameraX += speed
+		visDataDirty.Store(true)
 	}
 
 	/* Middle-Mouse click-drag */
@@ -384,22 +384,22 @@ func moveCamera() {
 			gCameraDrag = true
 		}
 
-		CameraX = CameraX + (float32(LastMouseX-MouseX) / zoomScale)
-		CameraY = CameraY + (float32(LastMouseY-MouseY) / zoomScale)
-		VisDataDirty.Store(true)
+		cameraX = cameraX + (float32(LastMouseX-MouseX) / zoomScale)
+		cameraY = cameraY + (float32(LastMouseY-MouseY) / zoomScale)
+		visDataDirty.Store(true)
 		LastMouseX = MouseX
 		LastMouseY = MouseY
 
 		/* Don't let camera go beyond a reasonable point */
-		if CameraX > float32(xyMax) {
-			CameraX = float32(xyMax)
-		} else if CameraX < xyMin {
-			CameraX = xyMin
+		if cameraX > float32(xyMax) {
+			cameraX = float32(xyMax)
+		} else if cameraX < xyMin {
+			cameraX = xyMin
 		}
-		if CameraY > float32(xyMax) {
-			CameraY = float32(xyMax)
-		} else if CameraY < xyMin {
-			CameraY = xyMin
+		if cameraY > float32(xyMax) {
+			cameraY = float32(xyMax)
+		} else if cameraY < xyMin {
+			cameraY = xyMin
 		}
 	} else {
 		gCameraDrag = false

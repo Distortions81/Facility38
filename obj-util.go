@@ -192,7 +192,7 @@ func placeObj(pos XY, mtype uint8, obj *ObjData, dir uint8, fast bool) *ObjData 
 
 	/* Mark superchunk and visdata dirty */
 	newObj.chunk.parent.pixmapDirty = true
-	VisDataDirty.Store(true)
+	visDataDirty.Store(true)
 	newObj.chunk.lock.Unlock()
 
 	/* Place item tiles */

@@ -30,11 +30,11 @@ func toggleHelp() {
 /* Toggle info overlay */
 func toggleOverlay() {
 	defer reportPanic("toggleOverlay")
-	if OverlayMode {
-		OverlayMode = false
+	if overlayMode {
+		overlayMode = false
 		chatDetailed("Info overlay is now off.", ColorOrange, time.Second*5)
 	} else {
-		OverlayMode = true
+		overlayMode = true
 		chatDetailed("Info overlay is now on.", ColorOrange, time.Second*5)
 	}
 }

@@ -472,9 +472,9 @@ func updateVisData() {
 	defer reportPanic("updateVisData")
 
 	/* When needed, make a list of chunks to draw */
-	if VisDataDirty.Load() {
+	if visDataDirty.Load() {
 		screenSizeLock.Lock()
-		VisDataDirty.Store(false)
+		visDataDirty.Store(false)
 		screenSizeLock.Unlock()
 
 		visObj = []*ObjData{}
@@ -718,7 +718,7 @@ func drawIconMode() {
 			}
 		}
 		/* Draw overlays */
-		if OverlayMode {
+		if overlayMode {
 
 			/* Show box conents in overylay mode */
 			if obj.Unique.typeP.typeI == objTypeBasicBox {
@@ -986,7 +986,7 @@ func drawObject(obj *ObjData, maskOnly bool) (op *ebiten.DrawImageOptions, img *
 			return op, obj.Unique.typeP.images.corner
 		} else if obj.active && obj.Unique.typeP.images.active != nil {
 			return op, obj.Unique.typeP.images.active
-		} else if OverlayMode && obj.Unique.typeP.images.overlay != nil {
+		} else if overlayMode && obj.Unique.typeP.images.overlay != nil {
 			return op, obj.Unique.typeP.images.overlay
 		} else if maskOnly {
 			return op, obj.Unique.typeP.images.mask
@@ -1006,14 +1006,14 @@ func calcScreenCamera() {
 	lastCamY = camYPos
 
 	/* Adjust cam position for zoom */
-	camXPos = float32(-CameraX) + ((float32(ScreenWidth) / 2.0) / zoomScale)
-	camYPos = float32(-CameraY) + ((float32(ScreenHeight) / 2.0) / zoomScale)
+	camXPos = float32(-cameraX) + ((float32(ScreenWidth) / 2.0) / zoomScale)
+	camYPos = float32(-cameraY) + ((float32(ScreenHeight) / 2.0) / zoomScale)
 
 	/* Get camera bounds */
-	camStartX = uint16((1/zoomScale + (CameraX - padding - (float32(ScreenWidth)/2.0)/zoomScale)))
-	camStartY = uint16((1/zoomScale + (CameraY - padding - (float32(ScreenHeight)/2.0)/zoomScale)))
-	camEndX = uint16((float32(ScreenWidth)/zoomScale + (CameraX + padding - (float32(ScreenWidth)/2.0)/zoomScale)))
-	camEndY = uint16((float32(ScreenHeight)/zoomScale + (CameraY + padding - (float32(ScreenHeight)/2.0)/zoomScale)))
+	camStartX = uint16((1/zoomScale + (cameraX - padding - (float32(ScreenWidth)/2.0)/zoomScale)))
+	camStartY = uint16((1/zoomScale + (cameraY - padding - (float32(ScreenHeight)/2.0)/zoomScale)))
+	camEndX = uint16((float32(ScreenWidth)/zoomScale + (cameraX + padding - (float32(ScreenWidth)/2.0)/zoomScale)))
+	camEndY = uint16((float32(ScreenHeight)/zoomScale + (cameraY + padding - (float32(ScreenHeight)/2.0)/zoomScale)))
 
 	/* Pre-calc camera chunk position */
 	screenStartX = camStartX / chunkSize

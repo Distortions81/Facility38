@@ -64,7 +64,7 @@ func saveGame() {
 			Date:       lastSave.UTC().Unix(),
 			MapSeed:    MapSeed,
 			GameTicks:  GameTick,
-			CameraPos:  XYs{X: int32(CameraX), Y: int32(CameraY)},
+			CameraPos:  XYs{X: int32(cameraX), Y: int32(cameraY)},
 			CameraZoom: int16(zoomScale)}
 		for _, sChunk := range superChunkList {
 			for _, chunk := range sChunk.chunkList {
@@ -275,14 +275,14 @@ func loadGame(external bool, data []byte) {
 		lastSave = time.Unix(tempList.Date, 0).UTC()
 		GameTick = tempList.GameTicks
 		if tempList.CameraPos.X != 0 && tempList.CameraPos.Y != 0 {
-			CameraX = float32(tempList.CameraPos.X)
-			CameraY = float32(tempList.CameraPos.Y)
+			cameraX = float32(tempList.CameraPos.X)
+			cameraY = float32(tempList.CameraPos.Y)
 		}
 		if tempList.CameraZoom != 0 {
 			zoomScale = float32(tempList.CameraZoom)
 		}
 
-		VisDataDirty.Store(true)
+		visDataDirty.Store(true)
 
 		resetChat()
 		go chatDetailed("Load complete!", ColorOrange, time.Second*15)
@@ -297,13 +297,13 @@ func loadGame(external bool, data []byte) {
 func nukeWorld() {
 	defer reportPanic("NukeWorld")
 
-	EventQueueLock.Lock()
-	EventQueue = []*eventQueueData{}
-	EventQueueLock.Unlock()
+	eventQueueLock.Lock()
+	eventQueue = []*eventQueueData{}
+	eventQueueLock.Unlock()
 
-	ObjQueueLock.Lock()
-	ObjQueue = []*objectQueueData{}
-	ObjQueueLock.Unlock()
+	objQueueLock.Lock()
+	objQueue = []*objectQueueData{}
+	objQueueLock.Unlock()
 
 	GameTick = 0
 
@@ -340,7 +340,7 @@ func nukeWorld() {
 	superChunkList = []*mapSuperChunkData{}
 	superChunkMap = make(map[XY]*mapSuperChunkData)
 
-	VisDataDirty.Store(true)
+	visDataDirty.Store(true)
 	zoomScale = defaultZoom
 
 	tickIntervals = []tickInterval{}

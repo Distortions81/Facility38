@@ -226,7 +226,7 @@ func ObjListDelete(obj *ObjData) {
 		if item.Pos == obj.Pos {
 			obj.chunk.objList[index] = obj.chunk.objList[len(obj.chunk.objList)-1]
 			obj.chunk.objList = obj.chunk.objList[:len(obj.chunk.objList)-1]
-			VisDataDirty.Store(true)
+			visDataDirty.Store(true)
 			return
 		}
 	}

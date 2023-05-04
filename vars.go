@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	VisDataDirty.Store(true)
+	visDataDirty.Store(true)
 	superChunkMap = make(map[XY]*mapSuperChunkData)
 }
 
@@ -23,6 +23,24 @@ var (
 	Magnify   = true
 	LogStdOut = true
 	uiScale   = 1.0
+	// @Summary 登录
+	// @Description 登录
+	// @Produce json
+	// @Param body body controllers.LoginParams true "body参数"
+	// @Success 200 {string} string "ok" "返回用户信息"
+	// @Failure 400 {string} string "err_code：10002 参数错误； err_code：10003 校验错误"
+	// @Failure 401 {string} string "err_code：10001 登录失败"
+	// @Failure 500 {string} string "err_code：20001 服务错误；err_code：20002 接口错误；err_code：20003 无数据错误；err_code：20004 数据库异常；err_code：20005 缓存异常"
+	// @Router /user/person/login [post]
+	// @Summary 登录
+	// @Description 登录
+	// @Produce json
+	// @Param body body controllers.LoginParams true "body参数"
+	// @Success 200 {string} string "ok" "返回用户信息"
+	// @Failure 400 {string} string "err_code：10002 参数错误； err_code：10003 校验错误"
+	// @Failure 401 {string} string "err_code：10001 登录失败"
+	// @Failure 500 {string} string "err_code：20001 服务错误；err_code：20002 接口错误；err_code：20003 无数据错误；err_code：20004 数据库异常；err_code：20005 缓存异常"
+	// @Router /user/person/login [post]
 
 	/* Map values */
 	MapSeed  int64
@@ -48,22 +66,19 @@ var (
 	superChunkMapLock sync.RWMutex
 
 	/* Tick: External inter-object communication */
-	RotateList     []rotateEvent = []rotateEvent{}
-	RotateListLock sync.Mutex
+	rotateList     []rotateEvent = []rotateEvent{}
+	rotateListLock sync.Mutex
 
 	tickListLock sync.Mutex
 	tockListLock sync.Mutex
 
-	/* ObjQueue: add/del objects at end of tick */
-	ObjQueue     []*objectQueueData
-	ObjQueueLock sync.Mutex
+	/* objQueue: add/del objects at end of tick */
+	objQueue     []*objectQueueData
+	objQueueLock sync.Mutex
 
-	/* EventQueue: add/del ticks/tocks at end of tick */
-	EventQueue     []*eventQueueData
-	EventQueueLock sync.Mutex
-
-	/* Number of queued object rotations */
-	RotateCount int
+	/* eventQueue: add/del ticks/tocks at end of tick */
+	eventQueue     []*eventQueueData
+	eventQueueLock sync.Mutex
 
 	/* Number of tick events */
 	TickCount       int
@@ -116,19 +131,19 @@ var (
 	objectFontH int
 
 	/* Camera position */
-	CameraX float32 = float32(xyCenter)
-	CameraY float32 = float32(xyCenter)
+	cameraX float32 = float32(xyCenter)
+	cameraY float32 = float32(xyCenter)
 
 	/* Camera states */
 	zoomScale   float32 = defaultZoom //Current zoom
-	OverlayMode bool
+	overlayMode bool
 
 	/* View layers */
 	showResourceLayer     bool
 	showResourceLayerLock sync.RWMutex
 
 	/* If position/zoom changed */
-	VisDataDirty atomic.Bool
+	visDataDirty atomic.Bool
 
 	/* Temporary chunk image during draw */
 	TempChunkImage *ebiten.Image
