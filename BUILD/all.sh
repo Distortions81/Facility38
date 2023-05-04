@@ -9,4 +9,4 @@ bash BUILD/linuxbuild.sh $curTime
 bash BUILD/wasm.sh $curTime
 
 7z a -t7z BUILD/builds/code-ref/$versionString.7z *.go */*.go
-echo "Build of '$versionString' complete."
+echo "Build of '$versionString' complete, copying files."

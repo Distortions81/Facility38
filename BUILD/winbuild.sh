@@ -19,4 +19,5 @@ GOGC=100 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w -X main.bu
 cd $path
 osslsigncode sign -certs ~/code-cert/cert-20230123-193538.crt -key ~/code-cert/key-20230123-193538.pem -t http://timestamp.digicert.com -h sha256 -in Facility38-win64-raw.exe -out Facility38-$versionString-win64.exe 
 zip Facility38-$versionString-win64.zip Facility38-$versionString-win64.exe
+scp -P 5313 Facility38-$versionString-win64.zip dist@m45sci.xyz:~/F38Auth/www/dl/
 rm Facility38-win64-raw.exe Facility38-$versionString-win64.exe

@@ -19,5 +19,6 @@ GOGC=100 GOOS=js GOMAXPROCS=1 GOARCH=wasm go build -trimpath -tags=ebitensinglet
 
 cd $path
 gzip -9 main.wasm
+scp -P 5313 main.wasm.gz dist@m45sci.xyz:~/F38Auth/www/
 mv main.wasm.gz ..
 rm main.wasm

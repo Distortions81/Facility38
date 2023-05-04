@@ -15,4 +15,5 @@ GOGC=100 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w -X main.buil
 
 cd $path
 zip -9 Facility38-$versionString-linux64.zip Facility38-$versionString-linux64
+scp -P 5313 Facility38-$versionString-linux64.zip dist@m45sci.xyz:~/F38Auth/www/dl/
 rm Facility38-$versionString-linux64
