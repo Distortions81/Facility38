@@ -29,6 +29,8 @@ var (
 	buildTime string = "Dev Build"
 )
 
+const authSite = "https://facility38.xyz:8648"
+
 type Game struct {
 }
 
@@ -206,7 +208,7 @@ func checkVersion(silent bool) bool {
 
 	postString := fmt.Sprintf("CheckUpdateDev:v%03v-%v\n", version, buildTime)
 	// Send HTTPS POST request to server
-	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(postString)))
+	response, err := client.Post(authSite, "application/json", bytes.NewBuffer([]byte(postString)))
 	if err != nil {
 		txt := "Unable to connect to update server."
 		chat(txt)
@@ -298,7 +300,7 @@ func checkAuth() bool {
 	client := &http.Client{Transport: transport}
 
 	// Send HTTPS POST request to server
-	response, err := client.Post("https://m45sci.xyz:8648", "application/json", bytes.NewBuffer([]byte(Secrets[0].P)))
+	response, err := client.Post(authSite, "application/json", bytes.NewBuffer([]byte(Secrets[0].P)))
 	if err != nil {
 		txt := "Unable to connect to auth server."
 		chat(txt)
