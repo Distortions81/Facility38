@@ -80,11 +80,12 @@ func checkVersion(silent bool) bool {
 					//Unsupported
 				}
 
+				/* TODO Open dialog box with prompt to auto-update and progress bar */
 				if downloadURL != "" {
 					//downloadBuild(downloadURL)
+				} else {
+					chat(downloadURL)
 				}
-
-				chat(downloadURL)
 
 			}
 			silenceUpdates = true
