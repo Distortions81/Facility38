@@ -1,5 +1,3 @@
-*.zip
-*.gz
 *.exe
 
 Facility38
@@ -12,4 +10,4 @@ data/settings.json
 heapdump
 panic.log
 BUILD/builds
-saves/
+/saves/

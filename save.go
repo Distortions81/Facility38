@@ -228,6 +228,10 @@ func loadGame(external bool, data []byte) {
 		superChunkListLock.Lock()
 		tickListLock.Lock()
 		tockListLock.Lock()
+
+		defer tockListLock.Unlock()
+		defer tickListLock.Unlock()
+
 		tempList := gameSave{}
 		err = dec.Decode(&tempList)
 		if err != nil {
@@ -264,7 +268,7 @@ func loadGame(external bool, data []byte) {
 				Dir: tempList.Objects[i].Dir,
 			}
 
-			newObj := placeObj(obj.Pos, obj.Unique.typeP.typeI, nil, obj.Dir, true)
+			newObj := placeObj(obj.Pos, obj.Unique.typeP.typeI, nil, obj.Dir, false)
 			newObj.KGHeld = obj.KGHeld
 		}
 		statusText = "Complete!\n"
@@ -286,6 +290,7 @@ func loadGame(external bool, data []byte) {
 		mapLoadPercent = 100
 		mapGenerated.Store(true)
 		statusText = ""
+
 	}(external, data)
 }
 

@@ -369,6 +369,7 @@ func drawPixmap(sChunk *mapSuperChunkData, scPos XY) {
 	}
 
 	for _, chunk := range sChunk.chunkList {
+
 		if chunk.numObjs <= 0 {
 			continue
 		}

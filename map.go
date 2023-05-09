@@ -74,10 +74,14 @@ func makeMap() {
 			runEventQueue()
 		}
 
+	} else {
+		startupMap := loadEmbedSave()
+		if startupMap != nil {
+			loadGame(true, startupMap)
+		}
 	}
 
 	wasmSleep()
-	exploreMap(XY{X: xyCenter - (chunkSize / 2), Y: xyCenter - (chunkSize / 2)}, 16, true)
 
 	lastSave = time.Now().UTC()
 

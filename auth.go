@@ -79,11 +79,11 @@ func checkVersion(silent bool) bool {
 				default:
 					//Unsupported
 				}
-				/*
-					if downloadURL != "" {
-						go openBrowser(downloadURL)
-					}
-				*/
+
+				if downloadURL != "" {
+					//downloadBuild(downloadURL)
+				}
+
 				chat(downloadURL)
 
 			}
@@ -95,6 +95,27 @@ func checkVersion(silent bool) bool {
 		chat("Update server: Facility 38 is up-to-date.")
 	} else {
 		return false
+	}
+
+	return false
+}
+
+func downloadBuild(downloadURL string) bool {
+	/* Attempt to fetch the URL */
+	res, err := http.Get(downloadURL)
+	if err != nil {
+		doLog(true, "Failed to download new build from server: %v", err)
+		return false
+	}
+
+	/* Read response body */
+	body, err := io.ReadAll(res.Body)
+	res.Body.Close()
+	if res.StatusCode > 299 {
+		doLog(true, "Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+	}
+	if err != nil {
+		doLog(true, "Failed to read reply from server: %v", err)
 	}
 
 	return false

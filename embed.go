@@ -131,3 +131,22 @@ func loadSecrets() bool {
 
 	return true
 }
+
+const emberSavePath = dataDir + "saves/startup.zip"
+
+func loadEmbedSave() []byte {
+
+	file, err := f.Open(emberSavePath)
+	if err != nil {
+		doLog(true, "Embedded startup save not found: %v", err)
+		return nil
+	}
+
+	readData, err := io.ReadAll(file)
+	if err != nil {
+		doLog(true, "Unable to read embedded save game, startup.zip: %v", err)
+		return nil
+	}
+
+	return readData
+}
