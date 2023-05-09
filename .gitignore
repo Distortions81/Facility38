@@ -11,3 +11,6 @@ heapdump
 panic.log
 BUILD/builds
 /saves/
+auth.go
+auth.go
+*.tmp

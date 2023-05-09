@@ -14,7 +14,7 @@ import (
 
 var (
 	helpText string = ""
-
+	useLocal *bool
 	/* Compile flags */
 	buildTime string = "Dev Build"
 )
@@ -38,6 +38,7 @@ func main() {
 	forceAuto := flag.Bool("use-auto", false, "Use Auto-detected graphics API.")
 	forceOpenGL := flag.Bool("use-opengl", true, "Use OpenGL graphics API")
 	showVersion := flag.Bool("version", false, "Show game version and close")
+	useLocal = flag.Bool("local", false, "For internal testing.")
 	flag.Parse()
 
 	if *showVersion {
