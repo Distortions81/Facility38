@@ -19,7 +19,7 @@ const (
 /* Calculate spacing and order based on DPI and scale */
 func setupOptionsWindow(window *windowData) {
 	defer reportPanic("setupOptionsWindow")
-	buttons = []image.Rectangle{}
+	optionWindowButtons = []image.Rectangle{}
 
 	/* Loop all settings */
 	optNum := 1
@@ -38,7 +38,7 @@ func setupOptionsWindow(window *windowData) {
 			button.Min.Y = int((float64(generalFontH)*scaleFactor)*float64(optNum)) + int(padding*uiScale)
 			button.Max.Y = int((float64(generalFontH)*scaleFactor)*float64(optNum+linePad)) + int(padding*uiScale)
 		}
-		buttons = append(buttons, button)
+		optionWindowButtons = append(optionWindowButtons, button)
 
 		if (wasmMode && !settingItems[pos].WASMExclude) || !wasmMode {
 			optNum++
@@ -64,11 +64,15 @@ func drawUpdateWindow(window *windowData) {
 	defer reportPanic("drawUpdateWindow")
 
 	buf := fmt.Sprintf("A updated version of the game is available:\n\n%v", updateVersion)
-	drawText(buf, generalFont, color.White, color.Transparent,
+	newDrawText(buf, generalFont, color.White, color.Transparent,
 		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 4)},
 		0, window.cache, false, false, true)
 
-	draw
+	buttonRect := newDrawText("UPDATE NOW", largeGeneralFont, color.White, ColorRed,
+		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 2)},
+		float32(largeGeneralFontH/3), window.cache, false, true, true)
+
+	updateWindowButtons = []image.Rectangle{buttonRect}
 }
 
 /* Draw options window content */
@@ -82,7 +86,7 @@ func drawOptionsWindow(window *windowData) {
 
 	/* Draw items */
 	for i, item := range settingItems {
-		b := buttons[i]
+		b := optionWindowButtons[i]
 
 		/* Text */
 		if !item.NoCheck {

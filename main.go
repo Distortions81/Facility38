@@ -93,16 +93,6 @@ func main() {
 		return
 	}
 
-	/* Loads boot screen assets */
-	titleImg, err := getSpriteImage("title.png", true)
-	if err == nil {
-		TitleImage = titleImg
-	}
-	ebitenImg, err := getSpriteImage("ebiten.png", true)
-	if err == nil {
-		ebitenLogo = ebitenImg
-	}
-
 	buildInfo = buildTime
 	authorized.Store(false)
 

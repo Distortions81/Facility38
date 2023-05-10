@@ -109,6 +109,9 @@ var (
 	generalFont  font.Face
 	generalFontH int
 
+	largeGeneralFont  font.Face
+	largeGeneralFontH int
+
 	objectFont  font.Face
 	objectFontH int
 

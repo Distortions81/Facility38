@@ -6,15 +6,15 @@ func handleOptions(input XYs, window *windowData) bool {
 	windowsLock.Lock()
 	defer windowsLock.Unlock()
 
-	originX := window.position.X
-	originY := window.position.Y
-
 	if !gMouseHeld {
 		return false
 	}
 
+	originX := window.position.X
+	originY := window.position.Y
+
 	for i, item := range settingItems {
-		b := buttons[i]
+		b := optionWindowButtons[i]
 		if PosWithinRect(
 			XY{X: uint16(input.X - originX),
 				Y: uint16(input.Y - originY)}, b, 1) {
@@ -26,6 +26,34 @@ func handleOptions(input XYs, window *windowData) bool {
 
 				return true
 			}
+		}
+	}
+
+	return false
+}
+
+func handleHelpWindow(input XYs, window *windowData) bool {
+	defer reportPanic("handleOptions")
+	windowsLock.Lock()
+	defer windowsLock.Unlock()
+
+	if !gMouseHeld {
+		return false
+	}
+
+	originX := window.position.X
+	originY := window.position.Y
+
+	for i, _ := range updateWindowButtons {
+		b := updateWindowButtons[i]
+		if PosWithinRect(
+			XY{X: uint16(input.X - originX),
+				Y: uint16(input.Y - originY)}, b, 1) {
+
+			gMouseHeld = false
+			chat("MEEP")
+
+			return true
 		}
 	}
 
