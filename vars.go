@@ -92,6 +92,7 @@ var (
 	playerReady   atomic.Int32
 	mapGenerated  atomic.Bool
 	authorized    atomic.Bool
+	updatingGame  atomic.Bool
 
 	/* Fonts */
 	bootFont  font.Face

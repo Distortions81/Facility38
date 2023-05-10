@@ -102,7 +102,7 @@ func checkVersion(silent bool) bool {
 
 const downloadPathTemp = "update.tmp"
 
-func downloadBuild(downloadURL string) bool {
+func downloadBuild() bool {
 	defer reportPanic("downloadBuild")
 
 	newBuildTemp, err := os.OpenFile(downloadPathTemp, os.O_RDWR|os.O_CREATE, 0666)
@@ -160,7 +160,7 @@ func downloadBuild(downloadURL string) bool {
 	nukeWorld()
 
 	doLog(true, "Goodbye... Relaunching.")
-	time.Sleep(time.Second)
+	time.Sleep(time.Millisecond * 250)
 
 	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch " + archive.File[0].Name}, &os.ProcAttr{})
 	if err == nil {

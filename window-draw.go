@@ -61,6 +61,10 @@ var updateVersion string
 var downloadURL string
 
 func drawUpdateWindow(window *windowData) {
+	updateButtonText := "UPDATE NOW"
+	if updatingGame.Load() {
+		updateButtonText = "UPDATING GAME..."
+	}
 	defer reportPanic("drawUpdateWindow")
 
 	buf := fmt.Sprintf("A updated version of the game is available:\n\n%v", updateVersion)
@@ -68,11 +72,15 @@ func drawUpdateWindow(window *windowData) {
 		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 4)},
 		0, window.cache, false, false, true)
 
-	buttonRect := newDrawText("UPDATE NOW", largeGeneralFont, color.White, ColorRed,
+	buttonRect := newDrawText(updateButtonText, largeGeneralFont, color.White, ColorRed,
 		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 2)},
 		float32(largeGeneralFontH/3), window.cache, false, true, true)
 
-	updateWindowButtons = []image.Rectangle{buttonRect}
+	if updatingGame.Load() {
+		updateWindowButtons = []image.Rectangle{}
+	} else {
+		updateWindowButtons = []image.Rectangle{buttonRect}
+	}
 }
 
 /* Draw options window content */

@@ -74,15 +74,14 @@ func main() {
 	} else {
 		check, err := os.Stat(downloadPathTemp)
 		if err == nil && check.Size() > 0 {
-			err = os.Remove(downloadPathTemp)
 			for x := 0; x < 5; x++ {
-				if err != nil {
+				err = os.Remove(downloadPathTemp)
+				if err == nil {
+					playerReady.Store(255)
+					doLog(true, "update temp deleted")
+					break
+				} else {
 					time.Sleep(time.Second)
-					err = os.Remove(downloadPathTemp)
-					if err == nil {
-						doLog(true, "update temp deleted")
-						break
-					}
 				}
 			}
 		}

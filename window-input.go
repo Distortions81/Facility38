@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 /* Figure out what option item user clicked */
 func handleOptions(input XYs, window *windowData) bool {
 	defer reportPanic("handleOptions")
@@ -33,7 +35,7 @@ func handleOptions(input XYs, window *windowData) bool {
 }
 
 func handleHelpWindow(input XYs, window *windowData) bool {
-	defer reportPanic("handleOptions")
+	defer reportPanic("handleHelpWindow")
 	windowsLock.Lock()
 	defer windowsLock.Unlock()
 
@@ -44,15 +46,22 @@ func handleHelpWindow(input XYs, window *windowData) bool {
 	originX := window.position.X
 	originY := window.position.Y
 
-	for i, _ := range updateWindowButtons {
+	for i := range updateWindowButtons {
 		b := updateWindowButtons[i]
 		if PosWithinRect(
 			XY{X: uint16(input.X - originX),
 				Y: uint16(input.Y - originY)}, b, 1) {
 
-			gMouseHeld = false
-			chat("MEEP")
+			if !updatingGame.Load() {
+				gMouseHeld = false
+				updatingGame.Store(true)
+				window.dirty = true
 
+				go func() {
+					time.Sleep(time.Second)
+					downloadBuild()
+				}()
+			}
 			return true
 		}
 	}
