@@ -33,7 +33,7 @@ var windows []*windowData = []*windowData{
 	},
 	{
 		title:       "Update Game",
-		size:        XYs{X: 300, Y: 300},
+		size:        XYs{X: 300, Y: 150},
 		centered:    true,
 		closeable:   true,
 		windowDraw:  drawUpdateWindow,

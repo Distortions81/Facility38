@@ -27,7 +27,7 @@ func init() {
 func objUpdateDaemon() {
 	defer reportPanic("objUpdateDaemon")
 
-	for !mapGenerated.Load() {
+	for !mapGenerated.Load() || !authorized.Load() {
 		time.Sleep(time.Millisecond * 100)
 	}
 
@@ -131,7 +131,7 @@ func ObjUpdateDaemonST() {
 
 /* Autosave */
 func handleAutosave() {
-	if autoSave && !wasmMode && time.Since(lastSave) > time.Minute*5 {
+	if autoSave && !wasmMode && time.Now().UTC().Sub(lastSave) > time.Minute*5 {
 		lastSave = time.Now().UTC()
 		saveGame()
 	}

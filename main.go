@@ -229,7 +229,6 @@ func startGame() {
 
 			//shhh
 			updateFonts()
-
 			checkAuth()
 		}
 	}()
@@ -242,6 +241,7 @@ func startGame() {
 	}()
 
 	/* Threaded update daemons */
+	lastSave = time.Now().UTC()
 	if !wasmMode {
 		go pixmapRenderDaemon()
 		go objUpdateDaemon()

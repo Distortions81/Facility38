@@ -14,6 +14,7 @@ import (
 )
 
 var authSite = "https://facility38.xyz:8648"
+var downloadPercent int
 
 /* Contact server for version information */
 func checkVersion(silent bool) bool {
@@ -88,6 +89,7 @@ func checkVersion(silent bool) bool {
 				}
 			}
 
+			downloadPercent = 0
 			openWindow(windows[2])
 			return true
 		}
