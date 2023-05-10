@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"image/color"
 	"io"
 	"net/http"
 	"os"
@@ -21,7 +20,7 @@ func checkVersion(silent bool) bool {
 	defer reportPanic("checkVersion")
 
 	if buildTime == "Dev Build" {
-		return false
+		//return false
 	}
 
 	// Create HTTP client with custom transport
@@ -71,15 +70,12 @@ func checkVersion(silent bool) bool {
 				return true
 			}
 
-			buf := fmt.Sprintf("New version available: %v", newVersion)
 			silenceUpdates = true
-			chatDetailed(buf, color.White, 60*time.Second)
+			updateVersion = newVersion
 
 			if respParts[2] != "" {
-				chat("Downloading update")
-
 				dlBase := strings.TrimSuffix(respParts[2], "/")
-				downloadURL := ""
+				downloadURL = ""
 				switch runtime.GOOS {
 				case "linux":
 					downloadURL = fmt.Sprintf("%v/Facility38-%v-linux64.zip", dlBase, newVersion)
@@ -90,14 +86,9 @@ func checkVersion(silent bool) bool {
 				default:
 					//Unsupported
 				}
-
-				/* TODO Open dialog box with prompt to auto-update and progress bar */
-				if downloadURL != "" {
-					downloadBuild(downloadURL)
-				}
-
 			}
 
+			openWindow(windows[2])
 			return true
 		}
 	} else if respPartLen > 0 && respParts[0] == "UpToDate" {

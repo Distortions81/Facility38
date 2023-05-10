@@ -30,6 +30,14 @@ var windows []*windowData = []*windowData{
 		windowDraw: drawHelpWindow,
 		movable:    true,
 	},
+	{
+		title:      "Update Game",
+		size:       XYs{X: 300, Y: 300},
+		centered:   true,
+		closeable:  true,
+		windowDraw: drawUpdateWindow,
+		movable:    true,
+	},
 }
 
 var openWindows []*windowData

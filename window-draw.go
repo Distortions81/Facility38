@@ -56,6 +56,21 @@ func drawHelpWindow(window *windowData) {
 		0, window.cache, false, false, true)
 }
 
+/* Draw the help window content */
+var updateVersion string
+var downloadURL string
+
+func drawUpdateWindow(window *windowData) {
+	defer reportPanic("drawUpdateWindow")
+
+	buf := fmt.Sprintf("A updated version of the game is available:\n\n%v", updateVersion)
+	drawText(buf, generalFont, color.White, color.Transparent,
+		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 4)},
+		0, window.cache, false, false, true)
+
+	draw
+}
+
 /* Draw options window content */
 const checkScale = 0.5
 
