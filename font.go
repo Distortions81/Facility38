@@ -100,6 +100,17 @@ func updateFonts() {
 	}
 	generalFontH = getFontHeight(generalFont)
 
+	/* Large general font */
+	largeGeneralFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    20,
+		DPI:     fontDPI,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	largeGeneralFontH = getFontHeight(largeGeneralFont)
+
 	/* Missing texture font */
 	objectFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    6,

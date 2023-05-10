@@ -116,6 +116,16 @@ func loadSprites(dark bool) {
 		resourceLegendImage = img
 	}
 
+	/* Loads boot screen assets */
+	titleImg, err := getSpriteImage("title.png", true)
+	if err == nil {
+		TitleImage = titleImg
+	}
+	ebitenImg, err := getSpriteImage("ebiten.png", true)
+	if err == nil {
+		ebitenLogo = ebitenImg
+	}
+
 	linkSprites(false)
 	linkSprites(true)
 

@@ -23,12 +23,22 @@ var windows []*windowData = []*windowData{
 		windowInput: handleOptions,
 	},
 	{
-		title:      "Help & Controls",
-		size:       XYs{X: 300, Y: 300},
-		centered:   true,
-		closeable:  true,
-		windowDraw: drawHelpWindow,
-		movable:    true,
+		title:       "Help & Controls",
+		size:        XYs{X: 300, Y: 300},
+		centered:    true,
+		closeable:   true,
+		windowDraw:  drawHelpWindow,
+		windowInput: handleHelpWindow,
+		movable:     true,
+	},
+	{
+		title:       "Update Game",
+		size:        XYs{X: 300, Y: 150},
+		centered:    true,
+		closeable:   true,
+		windowDraw:  drawUpdateWindow,
+		windowInput: handleHelpWindow,
+		movable:     true,
 	},
 }
 

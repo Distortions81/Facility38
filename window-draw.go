@@ -19,7 +19,7 @@ const (
 /* Calculate spacing and order based on DPI and scale */
 func setupOptionsWindow(window *windowData) {
 	defer reportPanic("setupOptionsWindow")
-	buttons = []image.Rectangle{}
+	optionWindowButtons = []image.Rectangle{}
 
 	/* Loop all settings */
 	optNum := 1
@@ -38,7 +38,7 @@ func setupOptionsWindow(window *windowData) {
 			button.Min.Y = int((float64(generalFontH)*scaleFactor)*float64(optNum)) + int(padding*uiScale)
 			button.Max.Y = int((float64(generalFontH)*scaleFactor)*float64(optNum+linePad)) + int(padding*uiScale)
 		}
-		buttons = append(buttons, button)
+		optionWindowButtons = append(optionWindowButtons, button)
 
 		if (wasmMode && !settingItems[pos].WASMExclude) || !wasmMode {
 			optNum++
@@ -56,6 +56,33 @@ func drawHelpWindow(window *windowData) {
 		0, window.cache, false, false, true)
 }
 
+/* Draw the help window content */
+var updateVersion string
+var downloadURL string
+
+func drawUpdateWindow(window *windowData) {
+	updateButtonText := "UPDATE NOW"
+	if updatingGame.Load() {
+		updateButtonText = "UPDATING GAME..."
+	}
+	defer reportPanic("drawUpdateWindow")
+
+	buf := fmt.Sprintf("A updated version of the game is available:\n%v", updateVersion)
+	newDrawText(buf, generalFont, color.White, color.Transparent,
+		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 2)},
+		0, window.cache, false, false, true)
+
+	buttonRect := newDrawText(updateButtonText, largeGeneralFont, color.White, ColorRed,
+		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y) / 1.05},
+		float32(largeGeneralFontH/3), window.cache, false, true, true)
+
+	if updatingGame.Load() {
+		updateWindowButtons = []image.Rectangle{}
+	} else {
+		updateWindowButtons = []image.Rectangle{buttonRect}
+	}
+}
+
 /* Draw options window content */
 const checkScale = 0.5
 
@@ -67,7 +94,7 @@ func drawOptionsWindow(window *windowData) {
 
 	/* Draw items */
 	for i, item := range settingItems {
-		b := buttons[i]
+		b := optionWindowButtons[i]
 
 		/* Text */
 		if !item.NoCheck {

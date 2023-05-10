@@ -273,7 +273,7 @@ func loadGame(external bool, data []byte) {
 		}
 		statusText = "Complete!\n"
 
-		lastSave = time.Unix(tempList.Date, 0).UTC()
+		//lastSave = time.Unix(tempList.Date, 0).UTC()
 		GameTick = tempList.GameTicks
 		if tempList.CameraPos.X != 0 && tempList.CameraPos.Y != 0 {
 			cameraX = float32(tempList.CameraPos.X)

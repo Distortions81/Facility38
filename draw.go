@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"math"
 	"runtime"
@@ -898,6 +899,52 @@ func drawTime(screen *ebiten.Image) {
 
 }
 
+func newDrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos XYf32,
+	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) image.Rectangle {
+	defer reportPanic("DrawText")
+	var tmx, tmy float32
+
+	tRect := text.BoundString(face, input)
+
+	if justCenter {
+		tmx = float32(int(pos.X) - (tRect.Dx() / 2))
+		tmy = float32(int(pos.Y) - (tRect.Dy() / 2))
+	} else {
+		if justLeft {
+			tmx = float32(pos.X)
+		} else {
+			tmx = float32(int(pos.X) - tRect.Dx())
+		}
+
+		if justUp {
+			tmy = float32(int(pos.Y) - tRect.Dy())
+		} else {
+			tmy = float32(pos.Y + float32(tRect.Dy()))
+		}
+	}
+
+	fHeight := text.BoundString(face, "gpqabcABC!|_,;^*`")
+
+	xPos := tmx - pad
+	yPos := tmy - float32(fHeight.Dy()) - (float32(pad) / 2.0)
+	xWidth := float32(tRect.Dx()) + pad*2
+	yWidth := float32(tRect.Dy()) + pad*2
+	vector.DrawFilledRect(
+		screen, xPos, yPos,
+		xWidth, yWidth, bgcolor, false,
+	)
+	text.Draw(screen, input, face, int(tmx), int(tmy), color)
+
+	result := image.Rectangle{}
+	result.Min.X = int(xPos)
+	result.Min.Y = int(yPos)
+
+	result.Max.X = int(xPos + xWidth)
+	result.Max.Y = int(yPos + yWidth)
+	return result
+
+}
+
 func drawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) XYf32 {
 	defer reportPanic("DrawText")
@@ -926,7 +973,7 @@ func drawText(input string, face font.Face, color color.Color, bgcolor color.Col
 	if alpha > 0 {
 		fHeight := text.BoundString(face, "gpqabcABC!|_,;^*`")
 		vector.DrawFilledRect(
-			screen, tmx-pad, tmy-float32(fHeight.Dy())-pad,
+			screen, tmx-pad, tmy-float32(fHeight.Dy())-(float32(pad)/2.0),
 			float32(tRect.Dx())+pad*2, float32(tRect.Dy())+pad*2, bgcolor, false,
 		)
 	}

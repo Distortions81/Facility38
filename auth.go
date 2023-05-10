@@ -1,10 +1,10 @@
 package main
 
 import (
+	"archive/zip"
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"image/color"
 	"io"
 	"net/http"
 	"os"
@@ -14,6 +14,7 @@ import (
 )
 
 var authSite = "https://facility38.xyz:8648"
+var downloadPercent int
 
 /* Contact server for version information */
 func checkVersion(silent bool) bool {
@@ -70,13 +71,12 @@ func checkVersion(silent bool) bool {
 				return true
 			}
 
-			buf := fmt.Sprintf("New version available: %v", newVersion)
 			silenceUpdates = true
-			chatDetailed(buf, color.White, 60*time.Second)
+			updateVersion = newVersion
 
 			if respParts[2] != "" {
 				dlBase := strings.TrimSuffix(respParts[2], "/")
-				downloadURL := ""
+				downloadURL = ""
 				switch runtime.GOOS {
 				case "linux":
 					downloadURL = fmt.Sprintf("%v/Facility38-%v-linux64.zip", dlBase, newVersion)
@@ -87,16 +87,10 @@ func checkVersion(silent bool) bool {
 				default:
 					//Unsupported
 				}
-
-				/* TODO Open dialog box with prompt to auto-update and progress bar */
-				if downloadURL != "" {
-					downloadBuild(downloadURL)
-				} else {
-					chat(downloadURL)
-				}
-
 			}
 
+			downloadPercent = 0
+			openWindow(windows[2])
 			return true
 		}
 	} else if respPartLen > 0 && respParts[0] == "UpToDate" {
@@ -110,15 +104,17 @@ func checkVersion(silent bool) bool {
 
 const downloadPathTemp = "update.tmp"
 
-func downloadBuild(downloadURL string) bool {
-	newBuildZip, err := os.OpenFile(downloadPathTemp, os.O_RDWR|os.O_CREATE, 0666)
+func downloadBuild() bool {
+	defer reportPanic("downloadBuild")
+
+	newBuildTemp, err := os.OpenFile(downloadPathTemp, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		chat("Unable to create update file.")
 		return false
 	}
-	defer newBuildZip.Close()
+	defer newBuildTemp.Close()
 
-	// Create HTTP client with custom transport
+	/* Create HTTP client with custom transport */
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: *useLocal,
@@ -135,28 +131,65 @@ func downloadBuild(downloadURL string) bool {
 
 	/* Read response body */
 	body, err := io.ReadAll(res.Body)
-	res.Body.Close()
-
-	if res.StatusCode > 299 {
-		doLog(true, "Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
-		return false
-	}
 	if err != nil {
 		doLog(true, "Failed to read reply from server: %v", err)
 		return false
 	}
+	res.Body.Close()
 
-	_, err = newBuildZip.Write(body)
-	if err != nil {
-		chat("Unable to write to update file!")
+	archive, err := zip.NewReader(bytes.NewReader(body), int64(len(body)))
+	if err != nil || archive.File == nil {
+		chat("Opening update zip file failed.")
 		return false
-	} else {
-		chat("Update downloaded...")
-		newBuildZip.Close()
-		return true
 	}
 
+	zipFile, err := readZipFile(archive.File[0])
+	if err != nil || zipFile == nil {
+		chat("Reading update zip file failed.")
+		return false
+	}
+
+	_, err = newBuildTemp.Write(zipFile)
+	if err != nil {
+		chat("Unable to write update to disk.")
+		return false
+	}
+	newBuildTemp.Close()
+
+	os.Chmod(downloadPathTemp, 7755)
+
+	gameLock.Lock()
+	nukeWorld()
+
+	doLog(true, "Goodbye... Relaunching.")
+	time.Sleep(time.Millisecond * 250)
+
+	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch " + archive.File[0].Name}, &os.ProcAttr{})
+	if err == nil {
+
+		// It is not clear from docs, but Realease actually detaches the process
+		err = process.Release()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		os.Exit(0)
+
+	} else {
+		fmt.Println(err.Error())
+	}
 	return false
+}
+
+func readZipFile(zf *zip.File) ([]byte, error) {
+	defer reportPanic("readZipFile")
+
+	f, err := zf.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return io.ReadAll(f)
 }
 
 /* Check server for authorization information */
@@ -174,7 +207,7 @@ func checkAuth() bool {
 		return false
 	}
 
-	// Create HTTP client with custom transport
+	/* Create HTTP client with custom transport */
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: false,
@@ -182,7 +215,7 @@ func checkAuth() bool {
 	}
 	client := &http.Client{Transport: transport}
 
-	// Send HTTPS POST request to server
+	/* Send HTTPS POST request to server */
 	response, err := client.Post(authSite, "application/json", bytes.NewBuffer([]byte("CheckAuthDev:"+Secrets[0].P)))
 	if err != nil {
 		txt := "Unable to connect to auth server."
@@ -198,7 +231,7 @@ func checkAuth() bool {
 	}
 	defer response.Body.Close()
 
-	// Read server response
+	/* Read server response */
 	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		panic(err)

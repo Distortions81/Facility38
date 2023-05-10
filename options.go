@@ -20,8 +20,9 @@ const (
 )
 
 var (
-	buttons      []image.Rectangle
-	settingItems []settingType
+	optionWindowButtons []image.Rectangle
+	settingItems        []settingType
+	updateWindowButtons []image.Rectangle
 )
 
 type settingType struct {

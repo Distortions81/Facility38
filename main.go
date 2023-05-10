@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"os"
+	"path"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -39,21 +42,54 @@ func main() {
 	forceOpenGL := flag.Bool("use-opengl", true, "Use OpenGL graphics API")
 	showVersion := flag.Bool("version", false, "Show game version and close")
 	useLocal = flag.Bool("local", false, "For internal testing.")
+	relaunch := flag.String("relaunch", "", "used for auto-update.")
 	flag.Parse()
+
+	if *relaunch != "" {
+		newPath := path.Base(*relaunch)
+
+		data, err := os.ReadFile(downloadPathTemp)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = os.WriteFile(newPath, data, 7755)
+		if err != nil {
+			log.Fatal(err)
+		}
+		os.Chmod(newPath, 7755)
+
+		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
+		if err == nil {
+
+			// It is not clear from docs, but Release actually detaches the process
+			err = process.Release()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+
+		} else {
+			fmt.Println(err.Error())
+		}
+		return
+	} else {
+		check, err := os.Stat(downloadPathTemp)
+		if err == nil && check.Size() > 0 {
+			for x := 0; x < 5; x++ {
+				err = os.Remove(downloadPathTemp)
+				if err == nil {
+					playerReady.Store(255)
+					doLog(true, "update temp deleted")
+					break
+				} else {
+					time.Sleep(time.Second)
+				}
+			}
+		}
+	}
 
 	if *showVersion {
 		fmt.Printf("v%03v-%v\n", version, buildTime)
 		return
-	}
-
-	/* Loads boot screen assets */
-	titleImg, err := getSpriteImage("title.png", true)
-	if err == nil {
-		TitleImage = titleImg
-	}
-	ebitenImg, err := getSpriteImage("ebiten.png", true)
-	if err == nil {
-		ebitenLogo = ebitenImg
 	}
 
 	buildInfo = buildTime
@@ -193,7 +229,6 @@ func startGame() {
 
 			//shhh
 			updateFonts()
-
 			checkAuth()
 		}
 	}()
@@ -206,6 +241,7 @@ func startGame() {
 	}()
 
 	/* Threaded update daemons */
+	lastSave = time.Now().UTC()
 	if !wasmMode {
 		go pixmapRenderDaemon()
 		go objUpdateDaemon()
