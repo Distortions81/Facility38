@@ -21,7 +21,7 @@ func checkVersion(silent bool) bool {
 	defer reportPanic("checkVersion")
 
 	if buildTime == "Dev Build" {
-		//return false
+		return false
 	}
 
 	// Create HTTP client with custom transport
