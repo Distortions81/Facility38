@@ -94,12 +94,8 @@ func checkVersion(silent bool) bool {
 				/* TODO Open dialog box with prompt to auto-update and progress bar */
 				if downloadURL != "" {
 					downloadBuild(downloadURL)
-				} else {
-					chat(downloadURL)
 				}
 
-			} else {
-				chat("No update URL was given...")
 			}
 
 			return true
