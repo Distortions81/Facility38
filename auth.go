@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"bytes"
 	"crypto/tls"
 	"fmt"
@@ -75,6 +76,8 @@ func checkVersion(silent bool) bool {
 			chatDetailed(buf, color.White, 60*time.Second)
 
 			if respParts[2] != "" {
+				chat("Downloading update")
+
 				dlBase := strings.TrimSuffix(respParts[2], "/")
 				downloadURL := ""
 				switch runtime.GOOS {
@@ -95,6 +98,8 @@ func checkVersion(silent bool) bool {
 					chat(downloadURL)
 				}
 
+			} else {
+				chat("No update URL was given...")
 			}
 
 			return true
@@ -111,14 +116,16 @@ func checkVersion(silent bool) bool {
 const downloadPathTemp = "update.tmp"
 
 func downloadBuild(downloadURL string) bool {
-	newBuildZip, err := os.OpenFile(downloadPathTemp, os.O_RDWR|os.O_CREATE, 0666)
+	defer reportPanic("downloadBuild")
+
+	newBuildTemp, err := os.OpenFile(downloadPathTemp, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		chat("Unable to create update file.")
 		return false
 	}
-	defer newBuildZip.Close()
+	defer newBuildTemp.Close()
 
-	// Create HTTP client with custom transport
+	/* Create HTTP client with custom transport */
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: *useLocal,
@@ -135,28 +142,65 @@ func downloadBuild(downloadURL string) bool {
 
 	/* Read response body */
 	body, err := io.ReadAll(res.Body)
-	res.Body.Close()
-
-	if res.StatusCode > 299 {
-		doLog(true, "Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
-		return false
-	}
 	if err != nil {
 		doLog(true, "Failed to read reply from server: %v", err)
 		return false
 	}
+	res.Body.Close()
 
-	_, err = newBuildZip.Write(body)
-	if err != nil {
-		chat("Unable to write to update file!")
+	archive, err := zip.NewReader(bytes.NewReader(body), int64(len(body)))
+	if err != nil || archive.File == nil {
+		chat("Opening update zip file failed.")
 		return false
-	} else {
-		chat("Update downloaded...")
-		newBuildZip.Close()
-		return true
 	}
 
+	zipFile, err := readZipFile(archive.File[0])
+	if err != nil || zipFile == nil {
+		chat("Reading update zip file failed.")
+		return false
+	}
+
+	_, err = newBuildTemp.Write(zipFile)
+	if err != nil {
+		chat("Unable to write update to disk.")
+		return false
+	}
+	newBuildTemp.Close()
+
+	os.Chmod(downloadPathTemp, 7755)
+
+	gameLock.Lock()
+	nukeWorld()
+
+	doLog(true, "Goodbye... Relaunching.")
+	time.Sleep(time.Second)
+
+	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch " + archive.File[0].Name}, &os.ProcAttr{})
+	if err == nil {
+
+		// It is not clear from docs, but Realease actually detaches the process
+		err = process.Release()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		os.Exit(0)
+
+	} else {
+		fmt.Println(err.Error())
+	}
 	return false
+}
+
+func readZipFile(zf *zip.File) ([]byte, error) {
+	defer reportPanic("readZipFile")
+
+	f, err := zf.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return io.ReadAll(f)
 }
 
 /* Check server for authorization information */
@@ -174,7 +218,7 @@ func checkAuth() bool {
 		return false
 	}
 
-	// Create HTTP client with custom transport
+	/* Create HTTP client with custom transport */
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: false,
@@ -182,7 +226,7 @@ func checkAuth() bool {
 	}
 	client := &http.Client{Transport: transport}
 
-	// Send HTTPS POST request to server
+	/* Send HTTPS POST request to server */
 	response, err := client.Post(authSite, "application/json", bytes.NewBuffer([]byte("CheckAuthDev:"+Secrets[0].P)))
 	if err != nil {
 		txt := "Unable to connect to auth server."
@@ -198,7 +242,7 @@ func checkAuth() bool {
 	}
 	defer response.Body.Close()
 
-	// Read server response
+	/* Read server response */
 	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		panic(err)
