@@ -121,6 +121,7 @@ func saveOptions() {
 		return
 	}
 
+	os.Mkdir("data", os.ModePerm)
 	_, err := os.Create(tempPath)
 
 	if err != nil {
@@ -128,7 +129,7 @@ func saveOptions() {
 		return
 	}
 
-	err = os.WriteFile(tempPath, outBuf.Bytes(), 0644)
+	err = os.WriteFile(tempPath, outBuf.Bytes(), 0666)
 
 	if err != nil {
 		doLog(true, "saveOptions: WriteFile failure")

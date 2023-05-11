@@ -21,4 +21,3 @@ cd $path
 gzip -9 main.wasm
 scp -P 5313 main.wasm.gz dist@facility38.xyz:~/F38Auth/www/
 mv main.wasm.gz ..
-rm main.wasm

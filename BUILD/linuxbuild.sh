@@ -1,5 +1,5 @@
 #!/bin/bash
-path="BUILD/builds"
+path="BUILD/builds/Facility-38/"
 curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
 
 # Check if an argument was passed in
@@ -11,9 +11,9 @@ fi
 go build -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
 
-GOGC=100 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility38-$versionString-linux64
+GOGC=100 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility-38
 
 cd $path
-zip -9 Facility38-$versionString-linux64.zip Facility38-$versionString-linux64
+zip -9 Facility38-$versionString-linux64.zip Facility-38
 scp -P 5313 Facility38-$versionString-linux64.zip dist@facility38.xyz:~/F38Auth/www/dl/
-rm Facility38-$versionString-linux64
+rm Facility-38
