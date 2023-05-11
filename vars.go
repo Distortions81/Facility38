@@ -122,7 +122,7 @@ var (
 
 	/* Camera states */
 	zoomScale   float32 = defaultZoom //Current zoom
-	overlayMode bool
+	overlayMode bool    = true
 
 	/* View layers */
 	showResourceLayer     bool
