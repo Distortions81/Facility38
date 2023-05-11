@@ -47,7 +47,7 @@ func main() {
 	flag.Parse()
 
 	if *relaunch != "" {
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 3)
 
 		self, err := os.Executable()
 		if err != nil {
@@ -104,14 +104,14 @@ func main() {
 		os.Exit(0)
 		return
 	} else {
-		err := os.Remove(downloadPathTemp)
-		if err != nil {
-			for x := 0; x < 10; x++ {
-				time.Sleep(time.Second)
+		file, err := os.Stat(downloadPathTemp)
+		if err == nil && file != nil {
+			for x := 0; x < 100; x++ {
 				err := os.Remove(downloadPathTemp)
 				if err == nil {
 					break
 				}
+				time.Sleep(time.Millisecond * 100)
 			}
 		}
 	}

@@ -1,11 +1,7 @@
 #!/bin/bash
-GOGC=100 go build
 
-#stop on error
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
+set -e
+curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
+GOGC=100 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w -X main.buildTime=$curTime"
 echo "Build complete, starting game."
-
 ./Facility38

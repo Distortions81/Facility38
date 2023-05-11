@@ -183,9 +183,6 @@ func downloadBuild() bool {
 	} else {
 		fmt.Println(err.Error())
 	}
-
-	doLog(true, "Goodbye.")
-
 	os.Exit(0)
 	return false
 }
