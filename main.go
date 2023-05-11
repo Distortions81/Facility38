@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -98,19 +99,26 @@ func main() {
 			return
 		}
 
-		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
-		if err == nil {
+		if runtime.GOOS != "windows" {
+			process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
+			if err == nil {
 
-			// It is not clear from docs, but Release actually detaches the process
-			err = process.Release()
-			if err != nil {
-				fmt.Println(err.Error())
+				// It is not clear from docs, but Release actually detaches the process
+				err = process.Release()
+				if err != nil {
+					fmt.Println(err.Error())
+					os.Exit(1)
+				}
+
+			} else {
+				log.Fatal(err)
 				os.Exit(1)
 			}
-
 		} else {
-			log.Fatal(err)
-			os.Exit(1)
+			cmd := exec.Command("cmd.exe", "/C", "start", "/b", newPath)
+			if err := cmd.Run(); err != nil {
+				log.Println("Error:", err)
+			}
 		}
 
 		os.Exit(0)

@@ -6,8 +6,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 	"time"
@@ -167,24 +169,31 @@ func downloadBuild() bool {
 
 	doLog(true, "Relaunching.")
 
-	pname, _ := os.Executable()
-	var args []string = make([]string, 2)
-	args[0] = downloadPathTemp
-	args[1] = "-relaunch=" + pname
+	if runtime.GOOS != "windows" {
+		pname, _ := os.Executable()
+		var args []string = make([]string, 2)
+		args[0] = downloadPathTemp
+		args[1] = "-relaunch=" + pname
 
-	process, err := os.StartProcess(downloadPathTemp, args, &os.ProcAttr{})
-	if err == nil {
+		process, err := os.StartProcess(downloadPathTemp, args, &os.ProcAttr{})
+		if err == nil {
 
-		// It is not clear from docs, but Realease actually detaches the process
-		err = process.Release()
-		if err != nil {
+			// It is not clear from docs, but Realease actually detaches the process
+			err = process.Release()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+
+		} else {
 			fmt.Println(err.Error())
 		}
-
 	} else {
-		fmt.Println(err.Error())
+		pname, _ := os.Executable()
+		cmd := exec.Command("cmd.exe", "/C", "start", "/b", downloadPathTemp, "-relaunch="+pname)
+		if err := cmd.Run(); err != nil {
+			log.Println("Error:", err)
+		}
 	}
-
 	os.Exit(0)
 	return false
 }
