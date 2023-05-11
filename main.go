@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -45,35 +46,50 @@ func main() {
 	relaunch := flag.String("relaunch", "", "used for auto-update.")
 	flag.Parse()
 
-	if *relaunch != "" {
-		newPath := path.Base(*relaunch)
+	time.Sleep(time.Second)
 
-		self, _ := os.Executable()
-		data, err := os.ReadFile(self)
+	if *relaunch != "" {
+
+		self, err := os.Executable()
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
-		time.Sleep(time.Second)
+
+		newPath := path.Dir(self) + "/update-" + path.Base(*relaunch)
+
+		source, err := os.Open(self)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		defer source.Close()
+
 		err = os.Remove(newPath)
 		if err != nil {
-			for x := 0; x < 10; x++ {
-				err = os.Remove(newPath)
-				if err == nil {
-					doLog(true, "old binary deleted")
-					break
-				}
-			}
+			log.Fatal(err)
+			return
 		}
-		err = os.WriteFile(newPath, data, 7755)
+
+		destination, err := os.Create(newPath)
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
+		defer destination.Close()
+
+		_, err = io.Copy(source, destination)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
 		err = os.Chmod(newPath, 7755)
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 
-		time.Sleep(time.Second)
 		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
 		if err == nil {
 
@@ -87,6 +103,8 @@ func main() {
 			log.Fatal(err)
 		}
 		return
+	} else {
+		os.Remove(downloadPathTemp)
 	}
 
 	if *showVersion {

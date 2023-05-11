@@ -168,11 +168,10 @@ func downloadBuild() bool {
 	gameLock.Lock()
 	nukeWorld()
 
-	doLog(true, "Goodbye... Relaunching.")
-	time.Sleep(time.Millisecond * 250)
+	doLog(true, "Relaunching.")
+	time.Sleep(time.Millisecond * 500)
 
 	pname, _ := os.Executable()
-	os.Remove(pname)
 	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch " + path.Base(pname)}, &os.ProcAttr{})
 	if err == nil {
 
@@ -181,12 +180,14 @@ func downloadBuild() bool {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		os.Exit(0)
 
 	} else {
 		fmt.Println(err.Error())
-		os.Exit(1)
 	}
+
+	doLog(true, "Goodbye.")
+	time.Sleep(time.Millisecond * 500)
+	os.Exit(0)
 	return false
 }
 
