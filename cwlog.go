@@ -10,9 +10,8 @@ import (
 )
 
 var (
-	logDesc  *os.File
-	logName  string
-	logReady bool
+	logDesc *os.File
+	logName string
 
 	logBuf      []string
 	logBufLines int
@@ -50,7 +49,6 @@ func doLog(withTrace bool, format string, args ...interface{}) {
 
 	if logDesc == nil {
 		fmt.Print(buf)
-		return
 	}
 
 	/* Add to buffer */
@@ -120,10 +118,4 @@ func startLog() {
 
 	/* Save descriptors, open/closed elsewhere */
 	logDesc = bdesc
-
-	//os.Stderr = bdesc
-	//os.Stdout = bdesc
-
-	logReady = true
-
 }
