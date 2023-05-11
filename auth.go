@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path"
 	"runtime"
 	"strings"
 	"time"
@@ -171,7 +170,7 @@ func downloadBuild() bool {
 	pname, _ := os.Executable()
 	var args []string = make([]string, 2)
 	args[0] = downloadPathTemp
-	args[1] = "-relaunch=" + path.Base(pname)
+	args[1] = "-relaunch=" + pname
 
 	process, err := os.StartProcess(downloadPathTemp, args, &os.ProcAttr{})
 	if err == nil {
