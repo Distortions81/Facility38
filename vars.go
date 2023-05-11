@@ -70,9 +70,6 @@ var (
 	tockCount       int
 	activeTockCount int
 
-	/* Number of ticks per worker */
-	tickWorkSize int
-
 	/* Number of tocks per worker */
 	numWorkers int
 

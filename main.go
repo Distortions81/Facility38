@@ -79,16 +79,16 @@ func main() {
 			log.Fatal(err)
 			return
 		}
+		destination.Close()
+		source.Close()
 
 		err = os.Chmod(newPath, 0766)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
-		destination.Close()
-		source.Close()
 
-		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
+		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{Dir: path.Dir(self)})
 		if err == nil {
 
 			// It is not clear from docs, but Release actually detaches the process
@@ -100,6 +100,9 @@ func main() {
 		} else {
 			log.Fatal(err)
 		}
+
+		buf := fmt.Sprintf("Old %v, New %v\n", self, newPath)
+		os.WriteFile("update-debug.log", []byte(buf), os.ModePerm)
 		os.Exit(0)
 		return
 	} else {

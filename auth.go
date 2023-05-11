@@ -15,7 +15,6 @@ import (
 )
 
 var authSite = "https://facility38.xyz:8648"
-var downloadPercent int
 
 /* Contact server for version information */
 func checkVersion(silent bool) bool {
@@ -90,7 +89,6 @@ func checkVersion(silent bool) bool {
 				}
 			}
 
-			downloadPercent = 0
 			openWindow(windows[2])
 			return true
 		}
@@ -171,7 +169,7 @@ func downloadBuild() bool {
 	doLog(true, "Relaunching.")
 
 	pname, _ := os.Executable()
-	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch " + path.Base(pname)}, &os.ProcAttr{})
+	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch=\"" + path.Base(pname) + "\""}, &os.ProcAttr{})
 	if err == nil {
 
 		// It is not clear from docs, but Realease actually detaches the process
