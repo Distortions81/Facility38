@@ -169,7 +169,7 @@ func downloadBuild() bool {
 	doLog(true, "Relaunching.")
 
 	pname, _ := os.Executable()
-	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch=\"" + path.Base(pname) + "\""}, &os.ProcAttr{Dir: path.Dir(pname) + "/"})
+	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch=\"" + path.Base(pname) + "\""}, &os.ProcAttr{})
 	if err == nil {
 
 		// It is not clear from docs, but Realease actually detaches the process

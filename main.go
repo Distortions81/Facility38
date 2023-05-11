@@ -47,14 +47,14 @@ func main() {
 	flag.Parse()
 
 	if *relaunch != "" {
-		self, err := os.Executable()
+		s, err := os.Executable()
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(1)
 			return
 		}
-		home := path.Dir(self)
-		newPath := home + "/" + *relaunch
+		self := path.Base(s)
+		newPath := path.Base(*relaunch)
 
 		source, err := os.Open(self)
 		if err != nil {
@@ -100,7 +100,7 @@ func main() {
 			return
 		}
 
-		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{Dir: home + "/"})
+		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{Dir: path.Dir(newPath)})
 		if err == nil {
 
 			// It is not clear from docs, but Release actually detaches the process
