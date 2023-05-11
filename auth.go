@@ -101,7 +101,7 @@ func checkVersion(silent bool) bool {
 	return false
 }
 
-const downloadPathTemp = "update.tmp"
+const downloadPathTemp = "update.tmp.exe"
 
 func downloadBuild() bool {
 	defer reportPanic("downloadBuild")
