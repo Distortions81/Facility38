@@ -93,7 +93,7 @@ func main() {
 			return
 		}
 
-		err = os.Chmod(newPath, 0766)
+		err = os.Chmod(newPath, 0760)
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(1)

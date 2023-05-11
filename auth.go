@@ -161,7 +161,7 @@ func downloadBuild() bool {
 
 	}
 
-	os.Chmod(downloadPathTemp, 0766)
+	os.Chmod(downloadPathTemp, 0760)
 
 	gameLock.Lock()
 	nukeWorld()
