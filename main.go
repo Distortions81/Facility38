@@ -46,9 +46,8 @@ func main() {
 	relaunch := flag.String("relaunch", "", "used for auto-update.")
 	flag.Parse()
 
-	time.Sleep(time.Second)
-
 	if *relaunch != "" {
+		time.Sleep(time.Second)
 
 		self, err := os.Executable()
 		if err != nil {
@@ -63,26 +62,32 @@ func main() {
 			log.Fatal(err)
 			return
 		}
-		defer source.Close()
+
+		err = os.Remove(newPath)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 
 		destination, err := os.Create(newPath)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
-		defer destination.Close()
 
-		_, err = io.Copy(source, destination)
+		_, err = io.Copy(destination, source)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
 
-		err = os.Chmod(newPath, 7755)
+		err = os.Chmod(newPath, 0766)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
+		destination.Close()
+		source.Close()
 
 		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
 		if err == nil {
@@ -96,9 +101,19 @@ func main() {
 		} else {
 			log.Fatal(err)
 		}
+		os.Exit(0)
 		return
 	} else {
-		os.Remove(downloadPathTemp)
+		err := os.Remove(downloadPathTemp)
+		if err != nil {
+			for x := 0; x < 10; x++ {
+				time.Sleep(time.Second)
+				err := os.Remove(downloadPathTemp)
+				if err == nil {
+					break
+				}
+			}
+		}
 	}
 
 	if *showVersion {
