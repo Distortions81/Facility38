@@ -168,27 +168,24 @@ func downloadBuild() bool {
 
 	doLog(true, "Relaunching.")
 
-	go func() {
-		pname, _ := os.Executable()
-		var args []string = make([]string, 2)
-		args[0] = downloadPathTemp
-		args[1] = "-relaunch=" + path.Base(pname)
+	pname, _ := os.Executable()
+	var args []string = make([]string, 2)
+	args[0] = downloadPathTemp
+	args[1] = "-relaunch=" + path.Base(pname)
 
-		process, err := os.StartProcess(downloadPathTemp, args, &os.ProcAttr{})
-		if err == nil {
+	process, err := os.StartProcess(downloadPathTemp, args, &os.ProcAttr{})
+	if err == nil {
 
-			// It is not clear from docs, but Realease actually detaches the process
-			err = process.Release()
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-
-		} else {
+		// It is not clear from docs, but Realease actually detaches the process
+		err = process.Release()
+		if err != nil {
 			fmt.Println(err.Error())
 		}
 
-	}()
-	time.Sleep(time.Millisecond * 100)
+	} else {
+		fmt.Println(err.Error())
+	}
+
 	os.Exit(0)
 	return false
 }

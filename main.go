@@ -101,23 +101,21 @@ func main() {
 			return
 		}
 
-		go func() {
-			process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
-			if err == nil {
+		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
+		if err == nil {
 
-				// It is not clear from docs, but Release actually detaches the process
-				err = process.Release()
-				if err != nil {
-					fmt.Println(err.Error())
-					os.Exit(1)
-				}
-
-			} else {
-				log.Fatal(err)
+			// It is not clear from docs, but Release actually detaches the process
+			err = process.Release()
+			if err != nil {
+				fmt.Println(err.Error())
 				os.Exit(1)
 			}
-		}()
-		time.Sleep(time.Millisecond * 100)
+
+		} else {
+			log.Fatal(err)
+			os.Exit(1)
+		}
+
 		os.Exit(0)
 		return
 	}
