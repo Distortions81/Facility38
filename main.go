@@ -46,7 +46,8 @@ func main() {
 	relaunch := flag.String("relaunch", "", "used for auto-update.")
 	flag.Parse()
 
-	if *relaunch != "" {
+	relaunchString := *relaunch
+	if len(relaunchString) > 0 {
 		s, err := os.Executable()
 		if err != nil {
 			log.Fatal(err)
@@ -54,7 +55,7 @@ func main() {
 			return
 		}
 		self := path.Base(s)
-		newPath := path.Base(*relaunch)
+		newPath := path.Base(relaunchString)
 
 		source, err := os.Open(self)
 		if err != nil {
@@ -101,7 +102,7 @@ func main() {
 		}
 
 		go func() {
-			process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
+			process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{Dir: path.Dir(s)})
 			if err == nil {
 
 				// It is not clear from docs, but Release actually detaches the process
@@ -116,7 +117,7 @@ func main() {
 				os.Exit(1)
 			}
 		}()
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 100)
 		os.Exit(0)
 		return
 	}
