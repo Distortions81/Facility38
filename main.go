@@ -64,7 +64,7 @@ func main() {
 			return
 		}
 
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second)
 		err = os.Remove(newPath)
 		if err != nil {
 			log.Fatal(err)
