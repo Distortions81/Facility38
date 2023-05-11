@@ -293,17 +293,7 @@ func runRotates() {
 			}
 			obj.Dir = newDir
 
-			/* TODO: move this code to LinkObj */
-			/* multi-tile object relink */
-			if obj.Unique.typeP.multiTile {
-				for _, subObj := range obj.Unique.typeP.subObjs {
-					subPos := GetSubPos(obj.Pos, subObj)
-					linkObj(subPos, b)
-				}
-			} else {
-				/* Standard relink */
-				linkObj(obj.Pos, b)
-			}
+			linkObj(obj.Pos, b)
 		}
 	}
 
