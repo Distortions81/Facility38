@@ -14,6 +14,6 @@ versionString=`./Facility38 --version`
 GOGC=100 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility-38/Facility-38
 
 cd $path
-zip -9 Facility38-$versionString-linux64.zip Facility-38/Facility-38
-scp -P 5313 Facility38-$versionString-linux64.zip dist@facility38.xyz:~/F38Auth/www/dl/
+zip -9 Facility-38-$versionString-linux64.zip Facility-38/Facility-38
+scp -P 5313 Facility-38-$versionString-linux64.zip dist@facility38.xyz:~/F38Auth/www/dl/
 rm Facility-38/Facility-38
