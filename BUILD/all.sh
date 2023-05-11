@@ -1,8 +1,13 @@
 #!/bin/bash
 
+# exit when any command fails
+set -e
+
 curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
 go build -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
+
+mv BUILD/builds/*.zip BUILD/builds/old-builds || true
 
 bash BUILD/winbuild.sh $curTime
 bash BUILD/linuxbuild.sh $curTime
