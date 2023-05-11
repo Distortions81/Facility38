@@ -47,8 +47,6 @@ func main() {
 	flag.Parse()
 
 	if *relaunch != "" {
-		time.Sleep(time.Second * 3)
-
 		self, err := os.Executable()
 		if err != nil {
 			log.Fatal(err)
@@ -63,6 +61,7 @@ func main() {
 			return
 		}
 
+		time.Sleep(time.Second)
 		err = os.Remove(newPath)
 		if err != nil {
 			log.Fatal(err)
