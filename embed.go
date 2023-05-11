@@ -99,7 +99,7 @@ func getText(name string) (string, error) {
 
 const sFile = txtDir + "p.json"
 
-var Secrets []secData
+var Secrets secData
 var sMutex sync.Mutex
 
 type secData struct {

@@ -216,7 +216,7 @@ func checkAuth() bool {
 	client := &http.Client{Transport: transport}
 
 	/* Send HTTPS POST request to server */
-	response, err := client.Post(authSite, "application/json", bytes.NewBuffer([]byte("CheckAuthDev:"+Secrets[0].P)))
+	response, err := client.Post(authSite, "application/json", bytes.NewBuffer([]byte("CheckAuthDev:"+Secrets.P)))
 	if err != nil {
 		txt := "Unable to connect to auth server."
 		chat(txt)
@@ -239,7 +239,7 @@ func checkAuth() bool {
 	pass := string(responseBytes)
 
 	/* Check reply */
-	if pass == "GoodAuth:"+Secrets[0].R {
+	if pass == "GoodAuth:"+Secrets.R {
 		//Chat("Auth server approved! Have fun!")
 		authorized.Store(true)
 		return true
