@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"runtime"
 	"strings"
 	"time"
@@ -79,11 +80,11 @@ func checkVersion(silent bool) bool {
 				downloadURL = ""
 				switch runtime.GOOS {
 				case "linux":
-					downloadURL = fmt.Sprintf("%v/Facility38-%v-linux64.zip", dlBase, newVersion)
+					downloadURL = fmt.Sprintf("%v/Facility-38-%v-linux64.zip", dlBase, newVersion)
 				case "windows":
-					downloadURL = fmt.Sprintf("%v/Facility38-%v-win64.zip", dlBase, newVersion)
+					downloadURL = fmt.Sprintf("%v/Facility-38-%v-win64.zip", dlBase, newVersion)
 				case "darwin":
-					//downloadURL = fmt.Sprintf("%v/Facility38-%v-mac64.zip", dlBase, newVersion)
+					//downloadURL = fmt.Sprintf("%v/Facility-38-%v-mac64.zip", dlBase, newVersion)
 				default:
 					//Unsupported
 				}
@@ -143,18 +144,24 @@ func downloadBuild() bool {
 		return false
 	}
 
-	zipFile, err := readZipFile(archive.File[0])
-	if err != nil || zipFile == nil {
-		chat("Reading update zip file failed.")
-		return false
-	}
+	for _, file := range archive.File {
+		info := file.FileInfo()
+		if !info.IsDir() {
+			zipFile, err := readZipFile(archive.File[0])
+			if err != nil || zipFile == nil {
+				chat("Reading update zip file failed.")
+				return false
+			}
+			_, err = newBuildTemp.Write(zipFile)
+			if err != nil {
+				chat("Unable to write update to disk.")
+				return false
+			}
+			newBuildTemp.Close()
+			break
+		}
 
-	_, err = newBuildTemp.Write(zipFile)
-	if err != nil {
-		chat("Unable to write update to disk.")
-		return false
 	}
-	newBuildTemp.Close()
 
 	os.Chmod(downloadPathTemp, 7755)
 
@@ -165,7 +172,8 @@ func downloadBuild() bool {
 	time.Sleep(time.Millisecond * 250)
 
 	pname, _ := os.Executable()
-	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch " + pname}, &os.ProcAttr{})
+	os.Remove(pname)
+	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch " + path.Base(pname)}, &os.ProcAttr{})
 	if err == nil {
 
 		// It is not clear from docs, but Realease actually detaches the process
@@ -173,11 +181,11 @@ func downloadBuild() bool {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-
 		os.Exit(0)
 
 	} else {
 		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 	return false
 }

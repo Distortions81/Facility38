@@ -52,6 +52,18 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		time.Sleep(time.Second)
+		err = os.Remove(newPath)
+		if err != nil {
+			for x := 0; x < 10; x++ {
+				err = os.Remove(newPath)
+				if err == nil {
+					doLog(true, "old binary deleted")
+					break
+				}
+				time.Sleep(time.Second)
+			}
+		}
 		err = os.WriteFile(newPath, data, 7755)
 		if err != nil {
 			log.Fatal(err)
@@ -74,15 +86,14 @@ func main() {
 	} else {
 		check, err := os.Stat(downloadPathTemp)
 		if err == nil && check.Size() > 0 {
-			for x := 0; x < 5; x++ {
+			for x := 0; x < 10; x++ {
 				err = os.Remove(downloadPathTemp)
 				if err == nil {
 					playerReady.Store(255)
 					doLog(true, "update temp deleted")
 					break
-				} else {
-					time.Sleep(time.Second)
 				}
+				time.Sleep(time.Second)
 			}
 		}
 	}
