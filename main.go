@@ -46,21 +46,20 @@ func main() {
 	relaunch := flag.String("relaunch", "", "used for auto-update.")
 	flag.Parse()
 
-	self, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	os.Chdir(path.Dir(self))
-
 	if *relaunch != "" {
-
-		newPath := path.Base(*relaunch)
+		self, err := os.Executable()
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+			return
+		}
+		home := path.Dir(self)
+		newPath := home + "/" + *relaunch
 
 		source, err := os.Open(self)
 		if err != nil {
 			log.Fatal(err)
+			os.Exit(1)
 			return
 		}
 
@@ -68,18 +67,21 @@ func main() {
 		err = os.Remove(newPath)
 		if err != nil {
 			log.Fatal(err)
+			os.Exit(1)
 			return
 		}
 
 		destination, err := os.Create(newPath)
 		if err != nil {
 			log.Fatal(err)
+			os.Exit(1)
 			return
 		}
 
 		copied, err := io.Copy(destination, source)
 		if err != nil {
 			log.Fatal(err)
+			os.Exit(1)
 			return
 		}
 		destination.Close()
@@ -87,12 +89,14 @@ func main() {
 
 		if copied <= 0 {
 			log.Fatal("Update copy failed")
+			os.Exit(1)
 			return
 		}
 
 		err = os.Chmod(newPath, 0766)
 		if err != nil {
 			log.Fatal(err)
+			os.Exit(1)
 			return
 		}
 
@@ -103,31 +107,31 @@ func main() {
 			err = process.Release()
 			if err != nil {
 				fmt.Println(err.Error())
+				os.Exit(1)
 			}
 
 		} else {
 			log.Fatal(err)
+			os.Exit(1)
 		}
-
-		buf := fmt.Sprintf("Old %v, New %v\n", self, newPath)
-		os.WriteFile("update-debug.log", []byte(buf), 0666)
 		os.Exit(0)
 		return
-	} else {
-		file, err := os.Stat(downloadPathTemp)
-		if err == nil && file != nil {
-			for x := 0; x < 100; x++ {
-				err := os.Remove(downloadPathTemp)
-				if err == nil {
-					break
-				}
-				time.Sleep(time.Millisecond * 100)
+	}
+
+	file, err := os.Stat(downloadPathTemp)
+	if err == nil && file != nil {
+		for x := 0; x < 100; x++ {
+			err := os.Remove(downloadPathTemp)
+			if err == nil {
+				break
 			}
+			time.Sleep(time.Millisecond * 100)
 		}
 	}
 
 	if *showVersion {
 		fmt.Printf("v%03v-%v\n", version, buildTime)
+		os.Exit(0)
 		return
 	}
 
@@ -199,6 +203,7 @@ func main() {
 		doLog(true, "Failed, attempting to load with autodetect.")
 		if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}); err != nil {
 			doLog(true, "%v", err)
+			os.Exit(1)
 			return
 		}
 	}
