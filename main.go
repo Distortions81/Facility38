@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"runtime"
 	"runtime/debug"
+	"syscall"
 	"time"
 
 	_ "github.com/defia/trf"
@@ -119,6 +120,7 @@ func main() {
 			if err := cmd.Run(); err != nil {
 				log.Println("Error:", err)
 			}
+			cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 		}
 
 		os.Exit(0)

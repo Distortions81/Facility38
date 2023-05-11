@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -193,6 +194,7 @@ func downloadBuild() bool {
 		if err := cmd.Run(); err != nil {
 			log.Println("Error:", err)
 		}
+		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	}
 	os.Exit(0)
 	return false
