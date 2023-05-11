@@ -48,7 +48,8 @@ func main() {
 	if *relaunch != "" {
 		newPath := path.Base(*relaunch)
 
-		data, err := os.ReadFile(downloadPathTemp)
+		self, _ := os.Executable()
+		data, err := os.ReadFile(self)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -61,15 +62,18 @@ func main() {
 					doLog(true, "old binary deleted")
 					break
 				}
-				time.Sleep(time.Second)
 			}
 		}
 		err = os.WriteFile(newPath, data, 7755)
 		if err != nil {
 			log.Fatal(err)
 		}
-		os.Chmod(newPath, 7755)
+		err = os.Chmod(newPath, 7755)
+		if err != nil {
+			log.Fatal(err)
+		}
 
+		time.Sleep(time.Second)
 		process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
 		if err == nil {
 
@@ -80,22 +84,9 @@ func main() {
 			}
 
 		} else {
-			fmt.Println(err.Error())
+			log.Fatal(err)
 		}
 		return
-	} else {
-		check, err := os.Stat(downloadPathTemp)
-		if err == nil && check.Size() > 0 {
-			for x := 0; x < 10; x++ {
-				err = os.Remove(downloadPathTemp)
-				if err == nil {
-					playerReady.Store(255)
-					doLog(true, "update temp deleted")
-					break
-				}
-				time.Sleep(time.Second)
-			}
-		}
 	}
 
 	if *showVersion {
