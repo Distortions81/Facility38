@@ -7,8 +7,22 @@ import (
 
 var linkLock sync.Mutex
 
-/* Link to output in (dir) */
 func linkObj(from XY, b *buildingData) {
+	/* TODO: move this code to LinkObj */
+	/* multi-tile object relink */
+	if b.obj.Unique.typeP.multiTile {
+		for _, subObj := range b.obj.Unique.typeP.subObjs {
+			subPos := GetSubPos(b.obj.Pos, subObj)
+			linkSingleObj(subPos, b)
+		}
+	} else {
+		/* Standard relink */
+		linkSingleObj(b.obj.Pos, b)
+	}
+}
+
+/* Link to output in (dir) */
+func linkSingleObj(from XY, b *buildingData) {
 	defer reportPanic("linkObj")
 	linkLock.Lock()
 	defer linkLock.Unlock()
