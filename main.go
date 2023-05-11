@@ -46,12 +46,15 @@ func main() {
 	relaunch := flag.String("relaunch", "", "used for auto-update.")
 	flag.Parse()
 
+	self, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	os.Chdir(path.Dir(self))
+
 	if *relaunch != "" {
-		self, err := os.Executable()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
 
 		newPath := path.Base(*relaunch)
 
@@ -74,13 +77,18 @@ func main() {
 			return
 		}
 
-		_, err = io.Copy(destination, source)
+		copied, err := io.Copy(destination, source)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
 		destination.Close()
 		source.Close()
+
+		if copied <= 0 {
+			log.Fatal("Update copy failed")
+			return
+		}
 
 		err = os.Chmod(newPath, 0766)
 		if err != nil {
