@@ -61,7 +61,7 @@ func main() {
 			return
 		}
 
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 5)
 		err = os.Remove(newPath)
 		if err != nil {
 			log.Fatal(err)
@@ -102,7 +102,7 @@ func main() {
 		}
 
 		buf := fmt.Sprintf("Old %v, New %v\n", self, newPath)
-		os.WriteFile("update-debug.log", []byte(buf), os.ModePerm)
+		os.WriteFile("update-debug.log", []byte(buf), 0666)
 		os.Exit(0)
 		return
 	} else {

@@ -106,7 +106,7 @@ const downloadPathTemp = "update.tmp"
 func downloadBuild() bool {
 	defer reportPanic("downloadBuild")
 
-	newBuildTemp, err := os.OpenFile(downloadPathTemp, os.O_RDWR|os.O_CREATE, 0666)
+	newBuildTemp, err := os.OpenFile(downloadPathTemp, os.O_RDWR|os.O_CREATE, 0766)
 	if err != nil {
 		chat("Unable to create update file.")
 		return false
@@ -161,7 +161,7 @@ func downloadBuild() bool {
 
 	}
 
-	os.Chmod(downloadPathTemp, 7755)
+	os.Chmod(downloadPathTemp, 0766)
 
 	gameLock.Lock()
 	nukeWorld()
