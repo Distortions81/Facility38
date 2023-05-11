@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -46,16 +45,14 @@ func main() {
 	relaunch := flag.String("relaunch", "", "used for auto-update.")
 	flag.Parse()
 
-	relaunchString := *relaunch
-	if len(relaunchString) > 0 {
-		s, err := os.Executable()
+	newPath := *relaunch
+	if len(newPath) > 0 {
+		self, err := os.Executable()
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(1)
 			return
 		}
-		self := path.Base(s)
-		newPath := path.Base(relaunchString)
 
 		source, err := os.Open(self)
 		if err != nil {
