@@ -14,3 +14,6 @@ BUILD/builds
 auth.go
 auth.go
 *.tmp
+BUILD/allAndPush.sh
+data/txt/p.json
+data/txt/p.json
