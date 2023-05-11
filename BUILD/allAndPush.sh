@@ -4,6 +4,7 @@
 set -e
 
 #Make date string
+curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
 
 #Build with time string
 go build -ldflags="-X main.buildTime=$curTime"
