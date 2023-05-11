@@ -102,7 +102,7 @@ func main() {
 		}
 
 		go func() {
-			process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{Dir: path.Dir(s)})
+			process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
 			if err == nil {
 
 				// It is not clear from docs, but Release actually detaches the process

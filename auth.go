@@ -174,7 +174,7 @@ func downloadBuild() bool {
 		args[0] = downloadPathTemp
 		args[1] = "-relaunch=" + path.Base(pname)
 
-		process, err := os.StartProcess(downloadPathTemp, args, &os.ProcAttr{Dir: path.Dir(pname)})
+		process, err := os.StartProcess(downloadPathTemp, args, &os.ProcAttr{})
 		if err == nil {
 
 			// It is not clear from docs, but Realease actually detaches the process
