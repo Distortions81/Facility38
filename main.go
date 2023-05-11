@@ -56,7 +56,7 @@ func main() {
 			return
 		}
 
-		newPath := path.Dir(self) + "/update-" + path.Base(*relaunch)
+		newPath := path.Base(*relaunch)
 
 		source, err := os.Open(self)
 		if err != nil {
@@ -64,12 +64,6 @@ func main() {
 			return
 		}
 		defer source.Close()
-
-		err = os.Remove(newPath)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
 
 		destination, err := os.Create(newPath)
 		if err != nil {

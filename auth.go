@@ -169,7 +169,6 @@ func downloadBuild() bool {
 	nukeWorld()
 
 	doLog(true, "Relaunching.")
-	time.Sleep(time.Millisecond * 500)
 
 	pname, _ := os.Executable()
 	process, err := os.StartProcess(downloadPathTemp, []string{"-relaunch " + path.Base(pname)}, &os.ProcAttr{})
@@ -186,7 +185,7 @@ func downloadBuild() bool {
 	}
 
 	doLog(true, "Goodbye.")
-	time.Sleep(time.Millisecond * 500)
+
 	os.Exit(0)
 	return false
 }
