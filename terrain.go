@@ -282,13 +282,18 @@ func drawResource(sChunk *mapSuperChunkData) {
 	if sChunk.resourceMap == nil {
 		sChunk.resourceMap = make([]byte, superChunkTotal*superChunkTotal*4)
 	}
+	sChunkPos := SuperChunkPosToPos(sChunk.pos)
 
+	var chunk *mapChunkData
 	for x := 0; x < superChunkTotal; x++ {
 		for y := 0; y < superChunkTotal; y++ {
 			pixelPos := 4 * (x + y*superChunkTotal)
 
-			worldX := float32((sChunk.pos.X * superChunkTotal) + uint16(x))
-			worldY := float32((sChunk.pos.Y * superChunkTotal) + uint16(y))
+			worldX := float32(sChunkPos.X + uint16(x))
+			worldY := float32(sChunkPos.Y + uint16(y))
+			if y%chunkSize == 0 {
+				chunk = sChunk.chunkMap[PosToChunkPos(XY{X: uint16(worldX), Y: uint16(worldY)})]
+			}
 
 			var r, g, b float32 = 0.01, 0.01, 0.01
 			for p, nl := range noiseLayers {
@@ -298,9 +303,8 @@ func drawResource(sChunk *mapSuperChunkData) {
 
 				h := noiseMap(worldX, worldY, p)
 
-				Chunk := sChunk.chunkMap[PosToChunkPos(XY{X: uint16(worldX), Y: uint16(worldY)})]
-				if Chunk != nil {
-					Tile := Chunk.tileMap[XY{X: uint16(x), Y: uint16(y)}]
+				if chunk != nil {
+					Tile := chunk.tileMap[XY{X: uint16(x), Y: uint16(y)}]
 
 					if Tile != nil {
 						h -= (Tile.minerData.mined[p] / 150)
