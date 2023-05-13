@@ -8,6 +8,14 @@ import (
 /* Unlink and remove object */
 func delObj(obj *ObjData) {
 	defer reportPanic("delObj")
+
+	if obj == nil {
+		return
+	}
+
+	if obj.Unique.typeP.deInitObj != nil {
+		obj.Unique.typeP.deInitObj(obj)
+	}
 	unlinkObj(obj)
 	removeObj(obj)
 }
@@ -32,6 +40,7 @@ func removePosMap(pos XY) {
 /* Delete object from ObjMap, ObjList, decrement NumObj, set PixmapDirty */
 func removeObj(obj *ObjData) {
 	defer reportPanic("removeObj")
+
 	/* delete from map */
 	obj.chunk.lock.Lock()
 	obj.chunk.numObjs--
