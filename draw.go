@@ -466,7 +466,7 @@ func drawItemPlacement(screen *ebiten.Image) {
 
 /* Look at camera position, make a list of visible super-chunks and chunks. */
 var visObj []*ObjData
-var visChunk []*mapChunk
+var visChunk []*mapChunkData
 var visSChunk []*mapSuperChunkData
 
 func updateVisData() {
@@ -479,7 +479,7 @@ func updateVisData() {
 		screenSizeLock.Unlock()
 
 		visObj = []*ObjData{}
-		visChunk = []*mapChunk{}
+		visChunk = []*mapChunkData{}
 		visSChunk = []*mapSuperChunkData{}
 
 		/*
@@ -531,7 +531,7 @@ func updateVisData() {
 	}
 }
 
-func drawTerrain(chunk *mapChunk) (*ebiten.DrawImageOptions, *ebiten.Image) {
+func drawTerrain(chunk *mapChunkData) (*ebiten.DrawImageOptions, *ebiten.Image) {
 	defer reportPanic("drawTerrain")
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 

@@ -28,7 +28,7 @@ var (
 /* Make a low-detail 'loading' temporary texture for chunk terrain */
 func setupTerrainCache() {
 	defer reportPanic("setupTerrainCache")
-	tChunk := mapChunk{}
+	tChunk := mapChunkData{}
 
 	renderChunkGround(&tChunk, false, XY{X: 0, Y: 0})
 	TempChunkImage = tChunk.terrainImage
@@ -48,7 +48,7 @@ func setupTerrainCache() {
 }
 
 /* Render a chunk's terrain to chunk.TerrainImg, locks chunk.TerrainLock */
-func renderChunkGround(chunk *mapChunk, doDetail bool, chunkPos XY) {
+func renderChunkGround(chunk *mapChunkData, doDetail bool, chunkPos XY) {
 	defer reportPanic("renderChunkGround")
 	chunkPix := (spriteScale * chunkSize)
 
@@ -150,7 +150,7 @@ func renderTerrainST() {
 }
 
 /* Dispose terrain cache in a chunk if needed. Always dispose: force. Locks chunk.TerrainLock */
-func killTerrainCache(chunk *mapChunk, force bool) {
+func killTerrainCache(chunk *mapChunkData, force bool) {
 	defer reportPanic("killTerrainCache")
 	if chunk.usingTemporary || chunk.terrainImage == nil {
 		return

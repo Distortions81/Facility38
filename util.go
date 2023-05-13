@@ -313,7 +313,7 @@ func MidPoint(x1, y1, x2, y2 int) (int, int) {
 }
 
 /* Get an object by XY, uses map (hash table). RLocks the given chunk */
-func GetObj(pos XY, chunk *mapChunk) *buildingData {
+func GetObj(pos XY, chunk *mapChunkData) *buildingData {
 	defer reportPanic("GetObj")
 
 	if chunk != nil {
@@ -330,7 +330,7 @@ func GetObj(pos XY, chunk *mapChunk) *buildingData {
 }
 
 /* Get a chunk by XY, used map (hash table). RLocks the SuperChunkMap and Chunk */
-func GetChunk(pos XY) *mapChunk {
+func GetChunk(pos XY) *mapChunkData {
 	defer reportPanic("GetChunk")
 
 	supChunkPos := posToSuperChunkPos(pos)

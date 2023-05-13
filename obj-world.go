@@ -1,7 +1,7 @@
 package main
 
 /* World objects and images */
-var worldObjs = []*objType{
+var worldObjs = []*objTypeData{
 	//Game Objects
 	{
 		base:        "basic-miner",

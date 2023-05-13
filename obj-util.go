@@ -5,8 +5,31 @@ import (
 	"math"
 )
 
+/* Unlink and remove object */
+func delObj(obj *ObjData) {
+	defer reportPanic("delObj")
+	unlinkObj(obj)
+	removeObj(obj)
+}
+
+/* Delete object from ObjMap, decrement Num Marks PixmapDirty */
+func removePosMap(pos XY) {
+	defer reportPanic("removePosMap")
+
+	sChunk := GetSuperChunk(pos)
+	chunk := GetChunk(pos)
+	if chunk == nil || sChunk == nil {
+		return
+	}
+
+	chunk.lock.Lock()
+	chunk.numObjs--
+	delete(chunk.buildingMap, pos)
+	sChunk.pixmapDirty = true
+	chunk.lock.Unlock()
+}
+
 /* Delete object from ObjMap, ObjList, decrement NumObj, set PixmapDirty */
-/* TODO this and obj-tick.go are duplicates and need to be consolidated */
 func removeObj(obj *ObjData) {
 	defer reportPanic("removeObj")
 	/* delete from map */
@@ -130,7 +153,7 @@ func placeObj(pos XY, mType uint8, obj *ObjData, dir uint8, fast bool) *ObjData 
 	/* New object */
 	if obj == nil {
 		newObj = &ObjData{}
-		newObj.Unique = &UniqueObject{typeP: worldObjs[mType]}
+		newObj.Unique = &UniqueObjectData{typeP: worldObjs[mType]}
 	} else { /* Placing already existing object */
 		newObj = obj
 	}
@@ -233,7 +256,7 @@ func placeObj(pos XY, mType uint8, obj *ObjData, dir uint8, fast bool) *ObjData 
 }
 
 /* Check if a rotated multi-tile object will fit */
-func subObjFits(obj *ObjData, TypeP *objType, report bool, pos XY) bool {
+func subObjFits(obj *ObjData, TypeP *objTypeData, report bool, pos XY) bool {
 	defer reportPanic("SubObjFits")
 	size := getObjSize(obj, TypeP)
 	var dir uint8
@@ -265,7 +288,7 @@ func subObjFits(obj *ObjData, TypeP *objType, report bool, pos XY) bool {
 }
 
 /* Return object size */
-func getObjSize(obj *ObjData, TypeP *objType) XYs {
+func getObjSize(obj *ObjData, TypeP *objTypeData) XYs {
 	defer reportPanic("GetObjSize")
 	if obj != nil {
 		if obj.Dir == 1 || obj.Dir == 3 {

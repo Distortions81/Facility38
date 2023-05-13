@@ -30,7 +30,7 @@ func makeSuperChunk(pos XY) {
 
 		superChunkList =
 			append(superChunkList, superChunkMap[supChunkPos])
-		superChunkMap[supChunkPos].chunkMap = make(map[XY]*mapChunk)
+		superChunkMap[supChunkPos].chunkMap = make(map[XY]*mapChunkData)
 
 		/* Save position */
 		superChunkMap[supChunkPos].pos = supChunkPos
@@ -61,7 +61,7 @@ func makeChunk(pos XY) bool {
 		superChunkMap[supChunkPos].numChunks++
 
 		/* Make a new empty chunk in the map at pos */
-		superChunkMap[supChunkPos].chunkMap[chunkPos] = &mapChunk{}
+		superChunkMap[supChunkPos].chunkMap[chunkPos] = &mapChunkData{}
 		superChunkMap[supChunkPos].lock.Lock() //Lock chunk
 
 		/* Append to chunk list */

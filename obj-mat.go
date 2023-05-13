@@ -1,7 +1,7 @@
 package main
 
 /* Materials and images */
-var matTypes = []*materialType{
+var matTypes = []*materialTypeData{
 	//Materials
 	{symbol: "NIL", name: "NONE", typeI: MAT_NONE},
 

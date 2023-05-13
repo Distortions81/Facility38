@@ -8,7 +8,6 @@ import (
 var linkLock sync.Mutex
 
 func linkObj(from XY, b *buildingData) {
-	/* TODO: move this code to LinkObj */
 	/* multi-tile object relink */
 	if b.obj.Unique.typeP.multiTile {
 		for _, subObj := range b.obj.Unique.typeP.subObjs {

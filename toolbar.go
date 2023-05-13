@@ -13,7 +13,7 @@ var (
 	toolbarCacheLock sync.RWMutex
 	toolbarMax       int
 	selectedItemType uint8 = maxItemType
-	toolbarItems           = []toolbarItem{}
+	toolbarItems           = []toolbarItemData{}
 
 	toolbarHover bool
 )
@@ -30,7 +30,7 @@ func initToolbar() {
 					continue
 				}
 				toolbarMax++
-				toolbarItems = append(toolbarItems, toolbarItem{sType: subPos, oType: oType})
+				toolbarItems = append(toolbarItems, toolbarItemData{sType: subPos, oType: oType})
 
 			}
 		}

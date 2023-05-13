@@ -4,14 +4,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var groundTiles = []*objType{
+var groundTiles = []*objTypeData{
 	{
 		base: "tile",
 	},
 }
 
 /* Toolbar actions and images */
-var uiObjs = []*objType{
+var uiObjs = []*objTypeData{
 	//Ui Only
 	{
 		base: "help",
@@ -46,7 +46,7 @@ var uiObjs = []*objType{
 }
 
 /* Terrain types and images */
-var terrainTypes = []*objType{
+var terrainTypes = []*objTypeData{
 	{
 		base:   "dirt",
 		name:   "dirt",
@@ -63,7 +63,7 @@ var terrainTypes = []*objType{
 }
 
 /* Overlay images */
-var worldOverlays = []*objType{
+var worldOverlays = []*objTypeData{
 	{
 		base: "arrow-north",
 		name: "Arrow North", symbol: "^"},
@@ -95,7 +95,7 @@ var worldOverlays = []*objType{
 
 type subTypeData struct {
 	folder string
-	list   []*objType
+	list   []*objTypeData
 }
 
 /* Toolbar item types, array of array of ObjType */

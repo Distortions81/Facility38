@@ -195,24 +195,24 @@ func rotateListAdd(b *buildingData, cw bool, pos XY) {
 	defer reportPanic("RotateListAdd")
 	rotateListLock.Lock()
 
-	rotateList = append(rotateList, rotateEvent{build: b, clockwise: cw})
+	rotateList = append(rotateList, rotateEventData{build: b, clockwise: cw})
 
 	rotateListLock.Unlock()
 }
 
 /* Add to event queue (list of tock and tick events) */
-func eventQueueAdd(obj *ObjData, qType uint8, delete bool) {
+func eventQueueAdd(obj *ObjData, qtype uint8, delete bool) {
 	defer reportPanic("EventQueueAdd")
 	eventQueueLock.Lock()
-	eventQueue = append(eventQueue, &eventQueueData{obj: obj, qType: qType, delete: delete})
+	eventQueue = append(eventQueue, &eventQueueData{obj: obj, qType: qtype, delete: delete})
 	eventQueueLock.Unlock()
 }
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
-func objQueueAdd(obj *ObjData, oType uint8, pos XY, delete bool, dir uint8) {
+func objQueueAdd(obj *ObjData, otype uint8, pos XY, delete bool, dir uint8) {
 	defer reportPanic("ObjQueueAdd")
 	objQueueLock.Lock()
-	objQueue = append(objQueue, &objectQueueData{obj: obj, oType: oType, pos: pos, delete: delete, dir: dir})
+	objQueue = append(objQueue, &objectQueueData{obj: obj, oType: otype, pos: pos, delete: delete, dir: dir})
 	objQueueLock.Unlock()
 }
 
@@ -298,7 +298,7 @@ func runRotates() {
 	}
 
 	//Done, reset list.
-	rotateList = []rotateEvent{}
+	rotateList = []rotateEventData{}
 }
 
 /* Add/remove tick/tock events from the lists */
@@ -356,29 +356,4 @@ func runObjQueue() {
 
 	/* Done, reset list */
 	objQueue = []*objectQueueData{}
-}
-
-/* Unlink and remove object */
-func delObj(obj *ObjData) {
-	defer reportPanic("delObj")
-	unlinkObj(obj)
-	removeObj(obj)
-}
-
-/* TODO this and obj-go are duplicates and need to be consolidated */
-/* Delete object from ObjMap, decrement Num Marks PixmapDirty */
-func removePosMap(pos XY) {
-	defer reportPanic("removePosMap")
-
-	sChunk := GetSuperChunk(pos)
-	chunk := GetChunk(pos)
-	if chunk == nil || sChunk == nil {
-		return
-	}
-
-	chunk.lock.Lock()
-	chunk.numObjs--
-	delete(chunk.buildingMap, pos)
-	sChunk.pixmapDirty = true
-	chunk.lock.Unlock()
 }

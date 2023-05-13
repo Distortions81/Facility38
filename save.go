@@ -262,7 +262,7 @@ func loadGame(external bool, data []byte) {
 
 			obj := &ObjData{
 				Pos: UnCenterXY(tempList.Objects[i].Pos),
-				Unique: &UniqueObject{
+				Unique: &UniqueObjectData{
 					typeP: worldObjs[tempList.Objects[i].TypeI],
 				},
 				Dir: tempList.Objects[i].Dir,

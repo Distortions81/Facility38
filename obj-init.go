@@ -107,7 +107,7 @@ func initMiner(obj *ObjData) bool {
 		return false
 	}
 
-	obj.MinerData = &MinerDataType{}
+	obj.MinerData = &minerDataType{}
 
 	foundRes := false
 	/* Check for resources to mine */

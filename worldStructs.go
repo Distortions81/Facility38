@@ -16,10 +16,10 @@ type recipeData struct {
 	typeI uint16
 
 	requires  [MAT_MAX]uint8
-	requiresP [MAT_MAX]*materialType
+	requiresP [MAT_MAX]*materialTypeData
 
 	result  [MAT_MAX]uint8
-	resultP [MAT_MAX]*materialType
+	resultP [MAT_MAX]*materialTypeData
 
 	machineTypes [objTypeMax]uint8
 }
@@ -39,8 +39,8 @@ type chatLineData struct {
 type mapSuperChunkData struct {
 	pos XY
 
-	chunkMap  map[XY]*mapChunk
-	chunkList []*mapChunk
+	chunkMap  map[XY]*mapChunkData
+	chunkList []*mapChunkData
 	/* Here so we don't need to use len() */
 	numChunks uint16
 
@@ -92,7 +92,7 @@ type minerData struct {
 }
 
 /* Contain object map, object list and TerrainImg */
-type mapChunk struct {
+type mapChunkData struct {
 	/* Used for finding position from ChunkList */
 	pos XY
 
@@ -120,7 +120,7 @@ type noiseLayerData struct {
 	typeI      uint8
 	seedOffset int64
 
-	typeP *materialType
+	typeP *materialTypeData
 
 	/* Perlin values */
 	scale      float32
@@ -151,7 +151,7 @@ type noiseLayerData struct {
 }
 
 /* Miner data */
-type MinerDataType struct {
+type minerDataType struct {
 	resources      []float32
 	resourcesType  []uint8
 	resourcesCount uint8
@@ -163,7 +163,7 @@ type ObjData struct {
 	Pos XY
 
 	/* Data needed for transporting or storing object */
-	Unique *UniqueObject
+	Unique *UniqueObjectData
 
 	/* Object direction */
 	Dir uint8
@@ -174,11 +174,11 @@ type ObjData struct {
 	/* Port aliases, prevent looping all ports */
 	Ports     []ObjPortData
 	KGHeld    float32
-	MinerData *MinerDataType
+	MinerData *minerDataType
 	Tile      *tileData
 
 	/* Unexported */
-	chunk *mapChunk
+	chunk *mapChunkData
 
 	outputs []*ObjPortData
 	inputs  []*ObjPortData
@@ -208,12 +208,12 @@ type ObjData struct {
 }
 
 /* Data that is unique to an object */
-type UniqueObject struct {
+type UniqueObjectData struct {
 	Contents      *materialContentsTypeData
 	SingleContent *MatData
 	KGFuel        float32
 
-	typeP *objType
+	typeP *objTypeData
 }
 
 /* Object ports to link to other objects */
@@ -228,7 +228,7 @@ type ObjPortData struct {
 }
 
 /* Material type data */
-type materialType struct {
+type materialTypeData struct {
 	symbol   string
 	name     string
 	base     string
@@ -258,7 +258,7 @@ type materialType struct {
 }
 
 /* Loaded images */
-type objectImages struct {
+type objectImageData struct {
 	main    *ebiten.Image
 	toolbar *ebiten.Image
 	mask    *ebiten.Image
@@ -296,7 +296,7 @@ type machineData struct {
 }
 
 /* Object type data, includes image, toolbar action, and update handler */
-type objType struct {
+type objTypeData struct {
 	base        string
 	name        string
 	description string
@@ -319,8 +319,8 @@ type objType struct {
 	rotatable bool  //Rotatable: rotate sprite on rotate
 	direction uint8 //Direction object is facing 0-north
 
-	images          objectImages //All image data
-	machineSettings machineData  //Machine-specific data
+	images          objectImageData //All image data
+	machineSettings machineData     //Machine-specific data
 
 	recipieLookup [MAT_MAX]*recipeData //Quick recipe lookup
 
@@ -360,7 +360,7 @@ type objectQueueData struct {
 }
 
 /* Tick Event (target) */
-type rotateEvent struct {
+type rotateEventData struct {
 	build     *buildingData
 	clockwise bool
 }
@@ -373,14 +373,14 @@ type eventQueueData struct {
 }
 
 /* Toolbar list item */
-type toolbarItem struct {
+type toolbarItemData struct {
 	sType int
-	oType *objType
+	oType *objTypeData
 }
 
 /* Material Data, used for InputBuffer, OutputBuffer and Contents */
 type MatData struct {
-	typeP  *materialType
+	typeP  *materialTypeData
 	Amount float32
 	Rot    uint8
 }
