@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-/* Delete object from ObjMap, ObjList, decerment NumObj, set PixmapDirty */
+/* Delete object from ObjMap, ObjList, decrement NumObj, set PixmapDirty */
 /* TODO this and obj-tick.go are duplicates and need to be consolidated */
 func removeObj(obj *ObjData) {
 	defer reportPanic("removeObj")
@@ -75,7 +75,7 @@ func printUnit(mat *MatData) string {
 }
 
 /* Print weight with units from float32 */
-/* This could be consolodated with PrintUnit */
+/* This could be consolidated with PrintUnit */
 func printWeight(kg float32) string {
 	defer reportPanic("PrintWeight")
 	if usUnits {
@@ -112,7 +112,7 @@ func calcVolume(mat *MatData) string {
 }
 
 /* Place and/or create a multi-tile object */
-func placeObj(pos XY, mtype uint8, obj *ObjData, dir uint8, fast bool) *ObjData {
+func placeObj(pos XY, mType uint8, obj *ObjData, dir uint8, fast bool) *ObjData {
 	defer reportPanic("PlaceObj")
 	/*
 	 * Make chunk if needed.
@@ -130,7 +130,7 @@ func placeObj(pos XY, mtype uint8, obj *ObjData, dir uint8, fast bool) *ObjData 
 	/* New object */
 	if obj == nil {
 		newObj = &ObjData{}
-		newObj.Unique = &UniqueObject{typeP: worldObjs[mtype]}
+		newObj.Unique = &UniqueObject{typeP: worldObjs[mType]}
 	} else { /* Placing already existing object */
 		newObj = obj
 	}
@@ -190,7 +190,7 @@ func placeObj(pos XY, mtype uint8, obj *ObjData, dir uint8, fast bool) *ObjData 
 		append(newObj.chunk.objList, newObj)
 	newObj.chunk.numObjs++
 
-	/* Mark superchunk and visdata dirty */
+	/* Mark superChunk and visData dirty */
 	newObj.chunk.parent.pixmapDirty = true
 	visDataDirty.Store(true)
 	newObj.chunk.lock.Unlock()

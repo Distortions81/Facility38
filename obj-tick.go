@@ -201,18 +201,18 @@ func rotateListAdd(b *buildingData, cw bool, pos XY) {
 }
 
 /* Add to event queue (list of tock and tick events) */
-func eventQueueAdd(obj *ObjData, qtype uint8, delete bool) {
+func eventQueueAdd(obj *ObjData, qType uint8, delete bool) {
 	defer reportPanic("EventQueueAdd")
 	eventQueueLock.Lock()
-	eventQueue = append(eventQueue, &eventQueueData{obj: obj, qType: qtype, delete: delete})
+	eventQueue = append(eventQueue, &eventQueueData{obj: obj, qType: qType, delete: delete})
 	eventQueueLock.Unlock()
 }
 
 /* Add to ObjQueue (add/delete world object at end of tick) */
-func objQueueAdd(obj *ObjData, otype uint8, pos XY, delete bool, dir uint8) {
+func objQueueAdd(obj *ObjData, oType uint8, pos XY, delete bool, dir uint8) {
 	defer reportPanic("ObjQueueAdd")
 	objQueueLock.Lock()
-	objQueue = append(objQueue, &objectQueueData{obj: obj, oType: otype, pos: pos, delete: delete, dir: dir})
+	objQueue = append(objQueue, &objectQueueData{obj: obj, oType: oType, pos: pos, delete: delete, dir: dir})
 	objQueueLock.Unlock()
 }
 
