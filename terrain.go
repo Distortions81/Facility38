@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/remeh/sizedwaitgroup"
 )
 
 const (
@@ -274,6 +275,7 @@ func resourceRenderDaemonST() {
 
 /* Draw perlin noise resource channel */
 func drawResource(sChunk *mapSuperChunkData) {
+
 	defer reportPanic("drawResource")
 	if sChunk == nil {
 		return
@@ -282,66 +284,81 @@ func drawResource(sChunk *mapSuperChunkData) {
 	if sChunk.resourceMap == nil {
 		sChunk.resourceMap = make([]byte, superChunkTotal*superChunkTotal*4)
 	}
+
+	if wasmMode {
+		for x := 0; x < superChunkTotal; x++ {
+			renderResLine(x, sChunk)
+		}
+	} else {
+		rwg := sizedwaitgroup.New(numWorkers)
+		for x := 0; x < superChunkTotal; x++ {
+			rwg.Add()
+			renderResLine(x, sChunk)
+			rwg.Done()
+		}
+		rwg.Wait()
+	}
+	sChunk.pixmapDirty = true
+}
+
+func renderResLine(x int, sChunk *mapSuperChunkData) {
 	sChunkPos := SuperChunkPosToPos(sChunk.pos)
-
 	var chunk *mapChunkData
-	for x := 0; x < superChunkTotal; x++ {
-		for y := 0; y < superChunkTotal; y++ {
-			pixelPos := 4 * (x + y*superChunkTotal)
 
-			worldX := float32(sChunkPos.X + uint16(x))
-			worldY := float32(sChunkPos.Y + uint16(y))
-			if y%chunkSize == 0 {
-				chunk = sChunk.chunkMap[PosToChunkPos(XY{X: uint16(worldX), Y: uint16(worldY)})]
-			}
+	for y := 0; y < superChunkTotal; y++ {
+		pixelPos := 4 * (x + y*superChunkTotal)
 
-			var r, g, b float32 = 0.00, 0.00, 0.00
-			var found = 0
-			for p, nl := range noiseLayers {
-				if p == 0 {
-					continue
-				}
+		worldX := float32(sChunkPos.X + uint16(x))
+		worldY := float32(sChunkPos.Y + uint16(y))
+		if y%chunkSize == 0 {
+			chunk = sChunk.chunkMap[PosToChunkPos(XY{X: uint16(worldX), Y: uint16(worldY)})]
+		}
 
-				h := noiseMap(worldX, worldY, p)
-				if h < 0.01 {
-					continue
-				} else if h > 1 {
-					h = 1
-				}
-				found++
-
-				if chunk != nil {
-					Tile := chunk.tileMap[XY{X: uint16(x), Y: uint16(y)}]
-
-					if Tile != nil {
-						h -= (Tile.minerData.mined[p] / 150)
-					}
-				}
-				if nl.modRed {
-					r += (h * nl.redMulti)
-				}
-				if nl.modGreen {
-					g += (h * nl.greenMulti)
-				}
-				if nl.modBlue {
-					b += (h * nl.blueMulti)
-				}
-			}
-			if found == 0 {
+		var r, g, b float32 = 0.00, 0.00, 0.00
+		var found = 0
+		for p, nl := range noiseLayers {
+			if p == 0 {
 				continue
 			}
 
-			r = Min(r, 1.0)
-			g = Min(g, 1.0)
-			b = Min(b, 1.0)
+			h := noiseMap(worldX, worldY, p)
+			if h < 0.01 {
+				continue
+			} else if h > 1 {
+				h = 1
+			}
+			found++
 
-			sChunk.resourceMap[pixelPos] = byte(r * 255)
-			sChunk.resourceMap[pixelPos+1] = byte(g * 255)
-			sChunk.resourceMap[pixelPos+2] = byte(b * 255)
-			sChunk.resourceMap[pixelPos+3] = 0xFF
+			if chunk != nil {
+				Tile := chunk.tileMap[XY{X: uint16(x), Y: uint16(y)}]
+
+				if Tile != nil {
+					h -= (Tile.minerData.mined[p] / 150)
+				}
+			}
+			if nl.modRed {
+				r += (h * nl.redMulti)
+			}
+			if nl.modGreen {
+				g += (h * nl.greenMulti)
+			}
+			if nl.modBlue {
+				b += (h * nl.blueMulti)
+			}
 		}
+		if found == 0 {
+			continue
+		}
+
+		r = Min(r, 1.0)
+		g = Min(g, 1.0)
+		b = Min(b, 1.0)
+
+		sChunk.resourceMap[pixelPos] = byte(r * 255)
+		sChunk.resourceMap[pixelPos+1] = byte(g * 255)
+		sChunk.resourceMap[pixelPos+2] = byte(b * 255)
+		sChunk.resourceMap[pixelPos+3] = 0xFF
 	}
-	sChunk.pixmapDirty = true
 }
 
 /* Draw a superChunk's pixmap, allocates image if needed. */
