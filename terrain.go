@@ -295,13 +295,20 @@ func drawResource(sChunk *mapSuperChunkData) {
 				chunk = sChunk.chunkMap[PosToChunkPos(XY{X: uint16(worldX), Y: uint16(worldY)})]
 			}
 
-			var r, g, b float32 = 0.01, 0.01, 0.01
+			var r, g, b float32 = 0.00, 0.00, 0.00
+			var found = 0
 			for p, nl := range noiseLayers {
 				if p == 0 {
 					continue
 				}
 
 				h := noiseMap(worldX, worldY, p)
+				if h < 0.01 {
+					continue
+				} else if h > 1 {
+					h = 1
+				}
+				found++
 
 				if chunk != nil {
 					Tile := chunk.tileMap[XY{X: uint16(x), Y: uint16(y)}]
@@ -320,13 +327,13 @@ func drawResource(sChunk *mapSuperChunkData) {
 					b += (h * nl.blueMulti)
 				}
 			}
+			if found == 0 {
+				continue
+			}
+
 			r = Min(r, 1.0)
 			g = Min(g, 1.0)
 			b = Min(b, 1.0)
-
-			r = Max(r, 0)
-			g = Max(g, 0)
-			b = Max(b, 0)
 
 			sChunk.resourceMap[pixelPos] = byte(r * 255)
 			sChunk.resourceMap[pixelPos+1] = byte(g * 255)

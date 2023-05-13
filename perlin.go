@@ -68,10 +68,6 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 		maxValue:   5,
 		minValue:   -1,
 
-		modRed:   true,
-		modGreen: true,
-		modBlue:  true,
-
 		resourceMultiplier: 0,
 		redMulti:           1,
 		blueMulti:          1,
@@ -92,14 +88,10 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 		maxValue:   5,
 		minValue:   0,
 
-		modRed:   true,
 		modGreen: true,
-		modBlue:  true,
 
 		resourceMultiplier: 1,
-		redMulti:           0,
 		greenMulti:         1,
-		blueMulti:          0,
 	},
 	{name: "Natural Gas",
 		seedOffset: 240,
@@ -116,12 +108,10 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 
 		modRed:   true,
 		modGreen: true,
-		modBlue:  true,
 
 		resourceMultiplier: 1,
 		redMulti:           0.80,
 		greenMulti:         1,
-		blueMulti:          0,
 	},
 	{name: "Coal",
 		seedOffset: 7266,
@@ -136,13 +126,9 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 		maxValue:   5,
 		minValue:   0,
 
-		modRed:   true,
-		modGreen: true,
-		modBlue:  true,
+		modRed: true,
 
-		redMulti:   1,
-		greenMulti: 0,
-		blueMulti:  0,
+		redMulti: 1,
 	},
 	{name: "Iron Ore",
 		seedOffset: 5324,
@@ -159,12 +145,10 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 
 		modRed:   true,
 		modGreen: true,
-		modBlue:  true,
 
 		resourceMultiplier: 1,
 		redMulti:           1,
 		greenMulti:         0.5,
-		blueMulti:          0,
 	},
 	{name: "Copper Ore",
 		seedOffset: 1544,
@@ -179,12 +163,10 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 		maxValue:   5,
 		minValue:   0,
 
-		modRed:   true,
 		modGreen: true,
 		modBlue:  true,
 
 		resourceMultiplier: 1,
-		redMulti:           0,
 		greenMulti:         1,
 		blueMulti:          1,
 	},
@@ -201,10 +183,9 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 		maxValue:   5,
 		minValue:   0,
 
-		invertValue: true,
-		modRed:      true,
-		modGreen:    true,
-		modBlue:     true,
+		modRed:   true,
+		modGreen: true,
+		modBlue:  true,
 
 		resourceMultiplier: 1,
 		redMulti:           0.5,
