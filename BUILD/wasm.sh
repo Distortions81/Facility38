@@ -15,7 +15,7 @@ versionString=`./Facility38 --version`
 
 
 
-GOGC=100 GOOS=js GOMAXPROCS=1 GOARCH=wasm go build -trimpath -tags=ebitensinglethread -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true -X main.WASMMode=true" -o $path/main.wasm
+GOGC=256 GOOS=js GOMAXPROCS=1 GOARCH=wasm go build -trimpath -tags=ebitensinglethread -gcflags=all="-l -B" -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true -X main.WASMMode=true" -o $path/main.wasm
 
 cd $path
 gzip -9 main.wasm

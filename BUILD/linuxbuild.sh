@@ -11,7 +11,7 @@ fi
 go build -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
 
-GOGC=100 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility-38/Facility-38
+GOGC=256 GOOS=linux GOARCH=amd64 go build -trimpath -gcflags=all="-B" -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility-38/Facility-38
 
 cd $path
 zip -9 Facility-38-$versionString-linux64.zip Facility-38/Facility-38
