@@ -133,8 +133,6 @@ type noiseLayerData struct {
 	minValue   float32
 
 	/* Output adjustments */
-	invertValue bool
-
 	modRed   bool
 	modGreen bool
 	modBlue  bool
