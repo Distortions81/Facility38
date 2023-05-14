@@ -1,16 +1,15 @@
+Help / Controls:
 
-CONTROLS:
+Movement:[W A S D] keys, or [middle-click-drag].
+Hold [SHIFT] for increased speed.
 
-Camera: WASD keys or middle-click + drag
-Run: Shift
+Create objects: [left-click]
+Delete objects: [right-click]
+Zoom: [+] and [-] keys, or [scroll-wheel].
 
-Create objects: left-click
-Destroy objects: right-click
-Zoom: +/- or scroll
+Rotate object (CW): [R] key
+Reverse Rotate (CCW): [Shift] + [R]
+Quit: [ALT] + [F4] or options menu
 
-Rotate object or toolbar item: R-Key
-Reverse Rotate (counter-clock): Shift-R
-Quit: alt-F4 or options menu
-
-F1: Help  F2: Options, F3: Toggle Info-Overlay
-F5: Toggle Resource Layer
+[F1]: Help/Controls [F2]: Options [F3]: Toggle Info-Overlay
+[F5]: Toggle Resource Layer
