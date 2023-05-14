@@ -99,6 +99,7 @@ func main() {
 			return
 		}
 
+		/* Non windows app reboot */
 		if runtime.GOOS != "windows" {
 			process, err := os.StartProcess(newPath, []string{}, &os.ProcAttr{})
 			if err == nil {
@@ -114,12 +115,12 @@ func main() {
 				log.Fatal(err)
 				os.Exit(1)
 			}
+			/* Windows app reboot */
 		} else {
 			cmd := exec.Command("cmd.exe", "/C", "start", "/b", newPath)
 			if err := cmd.Run(); err != nil {
 				log.Println("Error:", err)
 			}
-			//cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 		}
 
 		os.Exit(0)
