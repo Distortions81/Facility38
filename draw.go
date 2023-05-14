@@ -16,15 +16,14 @@ import (
 )
 
 const (
-	cBlockedIndicatorOffset = 0
-	wasmTerrainDiv          = 5
-	maxBatch                = 15000
-	infoWidth               = 128
-	infoHeight              = 128
-	infoSpaceRight          = 8
-	infoSpaceTop            = 8
-	infoPad                 = 4
-	batchGCInterval         = time.Second * 30
+	wasmTerrainDiv  = 5
+	maxBatch        = 15000
+	infoWidth       = 128
+	infoHeight      = 128
+	infoSpaceRight  = 8
+	infoSpaceTop    = 8
+	infoPad         = 4
+	batchGCInterval = time.Second * 30
 )
 
 var (
@@ -274,14 +273,9 @@ func drawItemInfo(screen *ebiten.Image) {
 				toolTip = toolTip + fmt.Sprintf("Contains: %v %v\n", printUnit(o.Unique.SingleContent), o.Unique.SingleContent.typeP.name)
 			}
 
-			/* Show if blocked */
-			if o.blocked {
-				toolTip = toolTip + "BLOCKED\n"
-			}
-
 			/* Show miner on empty tile */
 			if o.MinerData != nil && o.MinerData.resourcesCount == 0 {
-				toolTip = toolTip + "NOTHING TO MINE.\n"
+				toolTip = toolTip + "NO SOLID RESOURCES TO MINE HERE!\n"
 			}
 
 			/* Debug info */
@@ -718,6 +712,36 @@ func drawIconMode() {
 				}
 			}
 		}
+
+		/* camera + object */
+		var objOffX float32 = camXPos + (float32(obj.Pos.X))
+		var objOffY float32 = camYPos + (float32(obj.Pos.Y))
+
+		/* camera zoom */
+		objCamPosX := objOffX * zoomScale
+		objCamPosY := objOffY * zoomScale
+
+		/* Show blocked miners */
+		if obj.Unique.typeP.typeI == objTypeBasicMiner && obj.blocked {
+			img := worldOverlays[objOverlayBlocked].images.main
+
+			iSize := img.Bounds()
+			var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+			op.GeoM.Scale(((float64(1))*float64(zoomScale))/float64(iSize.Max.X),
+				((float64(1))*float64(zoomScale))/float64(iSize.Max.Y))
+			op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+
+			if img != nil {
+				opBatch[batchTop] = op
+				imageBatch[batchTop] = img
+				if batchTop < maxBatch {
+					batchTop++
+				} else {
+					break
+				}
+			}
+		}
+
 		/* Draw overlays */
 		if overlayMode {
 
@@ -740,15 +764,7 @@ func drawIconMode() {
 					break
 				}
 			}
-			/* Info Overlays, such as arrows and blocked indicator */
-
-			/* camera + object */
-			var objOffX float32 = camXPos + (float32(obj.Pos.X))
-			var objOffY float32 = camYPos + (float32(obj.Pos.Y))
-
-			/* camera zoom */
-			objCamPosX := objOffX * zoomScale
-			objCamPosY := objOffY * zoomScale
+			/* Info Overlays, such as arrows */
 
 			/* Show objects with no fuel */
 			if obj.Unique.typeP.machineSettings.maxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
