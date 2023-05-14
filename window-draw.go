@@ -51,7 +51,7 @@ func setupOptionsWindow(window *windowData) {
 func drawHelpWindow(window *windowData) {
 	defer reportPanic("drawHelpWindow")
 
-	drawText(helpText, generalFont, color.White, color.Transparent,
+	drawText("\n"+helpText, generalFont, color.White, color.Transparent,
 		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 2)},
 		0, window.cache, false, false, true)
 }

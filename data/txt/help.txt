@@ -1,6 +1,5 @@
-Help / Controls:
-
-Movement:[W A S D] keys, or [middle-click-drag].
+Movement: [W A S D] keys,
+OR [middle-click] drag.
 Hold [SHIFT] for increased speed.
 
 Create objects: [left-click]
@@ -11,5 +10,6 @@ Rotate object (CW): [R] key
 Reverse Rotate (CCW): [Shift] + [R]
 Quit: [ALT] + [F4] or options menu
 
-[F1]: Help/Controls [F2]: Options [F3]: Toggle Info-Overlay
+[F1]: Help/Controls [F2]: Options
+[F3]: Toggle Info-Overlay
 [F5]: Toggle Resource Layer
