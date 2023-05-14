@@ -345,7 +345,7 @@ type objTypeData struct {
 	updateObj     func(Obj *ObjData)      `json:"-"`
 	initObj       func(Obj *ObjData) bool `json:"-"`
 	deInitObj     func(Obj *ObjData)      `json:"-"`
-	linkObj       func(Obj *ObjData)      `json:"-"`
+	cLinkObj      func(Obj *ObjData)      `json:"-"`
 }
 
 /* ObjectQueue data */

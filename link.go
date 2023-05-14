@@ -119,16 +119,16 @@ func linkSingleObj(from XY, b *buildingData) {
 				portAlias(neighbor.obj, n, np.Type)
 
 				/* Run custom link code */
-				if neighbor.obj.Unique.typeP.linkObj != nil {
-					neighbor.obj.Unique.typeP.linkObj(neighbor.obj)
+				if neighbor.obj.Unique.typeP.cLinkObj != nil {
+					neighbor.obj.Unique.typeP.cLinkObj(neighbor.obj)
 				} else {
 					autoEvents(neighbor.obj)
 				}
 			}
 		}
 		/* Run custom link code */
-		if b.obj.Unique.typeP.linkObj != nil {
-			b.obj.Unique.typeP.linkObj(b.obj)
+		if b.obj.Unique.typeP.cLinkObj != nil {
+			b.obj.Unique.typeP.cLinkObj(b.obj)
 		} else {
 			autoEvents(b.obj)
 		}
@@ -210,8 +210,8 @@ func unlinkObj(obj *ObjData) {
 				pObj.Ports[pb].obj = nil
 
 				portPop(pObj)
-				if pObj.Unique.typeP.linkObj != nil {
-					pObj.Unique.typeP.linkObj(pObj)
+				if pObj.Unique.typeP.cLinkObj != nil {
+					pObj.Unique.typeP.cLinkObj(pObj)
 				} else {
 					autoEvents(pObj)
 				}

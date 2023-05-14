@@ -13,7 +13,7 @@ var worldObjs = []*objTypeData{
 		updateObj:   minerUpdate,
 		initObj:     initMiner,
 		deInitObj:   deInitMiner,
-		linkObj:     linkMiner,
+		cLinkObj:    linkMiner,
 		machineSettings: machineData{
 			kgHourMine: 1000,
 			kw:         360,
@@ -38,7 +38,7 @@ var worldObjs = []*objTypeData{
 		size:        XYs{X: 1, Y: 1},
 		rotatable:   true,
 		updateObj:   beltUpdate,
-		linkObj:     linkBelt,
+		cLinkObj:    linkBelt,
 		symbol:      "BLT",
 		ports: []ObjPortData{
 			{Dir: DIR_NORTH, Type: PORT_OUT},
@@ -57,7 +57,7 @@ var worldObjs = []*objTypeData{
 		rotatable:   true,
 		updateObj:   beltUpdateOver,
 		initObj:     initBeltOver,
-		linkObj:     linkBeltOver,
+		cLinkObj:    linkBeltOver,
 		symbol:      "BOP",
 		ports: []ObjPortData{
 			/* Overpass is one direction */
@@ -86,7 +86,7 @@ var worldObjs = []*objTypeData{
 			kw: 100,
 		},
 		updateObj: splitterUpdate,
-		linkObj:   linkSplitter,
+		cLinkObj:  linkSplitter,
 		symbol:    "SPT",
 		ports: []ObjPortData{
 			{Dir: DIR_NORTH, Type: PORT_OUT},
@@ -108,7 +108,7 @@ var worldObjs = []*objTypeData{
 		},
 		symbol:       "BOX",
 		updateObj:    boxUpdate,
-		linkObj:      linkBox,
+		cLinkObj:     linkBox,
 		tockInterval: uint8(objectUPS/2) * 1,
 		canContain:   true,
 		ports: []ObjPortData{
@@ -133,7 +133,7 @@ var worldObjs = []*objTypeData{
 		symbol:       "SMT",
 		updateObj:    smelterUpdate,
 		initObj:      initSmelter,
-		linkObj:      linkMachine,
+		cLinkObj:     linkMachine,
 		ports: []ObjPortData{
 			{Dir: DIR_ANY, Type: PORT_OUT},
 			{Dir: DIR_ANY, Type: PORT_IN},
@@ -158,7 +158,7 @@ var worldObjs = []*objTypeData{
 		symbol:       "CST",
 		updateObj:    casterUpdate,
 		initObj:      initSmelter,
-		linkObj:      linkMachine,
+		cLinkObj:     linkMachine,
 		ports: []ObjPortData{
 			{Dir: DIR_ANY, Type: PORT_OUT},
 			{Dir: DIR_ANY, Type: PORT_IN},
@@ -182,7 +182,7 @@ var worldObjs = []*objTypeData{
 		symbol:       "ROD",
 		updateObj:    rodCasterUpdate,
 		initObj:      initSmelter,
-		linkObj:      linkMachine,
+		cLinkObj:     linkMachine,
 		ports: []ObjPortData{
 			{Dir: DIR_ANY, Type: PORT_OUT},
 			{Dir: DIR_ANY, Type: PORT_IN},
@@ -199,7 +199,7 @@ var worldObjs = []*objTypeData{
 		size:        XYs{X: 2, Y: 2},
 		updateObj:   slipRollerUpdate,
 		initObj:     initSlipRoller,
-		linkObj:     linkMachine,
+		cLinkObj:    linkMachine,
 		machineSettings: machineData{
 			kw:         10,
 			kgHourMine: 40,
@@ -223,7 +223,7 @@ var worldObjs = []*objTypeData{
 		rotatable:   true,
 		showArrow:   false,
 		updateObj:   fuelHopperUpdate,
-		linkObj:     linkFuelHopper,
+		cLinkObj:    linkFuelHopper,
 		machineSettings: machineData{
 			kw:           10,
 			kgHopperMove: 1,
@@ -246,7 +246,7 @@ var worldObjs = []*objTypeData{
 		size:        XYs{X: 1, Y: 1},
 		rotatable:   true,
 		updateObj:   loaderUpdate,
-		linkObj:     linkUnloader,
+		cLinkObj:    linkUnloader,
 		machineSettings: machineData{
 			kw:           10,
 			kgHopperMove: 1,
@@ -268,7 +268,7 @@ var worldObjs = []*objTypeData{
 		rotatable:   true,
 		showArrow:   false,
 		updateObj:   loaderUpdate,
-		linkObj:     linkUnloader,
+		cLinkObj:    linkUnloader,
 		machineSettings: machineData{
 			kw:           10,
 			kgHopperMove: 1,
