@@ -268,10 +268,10 @@ func startGame() {
 	}
 
 	/* Read user options from disk and apply them */
-	loadOptions()
+	foundOptions := loadOptions()
 
-	/* Don't load on map reload */
-	if !gameRunning {
+	/* If no saved options, show help window */
+	if !foundOptions {
 		go func() {
 			time.Sleep(time.Millisecond * 1500)
 			openWindow(windows[1])

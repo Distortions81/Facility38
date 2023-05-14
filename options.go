@@ -59,10 +59,10 @@ func init() {
 }
 
 /* Load user options settings from disk */
-func loadOptions() {
+func loadOptions() bool {
 	defer reportPanic("loadOptions")
 	if wasmMode {
-		return
+		return false
 	}
 
 	var tempSettings []settingType
@@ -75,10 +75,11 @@ func loadOptions() {
 		if err != nil {
 			doLog(true, "loadOptions: Unmarshal failure")
 			doLog(true, err.Error())
+			return false
 		}
 	} else {
 		doLog(true, "loadOptions: ReadFile failure")
-		return
+		return false
 	}
 
 	doLog(true, "Settings loaded.")
@@ -92,7 +93,7 @@ func loadOptions() {
 			}
 		}
 	}
-
+	return true
 }
 
 /* Save user options settings to disk */
