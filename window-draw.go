@@ -68,11 +68,11 @@ func drawUpdateWindow(window *windowData) {
 	defer reportPanic("drawUpdateWindow")
 
 	buf := fmt.Sprintf("A updated version of the game is available:\n%v", updateVersion)
-	newDrawText(buf, generalFont, color.White, color.Transparent,
+	rectDrawText(buf, generalFont, color.White, color.Transparent,
 		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 2)},
 		0, window.cache, false, false, true)
 
-	buttonRect := newDrawText(updateButtonText, largeGeneralFont, color.White, ColorRed,
+	buttonRect := rectDrawText(updateButtonText, largeGeneralFont, color.White, ColorRed,
 		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y) / 1.05},
 		float32(largeGeneralFontH/3), window.cache, false, true, true)
 

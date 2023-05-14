@@ -899,7 +899,7 @@ func drawTime(screen *ebiten.Image) {
 
 }
 
-func newDrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos XYf32,
+func rectDrawText(input string, face font.Face, color color.Color, bgcolor color.Color, pos XYf32,
 	pad float32, screen *ebiten.Image, justLeft bool, justUp bool, justCenter bool) image.Rectangle {
 	defer reportPanic("DrawText")
 	var tmx, tmy float32
