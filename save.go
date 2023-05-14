@@ -283,9 +283,7 @@ func loadGame(external bool, data []byte) {
 			zoomScale = float32(tempList.CameraZoom)
 		}
 
-		if !wasmMode {
-			exploreMap(XY{X: xyCenter, Y: xyCenter}, 6, true)
-		}
+		exploreMap(XY{X: xyCenter, Y: xyCenter}, 8, true)
 		visDataDirty.Store(true)
 		resetChat()
 		go chatDetailed("Load complete!", ColorOrange, time.Second*15)

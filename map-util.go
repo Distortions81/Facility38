@@ -112,11 +112,7 @@ func exploreMap(pos XY, input int, slow bool) {
 
 			if slow && ChunksMade%10 == 0 {
 				mapLoadPercent = float32(ChunksMade) / float32((input*2)*(input*2)) * 100.0
-				if wasmMode {
-					time.Sleep(time.Nanosecond)
-				} else {
-					time.Sleep(time.Millisecond * 5)
-				}
+				time.Sleep(time.Millisecond * 5)
 			}
 		}
 	}
