@@ -50,6 +50,7 @@ func switchGameLayer() {
 	} else {
 		if zoomScale > mapPixelThreshold {
 			zoomScale = mapPixelThreshold
+			visDataDirty.Store(true)
 		}
 		showResourceLayer = true
 		chatDetailed("Switched from game to resource layer.", ColorOrange, time.Second*10)
