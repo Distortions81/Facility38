@@ -1,19 +1,20 @@
+#Binaries
+Facility38
+__debug_bin
+out
+*.tmp
 *.exe
 
-Facility38
+#Debug
 internalimages_*/
-out
-log
-__debug_bin
-save.dat
-data/settings.json
 heapdump
 panic.log
-BUILD/builds
+
+#Data files
+log
+data/settings.json
 /saves/
-auth.go
-auth.go
-*.tmp
-BUILD/allAndPush.sh
 data/txt/p.json
-data/txt/p.json
+
+#Builds
+BUILD/builds
