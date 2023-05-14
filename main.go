@@ -269,8 +269,10 @@ func startGame() {
 	/* Read user options from disk and apply them */
 	loadOptions()
 
-	/* Welcome/help message */
-	chatDetailed("Welcome! Click an item in the toolbar to select it, click ground to build.", ColorYellow, time.Second*60)
+	go func() {
+		time.Sleep(time.Millisecond * 1500)
+		openWindow(windows[1])
+	}()
 
 	/* Set game running for update loops */
 	gameRunning = true
