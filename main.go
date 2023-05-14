@@ -269,10 +269,13 @@ func startGame() {
 	/* Read user options from disk and apply them */
 	loadOptions()
 
-	go func() {
-		time.Sleep(time.Millisecond * 1500)
-		openWindow(windows[1])
-	}()
+	/* Don't load on map reload */
+	if !gameRunning {
+		go func() {
+			time.Sleep(time.Millisecond * 1500)
+			openWindow(windows[1])
+		}()
+	}
 
 	/* Set game running for update loops */
 	gameRunning = true
@@ -280,8 +283,6 @@ func startGame() {
 		/* Check auth server every so often */
 		for gameRunning {
 			time.Sleep(time.Minute * 5)
-
-			//shhh
 			updateFonts()
 			checkAuth()
 		}
