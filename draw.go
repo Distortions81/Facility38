@@ -376,7 +376,10 @@ func drawItemInfo(screen *ebiten.Image) {
 			for p := 1; p < len(noiseLayers); p++ {
 				var h float32 = float32(math.Abs(float64(noiseMap(worldMouseX, worldMouseY, p))))
 
-				if h >= 0.0001 {
+				if h >= 0.01 {
+					if h > 1 {
+						h = 1
+					}
 					buf = buf + fmt.Sprintf("%v: %0.2f%%\n", noiseLayers[p].name, Min(h*100.0, 100.0))
 				}
 			}
