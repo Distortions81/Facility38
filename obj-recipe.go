@@ -19,7 +19,7 @@ func init() {
 				if obj.typeI == mach {
 					//Found a relevant recipie
 					for _, req := range rec.requires {
-						worldObjs[objPos].recipieLookup[req] = recipes[recPos]
+						worldObjs[objPos].recipeLookup[req] = recipes[recPos]
 					}
 				}
 			}

@@ -33,6 +33,7 @@ func minerUpdate(obj *ObjData) {
 
 	/* Cycle through available materials */
 	var pick uint8 = 0
+
 	if obj.MinerData.resourcesCount > 1 {
 		if obj.MinerData.lastUsed < (obj.MinerData.resourcesCount - 1) {
 			obj.MinerData.lastUsed++
@@ -311,9 +312,9 @@ func smelterUpdate(obj *ObjData) {
 	}
 
 	/* Look up material */
-	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
+	rec := obj.Unique.typeP.recipeLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
-		doLog(true, "Nil recipie")
+		doLog(true, "Nil recipe")
 		return
 	}
 	result := rec.resultP[0]
@@ -394,9 +395,9 @@ func casterUpdate(obj *ObjData) {
 
 	/* Process ores */
 	/* Is there enough ore to process? */
-	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
+	rec := obj.Unique.typeP.recipeLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
-		doLog(true, "Nil recipie")
+		doLog(true, "Nil recipe")
 		return
 	}
 	result := rec.resultP[0]
@@ -504,9 +505,9 @@ func rodCasterUpdate(obj *ObjData) {
 		obj.active = true
 	}
 
-	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
+	rec := obj.Unique.typeP.recipeLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
-		doLog(true, "Nil recipie")
+		doLog(true, "Nil recipe")
 		return
 	}
 	result := rec.resultP[0]
@@ -595,9 +596,9 @@ func slipRollerUpdate(obj *ObjData) {
 		obj.active = true
 	}
 
-	rec := obj.Unique.typeP.recipieLookup[obj.Unique.SingleContent.typeP.typeI]
+	rec := obj.Unique.typeP.recipeLookup[obj.Unique.SingleContent.typeP.typeI]
 	if rec == nil {
-		doLog(true, "Nil recipie")
+		doLog(true, "Nil recipe")
 		return
 	}
 

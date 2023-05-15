@@ -320,7 +320,7 @@ type objTypeData struct {
 	images          objectImageData //All image data
 	machineSettings machineData     //Machine-specific data
 
-	recipieLookup [MAT_MAX]*recipeData //Quick recipe lookup
+	recipeLookup [MAT_MAX]*recipeData //Quick recipe lookup
 
 	/* How often object should run, used in obj's tock function */
 	tockInterval uint8
