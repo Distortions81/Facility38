@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image"
 	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -178,6 +179,7 @@ func quitGame(item int) {
 		gameRunning = false
 		chatDetailed("Game closing...", ColorRed, time.Second*10)
 		time.Sleep(time.Second * 2)
+		pprof.StopCPUProfile()
 		os.Exit(0)
 	}()
 }
