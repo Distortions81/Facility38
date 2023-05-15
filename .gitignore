@@ -9,6 +9,8 @@ out
 internalimages_*/
 heapdump
 panic.log
+heapDump.dat
+cpu.pprof
 
 #Data files
 log

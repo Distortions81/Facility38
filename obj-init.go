@@ -121,6 +121,7 @@ func initMiner(obj *ObjData) bool {
 		if h > 0 {
 			obj.MinerData.resources = append(obj.MinerData.resources, h)
 			obj.MinerData.resourcesType = append(obj.MinerData.resourcesType, noiseLayers[p].typeI)
+			obj.MinerData.resourceLayer = append(obj.MinerData.resourceLayer, uint8(p))
 			obj.MinerData.resourcesCount++
 			foundRes = true
 		}
@@ -139,8 +140,12 @@ func initMiner(obj *ObjData) bool {
 
 	} else {
 
+		tData := &tileData{minerData: &minerData{}}
+
 		/* Init miner data */
-		obj.chunk.tileMap[obj.Pos] = &tileData{minerData: &minerData{}}
+		for _, sPos := range obj.Unique.typeP.subObjs {
+			obj.chunk.tileMap[XY{X: uint16(sPos.X + int32(obj.Pos.X)), Y: uint16(sPos.Y + int32(obj.Pos.Y))}] = tData
+		}
 		obj.Tile = obj.chunk.tileMap[obj.Pos]
 	}
 

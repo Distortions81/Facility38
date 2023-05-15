@@ -48,7 +48,9 @@ func minerUpdate(obj *ObjData) {
 		return
 	}
 	amount := obj.Unique.typeP.machineSettings.kgPerCycle * float32(obj.MinerData.resources[pick])
-	kind := matTypes[obj.MinerData.resourcesType[pick]]
+	layer := obj.MinerData.resourceLayer[pick]
+	resType := obj.MinerData.resourcesType[pick]
+	kind := matTypes[resType]
 
 	/* Stop if the amount is extremely small, zero or negative */
 	if amount < 0.001 {
@@ -61,7 +63,7 @@ func minerUpdate(obj *ObjData) {
 	}
 
 	/* Tally the amount taken as well as the type */
-	obj.Tile.minerData.mined[pick] += amount
+	obj.Tile.minerData.mined[layer] += amount / KGPerTile
 
 	/* Output the material */
 	obj.outputs[0].Buf.Amount = amount

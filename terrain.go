@@ -330,10 +330,15 @@ func renderResLine(x int, sChunk *mapSuperChunkData) {
 			found++
 
 			if chunk != nil {
-				Tile := chunk.tileMap[XY{X: uint16(x), Y: uint16(y)}]
+				Tile := chunk.tileMap[XY{X: uint16(worldX), Y: uint16(worldY)}]
 
 				if Tile != nil {
-					h -= (Tile.minerData.mined[p] / 150)
+					val := Tile.minerData.mined[p] / 150
+					if val > 1 {
+						h = 0
+					} else if val > 0 {
+						h = h - val
+					}
 				}
 			}
 			if nl.modRed {
@@ -353,6 +358,10 @@ func renderResLine(x int, sChunk *mapSuperChunkData) {
 		r = Min(r, 1.0)
 		g = Min(g, 1.0)
 		b = Min(b, 1.0)
+
+		r = Max(r, 0.0)
+		g = Max(g, 0.0)
+		b = Max(b, 0.0)
 
 		sChunk.resourceMap[pixelPos] = byte(r * 255)
 		sChunk.resourceMap[pixelPos+1] = byte(g * 255)

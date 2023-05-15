@@ -150,8 +150,10 @@ type noiseLayerData struct {
 
 /* Miner data */
 type minerDataType struct {
-	resources      []float32
-	resourcesType  []uint8
+	resources     []float32
+	resourcesType []uint8
+	resourceLayer []uint8
+
 	resourcesCount uint8
 	lastUsed       uint8
 }
