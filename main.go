@@ -192,7 +192,7 @@ func main() {
 	setupWindowSize()
 	windowTitle()
 
-	go playMusic("title")
+	playMusic("title")
 
 	/* Graphics APIs, with fallback to autodetect*/
 	problem := false

@@ -111,7 +111,7 @@ func playMusic(name string) {
 	}
 
 	/* Create player */
-	audioPlayer = audio.NewPlayerFromBytes(audioCon, audioData)
+	audioPlayer = audioCon.NewPlayerFromBytes(audioData)
 
 	doLog(true, "Music ready...")
 }
