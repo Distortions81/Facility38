@@ -32,9 +32,10 @@ const (
 	version = "018"
 
 	/* Files and directories */
-	dataDir = "data/"
-	gfxDir  = dataDir + "gfx/"
-	txtDir  = dataDir + "txt/"
+	dataDir  = "data/"
+	gfxDir   = dataDir + "gfx/"
+	txtDir   = dataDir + "txt/"
+	musicDir = dataDir + "music/"
 
 	/* For test/bench map */
 	numTestObjects = 1000000

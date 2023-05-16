@@ -192,6 +192,8 @@ func main() {
 	setupWindowSize()
 	windowTitle()
 
+	go playMusic("title")
+
 	/* Graphics APIs, with fallback to autodetect*/
 	problem := false
 	if *forceMetal {
@@ -241,7 +243,7 @@ func newGame() *Game {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 
 	go func() {
-
+		time.Sleep(time.Millisecond)
 		gameRunning = false
 
 		/* Load surface/light and subsurface/dark images */

@@ -39,6 +39,19 @@ func init() {
 func (g *Game) Update() error {
 	defer reportPanic("Update")
 
+	if musicPlay {
+		err := audioPlayer.Rewind()
+		if err != nil {
+			doLog(true, "playMusic: %v", err)
+			return err
+		}
+		audioPlayer.SetVolume(1)
+		audioPlayer.Play()
+		musicPlay = false
+
+		doLog(true, "Playing music...")
+	}
+
 	/* Reset click 'captured' state */
 	gClickCaptured = false
 

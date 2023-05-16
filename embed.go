@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,8 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
@@ -73,6 +76,59 @@ func getSpriteImage(name string, unmanaged bool) (*ebiten.Image, error) {
 		}
 		return img, err
 	}
+}
+
+var musicPlay bool
+var audioPlayer *audio.Player
+
+func playMusic(name string) {
+	doLog(true, "Loading music...")
+
+	/* Test music */
+	sampleRate := 48000
+
+	/* Fetch data */
+	musicBytes, err := getMusicBytes("title")
+	if err != nil {
+		doLog(true, "playMusic: %v", err)
+		return
+	}
+
+	/* Create context */
+	audioCon := audio.NewContext(sampleRate)
+
+	/* Decode MP3 */
+	mp3Data, err := mp3.DecodeWithoutResampling(bytes.NewReader(musicBytes))
+	if err != nil {
+		doLog(true, "playMusic: %v", err)
+		return
+	}
+
+	/* Read all mp3 data*/
+	audioData, err := io.ReadAll(mp3Data)
+	if err != nil {
+		doLog(true, "playMusic: %v", err)
+		return
+	}
+
+	/* Create player */
+	audioPlayer = audio.NewPlayerFromBytes(audioCon, audioData)
+	musicPlay = true
+
+	doLog(true, "Music ready...")
+}
+
+func getMusicBytes(name string) ([]byte, error) {
+
+	df, err := f.Open(musicDir + name + ".mp3")
+	if err != nil {
+		return nil, err
+	}
+	data, err := io.ReadAll(df)
+	if err != nil {
+		return nil, err
+	}
+	return data, err
 }
 
 func getText(name string) (string, error) {
