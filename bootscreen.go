@@ -29,6 +29,9 @@ func bootScreen(screen *ebiten.Image) {
 	if !mapGenerated.Load() {
 		status = status + fmt.Sprintf("Loading: %-4.01f%%", mapLoadPercent)
 	}
+	if audioPlayer == nil {
+		status = "Loading music..."
+	}
 	titleBuf.Fill(BootColor)
 
 	if TitleImage != nil {
