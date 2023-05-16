@@ -68,13 +68,17 @@ func bootScreen(screen *ebiten.Image) {
 	x := (float32(ScreenWidth) / 2.0) - (pw / 2.0)
 	y := (float32(ScreenHeight) / 4.0)
 	vector.DrawFilledRect(titleBuf, x, y, pw, tall, ColorVeryDarkGray, false)
-	color := ColorVeryDarkGray
+	tcolor := ColorVeryDarkGray
 
-	color.G = byte(104 + (mapLoadPercent * 1.5))
-	color.A = 128
-	vector.DrawFilledRect(titleBuf, x, y, mapLoadPercent*float32(multi), tall, color, false)
+	tcolor.G = byte(104 + (mapLoadPercent * 1.5))
+	tcolor.A = 128
+	vector.DrawFilledRect(titleBuf, x, y, mapLoadPercent*float32(multi), tall, tcolor, false)
 
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+
+	drawText(introText, largeGeneralFont, ColorLightOrange, ColorToolTipBG,
+		XYf32{X: float32(ScreenWidth) / 2, Y: float32(ScreenHeight) / 1.4}, 0,
+		titleBuf, false, false, true)
 
 	if playerReady.Load() != 0 && mapGenerated.Load() && spritesLoaded.Load() && authorized.Load() {
 		alpha := 0.5 - (float32(val) * 0.0169491525424)

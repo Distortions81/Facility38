@@ -1,0 +1,9 @@
+  You are an engineer working on Facility 38, a subterranean bunker designed to survive cataclysmic events.
+Construction was in progress, but suddenly war breaks out... resulting in a full nuclear exchange.
+You are the only person who was within the facility at the time. The bunker is stocked with food and water
+for a large number of people, but it is not habitable long-term. You must use your skills and ingenuity
+to survive in this new world. The rock and soil will protect you from the radiation for now, but you must
+find a way to produce oxygen and other resources in the short-term.
+
+You scan the radio for any signs of life, but there is nothing. Only radio silence.
+(game still in early development, many details may change)

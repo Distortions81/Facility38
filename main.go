@@ -18,8 +18,9 @@ import (
 )
 
 var (
-	helpText string = ""
-	useLocal *bool
+	helpText  string = ""
+	introText string = ""
+	useLocal  *bool
 	/* Compile flags */
 	buildTime string = "Dev Build"
 )
@@ -163,12 +164,17 @@ func main() {
 	/* Set up toolbar data */
 	initToolbar()
 
-	/* Intro text setup, this is temporary */
 	str, err := getText("help")
 	if err != nil {
 		panic(err)
 	}
 	helpText = str
+
+	str, err = getText("intro")
+	if err != nil {
+		panic(err)
+	}
+	introText = str
 
 	/* Detect logical CPUs */
 	detectCPUs(false)
