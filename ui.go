@@ -41,7 +41,7 @@ func (g *Game) Update() error {
 
 	if audioPlayer != nil && !audioPlayer.IsPlaying() {
 		audioPlayer.Rewind()
-		audioPlayer.SetVolume(1)
+		audioPlayer.SetVolume(0.20)
 		audioPlayer.Play()
 		doLog(true, "Playing music...")
 	}

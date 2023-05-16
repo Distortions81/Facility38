@@ -1,15 +1,15 @@
-Intro: (game is in early development)
+Intro:
 
-  You are an engineer working on Facility 38, a subterranean bunker designed to survive cataclysmic events.
+  You are an engineer working within Facility 38, a subterranean bunker designed to survive cataclysmic events.
 
-Construction was in progress, but war suddenly breaks out... and resulted in a full nuclear exchange.
+Work on the facility was not yet complete, but war suddenly broke out... and resulted in a full nuclear exchange.
 
-You are the only person who was working in facility at the time. The bunker is stocked with food and water
+You are the only person who was in facility at the time. The bunker is stocked with food and water
 
-for a large number of people, but it is not habitable long-term. You must use your skills and ingenuity
+for a large number of people, but it is not yet habitable long-term. You must use your skills and ingenuity
 
 to survive in this new world. The rock and concrete will protect you from the radiation for now. But you must
 
-find a way to produce fuel, oxygen and other resources in the short-term as they are in short supply.
+find a way to produce fuel, oxygen and other resources in the short-term... before the reserves here run out.
 
-You scan the radio for any signs of life, but there is nothing... Only radio silence.
+You scan the radio for any signs of life, but so far all you find is silence.

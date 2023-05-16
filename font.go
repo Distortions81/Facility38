@@ -90,7 +90,7 @@ func updateFonts() {
 
 	/* Intro screen font */
 	introFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
-		Size:    15,
+		Size:    12,
 		DPI:     fontDPI,
 		Hinting: font.HintingNone,
 	})
