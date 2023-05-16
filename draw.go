@@ -376,7 +376,7 @@ func drawItemInfo(screen *ebiten.Image) {
 				mat := MatData{Amount: h * KGPerTile, typeP: noiseLayers[p].typeP}
 				tile := chunk.tileMap[XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}]
 				if tile != nil {
-					mat.Amount -= tile.minerData.mined[p] * KGPerTile
+					mat.Amount -= tile.minerData.mined[p] / KGPerTile
 					if mat.Amount < 0 {
 						mat.Amount = 0
 					}
