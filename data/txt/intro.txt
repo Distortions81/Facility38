@@ -1,4 +1,4 @@
-Intro: (game in early development)
+Intro: (game is in early development)
 
   You are an engineer working on Facility 38, a subterranean bunker designed to survive cataclysmic events.
 
@@ -10,6 +10,6 @@ for a large number of people, but it is not habitable long-term. You must use yo
 
 to survive in this new world. The rock and concrete will protect you from the radiation for now. But you must
 
-find a way to produce fuel, oxygen and other resources in the short-term as both are in short supply.
+find a way to produce fuel, oxygen and other resources in the short-term as they are in short supply.
 
 You scan the radio for any signs of life, but there is nothing... Only radio silence.
