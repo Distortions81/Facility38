@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"runtime"
 	"runtime/debug"
-	"runtime/pprof"
 	"time"
 
 	_ "github.com/defia/trf"
@@ -30,11 +29,13 @@ type Game struct {
 
 /* Main function */
 func main() {
-	f, perr := os.Create("cpu.pprof")
-	if perr != nil {
-		log.Fatal(perr)
-	}
-	pprof.StartCPUProfile(f)
+	/*
+		f, perr := os.Create("cpu.pprof")
+		if perr != nil {
+			log.Fatal(perr)
+		}
+		pprof.StartCPUProfile(f)
+	*/
 
 	/* Wasm builds */
 	if runtime.GOARCH == "wasm" {
