@@ -81,8 +81,6 @@ func getSpriteImage(name string, unmanaged bool) (*ebiten.Image, error) {
 var audioPlayer *audio.Player
 
 func playMusic(name string) {
-	statusText = "Loading music"
-	wasmSleep()
 	doLog(true, "Loading music...")
 
 	/* Test music */
