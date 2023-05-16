@@ -333,7 +333,7 @@ func renderResLine(x int, sChunk *mapSuperChunkData) {
 				Tile := chunk.tileMap[XY{X: uint16(worldX), Y: uint16(worldY)}]
 
 				if Tile != nil {
-					val := Tile.minerData.mined[p] / 150
+					val := Tile.minerData.mined[p]
 					if val > 1 {
 						h = 0
 					} else if val > 0 {

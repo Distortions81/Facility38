@@ -62,8 +62,13 @@ func minerUpdate(obj *ObjData) {
 		obj.active = true
 	}
 
+	/* Out of material */
+	if obj.Tile.minerData.mined[layer] > obj.MinerData.resources[pick] {
+		return
+	}
+
 	/* Tally the amount taken as well as the type */
-	obj.Tile.minerData.mined[layer] += amount / KGPerTile
+	obj.Tile.minerData.mined[layer] += amount
 
 	/* Output the material */
 	obj.outputs[0].Buf.Amount = amount

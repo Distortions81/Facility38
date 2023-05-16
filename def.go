@@ -162,7 +162,7 @@ const (
 	PORT_FOUT = 4
 
 	/* Miner KG within area */
-	KGPerTile = 100000
+	KGPerTile = 1000000
 
 	/* Overlay Types */
 	objOverlayNorth   = 0

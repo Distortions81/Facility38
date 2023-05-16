@@ -52,9 +52,6 @@ var (
 	worldMouseX float32
 	worldMouseY float32
 
-	/* Caching for resource yield tooltip */
-	lastResourceString string
-
 	/* Batch draw data */
 	batchTop       int
 	batchWatermark int
@@ -370,28 +367,29 @@ func drawItemInfo(screen *ebiten.Image) {
 	if showResourceLayer {
 		buf := ""
 		/* Only recalculate if mouse moves */
-		if MouseX != lastMouseX || MouseY != LastMouseY || camXPos != lastCamX || camYPos != lastCamY {
 
-			/* Get info for all layers */
-			for p := 1; p < len(noiseLayers); p++ {
-				var h float32 = float32(math.Abs(float64(noiseMap(worldMouseX, worldMouseY, p))))
+		/* Get info for all layers */
+		for p := 1; p < len(noiseLayers); p++ {
+			var h float32 = float32(math.Abs(float64(noiseMap(float32(uint16(worldMouseX)), float32(uint16(worldMouseY)), p))))
 
-				if h >= 0.01 {
-					if h > 1 {
-						h = 1
+			if h >= 0.01 {
+				mat := MatData{Amount: h * KGPerTile, typeP: noiseLayers[p].typeP}
+				tile := chunk.tileMap[XY{X: uint16(worldMouseX), Y: uint16(worldMouseY)}]
+				if tile != nil {
+					mat.Amount -= tile.minerData.mined[p] * KGPerTile
+					if mat.Amount < 0 {
+						mat.Amount = 0
 					}
-					buf = buf + fmt.Sprintf("%v: %0.2f%%\n", noiseLayers[p].name, Min(h*100.0, 100.0))
 				}
+				buf = buf + fmt.Sprintf("%v: %v\n", noiseLayers[p].name, printUnit(&mat))
 			}
-		} else {
-			/* save a bit of processing */
-			buf = lastResourceString
 		}
-		if buf != "" {
-			drawText("Yields:\n"+buf, toolTipFont, ColorAqua, ColorToolTipBG,
-				XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, true, false)
+
+		if buf == "" {
+			buf = "No resources found."
 		}
-		lastResourceString = buf
+		drawText("Yields:\n"+buf, toolTipFont, ColorAqua, ColorToolTipBG,
+			XYf32{X: (float32(MouseX) + 20), Y: (float32(MouseY) + 20)}, 11, screen, true, true, false)
 	}
 }
 

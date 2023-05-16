@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"math"
+
+	"github.com/dustin/go-humanize"
 )
 
 /* Unlink and remove object */
@@ -95,10 +97,12 @@ func printUnit(mat *MatData) string {
 	defer reportPanic("PrintUnit")
 	if mat != nil && mat.typeP != nil {
 		if usUnits && mat.typeP.unitName == " kg" {
-			buf := fmt.Sprintf("%0.2f lbs", mat.Amount*2.20462262185)
+			buf := fmt.Sprintf("%v lbs",
+				humanize.SIWithDigits(float64(mat.Amount*2.20462262185), 2, ""))
 			return buf
 		} else {
-			buf := fmt.Sprintf("%0.2f%v", mat.Amount, mat.typeP.unitName)
+			buf := fmt.Sprintf("%v%v",
+				humanize.SIWithDigits(float64(mat.Amount), 2, ""), mat.typeP.unitName)
 			return buf
 		}
 	} else {
