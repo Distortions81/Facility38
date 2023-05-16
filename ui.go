@@ -39,16 +39,10 @@ func init() {
 func (g *Game) Update() error {
 	defer reportPanic("Update")
 
-	if musicPlay {
-		err := audioPlayer.Rewind()
-		if err != nil {
-			doLog(true, "playMusic: %v", err)
-			return err
-		}
+	if audioPlayer != nil && !audioPlayer.IsPlaying() {
+		audioPlayer.Rewind()
 		audioPlayer.SetVolume(1)
 		audioPlayer.Play()
-		musicPlay = false
-
 		doLog(true, "Playing music...")
 	}
 

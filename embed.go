@@ -78,7 +78,6 @@ func getSpriteImage(name string, unmanaged bool) (*ebiten.Image, error) {
 	}
 }
 
-var musicPlay bool
 var audioPlayer *audio.Player
 
 func playMusic(name string) {
@@ -113,7 +112,6 @@ func playMusic(name string) {
 
 	/* Create player */
 	audioPlayer = audio.NewPlayerFromBytes(audioCon, audioData)
-	musicPlay = true
 
 	doLog(true, "Music ready...")
 }
