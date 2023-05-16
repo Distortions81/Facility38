@@ -192,8 +192,6 @@ func main() {
 	setupWindowSize()
 	windowTitle()
 
-	playMusic("title")
-
 	/* Graphics APIs, with fallback to autodetect*/
 	problem := false
 	if *forceMetal {
@@ -269,6 +267,8 @@ var silenceUpdates bool
 /* Game start */
 func startGame() {
 	defer reportPanic("startGame")
+
+	playMusic("title")
 
 	/* Check if we are approved to play */
 	if !checkAuth() {
