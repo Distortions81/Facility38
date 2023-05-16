@@ -82,8 +82,8 @@ var audioPlayer *audio.Player
 
 func playMusic(name string) {
 	statusText = "Loading music"
-	doLog(true, "Loading music...")
 	wasmSleep()
+	doLog(true, "Loading music...")
 
 	/* Test music */
 	sampleRate := 48000
