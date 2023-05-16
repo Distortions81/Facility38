@@ -63,7 +63,7 @@ func minerUpdate(obj *ObjData) {
 	}
 
 	/* Out of material */
-	if obj.Tile.minerData.mined[layer] > obj.MinerData.resources[pick] {
+	if (obj.Tile.minerData.mined[layer] / KGPerTile) > obj.MinerData.resources[pick] {
 		return
 	}
 
