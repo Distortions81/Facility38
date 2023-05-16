@@ -190,7 +190,6 @@ func main() {
 	ebiten.SetWindowSizeLimits(640, 360, 8192, 8192)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	setupWindowSize()
-
 	windowTitle()
 
 	/* Graphics APIs, with fallback to autodetect*/
@@ -239,8 +238,10 @@ func newGame() *Game {
 
 	/* Load fonts */
 	updateFonts()
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 
 	go func() {
+
 		gameRunning = false
 
 		/* Load surface/light and subsurface/dark images */

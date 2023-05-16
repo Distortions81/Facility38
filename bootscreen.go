@@ -76,8 +76,8 @@ func bootScreen(screen *ebiten.Image) {
 
 	var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
-	drawText(introText, largeGeneralFont, ColorLightOrange, ColorToolTipBG,
-		XYf32{X: float32(ScreenWidth) / 2, Y: float32(ScreenHeight) / 1.4}, 0,
+	drawText(introText, introFont, ColorLightOrange, ColorToolTipBG,
+		XYf32{X: float32(ScreenWidth) / 2, Y: float32(ScreenHeight) / 1.4}, 8,
 		titleBuf, false, false, true)
 
 	if playerReady.Load() != 0 && mapGenerated.Load() && spritesLoaded.Load() && authorized.Load() {
@@ -94,6 +94,7 @@ func bootScreen(screen *ebiten.Image) {
 		titleBuf.Dispose()
 		titleBuf = nil
 		playerReady.Store(255)
+		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	}
 	wasmSleep()
 }

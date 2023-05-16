@@ -87,7 +87,16 @@ func updateFonts() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	bootFontH = getFontHeight(bootFont)
+
+	/* Intro screen font */
+	introFont, err = opentype.NewFace(logo, &opentype.FaceOptions{
+		Size:    15,
+		DPI:     fontDPI,
+		Hinting: font.HintingNone,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	/* General font */
 	generalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{

@@ -104,6 +104,9 @@ var (
 	logoFont  font.Face
 	logoFontH int
 
+	introFont  font.Face
+	introFontH int
+
 	generalFont  font.Face
 	generalFontH int
 
