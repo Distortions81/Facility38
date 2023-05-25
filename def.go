@@ -29,7 +29,7 @@ const (
 	chatFadeTime = time.Second * 3
 
 	/* Game base version */
-	version = "018"
+	version = "019"
 
 	/* Files and directories */
 	dataDir  = "data/"
