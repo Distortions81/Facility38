@@ -94,8 +94,9 @@ func linkSingleObj(from XY, b *buildingData) {
 				/* Normal objects can only link to loaders */
 				if (b.obj.Unique.typeP.category == objCatGeneric &&
 					neighbor.obj.Unique.typeP.category != objCatLoader) ||
-					(neighbor.obj.Unique.typeP.category == objCatGeneric &&
-						b.obj.Unique.typeP.category != objCatLoader) {
+
+					(neighbor.obj.Unique.typeP.category == objCatBelt &&
+						b.obj.Unique.typeP.category == objCatGeneric) {
 					continue
 				}
 
