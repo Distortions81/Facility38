@@ -81,6 +81,9 @@ func getSpriteImage(name string, unmanaged bool) (*ebiten.Image, error) {
 var audioPlayer *audio.Player
 
 func playMusic(name string) {
+	if audioPlayer != nil {
+		return
+	}
 	doLog(true, "Loading music...")
 
 	/* Test music */
