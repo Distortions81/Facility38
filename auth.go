@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-var authSite = "https://facility38.xyz:8648"
+var authSite = "https://facility38.go-game.net"
 
 /* Contact server for version information */
 func checkVersion(silent bool) bool {

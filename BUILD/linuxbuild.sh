@@ -15,5 +15,5 @@ GOGC=256 GOOS=linux GOARCH=amd64 go build -trimpath -gcflags=all="-B" -ldflags="
 
 cd $path
 zip -9 Facility-38-$versionString-linux64.zip Facility-38/Facility-38
-scp -P 5313 Facility-38-$versionString-linux64.zip dist@facility38.xyz:~/F38Auth/www/dl/
+scp -P 5313 Facility-38-$versionString-linux64.zip dist@facility38.go-game.net:~/F38Auth/www/dl/
 rm Facility-38/Facility-38
