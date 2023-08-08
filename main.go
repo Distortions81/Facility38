@@ -397,7 +397,7 @@ func setupWindowSize() {
 		ScreenHeight = uint16(ySize)
 
 		if xSize <= 1280 && ySize <= 720 {
-			ebiten.SetFullscreen(true)
+			//ebiten.SetFullscreen(true)
 		}
 	}
 
