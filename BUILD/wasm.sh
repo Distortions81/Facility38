@@ -17,12 +17,12 @@ echo "compiling..."
 go build -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
 
-GOGC=256 GOOS=js GOMAXPROCS=1 GOARCH=wasm go build -trimpath -tags=ebitensinglethread -gcflags=all="-l -B" -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true -X main.WASMMode=true" -o $path/start.wasm
+GOOS=js GOMAXPROCS=1 GOARCH=wasm go build -trimpath -tags=ebitensinglethread -gcflags=all="-l -B" -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true -X main.WASMMode=true" -o $path/start.wasm
 
 cd $path
 
 echo "optimizing wasm..."
-wasm-opt --enable-bulk-memory -O4 -o main.wasm start.wasm 
+wasm-opt --enable-bulk-memory -O0 -o main.wasm start.wasm 
 rm start.wasm
 echo "compressing..."
 gzip -9 main.wasm
