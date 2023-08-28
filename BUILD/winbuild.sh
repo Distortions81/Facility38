@@ -11,10 +11,10 @@ if [ $# -eq 1 ]; then
   curTime=$1
 fi
 
-go build -ldflags="-X main.buildTime=$curTime"
+go build -pgo=auto -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
 
-GOOS=windows GOARCH=amd64 go build -trimpath -gcflags=all="-B" -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility-38/Facility-38-win64-raw.exe
+GOOS=windows GOARCH=amd64 go build -pgo=auto -trimpath -gcflags=all="-B" -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility-38/Facility-38-win64-raw.exe
 
 cd $path
 osslsigncode sign -certs ~/code-cert/cert-20230123-193538.crt -key ~/code-cert/key-20230123-193538.pem -t http://timestamp.digicert.com -h sha256 -in Facility-38/Facility-38-win64-raw.exe -out Facility-38/Facility-38.exe

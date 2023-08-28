@@ -8,7 +8,7 @@ if [ $# -eq 1 ]; then
   curTime=$1
 fi
 
-go build -ldflags="-X main.buildTime=$curTime"
+go build -pgo=auto -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
 
 GOOS=linux GOARCH=amd64 go build -trimpath -gcflags=all="-B" -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility-38/Facility-38

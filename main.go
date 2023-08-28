@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"runtime"
 	"runtime/debug"
+	"runtime/pprof"
 	"time"
 
 	_ "github.com/defia/trf"
@@ -29,13 +30,6 @@ type Game struct {
 
 /* Main function */
 func main() {
-	/*
-		f, perr := os.Create("cpu.pprof")
-		if perr != nil {
-			log.Fatal(perr)
-		}
-		pprof.StartCPUProfile(f)
-	*/
 
 	/* Wasm builds */
 	if runtime.GOARCH == "wasm" {
@@ -53,7 +47,17 @@ func main() {
 	showVersion := flag.Bool("version", false, "Show game version and close")
 	useLocal = flag.Bool("local", false, "For internal testing.")
 	relaunch := flag.String("relaunch", "", "used for auto-update.")
+	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 	flag.Parse()
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
 
 	newPath := *relaunch
 	if len(newPath) > 0 {

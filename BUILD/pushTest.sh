@@ -7,7 +7,7 @@ set -e
 curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
 
 #Build with time string
-go build -ldflags="-X main.buildTime=$curTime"
+go build -pgo=auto -ldflags="-X main.buildTime=$curTime"
 #Get reply with full version string
 versionString=`./Facility38 --version`
 
