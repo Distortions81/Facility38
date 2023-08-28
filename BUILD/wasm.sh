@@ -22,7 +22,7 @@ GOOS=js GOMAXPROCS=1 GOARCH=wasm go build -trimpath -tags=ebitensinglethread -gc
 cd $path
 
 echo "optimizing wasm..."
-wasm-opt --enable-bulk-memory -O0 -o main.wasm start.wasm 
+wasm-opt --enable-bulk-memory -O4 -o main.wasm start.wasm 
 rm start.wasm
 echo "compressing..."
 gzip -9 main.wasm
