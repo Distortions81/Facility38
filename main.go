@@ -55,8 +55,13 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		doLog(true, "pprof started")
 		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
+		go func() {
+			time.Sleep(time.Minute)
+			pprof.StopCPUProfile()
+			doLog(true, "pprof complete")
+		}()
 	}
 
 	newPath := *relaunch
