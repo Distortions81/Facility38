@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -e
-curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
-GOOS=linux GOARCH=amd64 go build -pgo=auto -trimpath -ldflags="-s -w -X main.buildTime=$curTime"
-echo "Build complete, starting game."
-./Facility38
