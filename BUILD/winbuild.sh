@@ -11,7 +11,7 @@ if [ $# -eq 1 ]; then
   curTime=$1
 fi
 
-go build -pgo=auto -ldflags="-X main.buildTime=$curTime"
+go build -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
 
 GOOS=windows GOARCH=amd64 go build -pgo=auto -trimpath -gcflags=all="-B" -ldflags="-s -w -X main.buildTime=$curTime -X main.NoDebug=true" -o $path/Facility-38/Facility-38-win64-raw.exe

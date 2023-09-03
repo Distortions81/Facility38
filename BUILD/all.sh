@@ -4,7 +4,7 @@
 set -e
 
 curTime=`date -u '+%Y-%m-%d-%H-%M-%S'`
-go build -pgo=auto -ldflags="-X main.buildTime=$curTime"
+go build -ldflags="-X main.buildTime=$curTime"
 versionString=`./Facility38 --version`
 
 mv BUILD/builds/*.zip BUILD/builds/old-builds || true
