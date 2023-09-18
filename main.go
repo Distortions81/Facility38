@@ -277,7 +277,7 @@ var silenceUpdates bool
 func startGame() {
 	defer reportPanic("startGame")
 
-	playMusic("title")
+	//playMusic("title")
 
 	/* Check if we are approved to play */
 	if !checkAuth() {
