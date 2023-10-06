@@ -1,0 +1,2 @@
+mag-ui option has bug with the toolbar
+rewrite object linking
