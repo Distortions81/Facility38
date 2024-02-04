@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 var linkLock sync.Mutex
@@ -23,8 +24,15 @@ func linkObj(from XY, b *buildingData) {
 /* Link to output in (dir) */
 func linkSingleObj(from XY, b *buildingData) {
 	defer reportPanic("linkObj")
+
 	linkLock.Lock()
 	defer linkLock.Unlock()
+
+	b.obj.selected = true
+	defer func() {
+		time.Sleep(time.Second)
+		b.obj.selected = false
+	}()
 
 	objCD(b, fmt.Sprintf("Facing: %v", dirToName(b.obj.Dir)))
 	b.obj.LastInput = 0

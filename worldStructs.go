@@ -199,8 +199,9 @@ type ObjData struct {
 	//Internal Tock() use
 	beltOver *beltOverType
 
-	blocked bool
-	active  bool
+	blocked  bool
+	active   bool
+	selected bool
 
 	/* Prevent needing to search event lists */
 	hasTick bool

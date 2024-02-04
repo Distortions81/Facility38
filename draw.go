@@ -768,10 +768,30 @@ func drawIconMode() {
 					break
 				}
 			}
-			/* Info Overlays, such as arrows */
+			/* Show selected objects */
+			if obj.selected {
 
-			/* Show objects with no fuel */
-			if obj.Unique.typeP.machineSettings.maxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
+				img := worldOverlays[objOverlaySel].images.main
+
+				iSize := img.Bounds()
+				var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
+				op.GeoM.Scale(((float64(1))*float64(zoomScale))/float64(iSize.Max.X),
+					((float64(1))*float64(zoomScale))/float64(iSize.Max.Y))
+				op.GeoM.Translate(float64(objCamPosX), float64(objCamPosY))
+
+				if img != nil {
+					opBatch[batchTop] = op
+					imageBatch[batchTop] = img
+					if batchTop < maxBatch {
+						batchTop++
+					} else {
+						break
+					}
+
+				}
+
+			} else if obj.Unique.typeP.machineSettings.maxFuelKG > 0 && obj.Unique.KGFuel < obj.Unique.typeP.machineSettings.kgFuelPerCycle {
+				/* Show objects with no fuel */
 
 				img := worldOverlays[objOverlayNoFuel].images.main
 

@@ -166,12 +166,16 @@ const (
 	KGPerTile = 1000000
 
 	/* Overlay Types */
-	objOverlayNorth   = 0
-	objOverlayEast    = 1
-	objOverlaySouth   = 2
-	objOverlayWest    = 3
-	objOverlayBlocked = 4
-	objOverlayNoFuel  = 5
+	objOverlayNorth    = 0
+	objOverlayEast     = 1
+	objOverlaySouth    = 2
+	objOverlayWest     = 3
+	objOverlayBlocked  = 4
+	objOverlayNoFuel   = 5
+	objOverlayCheckOn  = 6
+	objOverlayCheckOff = 7
+	objOverlayClose    = 8
+	objOverlaySel      = 9
 
 	/* World Values */
 	COAL_KWH_PER_KG = 8

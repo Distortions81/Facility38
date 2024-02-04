@@ -91,6 +91,9 @@ var worldOverlays = []*objTypeData{
 	{
 		base: "close",
 		name: "Close", symbol: "X"},
+	{
+		base: "obj-sel",
+		name: "obj-sel", symbol: "_"},
 }
 
 type subTypeData struct {
