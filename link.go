@@ -32,7 +32,6 @@ func linkSingleObj(from XY, b *buildingData) {
 
 	/* Attempt to link ports */
 	for p, port := range b.obj.Ports {
-
 		/* Make sure port is unoccupied */
 		if port.obj != nil {
 			objCD(b, fmt.Sprintf("Port Occupied: %v", dirToName(port.Dir)))
@@ -48,7 +47,7 @@ func linkSingleObj(from XY, b *buildingData) {
 				neighbor = getNeighborObj(from, testPort)
 				if neighbor != nil && neighbor.obj != nil {
 					if neighbor.obj.Pos != b.obj.Pos {
-						//DoLog(true, "found")
+						doLog(true, "found")
 						break
 					}
 				}
