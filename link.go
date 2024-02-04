@@ -26,7 +26,7 @@ func linkSingleObj(from XY, b *buildingData) {
 	linkLock.Lock()
 	defer linkLock.Unlock()
 
-	//ObjCD(b, fmt.Sprintf("Facing: %v", DirToName(b.Obj.Dir)))
+	objCD(b, fmt.Sprintf("Facing: %v", dirToName(b.obj.Dir)))
 	b.obj.LastInput = 0
 	b.obj.LastOutput = 0
 
@@ -35,7 +35,7 @@ func linkSingleObj(from XY, b *buildingData) {
 
 		/* Make sure port is unoccupied */
 		if port.obj != nil {
-			//ObjCD(b, fmt.Sprintf("Port Occupied: %v", DirToName(port.Dir)))
+			objCD(b, fmt.Sprintf("Port Occupied: %v", dirToName(port.Dir)))
 			continue
 		}
 
@@ -43,7 +43,7 @@ func linkSingleObj(from XY, b *buildingData) {
 		if port.Dir == DIR_ANY {
 			var testPort uint8
 			for testPort = DIR_NORTH; testPort <= DIR_WEST; testPort++ {
-				//DoLog(true, "Looking in all directions: "+DirToName(testPort))
+				doLog(true, "Looking in all directions: "+dirToName(testPort))
 
 				neighbor = getNeighborObj(from, testPort)
 				if neighbor != nil && neighbor.obj != nil {
@@ -62,22 +62,22 @@ func linkSingleObj(from XY, b *buildingData) {
 
 		/* We found one*/
 		if neighbor == nil {
-			//ObjCD(b, fmt.Sprintf("No neighbor: %v", DirToName(port.Dir)))
+			objCD(b, fmt.Sprintf("No neighbor: %v", dirToName(port.Dir)))
 			continue
 		}
 
 		if neighbor.obj.Pos == b.obj.Pos {
-			//ObjCD(b, fmt.Sprintf("Ignoring link to self: %v", DirToName(port.Dir)))
+			objCD(b, fmt.Sprintf("Ignoring link to self: %v", dirToName(port.Dir)))
 			continue
 		}
 
-		//DoLog(true, DirToName(port.Dir))
+		doLog(true, dirToName(port.Dir))
 
 		for n, np := range neighbor.obj.Ports {
 
 			/* Neighbor port is available */
 			if np.obj != nil {
-				//ObjCD(b, fmt.Sprintf("Port occupied: %v", DirToName(port.Dir)))
+				objCD(b, fmt.Sprintf("Port occupied: %v", dirToName(port.Dir)))
 				continue
 			}
 
@@ -87,7 +87,7 @@ func linkSingleObj(from XY, b *buildingData) {
 
 				/* Port is of correct type */
 				if port.Type != reverseType(np.Type) {
-					//ObjCD(b, fmt.Sprintf("Port incorrect type: %v", DirToName(port.Dir)))
+					objCD(b, fmt.Sprintf("Port incorrect type: %v", dirToName(port.Dir)))
 					continue
 				}
 
