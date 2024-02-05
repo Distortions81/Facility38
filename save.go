@@ -288,7 +288,6 @@ func loadGame(external bool, data []byte) {
 		resetChat()
 		go chatDetailed("Load complete!", ColorOrange, time.Second*15)
 		mapLoadPercent = 100
-		mapGenerated.Store(true)
 		statusText = ""
 
 	}(external, data)

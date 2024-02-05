@@ -9,6 +9,14 @@ import (
 var linkLock sync.Mutex
 
 func linkObj(from XY, b *buildingData) {
+
+	b.obj.selected = true
+
+	defer func() {
+		time.Sleep(time.Millisecond * 500)
+		b.obj.selected = false
+	}()
+
 	/* multi-tile object relink */
 	if b.obj.Unique.typeP.multiTile {
 		for _, subObj := range b.obj.Unique.typeP.subObjs {
@@ -27,12 +35,6 @@ func linkSingleObj(from XY, b *buildingData) {
 
 	linkLock.Lock()
 	defer linkLock.Unlock()
-
-	b.obj.selected = true
-	defer func() {
-		time.Sleep(time.Second)
-		b.obj.selected = false
-	}()
 
 	objCD(b, fmt.Sprintf("Facing: %v", dirToName(b.obj.Dir)))
 	b.obj.LastInput = 0
