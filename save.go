@@ -251,6 +251,18 @@ func loadGame(external bool, data []byte) {
 		statusText = "Generating map resources.\n"
 		resourceMapInit()
 
+		//lastSave = time.Unix(tempList.Date, 0).UTC()
+		GameTick = tempList.GameTicks
+		if tempList.CameraPos.X != 0 && tempList.CameraPos.Y != 0 {
+			cameraX = float32(tempList.CameraPos.X)
+			cameraY = float32(tempList.CameraPos.Y)
+		}
+		if tempList.CameraZoom != 0 {
+			zoomScale = float32(tempList.CameraZoom)
+		}
+
+		exploreMap(XY{X: xyCenter, Y: xyCenter}, 8, true)
+
 		statusText = "Loading objects.\n"
 		/* Needs unsafeCreateObj that can accept a starting data set */
 		numObj := len(tempList.Objects)
@@ -273,22 +285,11 @@ func loadGame(external bool, data []byte) {
 		}
 		statusText = "Complete!\n"
 
-		//lastSave = time.Unix(tempList.Date, 0).UTC()
-		GameTick = tempList.GameTicks
-		if tempList.CameraPos.X != 0 && tempList.CameraPos.Y != 0 {
-			cameraX = float32(tempList.CameraPos.X)
-			cameraY = float32(tempList.CameraPos.Y)
-		}
-		if tempList.CameraZoom != 0 {
-			zoomScale = float32(tempList.CameraZoom)
-		}
-
-		exploreMap(XY{X: xyCenter, Y: xyCenter}, 8, true)
-		visDataDirty.Store(true)
 		resetChat()
 		go chatDetailed("Load complete!", ColorOrange, time.Second*15)
 		mapLoadPercent = 100
 		statusText = ""
+		visDataDirty.Store(true)
 
 	}(external, data)
 }
