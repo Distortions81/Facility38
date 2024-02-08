@@ -67,7 +67,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	defer reportPanic("Draw")
 	frameCount++
 
-	/* Boot/load/auth screen
+	/* Boot/load/auth screen */
 	if !authorized.Load() || !mapGenerated.Load() ||
 		!spritesLoaded.Load() ||
 		playerReady.Load() == 0 {
@@ -75,7 +75,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		bootScreen(screen)
 		time.Sleep(time.Millisecond)
 		return
-	} */
+	}
 
 	/* Clear batch render items for GC */
 	if frameCount%30 == 0 {
