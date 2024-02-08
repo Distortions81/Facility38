@@ -231,9 +231,10 @@ var worldObjs = []*objTypeData{
 		tockInterval: uint8(objectUPS/2) * 5,
 		symbol:       "FHP",
 		ports: []ObjPortData{
-			{Dir: DIR_ANY, Type: PORT_IN},
+			{Dir: DIR_NORTH, Type: PORT_IN},
 			{Dir: DIR_EAST, Type: PORT_IN},
 			{Dir: DIR_WEST, Type: PORT_IN},
+
 			{Dir: DIR_SOUTH, Type: PORT_FOUT},
 		},
 	},
