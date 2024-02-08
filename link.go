@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"sync"
-	"time"
 )
 
 var linkLock sync.Mutex
@@ -13,7 +12,6 @@ func linkObj(from XY, b *buildingData) {
 	b.obj.selected = true
 
 	defer func() {
-		time.Sleep(time.Millisecond * 500)
 		b.obj.selected = false
 	}()
 
@@ -52,12 +50,12 @@ func linkSingleObj(from XY, b *buildingData) {
 		if port.Dir == DIR_ANY {
 			var testPort uint8
 			for testPort = DIR_NORTH; testPort <= DIR_WEST; testPort++ {
-				doLog(true, "Looking in all directions: "+dirToName(testPort))
+				//doLog(true, "Looking in all directions: "+dirToName(testPort))
 
 				neighbor = getNeighborObj(from, testPort)
 				if neighbor != nil && neighbor.obj != nil {
 					if neighbor.obj.Pos != b.obj.Pos {
-						doLog(true, "found")
+						//doLog(true, "found")
 						break
 					}
 				}
@@ -80,7 +78,7 @@ func linkSingleObj(from XY, b *buildingData) {
 			continue
 		}
 
-		doLog(true, dirToName(port.Dir))
+		//doLog(true, dirToName(port.Dir))
 
 		for n, np := range neighbor.obj.Ports {
 
