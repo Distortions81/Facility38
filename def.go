@@ -38,7 +38,7 @@ const (
 	musicDir = dataDir + "music/"
 
 	/* For test/bench map */
-	numTestObjects = 1000000
+	numTestObjects = 10000000
 
 	/* WASD speeds */
 	moveSpeed = 4.0
