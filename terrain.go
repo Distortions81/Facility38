@@ -119,8 +119,8 @@ func renderTerrainST() {
 	defer reportPanic("RenderTerrainST")
 
 	/* If we zoom out, deallocate everything */
-	if wasmMode && zoomScale <= mapPixelThreshold {
-		if wasmMode && !clearedCache {
+	if stMode && zoomScale <= mapPixelThreshold {
+		if stMode && !clearedCache {
 			for _, sChunk := range superChunkList {
 				for _, chunk := range sChunk.chunkList {
 					killTerrainCache(chunk, true)
@@ -160,7 +160,7 @@ func killTerrainCache(chunk *mapChunkData, force bool) {
 	if force ||
 		(numTerrainCache > maxTerrainCache &&
 			time.Since(chunk.terrainTime) > minTerrainTime) ||
-		(wasmMode && numTerrainCache > maxTerrainCacheWASM) {
+		(stMode && numTerrainCache > maxTerrainCacheWASM) {
 
 		chunk.terrainLock.Lock()
 		chunk.terrainImage.Dispose()
@@ -285,7 +285,7 @@ func drawResource(sChunk *mapSuperChunkData) {
 		sChunk.resourceMap = make([]byte, superChunkTotal*superChunkTotal*4)
 	}
 
-	if wasmMode {
+	if stMode {
 		for x := 0; x < superChunkTotal; x++ {
 			renderResLine(x, sChunk)
 		}

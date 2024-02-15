@@ -136,6 +136,7 @@ var (
 
 	/* WASM mode */
 	wasmMode bool
+	stMode   bool
 
 	/* Boot progress */
 	mapLoadPercent float32

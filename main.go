@@ -34,6 +34,7 @@ func main() {
 	/* Wasm builds */
 	if runtime.GOARCH == "wasm" {
 		wasmMode = true
+		stMode = true
 	}
 
 	debug.SetPanicOnFault(true)
@@ -47,8 +48,14 @@ func main() {
 	showVersion := flag.Bool("version", false, "Show game version and close")
 	useLocal = flag.Bool("local", false, "For internal testing.")
 	relaunch := flag.String("relaunch", "", "used for auto-update.")
+	st := flag.Bool("st", false, "force single thread mode")
 	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 	flag.Parse()
+
+	if *st {
+		fmt.Println("Forcing single thread mode.")
+		stMode = true
+	}
 
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
@@ -324,7 +331,7 @@ func startGame() {
 
 	/* Threaded update daemons */
 	lastSave = time.Now().UTC()
-	if !wasmMode {
+	if !stMode {
 		go pixmapRenderDaemon()
 		go objUpdateDaemon()
 		go resourceRenderDaemon()
@@ -346,7 +353,7 @@ func startGame() {
 func detectCPUs(hyper bool) {
 	defer reportPanic("detectCPUs")
 
-	if wasmMode {
+	if stMode {
 		numWorkers = 1
 		return
 	}

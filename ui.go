@@ -328,19 +328,11 @@ func createWorldObjects() {
 		obj := worldObjs[selectedItemType]
 		dir := obj.direction
 
-		if wasmMode {
-			objQueueAdd(nil, selectedItemType, pos, false, dir)
-		} else {
-			go objQueueAdd(nil, selectedItemType, pos, false, dir)
-		}
+		objQueueAdd(nil, selectedItemType, pos, false, dir)
 
 		/* Else if tile is not empty and RightMouse is held */
 	} else if b != nil && b.obj != nil && gRightMouseHeld {
-		if wasmMode {
-			objQueueAdd(b.obj, selectedItemType, b.obj.Pos, true, 0)
-		} else {
-			go objQueueAdd(b.obj, selectedItemType, b.obj.Pos, true, 0)
-		}
+		objQueueAdd(b.obj, selectedItemType, b.obj.Pos, true, 0)
 	}
 }
 

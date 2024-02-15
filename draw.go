@@ -99,7 +99,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	updateVisData()
 
 	/* WASM terrain rendering */
-	if wasmMode {
+	if stMode {
 		if frameCount%wasmTerrainDiv == 0 {
 			renderTerrainST()
 		}
@@ -847,7 +847,7 @@ func drawPixmapMode() {
 	defer reportPanic("drawPixmapMode")
 
 	/* Single thread render terrain for WASM */
-	if wasmMode && frameCount%wasmTerrainDiv == 0 {
+	if stMode && frameCount%wasmTerrainDiv == 0 {
 		resourceRenderDaemonST()
 		pixmapRenderST()
 	}
