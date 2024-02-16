@@ -102,8 +102,10 @@ func linkSingleObj(from XY, b *buildingData) {
 				if (b.obj.Unique.typeP.category == objCatGeneric &&
 					neighbor.obj.Unique.typeP.category != objCatLoader) ||
 
-					(neighbor.obj.Unique.typeP.category == objCatBelt &&
-						b.obj.Unique.typeP.category == objCatGeneric) {
+					//Belts can only link to belts or loaders
+					(b.obj.Unique.typeP.category == objCatBelt &&
+						neighbor.obj.Unique.typeP.category != objCatLoader &&
+						neighbor.obj.Unique.typeP.category != objCatBelt) {
 					continue
 				}
 
