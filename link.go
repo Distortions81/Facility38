@@ -78,7 +78,7 @@ func linkSingleObj(from XY, b *buildingData) {
 			continue
 		}
 
-		//doLog(true, dirToName(port.Dir))
+		doLog(true, dirToName(port.Dir))
 
 		for n, np := range neighbor.obj.Ports {
 
@@ -89,12 +89,14 @@ func linkSingleObj(from XY, b *buildingData) {
 			}
 
 			/* Port is in correct direction */
-			if np.Dir == reverseDirection(port.Dir) ||
-				np.Dir == DIR_ANY || port.Dir == DIR_ANY {
+			if np.Dir != DIR_MAX &&
+				np.Dir == reverseDirection(port.Dir) ||
+				np.Dir == DIR_ANY ||
+				port.Dir == DIR_ANY {
 
 				/* Port is of correct type */
 				if port.Type != reverseType(np.Type) {
-					objCD(b, fmt.Sprintf("Port incorrect type: %v", dirToName(port.Dir)))
+					objCD(b, fmt.Sprintf("Port incorrect type: %v", typeToName(port.Type)))
 					continue
 				}
 

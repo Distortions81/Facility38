@@ -145,9 +145,7 @@ func deleteOldLines() {
 /* Log with object details */
 func objCD(b *buildingData, format string, args ...interface{}) {
 	defer reportPanic("ObjCD")
-	if !debugMode {
-		return
-	}
+
 	/* Get current time */
 	ctime := time.Now()
 	/* Get calling function and line */
@@ -174,11 +172,11 @@ func chat(text string) {
 /* Add to chat with options */
 func chatDetailed(text string, color color.Color, life time.Duration) {
 
+	doLog(false, "Chat: "+text)
+
 	if !mapGenerated.Load() {
 		return
 	}
-
-	doLog(false, "Chat: "+text)
 
 	go func(text string) {
 		chatLinesLock.Lock()
@@ -453,6 +451,23 @@ func dirToName(dir uint8) string {
 	}
 
 	return "Error"
+}
+
+/* Convert DIR to text */
+func typeToName(t uint8) string {
+	defer reportPanic("TypeToName")
+	switch t {
+	case PORT_OUT:
+		return "PORT_IN"
+	case PORT_IN:
+		return "PORT_OUT"
+	case PORT_FIN:
+		return "PORT_FOUT"
+	case PORT_FOUT:
+		return "PORT_FIN"
+	default:
+		return "PORT_NONE"
+	}
 }
 
 /* Used in debug text */

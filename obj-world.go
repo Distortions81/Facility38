@@ -21,10 +21,16 @@ var worldObjs = []*objTypeData{
 		tockInterval: uint8(objectUPS/2) * 5,
 		symbol:       "MIN",
 		ports: []ObjPortData{
-			{Dir: DIR_ANY, Type: PORT_OUT},
+			{Dir: DIR_NORTH, Type: PORT_OUT},
+			{Dir: DIR_SOUTH, Type: PORT_OUT},
+			{Dir: DIR_EAST, Type: PORT_OUT},
+			{Dir: DIR_WEST, Type: PORT_OUT},
 
 			/* Fuel inputs */
-			{Dir: DIR_ANY, Type: PORT_FIN},
+			{Dir: DIR_NORTH, Type: PORT_FIN},
+			{Dir: DIR_SOUTH, Type: PORT_FIN},
+			{Dir: DIR_EAST, Type: PORT_FIN},
+			{Dir: DIR_WEST, Type: PORT_FIN},
 		},
 		subObjs: []XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 	},
@@ -135,10 +141,21 @@ var worldObjs = []*objTypeData{
 		initObj:      initSmelter,
 		cLinkObj:     linkMachine,
 		ports: []ObjPortData{
-			{Dir: DIR_ANY, Type: PORT_OUT},
-			{Dir: DIR_ANY, Type: PORT_IN},
+			{Dir: DIR_NORTH, Type: PORT_OUT},
+			{Dir: DIR_SOUTH, Type: PORT_OUT},
+			{Dir: DIR_EAST, Type: PORT_OUT},
+			{Dir: DIR_WEST, Type: PORT_OUT},
 
-			{Dir: DIR_ANY, Type: PORT_FIN},
+			{Dir: DIR_NORTH, Type: PORT_OUT},
+			{Dir: DIR_SOUTH, Type: PORT_OUT},
+			{Dir: DIR_EAST, Type: PORT_OUT},
+			{Dir: DIR_WEST, Type: PORT_OUT},
+
+			/* Fuel inputs */
+			{Dir: DIR_NORTH, Type: PORT_FIN},
+			{Dir: DIR_SOUTH, Type: PORT_FIN},
+			{Dir: DIR_EAST, Type: PORT_FIN},
+			{Dir: DIR_WEST, Type: PORT_FIN},
 		},
 		subObjs: []XYs{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}},
 	},
