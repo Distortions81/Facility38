@@ -379,16 +379,16 @@ func portAlias(obj *ObjData, port int, pType uint8) {
  */
 func portPop(obj *ObjData) {
 	defer reportPanic("portPop")
-	obj.outputs = nil
+	obj.outputs = []*ObjPortData{}
 	obj.numOut = 0
 
-	obj.inputs = nil
+	obj.inputs = []*ObjPortData{}
 	obj.numIn = 0
 
-	obj.fuelIn = nil
+	obj.fuelIn = []*ObjPortData{}
 	obj.numFIn = 0
 
-	obj.fuelOut = nil
+	obj.fuelOut = []*ObjPortData{}
 	obj.numFOut = 0
 
 	for p, port := range obj.Ports {
