@@ -44,7 +44,7 @@ type settingType struct {
 func init() {
 	defer reportPanic("options init")
 	settingItems = []settingType{
-		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", action: toggleVsync, Enabled: true, WASMExclude: true},
+		{ConfigName: "VSYNC", Text: "Limit FPS (VSYNC)", action: toggleVsync, Enabled: true, WASMExclude: false},
 		{ConfigName: "FULLSCREEN", Text: "Full Screen", action: toggleFullscreen},
 		{ConfigName: "MAGNIFY", Text: "Magnify UI", action: toggleMagnify},
 		{ConfigName: "UNCAP-FPS", Text: "Uncap UPS", action: toggleUPSCap, WASMExclude: true},
