@@ -10,6 +10,6 @@ Rotate object (CW): [R] key
 Reverse Rotate (CCW): [Shift] + [R]
 Quit: [ALT] + [F4] or options menu
 
-[F1]: Help/Controls [F2]: Options
-[F3]: Toggle Info-Overlay
+[F1]: Settings [F2]: Help
+[F3]: Show changes [F4]: Info overlay
 [F5]: Toggle Resource Layer

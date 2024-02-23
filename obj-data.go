@@ -16,22 +16,22 @@ var uiObjs = []*objTypeData{
 	{
 		base: "settings",
 		name: "Options", toolbarAction: settingsToggle,
-		symbol: "SET", description: "Show game options", qKey: ebiten.KeyF2,
+		symbol: "SET", description: "Show game options", qKey: ebiten.KeyF1,
 	},
 	{
 		base: "help",
 		name: "Help", toolbarAction: toggleHelp,
-		symbol: "?", description: "See game controls and help.", qKey: ebiten.KeyF1,
+		symbol: "?", description: "See game controls and help.", qKey: ebiten.KeyF2,
 	},
 	{
 		base: "changes",
 		name: "Changes", toolbarAction: toggleChanges,
-		symbol: "CH", description: "Show recent changes to the game.",
+		symbol: "CH", description: "Show recent changes to the game.", qKey: ebiten.KeyF3,
 	},
 	{
 		base: "overlay",
 		name: "Overlay", toolbarAction: toggleOverlay,
-		symbol: "OVRLY", description: "Turn info overlay on/off", qKey: ebiten.KeyF3,
+		symbol: "OVRLY", description: "Turn info overlay on/off", qKey: ebiten.KeyF4,
 	},
 	{
 		base: "layer",

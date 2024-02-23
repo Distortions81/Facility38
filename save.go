@@ -159,7 +159,7 @@ func findNewestSave() string {
 
 func triggerLoad() {
 	if wasmMode {
-		chat("To load a save game, click 'Choose File' in the top-left of the screen and select the save game file to load.")
+		chat("To load a save game, click 'Choose File' in the top-right of the screen and select the save game file to load.")
 	}
 	loadGame(false, nil)
 }

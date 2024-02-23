@@ -48,7 +48,7 @@ func init() {
 		// style the file input element to be fixed and positioned at the top-left corner of the viewport
 		fileInput.Get("style").Set("position", "fixed")
 		fileInput.Get("style").Set("top", "0")
-		fileInput.Get("style").Set("left", "0")
+		fileInput.Get("style").Set("right", "0")
 		fileInput.Get("style").Set("opacity", "1")
 
 		// attach an event listener to handle the file selection
