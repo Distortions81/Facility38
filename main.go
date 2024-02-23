@@ -18,9 +18,10 @@ import (
 )
 
 var (
-	helpText  string = ""
-	introText string = ""
-	useLocal  *bool
+	helpText   string = ""
+	changeText string = ""
+	introText  string = ""
+	useLocal   *bool
 	/* Compile flags */
 	buildTime string = "Dev Build"
 )
@@ -186,6 +187,12 @@ func main() {
 		panic(err)
 	}
 	helpText = str
+
+	str, err = getText("changes")
+	if err != nil {
+		panic(err)
+	}
+	changeText = str
 
 	str, err = getText("intro")
 	if err != nil {

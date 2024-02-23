@@ -1,0 +1,4 @@
+Feb 22 2024:
+ Added a workaround for web zoom/scroll issues
+ Set VSYNC to ON by default for web
+ Added changes window and icon

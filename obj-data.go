@@ -14,14 +14,19 @@ var groundTiles = []*objTypeData{
 var uiObjs = []*objTypeData{
 	//Ui Only
 	{
+		base: "settings",
+		name: "Options", toolbarAction: settingsToggle,
+		symbol: "SET", description: "Show game options", qKey: ebiten.KeyF2,
+	},
+	{
 		base: "help",
 		name: "Help", toolbarAction: toggleHelp,
 		symbol: "?", description: "See game controls and help.", qKey: ebiten.KeyF1,
 	},
 	{
-		base: "settings",
-		name: "Options", toolbarAction: settingsToggle,
-		symbol: "SET", description: "Show game options", qKey: ebiten.KeyF2,
+		base: "changes",
+		name: "Changes", toolbarAction: toggleChanges,
+		symbol: "CH", description: "Show recent changes to the game.",
 	},
 	{
 		base: "overlay",

@@ -34,7 +34,7 @@ func handleOptions(input XYs, window *windowData) bool {
 	return false
 }
 
-func handleHelpWindow(input XYs, window *windowData) bool {
+func handleUpdateWindow(input XYs, window *windowData) bool {
 	defer reportPanic("handleHelpWindow")
 	windowsLock.Lock()
 	defer windowsLock.Unlock()

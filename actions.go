@@ -17,6 +17,17 @@ func settingsToggle() {
 }
 
 /* Toggle help window */
+func toggleChanges() {
+	defer reportPanic("toggleChanges")
+
+	if windows[1].active {
+		closeWindow(windows[2])
+	} else {
+		openWindow(windows[2])
+	}
+}
+
+/* Toggle help window */
 func toggleHelp() {
 	defer reportPanic("toggleHelp")
 

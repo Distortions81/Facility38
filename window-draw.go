@@ -57,6 +57,15 @@ func drawHelpWindow(window *windowData) {
 }
 
 /* Draw the help window content */
+func drawChangeWindow(window *windowData) {
+	defer reportPanic("drawChangeWindow")
+
+	drawText("\n"+changeText, generalFont, color.White, color.Transparent,
+		XYf32{X: float32(window.scaledSize.X / 2), Y: float32(window.scaledSize.Y / 2)},
+		0, window.cache, false, false, true)
+}
+
+/* Draw the help window content */
 var updateVersion string
 var downloadURL string
 

@@ -29,7 +29,16 @@ var windows []*windowData = []*windowData{
 		position:    XYs{X: 16, Y: 96},
 		closeable:   true,
 		windowDraw:  drawHelpWindow,
-		windowInput: handleHelpWindow,
+		windowInput: nil,
+		movable:     true,
+	},
+	{
+		title:       "Recent Changes ",
+		size:        XYs{X: 400, Y: 200},
+		centered:    true,
+		closeable:   true,
+		windowDraw:  drawChangeWindow,
+		windowInput: nil,
 		movable:     true,
 	},
 	{
@@ -38,7 +47,7 @@ var windows []*windowData = []*windowData{
 		centered:    true,
 		closeable:   true,
 		windowDraw:  drawUpdateWindow,
-		windowInput: handleHelpWindow,
+		windowInput: handleUpdateWindow,
 		movable:     true,
 	},
 }

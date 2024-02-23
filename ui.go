@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -213,15 +214,20 @@ func handleToolbar(rotate bool) bool {
 }
 
 /* Handle scroll wheel and +- keys */
+var zoomLock sync.Mutex
+
 func zoomHandle() {
 	defer reportPanic("zoomHandle")
+
+	zoomLock.Lock()
+	defer zoomLock.Unlock()
+
 	/* Mouse scroll zoom */
 	_, fsy := ebiten.Wheel()
 
 	/* WASM weirdness kludge */
-	if wasmMode && (fsy > 0 && fsy < 0) {
-		if time.Since(lastScroll) < (time.Millisecond * 200) {
-			visDataDirty.Store(true)
+	if wasmMode && fsy != 0 {
+		if time.Since(lastScroll) < (time.Millisecond * 300) {
 			return
 		}
 	}
