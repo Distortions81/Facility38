@@ -222,17 +222,6 @@ func zoomHandle() {
 	zoomLock.Lock()
 	defer zoomLock.Unlock()
 
-	/* Mouse scroll zoom */
-	_, fsy := ebiten.Wheel()
-
-	/* WASM weirdness kludge */
-	if wasmMode && fsy != 0 {
-		if time.Since(lastScroll) < (time.Millisecond * 300) {
-			return
-		}
-	}
-	lastScroll = time.Now()
-
 	/* Zoom in or out with keyboard */
 	if inpututil.IsKeyJustPressed(ebiten.KeyEqual) || inpututil.IsKeyJustPressed(ebiten.KeyKPAdd) {
 		zoomScale = zoomScale * 2
@@ -242,7 +231,21 @@ func zoomHandle() {
 		zoomScale = zoomScale / 2
 		limitZoom()
 		visDataDirty.Store(true)
-	} else if fsy > 0 {
+	}
+
+	/* Mouse scroll zoom */
+	_, fsy := ebiten.Wheel()
+
+	/* WASM weirdness kludge */
+	if wasmMode && (fsy > 0.0001 || fsy < -0.0001) {
+		if time.Since(lastScroll) < (time.Millisecond * 200) {
+			visDataDirty.Store(true)
+			return
+		}
+	}
+	lastScroll = time.Now()
+
+	if fsy > 0 {
 		/* Zoom in with scroll wheel */
 		zoomScale = zoomScale * 2
 

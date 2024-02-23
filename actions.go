@@ -20,7 +20,7 @@ func settingsToggle() {
 func toggleChanges() {
 	defer reportPanic("toggleChanges")
 
-	if windows[1].active {
+	if windows[2].active {
 		closeWindow(windows[2])
 	} else {
 		openWindow(windows[2])
