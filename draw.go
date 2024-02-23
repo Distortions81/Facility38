@@ -149,57 +149,69 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	/* Draw windows */
 	drawOpenWindows(screen)
 
-	/* Boot screen fade-out */
-	if playerReady.Load() < 60 {
-		//bootScreen(screen)
-	}
 }
 
 var lastVal int
 
-func toolBarTooltip(screen *ebiten.Image, fmx int, fmy int) bool {
+func toolBarTooltip(screen *ebiten.Image) bool {
 	defer reportPanic("toolBarTooltip")
 
 	iconSize := float32(uiScale * toolBarIconSize)
-	spacing := float32(iconSize / toolBarSpaceRatio)
+	spacing := float32(toolBarIconSize / toolBarSpaceRatio)
 
-	/* Calculate item */
-	val := int(fmx / int(iconSize+spacing))
+	tbLength := float32((toolbarMax * int(iconSize+spacing)))
+
+	fmx := float32(MouseX)
+	fmy := float32(MouseY)
 
 	/* Check if mouse is on top of the toolbar */
-	if fmy <= int(iconSize) &&
-		val < toolbarMax && val >= 0 {
+	if fmx <= tbLength {
+		if fmy <= iconSize {
 
-		/* Calculate toolbar item */
-		item := toolbarItems[val]
-		var toolTip string
+			tbItem := int(fmx / float32(iconSize+spacing))
+			len := len(toolbarItems) - 1
+			if tbItem > len {
+				tbItem = len
+			} else if tbItem < 0 {
+				tbItem = 0
+			}
+			item := toolbarItems[tbItem]
 
-		/* Show item description if it exists */
-		if item.oType.description != "" {
+			var toolTip string
 
-			/* Show item hot key if found */
-			keyName := ""
-			if item.oType.qKey != 0 {
-				keyName = " ( " + item.oType.qKey.String() + " key )"
+			/* Show item description if it exists */
+			if item.oType.description != "" {
+
+				/* Show item hot key if found */
+				keyName := ""
+				if item.oType.qKey != 0 {
+					keyName = " ( " + item.oType.qKey.String() + " key )"
+				}
+
+				toolTip = fmt.Sprintf("%v\n%v\n%v", item.oType.name, item.oType.description, keyName)
+			} else {
+				/* Otherwise, just display item name */
+				toolTip = fmt.Sprintf("%v\n", item.oType.name)
 			}
 
-			toolTip = fmt.Sprintf("%v\n%v\n%v", item.oType.name, item.oType.description, keyName)
-		} else {
-			/* Otherwise, just display item name */
-			toolTip = fmt.Sprintf("%v\n", item.oType.name)
-		}
+			/* Draw text */
+			drawText(toolTip, toolTipFont, color.White, ColorToolTipBG,
+				XYf32{X: float32(fmx) + 10, Y: float32(fmy) + 10}, 11, screen,
+				true, false, false)
 
-		/* Draw text */
-		drawText(toolTip, toolTipFont, color.White, ColorToolTipBG,
-			XYf32{X: float32(fmx) + 10, Y: float32(fmy) + 10}, 11, screen,
-			true, false, false)
-
-		/* Don't redraw if item has not changed */
-		if lastVal != val {
-			lastVal = val
-			drawToolbar(false, true, val)
+			/* Don't redraw if item has not changed */
+			if lastVal != tbItem {
+				lastVal = tbItem
+				drawToolbar(false, true, tbItem)
+			}
+			return true
 		}
-		return true
+	}
+
+	/* Remove highlight, we are no longer on the toolbar */
+	if toolbarHighlighted {
+		drawToolbar(false, false, 255)
+		toolbarHighlighted = false
 	}
 
 	/* Not on toolbar, reset lastVal if needed */
@@ -217,15 +229,9 @@ func drawItemInfo(screen *ebiten.Image) {
 	pos := FloatXYToPosition(worldMouseX, worldMouseY)
 
 	/* Handle toolbar */
-	if toolBarTooltip(screen, MouseX, MouseY) {
+	if toolBarTooltip(screen) {
 		/* Mouse on toolbar, stop here */
 		return
-	}
-
-	/* Erase toolbar hover highlight when mouse moves off */
-	if toolbarHover {
-		drawToolbar(false, false, 0)
-		toolbarHover = false
 	}
 
 	/* Look for object */
@@ -235,6 +241,7 @@ func drawItemInfo(screen *ebiten.Image) {
 
 	/* Mouse on world */
 	if chunk != nil {
+
 		b := GetObj(pos, chunk)
 		/* Object found */
 		if b != nil {

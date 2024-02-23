@@ -172,13 +172,9 @@ func handleToolbar(rotate bool) bool {
 			}
 			item := toolbarItems[tbItem].oType
 
-			/* Draw item hover */
-			drawToolbar(true, false, tbItem)
-
 			/* Actions */
 			if item.toolbarAction != nil && !rotate {
 				item.toolbarAction()
-				drawToolbar(true, false, tbItem)
 			} else {
 				/* Not a click, check for rotation */
 				if rotate && item != nil {
@@ -189,20 +185,19 @@ func handleToolbar(rotate bool) bool {
 						dir = RotCW(dir)
 					}
 					item.direction = dir
-					drawToolbar(true, false, tbItem)
 
 					/* Deselect */
 				} else if selectedItemType == toolbarItems[tbItem].oType.typeI {
 					selectedItemType = maxItemType
-					drawToolbar(true, false, tbItem)
 
 				} else {
 					/* Select */
 					selectedItemType = toolbarItems[tbItem].oType.typeI
-					drawToolbar(true, false, tbItem)
 
 				}
 			}
+
+			drawToolbar(true, false, tbItem)
 
 			/* Eat this mouse event */
 			gMouseHeld = false

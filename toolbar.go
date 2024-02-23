@@ -15,7 +15,7 @@ var (
 	selectedItemType uint8 = maxItemType
 	toolbarItems           = []toolbarItemData{}
 
-	toolbarHover bool
+	toolbarHighlighted = false
 )
 
 /* Make default toolbar list */
@@ -40,6 +40,7 @@ func initToolbar() {
 /* Draw toolbar to an image */
 func drawToolbar(click, hover bool, index int) {
 	defer reportPanic("drawToolbar")
+
 	iconSize := float32(uiScale * toolBarIconSize)
 	spacing := float32(toolBarIconSize / toolBarSpaceRatio)
 
@@ -113,16 +114,15 @@ func drawToolbar(click, hover bool, index int) {
 			if click {
 				vector.DrawFilledRect(toolbarCache, float32(pos)*(iconSize+spacing),
 					0, iconSize+spacing, iconSize+spacing, ColorRed, false)
-				toolbarHover = true
 
 				go func() {
 					time.Sleep(time.Millisecond * 155)
-					drawToolbar(false, false, 0)
+					drawToolbar(false, false, 255)
 				}()
-			} else if hover {
+			} else {
 				vector.DrawFilledRect(toolbarCache, float32(pos)*(iconSize+spacing),
 					0, iconSize+spacing, iconSize+spacing, ColorAqua, false)
-				toolbarHover = true
+				toolbarHighlighted = true
 			}
 
 		}

@@ -130,7 +130,7 @@ func loadSprites(dark bool) {
 	linkSprites(true)
 
 	setupTerrainCache()
-	drawToolbar(false, false, 0)
+	drawToolbar(false, false, 255)
 	spritesLoaded.Store(true)
 }
 
