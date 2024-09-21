@@ -144,6 +144,9 @@ func deleteOldLines() {
 
 /* Log with object details */
 func objCD(b *buildingData, format string, args ...interface{}) {
+	if !infoLine {
+		return
+	}
 	defer reportPanic("ObjCD")
 
 	/* Get current time */

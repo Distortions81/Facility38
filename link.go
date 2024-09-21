@@ -78,7 +78,9 @@ func linkSingleObj(from XY, b *buildingData) {
 			continue
 		}
 
-		doLog(true, dirToName(port.Dir))
+		if infoLine {
+			doLog(true, dirToName(port.Dir))
+		}
 
 		for n, np := range neighbor.obj.Ports {
 
