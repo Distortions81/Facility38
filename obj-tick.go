@@ -56,6 +56,8 @@ func objUpdateDaemon() {
 		runEventQueue() //Queue to add/remove events
 		eventQueueLock.Unlock()
 
+		swapAllPortBuffers()
+
 		gameLock.Unlock()
 
 		if !upsBench {
@@ -113,6 +115,8 @@ func ObjUpdateDaemonST() {
 		runEventQueue() //Queue to add/remove events
 		eventQueueLock.Unlock()
 
+		swapAllPortBuffers()
+
 		gameLock.Unlock()
 
 		if !upsBench {
@@ -137,6 +141,26 @@ func handleAutosave() {
 	}
 }
 
+/* Swap active and next buffers for all ports */
+func swapAllPortBuffers() {
+	superChunkListLock.RLock()
+	for _, sChunk := range superChunkList {
+		for _, chunk := range sChunk.chunkList {
+			chunk.lock.Lock()
+			for _, obj := range chunk.objList {
+				for p := range obj.Ports {
+					obj.Ports[p].Buf, obj.Ports[p].BufNext = obj.Ports[p].BufNext, obj.Ports[p].Buf
+					obj.Ports[p].BufNext.Amount = 0
+					obj.Ports[p].BufNext.typeP = nil
+					obj.Ports[p].BufNext.Rot = 0
+				}
+			}
+			chunk.lock.Unlock()
+		}
+	}
+	superChunkListLock.RUnlock()
+}
+
 /* Put our OutputBuffer to another object's InputBuffer (external)*/
 func tickObj(obj *ObjData) {
 	defer reportPanic("tickObj")
@@ -150,13 +174,14 @@ func tickObj(obj *ObjData) {
 		}
 
 		/* If destination is empty */
-		if port.link.Buf.Amount != 0 {
+		if port.link.BufNext.Amount != 0 {
 			blockedOut++
 			continue
 		}
 
-		/* Swap pointers */
-		*port.link.Buf, *port.Buf = *port.Buf, *port.link.Buf
+		*port.link.BufNext = *port.Buf
+		port.Buf.Amount = 0
+		port.Buf.typeP = nil
 	}
 	for _, port := range obj.fuelOut {
 
@@ -166,13 +191,14 @@ func tickObj(obj *ObjData) {
 		}
 
 		/* If destination is empty */
-		if port.link.Buf.Amount != 0 {
+		if port.link.BufNext.Amount != 0 {
 			blockedOut++
 			continue
 		}
 
-		/* Swap pointers */
-		*port.link.Buf, *port.Buf = *port.Buf, *port.link.Buf
+		*port.link.BufNext = *port.Buf
+		port.Buf.Amount = 0
+		port.Buf.typeP = nil
 	}
 
 	/* Don't bother with blocking except on belts */
