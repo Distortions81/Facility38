@@ -138,6 +138,12 @@ func linkSingleObj(from XY, b *buildingData) {
 				} else {
 					autoEvents(neighbor.obj)
 				}
+
+				/*
+				 * Only allow one neighbor port to link to
+				 * this port.
+				 */
+				break
 			}
 		}
 		/* Run custom link code */
