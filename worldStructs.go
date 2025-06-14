@@ -223,9 +223,10 @@ type ObjPortData struct {
 	Type   uint8
 	SubPos XYs
 
-	obj  *ObjData
-	Buf  *MatData
-	link *ObjPortData
+	obj     *ObjData
+	Buf     *MatData
+	BufNext *MatData
+	link    *ObjPortData
 }
 
 /* Material type data */

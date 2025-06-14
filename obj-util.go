@@ -206,6 +206,7 @@ func placeObj(pos XY, mType uint8, obj *ObjData, dir uint8, fast bool) *ObjData 
 		for p, port := range newObj.Unique.typeP.ports {
 			newObj.Ports = append(newObj.Ports, port)
 			newObj.Ports[p].Buf = &MatData{}
+			newObj.Ports[p].BufNext = &MatData{}
 		}
 
 		for p, port := range newObj.Ports {

@@ -71,11 +71,11 @@ func minerUpdate(obj *ObjData) {
 	obj.Tile.minerData.mined[layer] += amount
 
 	/* Output the material */
-	obj.outputs[0].Buf.Amount = amount
-	if obj.outputs[0].Buf.typeP != kind {
-		obj.outputs[0].Buf.typeP = kind
+	obj.outputs[0].BufNext.Amount = amount
+	if obj.outputs[0].BufNext.typeP != kind {
+		obj.outputs[0].BufNext.typeP = kind
 	}
-	obj.outputs[0].Buf.Rot = uint8(rand.Intn(3))
+	obj.outputs[0].BufNext.Rot = uint8(rand.Intn(3))
 
 	/* Burn fuel */
 	obj.Unique.KGFuel -= obj.Unique.typeP.machineSettings.kgFuelPerCycle
@@ -88,8 +88,10 @@ func beltUpdateOver(obj *ObjData) {
 	/* Underpass */
 	if obj.beltOver.underIn != nil && obj.beltOver.underOut != nil {
 		if obj.beltOver.underOut.obj != nil && !obj.beltOver.underOut.obj.blocked {
-			if obj.beltOver.underIn.Buf.Amount != 0 && obj.beltOver.underOut.Buf.Amount == 0 {
-				*obj.beltOver.underOut.Buf, *obj.beltOver.underIn.Buf = *obj.beltOver.underIn.Buf, *obj.beltOver.underOut.Buf
+			if obj.beltOver.underIn.Buf.Amount != 0 && obj.beltOver.underOut.BufNext.Amount == 0 {
+				*obj.beltOver.underOut.BufNext = *obj.beltOver.underIn.Buf
+				obj.beltOver.underIn.Buf.Amount = 0
+				obj.beltOver.underIn.Buf.typeP = nil
 			}
 		}
 	}
@@ -97,8 +99,10 @@ func beltUpdateOver(obj *ObjData) {
 	/* Overpass to OverOut */
 	if obj.beltOver.overOut != nil && obj.beltOver.middle != nil {
 		if obj.beltOver.overOut.obj != nil {
-			if obj.beltOver.middle.Amount != 0 && obj.beltOver.overOut.Buf.Amount == 0 {
-				*obj.beltOver.overOut.Buf, *obj.beltOver.middle = *obj.beltOver.middle, *obj.beltOver.overOut.Buf
+			if obj.beltOver.middle.Amount != 0 && obj.beltOver.overOut.BufNext.Amount == 0 {
+				*obj.beltOver.overOut.BufNext = *obj.beltOver.middle
+				obj.beltOver.middle.Amount = 0
+				obj.beltOver.middle.typeP = nil
 			}
 		}
 	}
@@ -106,7 +110,9 @@ func beltUpdateOver(obj *ObjData) {
 	/* OverIn to Overpass */
 	if obj.beltOver.overIn != nil && obj.beltOver.middle != nil {
 		if obj.beltOver.overIn.Buf.Amount != 0 && obj.beltOver.middle.Amount == 0 {
-			*obj.beltOver.middle, *obj.beltOver.overIn.Buf = *obj.beltOver.overIn.Buf, *obj.beltOver.middle
+			*obj.beltOver.middle = *obj.beltOver.overIn.Buf
+			obj.beltOver.overIn.Buf.Amount = 0
+			obj.beltOver.overIn.Buf.typeP = nil
 		}
 	}
 
@@ -126,11 +132,12 @@ func beltUpdate(obj *ObjData) {
 	/* Does the input contain anything? */
 	if obj.numOut > 0 && obj.numIn > 0 {
 		if obj.inputs[obj.LastInput].Buf.Amount > 0 &&
-			obj.outputs[0].Buf.Amount == 0 &&
+			obj.outputs[0].BufNext.Amount == 0 &&
 			obj.outputs[0].obj != nil &&
 			!obj.outputs[0].obj.blocked {
-			/* Good to go, swap pointers */
-			*obj.outputs[0].Buf, *obj.inputs[obj.LastInput].Buf = *obj.inputs[obj.LastInput].Buf, *obj.outputs[0].Buf
+			*obj.outputs[0].BufNext = *obj.inputs[obj.LastInput].Buf
+			obj.inputs[obj.LastInput].Buf.Amount = 0
+			obj.inputs[obj.LastInput].Buf.typeP = nil
 		}
 	}
 }
@@ -176,7 +183,7 @@ func fuelHopperUpdate(obj *ObjData) {
 	/* Grab destination object */
 	if obj.Unique.KGFuel > (obj.Unique.typeP.machineSettings.kgHopperMove + obj.Unique.typeP.machineSettings.kgFuelPerCycle) {
 		for _, output := range obj.fuelOut {
-			output.Buf.Amount = obj.Unique.typeP.machineSettings.kgHopperMove
+			output.BufNext.Amount = obj.Unique.typeP.machineSettings.kgHopperMove
 			obj.Unique.KGFuel -= (obj.Unique.typeP.machineSettings.kgHopperMove + obj.Unique.typeP.machineSettings.kgFuelPerCycle)
 			break
 		}
@@ -190,10 +197,12 @@ func loaderUpdate(obj *ObjData) {
 		if input.Buf.Amount == 0 {
 			continue
 		}
-		if obj.numOut == 0 || obj.outputs[0].Buf.Amount != 0 {
+		if obj.numOut == 0 || obj.outputs[0].BufNext.Amount != 0 {
 			continue
 		}
-		*obj.outputs[0].Buf, *obj.inputs[i].Buf = *obj.inputs[i].Buf, *obj.outputs[0].Buf
+		*obj.outputs[0].BufNext = *obj.inputs[i].Buf
+		obj.inputs[i].Buf.Amount = 0
+		obj.inputs[i].Buf.typeP = nil
 		break
 	}
 }
@@ -212,9 +221,10 @@ func splitterUpdate(obj *ObjData) {
 			return
 		}
 
-		if obj.outputs[obj.LastOutput].Buf.Amount == 0 {
-			/* Good to go, swap pointers */
-			*obj.inputs[0].Buf, *obj.outputs[obj.LastOutput].Buf = *obj.outputs[obj.LastOutput].Buf, *obj.inputs[0].Buf
+		if obj.outputs[obj.LastOutput].BufNext.Amount == 0 {
+			*obj.outputs[obj.LastOutput].BufNext = *obj.inputs[0].Buf
+			obj.inputs[0].Buf.Amount = 0
+			obj.inputs[0].Buf.typeP = nil
 			return
 		}
 	}
@@ -336,11 +346,11 @@ func smelterUpdate(obj *ObjData) {
 
 	/* Output result */
 	if obj.numOut > 0 {
-		obj.outputs[0].Buf.Amount = obj.Unique.typeP.machineSettings.kgPerCycle
+		obj.outputs[0].BufNext.Amount = obj.Unique.typeP.machineSettings.kgPerCycle
 
 		/* Find and set result type, if needed */
-		if obj.outputs[0].Buf.typeP != result {
-			obj.outputs[0].Buf.typeP = result
+		if obj.outputs[0].BufNext.typeP != result {
+			obj.outputs[0].BufNext.typeP = result
 		}
 	}
 }
@@ -437,11 +447,11 @@ func casterUpdate(obj *ObjData) {
 	obj.KGHeld -= result.kg
 
 	/* Output result */
-	obj.outputs[0].Buf.Amount = result.kg
+	obj.outputs[0].BufNext.Amount = result.kg
 
 	/* Find and set result type, if needed */
-	if obj.outputs[0].Buf.typeP != result {
-		obj.outputs[0].Buf.typeP = result
+	if obj.outputs[0].BufNext.typeP != result {
+		obj.outputs[0].BufNext.typeP = result
 	}
 }
 
@@ -528,11 +538,11 @@ func rodCasterUpdate(obj *ObjData) {
 	obj.KGHeld -= obj.Unique.SingleContent.typeP.kg
 
 	/* Output result */
-	obj.outputs[0].Buf.Amount = result.kg
+	obj.outputs[0].BufNext.Amount = result.kg
 
 	/* Find and set result type, if needed */
-	if obj.outputs[0].Buf.typeP != result {
-		obj.outputs[0].Buf.typeP = result
+	if obj.outputs[0].BufNext.typeP != result {
+		obj.outputs[0].BufNext.typeP = result
 	}
 }
 
@@ -621,11 +631,11 @@ func slipRollerUpdate(obj *ObjData) {
 		obj.KGHeld -= obj.Unique.SingleContent.typeP.kg
 
 		/* Output result */
-		obj.outputs[0].Buf.Amount = result.kg
+		obj.outputs[0].BufNext.Amount = result.kg
 
 		/* Find and set result type, if needed */
-		if obj.outputs[0].Buf.typeP != result {
-			obj.outputs[0].Buf.typeP = result
+		if obj.outputs[0].BufNext.typeP != result {
+			obj.outputs[0].BufNext.typeP = result
 		}
 	}
 }

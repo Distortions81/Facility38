@@ -345,26 +345,30 @@ func portAlias(obj *ObjData, port int, pType uint8) {
 			switch port.Type {
 			case PORT_IN:
 				if obj.inputs[0].Buf.Amount == 0 {
-					/* Swap pointers */
-					obj.inputs[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.inputs[0].Buf
+					*obj.inputs[0].Buf = *obj.Ports[p].Buf
+					obj.Ports[p].Buf.Amount = 0
+					obj.Ports[p].Buf.typeP = nil
 					fixed = true
 				}
 			case PORT_OUT:
 				if obj.outputs[0].Buf.Amount == 0 {
-					/* Swap pointers */
-					obj.outputs[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.outputs[0].Buf
+					*obj.outputs[0].Buf = *obj.Ports[p].Buf
+					obj.Ports[p].Buf.Amount = 0
+					obj.Ports[p].Buf.typeP = nil
 					fixed = true
 				}
 			case PORT_FIN:
 				if obj.fuelIn[0].Buf.Amount == 0 {
-					/* Swap pointers */
-					obj.fuelIn[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.fuelIn[0].Buf
+					*obj.fuelIn[0].Buf = *obj.Ports[p].Buf
+					obj.Ports[p].Buf.Amount = 0
+					obj.Ports[p].Buf.typeP = nil
 					fixed = true
 				}
 			case PORT_FOUT:
 				if obj.fuelOut[0].Buf.Amount == 0 {
-					/* Swap pointers */
-					obj.fuelOut[0].Buf, obj.Ports[p].Buf = obj.Ports[p].Buf, obj.fuelOut[0].Buf
+					*obj.fuelOut[0].Buf = *obj.Ports[p].Buf
+					obj.Ports[p].Buf.Amount = 0
+					obj.Ports[p].Buf.typeP = nil
 					fixed = true
 				}
 			}
